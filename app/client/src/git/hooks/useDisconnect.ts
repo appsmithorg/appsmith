@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function useDisconnect() {
   const { artifact, artifactDef } = useGitContext();
-  const artifactName = artifact?.name ?? "application";
+  const artifactName = artifact?.name ?? "";
 
   const dispatch = useDispatch();
 
