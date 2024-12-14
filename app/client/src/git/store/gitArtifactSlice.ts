@@ -7,10 +7,10 @@ import {
   connectSuccessAction,
 } from "./actions/connectActions";
 import {
-  fetchGitMetadataErrorAction,
-  fetchGitMetadataInitAction,
-  fetchGitMetadataSuccessAction,
-} from "./actions/fetchGitMetadataActions";
+  fetchMetadataErrorAction,
+  fetchMetadataInitAction,
+  fetchMetadataSuccessAction,
+} from "./actions/fetchMetadataActions";
 import {
   fetchBranchesErrorAction,
   fetchBranchesInitAction,
@@ -59,6 +59,9 @@ import {
   toggleSettingsModalAction,
   toggleRepoLimitErrorModalAction,
   toggleConflictErrorModalAction,
+  openDisconnectModalAction,
+  closeDisconnectModalAction,
+  toggleAutocommitDisableModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -111,6 +114,11 @@ import {
   fetchAutocommitProgressSuccessAction,
 } from "./actions/fetchAutocommitProgressActions";
 import gitArtifactCaseReducersEE from "ee/git/store/actions";
+import {
+  disconnectErrorAction,
+  disconnectInitAction,
+  disconnectSuccessAction,
+} from "./actions/disconnectActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -123,15 +131,20 @@ export const gitArtifactSlice = createSlice({
     initGitForEditor: initGitForEditorAction,
     mount: mountAction,
     unmount: unmountAction,
-    fetchGitMetadataInit: fetchGitMetadataInitAction,
-    fetchGitMetadataSuccess: fetchGitMetadataSuccessAction,
-    fetchGitMetadataError: fetchGitMetadataErrorAction,
+    fetchMetadataInit: fetchMetadataInitAction,
+    fetchMetadataSuccess: fetchMetadataSuccessAction,
+    fetchMetadataError: fetchMetadataErrorAction,
 
     // connect
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    disconnectInit: disconnectInitAction,
+    disconnectSuccess: disconnectSuccessAction,
+    disconnectError: disconnectErrorAction,
     toggleConnectModal: toggleConnectModalAction,
+    openDisconnectModal: openDisconnectModalAction,
+    closeDisconnectModal: closeDisconnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
@@ -201,6 +214,7 @@ export const gitArtifactSlice = createSlice({
     fetchAutocommitProgressError: fetchAutocommitProgressErrorAction,
     pollAutocommitProgressStart: pollAutocommitProgressStartAction,
     pollAutocommitProgressStop: pollAutocommitProgressStopAction,
+    toggleAutocommitDisableModal: toggleAutocommitDisableModalAction,
 
     // EE
     ...gitArtifactCaseReducersEE,

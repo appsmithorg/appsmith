@@ -16,7 +16,7 @@ export const selectGitArtifact = (
 };
 
 // metadata
-export const selectGitMetadata = (
+export const selectMetadataState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.metadata;
@@ -24,7 +24,23 @@ export const selectGitMetadata = (
 export const selectGitConnected = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
-) => !!selectGitMetadata(state, artifactDef).value;
+) => !!selectMetadataState(state, artifactDef)?.value;
+
+// CONNECT
+export const selectDisconnectState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.disconnect;
+
+export const selectDisconnectBaseArtifactId = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.disconnectBaseArtifactId;
+
+export const selectDisconnectArtifactName = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.disconnectArtifactName;
 
 // git ops
 export const selectCommit = (
@@ -74,7 +90,7 @@ export const selectCurrentBranch = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => {
-  const gitMetadataState = selectGitMetadata(state, artifactDef).value;
+  const gitMetadataState = selectMetadataState(state, artifactDef).value;
 
   return gitMetadataState?.branchName;
 };
@@ -113,13 +129,23 @@ export const selectUpdateLocalProfileState = (
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.updateLocalProfile;
 
 // autocommit
+export const selectToggleAutocommitState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.toggleAutocommit;
+
+export const selectAutocommitDisableModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.autocommitDisableModalOpen;
+
 export const selectAutocommitEnabled = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => {
-  const gitMetadata = selectGitMetadata(state, artifactDef).value;
+  const gitMetadata = selectMetadataState(state, artifactDef).value;
 
-  return gitMetadata?.autoCommitConfig?.enabled;
+  return gitMetadata?.autoCommitConfig?.enabled ?? false;
 };
 
 export const selectAutocommitPolling = (
@@ -131,7 +157,7 @@ export const selectAutocommitPolling = (
 export const selectDefaultBranch = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
-) => selectGitMetadata(state, artifactDef)?.value?.defaultBranchName ?? null;
+) => selectMetadataState(state, artifactDef)?.value?.defaultBranchName ?? null;
 
 // protected branches
 export const selectFetchProtectedBranchesState = (

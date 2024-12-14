@@ -11,7 +11,7 @@ import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
-import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
+import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
 import type {
@@ -38,7 +38,7 @@ export interface GitAsyncStateWithoutValue {
 }
 export interface GitSingleArtifactAPIResponsesReduxState
   extends GitSingleArtifactAPIResponsesReduxStateEE {
-  metadata: GitAsyncState<FetchGitMetadataResponseData>;
+  metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
@@ -68,6 +68,8 @@ export interface GitSingleArtifactUIReduxState
     open: boolean;
     step: keyof typeof GitConnectStep;
   };
+  disconnectBaseArtifactId: string | null;
+  disconnectArtifactName: string | null;
   importModal: {
     open: boolean;
     step: keyof typeof GitImportStep;
@@ -77,14 +79,14 @@ export interface GitSingleArtifactUIReduxState
   };
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
-  conflictErrorModalOpen: boolean;
   settingsModalOpen: boolean;
   settingsModalTab: keyof typeof GitSettingsTab;
+  autocommitDisableModalOpen: boolean;
+  autocommitPolling: boolean;
+  conflictErrorModalOpen: boolean;
   repoLimitErrorModal: {
     open: boolean;
   };
-  autocommitPolling: boolean;
-  autocommitModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;

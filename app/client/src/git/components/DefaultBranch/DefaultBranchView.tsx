@@ -40,6 +40,10 @@ const StyledSelect = styled(Select)`
   margin-right: 12px;
 `;
 
+const StyledLink = styled(Link)`
+  display: inline-flex;
+`;
+
 interface DefaultBranchViewProps {
   branches: FetchBranchesResponseData | null;
   isGitProtectedFeatureLicensed: boolean;
@@ -107,14 +111,13 @@ function DefaultBranchView({
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
             To change your default branch, try{" "}
-            <Link
-              className="inline-flex"
+            <StyledLink
               kind="primary"
               target="_blank"
               to={enterprisePricingUrl}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
-            </Link>
+            </StyledLink>
           </SectionDesc>
         )}
       </HeadContainer>

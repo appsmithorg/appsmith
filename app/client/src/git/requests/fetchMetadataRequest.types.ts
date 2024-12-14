@@ -1,6 +1,6 @@
 import type { ApiResponse } from "api/types";
 
-export interface FetchGitMetadataResponseData {
+export interface FetchMetadataResponseData {
   branchName: string;
   defaultBranchName: string;
   remoteUrl: string;
@@ -16,5 +16,4 @@ export interface FetchGitMetadataResponseData {
   isAutoDeploymentEnabled?: boolean;
 }
 
-export type FetchGitMetadataResponse =
-  ApiResponse<FetchGitMetadataResponseData>;
+export type FetchMetadataResponse = ApiResponse<FetchMetadataResponseData>;

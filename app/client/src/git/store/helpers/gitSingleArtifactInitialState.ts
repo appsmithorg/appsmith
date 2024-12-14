@@ -19,6 +19,8 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
     step: GitConnectStep.Provider,
   },
+  disconnectBaseArtifactId: null,
+  disconnectArtifactName: null,
   importModal: {
     open: false,
     step: GitImportStep.Provider,
@@ -28,14 +30,14 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   },
   opsModalOpen: false,
   opsModalTab: GitOpsTab.Deploy,
-  conflictErrorModalOpen: false,
   settingsModalOpen: false,
   settingsModalTab: GitSettingsTab.General,
+  autocommitDisableModalOpen: false,
+  autocommitPolling: false,
+  conflictErrorModalOpen: false,
   repoLimitErrorModal: {
     open: false,
   },
-  autocommitModalOpen: false,
-  autocommitPolling: false,
   // EE
   ...gitSingleArtifactInitialUIStateEE,
 };

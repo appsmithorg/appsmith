@@ -18,7 +18,6 @@ import fetchLocalProfileSaga from "./fetchLocalProfileSaga";
 import updateLocalProfileSaga from "./updateLocalProfileSaga";
 import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 import initGitForEditorSaga from "./initGitSaga";
-import fetchGitMetadataSaga from "./fetchGitMetadataSaga";
 import triggerAutocommitSaga from "./triggerAutocommitSaga";
 import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
@@ -29,6 +28,7 @@ import {
   gitRequestNonBlockingActionsEE,
 } from "ee/git/sagas";
 import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
+import fetchMetadataSaga from "./fetchMetadataSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -36,7 +36,7 @@ const gitRequestBlockingActions: Record<
   (action: PayloadAction<any>) => Generator<any>
 > = {
   // init
-  [gitArtifactActions.fetchGitMetadataInit.type]: fetchGitMetadataSaga,
+  [gitArtifactActions.fetchMetadataInit.type]: fetchMetadataSaga,
 
   // connect
   [gitArtifactActions.connectInit.type]: connectSaga,
