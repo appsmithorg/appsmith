@@ -1,13 +1,20 @@
-import type { GenerateSSHKeyResponseData } from "git/requests/generateSSHKeyRequest.types";
+import type {
+  GenerateSSHKeyRequestParams,
+  GenerateSSHKeyResponseData,
+} from "git/requests/generateSSHKeyRequest.types";
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 
-export const generateSSHKeyInitAction = createSingleArtifactAction((state) => {
-  state.apiResponses.generateSSHKey.loading = true;
-  state.apiResponses.generateSSHKey.error = null;
+export interface GenerateSSHKeyInitPayload
+  extends GenerateSSHKeyRequestParams {}
 
-  return state;
-});
+export const generateSSHKeyInitAction =
+  createSingleArtifactAction<GenerateSSHKeyInitPayload>((state) => {
+    state.apiResponses.generateSSHKey.loading = true;
+    state.apiResponses.generateSSHKey.error = null;
+
+    return state;
+  });
 
 export const generateSSHKeySuccessAction = createSingleArtifactAction<
   GitAsyncSuccessPayload<GenerateSSHKeyResponseData>
@@ -28,3 +35,10 @@ export const generateSSHKeyErrorAction =
 
     return state;
   });
+
+export const resetGenerateSSHKeyAction = createSingleArtifactAction((state) => {
+  state.apiResponses.generateSSHKey.loading = false;
+  state.apiResponses.generateSSHKey.error = null;
+
+  return state;
+});

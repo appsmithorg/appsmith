@@ -10,7 +10,7 @@ export const toggleConnectModalAction =
   createSingleArtifactAction<ToggleConnectModalPayload>((state, action) => {
     const { open } = action.payload;
 
-    state.ui.connectModal.open = open;
+    state.ui.connectModalOpen = open;
 
     return state;
   });

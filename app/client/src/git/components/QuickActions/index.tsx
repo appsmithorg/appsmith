@@ -7,6 +7,7 @@ import useGitPermissions from "git/hooks/useGitPermissions";
 import useAutocommit from "git/hooks/useAutocommit";
 import useSettings from "git/hooks/useSettings";
 import useMetadata from "git/hooks/useMetadata";
+import useConnect from "git/hooks/useConnect";
 
 function QuickActions() {
   const {
@@ -17,7 +18,6 @@ function QuickActions() {
     pullError,
     pullLoading,
     status,
-    toggleConnectModal,
     toggleOpsModal,
   } = useGitContext();
   const { isGitConnected } = useMetadata();
@@ -25,6 +25,7 @@ function QuickActions() {
   const { isConnectPermitted } = useGitPermissions();
   const { isAutocommitEnabled, isAutocommitPolling } = useAutocommit();
   const { toggleSettingsModal } = useSettings();
+  const { toggleConnectModal } = useConnect();
 
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? false;

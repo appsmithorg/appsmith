@@ -2,6 +2,7 @@ import React from "react";
 import TabDeployView from "./TabDeployView";
 import { useGitContext } from "git/components/GitContextProvider";
 import useMetadata from "git/hooks/useMetadata";
+import useBranches from "git/hooks/useBranches";
 
 export default function TabDeploy() {
   const {
@@ -11,7 +12,6 @@ export default function TabDeploy() {
     commit,
     commitError,
     commitLoading,
-    currentBranch,
     discard,
     discardError,
     discardLoading,
@@ -21,6 +21,7 @@ export default function TabDeploy() {
     pullLoading,
     status,
   } = useGitContext();
+  const { currentBranch } = useBranches();
   const { metadata } = useMetadata();
 
   const lastDeployedAt = artifact?.lastDeployedAt ?? null;

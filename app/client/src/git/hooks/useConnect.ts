@@ -48,19 +48,36 @@ export default function useConnect() {
     dispatch(gitArtifactActions.fetchSSHKeyInit(artifactDef));
   }, [artifactDef, dispatch]);
 
+  const resetFetchSSHKey = useCallback(() => {
+    dispatch(gitArtifactActions.resetFetchSSHKey(artifactDef));
+  }, [artifactDef, dispatch]);
+
   const generateSSHKeyState = useSelector((state: GitRootState) =>
     selectGenerateSSHKeyState(state, artifactDef),
   );
 
-  const generateSSHKey = useCallback(() => {
-    dispatch(gitArtifactActions.generateSSHKeyInit(artifactDef));
+  const generateSSHKey = useCallback(
+    (keyType: string, isImport: boolean = false) => {
+      dispatch(
+        gitArtifactActions.generateSSHKeyInit({
+          ...artifactDef,
+          keyType,
+          isImport,
+        }),
+      );
+    },
+    [artifactDef, dispatch],
+  );
+
+  const resetGenerateSSHKey = useCallback(() => {
+    dispatch(gitArtifactActions.resetGenerateSSHKey(artifactDef));
   }, [artifactDef, dispatch]);
 
   const isConnectModalOpen = useSelector((state: GitRootState) =>
     selectConnectModalOpen(state, artifactDef),
   );
 
-  const togglleConnectModal = useCallback(
+  const toggleConnectModal = useCallback(
     (open: boolean) => {
       dispatch(gitArtifactActions.toggleConnectModal({ ...artifactDef, open }));
     },
@@ -78,10 +95,12 @@ export default function useConnect() {
     isFetchSSHKeyLoading: fetchSSHKeyState?.loading ?? false,
     fetchSSHKeyError: fetchSSHKeyState?.error ?? null,
     fetchSSHKey,
+    resetFetchSSHKey,
     isGenerateSSHKeyLoading: generateSSHKeyState?.loading ?? false,
     generateSSHKeyError: generateSSHKeyState?.error ?? null,
     generateSSHKey,
+    resetGenerateSSHKey,
     isConnectModalOpen,
-    togglleConnectModal,
+    toggleConnectModal,
   };
 }

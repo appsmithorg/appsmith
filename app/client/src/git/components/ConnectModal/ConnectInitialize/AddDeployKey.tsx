@@ -137,8 +137,7 @@ const DEPLOY_DOCS_URL =
 export interface AddDeployKeyProps {
   connectError: GitApiError | null;
   fetchSSHKey: () => void;
-  generateSSHKey: (keyType: string) => void;
-  isConnectModalOpen: boolean;
+  generateSSHKey: (keyType: string, isImport?: boolean) => void;
   isFetchSSHKeyLoading: boolean;
   isGenerateSSHKeyLoading: boolean;
   isImport?: boolean;
@@ -152,7 +151,6 @@ function AddDeployKey({
   connectError = null,
   fetchSSHKey = noop,
   generateSSHKey = noop,
-  isConnectModalOpen = false,
   isFetchSSHKeyLoading = false,
   isGenerateSSHKeyLoading = false,
   isImport = false,
@@ -166,7 +164,7 @@ function AddDeployKey({
 
   useEffect(
     function fetchKeyPairOnInitEffect() {
-      if (isConnectModalOpen && !isImport) {
+      if (!isImport) {
         if (!fetched) {
           fetchSSHKey();
           setFetched(true);
@@ -186,12 +184,12 @@ function AddDeployKey({
         }
       }
     },
-    [isImport, isConnectModalOpen, fetched, fetchSSHKey],
+    [isImport, fetched, fetchSSHKey],
   );
 
   useEffect(
     function setSSHKeyTypeonInitEffect() {
-      if (isConnectModalOpen && fetched && !isFetchSSHKeyLoading) {
+      if (fetched && !isFetchSSHKeyLoading) {
         if (sshPublicKey && sshPublicKey.includes("rsa")) {
           setSshKeyType("RSA");
         } else if (
@@ -205,23 +203,16 @@ function AddDeployKey({
         }
       }
     },
-    [
-      isConnectModalOpen,
-      fetched,
-      sshPublicKey,
-      isFetchSSHKeyLoading,
-      value?.remoteUrl,
-    ],
+    [fetched, sshPublicKey, isFetchSSHKeyLoading, value?.remoteUrl],
   );
 
   useEffect(
     function generateSSHOnInitEffect() {
       if (
-        isConnectModalOpen &&
-        ((sshKeyType && !sshPublicKey) ||
-          (sshKeyType && !sshPublicKey?.includes(sshKeyType.toLowerCase())))
+        (sshKeyType && !sshPublicKey) ||
+        (sshKeyType && !sshPublicKey?.includes(sshKeyType.toLowerCase()))
       ) {
-        generateSSHKey(sshKeyType);
+        generateSSHKey(sshKeyType, isImport);
         // doesn't support callback anymore
         // generateSSHKey(sshKeyType, {
         //   onSuccessCallback: () => {
@@ -230,7 +221,7 @@ function AddDeployKey({
         // });
       }
     },
-    [sshKeyType, sshPublicKey, isConnectModalOpen, generateSSHKey],
+    [sshKeyType, sshPublicKey, generateSSHKey, isImport],
   );
 
   const repositorySettingsUrl = getRepositorySettingsUrl(

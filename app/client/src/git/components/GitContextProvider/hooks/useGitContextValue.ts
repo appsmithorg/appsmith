@@ -1,10 +1,6 @@
 import type { GitArtifactType } from "git/constants/enums";
-import type { UseGitConnectReturnValue } from "./useGitConnect";
 import type { UseGitOpsReturnValue } from "./useGitOps";
-import type { UseGitBranchesReturnValue } from "./useGitBranches";
-import useGitConnect from "./useGitConnect";
 import useGitOps from "./useGitOps";
-import useGitBranches from "./useGitBranches";
 import { useMemo } from "react";
 
 // internal dependencies
@@ -21,10 +17,7 @@ export interface UseGitContextValueParams {
   ) => StatusTreeStruct[] | null;
 }
 
-export interface GitContextValue
-  extends UseGitConnectReturnValue,
-    UseGitOpsReturnValue,
-    UseGitBranchesReturnValue {
+export interface GitContextValue extends UseGitOpsReturnValue {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   artifactDef: {
@@ -47,12 +40,10 @@ export default function useGitContextValue({
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
-  const useGitConnectReturnValue = useGitConnect(artifactDef);
   const useGitOpsReturnValue = useGitOps({
     ...artifactDef,
     artifactId: artifact?.id ?? null,
   });
-  const useGitBranchesReturnValue = useGitBranches(artifactDef);
 
   return {
     artifactType,
@@ -61,7 +52,5 @@ export default function useGitContextValue({
     statusTransformer,
     artifact,
     ...useGitOpsReturnValue,
-    ...useGitBranchesReturnValue,
-    ...useGitConnectReturnValue,
   };
 }

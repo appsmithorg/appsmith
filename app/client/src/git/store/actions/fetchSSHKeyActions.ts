@@ -28,3 +28,11 @@ export const fetchSSHKeyErrorAction =
 
     return state;
   });
+
+export const resetFetchSSHKeyAction = createSingleArtifactAction((state) => {
+  state.apiResponses.sshKey.loading = false;
+  state.apiResponses.sshKey.error = null;
+  state.apiResponses.sshKey.value = null;
+
+  return state;
+});

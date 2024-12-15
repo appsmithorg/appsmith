@@ -30,7 +30,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { GIT_DEMO_GIF } from "./constants";
-import { isValidGitRemoteUrl } from "../utils";
+import { isValidGitRemoteUrl } from "../../utils";
 import type { GitProvider } from "./ChooseGitProvider";
 import type { GitApiError } from "git/store/types";
 

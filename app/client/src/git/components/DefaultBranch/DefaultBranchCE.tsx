@@ -1,9 +1,9 @@
 import React from "react";
 import DefaultBranchView from "./DefaultBranchView";
-import { useGitContext } from "../GitContextProvider";
+import useBranches from "git/hooks/useBranches";
 
 export default function DefaultBranchCE() {
-  const { branches } = useGitContext();
+  const { branches } = useBranches();
 
   return (
     <DefaultBranchView

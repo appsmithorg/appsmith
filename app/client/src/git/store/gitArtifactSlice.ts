@@ -128,11 +128,13 @@ import {
   fetchSSHKeyErrorAction,
   fetchSSHKeyInitAction,
   fetchSSHKeySuccessAction,
+  resetFetchSSHKeyAction,
 } from "./actions/fetchSSHKeyActions";
 import {
   generateSSHKeyErrorAction,
   generateSSHKeyInitAction,
   generateSSHKeySuccessAction,
+  resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
 
 const initialState: GitArtifactReduxState = {};
@@ -160,9 +162,11 @@ export const gitArtifactSlice = createSlice({
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,
+    resetFetchSSHKey: resetFetchSSHKeyAction,
     generateSSHKeyInit: generateSSHKeyInitAction,
     generateSSHKeySuccess: generateSSHKeySuccessAction,
     generateSSHKeyError: generateSSHKeyErrorAction,
+    resetGenerateSSHKey: resetGenerateSSHKeyAction,
     disconnectInit: disconnectInitAction,
     disconnectSuccess: disconnectSuccessAction,
     disconnectError: disconnectErrorAction,
