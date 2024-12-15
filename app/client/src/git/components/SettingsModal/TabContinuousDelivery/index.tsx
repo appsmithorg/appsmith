@@ -1,8 +1,8 @@
 import React from "react";
 import ContinuousDelivery from "git/components/ContinuousDelivery";
 
-function TabContinuosDelivery() {
+function TabContinuousDelivery() {
   return <ContinuousDelivery />;
 }
 
-export default TabContinuosDelivery;
+export default TabContinuousDelivery;

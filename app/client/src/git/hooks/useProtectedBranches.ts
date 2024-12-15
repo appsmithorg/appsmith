@@ -6,6 +6,7 @@ import {
   selectUpdateProtectedBranchesState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 function useProtectedBranches() {
@@ -17,22 +18,25 @@ function useProtectedBranches() {
     selectFetchProtectedBranchesState(state, artifactDef),
   );
 
-  const fetchProtectedBranches = () => {
+  const fetchProtectedBranches = useCallback(() => {
     dispatch(gitArtifactActions.fetchProtectedBranchesInit(artifactDef));
-  };
+  }, [dispatch, artifactDef]);
 
   const updateProtectedBranchesState = useSelector((state: GitRootState) =>
     selectUpdateProtectedBranchesState(state, artifactDef),
   );
 
-  const updateProtectedBranches = (branches: string[]) => {
-    dispatch(
-      gitArtifactActions.updateProtectedBranchesInit({
-        ...artifactDef,
-        branchNames: branches,
-      }),
-    );
-  };
+  const updateProtectedBranches = useCallback(
+    (branches: string[]) => {
+      dispatch(
+        gitArtifactActions.updateProtectedBranchesInit({
+          ...artifactDef,
+          branchNames: branches,
+        }),
+      );
+    },
+    [dispatch, artifactDef],
+  );
 
   const isProtectedMode = useSelector((state: GitRootState) =>
     selectProtectedMode(state, artifactDef),
