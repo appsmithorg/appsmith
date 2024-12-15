@@ -53,7 +53,7 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleBranchListPopupAction,
+  toggleBranchPopupAction,
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
@@ -213,7 +213,7 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleBranchListPopup: toggleBranchListPopupAction,
+    toggleBranchPopup: toggleBranchPopupAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,

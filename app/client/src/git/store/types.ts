@@ -1,7 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
   GitArtifactType,
-  GitImportStep,
   GitOpsTab,
   GitSettingsTab,
 } from "../constants/enums";
@@ -66,13 +65,8 @@ export interface GitSingleArtifactUIReduxState
   connectModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
   disconnectArtifactName: string | null;
-  importModal: {
-    open: boolean;
-    step: keyof typeof GitImportStep;
-  };
-  branchListPopup: {
-    open: boolean;
-  };
+  branchPopupOpen: boolean;
+  checkoutDestBranch: string | null;
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
   settingsModalOpen: boolean;
@@ -80,9 +74,7 @@ export interface GitSingleArtifactUIReduxState
   autocommitDisableModalOpen: boolean;
   autocommitPolling: boolean;
   conflictErrorModalOpen: boolean;
-  repoLimitErrorModal: {
-    open: boolean;
-  };
+  repoLimitErrorModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;

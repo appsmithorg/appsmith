@@ -87,15 +87,15 @@ export const toggleAutocommitDisableModalAction =
   );
 
 // branch popup
-interface BranchListPopupPayload {
+interface BranchPopupPayload {
   open: boolean;
 }
 
-export const toggleBranchListPopupAction =
-  createSingleArtifactAction<BranchListPopupPayload>((state, action) => {
+export const toggleBranchPopupAction =
+  createSingleArtifactAction<BranchPopupPayload>((state, action) => {
     const { open } = action.payload;
 
-    state.ui.branchListPopup.open = open;
+    state.ui.branchPopupOpen = open;
 
     return state;
   });
@@ -109,7 +109,7 @@ export const toggleRepoLimitErrorModalAction =
   createSingleArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
     const { open } = action.payload;
 
-    state.ui.repoLimitErrorModal.open = open;
+    state.ui.repoLimitErrorModalOpen = open;
 
     return state;
   });

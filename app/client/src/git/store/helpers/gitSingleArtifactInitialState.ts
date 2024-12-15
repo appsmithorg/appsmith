@@ -2,11 +2,7 @@ import {
   gitSingleArtifactInitialAPIResponsesEE,
   gitSingleArtifactInitialUIStateEE,
 } from "ee/git/store/helpers/gitSingleArtifactInitialState";
-import {
-  GitImportStep,
-  GitOpsTab,
-  GitSettingsTab,
-} from "../../constants/enums";
+import { GitOpsTab, GitSettingsTab } from "../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
   GitSingleArtifactUIReduxState,
@@ -17,13 +13,8 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   connectModalOpen: false,
   disconnectBaseArtifactId: null,
   disconnectArtifactName: null,
-  importModal: {
-    open: false,
-    step: GitImportStep.Provider,
-  },
-  branchListPopup: {
-    open: false,
-  },
+  branchPopupOpen: false,
+  checkoutDestBranch: null,
   opsModalOpen: false,
   opsModalTab: GitOpsTab.Deploy,
   settingsModalOpen: false,
@@ -31,9 +22,7 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   autocommitDisableModalOpen: false,
   autocommitPolling: false,
   conflictErrorModalOpen: false,
-  repoLimitErrorModal: {
-    open: false,
-  },
+  repoLimitErrorModalOpen: false,
   // EE
   ...gitSingleArtifactInitialUIStateEE,
 };

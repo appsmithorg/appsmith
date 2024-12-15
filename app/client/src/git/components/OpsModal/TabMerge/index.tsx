@@ -16,7 +16,7 @@ export default function TabMerge() {
     mergeStatus,
   } = useMerge();
   const { isFetchStatusLoading, status } = useStatus();
-  const { branches, currentBranch, fetchBranches, fetchBranchesLoading } =
+  const { branches, currentBranch, fetchBranches, isFetchBranchesLoading } =
     useBranches();
   const { protectedBranches } = useProtectedBranches();
 
@@ -29,7 +29,7 @@ export default function TabMerge() {
       currentBranch={currentBranch}
       fetchBranches={fetchBranches}
       fetchMergeStatus={fetchMergeStatus}
-      isFetchBranchesLoading={fetchBranchesLoading}
+      isFetchBranchesLoading={isFetchBranchesLoading}
       isFetchMergeStatusLoading={isFetchMergeStatusLoading}
       isFetchStatusLoading={isFetchStatusLoading}
       isMergeLoading={isMergeLoading}

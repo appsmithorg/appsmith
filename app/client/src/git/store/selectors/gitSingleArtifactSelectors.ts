@@ -124,25 +124,35 @@ export const selectCurrentBranch = (
   return gitMetadataState?.branchName;
 };
 
-export const selectBranches = (
+export const selectFetchBranchesState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.branches;
 
-export const selectCreateBranch = (
+export const selectCreateBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.createBranch;
 
-export const selectDeleteBranch = (
+export const selectDeleteBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.deleteBranch;
 
-export const selectCheckoutBranch = (
+export const selectCheckoutBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.checkoutBranch;
+
+export const selectCheckoutDestBranch = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.checkoutDestBranch;
+
+export const selectBranchPopupOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.branchPopupOpen;
 
 // SETTINGS
 
@@ -162,6 +172,11 @@ export const selectToggleAutocommitState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.toggleAutocommit;
+
+export const selectTriggerAutocommitState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.triggerAutocommit;
 
 export const selectAutocommitDisableModalOpen = (
   state: GitRootState,

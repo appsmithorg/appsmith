@@ -33,6 +33,9 @@ import toggleAutocommitSaga from "./toggleAutocommitSaga";
 import disconnectSaga from "./disconnectSaga";
 import { fetchSSHKeySaga } from "./fetchSSHKeySaga";
 import { generateSSHKeySaga } from "./generateSSHKeySaga";
+import createBranchSaga from "./createBranchSaga";
+import deleteBranchSaga from "./deleteBranchSaga";
+import checkoutBranchSaga from "./checkoutBranchSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -54,6 +57,9 @@ const gitRequestBlockingActions: Record<
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
+  [gitArtifactActions.createBranchInit.type]: createBranchSaga,
+  [gitArtifactActions.deleteBranchInit.type]: deleteBranchSaga,
+  [gitArtifactActions.checkoutBranchInit.type]: checkoutBranchSaga,
 
   // user profiles
   [gitArtifactActions.fetchLocalProfileInit.type]: fetchLocalProfileSaga,
