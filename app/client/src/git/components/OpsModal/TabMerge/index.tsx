@@ -1,21 +1,21 @@
 import React from "react";
 import TabMergeView from "./TabMergeView";
-import { useGitContext } from "git/components/GitContextProvider";
 import useProtectedBranches from "git/hooks/useProtectedBranches";
 import useBranches from "git/hooks/useBranches";
+import useMerge from "git/hooks/useMerge";
+import useStatus from "git/hooks/useStatus";
 
 export default function TabMerge() {
   const {
     clearMergeStatus,
     fetchMergeStatus,
-    fetchMergeStatusLoading,
-    fetchStatusLoading,
+    isFetchMergeStatusLoading,
+    isMergeLoading,
     merge,
     mergeError,
-    mergeLoading,
     mergeStatus,
-    status,
-  } = useGitContext();
+  } = useMerge();
+  const { isFetchStatusLoading, status } = useStatus();
   const { branches, currentBranch, fetchBranches, fetchBranchesLoading } =
     useBranches();
   const { protectedBranches } = useProtectedBranches();
@@ -30,9 +30,9 @@ export default function TabMerge() {
       fetchBranches={fetchBranches}
       fetchMergeStatus={fetchMergeStatus}
       isFetchBranchesLoading={fetchBranchesLoading}
-      isFetchMergeStatusLoading={fetchMergeStatusLoading}
-      isFetchStatusLoading={fetchStatusLoading}
-      isMergeLoading={mergeLoading}
+      isFetchMergeStatusLoading={isFetchMergeStatusLoading}
+      isFetchStatusLoading={isFetchStatusLoading}
+      isMergeLoading={isMergeLoading}
       isStatusClean={isStatusClean}
       merge={merge}
       mergeError={mergeError}

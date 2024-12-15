@@ -10,7 +10,8 @@ interface ConnectModalProps {
 }
 
 function ConnectModal({ isImport = false }: ConnectModalProps) {
-  const { artifactDef } = useGitContext();
+  const { artifactDef, isCreateArtifactPermitted, setImportWorkspaceId } =
+    useGitContext();
   const {
     connect,
     connectError,
@@ -47,6 +48,7 @@ function ConnectModal({ isImport = false }: ConnectModalProps) {
       gitImport={gitImport}
       isConnectLoading={isConnectLoading}
       isConnectModalOpen={isConnectModalOpen}
+      isCreateArtifactPermitted={isCreateArtifactPermitted}
       isFetchSSHKeyLoading={isFetchSSHKeyLoading}
       isGenerateSSHKeyLoading={isGenerateSSHKeyLoading}
       isGitConnected={isGitConnected}
@@ -56,6 +58,7 @@ function ConnectModal({ isImport = false }: ConnectModalProps) {
       repoName={repoName}
       resetFetchSSHKey={resetFetchSSHKey}
       resetGenerateSSHKey={resetGenerateSSHKey}
+      setImportWorkspaceId={setImportWorkspaceId}
       sshPublicKey={sshPublicKey}
       toggleConnectModal={toggleConnectModal}
       toggleSettingsModal={toggleSettingsModal}

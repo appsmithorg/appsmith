@@ -68,31 +68,35 @@ export const selectDisconnectArtifactName = (
 ) => selectGitArtifact(state, artifactDef)?.ui.disconnectArtifactName;
 
 // git ops
-export const selectCommit = (
+export const selectCommitState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.commit;
 
-export const selectDiscard = (
+export const selectDiscardState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.discard;
 
-export const selectStatus = (
+export const selectStatusState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.status;
 
-export const selectMerge = (state: GitRootState, artifactDef: GitArtifactDef) =>
-  selectGitArtifact(state, artifactDef)?.apiResponses?.merge;
+export const selectMergeState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.merge;
 
-export const selectMergeStatus = (
+export const selectMergeStatusState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.mergeStatus;
 
-export const selectPull = (state: GitRootState, artifactDef: GitArtifactDef) =>
-  selectGitArtifact(state, artifactDef)?.apiResponses?.pull;
+export const selectPullState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.pull;
 
 export const selectOpsModalOpen = (
   state: GitRootState,

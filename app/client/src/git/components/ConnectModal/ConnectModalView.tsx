@@ -44,6 +44,8 @@ interface ConnectModalViewProps {
   ) => void;
   defaultBranch: string | null;
   repoName: string | null;
+  setImportWorkspaceId: () => void;
+  isCreateArtifactPermitted: boolean;
 }
 
 function ConnectModalView({
@@ -86,7 +88,10 @@ function ConnectModalView({
                 toggleSettingsModal={toggleSettingsModal}
               />
             ) : (
-              <ConnectInitialize {...rest} />
+              <ConnectInitialize
+                toggleConnectModal={toggleConnectModal}
+                {...rest}
+              />
             )}
           </>
         ) : null}

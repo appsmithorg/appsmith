@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   DemoImage,
   FieldContainer,
@@ -26,6 +26,7 @@ import {
   CHOOSE_A_GIT_PROVIDER_STEP,
   CHOOSE_GIT_PROVIDER_QUESTION,
   HOW_TO_CREATE_EMPTY_REPO,
+  IMPORT_ARTIFACT_IF_NOT_EMPTY,
   IS_EMPTY_REPO_QUESTION,
   I_HAVE_EXISTING_ARTIFACT_REPO,
   NEED_EMPTY_REPO_MESSAGE,
@@ -33,6 +34,9 @@ import {
 } from "ee/constants/messages";
 import log from "loglevel";
 import type { ConnectFormDataState } from "./types";
+import history from "utils/history";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -49,24 +53,24 @@ export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
 interface ChooseGitProviderProps {
   artifactType: string;
-  onChange: (args: Partial<ConnectFormDataState>) => void;
-  value: Partial<ConnectFormDataState>;
+  isCreateArtifactPermitted: boolean;
   isImport?: boolean;
-  // isCreateArtifactPermitted: boolean;
-  // onImportFromCalloutLinkClick: () => void;
+  onChange: (args: Partial<ConnectFormDataState>) => void;
+  setImportWorkspaceId: () => void;
+  toggleConnectModal: (open: boolean) => void;
+  value: Partial<ConnectFormDataState>;
 }
 
 function ChooseGitProvider({
   artifactType,
+  isCreateArtifactPermitted,
   isImport = false,
   onChange = noop,
+  setImportWorkspaceId = noop,
+  toggleConnectModal = noop,
   value = {},
-  // isCreateArtifactPermitted,
-  // onImportFromCalloutLinkClick,
 }: ChooseGitProviderProps) {
-  // const isMobile = useIsMobileDevice();
-
-  // const hasCreateNewArtifactPermission = isCreateArtifactPermitted && !isMobile;
+  const isMobile = useIsMobileDevice();
 
   const onGitProviderChange = useCallback(
     (value: string) => {
@@ -93,11 +97,19 @@ function ChooseGitProvider({
     [onChange],
   );
 
-  // const importCalloutLinks = useMemo(() => {
-  //   return hasCreateNewArtifactPermission
-  //     ? [{ children: "Import via git", onClick: onImportFromCalloutLinkClick }]
-  //     : [];
-  // }, [hasCreateNewArtifactPermission, onImportFromCalloutLinkClick]);
+  const handleClickOnImport = useCallback(() => {
+    toggleConnectModal(false);
+    history.push("/applications");
+    setImportWorkspaceId();
+    toggleConnectModal(true);
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
+  }, [setImportWorkspaceId, toggleConnectModal]);
+
+  const importCalloutLinks = useMemo(() => {
+    return !isMobile && isCreateArtifactPermitted
+      ? [{ children: "Import via git", onClick: handleClickOnImport }]
+      : [];
+  }, [handleClickOnImport, isCreateArtifactPermitted, isMobile]);
 
   return (
     <>
@@ -196,11 +208,11 @@ function ChooseGitProvider({
             )}
         </WellInnerContainer>
       </WellContainer>
-      {/* {!isImport && value?.gitEmptyRepoExists === "no" ? (
+      {!isImport && value?.gitEmptyRepoExists === "no" ? (
         <Callout kind="info" links={importCalloutLinks}>
           {createMessage(IMPORT_ARTIFACT_IF_NOT_EMPTY, artifactType)}
         </Callout>
-      ) : null} */}
+      ) : null}
       {isImport && (
         <Checkbox
           data-testid="t--existing-repo-checkbox"

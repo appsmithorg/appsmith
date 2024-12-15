@@ -79,11 +79,14 @@ interface ConnectModalViewProps {
   generateSSHKey: (keyType: string) => void;
   gitImport: (params: GitImportRequestParams) => void;
   isConnectLoading: boolean;
+  isCreateArtifactPermitted: boolean;
   isFetchSSHKeyLoading: boolean;
   isGenerateSSHKeyLoading: boolean;
   isGitImportLoading: boolean;
   isImport: boolean;
+  setImportWorkspaceId: () => void;
   sshPublicKey: string | null;
+  toggleConnectModal: (open: boolean) => void;
 }
 
 function ConnectInitialize({
@@ -94,13 +97,14 @@ function ConnectInitialize({
   generateSSHKey = noop,
   gitImport = noop,
   isConnectLoading = false,
+  isCreateArtifactPermitted = false,
   isFetchSSHKeyLoading = false,
   isGenerateSSHKeyLoading = false,
   isGitImportLoading = false,
   isImport = false,
+  setImportWorkspaceId = noop,
   sshPublicKey = null,
-  // isCreateArtifactPermitted = false,
-  // onImportFromCalloutLinkClick,
+  toggleConnectModal = noop,
 }: ConnectModalViewProps) {
   const nextStepText = {
     [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
@@ -232,11 +236,12 @@ function ConnectInitialize({
         {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
           <ChooseGitProvider
             artifactType={artifactType}
+            isCreateArtifactPermitted={isCreateArtifactPermitted}
             isImport={isImport}
             onChange={handleChange}
+            setImportWorkspaceId={setImportWorkspaceId}
+            toggleConnectModal={toggleConnectModal}
             value={formData}
-            // isCreateArtifactPermitted={isCreateArtifactPermitted}
-            // onImportFromCalloutLinkClick={onImportFromCalloutLinkClick}
           />
         )}
         {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (

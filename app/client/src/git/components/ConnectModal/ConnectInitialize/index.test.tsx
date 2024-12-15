@@ -32,6 +32,9 @@ const defaultProps = {
   isGitImportLoading: false,
   isImport: false,
   sshPublicKey: "ssh-rsa AAAAB3...",
+  isCreateArtifactPermitted: true,
+  setImportWorkspaceId: jest.fn(),
+  toggleConnectModal: jest.fn(),
 };
 
 function completeChooseProviderStep(isImport = false) {
