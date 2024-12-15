@@ -27,6 +27,31 @@ export const selectGitConnected = (
 ) => !!selectMetadataState(state, artifactDef)?.value;
 
 // CONNECT
+export const selectConnectState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.connect;
+
+export const selectGitImportState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.gitImport;
+
+export const selectFetchSSHKeysState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.sshKey;
+
+export const selectGenerateSSHKeyState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.generateSSHKey;
+
+export const selectConnectModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.connectModalOpen;
+
 export const selectDisconnectState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,

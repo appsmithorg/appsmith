@@ -1,7 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
   GitArtifactType,
-  GitConnectStep,
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
@@ -18,8 +17,7 @@ import type {
   GitSingleArtifactAPIResponsesReduxStateEE,
   GitSingleArtifactUIReduxStateEE,
 } from "ee/git/store/types";
-
-export type GitSSHKey = Record<string, unknown>;
+import type { FetchSSHKeyResponseData } from "git/requests/fetchSSHKeyRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -40,6 +38,7 @@ export interface GitSingleArtifactAPIResponsesReduxState
   extends GitSingleArtifactAPIResponsesReduxStateEE {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
+  gitImport: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
   pull: GitAsyncStateWithoutValue;
@@ -58,16 +57,13 @@ export interface GitSingleArtifactAPIResponsesReduxState
   autocommitProgress: GitAsyncStateWithoutValue;
   toggleAutocommit: GitAsyncStateWithoutValue;
   triggerAutocommit: GitAsyncStateWithoutValue;
-  sshKey: GitAsyncState<GitSSHKey>;
+  sshKey: GitAsyncState<FetchSSHKeyResponseData>;
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
 export interface GitSingleArtifactUIReduxState
   extends GitSingleArtifactUIReduxStateEE {
-  connectModal: {
-    open: boolean;
-    step: keyof typeof GitConnectStep;
-  };
+  connectModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
   disconnectArtifactName: string | null;
   importModal: {

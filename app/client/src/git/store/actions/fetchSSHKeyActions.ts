@@ -1,9 +1,6 @@
-import type {
-  GitArtifactPayloadAction,
-  GitArtifactErrorPayloadAction,
-  GitSSHKey,
-} from "../types";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import type { FetchSSHKeyResponseData } from "git/requests/fetchSSHKeyRequest.types";
 
 export const fetchSSHKeyInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.sshKey.loading = true;
@@ -12,22 +9,22 @@ export const fetchSSHKeyInitAction = createSingleArtifactAction((state) => {
   return state;
 });
 
-export const fetchSSHKeySuccessAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ sshKey: GitSSHKey }>) => {
-    state.apiResponses.sshKey.loading = false;
-    state.apiResponses.sshKey.value = action.payload.sshKey;
+export const fetchSSHKeySuccessAction = createSingleArtifactAction<
+  GitAsyncSuccessPayload<FetchSSHKeyResponseData>
+>((state, action) => {
+  state.apiResponses.sshKey.loading = false;
+  state.apiResponses.sshKey.error = null;
+  state.apiResponses.sshKey.value = action.payload.responseData;
 
-    return state;
-  },
-);
+  return state;
+});
 
-export const fetchSSHKeyErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactErrorPayloadAction) => {
+export const fetchSSHKeyErrorAction =
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.sshKey.loading = false;
     state.apiResponses.sshKey.error = error;
 
     return state;
-  },
-);
+  });

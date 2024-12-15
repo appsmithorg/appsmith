@@ -3,7 +3,6 @@ import {
   gitSingleArtifactInitialUIStateEE,
 } from "ee/git/store/helpers/gitSingleArtifactInitialState";
 import {
-  GitConnectStep,
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
@@ -15,10 +14,7 @@ import type {
 } from "../types";
 
 const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
-  connectModal: {
-    open: false,
-    step: GitConnectStep.Provider,
-  },
+  connectModalOpen: false,
   disconnectBaseArtifactId: null,
   disconnectArtifactName: null,
   importModal: {
@@ -50,6 +46,10 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     connect: {
+      loading: false,
+      error: null,
+    },
+    gitImport: {
       loading: false,
       error: null,
     },

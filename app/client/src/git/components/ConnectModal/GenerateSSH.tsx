@@ -32,7 +32,7 @@ import {
 import { GIT_DEMO_GIF } from "./constants";
 import { isValidGitRemoteUrl } from "../utils";
 import type { GitProvider } from "./ChooseGitProvider";
-import type { ApiResponse } from "api/ApiResponses";
+import type { GitApiError } from "git/store/types";
 
 interface GenerateSSHState {
   gitProvider?: GitProvider;
@@ -41,14 +41,14 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
-  errorData?: ApiResponse<unknown>;
+  connectError: GitApiError | null;
 }
 
 const CONNECTING_TO_GIT_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
 function GenerateSSH({
-  errorData,
+  connectError,
   onChange = noop,
   value = {},
 }: GenerateSSHProps) {
@@ -69,7 +69,7 @@ function GenerateSSH({
   return (
     <>
       {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
-      {errorData && errorData?.responseMeta?.error?.code === "AE-GIT-4033" && (
+      {connectError && connectError?.code === "AE-GIT-4033" && (
         <ErrorCallout kind="error">
           <Text kind="heading-xs" renderAs="h3">
             {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}

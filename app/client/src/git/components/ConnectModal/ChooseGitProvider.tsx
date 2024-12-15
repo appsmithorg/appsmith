@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import {
   DemoImage,
   FieldContainer,
@@ -22,18 +22,17 @@ import {
 import styled from "styled-components";
 import { GIT_DEMO_GIF } from "./constants";
 import noop from "lodash/noop";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import {
   CHOOSE_A_GIT_PROVIDER_STEP,
   CHOOSE_GIT_PROVIDER_QUESTION,
   HOW_TO_CREATE_EMPTY_REPO,
-  IMPORT_ARTIFACT_IF_NOT_EMPTY,
   IS_EMPTY_REPO_QUESTION,
   I_HAVE_EXISTING_ARTIFACT_REPO,
   NEED_EMPTY_REPO_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
 import log from "loglevel";
+import type { ConnectFormDataState } from "./types";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -48,34 +47,26 @@ const GIT_PROVIDERS = ["github", "gitlab", "bitbucket", "others"] as const;
 
 export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
-interface ChooseGitProviderState {
-  gitProvider?: GitProvider;
-  gitEmptyRepoExists: string;
-  gitExistingRepoExists: boolean;
-}
 interface ChooseGitProviderProps {
-  artifactId: string;
   artifactType: string;
-  onChange: (args: Partial<ChooseGitProviderState>) => void;
-  value: Partial<ChooseGitProviderState>;
+  onChange: (args: Partial<ConnectFormDataState>) => void;
+  value: Partial<ConnectFormDataState>;
   isImport?: boolean;
-  // Replaces handleImport in original ChooseGitProvider.tsx
-  onImportFromCalloutLinkClick: () => void;
-  // Replaces hasCreateNewApplicationPermission = hasCreateNewAppPermission(workspace.userPermissions)
-  canCreateNewArtifact: boolean;
+  // isCreateArtifactPermitted: boolean;
+  // onImportFromCalloutLinkClick: () => void;
 }
 
 function ChooseGitProvider({
   artifactType,
-  canCreateNewArtifact,
   isImport = false,
   onChange = noop,
-  onImportFromCalloutLinkClick,
   value = {},
+  // isCreateArtifactPermitted,
+  // onImportFromCalloutLinkClick,
 }: ChooseGitProviderProps) {
-  const isMobile = useIsMobileDevice();
+  // const isMobile = useIsMobileDevice();
 
-  const hasCreateNewArtifactPermission = canCreateNewArtifact && !isMobile;
+  // const hasCreateNewArtifactPermission = isCreateArtifactPermitted && !isMobile;
 
   const onGitProviderChange = useCallback(
     (value: string) => {
@@ -102,11 +93,11 @@ function ChooseGitProvider({
     [onChange],
   );
 
-  const importCalloutLinks = useMemo(() => {
-    return hasCreateNewArtifactPermission
-      ? [{ children: "Import via git", onClick: onImportFromCalloutLinkClick }]
-      : [];
-  }, [hasCreateNewArtifactPermission, onImportFromCalloutLinkClick]);
+  // const importCalloutLinks = useMemo(() => {
+  //   return hasCreateNewArtifactPermission
+  //     ? [{ children: "Import via git", onClick: onImportFromCalloutLinkClick }]
+  //     : [];
+  // }, [hasCreateNewArtifactPermission, onImportFromCalloutLinkClick]);
 
   return (
     <>
@@ -205,11 +196,11 @@ function ChooseGitProvider({
             )}
         </WellInnerContainer>
       </WellContainer>
-      {!isImport && value?.gitEmptyRepoExists === "no" ? (
+      {/* {!isImport && value?.gitEmptyRepoExists === "no" ? (
         <Callout kind="info" links={importCalloutLinks}>
           {createMessage(IMPORT_ARTIFACT_IF_NOT_EMPTY, artifactType)}
         </Callout>
-      ) : null}
+      ) : null} */}
       {isImport && (
         <Checkbox
           data-testid="t--existing-repo-checkbox"
