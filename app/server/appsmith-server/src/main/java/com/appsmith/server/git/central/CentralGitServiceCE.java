@@ -36,5 +36,5 @@ public interface CentralGitServiceCE {
     Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 
     Mono<GitStatusDTO> getStatus(
-        String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
+            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
 }
