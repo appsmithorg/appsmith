@@ -23,7 +23,7 @@ import {
   PrimitiveErrorModifier,
   TypeErrorModifier,
 } from "./errorModifier";
-import { addDataTreeToContext } from "ee/workers/Evaluation/Actions";
+import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { set } from "lodash";
 import { klona } from "klona";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
@@ -103,7 +103,7 @@ const ignoreGlobalObjectKeys = new Set([
   "location",
 ]);
 
-function resetWorkerGlobalScope() {
+export function resetWorkerGlobalScope() {
   const jsLibraryAccessorSet = JSLibraryAccessor.getSet();
 
   for (const key of Object.keys(self)) {
@@ -273,13 +273,14 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     Object.assign(EVAL_CONTEXT, context.globalContext);
   }
 
-  addDataTreeToContext({
-    EVAL_CONTEXT,
+  const dataTreeContext = getDataTreeContext({
     dataTree,
     configTree,
     removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
+
+  Object.assign(EVAL_CONTEXT, dataTreeContext);
 
   overrideEvalContext(EVAL_CONTEXT, context?.overrideContext);
 
@@ -365,7 +366,7 @@ export function setEvalContext({
   Object.assign(self, evalContext);
 }
 
-export default function evaluateSync(
+export function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   isJSCollection: boolean,
@@ -373,7 +374,8 @@ export default function evaluateSync(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
-  configTree?: ConfigTree,
+  configTree: ConfigTree = {},
+  evalContextCache?: EvalContext,
 ): EvalResult {
   return (function () {
     const errors: EvaluationError[] = [];
@@ -394,16 +396,34 @@ export default function evaluateSync(
       };
     }
 
-    resetWorkerGlobalScope();
+    self["$isDataField"] = true;
+    const EVAL_CONTEXT: EvalContext = {};
 
-    setEvalContext({
-      dataTree,
-      configTree,
-      isDataField: true,
-      isTriggerBased: isJSCollection,
-      context,
-      evalArguments,
-    });
+    ///// Adding callback data
+    EVAL_CONTEXT.ARGUMENTS = evalArguments;
+    //// Adding contextual data not part of data tree
+    EVAL_CONTEXT.THIS_CONTEXT = context?.thisContext || {};
+
+    if (context?.globalContext) {
+      Object.assign(EVAL_CONTEXT, context.globalContext);
+    }
+
+    if (evalContextCache) {
+      Object.assign(EVAL_CONTEXT, evalContextCache);
+    } else {
+      const dataTreeContext = getDataTreeContext({
+        dataTree,
+        configTree,
+        removeEntityFunctions: false,
+        isTriggerBased: isJSCollection,
+      });
+
+      Object.assign(EVAL_CONTEXT, dataTreeContext);
+    }
+
+    overrideEvalContext(EVAL_CONTEXT, context?.overrideContext);
+
+    Object.assign(self, EVAL_CONTEXT);
 
     try {
       result = indirectEval(script);

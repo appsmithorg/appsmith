@@ -5,9 +5,10 @@ import {
   selectBranches,
   selectCheckoutBranch,
   selectCreateBranch,
+  selectCurrentBranch,
   selectDeleteBranch,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -19,18 +20,19 @@ interface UseGitBranchesParams {
 export interface UseGitBranchesReturnValue {
   branches: FetchBranchesResponseData | null;
   fetchBranchesLoading: boolean;
-  fetchBranchesError: string | null;
+  fetchBranchesError: GitApiError | null;
   fetchBranches: () => void;
   createBranchLoading: boolean;
-  createBranchError: string | null;
+  createBranchError: GitApiError | null;
   createBranch: (branchName: string) => void;
   deleteBranchLoading: boolean;
-  deleteBranchError: string | null;
+  deleteBranchError: GitApiError | null;
   deleteBranch: (branchName: string) => void;
   checkoutBranchLoading: boolean;
-  checkoutBranchError: string | null;
+  checkoutBranchError: GitApiError | null;
   checkoutBranch: (branchName: string) => void;
-  toggleGitBranchListPopup: (open: boolean) => void;
+  currentBranch: string | null;
+  toggleBranchListPopup: (open: boolean) => void;
 }
 
 export default function useGitBranches({
@@ -102,10 +104,15 @@ export default function useGitBranches({
     [basePayload, dispatch],
   );
 
+  // derived
+  const currentBranch = useSelector((state: GitRootState) =>
+    selectCurrentBranch(state, basePayload),
+  );
+
   // git branch list popup
-  const toggleGitBranchListPopup = (open: boolean) => {
+  const toggleBranchListPopup = (open: boolean) => {
     dispatch(
-      gitArtifactActions.toggleGitBranchListPopup({
+      gitArtifactActions.toggleBranchListPopup({
         ...basePayload,
         open,
       }),
@@ -113,19 +120,20 @@ export default function useGitBranches({
   };
 
   return {
-    branches: branchesState?.value ?? null,
+    branches: branchesState?.value,
     fetchBranchesLoading: branchesState?.loading ?? false,
-    fetchBranchesError: branchesState?.error ?? null,
+    fetchBranchesError: branchesState?.error,
     fetchBranches,
     createBranchLoading: createBranchState?.loading ?? false,
-    createBranchError: createBranchState?.error ?? null,
+    createBranchError: createBranchState?.error,
     createBranch,
     deleteBranchLoading: deleteBranchState?.loading ?? false,
-    deleteBranchError: deleteBranchState?.error ?? null,
+    deleteBranchError: deleteBranchState?.error,
     deleteBranch,
     checkoutBranchLoading: checkoutBranchState?.loading ?? false,
-    checkoutBranchError: checkoutBranchState?.error ?? null,
+    checkoutBranchError: checkoutBranchState?.error,
     checkoutBranch,
-    toggleGitBranchListPopup,
+    currentBranch: currentBranch ?? null,
+    toggleBranchListPopup,
   };
 }

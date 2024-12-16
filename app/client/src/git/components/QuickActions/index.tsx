@@ -1,54 +1,53 @@
 import React from "react";
-import GitQuickActions from "../GitQuickActions";
+import QuickActionsView from "./QuickActionsView";
 import { useGitContext } from "../GitContextProvider";
 import useStatusChangeCount from "./hooks/useStatusChangeCount";
 
-function CtxAwareGitQuickActions() {
+function QuickActions() {
   const {
+    autocommitEnabled,
+    autocommitPolling,
     discard,
     discardLoading,
     fetchStatusLoading,
+    gitConnected,
+    protectedMode,
     pull,
     pullError,
     pullLoading,
     status,
-    toggleGitConnectModal,
-    toggleGitOpsModal,
-    toggleGitSettingsModal,
+    toggleConnectModal,
+    toggleOpsModal,
+    toggleSettingsModal,
   } = useGitContext();
 
-  const isGitConnected = false;
-  const isAutocommitEnabled = true;
-  const isAutocommitPolling = false;
-  const isConnectPermitted = true;
-  const isProtectedMode = false;
-
+  const connectPermitted = true;
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? false;
   const statusBehindCount = status?.behindCount ?? 0;
   const statusChangeCount = useStatusChangeCount(status);
 
   return (
-    <GitQuickActions
+    <QuickActionsView
       discard={discard}
-      isAutocommitEnabled={isAutocommitEnabled}
-      isAutocommitPolling={isAutocommitPolling}
-      isConnectPermitted={isConnectPermitted}
+      isAutocommitEnabled={autocommitEnabled}
+      isAutocommitPolling={autocommitPolling}
+      isConnectPermitted={connectPermitted}
       isDiscardLoading={discardLoading}
       isFetchStatusLoading={fetchStatusLoading}
-      isGitConnected={isGitConnected}
-      isProtectedMode={isProtectedMode}
+      isGitConnected={gitConnected}
+      isProtectedMode={protectedMode}
       isPullFailing={isPullFailing}
       isPullLoading={pullLoading}
       isStatusClean={isStatusClean}
       pull={pull}
       statusBehindCount={statusBehindCount}
       statusChangeCount={statusChangeCount}
-      toggleGitConnectModal={toggleGitConnectModal}
-      toggleGitOpsModal={toggleGitOpsModal}
-      toggleGitSettingsModal={toggleGitSettingsModal}
+      toggleConnectModal={toggleConnectModal}
+      toggleOpsModal={toggleOpsModal}
+      toggleSettingsModal={toggleSettingsModal}
     />
   );
 }
 
-export default CtxAwareGitQuickActions;
+export default QuickActions;

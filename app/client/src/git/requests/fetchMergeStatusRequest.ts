@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 import type {
   FetchMergeStatusRequestParams,
   FetchMergeStatusResponse,
@@ -9,7 +9,7 @@ import { GIT_BASE_URL } from "./constants";
 export default async function fetchMergeStatusRequest(
   branchedApplicationId: string,
   params: FetchMergeStatusRequestParams,
-): Promise<AxiosResponse<FetchMergeStatusResponse>> {
+): AxiosPromise<FetchMergeStatusResponse> {
   return Api.post(
     `${GIT_BASE_URL}/merge/status/app/${branchedApplicationId}`,
     params,
