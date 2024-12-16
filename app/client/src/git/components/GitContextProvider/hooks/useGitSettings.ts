@@ -7,7 +7,7 @@ import {
   selectProtectedBranches,
   selectProtectedMode,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -21,10 +21,10 @@ export interface UseGitSettingsReturnValue {
   autocommitPolling: boolean;
   protectedBranches: FetchProtectedBranchesResponseData | null;
   fetchProtectedBranchesLoading: boolean;
-  fetchProtectedBranchesError: string | null;
+  fetchProtectedBranchesError: GitApiError | null;
   fetchProtectedBranches: () => void;
   protectedMode: boolean;
-  toggleGitSettingsModal: (
+  toggleSettingsModal: (
     open: boolean,
     tab: keyof typeof GitSettingsTab,
   ) => void;
@@ -67,12 +67,12 @@ export default function useGitSettings({
   );
 
   // ui
-  const toggleGitSettingsModal = (
+  const toggleSettingsModal = (
     open: boolean,
     tab: keyof typeof GitSettingsTab,
   ) => {
     dispatch(
-      gitArtifactActions.toggleGitSettingsModal({
+      gitArtifactActions.toggleSettingsModal({
         ...basePayload,
         open,
         tab,
@@ -88,6 +88,6 @@ export default function useGitSettings({
     fetchProtectedBranchesError: protectedBranchesState.error,
     fetchProtectedBranches,
     protectedMode: protectedMode ?? false,
-    toggleGitSettingsModal,
+    toggleSettingsModal,
   };
 }

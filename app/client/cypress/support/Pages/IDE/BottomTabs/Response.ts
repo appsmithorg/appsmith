@@ -24,6 +24,7 @@ class Response {
   }
 
   public openResponseTypeMenu() {
+    this.switchToResponseTab();
     cy.get(this.locators.responseDataContainer).realHover();
     cy.get(this.locators.responseTypeMenuTrigger).click({ force: true });
   }
@@ -46,6 +47,7 @@ class Response {
   }
 
   public validateResponseStatus(status: string): void {
+    this.switchToResponseTab();
     cy.get(this.locators.responseStatusInfo).trigger("mouseover");
     cy.get(this.locators.responseStatusInfoTooltip).should(
       "include.text",
