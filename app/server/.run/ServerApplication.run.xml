@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ServerApplication" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="ALTERNATIVE_JRE_PATH" value="/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home" />
+    <option name="ALTERNATIVE_JRE_PATH" value="temurin-17"" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.appsmith.server.ServerApplication" />
