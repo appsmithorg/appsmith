@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import derivedProperty from "../../derived";
 
-import { samplePrimaryColumns, sampleProcessedTableData } from "../fixture";
+import { samplePrimaryColumns, sampleProcessedTableData } from "./fixture";
 describe("Validate getSelectedRow function", () => {
   it("Multple row selection, with selected rows", () => {
     const { getSelectedRow } = derivedProperty;

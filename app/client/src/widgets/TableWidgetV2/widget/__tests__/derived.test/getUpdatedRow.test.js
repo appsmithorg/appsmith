@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import derivedProperty from "../../derived";
-import { samplePrimaryColumns, sampleProcessedTableData } from "../fixture";
+import { samplePrimaryColumns, sampleProcessedTableData } from "./fixture";
 
 describe("validate getUpdatedRow", () => {
   it("should check that valid updated row index returns the valid value", () => {
