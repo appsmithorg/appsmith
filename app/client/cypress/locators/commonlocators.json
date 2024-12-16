@@ -165,6 +165,7 @@
   "lintError": ".CodeMirror-lint-mark-error",
   "debugger": ".t--debugger-count",
   "errorTab": "[data-testid=t--tab-ERROR_TAB]",
+  "logsTab": "[data-testid=t--tab-LOGS_TAB]",
   "debugErrorMsg": "[data-testid=t--debugger-log-message]",
   "tableButtonVariant": ".t--property-control-buttonvariant",
   "debuggerLabel": "span.debugger-label",
@@ -242,5 +243,7 @@
   "allowsearchingInputTypeCheckbox": ".t--property-control-allowsearching input[type='checkbox']",
   "clientSideSearch": ".t--property-control-clientsidesearch input[type='checkbox']",
   "enableClientSideSearch": ".t--property-control-enableclientsidesearch input[type='checkbox']",
-  "fixedFooterInput": ".t--property-control-fixedfooter input"
+  "fixedFooterInput": ".t--property-control-fixedfooter input",
+  "tostifyIcon": ".Toastify--animate-icon > span",
+  "downloadFileType": "button[class*='t--open-dropdown-Select-file-type'] > span:first-of-type"
 }

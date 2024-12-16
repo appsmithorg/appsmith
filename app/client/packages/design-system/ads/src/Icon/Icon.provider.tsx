@@ -572,6 +572,10 @@ const AppsLineIcon = importRemixIcon(
   async () => import("remixicon-react/AppsLineIcon"),
 );
 
+const ProtectedIcon = importRemixIcon(
+  async () => import("remixicon-react/ShieldKeyholeLineIcon"),
+);
+
 const CornerDownLeftLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/corner-down-left-line.svg"),
 );
@@ -770,6 +774,9 @@ const PackageIcon = importSvg(
 );
 const ModuleIcon = importSvg(
   async () => import("../__assets__/icons/ads/module.svg"),
+);
+const CreateModuleIcon = importSvg(
+  async () => import("../__assets__/icons/ads/create-module.svg"),
 );
 const WorkflowsIcon = importSvg(
   async () => import("../__assets__/icons/ads/workflows.svg"),
@@ -1033,6 +1040,10 @@ const DashboardLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/dashboard-line.svg"),
 );
 
+const DatasourceConfigIcon = importSvg(
+  async () => import("../__assets__/icons/ads/datasource-config.svg"),
+);
+
 // v3 icons
 const JsSquareV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/js-square-v3-icon.svg"),
@@ -1070,6 +1081,14 @@ const ExternalLinkIcon = importRemixIcon(
 
 const InputCursorMoveIcon = importSvg(
   async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
+);
+
+const DebugIcon = importSvg(
+  async () => import("../__assets__/icons/ads/debug.svg"),
+);
+
+const ClearIcon = importSvg(
+  async () => import("../__assets__/icons/ads/clear.svg"),
 );
 
 const ContentTypeTable = importSvg(
@@ -1149,6 +1168,7 @@ const ICON_LOOKUP = {
   "check-line": CheckLineIcon,
   "chevron-left": ChevronLeft,
   "chevron-right": ChevronRight,
+  clear: ClearIcon,
   "close-circle": CloseCircleIcon,
   "close-circle-control": CloseCircleIcon,
   "close-circle-line": CloseCircleLineIcon,
@@ -1170,12 +1190,15 @@ const ICON_LOOKUP = {
   "contract-right-line": ContractRight,
   "copy-control": CopyIcon,
   "copy2-control": Copy2Icon,
+  "create-module": CreateModuleIcon,
   "cut-control": CutIcon,
   "dashboard-line": DashboardLineIcon,
   "database-2-line": Database2Line,
+  "datasource-config": DatasourceConfigIcon,
   "datasource-v3": DatasourceV3Icon,
   "datasources-2": Datasources2,
   "decrease-control": DecreaseIcon,
+  debug: DebugIcon,
   "delete-bin-line": DeleteBinLineIcon,
   "delete-blank": DeleteBin7,
   "delete-column": DeleteColumnIcon,
@@ -1379,6 +1402,7 @@ const ICON_LOOKUP = {
   "warning-triangle": WarningTriangleIcon,
   "widgets-v3": WidgetsV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
+  "protected-icon": ProtectedIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,

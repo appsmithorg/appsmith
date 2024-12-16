@@ -31,6 +31,17 @@ jest.mock("klona/full", () => ({
     return klona.klona(arg);
   },
 }));
+const klonaJsonSpy = jest.fn();
+
+jest.mock("klona/json", () => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  klona: (arg: any) => {
+    klonaJsonSpy(arg);
+
+    return klona.klona(arg);
+  },
+}));
 
 export const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -581,7 +592,8 @@ describe("DataTreeEvaluator", () => {
     );
     evaluator.evalAndValidateFirstTree();
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(41);
+    expect(klonaFullSpy).toBeCalledTimes(15);
+    expect(klonaJsonSpy).toBeCalledTimes(28);
   });
 
   it("Evaluates a binding in first run", () => {
@@ -1102,6 +1114,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(7);
+    expect(klonaFullSpy).toBeCalledTimes(4);
+    expect(klonaJsonSpy).toBeCalledTimes(4);
   });
 });
