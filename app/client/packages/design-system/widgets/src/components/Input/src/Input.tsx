@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import React, { forwardRef, useState } from "react";
+import { mergeRefs } from "@react-aria/utils";
+import React, { forwardRef, useRef, useState } from "react";
 import { getTypographyClassName } from "@appsmith/wds-theming";
 import { IconButton, Spinner, type IconProps } from "@appsmith/wds";
 import { Group, Input as HeadlessInput } from "react-aria-components";
@@ -21,6 +22,8 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
     value,
     ...rest
   } = props;
+  const localRef = useRef<HTMLInputElement>(null);
+  const mergedRef = mergeRefs(ref, localRef);
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const isEmpty = !Boolean(value) && !Boolean(defaultValue);
@@ -48,7 +51,11 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
 
   return (
     <Group className={clsx(styles.inputGroup, inputGroupClassName)}>
-      {Boolean(prefix) && <span data-input-prefix>{prefix}</span>}
+      {Boolean(prefix) && (
+        <span data-input-prefix onClick={() => localRef.current?.focus()}>
+          {prefix}
+        </span>
+      )}
       <HeadlessInput
         {...rest}
         className={clsx(
@@ -59,11 +66,15 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
         data-readonly={Boolean(isReadOnly) ? true : undefined}
         data-size={Boolean(size) ? size : undefined}
         defaultValue={defaultValue}
-        ref={ref}
+        ref={mergedRef}
         type={showPassword ? "text" : type}
         value={isEmpty && Boolean(isReadOnly) ? "—" : value}
       />
-      {Boolean(suffix) && <span data-input-suffix>{suffix}</span>}
+      {Boolean(suffix) && (
+        <span data-input-suffix onClick={() => localRef.current?.focus()}>
+          {suffix}
+        </span>
+      )}
     </Group>
   );
 }
