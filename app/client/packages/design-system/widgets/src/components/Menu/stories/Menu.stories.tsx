@@ -26,11 +26,10 @@ export const Main: Story = {
     <MenuTrigger>
       <Button>Open The Menu…</Button>
       <Menu>
-        {Array.from({ length: 100 }, (_, i) => (
-          <MenuItem id={String(i + 1)} key={i}>
-            Item {i + 1}
-          </MenuItem>
-        ))}
+        <MenuItem id="1">Item 1</MenuItem>
+        <MenuItem id="2">Item 2</MenuItem>
+        <MenuItem id="3">Item 3</MenuItem>
+        <MenuItem id="4">Item 4</MenuItem>
         <SubmenuTrigger>
           <MenuItem id="5">Submenu</MenuItem>
           <Menu>
