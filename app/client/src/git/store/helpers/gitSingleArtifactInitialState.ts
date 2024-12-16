@@ -1,7 +1,7 @@
 import {
-  gitSingleArtifactInitialAPIResponsesEE,
-  gitSingleArtifactInitialUIStateEE,
-} from "ee/git/store/helpers/gitSingleArtifactInitialState";
+  gitArtifactAPIResponsesInitialState as gitArtifactAPIResponsesInitialStateExtended,
+  gitArtifactUIInitialState as gitArtifactUIInitialStateExtended,
+} from "git/ee/store/helpers/initialState";
 import { GitOpsTab, GitSettingsTab } from "../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
@@ -24,7 +24,7 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   conflictErrorModalOpen: false,
   repoLimitErrorModalOpen: false,
   // EE
-  ...gitSingleArtifactInitialUIStateEE,
+  ...gitArtifactUIInitialStateExtended,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -129,7 +129,7 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     // EE
-    ...gitSingleArtifactInitialAPIResponsesEE,
+    ...gitArtifactAPIResponsesInitialStateExtended,
   };
 
 export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {

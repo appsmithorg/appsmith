@@ -12,11 +12,11 @@ import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatus
 import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
-import type {
-  GitSingleArtifactAPIResponsesReduxStateEE,
-  GitSingleArtifactUIReduxStateEE,
-} from "ee/git/store/types";
 import type { FetchSSHKeyResponseData } from "git/requests/fetchSSHKeyRequest.types";
+import type {
+  GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
+  GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
+} from "git/ee/store/types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -34,7 +34,7 @@ export interface GitAsyncStateWithoutValue {
   error: GitApiError | null;
 }
 export interface GitSingleArtifactAPIResponsesReduxState
-  extends GitSingleArtifactAPIResponsesReduxStateEE {
+  extends GitArtifactAPIResponsesReduxStateExtended {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
   gitImport: GitAsyncStateWithoutValue;
@@ -61,7 +61,7 @@ export interface GitSingleArtifactAPIResponsesReduxState
 }
 
 export interface GitSingleArtifactUIReduxState
-  extends GitSingleArtifactUIReduxStateEE {
+  extends GitArtifactUIReduxStateExtended {
   connectModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
   disconnectArtifactName: string | null;

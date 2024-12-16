@@ -1,8 +1,8 @@
 import React from "react";
 import ProtectedBranchesView from "./ProtectedBranchesView";
-import useDefaultBranch from "git/hooks/useDefaultBranch";
 import useProtectedBranches from "git/hooks/useProtectedBranches";
 import useGitFeatureFlags from "git/hooks/useGitFeatureFlags";
+import useDefaultBranch from "git/ee/hooks/useDefaultBranch";
 import useBranches from "git/hooks/useBranches";
 
 function ProtectedBranches() {

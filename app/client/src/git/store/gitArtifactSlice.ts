@@ -113,7 +113,7 @@ import {
   fetchAutocommitProgressInitAction,
   fetchAutocommitProgressSuccessAction,
 } from "./actions/fetchAutocommitProgressActions";
-import gitArtifactCaseReducersEE from "ee/git/store/actions";
+import { gitArtifactCaseReducers } from "git/ee/store/actions";
 import {
   disconnectErrorAction,
   disconnectInitAction,
@@ -244,8 +244,7 @@ export const gitArtifactSlice = createSlice({
     pollAutocommitProgressStop: pollAutocommitProgressStopAction,
     toggleAutocommitDisableModal: toggleAutocommitDisableModalAction,
 
-    // EE
-    ...gitArtifactCaseReducersEE,
+    ...gitArtifactCaseReducers,
   },
 });
 
