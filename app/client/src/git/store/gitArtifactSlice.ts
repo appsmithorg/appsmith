@@ -23,6 +23,7 @@ import {
   fetchStatusSuccessAction,
 } from "./actions/fetchStatusActions";
 import {
+  clearCommitErrorAction,
   commitErrorAction,
   commitInitAction,
   commitSuccessAction,
@@ -53,11 +54,12 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleGitBranchListPopupAction,
-  toggleGitConnectModalAction,
-  toggleGitOpsModalAction,
-  toggleGitSettingsModalAction,
+  toggleBranchListPopupAction,
+  toggleConnectModalAction,
+  toggleOpsModalAction,
+  toggleSettingsModalAction,
   toggleRepoLimitErrorModalAction,
+  toggleConflictErrorModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -65,11 +67,13 @@ import {
   checkoutBranchSuccessAction,
 } from "./actions/checkoutBranchActions";
 import {
+  clearDiscardErrorAction,
   discardErrorAction,
   discardInitAction,
   discardSuccessAction,
 } from "./actions/discardActions";
 import {
+  clearMergeStatusAction,
   fetchMergeStatusErrorAction,
   fetchMergeStatusInitAction,
   fetchMergeStatusSuccessAction,
@@ -127,29 +131,33 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    toggleGitConnectModal: toggleGitConnectModalAction,
+    toggleConnectModal: toggleConnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
     commitInit: commitInitAction,
     commitSuccess: commitSuccessAction,
     commitError: commitErrorAction,
+    clearCommitError: clearCommitErrorAction,
     discardInit: discardInitAction,
     discardSuccess: discardSuccessAction,
     discardError: discardErrorAction,
+    clearDiscardError: clearDiscardErrorAction,
     fetchStatusInit: fetchStatusInitAction,
     fetchStatusSuccess: fetchStatusSuccessAction,
     fetchStatusError: fetchStatusErrorAction,
     fetchMergeStatusInit: fetchMergeStatusInitAction,
     fetchMergeStatusSuccess: fetchMergeStatusSuccessAction,
     fetchMergeStatusError: fetchMergeStatusErrorAction,
+    clearMergeStatus: clearMergeStatusAction,
     mergeInit: mergeInitAction,
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
-    toggleGitOpsModal: toggleGitOpsModalAction,
+    toggleOpsModal: toggleOpsModalAction,
+    toggleConflictErrorModal: toggleConflictErrorModalAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,
@@ -164,10 +172,10 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleGitBranchListPopup: toggleGitBranchListPopupAction,
+    toggleBranchListPopup: toggleBranchListPopupAction,
 
     // settings
-    toggleGitSettingsModal: toggleGitSettingsModalAction,
+    toggleSettingsModal: toggleSettingsModalAction,
     fetchLocalProfileInit: fetchLocalProfileInitAction,
     fetchLocalProfileSuccess: fetchLocalProfileSuccessAction,
     fetchLocalProfileError: fetchLocalProfileErrorAction,

@@ -22,6 +22,8 @@ import fetchGitMetadataSaga from "./fetchGitMetadataSaga";
 import triggerAutocommitSaga from "./triggerAutocommitSaga";
 import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
+import pullSaga from "./pullSaga";
+import fetchMergeStatusSaga from "./fetchMergeStatusSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -37,6 +39,8 @@ const gitRequestBlockingActions: Record<
   // ops
   [gitArtifactActions.commitInit.type]: commitSaga,
   [gitArtifactActions.fetchStatusInit.type]: fetchStatusSaga,
+  [gitArtifactActions.pullInit.type]: pullSaga,
+  [gitArtifactActions.fetchMergeStatusInit.type]: fetchMergeStatusSaga,
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
