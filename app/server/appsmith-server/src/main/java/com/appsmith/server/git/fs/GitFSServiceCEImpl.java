@@ -10,6 +10,7 @@ import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.ce.RefType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -276,6 +277,17 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 })
                 .map(GitBranchDTO::getBranchName)
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<String>> listReferences(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, RefType refType) {
+        if (RefType.BRANCH.equals(refType)) {
+            listBranches(artifactJsonTransformationDTO);
+        }
+
+        // TODO: include ref type for tags in fsGit Handler
+        return Mono.just(List.of());
     }
 
     @Override

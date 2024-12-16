@@ -37,4 +37,12 @@ public interface CentralGitServiceCE {
 
     Mono<GitStatusDTO> getStatus(
             String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> checkoutReference(
+            String referenceArtifactId,
+            String referenceToBeCheckedOut,
+            boolean addFileLock,
+            ArtifactType artifactType,
+            GitType gitType,
+            RefType refType);
 }

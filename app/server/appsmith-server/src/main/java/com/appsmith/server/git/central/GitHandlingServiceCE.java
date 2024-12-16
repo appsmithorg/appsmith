@@ -2,6 +2,7 @@ package com.appsmith.server.git.central;
 
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.git.dto.CommitDTO;
+import com.appsmith.server.constants.ce.RefType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -41,6 +42,8 @@ public interface GitHandlingServiceCE {
     Mono<Boolean> removeRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
     Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
+    Mono<List<String>> listReferences(ArtifactJsonTransformationDTO artifactJsonTransformationDTO, RefType refType);
 
     Mono<Boolean> validateEmptyRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 

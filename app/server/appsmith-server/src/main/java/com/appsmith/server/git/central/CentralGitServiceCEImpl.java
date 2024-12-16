@@ -104,6 +104,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     private final GitRedisUtils gitRedisUtils;
     private final ObservationRegistry observationRegistry;
 
+    protected static final String ORIGIN = "origin/";
+    protected static final String REMOTE_NAME_REPLACEMENT = "";
+
     protected Mono<Boolean> isRepositoryLimitReachedForWorkspace(String workspaceId, Boolean isRepositoryPrivate) {
         if (!isRepositoryPrivate) {
             return Mono.just(FALSE);
@@ -331,6 +334,107 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             }
         }
         return false;
+    }
+
+    @Override
+    public Mono<? extends Artifact> checkoutReference(
+            String referenceArtifactId,
+            String referenceToBeCheckedOut,
+            boolean addFileLock,
+            ArtifactType artifactType,
+            GitType gitType,
+            RefType refType) {
+
+        if (!hasText(referenceToBeCheckedOut)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REF_NAME));
+        }
+
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
+                getBaseAndBranchedArtifacts(referenceArtifactId, artifactType);
+
+        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
+            Artifact sourceArtifact = artifactTuples.getT1();
+            return checkoutReference(sourceArtifact, referenceToBeCheckedOut, addFileLock, gitType, refType);
+        });
+    }
+
+    protected Mono<? extends Artifact> checkoutReference(
+            Artifact baseArtifact,
+            String referenceToBeCheckedOut,
+            boolean addFileLock,
+            GitType gitType,
+            RefType refType) {
+
+        if (!hasText(referenceToBeCheckedOut)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REF_NAME));
+        }
+
+        GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+
+        if (isBaseGitMetadataInvalid(baseGitMetadata, gitType)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+        }
+
+        String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
+        final String finalRefName = referenceToBeCheckedOut.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        Mono<Boolean> acquireFileLock = gitRedisUtils.acquireGitLock(
+                baseArtifactId, GitConstants.GitCommandConstants.CHECKOUT_BRANCH, addFileLock);
+
+        Mono<? extends Artifact> checkedOutArtifactMono;
+        // If the user is trying to check out remote reference, create a new reference if it does not exist already
+
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+        jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+        jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
+        jsonTransformationDTO.setRefType(refType);
+        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+        jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
+
+        if (referenceToBeCheckedOut.startsWith(ORIGIN)) {
+
+            checkedOutArtifactMono = gitHandlingService
+                    .listReferences(jsonTransformationDTO, refType)
+                    .flatMap(gitRefs -> {
+                        long branchMatchCount = gitRefs.stream()
+                                .filter(gitRef -> gitRef.equals(finalRefName))
+                                .count();
+
+                        if (branchMatchCount == 0) {
+                            return checkoutRemoteBranch(baseArtifact, finalRefName);
+                        }
+
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "checkout",
+                                referenceToBeCheckedOut + " already exists in local - " + finalRefName));
+                    });
+        } else {
+            // TODO refactor method to account for RefName as well
+            checkedOutArtifactMono = Mono.defer(() -> gitArtifactHelper
+                    .getArtifactByBaseIdAndBranchName(
+                            baseArtifactId, finalRefName, gitArtifactHelper.getArtifactReadPermission())
+                    .flatMap(artifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_CHECKOUT_BRANCH,
+                            artifact,
+                            artifact.getGitArtifactMetadata().getIsRepoPrivate())));
+        }
+
+        return checkedOutArtifactMono
+                .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, addFileLock))
+                .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
+                .name(GitSpan.OPS_CHECKOUT_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
+                .onErrorResume(Mono::error);
+    }
+
+    // TODO @Manish: add checkout Remote Branch
+    protected Mono<? extends Artifact> checkoutRemoteBranch(Artifact baseArtifact, String finalRefName) {
+        return null;
     }
 
     /**
