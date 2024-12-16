@@ -1,4 +1,1 @@
-export {
-  gitArtifactCaseReducers,
-  gitConfigCaseReducers,
-} from "git/ce/store/actions";
+export * from "git/ce/store/actions";

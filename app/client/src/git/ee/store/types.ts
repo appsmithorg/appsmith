@@ -1,4 +1,1 @@
-export type {
-  GitArtifactAPIResponsesReduxState,
-  GitArtifactUIReduxState,
-} from "git/ce/store/types";
+export type * from "git/ce/store/types";
