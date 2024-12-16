@@ -2,10 +2,22 @@ import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "./AnalyticsUtil";
 import { isRelevantEmail } from "utils/formhelpers";
 
-export const handlePremiumDatasourceClick = (integrationName: string) => {
-  AnalyticsUtil.logEvent("PREMIUM_INTEGRATION_CTA", {
-    integration_name: integrationName,
-  });
+export const getTagText = (isBusinessOrEnterprise?: boolean) => {
+  return isBusinessOrEnterprise
+    ? createMessage(PREMIUM_DATASOURCES.SOON_TAG)
+    : createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG);
+};
+
+export const handlePremiumDatasourceClick = (
+  integrationName: string,
+  isBusinessOrEnterprise?: boolean,
+) => {
+  AnalyticsUtil.logEvent(
+    isBusinessOrEnterprise ? "SOON_INTEGRATION_CTA" : "PREMIUM_INTEGRATION_CTA",
+    {
+      integration_name: integrationName,
+    },
+  );
 };
 
 export const handleLearnMoreClick = (
@@ -28,13 +40,19 @@ export const handleLearnMoreClick = (
   window.open(redirectPricingURL, "_blank");
 };
 
-export const handleSubmitEvent = (integrationName: string, email: string) => {
+export const handleSubmitEvent = (
+  integrationName: string,
+  email: string,
+  isBusinessOrEnterprise?: boolean,
+) => {
   const validRelevantEmail = isRelevantEmail(email);
 
   AnalyticsUtil.logEvent(
-    validRelevantEmail
-      ? "PREMIUM_MODAL_RELEVANT_SCHEDULE_CALL"
-      : "PREMIUM_MODAL_NOT_RELEVANT_SUBMIT",
+    isBusinessOrEnterprise
+      ? "SOON_NOTIFY_REQUEST"
+      : validRelevantEmail
+        ? "PREMIUM_MODAL_RELEVANT_SCHEDULE_CALL"
+        : "PREMIUM_MODAL_NOT_RELEVANT_SUBMIT",
     {
       integration_name: integrationName,
       email,
@@ -42,26 +60,41 @@ export const handleSubmitEvent = (integrationName: string, email: string) => {
   );
 };
 
-export const getContactFormModalTitle = (integrationName: string) => {
-  return integrationName;
+export const getContactFormModalTitle = (
+  integrationName: string,
+  isBusinessOrEnterprise?: boolean,
+) => {
+  return `${integrationName} ${isBusinessOrEnterprise ? `- ${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`;
 };
 
-export const getContactFormModalDescription = (email: string) => {
+export const getContactFormModalDescription = (
+  email: string,
+  isBusinessOrEnterprise?: boolean,
+) => {
   const validRelevantEmail = isRelevantEmail(email);
 
-  return validRelevantEmail
-    ? createMessage(PREMIUM_DATASOURCES.RELEVANT_EMAIL_DESCRIPTION)
-    : createMessage(PREMIUM_DATASOURCES.NON_RELEVANT_EMAIL_DESCRIPTION);
+  return isBusinessOrEnterprise
+    ? createMessage(PREMIUM_DATASOURCES.COMING_SOON_DESCRIPTION)
+    : validRelevantEmail
+      ? createMessage(PREMIUM_DATASOURCES.RELEVANT_EMAIL_DESCRIPTION)
+      : createMessage(PREMIUM_DATASOURCES.NON_RELEVANT_EMAIL_DESCRIPTION);
 };
 
-export const shouldLearnMoreButtonBeVisible = () => {
-  return true;
+export const shouldLearnMoreButtonBeVisible = (
+  isBusinessOrEnterprise?: boolean,
+) => {
+  return !isBusinessOrEnterprise;
 };
 
-export const getContactFormSubmitButtonText = (email: string) => {
+export const getContactFormSubmitButtonText = (
+  email: string,
+  isBusinessOrEnterprise?: boolean,
+) => {
   const validRelevantEmail = isRelevantEmail(email);
 
-  return validRelevantEmail
-    ? createMessage(PREMIUM_DATASOURCES.SCHEDULE_CALL)
-    : createMessage(PREMIUM_DATASOURCES.SUBMIT);
+  return isBusinessOrEnterprise
+    ? createMessage(PREMIUM_DATASOURCES.NOTIFY_ME)
+    : validRelevantEmail
+      ? createMessage(PREMIUM_DATASOURCES.SCHEDULE_CALL)
+      : createMessage(PREMIUM_DATASOURCES.SUBMIT);
 };

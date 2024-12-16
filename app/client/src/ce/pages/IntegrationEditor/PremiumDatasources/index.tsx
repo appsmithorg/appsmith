@@ -7,9 +7,13 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
-import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import { PREMIUM_INTEGRATIONS } from "ee/constants/PremiumDatasourcesConstants";
-import { handlePremiumDatasourceClick } from "ee/utils/PremiumDatasourcesHelpers";
+import {
+  getTagText,
+  handlePremiumDatasourceClick,
+} from "ee/utils/PremiumDatasourcesHelpers";
+import { isFreePlan } from "ee/selectors/tenantSelectors";
+import { useSelector } from "react-redux";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
@@ -17,8 +21,9 @@ const ModalContentWrapper = styled(ModalContent)`
 
 export default function PremiumDatasources() {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
+  const isFreePlanInstance = useSelector(isFreePlan);
   const handleOnClick = (name: string) => {
-    handlePremiumDatasourceClick(name);
+    handlePremiumDatasourceClick(name, !isFreePlanInstance);
     setSelectedIntegration(name);
   };
 
@@ -46,7 +51,7 @@ export default function PremiumDatasources() {
             />
             <p className="t--plugin-name textBtn">{integration.name}</p>
             <Tag isClosable={false} kind={"premium"}>
-              {createMessage(PREMIUM_DATASOURCES.TAG_TEXT)}
+              {getTagText(!isFreePlanInstance)}
             </Tag>
           </CardContentWrapper>
         </ApiCard>

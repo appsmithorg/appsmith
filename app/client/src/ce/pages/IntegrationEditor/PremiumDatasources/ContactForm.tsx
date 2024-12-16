@@ -17,7 +17,7 @@ import { isEmail } from "utils/formhelpers";
 import ReduxFormTextField from "components/utils/ReduxFormTextField";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId, isFreePlan } from "ee/selectors/tenantSelectors";
 import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import {
@@ -40,6 +40,7 @@ const PremiumDatasourceContactForm = (
 ) => {
   const instanceId = useSelector(getInstanceId);
   const appsmithConfigs = getAppsmithConfigs();
+  const isFreePlanInstance = useSelector(isFreePlan);
 
   const redirectPricingURL = PRICING_PAGE_URL(
     appsmithConfigs.pricingUrl,
@@ -66,16 +67,25 @@ const PremiumDatasourceContactForm = (
   }, [redirectPricingURL, props.email, props.integrationName]);
 
   const submitEvent = useCallback(() => {
-    handleSubmitEvent(props.integrationName, props.email || "");
+    handleSubmitEvent(
+      props.integrationName,
+      props.email || "",
+      !isFreePlanInstance,
+    );
   }, [props.email, props.integrationName]);
 
   return (
     <>
       <ModalHeader>
-        {getContactFormModalTitle(props.integrationName)}
+        {getContactFormModalTitle(props.integrationName, !isFreePlanInstance)}
       </ModalHeader>
       <FormWrapper onSubmit={props.handleSubmit(onSubmit)}>
-        <p>{getContactFormModalDescription(props.email || "")}</p>
+        <p>
+          {getContactFormModalDescription(
+            props.email || "",
+            !isFreePlanInstance,
+          )}
+        </p>
         <Field
           component={ReduxFormTextField}
           description={createMessage(
@@ -87,7 +97,7 @@ const PremiumDatasourceContactForm = (
           type="email"
         />
         <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
-          {shouldLearnMoreButtonBeVisible() && (
+          {shouldLearnMoreButtonBeVisible(!isFreePlanInstance) && (
             <Button
               aria-label="Close"
               kind="secondary"
@@ -98,7 +108,10 @@ const PremiumDatasourceContactForm = (
             </Button>
           )}
           <Button isDisabled={props.invalid} size="md" type="submit">
-            {getContactFormSubmitButtonText(props.email || "")}
+            {getContactFormSubmitButtonText(
+              props.email || "",
+              !isFreePlanInstance,
+            )}
           </Button>
         </Flex>
       </FormWrapper>
