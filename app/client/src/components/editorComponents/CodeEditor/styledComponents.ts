@@ -390,12 +390,11 @@ export const EditorWrapper = styled.div<{
       }
     }
 
-    &:focus {
+    &:focus-visible {
       .CodeMirror.cm-s-duotone-light {
-        border-color: ${(props) =>
-          props.borderLess
-            ? "none"
-            : "var(--ads-v2-color-border-emphasis-plus)"};
+        outline: var(--ads-v2-border-width-outline) solid
+          var(--ads-v2-color-outline);
+        outline-offset: var(--ads-v2-offset-outline);
       }
     }
 

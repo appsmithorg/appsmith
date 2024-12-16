@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useCallback } from "react";
 import { useFocusRing } from "@react-aria/focus";
 import { useTextField } from "@react-aria/textfield";
 import clsx from "classnames";
@@ -55,7 +55,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const { descriptionProps, errorMessageProps, inputProps, labelProps } =
       // @ts-expect-error fix this the next time the file is edited
       useTextField(props, inputRef);
-    const { focusProps, isFocusVisible } = useFocusRing();
+    const { focusProps, isFocusVisible } = useFocusRing({ isTextInput: true });
+
     const {
       className: startIconClassName,
       onClick: startIconOnClick,
@@ -67,9 +68,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       ...restOfEndIconProps
     } = endIconProps || {};
 
-    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.(event.target.value);
-    };
+    const handleOnChange = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        onChange?.(event.target.value);
+      },
+      [onChange],
+    );
 
     isValid = isValid === undefined ? !errorMessage : isValid;
 
