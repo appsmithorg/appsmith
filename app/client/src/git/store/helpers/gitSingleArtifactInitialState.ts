@@ -1,7 +1,7 @@
 import {
-  gitSingleArtifactInitialAPIResponsesEE,
-  gitSingleArtifactInitialUIStateEE,
-} from "ee/git/store/helpers/gitSingleArtifactInitialState";
+  gitArtifactAPIResponsesInitialState as gitArtifactAPIResponsesInitialStateExtended,
+  gitArtifactUIInitialState as gitArtifactUIInitialStateExtended,
+} from "git/ee/store/helpers/initialState";
 import {
   GitConnectStep,
   GitImportStep,
@@ -39,7 +39,7 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
   },
   // EE
-  ...gitSingleArtifactInitialUIStateEE,
+  ...gitArtifactUIInitialStateExtended,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -140,7 +140,7 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     // EE
-    ...gitSingleArtifactInitialAPIResponsesEE,
+    ...gitArtifactAPIResponsesInitialStateExtended,
   };
 
 export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {

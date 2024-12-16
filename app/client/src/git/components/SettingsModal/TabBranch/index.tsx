@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import DefaultBranch from "../../DefaultBranch";
 import ProtectedBranches from "../../ProtectedBranches";
+import DefaultBranch from "git/ee/components/DefaultBranch";
 
 const Container = styled.div`
   overflow: auto;

@@ -29,7 +29,7 @@ export const StyledButton = styled(Button)`
   display: inline-block;
 `;
 
-function ContinuousDeliveryCE() {
+function ContinuousDelivery() {
   const enterprisePricingLink = useAppsmithEnterpriseLink(
     "git_continuous_delivery",
   );
@@ -55,4 +55,4 @@ function ContinuousDeliveryCE() {
   );
 }
 
-export default ContinuousDeliveryCE;
+export default ContinuousDelivery;

@@ -23,16 +23,17 @@ import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
 import pullSaga from "./pullSaga";
 import fetchMergeStatusSaga from "./fetchMergeStatusSaga";
-import {
-  gitRequestBlockingActionsEE,
-  gitRequestNonBlockingActionsEE,
-} from "ee/git/sagas";
 import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
 import fetchMetadataSaga from "./fetchMetadataSaga";
 import toggleAutocommitSaga from "./toggleAutocommitSaga";
 import disconnectSaga from "./disconnectSaga";
 
-const gitRequestBlockingActions: Record<
+import {
+  blockingActionSagas as blockingActionSagasExtended,
+  nonBlockingActionSagas as nonBlockingActionSagasExtended,
+} from "git/ee/sagas";
+
+const blockingActionSagas: Record<
   string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (action: PayloadAction<any>) => Generator<any>
@@ -69,10 +70,10 @@ const gitRequestBlockingActions: Record<
   [gitArtifactActions.triggerAutocommitInit.type]: triggerAutocommitSaga,
 
   // EE
-  ...gitRequestBlockingActionsEE,
+  ...blockingActionSagasExtended,
 };
 
-const gitRequestNonBlockingActions: Record<
+const nonBlockingActionSagas: Record<
   string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (action: PayloadAction<any>) => Generator<any>
@@ -82,7 +83,7 @@ const gitRequestNonBlockingActions: Record<
   [gitArtifactActions.toggleAutocommitInit.type]: toggleAutocommitSaga,
 
   // EE
-  ...gitRequestNonBlockingActionsEE,
+  ...nonBlockingActionSagasExtended,
 };
 
 /**
@@ -96,21 +97,21 @@ const gitRequestNonBlockingActions: Record<
  * */
 function* watchGitBlockingRequests() {
   const gitActionChannel: TakeableChannel<unknown> = yield actionChannel(
-    objectKeys(gitRequestBlockingActions),
+    objectKeys(blockingActionSagas),
   );
 
   while (true) {
     const action: PayloadAction<unknown> = yield take(gitActionChannel);
 
-    yield call(gitRequestBlockingActions[action.type], action);
+    yield call(blockingActionSagas[action.type], action);
   }
 }
 
 function* watchGitNonBlockingRequests() {
-  const keys = objectKeys(gitRequestNonBlockingActions);
+  const keys = objectKeys(nonBlockingActionSagas);
 
   for (const actionType of keys) {
-    yield takeLatest(actionType, gitRequestNonBlockingActions[actionType]);
+    yield takeLatest(actionType, nonBlockingActionSagas[actionType]);
   }
 }
 

@@ -1,4 +1,3 @@
-import useDefaultBranchEE from "ee/git/hooks/useDefaultBranch";
 import { useGitContext } from "git/components/GitContextProvider";
 import { selectDefaultBranch } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
@@ -11,11 +10,8 @@ function useDefaultBranch() {
     selectDefaultBranch(state, artifactDef),
   );
 
-  const useDefaultBranchEEValues = useDefaultBranchEE();
-
   return {
     defaultBranch,
-    ...useDefaultBranchEEValues,
   };
 }
 

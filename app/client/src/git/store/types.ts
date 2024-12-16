@@ -15,9 +15,9 @@ import type { FetchMetadataResponseData } from "git/requests/fetchMetadataReques
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
 import type {
-  GitSingleArtifactAPIResponsesReduxStateEE,
-  GitSingleArtifactUIReduxStateEE,
-} from "ee/git/store/types";
+  GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
+  GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
+} from "git/ee/store/types";
 
 export type GitSSHKey = Record<string, unknown>;
 
@@ -37,7 +37,7 @@ export interface GitAsyncStateWithoutValue {
   error: GitApiError | null;
 }
 export interface GitSingleArtifactAPIResponsesReduxState
-  extends GitSingleArtifactAPIResponsesReduxStateEE {
+  extends GitArtifactAPIResponsesReduxStateExtended {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
@@ -63,7 +63,7 @@ export interface GitSingleArtifactAPIResponsesReduxState
 }
 
 export interface GitSingleArtifactUIReduxState
-  extends GitSingleArtifactUIReduxStateEE {
+  extends GitArtifactUIReduxStateExtended {
   connectModal: {
     open: boolean;
     step: keyof typeof GitConnectStep;
