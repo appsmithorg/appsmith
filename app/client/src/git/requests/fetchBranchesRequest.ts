@@ -8,7 +8,7 @@ import type { AxiosPromise } from "axios";
 
 export default async function fetchBranchesRequest(
   branchedApplicationId: string,
-  params: FetchBranchesRequestParams,
+  params: FetchBranchesRequestParams = { pruneBranches: true },
 ): AxiosPromise<FetchBranchesResponse> {
   const queryParams = {} as FetchBranchesRequestParams;
 

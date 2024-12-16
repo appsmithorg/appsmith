@@ -4,11 +4,11 @@ import type {
   ImportGitRequestParams,
   ImportGitResponse,
 } from "./importGitRequest.types";
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 
 export default async function importGitRequest(
   workspaceId: string,
   params: ImportGitRequestParams,
-): Promise<AxiosResponse<ImportGitResponse>> {
+): AxiosPromise<ImportGitResponse> {
   return Api.post(`${GIT_BASE_URL}/import/${workspaceId}`, params);
 }

@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 import type {
   UpdateGlobalProfileRequestParams,
   UpdateGlobalProfileResponse,
@@ -8,6 +8,6 @@ import { GIT_BASE_URL } from "./constants";
 
 export default async function updateGlobalProfileRequest(
   params: UpdateGlobalProfileRequestParams,
-): Promise<AxiosResponse<UpdateGlobalProfileResponse>> {
+): AxiosPromise<UpdateGlobalProfileResponse> {
   return Api.post(`${GIT_BASE_URL}/profile/default`, params);
 }
