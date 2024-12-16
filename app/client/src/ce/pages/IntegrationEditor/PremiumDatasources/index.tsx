@@ -3,41 +3,22 @@ import {
   ApiCard,
   CardContentWrapper,
 } from "../../../../pages/Editor/IntegrationEditor/NewApi";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
-
-const PREMIUM_INTEGRATIONS = [
-  {
-    name: "Zendesk",
-    icon: "https://assets.appsmith.com/zendesk-icon.png",
-  },
-  {
-    name: "Salesforce",
-    icon: "https://assets.appsmith.com/salesforce-icon.png",
-  },
-];
+import { PREMIUM_INTEGRATIONS } from "ee/constants/PremiumDatasourcesConstants";
+import { handlePremiumDatasourceClick } from "ee/utils/PremiumDatasourcesHelpers";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
 `;
 
-export default function PremiumDatasources({
-  isEnterprise,
-}: {
-  isEnterprise?: boolean;
-}) {
+export default function PremiumDatasources() {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
   const handleOnClick = (name: string) => {
-    AnalyticsUtil.logEvent(
-      isEnterprise ? "SOON_INTEGRATION_CTA" : "PREMIUM_INTEGRATION_CTA",
-      {
-        integration_name: name,
-      },
-    );
+    handlePremiumDatasourceClick(name);
     setSelectedIntegration(name);
   };
 
@@ -65,9 +46,7 @@ export default function PremiumDatasources({
             />
             <p className="t--plugin-name textBtn">{integration.name}</p>
             <Tag isClosable={false} kind={"premium"}>
-              {isEnterprise
-                ? createMessage(PREMIUM_DATASOURCES.SOON_TAG)
-                : createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG)}
+              {createMessage(PREMIUM_DATASOURCES.TAG_TEXT)}
             </Tag>
           </CardContentWrapper>
         </ApiCard>
@@ -77,7 +56,6 @@ export default function PremiumDatasources({
           <ContactForm
             closeModal={() => setSelectedIntegration("")}
             integrationName={selectedIntegration}
-            isEnterprise={!!isEnterprise}
           />
         </ModalContentWrapper>
       </Modal>

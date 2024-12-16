@@ -22,6 +22,7 @@ export enum RampSection {
   BottomBarEnvSwitcher = "bottom_bar_env_switcher",
   DSEditor = "ds_editor",
   AdminSettings = "admin_settings",
+  PremiumDatasourcesContactModal = "premium_datasources_contact_modal",
 }
 
 export enum RampFeature {
@@ -32,6 +33,7 @@ export enum RampFeature {
   Branding = "branding",
   Sso = "sso",
   Provisioning = "provisioning",
+  PremiumDatasources = "premium_datasources",
 }
 
 export const INVITE_USER_TO_APP: SupportedRampsType = {

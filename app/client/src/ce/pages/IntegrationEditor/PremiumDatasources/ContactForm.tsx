@@ -2,7 +2,7 @@ import { Button, Flex, ModalHeader, toast } from "@appsmith/ads";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
 import React, { useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import {
   Field,
   formValueSelector,
@@ -13,10 +13,21 @@ import {
 } from "redux-form";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
-import { isEmail, isRelevantEmail } from "utils/formhelpers";
+import { isEmail } from "utils/formhelpers";
 import ReduxFormTextField from "components/utils/ReduxFormTextField";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
+import { getAppsmithConfigs } from "ee/configs";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import {
+  getContactFormModalDescription,
+  getContactFormModalTitle,
+  getContactFormSubmitButtonText,
+  handleLearnMoreClick,
+  handleSubmitEvent,
+  shouldLearnMoreButtonBeVisible,
+} from "ee/utils/PremiumDatasourcesHelpers";
 
 const FormWrapper = styled.form`
   display: flex;
@@ -27,6 +38,17 @@ const FormWrapper = styled.form`
 const PremiumDatasourceContactForm = (
   props: PremiumDatasourceContactFormProps,
 ) => {
+  const instanceId = useSelector(getInstanceId);
+  const appsmithConfigs = getAppsmithConfigs();
+
+  const redirectPricingURL = PRICING_PAGE_URL(
+    appsmithConfigs.pricingUrl,
+    pricingPageUrlSource,
+    instanceId,
+    RampFeature.PremiumDatasources,
+    RampSection.PremiumDatasourcesContactModal,
+  );
+
   const onSubmit = () => {
     submitEvent();
     toast.show(createMessage(PREMIUM_DATASOURCES.SUCCESS_TOAST_MESSAGE), {
@@ -35,48 +57,25 @@ const PremiumDatasourceContactForm = (
     props.closeModal();
   };
 
-  const validRelevantEmail = isRelevantEmail(props.email || "");
-
   const onClickLearnMore = useCallback(() => {
-    AnalyticsUtil.logEvent(
-      validRelevantEmail
-        ? "PREMIUM_MODAL_RELEVANT_LEARN_MORE"
-        : "PREMIUM_MODAL_NOT_RELEVANT_LEARN_MORE",
-      {
-        integration_name: props.integrationName,
-        email: props.email,
-      },
+    handleLearnMoreClick(
+      props.integrationName,
+      props.email || "",
+      redirectPricingURL,
     );
-    window.open(ENTERPRISE_PRICING_PAGE, "_blank");
-  }, [props.email, props.integrationName]);
+  }, [redirectPricingURL, props.email, props.integrationName]);
 
   const submitEvent = useCallback(() => {
-    AnalyticsUtil.logEvent(
-      props.isEnterprise
-        ? "SOON_NOTIFY_REQUEST"
-        : validRelevantEmail
-          ? "PREMIUM_MODAL_RELEVANT_SCHEDULE_CALL"
-          : "PREMIUM_MODAL_NOT_RELEVANT_SUBMIT",
-      {
-        integration_name: props.integrationName,
-        email: props.email,
-      },
-    );
-  }, [props.email, props.integrationName, props.isEnterprise]);
+    handleSubmitEvent(props.integrationName, props.email || "");
+  }, [props.email, props.integrationName]);
 
   return (
     <>
-      <ModalHeader>{`${props.integrationName} ${props.isEnterprise ? `- ${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`}</ModalHeader>
+      <ModalHeader>
+        {getContactFormModalTitle(props.integrationName)}
+      </ModalHeader>
       <FormWrapper onSubmit={props.handleSubmit(onSubmit)}>
-        <p>
-          {props.isEnterprise
-            ? createMessage(PREMIUM_DATASOURCES.COMING_SOON_DESCRIPTION)
-            : validRelevantEmail
-              ? createMessage(PREMIUM_DATASOURCES.RELEVANT_EMAIL_DESCRIPTION)
-              : createMessage(
-                  PREMIUM_DATASOURCES.NON_RELEVANT_EMAIL_DESCRIPTION,
-                )}
-        </p>
+        <p>{getContactFormModalDescription(props.email || "")}</p>
         <Field
           component={ReduxFormTextField}
           description={createMessage(
@@ -88,7 +87,7 @@ const PremiumDatasourceContactForm = (
           type="email"
         />
         <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
-          {!props.isEnterprise && (
+          {shouldLearnMoreButtonBeVisible() && (
             <Button
               aria-label="Close"
               kind="secondary"
@@ -99,11 +98,7 @@ const PremiumDatasourceContactForm = (
             </Button>
           )}
           <Button isDisabled={props.invalid} size="md" type="submit">
-            {props.isEnterprise
-              ? createMessage(PREMIUM_DATASOURCES.NOTIFY_ME)
-              : validRelevantEmail
-                ? createMessage(PREMIUM_DATASOURCES.SCHEDULE_CALL)
-                : createMessage(PREMIUM_DATASOURCES.SUBMIT)}
+            {getContactFormSubmitButtonText(props.email || "")}
           </Button>
         </Flex>
       </FormWrapper>
@@ -123,14 +118,12 @@ type PremiumDatasourceContactFormProps = PremiumDatasourceContactFormValues & {
   formSyncErrors?: FormErrors<string, string>;
   closeModal: () => void;
   integrationName: string;
-  isEnterprise: boolean;
 } & InjectedFormProps<
     PremiumDatasourceContactFormValues,
     {
       formSyncErrors?: FormErrors<string, string>;
       closeModal: () => void;
       integrationName: string;
-      isEnterprise: boolean;
     }
   >;
 
@@ -161,7 +154,6 @@ export default connect((state: AppState) => {
       formSyncErrors?: FormErrors<string, string>;
       closeModal: () => void;
       integrationName: string;
-      isEnterprise: boolean;
     }
   >({
     validate,
