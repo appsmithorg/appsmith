@@ -139,7 +139,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: 129
+          chrome-version: 130
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
