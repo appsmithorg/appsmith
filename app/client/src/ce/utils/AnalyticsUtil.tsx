@@ -1,5 +1,4 @@
 import log from "loglevel";
-import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "ee/configs";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -19,21 +18,21 @@ export enum AnalyticsEventType {
 class AnalyticsUtil {
   static instanceId?: string = "";
   static blockErrorLogs = false;
-  protected static segmentAnalytics: SegmentSingleton;
+  protected static segmentAnalytics: SegmentSingleton | null = null;
 
   static async initialize(user: User) {
     SentryUtil.init();
-    SmartlookUtil.init();
+    await SmartlookUtil.init();
 
-    this.segmentAnalytics = SegmentSingleton.getInstance();
+    AnalyticsUtil.segmentAnalytics = SegmentSingleton.getInstance();
 
-    await this.segmentAnalytics.init();
+    await AnalyticsUtil.segmentAnalytics.init();
 
     // Mixpanel needs to be initialized after Segment
     await MixpanelSingleton.getInstance().init();
 
     // Identify the user after all services are initialized
-    await this.identifyUser(user);
+    await AnalyticsUtil.identifyUser(user);
   }
 
   protected static getEventExtraProperties() {
@@ -44,7 +43,7 @@ class AnalyticsUtil {
     try {
       userData = TrackedUser.getInstance().getUser();
     } catch (e) {
-      log.warn("TrackedUser is not initialized. Call init() first.");
+      userData = {};
     }
 
     return {
@@ -82,7 +81,7 @@ class AnalyticsUtil {
   }
 
   static async identifyUser(userData: User, sendAdditionalData?: boolean) {
-    const { appVersion, smartLook } = getAppsmithConfigs();
+    const { appVersion } = getAppsmithConfigs();
 
     // we don't want to identify anonymous users (anonymous users are not logged-in users)
     if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
@@ -94,16 +93,16 @@ class AnalyticsUtil {
 
     const trackedUser = TrackedUser.getInstance().getUser();
 
+    const additionalData = {
+      id: trackedUser.userId,
+      version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
+      instanceId: AnalyticsUtil.instanceId,
+    };
+
     if (this.segmentAnalytics) {
       const userProperties = {
         ...trackedUser,
-        ...(sendAdditionalData
-          ? {
-              id: trackedUser.userId,
-              version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
-              instanceId: AnalyticsUtil.instanceId,
-            }
-          : {}),
+        ...(sendAdditionalData ? additionalData : {}),
       };
 
       log.debug("Identify User " + trackedUser.userId);
@@ -112,10 +111,8 @@ class AnalyticsUtil {
 
     SentryUtil.identifyUser(trackedUser.userId, userData);
 
-    if (smartLook.enabled && trackedUser.email) {
-      smartlookClient.identify(trackedUser.userId, {
-        email: trackedUser.email,
-      });
+    if (trackedUser.email) {
+      SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
     }
   }
 
