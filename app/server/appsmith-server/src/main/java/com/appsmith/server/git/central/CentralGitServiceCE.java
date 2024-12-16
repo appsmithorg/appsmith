@@ -1,9 +1,9 @@
 package com.appsmith.server.git.central;
 
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
-import com.appsmith.server.constants.ce.RefType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
