@@ -56,7 +56,7 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
                   className={styles.dialCodeOption}
                   id={item.code}
                   key={`menu-item-${item.code}`}
-                  textValue={item.dial_code}
+                  textValue={item.name}
                 >
                   {countryToFlag(item?.dial_code ?? "")}{" "}
                   <span data-component="code">{item.dial_code}</span>{" "}
