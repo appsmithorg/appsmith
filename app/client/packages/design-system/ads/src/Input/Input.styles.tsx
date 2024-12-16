@@ -98,7 +98,7 @@ export const InputContainer = styled.div<{
   }
 
   & .${InputIconClassName}.${InputStartIconClassName} {
-    left: 0;
+    left: 1px;
   }
 
   & .${InputIconClassName}.${InputEndIconClassName} {
@@ -163,7 +163,7 @@ export const StyledInput = styled.input<{
     hasStartIcon &&
     renderer === "input" &&
     css`
-      padding-left: calc((var(--input-padding-x) * 2) + var(--icon-size) - 1px);
+      padding-left: calc((var(--input-padding-x) * 2) + var(--icon-size));
     `};
 
   /* adjust padding end according to icon present or not */
@@ -171,9 +171,7 @@ export const StyledInput = styled.input<{
     hasEndIcon &&
     renderer === "input" &&
     css`
-      padding-right: calc(
-        (var(--input-padding-x) * 2) + var(--icon-size) - 1px
-      );
+      padding-right: calc((var(--input-padding-x) * 2) + var(--icon-size));
     `};
 
   &:focus:enabled:not(:read-only) {
