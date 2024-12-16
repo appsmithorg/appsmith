@@ -223,7 +223,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@v1
         with:
-          chrome-version: 130
+          chrome-version: 131
           install-chromedriver: true
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
