@@ -48,9 +48,6 @@ export const useHeaderActions = (
 ) => {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
@@ -73,9 +70,7 @@ export const useHeaderActions = (
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
-  const shouldShowSecondaryGenerateButton = releaseDragDropBuildingBlocks
-    ? false
-    : !!isPluginAllowedToPreviewData;
+  const shouldShowSecondaryGenerateButton = !!isPluginAllowedToPreviewData;
 
   if (editorType === EditorNames.APPLICATION) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
