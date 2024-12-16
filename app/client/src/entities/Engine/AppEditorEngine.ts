@@ -48,7 +48,7 @@ import AppEngine, {
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
-  waitForSegmentInit,
+  // waitForSegmentInit,
   waitForFetchUserSuccess,
 } from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
@@ -181,7 +181,7 @@ export default class AppEditorEngine extends AppEngine {
       rootSpan,
     );
 
-    yield call(waitForSegmentInit, true);
+    // yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentInitSpan);
 
     const waitForFetchEnvironmentsSpan = startNestedSpan(
