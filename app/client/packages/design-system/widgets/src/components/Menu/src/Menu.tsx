@@ -3,11 +3,12 @@ import { listStyles, Popover } from "@appsmith/wds";
 import { Menu as HeadlessMenu } from "react-aria-components";
 
 import type { MenuProps } from "./types";
+import clsx from "clsx";
 
 const MenuNestingContext = createContext(0);
 
 export const Menu = (props: MenuProps) => {
-  const { children, maxHeight } = props;
+  const { children, className, maxHeight, ...rest } = props;
   const root = document.body.querySelector(
     "[data-theme-provider]",
   ) as HTMLButtonElement;
@@ -22,7 +23,7 @@ export const Menu = (props: MenuProps) => {
         UNSTABLE_portalContainer={isRootMenu ? root : undefined}
         maxHeight={maxHeight}
       >
-        <HeadlessMenu className={listStyles.listBox} {...props}>
+        <HeadlessMenu className={clsx(listStyles.listBox, className)} {...rest}>
           {children}
         </HeadlessMenu>
       </Popover>

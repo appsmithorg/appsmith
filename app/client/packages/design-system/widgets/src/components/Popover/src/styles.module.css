@@ -3,5 +3,4 @@
   border-radius: var(--border-radius-elevation-3);
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
-  overflow-y: auto;
 }
