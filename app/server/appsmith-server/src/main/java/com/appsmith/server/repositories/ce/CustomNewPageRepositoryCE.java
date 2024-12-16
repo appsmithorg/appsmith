@@ -42,4 +42,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
     Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
+
+    Flux<NewPage> findByApplicationId(String applicationId);
+
+    Mono<Long> countByDeletedAtNull();
 }
