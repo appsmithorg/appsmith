@@ -229,9 +229,6 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           {headerActions && headerActions.newActionButton
             ? headerActions.newActionButton
             : null}
-          {headerActions && headerActions.generatePageButton
-            ? headerActions.generatePageButton
-            : null}
         </ActionWrapper>
       )}
     </Header>
