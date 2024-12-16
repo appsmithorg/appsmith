@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import derivedProperty from "../../derived";
 
-import { samplePrimaryColumns, sampleProcessedTableData } from "./fixture";
+import { samplePrimaryColumns, sampleProcessedTableData } from "../fixture";
 describe("Validate getSelectedRow function", () => {
   it("Multple row selection, with selected rows", () => {
     const { getSelectedRow } = derivedProperty;
@@ -84,7 +84,7 @@ describe("Validate getSelectedRow function", () => {
     });
   });
 
-  it("Single row selection, with invalid indices", () => {
+  it("should return empty row when selectedRowIndices is a string value 'test'", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -103,7 +103,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with indices undefined", () => {
+
+  it("should return empty row when selectedRowIndices is undefined", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -122,7 +123,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with invalid indices", () => {
+
+  it("should return empty row when selectedRowIndices contains undefined value", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -141,7 +143,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with invalid indices", () => {
+
+  it("should return empty row when selectedRowIndices contains null value", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -160,7 +163,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with invalid indices", () => {
+
+  it("should return empty row when selectedRowIndices contains string numbers", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -179,7 +183,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with invalid indices", () => {
+
+  it("should return empty row when selectedRowIndices is a single string number", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -198,7 +203,8 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
-  it("Single row selection, with invalid indices", () => {
+
+  it("should return empty row when selectedRowIndices is a non-numeric string", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
