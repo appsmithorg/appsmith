@@ -102,7 +102,7 @@ export class CommonLocators {
     entityNameinLeftSidebar +
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
-    ".t--property-control-" + controlToToggle + " .t--js-toggle";
+    `.t--property-control-${controlToToggle} .t--js-toggle, [data-guided-tour-iid='${controlToToggle}']`;
   _buttonByText = (btnVisibleText: string) =>
     `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
@@ -342,6 +342,8 @@ export class CommonLocators {
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
   _widgetBorder = ".t--draggable-tabswidget div div div";
+  _modalButtonText = "[data-testid='modal-wrapper'] .bp3-button";
+  _showBoundary = ".show-boundary";
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
 }
