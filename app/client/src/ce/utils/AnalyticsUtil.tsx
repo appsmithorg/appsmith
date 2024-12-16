@@ -15,140 +15,142 @@ export enum AnalyticsEventType {
   error = "error",
 }
 
-class AnalyticsUtil {
-  static instanceId?: string = "";
-  static blockErrorLogs = false;
-  protected static segmentAnalytics: SegmentSingleton | null = null;
+let instanceId = "";
+let blockErrorLogs = false;
+let segmentAnalytics: SegmentSingleton | null = null;
 
-  static async initialize(user: User) {
-    SentryUtil.init();
-    await SmartlookUtil.init();
+async function initialize(user: User) {
+  SentryUtil.init();
+  await SmartlookUtil.init();
 
-    AnalyticsUtil.segmentAnalytics = SegmentSingleton.getInstance();
+  segmentAnalytics = SegmentSingleton.getInstance();
 
-    await AnalyticsUtil.segmentAnalytics.init();
+  await segmentAnalytics.init();
 
-    // Mixpanel needs to be initialized after Segment
-    await MixpanelSingleton.getInstance().init();
+  // Mixpanel needs to be initialized after Segment
+  await MixpanelSingleton.getInstance().init();
 
-    // Identify the user after all services are initialized
-    await AnalyticsUtil.identifyUser(user);
+  // Identify the user after all services are initialized
+  await identifyUser(user);
+}
+
+function getEventExtraProperties() {
+  const { appVersion } = getAppsmithConfigs();
+  let userData;
+
+  try {
+    userData = TrackedUser.getInstance().getUser();
+  } catch (e) {
+    userData = {};
   }
 
-  protected static getEventExtraProperties() {
-    const { appVersion } = getAppsmithConfigs();
-    const instanceId = AnalyticsUtil.instanceId;
-    let userData;
+  return {
+    instanceId,
+    version: appVersion.id,
+    userData,
+  };
+}
 
-    try {
-      userData = TrackedUser.getInstance().getUser();
-    } catch (e) {
-      userData = {};
-    }
-
-    return {
-      instanceId,
-      version: appVersion.id,
-      userData,
-    };
+function logEvent(
+  eventName: EventName,
+  eventData?: EventProperties,
+  eventType?: AnalyticsEventType,
+) {
+  if (blockErrorLogs && eventType === AnalyticsEventType.error) {
+    return;
   }
 
-  static logEvent(
-    eventName: EventName,
-    eventData?: EventProperties,
-    eventType?: AnalyticsEventType,
-  ) {
-    if (
-      AnalyticsUtil.blockErrorLogs &&
-      eventType === AnalyticsEventType.error
-    ) {
-      return;
-    }
+  const finalEventData = {
+    ...eventData,
+    ...getEventExtraProperties(),
+  };
 
-    const finalEventData = {
-      ...eventData,
-      ...this.getEventExtraProperties(),
-    };
-
-    // In scenarios where segment was never initialised, we are logging the event locally
-    // This is done so that we can debug event logging locally
-    if (this.segmentAnalytics) {
-      log.debug("Event fired", eventName, finalEventData);
-      this.segmentAnalytics.track(eventName, finalEventData);
-    } else {
-      log.debug("Event fired locally", eventName, finalEventData);
-    }
-  }
-
-  static async identifyUser(userData: User, sendAdditionalData?: boolean) {
-    const { appVersion } = getAppsmithConfigs();
-
-    // we don't want to identify anonymous users (anonymous users are not logged-in users)
-    if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
-      return;
-    }
-
-    // Initialize the TrackedUser singleton
-    TrackedUser.init(userData);
-
-    const trackedUser = TrackedUser.getInstance().getUser();
-
-    const additionalData = {
-      id: trackedUser.userId,
-      version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
-      instanceId: AnalyticsUtil.instanceId,
-    };
-
-    if (this.segmentAnalytics) {
-      const userProperties = {
-        ...trackedUser,
-        ...(sendAdditionalData ? additionalData : {}),
-      };
-
-      log.debug("Identify User " + trackedUser.userId);
-      await this.segmentAnalytics.identify(trackedUser.userId, userProperties);
-    }
-
-    SentryUtil.identifyUser(trackedUser.userId, userData);
-
-    if (trackedUser.email) {
-      SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
-    }
-  }
-
-  static initInstanceId(instanceId: string) {
-    AnalyticsUtil.instanceId = instanceId;
-  }
-
-  static getAnonymousId(): string | undefined | null {
-    const { segment } = getAppsmithConfigs();
-
-    if (this.segmentAnalytics) {
-      const user = this.segmentAnalytics.getUser();
-
-      if (user) {
-        return user.anonymousId();
-      }
-    } else if (segment.enabled) {
-      return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
-    }
-  }
-
-  static reset() {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const windowDoc: any = window;
-
-    if (windowDoc.Intercom) {
-      windowDoc.Intercom("shutdown");
-    }
-
-    this.segmentAnalytics && this.segmentAnalytics.reset();
-  }
-
-  static setBlockErrorLogs(value: boolean) {
-    AnalyticsUtil.blockErrorLogs = value;
+  // In scenarios where segment was never initialised, we are logging the event locally
+  // This is done so that we can debug event logging locally
+  if (segmentAnalytics) {
+    log.debug("Event fired", eventName, finalEventData);
+    segmentAnalytics.track(eventName, finalEventData);
+  } else {
+    log.debug("Event fired locally", eventName, finalEventData);
   }
 }
 
-export default AnalyticsUtil;
+async function identifyUser(userData: User, sendAdditionalData?: boolean) {
+  const { appVersion } = getAppsmithConfigs();
+
+  // we don't want to identify anonymous users (anonymous users are not logged-in users)
+  if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
+    return;
+  }
+
+  // Initialize the TrackedUser singleton
+  TrackedUser.init(userData);
+
+  const trackedUser = TrackedUser.getInstance().getUser();
+
+  const additionalData = {
+    id: trackedUser.userId,
+    version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
+    instanceId,
+  };
+
+  if (segmentAnalytics) {
+    const userProperties = {
+      ...trackedUser,
+      ...(sendAdditionalData ? additionalData : {}),
+    };
+
+    log.debug("Identify User " + trackedUser.userId);
+    await segmentAnalytics.identify(trackedUser.userId, userProperties);
+  }
+
+  SentryUtil.identifyUser(trackedUser.userId, userData);
+
+  if (trackedUser.email) {
+    SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
+  }
+}
+
+function initInstanceId(id: string) {
+  instanceId = id;
+}
+
+function setBlockErrorLogs(value: boolean) {
+  blockErrorLogs = value;
+}
+
+function getAnonymousId(): string | undefined | null {
+  const { segment } = getAppsmithConfigs();
+
+  if (segmentAnalytics) {
+    const user = segmentAnalytics.getUser();
+
+    if (user) {
+      return user.anonymousId();
+    }
+  } else if (segment.enabled) {
+    return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
+  }
+}
+
+function reset() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const windowDoc: any = window;
+
+  if (windowDoc.Intercom) {
+    windowDoc.Intercom("shutdown");
+  }
+
+  segmentAnalytics && segmentAnalytics.reset();
+}
+
+export {
+  initialize,
+  logEvent,
+  identifyUser,
+  initInstanceId,
+  setBlockErrorLogs,
+  getAnonymousId,
+  reset,
+};
