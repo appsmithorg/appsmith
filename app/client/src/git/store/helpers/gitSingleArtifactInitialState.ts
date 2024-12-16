@@ -22,10 +22,9 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   branchListPopup: {
     open: false,
   },
-  opsModal: {
-    open: false,
-    tab: GitOpsTab.Deploy,
-  },
+  opsModalOpen: false,
+  opsModalTab: GitOpsTab.Deploy,
+  conflictErrorModalOpen: false,
   settingsModal: {
     open: false,
     tab: GitSettingsTab.General,
@@ -33,6 +32,8 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   repoLimitErrorModal: {
     open: false,
   },
+  autocommitModalOpen: false,
+  autocommitPolling: false,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -112,7 +113,6 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     autocommitProgress: {
-      value: null,
       loading: false,
       error: null,
     },

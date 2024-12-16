@@ -14,11 +14,26 @@ export const toggleRepoLimitErrorModalAction =
     return state;
   });
 
+interface ToggleConflictErrorModalPayload {
+  open: boolean;
+}
+
+export const toggleConflictErrorModalAction =
+  createSingleArtifactAction<ToggleConflictErrorModalPayload>(
+    (state, action) => {
+      const { open } = action.payload;
+
+      state.ui.conflictErrorModalOpen = open;
+
+      return state;
+    },
+  );
+
 interface BranchListPopupPayload {
   open: boolean;
 }
 
-export const toggleGitBranchListPopupAction =
+export const toggleBranchListPopupAction =
   createSingleArtifactAction<BranchListPopupPayload>((state, action) => {
     const { open } = action.payload;
 
@@ -27,28 +42,28 @@ export const toggleGitBranchListPopupAction =
     return state;
   });
 
-export interface ToggleGitOpsModalPayload {
+export interface ToggleOpsModalPayload {
   open: boolean;
   tab: keyof typeof GitOpsTab;
 }
 
-export const toggleGitOpsModalAction =
-  createSingleArtifactAction<ToggleGitOpsModalPayload>((state, action) => {
+export const toggleOpsModalAction =
+  createSingleArtifactAction<ToggleOpsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
-    state.ui.opsModal.open = open;
-    state.ui.opsModal.tab = tab;
+    state.ui.opsModalOpen = open;
+    state.ui.opsModalTab = tab;
 
     return state;
   });
 
-export interface ToggleGitSettingsModalPayload {
+export interface ToggleSettingsModalPayload {
   open: boolean;
   tab: keyof typeof GitSettingsTab;
 }
 
-export const toggleGitSettingsModalAction =
-  createSingleArtifactAction<ToggleGitSettingsModalPayload>((state, action) => {
+export const toggleSettingsModalAction =
+  createSingleArtifactAction<ToggleSettingsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
     state.ui.settingsModal.open = open;
@@ -57,12 +72,12 @@ export const toggleGitSettingsModalAction =
     return state;
   });
 
-export interface ToggleGitConnectModalPayload {
+export interface ToggleConnectModalPayload {
   open: boolean;
 }
 
-export const toggleGitConnectModalAction =
-  createSingleArtifactAction<ToggleGitConnectModalPayload>((state, action) => {
+export const toggleConnectModalAction =
+  createSingleArtifactAction<ToggleConnectModalPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.connectModal.open = open;
