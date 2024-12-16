@@ -153,4 +153,5 @@ export {
   setBlockErrorLogs,
   getAnonymousId,
   reset,
+  getEventExtraProperties,
 };
