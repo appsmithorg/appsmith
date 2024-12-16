@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import derivedProperty from "../../derived";
-import { samplePrimaryColumns, sampleProcessedTableData } from "./fixture";
+import { samplePrimaryColumns, sampleProcessedTableData } from "../fixture";
 
 describe("Validate getSelectedRows function", () => {
   it("with valid index", () => {
