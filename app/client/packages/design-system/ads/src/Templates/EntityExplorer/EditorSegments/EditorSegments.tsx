@@ -1,25 +1,9 @@
 import React from "react";
-import styled from "styled-components";
-import {
-  SegmentedControl,
-  type SegmentedControlOption,
-} from "../../../SegmentedControl";
-import { Flex } from "../../../Flex";
+import { SegmentedControl } from "../../../SegmentedControl";
+import { Container } from "./EditorSegments.styles";
+import type { EditorSegmentsProps } from "./EditorSegments.types";
 
-interface Props {
-  selectedSegment: string;
-  onSegmentChange: (value: string) => void;
-  options: SegmentedControlOption[];
-  children?: React.ReactNode | React.ReactNode[];
-}
-
-const Container = styled(Flex)`
-  #editor-pane-segment-control {
-    max-width: 247px;
-  }
-`;
-
-export const EditorSegments = (props: Props) => {
+export const EditorSegments = (props: EditorSegmentsProps) => {
   const { children, onSegmentChange, options, selectedSegment } = props;
 
   return (
@@ -32,7 +16,7 @@ export const EditorSegments = (props: Props) => {
       padding="spaces-2"
     >
       <SegmentedControl
-        id="editor-pane-segment-control"
+        className="editor-pane-segment-control"
         onChange={onSegmentChange}
         options={options}
         value={selectedSegment}
