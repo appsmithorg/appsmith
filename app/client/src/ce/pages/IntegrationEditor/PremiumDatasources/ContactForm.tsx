@@ -72,7 +72,7 @@ const PremiumDatasourceContactForm = (
       props.email || "",
       !isFreePlanInstance,
     );
-  }, [props.email, props.integrationName]);
+  }, [props.email, props.integrationName, isFreePlanInstance]);
 
   return (
     <>
@@ -99,7 +99,7 @@ const PremiumDatasourceContactForm = (
         <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
           {shouldLearnMoreButtonBeVisible(!isFreePlanInstance) && (
             <Button
-              aria-label="Close"
+              aria-label="Learn more"
               kind="secondary"
               onClick={onClickLearnMore}
               size="md"

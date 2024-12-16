@@ -31,7 +31,7 @@ export const isEmail = (value: string) => {
 };
 
 export function isRelevantEmail(email: string) {
-  const generalDomains = [
+  const GENERAL_DOMAINS = [
     "gmail.com",
     "yahoo.com",
     "outlook.com",
@@ -51,5 +51,5 @@ export function isRelevantEmail(email: string) {
   }
 
   // Check if the domain exists in the list of general domains
-  return !generalDomains.includes(domain);
+  return !GENERAL_DOMAINS.includes(domain);
 }

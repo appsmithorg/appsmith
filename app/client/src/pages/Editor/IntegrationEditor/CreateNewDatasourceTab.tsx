@@ -357,7 +357,7 @@ class CreateNewDatasourceTab extends React.Component<
             </>
           )}
         </NewIntegrationsContainer>
-        {true && <RequestNewIntegration />}
+        {isRequestNewIntegrationEnabled && <RequestNewIntegration />}
         {showDebugger && <Debugger />}
       </>
     );
