@@ -23,17 +23,20 @@ module.exports = {
           before: [
             {
               path: "node_modules/ts-jest-mock-import-meta",
-              options: { metaObjectReplacement: { url: "https://www.url.com" } },
+              options: {
+                metaObjectReplacement: { url: "https://www.url.com" },
+              },
             },
           ],
         },
-      }
+      },
     ],
   },
   testEnvironment: "jsdom",
   testTimeout: 9000,
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
-  testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx|ts|js)?$",
+  testRegex:
+    "(/__tests__/.*\\.(?:test|spec)\\.[tj]sx?$)|(?:^(?!.*/__tests__/).*\\.(?:test|spec)\\.[tj]sx?$)",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
@@ -68,8 +71,7 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "@appsmith/ads": "<rootDir>/node_modules/@appsmith/ads",
     "^canvas$": "jest-canvas-mock",
-    "^entities/(.*)$": "<rootDir>/src/entities/$1",  // Match 'entities/*'
-
+    "^entities/(.*)$": "<rootDir>/src/entities/$1", // Match 'entities/*'
   },
   globals: {
     APPSMITH_FEATURE_CONFIGS: {
