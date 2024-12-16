@@ -38,6 +38,7 @@ import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
   getAllPathsBasedOnDiffPaths,
+  isPropertyAnEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 
 import {
@@ -86,8 +87,11 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
-import evaluateSync, {
+import {
+  evaluateSync,
+  resetWorkerGlobalScope,
+  type EvalResult,
+  type EvaluateContext,
   evaluateAsync,
   setEvalContext,
 } from "workers/Evaluation/evaluate";
@@ -148,6 +152,8 @@ import {
   EComputationCacheName,
   type ICacheProps,
 } from "../AppComputationCache/types";
+import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -1059,6 +1065,8 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
     contextTree: DataTree;
   } {
+    resetWorkerGlobalScope();
+
     const safeTree = klonaJSON(unEvalTree);
     const dataStore = DataStore.getDataStore();
     const dataStoreClone = klonaJSON(dataStore);
@@ -1084,6 +1092,16 @@ export default class DataTreeEvaluator {
     const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
+    let evalContextCache;
+
+    if (WorkerEnv.flags.release_evaluation_scope_cache) {
+      evalContextCache = getDataTreeContext({
+        dataTree: contextTree,
+        configTree: oldConfigTree,
+        isTriggerBased: false,
+      });
+    }
+
     try {
       for (const fullPropertyPath of evaluationOrder) {
         const { entityName, propertyPath } =
@@ -1092,6 +1110,11 @@ export default class DataTreeEvaluator {
         const entityConfig = oldConfigTree[entityName];
 
         if (!isWidgetActionOrJsObject(entity)) continue;
+
+        // Skip evaluations for actions in JSObjects
+        if (isPropertyAnEntityAction(entity, propertyPath, entityConfig)) {
+          continue;
+        }
 
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1144,6 +1167,7 @@ export default class DataTreeEvaluator {
               contextData,
               undefined,
               fullPropertyPath,
+              evalContextCache,
             );
           } catch (error) {
             this.errors.push({
@@ -1209,6 +1233,13 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klonaJSON(parsedValue));
 
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(evalContextCache, fullPropertyPath, klonaJSON(parsedValue));
+            }
+
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
                 entity: widgetEntity,
@@ -1254,6 +1285,18 @@ export default class DataTreeEvaluator {
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
+
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(
+                evalContextCache,
+                fullPropertyPath,
+                klonaJSON(evalPropertyValue),
+              );
+            }
+
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1294,6 +1337,18 @@ export default class DataTreeEvaluator {
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
+
+              if (
+                WorkerEnv.flags.release_evaluation_scope_cache &&
+                evalContextCache
+              ) {
+                set(
+                  evalContextCache,
+                  fullPropertyPath,
+                  klonaJSON(evalPropertyValue),
+                );
+              }
+
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1306,6 +1361,17 @@ export default class DataTreeEvaluator {
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
+
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(
+                evalContextCache,
+                fullPropertyPath,
+                klonaJSON(evalPropertyValue),
+              );
+            }
         }
       }
     } catch (error) {
@@ -1417,6 +1483,7 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callBackData?: Array<any>,
     fullPropertyPath?: string,
+    evalContextCache?: EvaluateContext,
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
@@ -1467,6 +1534,7 @@ export default class DataTreeEvaluator {
           !!entity && isAnyJSAction(entity),
           contextData,
           callBackData,
+          evalContextCache,
         );
 
         if (fullPropertyPath && evalErrors.length) {
@@ -1560,6 +1628,7 @@ export default class DataTreeEvaluator {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackData?: Array<any>,
+    evalContextCache?: EvaluateContext,
   ): EvalResult {
     let evalResponse: EvalResult;
 
@@ -1574,6 +1643,8 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
+        {},
+        evalContextCache,
       );
     } catch (error) {
       evalResponse = {

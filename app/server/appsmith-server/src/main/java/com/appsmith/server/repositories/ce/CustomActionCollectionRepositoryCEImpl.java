@@ -168,4 +168,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String pageId, boolean viewMode, AclPermission permission) {
         return this.findByPageIdAndViewMode(pageId, viewMode, permission);
     }
+
+    @Override
+    public Flux<ActionCollection> findByApplicationId(String applicationId) {
+        final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+        return queryBuilder().criteria(q).all();
+    }
 }

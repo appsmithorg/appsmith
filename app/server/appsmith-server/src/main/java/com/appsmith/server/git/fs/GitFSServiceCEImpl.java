@@ -215,8 +215,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                                 } else if (error instanceof TimeoutException) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                                 }
-                                return Mono.error(
-                                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", error));
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED, "clone", error.getMessage()));
                             });
                 });
     }
@@ -325,13 +325,16 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        return fsGitHandler.commitArtifact(
-                repoSuffix,
-                commitDTO.getMessage(),
-                commitDTO.getAuthor().getName(),
-                commitDTO.getAuthor().getEmail(),
-                true,
-                commitDTO.getIsAmendCommit());
+        return fsGitHandler
+                .commitArtifact(
+                        repoSuffix,
+                        commitDTO.getMessage(),
+                        commitDTO.getAuthor().getName(),
+                        commitDTO.getAuthor().getEmail(),
+                        true,
+                        commitDTO.getIsAmendCommit())
+                .onErrorResume(error -> Mono.error(
+                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
     }
 
     @Override
@@ -594,5 +597,24 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, false);
 
         return checkoutBranchMono.then(Mono.defer(() -> fetchRemoteMono));
+    }
+
+    @Override
+    public Mono<? extends ArtifactExchangeJson> recreateArtifactJsonFromLastCommit(
+            ArtifactJsonTransformationDTO jsonTransformationDTO) {
+
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String refName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        return fsGitHandler.rebaseBranch(repoSuffix, refName).flatMap(rebaseStatus -> {
+            return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
+                    workspaceId, baseArtifactId, repoName, refName, artifactType);
+        });
     }
 }

@@ -214,4 +214,16 @@ export default class PartialImportExport {
       Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP(),
     );
   }
+
+  OpenImportModalWithPage(pageName: string) {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+
+    this.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: pageName,
+      action: "Import",
+      entityType: EntityItems.Page,
+    });
+
+    this.agHelper.AssertElementVisibility(this.locators.import.importModal);
+  }
 }

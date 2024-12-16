@@ -31,4 +31,6 @@ public interface CentralGitServiceCE {
             ArtifactType artifactType,
             GitType gitType,
             RefType refType);
+
+    Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 }
