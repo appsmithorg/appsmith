@@ -1,7 +1,11 @@
 div.comboboxInputGroup {
-  padding-inline-start: 0;
+  padding-inline: 0;
 }
 
 input.comboboxInput {
-  padding-inline-start: var(--inner-spacing-2);
+  padding-inline: var(--inner-spacing-2);
+}
+
+.comboboxTriggerButton {
+  margin-inline-end: var(--inner-spacing-2);
 }

@@ -19,6 +19,7 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
 
     return (
       <IconButton
+        className={styles.comboboxTriggerButton}
         icon="chevron-down"
         isDisabled={isDisabled}
         size={size === "medium" ? "small" : "xSmall"}
