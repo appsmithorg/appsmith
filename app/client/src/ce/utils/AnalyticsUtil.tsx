@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import log from "loglevel";
 import { getAppsmithConfigs } from "ee/configs";
 import type { User } from "constants/userConstants";
@@ -27,61 +26,18 @@ let blockErrorLogs = false;
 let segmentAnalytics: SegmentSingleton | null = null;
 
 async function initialize(user: User) {
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Analytics initialized");
-  }
-
   SentryUtil.init();
-
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Sentry initialized");
-  }
-
   await SmartlookUtil.init();
-
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Smartlook initialized");
-  }
 
   segmentAnalytics = SegmentSingleton.getInstance();
 
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Segment Instance get");
-  }
-
   await segmentAnalytics.init();
-
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Segment Instance init");
-  }
 
   // Mixpanel needs to be initialized after Segment
   await MixpanelSingleton.getInstance().init();
 
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Mixpanel Instance init");
-  }
-
   // Identify the user after all services are initialized
   await identifyUser(user);
-
-  // @ts-ignore
-  if (window.Cypress) {
-    // @ts-ignore
-    window.Cypress.log("Identify User complete");
-  }
 }
 
 function logEvent(
