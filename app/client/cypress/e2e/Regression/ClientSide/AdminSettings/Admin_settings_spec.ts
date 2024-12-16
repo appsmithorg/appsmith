@@ -24,6 +24,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("1. Should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.pause();
     agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
     agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
@@ -110,6 +111,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     },
   );
 
+
+
   it("7. Should test save and clear buttons disabled state", () => {
     agHelper.VisitNAssert(
       adminSettingsHelper.routes.GENERAL,
@@ -194,4 +197,45 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     });
     agHelper.AssertElementVisibility(adminsSettings.restartNotice);
   });
+
+  it("10. Verify default instance name", () => {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+    cy.wait("@getEnvVariables");
+    agHelper
+        .GetText(adminSettingsHelper._instanceName, "val")
+        .then(($text) => expect($text).to.eq("Appsmith"));
+    cy.LogOut();
+  });
+
+  it("11. Verify all admin setting sections are accessible",
+    () => {
+      cy.visit("/applications", { timeout: 60000 });
+      agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+      cy.wait("@getEnvVariables");
+      agHelper.GetNClick(adminsSettings.generalTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+      agHelper.GetNClick(adminsSettings.advancedTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.ADVANCED);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.GetNClick(adminsSettings.emailTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+      agHelper.GetNClick(adminsSettings.developerSettingsTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.DEVELOPER_SETTINGS);
+      agHelper.GetNClick(adminsSettings.versionTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
+      agHelper.GetNClick(adminsSettings.branding);
+      agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
+      agHelper.GetNClick(adminsSettings.provisioning);
+      agHelper.AssertURL(adminSettingsHelper.routes.PROVISIONING);
+      agHelper.GetNClick(adminsSettings.accessControl);
+      agHelper.AssertURL(adminSettingsHelper.routes.ACCESS_CONTROL);
+      agHelper.GetNClick(adminsSettings.auditLogs);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUDIT_LOGS);
+    },
+  );
+
 });
