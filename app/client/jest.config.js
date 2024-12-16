@@ -35,8 +35,7 @@ module.exports = {
   testEnvironment: "jsdom",
   testTimeout: 9000,
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
-  testRegex:
-    "(/__tests__/.*\\.(?:test|spec)\\.[tj]sx?$)|(?:^(?!.*/__tests__/).*\\.(?:test|spec)\\.[tj]sx?$)",
+  testRegex: "\\.(test|spec)\\.(tsx|ts|js)?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
