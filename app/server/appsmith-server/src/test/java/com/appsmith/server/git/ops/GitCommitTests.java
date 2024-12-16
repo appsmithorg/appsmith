@@ -223,10 +223,9 @@ public class GitCommitTests {
         Mono<String> commitMono = centralGitService.commitArtifact(
                 commitDTO, application.getId(), ArtifactType.APPLICATION, GitType.FILE_SYSTEM);
 
-        Mockito.when(commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
-                        any(Path.class), any(), Mockito.anyString()))
-                .thenReturn(
-                        Mono.error(new RepositoryNotFoundException(AppsmithError.REPOSITORY_NOT_FOUND.getMessage())));
+        Mockito.doReturn(Mono.error(new RepositoryNotFoundException(AppsmithError.REPOSITORY_NOT_FOUND.getMessage())))
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
 
         StepVerifier.create(commitMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
