@@ -1,19 +1,80 @@
-import React from "react";
-import { Text, TextField } from "@appsmith/wds";
-import type { CurrencyInputComponentProps } from "./types";
-import { CurrencyTypeOptions } from "constants/Currency";
+import React, { type Key } from "react";
+import {
+  Button,
+  Menu,
+  MenuItem,
+  MenuTrigger,
+  Text,
+  TextField,
+} from "@appsmith/wds";
 import { useDebouncedValue } from "@mantine/hooks";
+import { CurrencyTypeOptions } from "constants/Currency";
+
+import styles from "./styles.module.css";
+import { countryToFlag } from "./utilities";
+import type { CurrencyInputComponentProps } from "./types";
 
 const DEBOUNCE_TIME = 300;
 
 export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
-  const currency = CurrencyTypeOptions.find(
+  const { allowCurrencyChange, onCurrencyChange } = props;
+  const selectedCurrency = CurrencyTypeOptions.find(
     (option) => option.currency === props.currencyCode,
   );
 
-  const prefix = (
-    <Text style={{ whiteSpace: "nowrap" }}>{currency?.symbol_native}</Text>
-  );
+  const onMenuItemSelect = (key: Key) => {
+    const currency = CurrencyTypeOptions.find((option) => option.code === key);
+
+    onCurrencyChange(currency?.currency);
+  };
+
+  const prefix = (function () {
+    if (allowCurrencyChange) {
+      return (
+        <MenuTrigger>
+          <Button
+            color="neutral"
+            icon="chevron-down"
+            iconPosition="end"
+            size="small"
+            variant="subtle"
+          >
+            {selectedCurrency?.symbol_native}
+          </Button>
+          <Menu
+            className={styles.currencyMenu}
+            maxHeight={400}
+            onAction={onMenuItemSelect}
+            selectedKeys={
+              selectedCurrency?.code ? new Set([selectedCurrency.code]) : []
+            }
+            selectionMode="single"
+          >
+            {CurrencyTypeOptions.map((item) => {
+              return (
+                <MenuItem
+                  className={styles.currencyOption}
+                  id={item.code}
+                  key={`menu-item-${item.symbol_native}`}
+                  textValue={item.currency}
+                >
+                  {countryToFlag(item.code)}{" "}
+                  <span data-component="code">{item.currency}</span>{" "}
+                  <span data-component="name">{item.currency_name}</span>
+                </MenuItem>
+              );
+            })}
+          </Menu>
+        </MenuTrigger>
+      );
+    }
+
+    return (
+      <Text style={{ whiteSpace: "nowrap" }}>
+        {selectedCurrency?.symbol_native}
+      </Text>
+    );
+  })();
 
   // Note: because of how derived props are handled by MetaHoc, the isValid shows wrong
   // values for some milliseconds. To avoid that, we are using debounced value.

@@ -10,3 +10,7 @@
     );
   }
 }
+
+.menuPopover {
+  overflow-y: auto;
+}
