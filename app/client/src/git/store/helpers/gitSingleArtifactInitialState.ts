@@ -22,10 +22,9 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   branchListPopup: {
     open: false,
   },
-  opsModal: {
-    open: false,
-    tab: GitOpsTab.Deploy,
-  },
+  opsModalOpen: false,
+  opsModalTab: GitOpsTab.Deploy,
+  conflictErrorModalOpen: false,
   settingsModal: {
     open: false,
     tab: GitSettingsTab.General,

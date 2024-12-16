@@ -1,9 +1,9 @@
 import React from "react";
-import GitQuickActions from "../GitQuickActions";
+import QuickActionsView from "./QuickActionsView";
 import { useGitContext } from "../GitContextProvider";
 import useStatusChangeCount from "./hooks/useStatusChangeCount";
 
-function CtxAwareGitQuickActions() {
+function QuickActions() {
   const {
     autocommitEnabled,
     autocommitPolling,
@@ -16,9 +16,9 @@ function CtxAwareGitQuickActions() {
     pullError,
     pullLoading,
     status,
-    toggleGitConnectModal,
-    toggleGitOpsModal,
-    toggleGitSettingsModal,
+    toggleConnectModal,
+    toggleOpsModal,
+    toggleSettingsModal,
   } = useGitContext();
 
   const connectPermitted = true;
@@ -28,7 +28,7 @@ function CtxAwareGitQuickActions() {
   const statusChangeCount = useStatusChangeCount(status);
 
   return (
-    <GitQuickActions
+    <QuickActionsView
       discard={discard}
       isAutocommitEnabled={autocommitEnabled}
       isAutocommitPolling={autocommitPolling}
@@ -43,11 +43,11 @@ function CtxAwareGitQuickActions() {
       pull={pull}
       statusBehindCount={statusBehindCount}
       statusChangeCount={statusChangeCount}
-      toggleGitConnectModal={toggleGitConnectModal}
-      toggleGitOpsModal={toggleGitOpsModal}
-      toggleGitSettingsModal={toggleGitSettingsModal}
+      toggleConnectModal={toggleConnectModal}
+      toggleOpsModal={toggleOpsModal}
+      toggleSettingsModal={toggleSettingsModal}
     />
   );
 }
 
-export default CtxAwareGitQuickActions;
+export default QuickActions;

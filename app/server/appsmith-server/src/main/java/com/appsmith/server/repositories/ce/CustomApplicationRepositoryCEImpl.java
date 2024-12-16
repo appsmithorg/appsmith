@@ -370,40 +370,44 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> findByIdIn(List<String> ids) {
+    public List<Application> findByIdIn(List<String> ids) {
         final BridgeQuery<Application> q = Bridge.in(Application.Fields.id, ids);
         return queryBuilder().criteria(q).all();
     }
 
     @Override
-    public Flux<Application> findByWorkspaceId(String workspaceId) {
+    public List<Application> findByWorkspaceId(String workspaceId) {
         final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
         return queryBuilder().criteria(q).all();
     }
 
     @Override
-    public Mono<Long> countByWorkspaceId(String workspaceId) {
+    public Optional<Long> countByWorkspaceId(String workspaceId) {
         final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
         return queryBuilder().criteria(q).count();
     }
 
     @Override
-    public Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId) {
+    public List<Application> findByClonedFromApplicationId(String clonedFromApplicationId) {
         final BridgeQuery<Application> q =
                 Bridge.equal(Application.Fields.clonedFromApplicationId, clonedFromApplicationId);
         return queryBuilder().criteria(q).all();
     }
 
     @Override
-    public Mono<Long> countByDeletedAtNull() {
+    public Optional<Long> countByDeletedAtNull() {
         final BridgeQuery<Application> q = Bridge.isNull(Application.Fields.deletedAt);
         return queryBuilder().criteria(q).count();
     }
 
     @Override
-    public Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration) {
-        final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id)
-                .equal(Application.Fields.exportWithConfiguration, exportWithConfiguration);
+    public Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration) {
+        final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id);
+        if (TRUE.equals(exportWithConfiguration)) {
+            q.isTrue(Application.Fields.exportWithConfiguration);
+        } else {
+            q.isFalse(Application.Fields.exportWithConfiguration);
+        }
         return queryBuilder().criteria(q).one();
     }
 }

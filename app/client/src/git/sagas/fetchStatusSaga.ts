@@ -1,8 +1,10 @@
+import { captureException } from "@sentry/react";
 import fetchStatusRequest from "git/requests/fetchStatusRequest";
 import type { FetchStatusResponse } from "git/requests/fetchStatusRequest.types";
 import type { FetchStatusInitPayload } from "git/store/actions/fetchStatusActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
+import log from "loglevel";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
@@ -25,15 +27,22 @@ export default function* fetchStatusSaga(
         }),
       );
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.fetchStatusError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
 
-    // ! case: BETTER ERROR HANDLING
+      yield put(
+        gitArtifactActions.fetchStatusError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
+
+    // ! case: better error handling than passing strings
     // if ((error as Error)?.message?.includes("Auth fail")) {
     //   payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
     // } else if ((error as Error)?.message?.includes("Invalid remote: origin")) {

@@ -11,9 +11,19 @@ import { useMemo } from "react";
 import type { UseGitMetadataReturnValue } from "./useGitMetadata";
 import useGitMetadata from "./useGitMetadata";
 
-interface UseGitContextValueParams {
+// internal dependencies
+import type { ApplicationPayload } from "entities/Application";
+import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
+import type { StatusTreeStruct } from "git/components/StatusChanges/StatusTree";
+
+export interface UseGitContextValueParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
+  artifact: ApplicationPayload | null;
+  connectPermitted: boolean;
+  statusTransformer: (
+    status: FetchStatusResponseData,
+  ) => StatusTreeStruct[] | null;
 }
 
 export interface GitContextValue
@@ -21,11 +31,20 @@ export interface GitContextValue
     UseGitConnectReturnValue,
     UseGitOpsReturnValue,
     UseGitSettingsReturnValue,
-    UseGitBranchesReturnValue {}
+    UseGitBranchesReturnValue {
+  artifact: ApplicationPayload | null;
+  connectPermitted: boolean;
+  statusTransformer: (
+    status: FetchStatusResponseData,
+  ) => StatusTreeStruct[] | null;
+}
 
 export default function useGitContextValue({
+  artifact,
   artifactType,
-  baseArtifactId,
+  baseArtifactId = "",
+  connectPermitted,
+  statusTransformer,
 }: UseGitContextValueParams): GitContextValue {
   const basePayload = useMemo(
     () => ({ artifactType, baseArtifactId }),
@@ -33,11 +52,17 @@ export default function useGitContextValue({
   );
   const useGitMetadataReturnValue = useGitMetadata(basePayload);
   const useGitConnectReturnValue = useGitConnect(basePayload);
-  const useGitOpsReturnValue = useGitOps(basePayload);
+  const useGitOpsReturnValue = useGitOps({
+    ...basePayload,
+    artifactId: artifact?.id ?? null,
+  });
   const useGitBranchesReturnValue = useGitBranches(basePayload);
   const useGitSettingsReturnValue = useGitSettings(basePayload);
 
   return {
+    statusTransformer,
+    artifact,
+    connectPermitted,
     ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,

@@ -18,7 +18,7 @@ import com.appsmith.server.git.central.GitHandlingService;
 import com.appsmith.server.git.central.GitType;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -59,7 +59,7 @@ public class GitConnectTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     WorkspaceService workspaceService;

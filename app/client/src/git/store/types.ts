@@ -13,42 +13,48 @@ import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.ty
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
+import type { ApiResponseError } from "api/types";
 
 export type GitSSHKey = Record<string, unknown>;
 
-export interface AsyncState<T = unknown> {
+export interface GitApiError extends ApiResponseError {
+  errorType?: string;
+  referenceDoc?: string;
+  title?: string;
+}
+interface GitAsyncState<T = unknown> {
   value: T | null;
   loading: boolean;
-  error: string | null;
+  error: GitApiError | null;
 }
 
-interface AsyncStateWithoutValue {
+interface GitAsyncStateWithoutValue {
   loading: boolean;
-  error: string | null;
+  error: GitApiError | null;
 }
 export interface GitSingleArtifactAPIResponsesReduxState {
-  metadata: AsyncState<FetchGitMetadataResponseData>;
-  connect: AsyncStateWithoutValue;
-  status: AsyncState<FetchStatusResponseData>;
-  commit: AsyncStateWithoutValue;
-  pull: AsyncStateWithoutValue;
-  discard: AsyncStateWithoutValue;
-  mergeStatus: AsyncState<FetchMergeStatusResponseData>;
-  merge: AsyncStateWithoutValue;
-  branches: AsyncState<FetchBranchesResponseData>;
-  checkoutBranch: AsyncStateWithoutValue;
-  createBranch: AsyncStateWithoutValue;
-  deleteBranch: AsyncStateWithoutValue;
-  localProfile: AsyncState<FetchLocalProfileResponseData>;
-  updateLocalProfile: AsyncStateWithoutValue;
-  disconnect: AsyncStateWithoutValue;
-  protectedBranches: AsyncState<FetchProtectedBranchesResponseData>;
-  updateProtectedBranches: AsyncStateWithoutValue;
-  autocommitProgress: AsyncStateWithoutValue;
-  toggleAutocommit: AsyncStateWithoutValue;
-  triggerAutocommit: AsyncStateWithoutValue;
-  sshKey: AsyncState<GitSSHKey>;
-  generateSSHKey: AsyncStateWithoutValue;
+  metadata: GitAsyncState<FetchGitMetadataResponseData>;
+  connect: GitAsyncStateWithoutValue;
+  status: GitAsyncState<FetchStatusResponseData>;
+  commit: GitAsyncStateWithoutValue;
+  pull: GitAsyncStateWithoutValue;
+  discard: GitAsyncStateWithoutValue;
+  mergeStatus: GitAsyncState<FetchMergeStatusResponseData>;
+  merge: GitAsyncStateWithoutValue;
+  branches: GitAsyncState<FetchBranchesResponseData>;
+  checkoutBranch: GitAsyncStateWithoutValue;
+  createBranch: GitAsyncStateWithoutValue;
+  deleteBranch: GitAsyncStateWithoutValue;
+  localProfile: GitAsyncState<FetchLocalProfileResponseData>;
+  updateLocalProfile: GitAsyncStateWithoutValue;
+  disconnect: GitAsyncStateWithoutValue;
+  protectedBranches: GitAsyncState<FetchProtectedBranchesResponseData>;
+  updateProtectedBranches: GitAsyncStateWithoutValue;
+  autocommitProgress: GitAsyncStateWithoutValue;
+  toggleAutocommit: GitAsyncStateWithoutValue;
+  triggerAutocommit: GitAsyncStateWithoutValue;
+  sshKey: GitAsyncState<GitSSHKey>;
+  generateSSHKey: GitAsyncStateWithoutValue;
 }
 
 export interface GitSingleArtifactUIReduxState {
@@ -63,10 +69,9 @@ export interface GitSingleArtifactUIReduxState {
   branchListPopup: {
     open: boolean;
   };
-  opsModal: {
-    open: boolean;
-    tab: keyof typeof GitOpsTab;
-  };
+  opsModalOpen: boolean;
+  opsModalTab: keyof typeof GitOpsTab;
+  conflictErrorModalOpen: boolean;
   settingsModal: {
     open: boolean;
     tab: keyof typeof GitSettingsTab;
@@ -87,8 +92,8 @@ export interface GitArtifactReduxState {
 }
 
 export interface GitConfigReduxState {
-  globalProfile: AsyncState<FetchGlobalProfileResponseData>;
-  updateGlobalProfile: AsyncStateWithoutValue;
+  globalProfile: GitAsyncState<FetchGlobalProfileResponseData>;
+  updateGlobalProfile: GitAsyncStateWithoutValue;
 }
 
 export interface GitRootState {
@@ -104,7 +109,7 @@ export interface GitArtifactBasePayload {
 }
 
 export interface GitAsyncErrorPayload {
-  error: string;
+  error: GitApiError;
 }
 
 export interface GitAsyncSuccessPayload<T> {
