@@ -1,7 +1,7 @@
 import React from "react";
 import BranchListView from "./BranchListView";
 import useBranches from "git/hooks/useBranches";
-import useDefaultBranch from "git/hooks/useDefaultBranch";
+import useDefaultBranch from "git/ee/hooks/useDefaultBranch";
 import useProtectedBranches from "git/hooks/useProtectedBranches";
 
 function BranchList() {
