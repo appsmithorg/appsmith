@@ -221,7 +221,7 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
+      - uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: 130
       - run: |
