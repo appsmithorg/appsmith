@@ -258,6 +258,7 @@ jobs:
         with:
           chrome-version: 131
           install-chromedriver: true
+          install-dependencies: true
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
