@@ -5,7 +5,7 @@ import type { StoryObj } from "@storybook/react";
 import { Button } from "../../../Button";
 
 export default {
-  title: "ADS/Templates/Editor Segments",
+  title: "ADS/Templates/Entity Explorer/Editor Segments",
   component: EditorSegments,
 };
 
