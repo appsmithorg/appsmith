@@ -5,7 +5,9 @@ import type {
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
-export interface FetchStatusInitPayload extends FetchStatusRequestParams {}
+export interface FetchStatusInitPayload extends FetchStatusRequestParams {
+  artifactId: string;
+}
 
 export const fetchStatusInitAction =
   createSingleArtifactAction<FetchStatusInitPayload>((state) => {

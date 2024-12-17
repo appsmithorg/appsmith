@@ -61,7 +61,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import log from "loglevel";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { GitArtifactType } from "git/constants/enums";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import {
   fetchBranchesInit,
@@ -397,8 +396,7 @@ export default class AppEditorEngine extends AppEngine {
 
       yield put(
         gitArtifactActions.initGitForEditor({
-          artifactType: GitArtifactType.Application,
-          baseArtifactId: currentApplication.baseId,
+          artifactDef: applicationArtifact(currentApplication.baseId),
           artifact: currentApplication,
         }),
       );

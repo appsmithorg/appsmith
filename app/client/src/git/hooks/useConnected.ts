@@ -1,14 +1,8 @@
-import { useGitContext } from "git/components/GitContextProvider";
 import { selectConnected } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
-import { useSelector } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useConnected() {
-  const { artifactDef } = useGitContext();
+  const isConnected = useAritfactSelector(selectConnected);
 
-  const isConnected = useSelector((state: GitRootState) => {
-    return selectConnected(state, artifactDef);
-  });
-
-  return isConnected;
+  return isConnected ?? false;
 }

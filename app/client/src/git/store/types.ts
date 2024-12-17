@@ -1,9 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type {
-  GitArtifactType,
-  GitOpsTab,
-  GitSettingsTab,
-} from "../constants/enums";
+import type { GitOpsTab, GitSettingsTab } from "../constants/enums";
 import type { FetchGlobalProfileResponseData } from "../requests/fetchGlobalProfileRequest.types";
 import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest.types";
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
@@ -17,6 +13,7 @@ import type {
   GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
+import type { GitArtifactDef } from "./selectors/gitSingleArtifactSelectors";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -98,8 +95,7 @@ export interface GitRootState {
 }
 
 export interface GitArtifactBasePayload {
-  artifactType: keyof typeof GitArtifactType;
-  baseArtifactId: string;
+  artifactDef: GitArtifactDef;
 }
 
 export interface GitAsyncErrorPayload {

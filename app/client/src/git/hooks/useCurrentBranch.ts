@@ -4,5 +4,5 @@ import { useGitContext } from "git/components/GitContextProvider";
 export default function useCurrentBranch() {
   const { artifact } = useGitContext();
 
-  return artifact?.gitApplicationMetadata?.branchName;
+  return artifact?.gitApplicationMetadata?.branchName ?? null;
 }

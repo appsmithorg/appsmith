@@ -4,46 +4,52 @@ import {
   selectFetchProtectedBranchesState,
   selectUpdateProtectedBranchesState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 function useProtectedBranches() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const fetchProtectedBranchesState = useSelector((state: GitRootState) =>
-    selectFetchProtectedBranchesState(state, artifactDef),
+  const fetchProtectedBranchesState = useAritfactSelector(
+    selectFetchProtectedBranchesState,
   );
 
   const fetchProtectedBranches = useCallback(() => {
-    dispatch(gitArtifactActions.fetchProtectedBranchesInit(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
+    }
   }, [dispatch, artifactDef]);
 
-  const updateProtectedBranchesState = useSelector((state: GitRootState) =>
-    selectUpdateProtectedBranchesState(state, artifactDef),
+  const updateProtectedBranchesState = useAritfactSelector(
+    selectUpdateProtectedBranchesState,
   );
 
   const updateProtectedBranches = useCallback(
     (branches: string[]) => {
-      dispatch(
-        gitArtifactActions.updateProtectedBranchesInit({
-          ...artifactDef,
-          branchNames: branches,
-        }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.updateProtectedBranchesInit({
+            artifactDef,
+            branchNames: branches,
+          }),
+        );
+      }
     },
     [dispatch, artifactDef],
   );
 
   return {
-    protectedBranches: fetchProtectedBranchesState.value,
-    isFetchProtectedBranchesLoading: fetchProtectedBranchesState.loading,
-    fetchProtectedBranchesError: fetchProtectedBranchesState.error,
+    protectedBranches: fetchProtectedBranchesState?.value ?? null,
+    isFetchProtectedBranchesLoading:
+      fetchProtectedBranchesState?.loading ?? false,
+    fetchProtectedBranchesError: fetchProtectedBranchesState?.error ?? null,
     fetchProtectedBranches,
-    isUpdateProtectedBranchesLoading: updateProtectedBranchesState.loading,
-    updateProtectedBranchesError: updateProtectedBranchesState.error,
+    isUpdateProtectedBranchesLoading:
+      updateProtectedBranchesState?.loading ?? false,
+    updateProtectedBranchesError: updateProtectedBranchesState?.error ?? null,
     updateProtectedBranches,
   };
 }

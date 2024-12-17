@@ -5,35 +5,39 @@ import {
   selectFetchLocalProfileState,
   selectUpdateLocalProfileState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useLocalProfile() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const fetchLocalProfileState = useSelector((state: GitRootState) =>
-    selectFetchLocalProfileState(state, artifactDef),
+  const fetchLocalProfileState = useAritfactSelector(
+    selectFetchLocalProfileState,
   );
 
   const fetchLocalProfile = useCallback(() => {
-    dispatch(gitArtifactActions.fetchLocalProfileInit(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.fetchLocalProfileInit({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
-  const updateLocalProfileState = useSelector((state: GitRootState) =>
-    selectUpdateLocalProfileState(state, artifactDef),
+  const updateLocalProfileState = useAritfactSelector(
+    selectUpdateLocalProfileState,
   );
 
   const updateLocalProfile = useCallback(
     (params: UpdateLocalProfileRequestParams) => {
-      dispatch(
-        gitArtifactActions.updateLocalProfileInit({
-          ...artifactDef,
-          ...params,
-        }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.updateLocalProfileInit({
+            artifactDef,
+            ...params,
+          }),
+        );
+      }
     },
     [artifactDef, dispatch],
   );

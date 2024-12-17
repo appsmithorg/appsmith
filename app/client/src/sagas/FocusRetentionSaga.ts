@@ -18,10 +18,12 @@ import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
 import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { getCurrentBaseApplicationId } from "selectors/editorSelectors";
+import { selectGitCurrentBranch } from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 export interface FocusPath {
   key: string;
@@ -123,7 +125,11 @@ class FocusRetention {
   }
 
   public *handleRemoveFocusHistory(url: string) {
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
+    const branch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(baseApplicationId),
+    );
     const removeKeys: string[] = [];
     const focusEntityInfo = identifyEntityFromPath(url);
 

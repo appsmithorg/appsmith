@@ -5,6 +5,7 @@ import useConnect from "git/hooks/useConnect";
 import useMetadata from "git/hooks/useMetadata";
 import useSettings from "git/hooks/useSettings";
 import useConnected from "git/hooks/useConnected";
+import { GitArtifactType } from "git/constants/enums";
 
 interface ConnectModalProps {
   isImport?: boolean;
@@ -33,7 +34,7 @@ function ConnectModal({ isImport = false }: ConnectModalProps) {
   const { metadata } = useMetadata();
   const { toggleSettingsModal } = useSettings();
 
-  const { artifactType } = artifactDef;
+  const artifactType = artifactDef?.artifactType ?? GitArtifactType.Application;
   const sshPublicKey = sshKey?.publicKey ?? null;
   const remoteUrl = metadata?.remoteUrl ?? null;
   const repoName = metadata?.repoName ?? null;

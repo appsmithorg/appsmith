@@ -5,9 +5,9 @@ import {
   selectDisconnectBaseArtifactId,
   selectDisconnectState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useDisconnect() {
   const { artifact, artifactDef } = useGitContext();
@@ -15,30 +15,34 @@ export default function useDisconnect() {
 
   const dispatch = useDispatch();
 
-  const disconnectState = useSelector((state: GitRootState) =>
-    selectDisconnectState(state, artifactDef),
-  );
+  const disconnectState = useAritfactSelector(selectDisconnectState);
 
   const disconnect = useCallback(() => {
-    dispatch(gitArtifactActions.disconnectInit(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.disconnectInit);
+    }
   }, [artifactDef, dispatch]);
 
-  const disconnectBaseArtifactId = useSelector((state: GitRootState) =>
-    selectDisconnectBaseArtifactId(state, artifactDef),
+  const disconnectBaseArtifactId = useAritfactSelector(
+    selectDisconnectBaseArtifactId,
   );
 
-  const disconnectArtifactName = useSelector((state: GitRootState) =>
-    selectDisconnectArtifactName(state, artifactDef),
+  const disconnectArtifactName = useAritfactSelector(
+    selectDisconnectArtifactName,
   );
 
   const openDisconnectModal = useCallback(() => {
-    dispatch(
-      gitArtifactActions.openDisconnectModal({ ...artifactDef, artifactName }),
-    );
+    if (artifactDef) {
+      dispatch(
+        gitArtifactActions.openDisconnectModal({ artifactDef, artifactName }),
+      );
+    }
   }, [artifactDef, artifactName, dispatch]);
 
   const closeDisconnectModal = useCallback(() => {
-    dispatch(gitArtifactActions.closeDisconnectModal(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.closeDisconnectModal({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {

@@ -2,7 +2,9 @@ import { createSingleArtifactAction } from "../helpers/createSingleArtifactActio
 import type { GitAsyncErrorPayload } from "../types";
 import type { CommitRequestParams } from "git/requests/commitRequest.types";
 
-export interface CommitInitPayload extends CommitRequestParams {}
+export interface CommitInitPayload extends CommitRequestParams {
+  artifactId: string;
+}
 
 export const commitInitAction = createSingleArtifactAction<CommitInitPayload>(
   (state) => {

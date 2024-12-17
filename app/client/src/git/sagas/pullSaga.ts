@@ -17,8 +17,7 @@ import { captureException } from "@sentry/react";
 export default function* pullSaga(
   action: GitArtifactPayloadAction<PullInitPayload>,
 ) {
-  const { artifactId, artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: PullResponse | undefined;
 
   try {
@@ -26,12 +25,12 @@ export default function* pullSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.pullSuccess(basePayload));
+      yield put(gitArtifactActions.pullSuccess({ artifactDef }));
 
       const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentBranch: string = yield select(
         selectCurrentBranch,
-        basePayload,
+        artifactDef,
       );
 
       yield put(
@@ -51,7 +50,7 @@ export default function* pullSaga(
       //   yield put(setIsGitErrorPopupVisible({ isVisible: true }));
       // }
 
-      yield put(gitArtifactActions.pullError({ ...basePayload, error }));
+      yield put(gitArtifactActions.pullError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

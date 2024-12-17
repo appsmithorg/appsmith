@@ -8,7 +8,8 @@ export const mountAction = (
   state: GitArtifactReduxState,
   action: PayloadAction<GitArtifactBasePayload>,
 ) => {
-  const { artifactType, baseArtifactId } = action.payload;
+  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = artifactDef;
 
   state[artifactType] ??= {};
   state[artifactType][baseArtifactId] ??= gitSingleArtifactInitialState;
@@ -20,7 +21,8 @@ export const unmountAction = (
   state: GitArtifactReduxState,
   action: PayloadAction<GitArtifactBasePayload>,
 ) => {
-  const { artifactType, baseArtifactId } = action.payload;
+  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = artifactDef;
 
   delete state?.[artifactType]?.[baseArtifactId];
 

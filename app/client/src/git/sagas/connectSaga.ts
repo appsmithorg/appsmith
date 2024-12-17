@@ -21,8 +21,7 @@ import { captureException } from "@sentry/react";
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
 
   let response: ConnectResponse | undefined;
 
@@ -32,31 +31,35 @@ export default function* connectSaga(
       gitProfile: action.payload.gitProfile,
     };
 
-    response = yield call(connectRequest, baseArtifactId, params);
+    response = yield call(connectRequest, artifactDef.baseArtifactId, params);
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.connectSuccess(basePayload));
+      yield put(gitArtifactActions.connectSuccess({ artifactDef }));
 
       // needs to happen only when artifactType is application
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef.artifactType === GitArtifactType.Application) {
         const { branchedPageId } = action.payload;
 
         if (branchedPageId) {
           yield put(fetchPageAction(branchedPageId));
         }
 
-        const branch = response.data.gitApplicationMetadata.branchName;
-        const newUrl = addBranchParam(branch);
+        const branch = response.data?.gitApplicationMetadata?.branchName;
 
-        history.replace(newUrl);
+        if (branch) {
+          const newUrl = addBranchParam(branch);
+
+          history.replace(newUrl);
+        }
+
         // ! case for updating lastDeployedAt in application manually?
       }
 
       yield put(
         gitArtifactActions.initGitForEditor({
-          ...basePayload,
+          artifactDef,
           artifact: response.data,
         }),
       );
@@ -68,13 +71,13 @@ export default function* connectSaga(
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
           gitArtifactActions.toggleRepoLimitErrorModal({
-            ...basePayload,
+            artifactDef,
             open: true,
           }),
         );
       }
 
-      yield put(gitArtifactActions.connectError({ ...basePayload, error }));
+      yield put(gitArtifactActions.connectError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

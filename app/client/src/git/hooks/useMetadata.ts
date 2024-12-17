@@ -1,14 +1,8 @@
-import { useGitContext } from "git/components/GitContextProvider";
 import { selectMetadataState } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
-import { useSelector } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useMetadata() {
-  const { artifactDef } = useGitContext();
-
-  const metadataState = useSelector((state: GitRootState) =>
-    selectMetadataState(state, artifactDef),
-  );
+  const metadataState = useAritfactSelector(selectMetadataState);
 
   return {
     metadata: metadataState?.value ?? null,

@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 import BottomBar from "components/BottomBar";
 import EditorWrapperContainer from "../../commons/EditorWrapperContainer";
@@ -7,11 +6,30 @@ import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "../LeftPane";
 import MainPane from "../MainPane";
 import RightPane from "../RightPane";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import ProtectedCallout from "../ProtectedCallout";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import styled from "styled-components";
 import { Areas } from "./constants";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
+import {
+  GitProtectedBranchCallout as GitProtectedBranchCalloutNew,
+  useGitProtectedMode,
+} from "git";
+
+function GitProtectedBranchCallout() {
+  const isGitModEnabled = useGitModEnabled();
+  const isProtectedMode = useGitProtectedMode();
+
+  if (isGitModEnabled) {
+    return <GitProtectedBranchCalloutNew />;
+  }
+
+  if (isProtectedMode) {
+    return <ProtectedCallout />;
+  }
+
+  return null;
+}
 
 const GridContainer = styled.div`
   display: grid;
@@ -25,14 +43,13 @@ const LayoutContainer = styled.div<{ name: string }>`
 `;
 
 function UnanimatedLayout() {
-  const isProtectedMode = useSelector(protectedModeSelector);
   const { areas, columns } = useGridLayoutTemplate();
 
   const isSidebarVisible = columns[0] !== "0px";
 
   return (
     <>
-      {isProtectedMode && <ProtectedCallout />}
+      <GitProtectedBranchCallout />
       <EditorWrapperContainer>
         <GridContainer
           style={{

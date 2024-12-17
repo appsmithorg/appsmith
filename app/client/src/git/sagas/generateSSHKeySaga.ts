@@ -15,8 +15,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 export function* generateSSHKeySaga(
   action: GitArtifactPayloadAction<GenerateSSHKeyInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const artifactDef = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: GenerateSSHKeyResponse | undefined;
 
   try {
@@ -25,13 +24,17 @@ export function* generateSSHKeySaga(
       isImport: action.payload.isImport,
     };
 
-    response = yield call(generateSSHKeyRequest, baseArtifactId, params);
+    response = yield call(
+      generateSSHKeyRequest,
+      artifactDef.baseArtifactId,
+      params,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.generateSSHKeySuccess({
-          ...artifactDef,
+          artifactDef,
           responseData: response.data,
         }),
       );
@@ -43,15 +46,13 @@ export function* generateSSHKeySaga(
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
           gitArtifactActions.toggleRepoLimitErrorModal({
-            ...artifactDef,
+            artifactDef,
             open: true,
           }),
         );
       }
 
-      yield put(
-        gitArtifactActions.generateSSHKeyError({ ...artifactDef, error }),
-      );
+      yield put(gitArtifactActions.generateSSHKeyError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

@@ -4,9 +4,9 @@ import {
   selectMergeState,
   selectMergeStatusState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useMerge() {
   const { artifact, artifactDef } = useGitContext();
@@ -14,44 +14,46 @@ export default function useMerge() {
   const dispatch = useDispatch();
 
   // merge
-  const mergeState = useSelector((state: GitRootState) =>
-    selectMergeState(state, artifactDef),
-  );
+  const mergeState = useAritfactSelector(selectMergeState);
 
   const merge = useCallback(() => {
-    dispatch(gitArtifactActions.mergeInit(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.mergeInit({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   // merge status
-  const mergeStatusState = useSelector((state: GitRootState) =>
-    selectMergeStatusState(state, artifactDef),
-  );
+  const mergeStatusState = useAritfactSelector(selectMergeStatusState);
 
   const fetchMergeStatus = useCallback(
     (sourceBranch: string, destinationBranch: string) => {
-      dispatch(
-        gitArtifactActions.fetchMergeStatusInit({
-          ...artifactDef,
-          artifactId: artifactId ?? "",
-          sourceBranch,
-          destinationBranch,
-        }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.fetchMergeStatusInit({
+            artifactDef,
+            artifactId: artifactId ?? "",
+            sourceBranch,
+            destinationBranch,
+          }),
+        );
+      }
     },
     [artifactId, artifactDef, dispatch],
   );
 
   const clearMergeStatus = useCallback(() => {
-    dispatch(gitArtifactActions.clearMergeStatus(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.clearMergeStatus({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {
     isMergeLoading: mergeState?.loading ?? false,
-    mergeError: mergeState?.error,
+    mergeError: mergeState?.error ?? null,
     merge,
-    mergeStatus: mergeStatusState?.value,
+    mergeStatus: mergeStatusState?.value ?? null,
     isFetchMergeStatusLoading: mergeStatusState?.loading ?? false,
-    fetchMergeStatusError: mergeStatusState?.error,
+    fetchMergeStatusError: mergeStatusState?.error ?? null,
     fetchMergeStatus,
     clearMergeStatus,
   };

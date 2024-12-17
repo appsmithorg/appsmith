@@ -1,12 +1,8 @@
-import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import type { ApplicationPayload } from "entities/Application";
 
 export interface InitGitForEditorPayload {
-  artifact: {
-    id: string;
-    baseId: string;
-    gitApplicationMetadata?: Partial<FetchMetadataResponseData>;
-  };
+  artifact: ApplicationPayload | null;
 }
 
 export const initGitForEditorAction =

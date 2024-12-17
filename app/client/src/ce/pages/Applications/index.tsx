@@ -964,10 +964,6 @@ export function ApplicationsSection(props: any) {
     >
       {workspacesListComponent}
       <GitImportModals />
-      {/* <GitApplicationContextProvider>
-        <GitImportModal />
-      </GitApplicationContextProvider> */}
-      {/* <GitSyncModal isImport /> */}
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );

@@ -7,49 +7,49 @@ import {
   selectToggleAutocommitState,
   selectTriggerAutocommitState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useAutocommit() {
   const { artifactDef } = useGitContext();
   const dispatch = useDispatch();
 
-  const toggleAutocommitState = useSelector((state: GitRootState) =>
-    selectToggleAutocommitState(state, artifactDef),
+  const toggleAutocommitState = useAritfactSelector(
+    selectToggleAutocommitState,
   );
 
-  const triggerAutocommitState = useSelector((state: GitRootState) =>
-    selectTriggerAutocommitState(state, artifactDef),
+  const triggerAutocommitState = useAritfactSelector(
+    selectTriggerAutocommitState,
   );
 
   const toggleAutocommit = useCallback(() => {
-    dispatch(gitArtifactActions.toggleAutocommitInit(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.toggleAutocommitInit({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
-  const isAutocommitDisableModalOpen = useSelector((state: GitRootState) =>
-    selectAutocommitDisableModalOpen(state, artifactDef),
+  const isAutocommitDisableModalOpen = useAritfactSelector(
+    selectAutocommitDisableModalOpen,
   );
 
   const toggleAutocommitDisableModal = useCallback(
     (open: boolean) => {
-      dispatch(
-        gitArtifactActions.toggleAutocommitDisableModal({
-          ...artifactDef,
-          open,
-        }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.toggleAutocommitDisableModal({
+            artifactDef,
+            open,
+          }),
+        );
+      }
     },
     [artifactDef, dispatch],
   );
 
-  const isAutocommitEnabled = useSelector((state: GitRootState) =>
-    selectAutocommitEnabled(state, artifactDef),
-  );
+  const isAutocommitEnabled = useAritfactSelector(selectAutocommitEnabled);
 
-  const isAutocommitPolling = useSelector((state: GitRootState) =>
-    selectAutocommitPolling(state, artifactDef),
-  );
+  const isAutocommitPolling = useAritfactSelector(selectAutocommitPolling);
 
   return {
     isToggleAutocommitLoading: toggleAutocommitState?.loading ?? false,
@@ -57,9 +57,9 @@ export default function useAutocommit() {
     toggleAutocommit,
     isTriggerAutocommitLoading: triggerAutocommitState?.loading ?? false,
     triggerAutocommitError: triggerAutocommitState?.error ?? null,
-    isAutocommitDisableModalOpen,
+    isAutocommitDisableModalOpen: isAutocommitDisableModalOpen ?? false,
     toggleAutocommitDisableModal,
-    isAutocommitEnabled,
-    isAutocommitPolling,
+    isAutocommitEnabled: isAutocommitEnabled ?? false,
+    isAutocommitPolling: isAutocommitPolling ?? false,
   };
 }

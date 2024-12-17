@@ -2,7 +2,9 @@ import { createSingleArtifactAction } from "../helpers/createSingleArtifactActio
 import type { GitAsyncErrorPayload } from "../types";
 import type { DeleteBranchRequestParams } from "../../requests/deleteBranchRequest.types";
 
-export interface DeleteBranchInitPayload extends DeleteBranchRequestParams {}
+export interface DeleteBranchInitPayload extends DeleteBranchRequestParams {
+  artifactId: string;
+}
 
 export const deleteBranchInitAction =
   createSingleArtifactAction<DeleteBranchInitPayload>((state) => {

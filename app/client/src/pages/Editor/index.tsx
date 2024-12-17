@@ -46,7 +46,6 @@ import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import GeneratePageModal from "./GeneratePage";
 import { GitModals as NewGitModals } from "git";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 import GitSyncModal from "./gitSync/GitSyncModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
 import DisconnectGitModal from "./gitSync/DisconnectGitModal";
@@ -216,20 +215,18 @@ class Editor extends Component<Props> {
               {`${this.props.currentApplicationName} | Editor | Appsmith`}
             </title>
           </Helmet>
-          <GitApplicationContextProvider>
-            <GlobalHotKeys>
-              <IDE />
-              <GitModals />
-              <TemplatesModal />
-              <ImportedApplicationSuccessModal />
-              <ReconnectDatasourceModal />
-              <SignpostingOverlay />
-              <PartialExportModal />
-              <PartialImportModal />
-              <AppCURLImportModal />
-              <GeneratePageModal />
-            </GlobalHotKeys>
-          </GitApplicationContextProvider>
+          <GlobalHotKeys>
+            <IDE />
+            <GitModals />
+            <TemplatesModal />
+            <ImportedApplicationSuccessModal />
+            <ReconnectDatasourceModal />
+            <SignpostingOverlay />
+            <PartialExportModal />
+            <PartialImportModal />
+            <AppCURLImportModal />
+            <GeneratePageModal />
+          </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />
       </ThemeProvider>

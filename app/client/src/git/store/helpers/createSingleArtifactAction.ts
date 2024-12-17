@@ -18,7 +18,7 @@ export const createSingleArtifactAction = <T = GitArtifactBasePayload>(
     state: GitArtifactReduxState,
     action: GitArtifactPayloadAction<T>,
   ) => {
-    const { artifactType, baseArtifactId } = action.payload;
+    const { artifactType, baseArtifactId } = action.payload.artifactDef;
 
     state[artifactType] ??= {};
     state[artifactType][baseArtifactId] ??= gitSingleArtifactInitialState;

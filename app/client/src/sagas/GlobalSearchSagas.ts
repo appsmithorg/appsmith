@@ -17,22 +17,28 @@ import {
 import type { AppState } from "ee/reducers";
 import {
   getCurrentApplicationId,
+  getCurrentBaseApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { selectGitCurrentBranch } from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;
 
 export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
   try {
-    const branch: string | undefined = yield select(getCurrentGitBranch);
-
     const applicationId: string = yield select(getCurrentApplicationId);
+    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
+
+    const branch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(baseApplicationId),
+    );
 
     const recentEntitiesRestored: boolean = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntitiesRestored,

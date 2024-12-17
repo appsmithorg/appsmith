@@ -2,7 +2,9 @@ import { createSingleArtifactAction } from "../helpers/createSingleArtifactActio
 import type { GitAsyncErrorPayload } from "../types";
 import type { CreateBranchRequestParams } from "git/requests/createBranchRequest.types";
 
-export interface CreateBranchInitPayload extends CreateBranchRequestParams {}
+export interface CreateBranchInitPayload extends CreateBranchRequestParams {
+  artifactId: string;
+}
 
 export const createBranchInitAction =
   createSingleArtifactAction<CreateBranchInitPayload>((state) => {

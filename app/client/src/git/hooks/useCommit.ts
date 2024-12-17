@@ -1,38 +1,43 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectCommitState } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useAritfactSelector from "./useArtifactSelector";
 
 export default function useCommit() {
-  const { artifactDef } = useGitContext();
+  const { artifact, artifactDef } = useGitContext();
+  const artifactId = artifact?.id;
+
   const dispatch = useDispatch();
 
-  const commitState = useSelector((state: GitRootState) =>
-    selectCommitState(state, artifactDef),
-  );
+  const commitState = useAritfactSelector(selectCommitState);
 
   const commit = useCallback(
     (commitMessage: string) => {
-      dispatch(
-        gitArtifactActions.commitInit({
-          ...artifactDef,
-          commitMessage,
-          doPush: true,
-        }),
-      );
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.commitInit({
+            artifactId,
+            artifactDef,
+            commitMessage,
+            doPush: true,
+          }),
+        );
+      }
     },
-    [artifactDef, dispatch],
+    [artifactDef, artifactId, dispatch],
   );
 
   const clearCommitError = useCallback(() => {
-    dispatch(gitArtifactActions.clearCommitError(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.clearCommitError({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {
     isCommitLoading: commitState?.loading ?? false,
-    commitError: commitState?.error,
+    commitError: commitState?.error ?? null,
     commit,
     clearCommitError,
   };

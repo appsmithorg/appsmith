@@ -22,7 +22,8 @@ export interface OpenDisconnectModalPayload {
 
 export const openDisconnectModalAction =
   createSingleArtifactAction<OpenDisconnectModalPayload>((state, action) => {
-    state.ui.disconnectBaseArtifactId = action.payload.baseArtifactId;
+    state.ui.disconnectBaseArtifactId =
+      action.payload.artifactDef.baseArtifactId;
     state.ui.disconnectArtifactName = action.payload.artifactName;
 
     return state;
