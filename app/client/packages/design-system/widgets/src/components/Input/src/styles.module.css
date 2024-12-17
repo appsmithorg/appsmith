@@ -7,7 +7,6 @@
 }
 
 .inputGroup {
-  background-color: var(--color-bg);
   max-inline-size: 100%;
   padding-block: var(--inner-spacing-1);
   padding-inline: var(--inner-spacing-2);
