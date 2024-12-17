@@ -31,6 +31,8 @@ import type {
   PageAction,
 } from "../constants/AppsmithActionConstants/ActionConstants";
 import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
+import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -657,18 +659,21 @@ export interface SetupPageActionPayload {
   id: string;
   isFirstLoad?: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
+  packagePullStatus?: ApiResponse<PACKAGE_PULL_STATUS>;
 }
 
-export const setupPageAction = (
-  pageId: string,
+export const setupPageAction = ({
+  id,
   isFirstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
-): ReduxAction<SetupPageActionPayload> => ({
+  packagePullStatus,
+  pageWithMigratedDsl,
+}: SetupPageActionPayload) => ({
   type: ReduxActionTypes.SETUP_PAGE_INIT,
   payload: {
-    id: pageId,
+    id,
     isFirstLoad,
     pageWithMigratedDsl,
+    packagePullStatus,
   },
 });
 
