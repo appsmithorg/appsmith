@@ -44,6 +44,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -661,7 +662,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
-    public Mono<String> prepareForNewRefCreation(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 
@@ -671,5 +672,30 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getRepoName());
 
         return fsGitHandler.createAndCheckoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+    }
+
+    @Override
+    public Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler
+                .deleteBranch(repoSuffix, jsonTransformationDTO.getRefName())
+                .onErrorResume(throwable -> {
+                    log.error("Delete branch failed {}", throwable.getMessage());
+                    if (throwable instanceof CannotDeleteCurrentBranchException) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "delete branch",
+                                "Cannot delete current checked out branch"));
+                    }
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
+                });
     }
 }
