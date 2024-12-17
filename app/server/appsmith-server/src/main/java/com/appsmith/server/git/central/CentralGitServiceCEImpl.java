@@ -1,6 +1,7 @@
 package com.appsmith.server.git.central;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.models.Datasource;
@@ -67,6 +68,7 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.DEFAULT_COMM
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
+import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_STATUS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.constants.FieldName.BRANCH_NAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
@@ -929,6 +931,137 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         .isGitAuthInvalid(gitArtifactMetadata.getGitAuth());
     }
 
+    private Mono<GitStatusDTO> getStatusAfterComparingWithRemote(
+            String baseArtifactId, boolean isFileLock, ArtifactType artifactType, GitType gitType) {
+        return getStatus(baseArtifactId, isFileLock, true, artifactType, gitType);
+    }
+
+    @Override
+    public Mono<GitStatusDTO> getStatus(
+            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType) {
+        return getStatus(branchedArtifactId, true, compareRemote, artifactType, gitType);
+    }
+
+    /**
+     * Get the status of the artifact for given branched id
+     *
+     * @param branchedArtifactId branched id of the artifact
+     * @param isFileLock         if the locking is required, since the status API is used in the other flows of git
+     *                           Only for the direct hits from the client the locking will be added
+     * @param artifactType       Type of artifact in context
+     * @param gitType            Type of the service
+     * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
+     */
+    private Mono<GitStatusDTO> getStatus(
+            String branchedArtifactId,
+            boolean isFileLock,
+            boolean compareRemote,
+            ArtifactType artifactType,
+            GitType gitType) {
+
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifacts =
+                getBaseAndBranchedArtifacts(branchedArtifactId, artifactType);
+
+        return baseAndBranchedArtifacts.flatMap(artifactTuple -> {
+            Artifact baseArtifact = artifactTuple.getT1();
+            Artifact branchedArtifact = artifactTuple.getT2();
+            return getStatus(baseArtifact, branchedArtifact, isFileLock, compareRemote, gitType);
+        });
+    }
+
+    protected Mono<GitStatusDTO> getStatus(
+            Artifact baseArtifact,
+            Artifact branchedArtifact,
+            boolean isFileLock,
+            boolean compareRemote,
+            GitType gitType) {
+
+        ArtifactType artifactType = baseArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+        final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
+
+        GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
+        branchedGitMetadata.setGitAuth(baseGitMetadata.getGitAuth());
+
+        final String finalBranchName = branchedGitMetadata.getBranchName();
+
+        if (!StringUtils.hasText(finalBranchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        Mono<? extends ArtifactExchangeJson> exportedArtifactJsonMono =
+                exportService.exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactType);
+
+        Mono<GitStatusDTO> statusMono = exportedArtifactJsonMono
+                .flatMap(artifactExchangeJson -> {
+                    return gitRedisUtils
+                            .acquireGitLock(baseArtifactId, GitConstants.GitCommandConstants.STATUS, isFileLock)
+                            .thenReturn(artifactExchangeJson);
+                })
+                .flatMap(artifactExchangeJson -> {
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setBaseArtifactId(baseArtifact.getId());
+                    jsonTransformationDTO.setRepoName(
+                            branchedArtifact.getGitArtifactMetadata().getRepoName());
+                    jsonTransformationDTO.setArtifactType(artifactExchangeJson.getArtifactJsonType());
+                    jsonTransformationDTO.setRefName(finalBranchName);
+
+                    Mono<Boolean> prepareForStatus =
+                            gitHandlingService.prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson);
+                    Mono<String> fetchRemoteMono;
+
+                    if (compareRemote) {
+                        fetchRemoteMono = Mono.defer(
+                                () -> fetchRemoteChanges(baseArtifact, branchedArtifact, FALSE, gitType, RefType.BRANCH)
+                                        .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+                    } else {
+                        fetchRemoteMono = Mono.just("ignored");
+                    }
+
+                    return Mono.zip(prepareForStatus, fetchRemoteMono)
+                            .then(gitHandlingService.getStatus(jsonTransformationDTO));
+                })
+                .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, isFileLock))
+                .onErrorResume(throwable -> {
+                    /*
+                     in case of any error, the global exception handler will release the lock
+                     hence we don't need to do that manually
+                    */
+                    log.error(
+                            "Error to get status for application: {}, branch: {}",
+                            baseArtifactId,
+                            finalBranchName,
+                            throwable);
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
+                });
+
+        return Mono.zip(statusMono, sessionUserService.getCurrentUser())
+                .elapsed()
+                .flatMap(objects -> {
+                    Long elapsedTime = objects.getT1();
+                    GitStatusDTO gitStatusDTO = objects.getT2().getT1();
+                    User currentUser = objects.getT2().getT2();
+                    String flowName;
+                    if (compareRemote) {
+                        flowName = AnalyticsEvents.GIT_STATUS.getEventName();
+                    } else {
+                        flowName = AnalyticsEvents.GIT_STATUS_WITHOUT_FETCH.getEventName();
+                    }
+
+                    return gitAnalyticsUtils
+                            .sendUnitExecutionTimeAnalyticsEvent(flowName, elapsedTime, currentUser, branchedArtifact)
+                            .thenReturn(gitStatusDTO);
+                })
+                .name(OPS_STATUS)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
     public Mono<String> fetchRemoteChanges(
             Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType) {
 
@@ -967,7 +1100,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .then(Mono.defer(() ->
                         gitHandlingService.fetchRemoteChanges(jsonTransformationDTO, baseArtifactGitData.getGitAuth())))
                 .flatMap(fetchedRemoteStatusString -> {
-                    return gitRedisUtils.releaseFileLock(baseArtifactId).thenReturn(fetchedRemoteStatusString);
+                    return gitRedisUtils
+                            .releaseFileLock(baseArtifactId, isFileLock)
+                            .thenReturn(fetchedRemoteStatusString);
                 })
                 .onErrorResume(throwable -> {
                     /*
