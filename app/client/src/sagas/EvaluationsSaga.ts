@@ -6,6 +6,7 @@ import {
   delay,
   fork,
   put,
+  race,
   select,
   spawn,
   take,
@@ -753,21 +754,48 @@ function* evaluationChangeListenerSaga(): any {
     EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
+  let hasTriggerAction = false;
 
   while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> =
-      yield take(evtActionChannel);
-
-    // We are dequing actions from the buffer and inferring the JS actions affected by each
-    // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
-    const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
-
-    yield call(evalAndLintingHandler, true, action, {
-      shouldReplay: get(action, "payload.shouldReplay"),
-      forceEvaluation: shouldForceEval(action),
-      requiresLogging: shouldLog(action),
-      affectedJSObjects,
+    const { action, timeout } = yield race({
+      action: take(evtActionChannel),
+      timeout: delay(1000),
     });
+
+    if (action?.type === ReduxActionTypes.TRIGGER_EVAL) {
+      hasTriggerAction = true;
+      continue;
+    }
+
+    if (timeout) {
+      if (hasTriggerAction) {
+        const action = {
+          type: ReduxActionTypes.TRIGGER_EVAL,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any;
+        const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+        yield call(evalAndLintingHandler, true, action, {
+          shouldReplay: get(action, "payload.shouldReplay"),
+          forceEvaluation: shouldForceEval(action),
+          requiresLogging: shouldLog(action),
+          affectedJSObjects,
+        });
+      }
+    } else {
+      // We are dequing actions from the buffer and inferring the JS actions affected by each
+      // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+    }
+
+    hasTriggerAction = false;
   }
 }
 
