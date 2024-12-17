@@ -340,7 +340,7 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
         with:
-          browser: ${{ env.BROWSER_PATH }}
+          browser: /opt/hostedtoolcache/setup-chrome/chromium/129.0.6668.100/x64/chrome
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ env.specs_to_run }}

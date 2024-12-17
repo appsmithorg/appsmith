@@ -33,9 +33,6 @@ on:
 jobs:
   ci-test:
     runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node-20.18.0-chrome-130.0.6723.69-1-ff-131.0.3-edge-130.0.2849.52-1
-      options: --user 1001
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
@@ -73,7 +70,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
+      
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
@@ -373,7 +370,7 @@ jobs:
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
-          browser: ${{ env.BROWSER_PATH }}
+          browser: /opt/hostedtoolcache/setup-chrome/chromium/129.0.6668.100/x64/chrome
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ inputs.spec }}
