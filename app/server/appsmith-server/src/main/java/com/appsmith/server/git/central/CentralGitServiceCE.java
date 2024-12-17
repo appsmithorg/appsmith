@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.ce.RefType;
@@ -33,4 +34,7 @@ public interface CentralGitServiceCE {
             RefType refType);
 
     Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<GitStatusDTO> getStatus(
+            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
 }
