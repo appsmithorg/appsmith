@@ -1,8 +1,8 @@
 import React from "react";
-import CDUnLicnesed from "./CDUnLicensed";
+import CDUnLicensed from "./CDUnLicensed";
 
 function ContinuousDelivery() {
-  return <CDUnLicnesed />;
+  return <CDUnLicensed />;
 }
 
 export default ContinuousDelivery;
