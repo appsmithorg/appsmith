@@ -1,15 +1,15 @@
 import React from "react";
 
-import { useGitContext } from "../GitContextProvider";
 import GitConflictErrorView from "./ConflictErrorView";
+import useMetadata from "git/hooks/useMetadata";
 
 export default function ConflictError() {
-  const { gitMetadata } = useGitContext();
+  const { metadata } = useMetadata();
 
   // ! case: learnMoreUrl comes from pullError
   const learnMoreUrl =
     "https://docs.appsmith.com/advanced-concepts/version-control-with-git";
-  const repoUrl = gitMetadata?.browserSupportedRemoteUrl || "";
+  const repoUrl = metadata?.browserSupportedRemoteUrl || "";
 
   return <GitConflictErrorView learnMoreUrl={learnMoreUrl} repoUrl={repoUrl} />;
 }

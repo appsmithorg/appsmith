@@ -1,15 +1,11 @@
 import type { GitArtifactType } from "git/constants/enums";
 import type { UseGitConnectReturnValue } from "./useGitConnect";
 import type { UseGitOpsReturnValue } from "./useGitOps";
-import type { UseGitSettingsReturnValue } from "./useGitSettings";
 import type { UseGitBranchesReturnValue } from "./useGitBranches";
 import useGitConnect from "./useGitConnect";
 import useGitOps from "./useGitOps";
 import useGitBranches from "./useGitBranches";
-import useGitSettings from "./useGitSettings";
 import { useMemo } from "react";
-import type { UseGitMetadataReturnValue } from "./useGitMetadata";
-import useGitMetadata from "./useGitMetadata";
 
 // internal dependencies
 import type { ApplicationPayload } from "entities/Application";
@@ -20,20 +16,22 @@ export interface UseGitContextValueParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   artifact: ApplicationPayload | null;
-  connectPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
 }
 
 export interface GitContextValue
-  extends UseGitMetadataReturnValue,
-    UseGitConnectReturnValue,
+  extends UseGitConnectReturnValue,
     UseGitOpsReturnValue,
-    UseGitSettingsReturnValue,
     UseGitBranchesReturnValue {
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
+  artifactDef: {
+    artifactType: keyof typeof GitArtifactType;
+    baseArtifactId: string;
+  };
   artifact: ApplicationPayload | null;
-  connectPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
@@ -43,30 +41,27 @@ export default function useGitContextValue({
   artifact,
   artifactType,
   baseArtifactId = "",
-  connectPermitted,
   statusTransformer,
 }: UseGitContextValueParams): GitContextValue {
-  const basePayload = useMemo(
+  const artifactDef = useMemo(
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
-  const useGitMetadataReturnValue = useGitMetadata(basePayload);
-  const useGitConnectReturnValue = useGitConnect(basePayload);
+  const useGitConnectReturnValue = useGitConnect(artifactDef);
   const useGitOpsReturnValue = useGitOps({
-    ...basePayload,
+    ...artifactDef,
     artifactId: artifact?.id ?? null,
   });
-  const useGitBranchesReturnValue = useGitBranches(basePayload);
-  const useGitSettingsReturnValue = useGitSettings(basePayload);
+  const useGitBranchesReturnValue = useGitBranches(artifactDef);
 
   return {
+    artifactType,
+    baseArtifactId,
+    artifactDef,
     statusTransformer,
     artifact,
-    connectPermitted,
-    ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,
     ...useGitConnectReturnValue,
-    ...useGitSettingsReturnValue,
   };
 }
