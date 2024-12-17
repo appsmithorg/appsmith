@@ -8,6 +8,7 @@ import java.util.Set;
 /**
  * DTO to convey the status local git repo
  */
+// TODO: @Manish modify git status DTO accordingly
 @Data
 public class GitStatusCE_DTO {
 

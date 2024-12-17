@@ -2,6 +2,7 @@ package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.handler.FSGitHandler;
@@ -616,5 +617,20 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
                     workspaceId, baseArtifactId, repoName, refName, artifactType);
         });
+    }
+
+    @Override
+    public Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String refName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
+        return fsGitHandler.getStatus(repoPath, refName);
     }
 }
