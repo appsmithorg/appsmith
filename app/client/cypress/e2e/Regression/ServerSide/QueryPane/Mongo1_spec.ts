@@ -6,7 +6,6 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   entityItems,
   homePage,
   locators,
