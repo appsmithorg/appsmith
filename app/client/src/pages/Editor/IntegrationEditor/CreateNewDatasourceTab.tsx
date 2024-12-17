@@ -41,7 +41,7 @@ import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
 import RequestNewIntegration from "./RequestNewIntegration";
-import PremiumDatasources from "ee/pages/IntegrationEditor/PremiumDatasources";
+import PremiumDatasources from "pages/Editor/IntegrationEditor/PremiumDatasources";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -133,8 +133,8 @@ function CreateNewDatasource({
   isOnboardingScreen,
   isPremiumDatasourcesViewEnabled,
   pageId,
-  showMostPopularPlugins, // TODO: Fix this the next time the file is edited
-  showUnsupportedPluginDialog,
+  showMostPopularPlugins,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const editorType = useEditorType(location.pathname);

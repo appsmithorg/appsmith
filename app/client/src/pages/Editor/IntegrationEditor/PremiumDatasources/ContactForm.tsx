@@ -27,7 +27,7 @@ import {
   handleLearnMoreClick,
   handleSubmitEvent,
   shouldLearnMoreButtonBeVisible,
-} from "ee/utils/PremiumDatasourcesHelpers";
+} from "utils/PremiumDatasourcesHelpers";
 
 const FormWrapper = styled.form`
   display: flex;

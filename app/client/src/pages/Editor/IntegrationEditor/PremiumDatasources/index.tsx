@@ -1,17 +1,14 @@
 import React, { useState } from "react";
-import {
-  ApiCard,
-  CardContentWrapper,
-} from "../../../../pages/Editor/IntegrationEditor/NewApi";
+import { ApiCard, CardContentWrapper } from "../NewApi";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
-import { PREMIUM_INTEGRATIONS } from "ee/constants/PremiumDatasourcesConstants";
+import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
 import {
   getTagText,
   handlePremiumDatasourceClick,
-} from "ee/utils/PremiumDatasourcesHelpers";
+} from "utils/PremiumDatasourcesHelpers";
 import { isFreePlan } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 
