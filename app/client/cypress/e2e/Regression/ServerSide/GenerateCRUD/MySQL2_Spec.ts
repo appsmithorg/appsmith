@@ -5,15 +5,11 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   entityItems,
   locators,
   propPane,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, newStoreSecret: any;
 

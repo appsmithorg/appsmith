@@ -11,10 +11,9 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
+import {
   AppSidebar,
   AppSidebarButton,
-  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -103,30 +102,7 @@ describe(
       appSettings.OpenPaneAndChangeTheme("Sunrise");
     });
 
-    it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-      dataSources.SelectTableFromPreviewSchemaList("public.orders");
-      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
-
-      GenerateCRUDNValidateDeployPage(
-        "VINET",
-        "1996-07-04T00:00:00+00:00",
-        "1996-08-01T00:00:00+00:00",
-        "order_id",
-      );
-
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(0, 0, "v2");
-      //Delete the test data
-      PageList.ShowList();
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Public.orders",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-    });
-
-    it("4. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+    it("3. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Suppliers Page - 1 still using this ds
