@@ -201,16 +201,7 @@ export const StyledInput = styled.input<{
     }
   }
 
-  ${({ isFocusVisible }) =>
-    isFocusVisible &&
-    css`
-      outline: var(--ads-v2-border-width-outline) solid
-        var(--ads-v2-color-outline) !important;
-      outline-offset: var(--ads-v2-offset-outline) !important;
-    `}
-
-  /* for date picker to work */
-  &&&:focus-visible {
+  &:focus {
     outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline) !important;
     outline-offset: var(--ads-v2-offset-outline) !important;
