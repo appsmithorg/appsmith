@@ -5,7 +5,7 @@ import { InputEndIconClassName } from "../Input/Input.constants";
 const Sizes = {
   sm: css`
     --input-font-size: 14px;
-    --input-padding-x: calc(var(--ads-v2-spaces-2)); // padding left and right
+    --input-padding-x: calc(var(--ads-v2-spaces-3)); // padding left and right
     --input-padding-y: var(--ads-v2-spaces-2); // padding top and bottom
   `,
   md: css`

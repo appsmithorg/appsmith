@@ -163,7 +163,7 @@ export const StyledInput = styled.input<{
     hasStartIcon &&
     renderer === "input" &&
     css`
-      padding-left: calc((var(--input-padding-x) * 2) + var(--icon-size));
+      padding-left: calc((var(--input-padding-x) * 2) + var(--icon-size) - 1px);
     `};
 
   /* adjust padding end according to icon present or not */
@@ -171,7 +171,9 @@ export const StyledInput = styled.input<{
     hasEndIcon &&
     renderer === "input" &&
     css`
-      padding-right: calc((var(--input-padding-x) * 2) + var(--icon-size));
+      padding-right: calc(
+        (var(--input-padding-x) * 2) + var(--icon-size) - 1px
+      );
     `};
 
   &:focus:enabled:not(:read-only) {
