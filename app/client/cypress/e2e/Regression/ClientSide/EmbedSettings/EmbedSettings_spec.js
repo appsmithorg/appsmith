@@ -48,12 +48,9 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       .click()
       .wait(1000);
     _.agHelper.ClickButton("Copy application url");
-    cy.window()
-      .its("navigator.clipboard")
-      .invoke("readText")
-      .then((text) => {
-        cy.wrap(text).as("deployUrl");
-      });
+    cy.window().then((win) => {
+      cy.stub(win.navigator.clipboard, "writeText").as("deployUrl").resolves();
+    });
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
     _.agHelper.RefreshPage();
