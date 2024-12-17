@@ -120,8 +120,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <StyledInput
               as={renderAs}
               type={type}
-              {...focusProps}
               {...inputProps}
+              {...focusProps}
               UNSAFE_height={UNSAFE_height}
               UNSAFE_width={UNSAFE_width}
               className={InputSectionInputClassName}
