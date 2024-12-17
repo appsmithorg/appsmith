@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -51,6 +52,7 @@ public interface GitHandlingServiceCE {
 
     Mono<String> createFirstCommit(ArtifactJsonTransformationDTO jsonTransformationDTO, CommitDTO commitDTO);
 
+    // TODO: provide a proper name
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 
@@ -61,4 +63,6 @@ public interface GitHandlingServiceCE {
 
     Mono<? extends ArtifactExchangeJson> recreateArtifactJsonFromLastCommit(
             ArtifactJsonTransformationDTO jsonTransformationDTO);
+
+    Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }

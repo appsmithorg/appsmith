@@ -47,7 +47,7 @@
   "page": ".single-select >div",
   "propertyList": ".binding",
   "actionlist": ".action div div",
-  "settings": "span:contains('Settings')",
+  "settings": "[data-testid='t--action-settings-trigger']",
   "headers": "span:contains('Headers')",
   "onPageLoad": "[name=executeOnLoad]",
   "renameEntity": "div[role='menuitem']:contains('Rename')",
