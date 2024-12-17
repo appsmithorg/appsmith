@@ -64,6 +64,11 @@ export const ComboBox = (props: ComboBoxProps) => {
               (theme.innerSpacing?.[2]?.value as string).replace("px", ""),
             ) ?? 0
         }
+        offset={
+          Number(
+            (theme.innerSpacing?.[3]?.value as string).replace("px", ""),
+          ) ?? 0
+        }
       >
         <ListBox shouldFocusWrap>{children}</ListBox>
       </Popover>
