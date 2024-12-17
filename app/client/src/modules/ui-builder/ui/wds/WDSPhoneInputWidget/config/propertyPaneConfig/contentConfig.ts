@@ -65,7 +65,7 @@ export const propertyPaneContentConfig = [
       {
         propertyName: "allowDialCodeChange",
         label: "Change country code",
-        helpText: "Search by country",
+        helpText: "Allow users to change the country code",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
