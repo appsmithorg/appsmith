@@ -241,7 +241,7 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (payload: InitEditorActionPayload) =>
       dispatch(initEditorAction(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    setupPage: (pageId: string) => dispatch(setupPageAction(pageId)),
+    setupPage: (pageId: string) => dispatch(setupPageAction({ id: pageId })),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
   };
