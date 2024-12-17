@@ -266,6 +266,7 @@ jobs:
 
       - name: Install Google Chrome 129.0.6668.100
         run: |
+          sudo apt-get remove google-chrome-stable
           wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
           sudo apt-get update
           sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
