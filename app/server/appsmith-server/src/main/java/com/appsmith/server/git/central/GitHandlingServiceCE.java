@@ -76,5 +76,7 @@ public interface GitHandlingServiceCE {
 
     Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
-    Mono<String> prepareForNewRefCreation(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+    Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
+    Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }
