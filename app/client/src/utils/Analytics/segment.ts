@@ -40,6 +40,12 @@ class SegmentSingleton {
   }
 
   public async init(): Promise<boolean> {
+    const { segment } = getAppsmithConfigs();
+
+    if (!segment.enabled) {
+      return true;
+    }
+
     if (this.analytics) {
       log.warn("Segment is already initialized.");
 
@@ -86,40 +92,24 @@ class SegmentSingleton {
   public track(eventName: string, eventData: EventProperties) {
     if (this.analytics) {
       this.analytics.track(eventName, eventData);
-    } else {
-      log.warn("Segment is not initialized.");
     }
   }
 
   public async identify(userId: string, traits: UserTraits) {
     if (this.analytics) {
       await this.analytics.identify(userId, traits);
-    } else {
-      log.warn("Segment is not initialized.");
     }
   }
 
   public async addMiddleware(middleware: MiddlewareFunction) {
     if (this.analytics) {
       await this.analytics.addSourceMiddleware(middleware);
-    } else {
-      log.warn("Segment is not initialized.");
-    }
-  }
-
-  public page(name?: string, properties?: EventProperties) {
-    if (this.analytics) {
-      this.analytics.page(name, properties);
-    } else {
-      log.warn("Segment is not initialized.");
     }
   }
 
   public reset() {
     if (this.analytics) {
       this.analytics.reset();
-    } else {
-      log.warn("Segment is not initialized.");
     }
   }
 }
