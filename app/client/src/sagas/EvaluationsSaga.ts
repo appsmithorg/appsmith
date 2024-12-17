@@ -764,7 +764,8 @@ function* evaluationChangeListenerSaga(): any {
 
     if (
       action?.type === ReduxActionTypes.TRIGGER_EVAL ||
-      isEqual(action, bufferedAction)
+      isEqual(action, bufferedAction) ||
+      isEqual(action, batchUpdateSuccess)
     ) {
       hasTriggerAction = true;
       continue;
@@ -807,6 +808,15 @@ const bufferedAction = {
     ids: [],
   },
   type: "BUFFERED_ACTION",
+};
+const batchUpdateSuccess = {
+  type: "BATCH_UPDATES_SUCCESS",
+  payload: [
+    {
+      type: "META_UPDATE_DEBOUNCED_EVAL",
+      payload: {},
+    },
+  ],
 };
 
 // TODO: Fix this the next time the file is edited
