@@ -548,7 +548,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     exportedJson,
                                                     refDTO.getRefName());
                                         })
-                                        // after the
+                                        // after the branch is created, we need to reset the older branch to initial
+                                        // commit
                                         .doOnSuccess(newImportedArtifact ->
                                                 discardChanges(parentArtifact.getId(), artifactType, gitType));
                             });
