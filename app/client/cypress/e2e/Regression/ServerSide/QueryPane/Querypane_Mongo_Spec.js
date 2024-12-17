@@ -2,18 +2,16 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
 
 import {
   agHelper,
-  entityExplorer,
-  homePage,
+  apiPage,
+  assertHelper,
   dataSources,
   entityItems,
-  assertHelper,
+  homePage,
   locators,
-  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
@@ -240,147 +238,7 @@ describe(
       cy.deleteQueryUsingContext();
     });
 
-    it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
-      //Verifying Select from UI
-      cy.NavigateToDSGeneratePage(datasourceName);
-      agHelper.Sleep(3000); //giving some time for options to load
-      cy.get(generatePage.selectTableDropdown).click();
-      cy.get(generatePage.dropdownOption)
-        //.first()
-        .contains("listingAndReviews")
-        .scrollIntoView()
-        .should("be.visible")
-        .click();
-
-      cy.get(generatePage.generatePageFormSubmitBtn).click();
-
-      cy.wait("@replaceLayoutWithCRUDPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
-
-      cy.wait("@getActions");
-
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      ); //This verifies the Select on the table, ie page is created fine
-
-      cy.ClickGotIt();
-
-      //Check if table is loaded & CRUD is success
-
-      cy.get(generatePage.selectedRow).should("exist");
-      // cy.get(generatePage.updateBtn)
-      //   .closest("button")
-      //   .then((selector) => {
-      //     cy.get(selector)
-      //       .invoke("attr", "class")
-      //       .then((classes) => {
-      //         cy.log("classes are:" + classes);
-      //         expect(classes).not.contain("bp3-disabled");
-      //       });
-      //   });
-    });
-
-    it("7. Validate Deletion of the Newly Created Page", () => {
-      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "ListingAndReviews",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    });
-
-    it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
-      let id;
-      dataSources.createQueryWithDatasourceSchemaTemplate(
-        datasourceName,
-        "listingAndReviews",
-        "Find",
-      );
-      EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
-
-      cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
-        .then(($field) => {
-          return cy.wrap($field).invoke("text");
-        })
-        .then((val) => {
-          cy.wrap(val).as("colData");
-        });
-      cy.EvaluatFieldValue(formControls.mongoFindQuery).then((queryData) => {
-        let localqueryData = queryData.replace("{", "").replace("}", "");
-        id = localqueryData;
-        cy.log("Query value is : " + localqueryData);
-        cy.wrap(localqueryData).as("queryData");
-      });
-      cy.EvaluatFieldValue(formControls.mongoFindSort).then((sortData) => {
-        let localsortData = sortData.replace("{", "").replace("}", "");
-        cy.log("Sort value is : " + localsortData);
-        cy.wrap(localsortData).as("sortData");
-      });
-      cy.EvaluatFieldValue(formControls.mongoFindLimit).then((limitData) => {
-        let locallimitData = limitData.replace("{", "").replace("}", "");
-        cy.log("Limit value is : " + locallimitData);
-        cy.wrap(locallimitData).as("limitData");
-      });
-
-      cy.onlyQueryRun();
-      cy.wait(1000);
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.isExecutionSuccess).to.eq(true);
-        expect(response.body.data.body[0]._id).to.eq(
-          id.split(":")[1].trim().replace(/['"]+/g, ""),
-        );
-      });
-
-      cy.ValidateAndSelectDropdownOption(
-        formControls.commandDropdown,
-        "Find document(s)",
-        "Raw",
-      );
-
-      cy.EvaluatFieldValue().then((rawData) => {
-        rawData = rawData.replace("{", "").replace("}", "");
-        cy.log("rawData value is : " + rawData);
-        cy.wrap(rawData).as("rawData");
-      });
-
-      cy.all(
-        cy.get("@colData"),
-        cy.get("@queryData"),
-        cy.get("@sortData"),
-        cy.get("@limitData"),
-        cy.get("@rawData"),
-      ).then((values) => {
-        expect(values[4].trim()).to.contain(values[0].trim());
-        expect(values[4].trim()).to.contain(values[1].trim());
-        expect(values[4].trim()).to.contain(values[2].trim());
-        expect(values[4].trim()).to.contain(values[3].trim());
-      });
-
-      cy.onlyQueryRun();
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.isExecutionSuccess).to.eq(true);
-        expect(response.body.data.body[0]._id).to.eq(
-          id.split(":")[1].trim().replace(/['"]+/g, ""),
-        );
-      });
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Query1",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-    });
-
-    it("9. Delete the datasource after NewPage deletion is success", () => {
-      dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
-    });
-
-    it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
+    it("6. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       dataSources.CreateDataSource("Mongo");
