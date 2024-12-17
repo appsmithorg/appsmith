@@ -1,9 +1,7 @@
 import React, { createContext, useContext } from "react";
-import type {
-  GitContextValue,
-  UseGitContextValueParams,
-} from "./hooks/useGitContextValue";
 import useGitContextValue from "./hooks/useGitContextValue";
+import type { UseGitContextValueParams } from "./hooks/useGitContextValue";
+import type { GitContextValue } from "./hooks/useGitContextValue";
 
 const gitContextInitialValue = {} as GitContextValue;
 
@@ -15,8 +13,6 @@ export const useGitContext = () => {
 
 interface GitContextProviderProps extends UseGitContextValueParams {
   children: React.ReactNode;
-  // extra
-  // connectPermitted?: boolean;
 }
 
 export default function GitContextProvider({

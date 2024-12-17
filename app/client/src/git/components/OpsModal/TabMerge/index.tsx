@@ -1,6 +1,7 @@
 import React from "react";
 import TabMergeView from "./TabMergeView";
 import { useGitContext } from "git/components/GitContextProvider";
+import useProtectedBranches from "git/hooks/useProtectedBranches";
 
 export default function TabMerge() {
   const {
@@ -16,9 +17,9 @@ export default function TabMerge() {
     mergeError,
     mergeLoading,
     mergeStatus,
-    protectedBranches,
     status,
   } = useGitContext();
+  const { protectedBranches } = useProtectedBranches();
 
   const isStatusClean = status?.isClean ?? false;
 

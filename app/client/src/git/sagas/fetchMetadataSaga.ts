@@ -1,26 +1,24 @@
 import { captureException } from "@sentry/react";
-import fetchGitMetadataRequest from "git/requests/fetchGitMetadataRequest";
-import type { FetchGitMetadataResponse } from "git/requests/fetchGitMetadataRequest.types";
+import fetchMetadataRequest from "git/requests/fetchMetadataRequest";
+import type { FetchMetadataResponse } from "git/requests/fetchMetadataRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
-export default function* fetchGitMetadataSaga(
-  action: GitArtifactPayloadAction,
-) {
+export default function* fetchMetadataSaga(action: GitArtifactPayloadAction) {
   const { artifactType, baseArtifactId } = action.payload;
   const basePayload = { artifactType, baseArtifactId };
-  let response: FetchGitMetadataResponse | undefined;
+  let response: FetchMetadataResponse | undefined;
 
   try {
-    response = yield call(fetchGitMetadataRequest, baseArtifactId);
+    response = yield call(fetchMetadataRequest, baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
       yield put(
-        gitArtifactActions.fetchGitMetadataSuccess({
+        gitArtifactActions.fetchMetadataSuccess({
           ...basePayload,
           responseData: response.data,
         }),
@@ -31,7 +29,7 @@ export default function* fetchGitMetadataSaga(
       const { error } = response.responseMeta;
 
       yield put(
-        gitArtifactActions.fetchGitMetadataError({
+        gitArtifactActions.fetchMetadataError({
           ...basePayload,
           error,
         }),
