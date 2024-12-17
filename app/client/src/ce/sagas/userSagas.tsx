@@ -1,4 +1,4 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -93,10 +93,10 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
     appsmithConfig.segment.enabled &&
     !segmentState
   ) {
-    yield race([
-      take(ReduxActionTypes.SEGMENT_INITIALIZED),
-      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
-    ]);
+    // yield race([
+    //   take(ReduxActionTypes.SEGMENT_INITIALIZED),
+    //   take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
+    // ]);
   }
 }
 
