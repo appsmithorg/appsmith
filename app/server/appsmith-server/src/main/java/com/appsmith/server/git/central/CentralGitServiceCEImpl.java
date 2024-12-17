@@ -573,15 +573,18 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     @Override
-    public Mono<? extends Artifact> deleteReference(
-            String baseArtifactId, String refName, ArtifactType artifactType, GitType gitType, RefType refType) {
+    public Mono<? extends Artifact> deleteGitReference(
+            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType) {
+
+        String refName = gitRefDTO.getRefName();
+        RefType refType = gitRefDTO.getRefType();
 
         if (refType == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
         }
 
         if (!hasText(refName)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, BRANCH_NAME));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_NAME));
         }
 
         if (!hasText(baseArtifactId)) {
@@ -600,11 +603,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         return Mono.zip(baseArtifactMono, branchedArtifactMono).flatMap(tuple2 -> {
             Artifact baseArtifact = tuple2.getT1();
             Artifact referenceArtifact = tuple2.getT2();
-            return deleteReference(baseArtifact, referenceArtifact, gitType, refType);
+            return deleteGitReference(baseArtifact, referenceArtifact, gitType, refType);
         });
     }
 
-    protected Mono<? extends Artifact> deleteReference(
+    protected Mono<? extends Artifact> deleteGitReference(
             Artifact baseArtifact, Artifact referenceArtifact, GitType gitType, RefType refType) {
 
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
@@ -615,7 +618,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
 
         // TODO: write a migration to shift everything to refName in gitMetadata
-        final String finalRefName = referenceArtifactMetadata.getBranchName();
+        final String finalRefName = referenceArtifactMetadata.getRefName();
         final String baseArtifactId = referenceArtifact.getGitArtifactMetadata().getDefaultArtifactId();
 
         if (finalRefName.equals(baseGitMetadata.getDefaultBranchName())) {
@@ -662,6 +665,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return gitArtifactHelper
                                         .deleteArtifactByResource(referenceArtifact)
                                         .onErrorResume(throwable -> {
+                                            log.error(
+                                                    "An error occurred while deleting db artifact and resources for reference {}",
+                                                    throwable.getMessage());
+
                                             return gitAnalyticsUtils
                                                     .addAnalyticsForGitOperation(
                                                             AnalyticsEvents.GIT_DELETE_BRANCH,
