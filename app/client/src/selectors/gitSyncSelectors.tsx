@@ -286,3 +286,9 @@ export const isGitPersistBranchEnabledSelector = createSelector(
   selectFeatureFlags,
   (featureFlags) => featureFlags.release_git_persist_branch_enabled ?? false,
 );
+
+export const isGitModEnabledSelector = createSelector(
+  selectFeatureFlags,
+  // (featureFlags) => featureFlags.release_git_modularisation_enabled ?? false,
+  () => true,
+);

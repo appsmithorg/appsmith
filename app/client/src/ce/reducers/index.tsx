@@ -78,6 +78,7 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
+import { gitReducer } from "git/store";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -87,6 +88,9 @@ export const reducerObject = {
   settings: SettingsReducer,
   tenant: tenantReducer,
   linting: lintErrorReducer,
+  // not sure what is the best way to integrate git reducer behind a feature flag
+  // although integrating it directly should be fine as it will not be used unless the feature is enabled
+  git: gitReducer,
 };
 
 export interface AppState {

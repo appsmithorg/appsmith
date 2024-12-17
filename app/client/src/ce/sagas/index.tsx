@@ -49,6 +49,7 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 import ideSagas from "sagas/IDESaga";
 import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
+import gitSagas from "git/sagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
@@ -106,4 +107,7 @@ export const sagas = [
   ternSagas,
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
+  // not sure what is the best way to integrate git sagas behind a feature flag
+  // although integrating it directly should be fine as it will not be used unless the feature is enabled
+  gitSagas,
 ];
