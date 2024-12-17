@@ -13,7 +13,7 @@
   padding-inline: var(--inner-spacing-2);
   gap: var(--inner-spacing-1);
   border: 0;
-  box-sizing: border-box;
+  box-sizing: content-box;
   border-radius: var(--border-radius-elevation-3);
   background-color: var(--color-bg-neutral-subtle);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
