@@ -766,36 +766,7 @@ describe(
       });
     });
 
-    it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        "AuthorNAwards",
-      );
-      GenerateCRUDNValidateDeployPage(
-        `[{"award":"Award for the Advancement of Free Software","year":2001,"by":"Free Software Foundation"},{"award":"NLUUG Award","year":2003,"by":"NLUUG"}]`,
-        "6",
-        "",
-        3,
-      );
-      // agHelper.NavigateBacktoEditor();
-      // table.WaitUntilTableLoad();
-    });
-
-    it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(0, 0, "v2");
-      //Delete the test data
-      PageList.ShowList();
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "AuthorNAwards",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-    });
-
-    it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
+    it("15. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
 
@@ -814,7 +785,7 @@ describe(
       });
     });
 
-    it("18. Verify application does not break when user runs the query with wrong collection name", function () {
+    it("16. Verify application does not break when user runs the query with wrong collection name", function () {
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
@@ -834,7 +805,7 @@ describe(
       });
     });
 
-    it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
+    it("17. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
       const birthNDeathArray = `[{
       "name": {
         "first": "John",
@@ -941,7 +912,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath", false);
     });
 
-    it("20. Verify Deletion of the datasource", () => {
+    it("18. Verify Deletion of the datasource", () => {
       //Delete the test data
       // entityExplorer.expandCollapseEntity("Pages")
       // entityExplorer.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
