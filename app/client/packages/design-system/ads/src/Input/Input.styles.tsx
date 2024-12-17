@@ -208,6 +208,13 @@ export const StyledInput = styled.input<{
         var(--ads-v2-color-outline) !important;
       outline-offset: var(--ads-v2-offset-outline) !important;
     `}
+
+  /* for date picker to work */
+  &&&:focus-visible {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
+  }
 `;
 
 export const Description = styled(Text)`
