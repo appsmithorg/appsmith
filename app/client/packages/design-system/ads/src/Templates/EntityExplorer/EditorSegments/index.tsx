@@ -1,1 +1,2 @@
-export { EditorSegments } from "./EditorSegments";
+export * from "./EditorSegments";
+export * from "./EditorSegments.types";

@@ -3,7 +3,7 @@ import { SegmentedControl } from "../../../SegmentedControl";
 import { Container } from "./EditorSegments.styles";
 import type { EditorSegmentsProps } from "./EditorSegments.types";
 
-export const EditorSegments = (props: EditorSegmentsProps) => {
+const EditorSegments = (props: EditorSegmentsProps) => {
   const { children, onSegmentChange, options, selectedSegment } = props;
 
   return (
@@ -25,3 +25,9 @@ export const EditorSegments = (props: EditorSegmentsProps) => {
     </Container>
   );
 };
+
+EditorSegments.displayName = "EditorSegments";
+
+EditorSegments.defaultProps = {};
+
+export { EditorSegments };
