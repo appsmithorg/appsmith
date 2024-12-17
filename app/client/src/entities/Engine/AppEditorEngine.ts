@@ -124,13 +124,19 @@ export default class AppEditorEngine extends AppEngine {
     const {
       currentTheme,
       customJSLibraries,
+      packagePullStatus,
       pageWithMigratedDsl,
       themes,
       unpublishedActionCollections,
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction({
+        id: toLoadPageId,
+        isFirstLoad: true,
+        pageWithMigratedDsl,
+        packagePullStatus,
+      }),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
