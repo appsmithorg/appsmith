@@ -254,13 +254,15 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@v1
+      - uses: browser-actions/setup-chrome@latest
+        id: setup-chrome
         with:
-          chrome-version: latest
+          chrome-version: 129
           install-chromedriver: true
           install-dependencies: true
       - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "BROWSER_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+          ${{ steps.setup-chrome.outputs.chrome-path }} --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
