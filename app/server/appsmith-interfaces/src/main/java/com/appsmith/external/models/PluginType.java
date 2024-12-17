@@ -8,4 +8,6 @@ public enum PluginType {
     REMOTE,
     AI,
     INTERNAL,
+
+    // Add EE Plugin Types below this line, to avoid conflicts.
 }

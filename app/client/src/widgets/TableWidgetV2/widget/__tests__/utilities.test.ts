@@ -1,6 +1,6 @@
-import type { ColumnProperties, TableStyles } from "../component/Constants";
-import { StickyType } from "../component/Constants";
-import { ColumnTypes } from "../constants";
+import type { ColumnProperties, TableStyles } from "../../component/Constants";
+import { StickyType } from "../../component/Constants";
+import { ColumnTypes } from "../../constants";
 import {
   convertNumToCompactString,
   escapeString,
@@ -17,7 +17,7 @@ import {
   getSourceDataAndCaluclateKeysForEventAutoComplete,
   getTableStyles,
   reorderColumns,
-} from "./utilities";
+} from "../utilities";
 
 const getCurrentRowBinding = (
   entityName: string,
