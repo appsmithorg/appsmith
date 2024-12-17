@@ -223,7 +223,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@v1
         with:
-          chrome-version: 131
+          chrome-version: latest
           install-chromedriver: true
           install-dependencies: true
       - run: |
