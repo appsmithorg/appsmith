@@ -74,6 +74,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.constants.FieldName.BRANCH_NAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
+import static com.appsmith.server.constants.ce.FieldNameCE.REF_NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.REF_TYPE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.hasText;
@@ -439,12 +441,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         return null;
     }
 
-    public Mono<? extends Artifact> checkoutReference(
-            String referencedArtifactId,
-            GitRefDTO refDTO,
-            ArtifactType artifactType,
-            GitType gitType,
-            RefType refType) {
+    @Override
+    public Mono<? extends Artifact> createReference(
+            String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType) {
 
         /*
         1. Check if the src artifact is available and user have sufficient permissions
@@ -452,8 +451,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         3. Rehydrate the artifact from source artifact reference
          */
 
+        RefType refType = refDTO.getRefType();
+
+        if (refDTO.getRefType() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
+        }
+
         if (!hasText(refDTO.getRefName()) || refDTO.getRefName().startsWith(ORIGIN)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, BRANCH_NAME));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_NAME));
         }
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);

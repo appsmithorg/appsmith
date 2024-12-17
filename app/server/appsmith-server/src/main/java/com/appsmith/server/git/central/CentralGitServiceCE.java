@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
@@ -45,4 +46,7 @@ public interface CentralGitServiceCE {
             ArtifactType artifactType,
             GitType gitType,
             RefType refType);
+
+    Mono<? extends Artifact> createReference(
+            String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType);
 }
