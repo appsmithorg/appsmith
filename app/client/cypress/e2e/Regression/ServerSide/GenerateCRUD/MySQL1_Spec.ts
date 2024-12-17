@@ -109,7 +109,7 @@ describe(
       });
     });
 
-    it("4. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
+    it("3. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
       let tableCreateQuery = `CREATE TABLE productlines (
       productLine varchar(50) NOT NULL,
       textDescription varchar(4000) DEFAULT NULL,
@@ -194,7 +194,7 @@ describe(
     //   //To script aft bug fix!
     // });
 
-    it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
+    it("4. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
       let deleteTblQuery = "DROP TABLE productlines;";
       dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropProductlines");
       agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -204,7 +204,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
     });
 
-    it("10. Verify application does not break when user runs the query with wrong table name", function () {
+    it("5. Verify application does not break when user runs the query with wrong table name", function () {
       EditorNavigation.SelectEntityByName("DropProductlines", EntityType.Query);
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").then(({ response }) => {
