@@ -21,7 +21,7 @@ export const selectMetadataState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.metadata;
 
-export const selectGitConnected = (
+export const selectConnected = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => !!selectMetadataState(state, artifactDef)?.value;

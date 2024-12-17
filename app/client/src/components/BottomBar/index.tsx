@@ -16,11 +16,11 @@ import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import PackageUpgradeStatus from "ee/components/BottomBar/PackageUpgradeStatus";
 import OldGitQuickActions from "pages/Editor/gitSync/QuickGitActions";
-import { GitQuickActions } from "git/components";
-import { isGitModEnabledSelector } from "selectors/gitSyncSelectors";
+import { GitQuickActions } from "git";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 
 function GitActions() {
-  const isGitModEnabled = useSelector(isGitModEnabledSelector);
+  const isGitModEnabled = useGitModEnabled();
 
   return isGitModEnabled ? <GitQuickActions /> : <OldGitQuickActions />;
 }

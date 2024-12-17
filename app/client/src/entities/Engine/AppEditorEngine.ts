@@ -22,11 +22,7 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import {
-  getCurrentGitBranch,
-  isGitModEnabledSelector,
-  isGitPersistBranchEnabledSelector,
-} from "selectors/gitSyncSelectors";
+import { isGitPersistBranchEnabledSelector } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 // import history from "utils/history";
 import type { AppEnginePayload } from ".";
@@ -78,6 +74,12 @@ import {
 } from "actions/gitSyncActions";
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
+import {
+  selectGitCurrentBranch,
+  selectGitModEnabled,
+} from "selectors/gitModSelectors";
+import { getCurrentBaseApplicationId } from "selectors/editorSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -296,7 +298,10 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    const currentBranch: string = yield select(getCurrentGitBranch);
+    const currentBranch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(currentApplication.baseId),
+    );
 
     const isGitPersistBranchEnabled: boolean = yield select(
       isGitPersistBranchEnabledSelector,
@@ -383,7 +388,7 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string, rootSpan: Span) {
     const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
-    const isGitModEnabled: boolean = yield select(isGitModEnabledSelector);
+    const isGitModEnabled: boolean = yield select(selectGitModEnabled);
 
     if (isGitModEnabled) {
       const currentApplication: ApplicationPayload = yield select(
@@ -398,7 +403,13 @@ export default class AppEditorEngine extends AppEngine {
         }),
       );
     } else {
-      const currentBranch: string = yield select(getCurrentGitBranch);
+      const baseApplicationId: string = yield select(
+        getCurrentBaseApplicationId,
+      );
+      const currentBranch: string = yield select(
+        selectGitCurrentBranch,
+        applicationArtifact(baseApplicationId),
+      );
 
       // init of temporary remote url from old application
       yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));

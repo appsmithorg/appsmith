@@ -36,7 +36,7 @@ interface ConnectModalViewProps {
   resetGenerateSSHKey: () => void;
   sshPublicKey: string | null;
   toggleConnectModal: (open: boolean) => void;
-  isGitConnected: boolean;
+  isConnected: boolean;
   remoteUrl: string | null;
   toggleSettingsModal: (
     open: boolean,
@@ -50,8 +50,8 @@ interface ConnectModalViewProps {
 
 function ConnectModalView({
   defaultBranch = null,
+  isConnected = false,
   isConnectModalOpen = false,
-  isGitConnected = false,
   remoteUrl = null,
   repoName = null,
   resetFetchSSHKey = noop,
@@ -79,7 +79,7 @@ function ConnectModalView({
           // need fragment to arrange conditions properly
           // eslint-disable-next-line react/jsx-no-useless-fragment
           <>
-            {isGitConnected ? (
+            {isConnected ? (
               <ConnectSuccess
                 defaultBranch={defaultBranch}
                 remoteUrl={remoteUrl}

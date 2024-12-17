@@ -1,12 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { GitArtifactType, GitContextProvider } from "git";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import GitContextProvider from "git/components/GitContextProvider";
-import { GitArtifactType } from "git/constants/enums";
-import applicationStatusTransformer from "git/artifactHelpers/application/statusTransformer";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { applicationStatusTransformer } from "git/artifact-helpers/application";
 
 interface GitApplicationContextProviderProps {
   children: React.ReactNode;

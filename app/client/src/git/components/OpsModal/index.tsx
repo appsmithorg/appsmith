@@ -1,14 +1,14 @@
 import React from "react";
 import OpsModalView from "./OpsModalView";
-import useProtectedBranches from "git/hooks/useProtectedBranches";
 import useMetadata from "git/hooks/useMetadata";
 import useStatus from "git/hooks/useStatus";
 import useOps from "git/hooks/useOps";
+import useProtectedMode from "git/hooks/useProtectedMode";
 
 export default function OpsModal() {
   const { opsModalOpen, opsModalTab, toggleOpsModal } = useOps();
   const { fetchStatus } = useStatus();
-  const { isProtectedMode } = useProtectedBranches();
+  const isProtectedMode = useProtectedMode();
 
   const { metadata } = useMetadata();
 

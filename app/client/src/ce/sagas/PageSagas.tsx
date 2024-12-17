@@ -77,6 +77,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
+  getCurrentBaseApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -128,7 +129,6 @@ import { getPageList } from "ee/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
@@ -150,6 +150,8 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
 import { ConsolidatedPageLoadApi } from "api";
+import { selectGitCurrentBranch } from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -172,7 +174,11 @@ export function* refreshTheApp() {
     const currentPageId: string = yield select(getCurrentPageId);
     const defaultBasePageId: string = yield select(getDefaultBasePageId);
     const pagesList: Page[] = yield select(getPageList);
-    const gitBranch: string = yield select(getCurrentGitBranch);
+    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
+    const gitBranch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(baseApplicationId),
+    );
 
     const isCurrentPageIdInList =
       pagesList.filter((page) => page.pageId === currentPageId).length > 0;

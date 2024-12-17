@@ -4,6 +4,7 @@ import { useGitContext } from "../GitContextProvider";
 import useConnect from "git/hooks/useConnect";
 import useMetadata from "git/hooks/useMetadata";
 import useSettings from "git/hooks/useSettings";
+import useConnected from "git/hooks/useConnected";
 
 interface ConnectModalProps {
   isImport?: boolean;
@@ -28,7 +29,8 @@ function ConnectModal({ isImport = false }: ConnectModalProps) {
     sshKey,
     toggleConnectModal,
   } = useConnect();
-  const { isGitConnected, metadata } = useMetadata();
+  const isConnected = useConnected();
+  const { metadata } = useMetadata();
   const { toggleSettingsModal } = useSettings();
 
   const { artifactType } = artifactDef;
@@ -48,10 +50,10 @@ function ConnectModal({ isImport = false }: ConnectModalProps) {
       gitImport={gitImport}
       isConnectLoading={isConnectLoading}
       isConnectModalOpen={isConnectModalOpen}
+      isConnected={isConnected}
       isCreateArtifactPermitted={isCreateArtifactPermitted}
       isFetchSSHKeyLoading={isFetchSSHKeyLoading}
       isGenerateSSHKeyLoading={isGenerateSSHKeyLoading}
-      isGitConnected={isGitConnected}
       isGitImportLoading={isGitImportLoading}
       isImport={isImport}
       remoteUrl={remoteUrl}

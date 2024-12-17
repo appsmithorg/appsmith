@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
@@ -45,9 +45,8 @@ import type { Page } from "entities/Page";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import GeneratePageModal from "./GeneratePage";
-import { GitModals as NewGitModals } from "git/components";
+import { GitModals as NewGitModals } from "git";
 import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
-import { isGitModEnabledSelector } from "selectors/gitSyncSelectors";
 import GitSyncModal from "./gitSync/GitSyncModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
 import DisconnectGitModal from "./gitSync/DisconnectGitModal";
@@ -55,9 +54,10 @@ import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
 import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
+import { useGitModEnabled } from "./gitSync/hooks/modHooks";
 
 function GitModals() {
-  const isGitModEnabled = useSelector(isGitModEnabledSelector);
+  const isGitModEnabled = useGitModEnabled();
 
   return isGitModEnabled ? (
     <NewGitModals />

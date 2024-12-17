@@ -49,7 +49,7 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 import ideSagas from "sagas/IDESaga";
 import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
-import gitSagas from "git/sagas";
+import { gitSagas } from "git";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import React from "react";
 import { Menu, MenuItem, MenuContent, MenuTrigger } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -14,6 +13,7 @@ import { Button } from "@appsmith/ads";
 import { KBEditorMenuItem } from "ee/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 import { useHasConnectToGitPermission } from "pages/Editor/gitSync/hooks/gitPermissionHooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { useGitConnected } from "pages/Editor/gitSync/hooks/modHooks";
 
 interface Props {
   trigger: ReactNode;
@@ -22,7 +22,7 @@ interface Props {
 
 export const DeployLinkButton = (props: Props) => {
   const dispatch = useDispatch();
-  const isGitConnected = useSelector(getIsGitConnected);
+  const isGitConnected = useGitConnected();
   const isConnectToGitPermitted = useHasConnectToGitPermission();
   // We check if the current application is an Anvil application.
   // If it is an Anvil application, we remove the Git features from the deploy button

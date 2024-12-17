@@ -2,7 +2,6 @@ import { all, select, take } from "redux-saga/effects";
 import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   FocusEntity,
@@ -18,6 +17,9 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import AppIDEFocusElements from "../FocusElements/AppIDE";
+import { getCurrentBaseApplicationId } from "selectors/editorSelectors";
+import { selectGitCurrentBranch } from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 function shouldSetState(
   prevPath: string,
@@ -109,7 +111,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       return [];
     }
 
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
+    const branch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(baseApplicationId),
+    );
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
     const currentEntityInfo = identifyEntityFromPath(currentPath);
@@ -136,7 +142,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     return entities;
   },
   *getEntitiesForStore(path: string, currentPath: string) {
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
+    const branch: string | undefined = yield select(
+      selectGitCurrentBranch,
+      applicationArtifact(baseApplicationId),
+    );
     const entities: Array<FocusPath> = [];
     const currentFocusEntityInfo = identifyEntityFromPath(currentPath);
     const prevFocusEntityInfo = identifyEntityFromPath(path);

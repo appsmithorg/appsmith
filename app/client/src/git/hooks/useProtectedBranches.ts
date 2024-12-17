@@ -2,7 +2,6 @@ import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectFetchProtectedBranchesState,
-  selectProtectedMode,
   selectUpdateProtectedBranchesState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
@@ -38,10 +37,6 @@ function useProtectedBranches() {
     [dispatch, artifactDef],
   );
 
-  const isProtectedMode = useSelector((state: GitRootState) =>
-    selectProtectedMode(state, artifactDef),
-  );
-
   return {
     protectedBranches: fetchProtectedBranchesState.value,
     isFetchProtectedBranchesLoading: fetchProtectedBranchesState.loading,
@@ -50,7 +45,6 @@ function useProtectedBranches() {
     isUpdateProtectedBranchesLoading: updateProtectedBranchesState.loading,
     updateProtectedBranchesError: updateProtectedBranchesState.error,
     updateProtectedBranches,
-    isProtectedMode,
   };
 }
 

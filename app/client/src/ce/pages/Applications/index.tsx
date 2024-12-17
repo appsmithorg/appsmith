@@ -132,12 +132,12 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { isGitModEnabledSelector } from "selectors/gitSyncSelectors";
 import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import { GitImportModal as NewGitImportModal } from "git/components";
+import { GitImportModal as NewGitImportModal } from "git";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 
 function GitImportModals() {
-  const isGitModEnabled = useSelector(isGitModEnabledSelector);
+  const isGitModEnabled = useGitModEnabled();
 
   return isGitModEnabled ? <NewGitImportModal /> : <OldGitSyncModal isImport />;
 }
