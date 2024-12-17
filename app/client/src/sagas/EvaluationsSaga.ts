@@ -59,7 +59,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty } from "lodash";
+import { get, isEmpty, isEqual } from "lodash";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import {
@@ -762,17 +762,18 @@ function* evaluationChangeListenerSaga(): any {
       timeout: delay(1000),
     });
 
-    if (action?.type === ReduxActionTypes.TRIGGER_EVAL) {
+    if (
+      action?.type === ReduxActionTypes.TRIGGER_EVAL ||
+      isEqual(action, bufferedAction)
+    ) {
       hasTriggerAction = true;
       continue;
     }
 
     if (timeout) {
       if (hasTriggerAction) {
-        const action = {
-          type: ReduxActionTypes.TRIGGER_EVAL,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const action = bufferedAction as any;
         const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
 
         yield call(evalAndLintingHandler, true, action, {
@@ -798,6 +799,15 @@ function* evaluationChangeListenerSaga(): any {
     hasTriggerAction = false;
   }
 }
+
+const bufferedAction = {
+  postEvalActions: [],
+  affectedJSObjects: {
+    isAllAffected: false,
+    ids: [],
+  },
+  type: "BUFFERED_ACTION",
+};
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
