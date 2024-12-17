@@ -57,8 +57,8 @@ export const StyledControlContainer = styled.div`
 
   &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 
   &[data-disabled="true"] {
