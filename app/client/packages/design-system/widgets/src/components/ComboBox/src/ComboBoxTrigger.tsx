@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { Spinner, Input, IconButton } from "@appsmith/wds";
 
-import styles from "./styles.module.css";
 import type { ComboBoxProps } from "./types";
 
 interface ComboBoxTriggerProps {
@@ -19,7 +18,6 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
 
     return (
       <IconButton
-        className={styles.comboboxTriggerButton}
         icon="chevron-down"
         isDisabled={isDisabled}
         size={size === "medium" ? "small" : "xSmall"}
@@ -27,13 +25,5 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
     );
   }, [isLoading, size, isDisabled]);
 
-  return (
-    <Input
-      className={styles.comboboxInput}
-      inputGroupClassName={styles.comboboxInputGroup}
-      placeholder={placeholder}
-      size={size}
-      suffix={suffix}
-    />
-  );
+  return <Input placeholder={placeholder} size={size} suffix={suffix} />;
 };

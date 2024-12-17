@@ -12,7 +12,6 @@
   padding-inline: var(--inner-spacing-2);
   gap: var(--inner-spacing-1);
   border: 0;
-  box-sizing: content-box;
   border-radius: var(--border-radius-elevation-3);
   background-color: var(--color-bg-neutral-subtle);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
@@ -167,9 +166,9 @@
  */
 .inputGroup:has(> .input[data-size="small"]) {
   block-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
+    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
+      var(--inner-spacing-2) * 2
   );
-  padding-block: var(--inner-spacing-2);
 }
 
 .inputGroup:has(> .input[data-size="large"]) {

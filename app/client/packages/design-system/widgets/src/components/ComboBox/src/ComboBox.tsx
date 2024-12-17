@@ -8,8 +8,10 @@ import {
 import React from "react";
 import { ComboBox as HeadlessCombobox } from "react-aria-components";
 
+import styles from "./styles.module.css";
 import type { ComboBoxProps } from "./types";
 import { ComboBoxTrigger } from "./ComboBoxTrigger";
+import { useTheme } from "@appsmith/wds-theming";
 
 export const ComboBox = (props: ComboBoxProps) => {
   const {
@@ -27,6 +29,7 @@ export const ComboBox = (props: ComboBoxProps) => {
   const root = document.body.querySelector(
     "[data-theme-provider]",
   ) as HTMLButtonElement;
+  const { theme } = useTheme();
 
   return (
     <HeadlessCombobox
@@ -51,7 +54,17 @@ export const ComboBox = (props: ComboBoxProps) => {
         size={size}
       />
       <FieldError>{errorMessage}</FieldError>
-      <Popover UNSTABLE_portalContainer={root}>
+      <Popover
+        UNSTABLE_portalContainer={root}
+        className={styles.comboboxPopover}
+        containerPadding={0}
+        crossOffset={
+          -1 *
+            Number(
+              (theme.innerSpacing?.[2]?.value as string).replace("px", ""),
+            ) ?? 0
+        }
+      >
         <ListBox shouldFocusWrap>{children}</ListBox>
       </Popover>
     </HeadlessCombobox>

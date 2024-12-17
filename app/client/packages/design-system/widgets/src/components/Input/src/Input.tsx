@@ -12,7 +12,6 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   const {
     className,
     defaultValue,
-    inputGroupClassName,
     isLoading,
     isReadOnly,
     prefix,
@@ -50,7 +49,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   })();
 
   return (
-    <Group className={clsx(styles.inputGroup, inputGroupClassName)}>
+    <Group className={styles.inputGroup}>
       {Boolean(prefix) && (
         <span data-input-prefix onClick={() => localRef.current?.focus()}>
           {prefix}
