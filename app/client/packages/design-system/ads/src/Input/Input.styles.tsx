@@ -98,7 +98,7 @@ export const InputContainer = styled.div<{
   }
 
   & .${InputIconClassName}.${InputStartIconClassName} {
-    left: 1px;
+    left: 0;
   }
 
   & .${InputIconClassName}.${InputEndIconClassName} {
