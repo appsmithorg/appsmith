@@ -90,8 +90,13 @@ class SegmentSingleton {
   }
 
   public track(eventName: string, eventData: EventProperties) {
+    // In scenarios where segment was never initialised, we are logging the event locally
+    // This is done so that we can debug event logging locally
     if (this.analytics) {
+      log.debug("Event fired", eventName, eventData);
       this.analytics.track(eventName, eventData);
+    } else {
+      log.debug("Event fired locally", eventName, eventData);
     }
   }
 

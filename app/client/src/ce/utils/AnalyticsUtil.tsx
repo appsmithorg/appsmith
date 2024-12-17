@@ -12,11 +12,17 @@ import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
 import { toast } from "@appsmith/ads";
 
+import {
+  initLicense,
+  initInstanceId,
+  getInstanceId,
+  getEventExtraProperties,
+} from "ee/utils/Analytics/getEventExtraProperties";
+
 export enum AnalyticsEventType {
   error = "error",
 }
 
-let instanceId = "";
 let blockErrorLogs = false;
 let segmentAnalytics: SegmentSingleton | null = null;
 
@@ -40,23 +46,6 @@ async function initialize(user: User) {
   }
 }
 
-function getEventExtraProperties() {
-  const { appVersion } = getAppsmithConfigs();
-  let userData;
-
-  try {
-    userData = TrackedUser.getInstance().getUser();
-  } catch (e) {
-    userData = {};
-  }
-
-  return {
-    instanceId,
-    version: appVersion.id,
-    userData,
-  };
-}
-
 function logEvent(
   eventName: EventName,
   eventData?: EventProperties,
@@ -71,13 +60,8 @@ function logEvent(
     ...getEventExtraProperties(),
   };
 
-  // In scenarios where segment was never initialised, we are logging the event locally
-  // This is done so that we can debug event logging locally
   if (segmentAnalytics) {
-    log.debug("Event fired", eventName, finalEventData);
     segmentAnalytics.track(eventName, finalEventData);
-  } else {
-    log.debug("Event fired locally", eventName, finalEventData);
   }
 }
 
@@ -93,6 +77,7 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
   TrackedUser.init(userData);
 
   const trackedUser = TrackedUser.getInstance().getUser();
+  const instanceId = getInstanceId();
 
   const additionalData = {
     id: trackedUser.userId,
@@ -115,10 +100,6 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
   if (trackedUser.email) {
     SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
   }
-}
-
-function initInstanceId(id: string) {
-  instanceId = id;
 }
 
 function setBlockErrorLogs(value: boolean) {
@@ -160,4 +141,5 @@ export {
   getAnonymousId,
   reset,
   getEventExtraProperties,
+  initLicense,
 };
