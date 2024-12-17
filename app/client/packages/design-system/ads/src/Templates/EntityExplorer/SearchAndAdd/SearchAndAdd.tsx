@@ -17,6 +17,7 @@ export const SearchAndAdd = forwardRef<HTMLInputElement, SearchAndAddProps>(
     return (
       <Styles.Root>
         <SearchInput
+          data-testid="t--search-input"
           onChange={onSearch}
           placeholder={placeholder}
           ref={ref}
@@ -26,6 +27,7 @@ export const SearchAndAdd = forwardRef<HTMLInputElement, SearchAndAddProps>(
         {showAddButton && (
           <Styles.SquareButton
             aria-label="Add"
+            data-testid="t--add-item"
             isIconButton
             kind="secondary"
             onClick={onAdd}
