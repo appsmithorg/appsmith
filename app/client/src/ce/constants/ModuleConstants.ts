@@ -32,3 +32,9 @@ export interface ModuleMetadata {
   pluginId: string;
   pluginType: PluginType;
 }
+
+export enum PACKAGE_PULL_STATUS {
+  UPGRADABLE = "UPGRADABLE",
+  UPGRADED = "UPGRADED",
+  UPGRADING = "UPGRADING",
+}
