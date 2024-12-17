@@ -254,15 +254,24 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        id: setup-chrome
-        with:
-          chrome-version: 129
-          install-chromedriver: true
-          install-dependencies: true
-      - run: |
-          echo "BROWSER_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
-          ${{ steps.setup-chrome.outputs.chrome-path }} --version
+      # - uses: browser-actions/setup-chrome@latest
+      #   id: setup-chrome
+      #   with:
+      #     chrome-version: 129
+      #     install-chromedriver: true
+      #     install-dependencies: true
+      # - run: |
+      #     echo "BROWSER_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+      #     ${{ steps.setup-chrome.outputs.chrome-path }} --version
+
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          CHROME_VERSION=129.0.6668.100
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_${CHROME_VERSION}-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_${CHROME_VERSION}-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -370,7 +379,7 @@ jobs:
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
-          browser: /opt/hostedtoolcache/setup-chrome/chromium/129.0.6668.100/x64/chrome
+          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ inputs.spec }}
