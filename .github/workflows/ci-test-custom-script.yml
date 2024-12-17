@@ -33,6 +33,9 @@ on:
 jobs:
   ci-test:
     runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-20.18.0-chrome-130.0.6723.69-1-ff-131.0.3-edge-130.0.2849.52-1
+      options: --user 1001
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
@@ -254,15 +257,15 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        id: setup-chrome
-        with:
-          chrome-version: 129
-          install-chromedriver: true
-          install-dependencies: true
+      # - uses: browser-actions/setup-chrome@latest
+      #   id: setup-chrome
+      #   with:
+      #     chrome-version: 129
+      #     install-chromedriver: true
+      #     install-dependencies: true
+
       - run: |
-          echo "BROWSER_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
-          ${{ steps.setup-chrome.outputs.chrome-path }} --version
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -370,7 +373,7 @@ jobs:
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
-          browser: chrome
+          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ inputs.spec }}
