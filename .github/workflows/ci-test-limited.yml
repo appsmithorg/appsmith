@@ -337,6 +337,7 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
+          CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT: 300000
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false

@@ -367,6 +367,7 @@ jobs:
           CYPRESS_SKIP_FLAKY: true
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
+          CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT: 300000
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
