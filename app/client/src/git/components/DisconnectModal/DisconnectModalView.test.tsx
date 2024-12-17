@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import DisconnectModal from ".";
+import DisconnectModal from "./DisconnectModalView";
 
 jest.mock("ee/utils/AnalyticsUtil", () => ({
   logEvent: jest.fn(),
@@ -10,14 +10,12 @@ jest.mock("ee/utils/AnalyticsUtil", () => ({
 
 describe("DisconnectModal", () => {
   const defaultProps = {
-    isModalOpen: true,
-    disconnectingApp: {
-      id: "app123",
-      name: "TestApp",
-    },
-    closeModal: jest.fn(),
-    onBackClick: jest.fn(),
-    onDisconnect: jest.fn(),
+    closeDisconnectModal: jest.fn(),
+    disconnect: jest.fn(),
+    disconnectArtifactName: "TestApp",
+    isDisconnectLoading: false,
+    isDisconnectModalOpen: true,
+    toggleSettingsModal: jest.fn(),
   };
 
   afterEach(() => {
@@ -30,7 +28,7 @@ describe("DisconnectModal", () => {
   });
 
   it("should not render the modal when isModalOpen is false", () => {
-    render(<DisconnectModal {...defaultProps} isModalOpen={false} />);
+    render(<DisconnectModal {...defaultProps} isDisconnectModalOpen={false} />);
     expect(
       screen.queryByTestId("t--disconnect-git-modal"),
     ).not.toBeInTheDocument();
@@ -56,7 +54,7 @@ describe("DisconnectModal", () => {
     expect(input).toHaveValue("TestApp");
   });
 
-  it("should enable Revoke button when appName matches disconnectingApp.name", () => {
+  it("should enable Revoke button when appName matches disconnectAppName", () => {
     render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
     const revokeButton = document.getElementsByClassName(
@@ -69,7 +67,7 @@ describe("DisconnectModal", () => {
     expect(revokeButton).toBeEnabled();
   });
 
-  it("should disable Revoke button when appName does not match disconnectingApp.name", () => {
+  it("should disable Revoke button when appName does not match disconnectAppName", () => {
     render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
     const revokeButton = document.getElementsByClassName(
@@ -87,7 +85,8 @@ describe("DisconnectModal", () => {
     )[0];
 
     fireEvent.click(goBackButton);
-    expect(defaultProps.onBackClick).toHaveBeenCalledTimes(1);
+    expect(defaultProps.closeDisconnectModal).toHaveBeenCalledTimes(1);
+    expect(defaultProps.toggleSettingsModal).toHaveBeenCalledTimes(1);
   });
 
   it("should call onDisconnect when Revoke button is clicked", () => {
@@ -100,7 +99,7 @@ describe("DisconnectModal", () => {
     fireEvent.change(input, { target: { value: "TestApp" } });
     fireEvent.click(revokeButton);
 
-    expect(defaultProps.onDisconnect).toHaveBeenCalledTimes(1);
+    expect(defaultProps.disconnect).toHaveBeenCalledTimes(1);
   });
 
   it("should disable Revoke button when isRevoking is true", () => {
@@ -115,9 +114,9 @@ describe("DisconnectModal", () => {
 
     fireEvent.click(revokeButton);
     // Rerender to reflect state change
-    rerender(<DisconnectModal {...defaultProps} />);
+    rerender(<DisconnectModal {...defaultProps} isDisconnectLoading />);
 
-    expect(defaultProps.onDisconnect).toHaveBeenCalledTimes(1);
+    expect(defaultProps.disconnect).toHaveBeenCalledTimes(1);
     expect(revokeButton).toBeDisabled();
   });
 
@@ -160,6 +159,6 @@ describe("DisconnectModal", () => {
     )[0];
 
     fireEvent.click(revokeButton);
-    expect(defaultProps.onDisconnect).not.toHaveBeenCalled();
+    expect(defaultProps.disconnect).not.toHaveBeenCalled();
   });
 });
