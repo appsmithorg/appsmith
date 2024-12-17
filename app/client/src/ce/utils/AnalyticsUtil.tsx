@@ -10,6 +10,7 @@ import MixpanelSingleton from "utils/Analytics/mixpanel";
 import SentryUtil from "utils/Analytics/sentry";
 import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
+import { toast } from "@appsmith/ads";
 
 export enum AnalyticsEventType {
   error = "error",
@@ -20,18 +21,23 @@ let blockErrorLogs = false;
 let segmentAnalytics: SegmentSingleton | null = null;
 
 async function initialize(user: User) {
-  SentryUtil.init();
-  await SmartlookUtil.init();
+  try {
+    SentryUtil.init();
+    await SmartlookUtil.init();
 
-  segmentAnalytics = SegmentSingleton.getInstance();
+    segmentAnalytics = SegmentSingleton.getInstance();
 
-  await segmentAnalytics.init();
+    await segmentAnalytics.init();
 
-  // Mixpanel needs to be initialized after Segment
-  await MixpanelSingleton.getInstance().init();
+    // Mixpanel needs to be initialized after Segment
+    await MixpanelSingleton.getInstance().init();
 
-  // Identify the user after all services are initialized
-  await identifyUser(user);
+    // Identify the user after all services are initialized
+    await identifyUser(user);
+  } catch (e) {
+    log.error("Error initializing analytics", e);
+    toast.show("Error initializing analytics");
+  }
 }
 
 function getEventExtraProperties() {
