@@ -43,7 +43,7 @@ import {
 } from "ee/selectors/workflowSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { getCurrentPageName } from "./editorSelectors";
+import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -131,6 +131,15 @@ const getMetaWidgetsFromUnevaluatedDataTree = createSelector(
   getLoadingEntities,
   (metaWidgets, widgetsMeta, loadingEntities) =>
     DataTreeFactory.metaWidgets(metaWidgets, widgetsMeta, loadingEntities),
+);
+
+// * This is only for internal use to avoid cyclic dependency issue
+const getPageListState = (state: AppState) => state.entities.pageList;
+const getCurrentPageName = createSelector(
+  getPageListState,
+  (pageList: PageListReduxState) =>
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
+      ?.pageName,
 );
 
 export const getUnevaluatedDataTree = createSelector(
