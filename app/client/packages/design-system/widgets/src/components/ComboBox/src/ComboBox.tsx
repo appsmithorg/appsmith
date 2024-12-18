@@ -4,6 +4,8 @@ import {
   FieldLabel,
   FieldError,
   inputFieldStyles,
+  useRootContainer,
+  POPOVER_LIST_BOX_MAX_HEIGHT,
 } from "@appsmith/wds";
 import React from "react";
 import { ComboBox as HeadlessCombobox } from "react-aria-components";
@@ -11,7 +13,6 @@ import { ComboBox as HeadlessCombobox } from "react-aria-components";
 import styles from "./styles.module.css";
 import type { ComboBoxProps } from "./types";
 import { ComboBoxTrigger } from "./ComboBoxTrigger";
-import { useTheme } from "@appsmith/wds-theming";
 
 export const ComboBox = (props: ComboBoxProps) => {
   const {
@@ -26,10 +27,7 @@ export const ComboBox = (props: ComboBoxProps) => {
     size = "medium",
     ...rest
   } = props;
-  const root = document.body.querySelector(
-    "[data-theme-provider]",
-  ) as HTMLButtonElement;
-  const { theme } = useTheme();
+  const root = useRootContainer();
 
   return (
     <HeadlessCombobox
@@ -57,18 +55,8 @@ export const ComboBox = (props: ComboBoxProps) => {
       <Popover
         UNSTABLE_portalContainer={root}
         className={styles.comboboxPopover}
-        containerPadding={0}
-        crossOffset={
-          -1 *
-            Number(
-              (theme.innerSpacing?.[2]?.value as string).replace("px", ""),
-            ) ?? 0
-        }
-        offset={
-          Number(
-            (theme.innerSpacing?.[3]?.value as string).replace("px", ""),
-          ) ?? 0
-        }
+        isOpen
+        maxHeight={POPOVER_LIST_BOX_MAX_HEIGHT}
       >
         <ListBox shouldFocusWrap>{children}</ListBox>
       </Popover>

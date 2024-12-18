@@ -43,7 +43,6 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
           </Button>
           <Menu
             className={styles.currencyMenu}
-            maxHeight={400}
             onAction={onMenuItemSelect}
             selectedKeys={
               selectedCurrency?.code ? new Set([selectedCurrency.code]) : []

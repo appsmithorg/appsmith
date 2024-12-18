@@ -41,7 +41,6 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
           </Button>
           <Menu
             className={styles.currencyMenu}
-            maxHeight={400}
             onAction={onMenuItemSelect}
             selectedKeys={
               selectedCountry?.dial_code
