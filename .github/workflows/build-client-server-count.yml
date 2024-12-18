@@ -116,7 +116,8 @@ jobs:
           body: |
             Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             [Cypress dashboard](https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail)
-            PR: #${{ fromJson(steps.args.outputs.pr) }}.
+            PR: #${{ fromJson(steps.args.outputs.pr) }} with spec: ${{fromJson(steps.args.outputs.specs_to_run)}}.
+
 
   server-build:
     name: server-build
@@ -128,6 +129,22 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
       is-pg-build: ${{fromJson(needs.file-check.outputs.is-pg-build)}}
+
+  debug-inputs:
+    name: Debug Inputs
+    runs-on: ubuntu-latest
+    needs: [file-check]
+    if: success() && needs.file-check.outputs.runId == '0'
+    steps:
+      - name: Log Debug Inputs
+        run: |
+          echo "PR: ${{ fromJson(needs.file-check.outputs.pr) }}"
+          echo "Skip Tests: true"
+          echo "Is PG Build: ${{ fromJson(needs.file-check.outputs.is-pg-build) }}"
+          echo "Run Count: ${{fromJson(needs.file-check.outputs.run_count)}}"
+          echo "Update Snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}"
+          echo "Specs to Run: ${{needs.file-check.outputs.specs_to_run}}"
+          echo "Specs to Run2: ${{fromJson(needs.file-check.outputs.specs_to_run)}}"
 
   client-build:
     name: client-build
@@ -169,7 +186,7 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
       update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
-      specs_to_run: ${{fromJson(needs.file-check.outputs.specs_to_run)}}
+      specs_to_run: ${{needs.file-check.outputs.specs_to_run}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
