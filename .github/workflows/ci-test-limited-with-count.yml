@@ -28,7 +28,7 @@ on:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
-        default: 'app/client/cypress/e2e/example_spec.ts'
+        default: cypress/e2e/example_spec.ts
 
   workflow_call:
     inputs:
