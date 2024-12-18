@@ -11,9 +11,13 @@ import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
-import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
+import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
+import type {
+  GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
+  GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
+} from "git/ee/store/types";
 
 export type GitSSHKey = Record<string, unknown>;
 
@@ -22,18 +26,19 @@ export interface GitApiError extends ApiResponseError {
   referenceDoc?: string;
   title?: string;
 }
-interface GitAsyncState<T = unknown> {
+export interface GitAsyncState<T = unknown> {
   value: T | null;
   loading: boolean;
   error: GitApiError | null;
 }
 
-interface GitAsyncStateWithoutValue {
+export interface GitAsyncStateWithoutValue {
   loading: boolean;
   error: GitApiError | null;
 }
-export interface GitSingleArtifactAPIResponsesReduxState {
-  metadata: GitAsyncState<FetchGitMetadataResponseData>;
+export interface GitSingleArtifactAPIResponsesReduxState
+  extends GitArtifactAPIResponsesReduxStateExtended {
+  metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
@@ -57,11 +62,14 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
-export interface GitSingleArtifactUIReduxState {
+export interface GitSingleArtifactUIReduxState
+  extends GitArtifactUIReduxStateExtended {
   connectModal: {
     open: boolean;
     step: keyof typeof GitConnectStep;
   };
+  disconnectBaseArtifactId: string | null;
+  disconnectArtifactName: string | null;
   importModal: {
     open: boolean;
     step: keyof typeof GitImportStep;
@@ -71,16 +79,14 @@ export interface GitSingleArtifactUIReduxState {
   };
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
+  settingsModalOpen: boolean;
+  settingsModalTab: keyof typeof GitSettingsTab;
+  autocommitDisableModalOpen: boolean;
+  autocommitPolling: boolean;
   conflictErrorModalOpen: boolean;
-  settingsModal: {
-    open: boolean;
-    tab: keyof typeof GitSettingsTab;
-  };
   repoLimitErrorModal: {
     open: boolean;
   };
-  autocommitPolling: boolean;
-  autocommitModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;
