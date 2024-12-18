@@ -237,7 +237,7 @@ class MultiSelectWidget extends BaseWidget<
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {
               aliases: [
                 {
@@ -260,6 +260,7 @@ class MultiSelectWidget extends BaseWidget<
                 2,
               ),
             },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
@@ -952,12 +953,10 @@ class MultiSelectWidget extends BaseWidget<
     }
   };
 }
-
 export interface OptionValue {
   label: string;
   value: string;
 }
-
 export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }

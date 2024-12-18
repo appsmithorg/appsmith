@@ -61,7 +61,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
   }
-
   static type = "SELECT_WIDGET";
 
   static getConfig() {
@@ -260,7 +259,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {
               aliases: [
                 {
@@ -283,6 +282,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 2,
               ),
             },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
