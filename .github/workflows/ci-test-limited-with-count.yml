@@ -28,7 +28,6 @@ on:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
-        default: cypress/e2e/example_spec.ts
 
   workflow_call:
     inputs:
@@ -51,11 +50,10 @@ on:
         required: false
         type: boolean
         default: false
-      input_spec:
+      specs_to_run:
         description: 'Cypress spec file(s) to run'
         required: false
-        type: string
-        default: ''  
+        type: string 
 
 jobs:
   ci-test-limited:
@@ -135,7 +133,7 @@ jobs:
 
       # Get specs to run
       - name: Get specs to run
-        if: ${{ inputs.specs_to_run == '' && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
+        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}  
         run: |
           specs_to_run=""
           while IFS= read -r line
