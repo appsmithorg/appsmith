@@ -10,6 +10,8 @@ import { call, put } from "redux-saga/effects";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
@@ -35,12 +37,19 @@ export default function* deleteBranchSaga(
         }),
       );
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.deleteBranchError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
+
+      yield put(
+        gitArtifactActions.deleteBranchError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

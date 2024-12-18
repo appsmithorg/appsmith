@@ -40,6 +40,8 @@
         <module>appsmithAiPlugin</module>
         <module>awsLambdaPlugin</module>
         <module>databricksPlugin</module>
+
+        <!--        Add EE Plugins below this line, to avoid conflicts.-->
     </modules>
 
     <properties>

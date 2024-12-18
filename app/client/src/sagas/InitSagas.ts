@@ -90,6 +90,7 @@ import {
 } from "UITelemetry/generateTraces";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
+import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -133,6 +134,7 @@ export interface EditConsolidatedApi {
   pluginFormConfigs: ApiResponse<PluginFormPayload>[];
   unpublishedActions: ApiResponse<Action[]>;
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
+  packagePullStatus: ApiResponse<PACKAGE_PULL_STATUS>;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(

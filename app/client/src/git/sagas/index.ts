@@ -18,50 +18,72 @@ import fetchLocalProfileSaga from "./fetchLocalProfileSaga";
 import updateLocalProfileSaga from "./updateLocalProfileSaga";
 import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 import initGitForEditorSaga from "./initGitSaga";
-import fetchGitMetadataSaga from "./fetchGitMetadataSaga";
 import triggerAutocommitSaga from "./triggerAutocommitSaga";
 import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
+import pullSaga from "./pullSaga";
+import fetchMergeStatusSaga from "./fetchMergeStatusSaga";
+import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
+import fetchMetadataSaga from "./fetchMetadataSaga";
+import toggleAutocommitSaga from "./toggleAutocommitSaga";
+import disconnectSaga from "./disconnectSaga";
 
-const gitRequestBlockingActions: Record<
+import {
+  blockingActionSagas as blockingActionSagasExtended,
+  nonBlockingActionSagas as nonBlockingActionSagasExtended,
+} from "git/ee/sagas";
+
+const blockingActionSagas: Record<
   string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (action: PayloadAction<any>) => Generator<any>
 > = {
   // init
-  [gitArtifactActions.fetchGitMetadataInit.type]: fetchGitMetadataSaga,
+  [gitArtifactActions.fetchMetadataInit.type]: fetchMetadataSaga,
 
   // connect
   [gitArtifactActions.connectInit.type]: connectSaga,
+  [gitArtifactActions.disconnectInit.type]: disconnectSaga,
 
   // ops
   [gitArtifactActions.commitInit.type]: commitSaga,
   [gitArtifactActions.fetchStatusInit.type]: fetchStatusSaga,
+  [gitArtifactActions.pullInit.type]: pullSaga,
+  [gitArtifactActions.fetchMergeStatusInit.type]: fetchMergeStatusSaga,
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
 
-  // settings
+  // user profiles
   [gitArtifactActions.fetchLocalProfileInit.type]: fetchLocalProfileSaga,
   [gitArtifactActions.updateLocalProfileInit.type]: updateLocalProfileSaga,
   [gitConfigActions.fetchGlobalProfileInit.type]: fetchGlobalProfileSaga,
   [gitConfigActions.updateGlobalProfileInit.type]: updateGlobalProfileSaga,
 
+  // protected branches
+  [gitArtifactActions.fetchProtectedBranchesInit.type]:
+    fetchProtectedBranchesSaga,
+  [gitArtifactActions.updateProtectedBranchesInit.type]:
+    updateProtectedBranchesSaga,
+
   // autocommit
   [gitArtifactActions.triggerAutocommitInit.type]: triggerAutocommitSaga,
+
+  // EE
+  ...blockingActionSagasExtended,
 };
 
-const gitRequestNonBlockingActions: Record<
+const nonBlockingActionSagas: Record<
   string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (action: PayloadAction<any>) => Generator<any>
 > = {
   // init
   [gitArtifactActions.initGitForEditor.type]: initGitForEditorSaga,
+  [gitArtifactActions.toggleAutocommitInit.type]: toggleAutocommitSaga,
 
-  // settings
-  [gitArtifactActions.fetchProtectedBranchesInit.type]:
-    fetchProtectedBranchesSaga,
+  // EE
+  ...nonBlockingActionSagasExtended,
 };
 
 /**
@@ -75,21 +97,21 @@ const gitRequestNonBlockingActions: Record<
  * */
 function* watchGitBlockingRequests() {
   const gitActionChannel: TakeableChannel<unknown> = yield actionChannel(
-    objectKeys(gitRequestBlockingActions),
+    objectKeys(blockingActionSagas),
   );
 
   while (true) {
     const action: PayloadAction<unknown> = yield take(gitActionChannel);
 
-    yield call(gitRequestBlockingActions[action.type], action);
+    yield call(blockingActionSagas[action.type], action);
   }
 }
 
 function* watchGitNonBlockingRequests() {
-  const keys = objectKeys(gitRequestNonBlockingActions);
+  const keys = objectKeys(nonBlockingActionSagas);
 
   for (const actionType of keys) {
-    yield takeLatest(actionType, gitRequestNonBlockingActions[actionType]);
+    yield takeLatest(actionType, nonBlockingActionSagas[actionType]);
   }
 }
 
