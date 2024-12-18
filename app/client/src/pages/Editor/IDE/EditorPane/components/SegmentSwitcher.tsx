@@ -14,14 +14,17 @@ const SegmentSwitcher = () => {
       options={[
         {
           label: createMessage(EDITOR_PANE_TEXTS.queries_tab),
+          startIcon: "queries-line",
           value: EditorEntityTab.QUERIES,
         },
         {
           label: createMessage(EDITOR_PANE_TEXTS.js_tab),
+          startIcon: "content-type-json",
           value: EditorEntityTab.JS,
         },
         {
           label: createMessage(EDITOR_PANE_TEXTS.ui_tab),
+          startIcon: "dashboard-line",
           value: EditorEntityTab.UI,
         },
       ]}
