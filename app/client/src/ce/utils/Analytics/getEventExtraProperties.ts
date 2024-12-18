@@ -1,6 +1,6 @@
 import { getAppsmithConfigs } from "ee/configs";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
-import { noop } from "utils/AppsmithUtils";
+import { noop } from "lodash";
 
 let instanceId = "";
 
