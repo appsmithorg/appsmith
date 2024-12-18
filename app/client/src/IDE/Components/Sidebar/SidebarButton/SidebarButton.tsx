@@ -34,10 +34,8 @@ const Container = styled(Flex)`
   padding: 8px 0;
 `;
 
-const IconContainer = styled.div<{ selected: boolean }>`
+const IconContainer = styled.div`
   padding: 2px;
-  background-color: ${(props) =>
-    props.selected ? "var(--ads-v2-color-bg-muted)" : "white"};
   border-radius: 3px;
   width: 32px;
   height: 32px;
@@ -47,8 +45,16 @@ const IconContainer = styled.div<{ selected: boolean }>`
   cursor: pointer;
   position: relative;
 
-  &:hover {
-    background: var(--ads-v2-color-bg-subtle, #f1f5f9);
+  &[data-selected="false"] {
+    background-color: white;
+
+    &:hover {
+      background-color: var(--ads-v2-color-bg-subtle, #f1f5f9);
+    }
+  }
+
+  &[data-selected="true"] {
+    background-color: var(--ads-v2-color-bg-muted);
   }
 `;
 
@@ -86,7 +92,6 @@ function SidebarButton(props: SidebarButtonProps) {
           data-testid={"t--sidebar-" + props.testId}
           onClick={handleOnClick}
           role="button"
-          selected={selected}
         >
           <Icon name={icon} size="lg" />
           {condition && (
