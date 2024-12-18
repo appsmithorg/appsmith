@@ -1,5 +1,7 @@
+import type { ApiResponse } from "api/types";
+
 export interface FetchBranchesRequestParams {
-  pruneBranches: boolean;
+  pruneBranches?: boolean;
 }
 
 interface SingleBranch {
@@ -8,4 +10,6 @@ interface SingleBranch {
   default: boolean;
 }
 
-export type FetchBranchesResponse = SingleBranch[];
+export type FetchBranchesResponseData = SingleBranch[];
+
+export type FetchBranchesResponse = ApiResponse<FetchBranchesResponseData>;

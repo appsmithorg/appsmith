@@ -9,6 +9,7 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
 import { PluginActionForm } from "./Pages/PluginActionForm";
+import BottomTabs from "./Pages/IDE/BottomTabs";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
@@ -38,8 +39,7 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
 });
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
-  cy.xpath(apiwidget.responseStatus).should("be.visible");
-  cy.xpath(apiwidget.responseStatus).contains(statusCode);
+  BottomTabs.response.validateResponseStatus(statusCode);
 });
 
 Cypress.Commands.add("ResponseCheck", () => {

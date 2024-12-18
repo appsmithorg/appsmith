@@ -15,7 +15,7 @@ import type {
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import { klona } from "klona";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import evaluateSync, { setEvalContext } from "../evaluate";
+import { evaluateSync, setEvalContext } from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

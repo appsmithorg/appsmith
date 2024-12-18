@@ -79,8 +79,8 @@ Cypress.Commands.add("waitForServerRestart", () => {
   // cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
   //   timeout: 180000,
   // });
-  cy.get(adminSettings.restartNotice, { timeout: 300000 }).should("not.exist");
-  cy.get(adminSettings.appsmithStarting, { timeout: 300000 }).should(
+  cy.get(adminSettings.restartNotice, { timeout: 600000 }).should("not.exist");
+  cy.get(adminSettings.appsmithStarting, { timeout: 600000 }).should(
     "not.exist",
   );
 

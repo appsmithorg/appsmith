@@ -1104,6 +1104,19 @@ export const isNotEntity = (entity: DataTreeEntity) => {
 export const isEntityAction = (entity: DataTreeEntity) => {
   return isAction(entity);
 };
+
+export const isPropertyAnEntityAction = (
+  entity: DataTreeEntity,
+  propertyPath: string,
+  entityConfig: DataTreeEntityConfig,
+) => {
+  if (!isJSAction(entity)) return false;
+
+  const { actionNames } = entityConfig as JSActionEntityConfig;
+
+  return actionNames.has(propertyPath);
+};
+
 export const convertMicroDiffToDeepDiff = (
   microDiffDifferences: Difference[],
 ): Diff<unknown, unknown>[] =>

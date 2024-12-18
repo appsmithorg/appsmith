@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { capitalizeFirstLetter } from "./helpers";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { Button, Tooltip, Text } from "@appsmith/ads";
 import { getTypographyByKey } from "@appsmith/ads-old";
+import { capitalizeFirstLetter } from "utils/helpers";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -19,12 +19,11 @@ const SpinnerContainer = styled.div`
   padding: 0 10px;
 `;
 
-const QuickActionButtonContainer = styled.button<{ disabled?: boolean }>`
+const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
   display: block;
   position: relative;
   overflow: visible;
-  cursor: ${({ disabled = false }) => (disabled ? "not-allowed" : "pointer")};
   opacity: ${({ disabled = false }) => (disabled ? 0.6 : 1)};
 `;
 
@@ -57,11 +56,7 @@ function QuickActionButton({
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <QuickActionButtonContainer
-      className={className}
-      disabled={disabled}
-      onClick={onClick}
-    >
+    <QuickActionButtonContainer className={className} disabled={disabled}>
       {loading ? (
         <SpinnerContainer className="t--loader-quick-git-action">
           <SpinnerLoader size="md" />
@@ -73,6 +68,7 @@ function QuickActionButton({
               isDisabled={disabled}
               isIconButton
               kind="tertiary"
+              onClick={onClick}
               size="md"
               startIcon={icon}
             />
