@@ -22,7 +22,7 @@ let dsName: any;
 
 describe(
   "Postgres Generate CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
       dataSources.CreateDataSource("Postgres");
@@ -38,6 +38,7 @@ describe(
       assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
+      agHelper.GetNClick(dataSources._generatePageBtn);
 
       GenerateCRUDNValidateDeployPage(
         "ACADEMY DINOSAUR",
@@ -86,6 +87,7 @@ describe(
       assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
+      agHelper.GetNClick(dataSources._generatePageBtn);
 
       GenerateCRUDNValidateDeployPage(
         "Exotic Liquids",
@@ -104,6 +106,7 @@ describe(
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
       EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
       dataSources.SelectTableFromPreviewSchemaList("public.orders");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
 
       GenerateCRUDNValidateDeployPage(
         "VINET",
@@ -135,9 +138,6 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(
-        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
-      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

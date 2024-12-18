@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   dataSources,
   deployMode,
@@ -11,9 +12,24 @@ import {
 
 describe(
   "Google Sheets datasource row objects placeholder",
-  { tags: ["@tag.GSheet", "@tag.Datasource", "@tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.GSheet",
+      "@tag.Datasource",
+      "@tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   function () {
     let pluginName = "Google Sheets";
+
+    before(() => {
+      // intercept features call gsheet all sheets disabled
+      featureFlagIntercept({
+        release_gs_all_sheets_options_enabled: false,
+      });
+    });
 
     it("1. Verify GSheets dropdown options", function () {
       dataSources.NavigateToDSCreateNew();

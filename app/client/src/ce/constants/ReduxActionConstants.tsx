@@ -1,16 +1,6 @@
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
-const WebsocketActions = {
-  WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
-  WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",
-  INIT_APP_LEVEL_SOCKET_CONNECTION: "INIT_APP_LEVEL_SOCKET_CONNECTION",
-  INIT_PAGE_LEVEL_SOCKET_CONNECTION: "INIT_PAGE_LEVEL_SOCKET_CONNECTION",
-  SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED: "SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED",
-  SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED:
-    "SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED",
-};
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -307,18 +297,6 @@ const EvaluationActionErrorTypes = {
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
 };
 
-const AppCollabActionTypes = {
-  APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
-    "APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS",
-  APP_COLLAB_LIST_EDITORS: "APP_COLLAB_LIST_EDITORS",
-  APP_COLLAB_RESET_EDITORS: "APP_COLLAB_RESET_EDITORS",
-  APP_COLLAB_SET_EDITORS_POINTER_DATA: "APP_COLLAB_SET_EDITORS_POINTER_DATA",
-  APP_COLLAB_UNSET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_UNSET_EDITORS_POINTER_DATA",
-  APP_COLLAB_RESET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_RESET_EDITORS_POINTER_DATA",
-};
-
 const OmniSearchActionTypes = {
   SET_SEARCH_FILTER_CONTEXT: "SET_SEARCH_FILTER_CONTEXT",
   SET_GLOBAL_SEARCH_QUERY: "SET_GLOBAL_SEARCH_QUERY",
@@ -349,8 +327,6 @@ const SnippingModeActionTypes = {
 };
 
 const UserAuthActionTypes = {
-  CREATE_USER_INIT: "CREATE_USER_INIT",
-  CREATE_USER_SUCCESS: "CREATE_USER_SUCCESS",
   RESET_USER_PASSWORD_INIT: "RESET_USER_PASSWORD_INIT",
   RESET_USER_PASSWORD_SUCCESS: "RESET_USER_PASSWORD_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -370,7 +346,6 @@ const UserAuthActionTypes = {
   GET_OAUTH_ACCESS_TOKEN_SUCCESS: "GET_OAUTH_ACCESS_TOKEN_SUCCESS",
 };
 const UserAuthActionErrorTypes = {
-  CREATE_USER_ERROR: "CREATE_USER_ERROR",
   RESET_USER_PASSWORD_ERROR: "RESET_USER_PASSWORD_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
@@ -499,6 +474,8 @@ const IDEActionTypes = {
   CLOSE_QUERY_ACTION_TAB: "CLOSE_QUERY_ACTION_TAB",
   CLOSE_QUERY_ACTION_TAB_SUCCESS: "CLOSE_QUERY_ACTION_TAB_SUCCESS",
   SET_IS_LIST_VIEW_ACTIVE: "SET_IS_LIST_VIEW_ACTIVE",
+  OPEN_PLUGIN_ACTION_SETTINGS: "OPEN_PLUGIN_ACTION_SETTINGS",
+  SET_RENAME_ENTITY: "SET_RENAME_ENTITY",
 };
 
 const IDEActionErrorTypes = {
@@ -719,6 +696,7 @@ const IDEDebuggerActionTypes = {
   SET_API_PANE_DEBUGGER_STATE: "SET_API_PANE_DEBUGGER_STATE",
   SET_JS_PANE_DEBUGGER_STATE: "SET_JS_PANE_DEBUGGER_STATE",
   SET_CANVAS_DEBUGGER_STATE: "SET_CANVAS_DEBUGGER_STATE",
+  SHOW_DEBUGGER_LOGS: "SHOW_DEBUGGER_LOGS",
 };
 
 const ThemeActionTypes = {
@@ -1071,6 +1049,17 @@ const CurlImportActionErrorTypes = {
   SUBMIT_CURL_FORM_ERROR: "SUBMIT_CURL_FORM_ERROR",
 };
 
+const GeneratePageActionTypes = {
+  SET_GENERATE_PAGE_MODAL_OPEN: "SET_GENERATE_PAGE_MODAL_OPEN",
+  SET_GENERATE_PAGE_MODAL_CLOSE: "SET_GENERATE_PAGE_MODAL_CLOSE",
+  SUBMIT_GENERATE_PAGE_FORM_INIT: "SUBMIT_GENERATE_PAGE_FORM_INIT",
+  SUBMIT_GENERATE_PAGE_FORM_SUCCESS: "SUBMIT_GENERATE_PAGE_FORM_SUCCESS",
+};
+
+const GeneratePageActionErrorTypes = {
+  SUBMIT_GENERATE_PAGE_FORM_ERROR: "SUBMIT_GENERATE_PAGE_FORM_ERROR",
+};
+
 const BatchUpdateActionTypes = {
   BATCHED_UPDATE: "BATCHED_UPDATE",
   EXECUTE_BATCH: "EXECUTE_BATCH",
@@ -1270,19 +1259,19 @@ export const ReduxActionTypes = {
   ...AdminSettingsActionTypes,
   ...AnalyticsActionTypes,
   ...AIActionTypes,
-  ...AppCollabActionTypes,
   ...ApplicationActionTypes,
   ...AppThemeActionsTypes,
   ...AppViewActionTypes,
   ...AppSettingsActionTypes,
   ...BatchUpdateActionTypes,
   ...BuildingBlocksActionTypes,
-  ...DatasourceEditorActionTypes,
   ...CurlImportActionTypes,
+  ...DatasourceEditorActionTypes,
   ...ErrorManagementActionTypes,
   ...ExplorerActionTypes,
   ...EvaluationActionTypes,
   ...FeatureFlagActionTypes,
+  ...GeneratePageActionTypes,
   ...GitActionTypes,
   ...HelpActionTypes,
   ...IDEActionTypes,
@@ -1305,7 +1294,6 @@ export const ReduxActionTypes = {
   ...ThemeActionTypes,
   ...UserAuthActionTypes,
   ...UserProfileActionTypes,
-  ...WebsocketActions,
   ...WidgetCanvasActionTypes,
   ...WidgetOperationsActionTypes,
   ...WorkspaceActionTypes,
@@ -1325,6 +1313,7 @@ export const ReduxActionErrorTypes = {
   ...DatasourceEditorActionErrorTypes,
   ...EvaluationActionErrorTypes,
   ...FeatureFlagActionErrorTypes,
+  ...GeneratePageActionErrorTypes,
   ...GitActionErrorTypes,
   ...IDEActionErrorTypes,
   ...ImportExportActionErrorTypes,

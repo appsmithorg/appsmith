@@ -21,6 +21,8 @@
   background-color: var(--color-bg-neutral-subtle);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
   isolation: isolate;
+  /* Delete overflow: hidden; when the max height is added */
+  overflow: hidden;
 }
 
 .input:has(> [data-select-text]) {
@@ -33,10 +35,6 @@
   align-items: flex-start;
   resize: none;
   font-family: inherit;
-}
-
-.input:is(textarea)[rows="1"] {
-  min-block-size: initial;
 }
 
 .input:autofill,
@@ -53,7 +51,7 @@
  * SUFFIX and PREFIX
  * ----------------------------------------------------------------------------
  */
-.inputGroup [data-input-suffix] button {
+.inputGroup :is([data-input-suffix], [data-input-prefix]) button {
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
   );
@@ -61,6 +59,10 @@
 
 .inputGroup:has(> [data-input-prefix]) .input {
   padding-left: var(--sizing-8);
+}
+
+.inputGroup:has(> [data-input-prefix]) .input[data-size="large"] {
+  padding-left: var(--sizing-12);
 }
 
 .inputGroup:has(> [data-input-prefix]) .input[data-size="small"] {
@@ -76,6 +78,10 @@
   padding-right: var(--sizing-8);
 }
 
+.inputGroup:has(> [data-input-suffix]) .input[data-size="large"] {
+  padding-right: var(--sizing-12);
+}
+
 .inputGroup:has(> [data-input-suffix]) .input[data-size="small"] {
   padding-right: var(--sizing-6);
 }
@@ -83,18 +89,6 @@
 .inputGroup:has(> [data-input-suffix]) [data-input-suffix] {
   right: var(--inner-spacing-1);
   position: absolute;
-}
-
-/* Note: the following calculations are done so that icon button isn chat input is centered vertically */
-.inputGroup:has(.input[rows="1"]) [data-input-suffix] {
-  --icon-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
-      var(--inner-spacing-3) * 2
-  );
-  --icon-offset: calc((var(--input-height) - var(--icon-size)) / 2);
-
-  bottom: var(--icon-offset);
-  right: var(--icon-offset);
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
@@ -109,7 +103,15 @@
  * ----------------------------------------------------------------------------
  */
 .inputGroup[data-hovered]
-  .input:not(:is([data-focused], [data-readonly], [data-disabled])) {
+  .input:not(
+    :is(
+        [data-focused],
+        [data-readonly],
+        [data-disabled],
+        [data-focus-within],
+        :has(~ input[data-disabled="true"])
+      )
+  ) {
   background-color: var(--color-bg-neutral-subtle-hover);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
 }
@@ -156,8 +158,7 @@
  * ----------------------------------------------------------------------------
  */
 .input[data-disabled],
-.input[data-disabled] :is(input, textarea),
-.input[data-disabled] label {
+.input:has(~ input[data-disabled]) {
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -183,7 +184,7 @@
  * FOCUSSED
  * ----------------------------------------------------------------------------
  */
-.input[data-focused]:not([data-readonly]) {
+.input:is([data-focused], [data-focus-within]):not([data-readonly]) {
   background-color: transparent;
   box-shadow: 0 0 0 2px var(--color-bd-focus);
 }

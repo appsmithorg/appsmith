@@ -13,9 +13,8 @@ import styled from "styled-components";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
 import { updateFunctionProperty } from "actions/jsPaneActions";
-import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
+import type { OnUpdateSettingsProps } from "./JSEditorToolbar";
 import { saveJSObjectName } from "actions/jsActionActions";
-
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;

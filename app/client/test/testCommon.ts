@@ -12,13 +12,16 @@ import type { WidgetEntity } from "ee/entities/DataTree/types";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import type { Page } from "entities/Page";
+import { useEffect, useState } from "react";
+import type { FetchPageResponse } from "api/PageApi";
 
 const pageId = "0123456789abcdef00000000";
 
-export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
+export const useMockDsl = (dsl: unknown, mode?: APP_MODE) => {
   const dispatch = useDispatch();
-  dispatch(setAppMode(mode || APP_MODE.EDIT));
-  const mockResp: any = {
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const mockResp = {
     data: {
       id: pageId,
       pageId: pageId,
@@ -42,52 +45,81 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
         "delete:pages",
       ],
     },
-  };
-  const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
-  dispatch({
-    type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    payload: [
-      {
-        pageId: mockResp.data.id,
-        dsl: extractCurrentDSL({ response: mockResp }).dsl,
-      },
-    ],
-  });
-  const pages: Page[] = [
-    {
-      pageName: mockResp.data.name,
-      pageId: mockResp.data.id,
-      basePageId: mockResp.data.id,
-      isDefault: mockResp.data.isDefault,
-      isHidden: !!mockResp.data.isHidden,
-      slug: mockResp.data.slug,
-      userPermissions: [
-        "read:pages",
-        "manage:pages",
-        "create:pageActions",
-        "delete:pages",
-      ],
-    },
-  ];
-  dispatch({
-    type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-    payload: {
-      pages,
-      applicationId: mockResp.data.applicationId,
-    },
-  });
-  dispatch({
-    type: "UPDATE_LAYOUT",
-    payload: { widgets: canvasWidgetsPayload.widgets },
-  });
+  } as unknown as FetchPageResponse;
 
-  dispatch(updateCurrentPage(mockResp.data.id));
+  useEffect(function loadScripts() {
+    const loadMigrationScripts = async () => {
+      const canvasWidgetsPayloadD = await getCanvasWidgetsPayload(mockResp);
+      const currentDSL = await extractCurrentDSL({
+        response: mockResp,
+      });
+
+      const currentDsl = currentDSL.dsl;
+      const canvasWidgetsPayload = canvasWidgetsPayloadD.widgets;
+
+      dispatch(setAppMode(mode || APP_MODE.EDIT));
+
+      dispatch({
+        type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+        payload: [
+          {
+            pageId: mockResp.data.id,
+            dsl: currentDsl,
+          },
+        ],
+      });
+      const pages = [
+        {
+          pageName: mockResp.data.name,
+          pageId: mockResp.data.id,
+          basePageId: mockResp.data.id,
+          isDefault: mockResp.data.isDefault,
+          isHidden: !!mockResp.data.isHidden,
+          slug: mockResp.data.slug,
+          userPermissions: [
+            "read:pages",
+            "manage:pages",
+            "create:pageActions",
+            "delete:pages",
+          ],
+        },
+      ] as unknown as Page[];
+
+      dispatch({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: {
+          pages,
+          applicationId: mockResp.data.applicationId,
+        },
+      });
+      dispatch({
+        type: "UPDATE_LAYOUT",
+        payload: { widgets: canvasWidgetsPayload },
+      });
+
+      dispatch(updateCurrentPage(mockResp.data.id));
+      setHasLoaded(true);
+    };
+
+    loadMigrationScripts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return hasLoaded;
 };
 
-export function MockPageDSL({ children, dsl }: any) {
+export function MockPageDSL({
+  children,
+  dsl,
+}: {
+  children: JSX.Element;
+  dsl?: unknown;
+}) {
   editorInitializer();
-  useMockDsl(dsl);
-  return children;
+
+  const hasLoaded = useMockDsl(dsl);
+
+  return hasLoaded ? children : null;
 }
 
 const getChildWidgets = (
@@ -123,7 +155,7 @@ export const mockCreateCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   evaluatedWidget: WidgetEntity,
-): any => {
+) => {
   return { ...canvasWidget };
 };
 
@@ -141,17 +173,21 @@ export const syntheticTestMouseEvent = (
   optionsToAdd = {},
 ) => {
   const options = Object.entries(optionsToAdd);
+
   options.forEach(([key, value]) => {
     Object.defineProperty(event, key, { get: () => value });
   });
+
   return event;
 };
 
-export function MockApplication({ children }: any) {
+export function MockApplication({ children }: { children: JSX.Element }) {
   editorInitializer();
   const dispatch = useDispatch();
+
   dispatch(initEditorAction({ basePageId: pageId, mode: APP_MODE.EDIT }));
-  const mockResp: any = {
+
+  const mockResp = {
     workspaceId: "workspace_id",
     pages: [
       {
@@ -176,6 +212,7 @@ export function MockApplication({ children }: any) {
     slug: "app-name",
     applicationVersion: 2,
   };
+
   urlBuilder.updateURLParams(
     {
       baseApplicationId: mockResp.baseId,
@@ -212,6 +249,7 @@ export function MockApplication({ children }: any) {
       ],
     },
   });
+
   return children;
 }
 
@@ -225,7 +263,8 @@ export function dispatchTestKeyboardEventWithCode(
   meta = false,
 ) {
   const event = document.createEvent("KeyboardEvent");
-  (event as any).initKeyboardEvent(
+
+  event.initKeyboardEvent(
     eventType,
     true,
     true,

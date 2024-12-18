@@ -1,19 +1,25 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.models.GitResourceIdentity;
+import com.appsmith.external.git.models.GitResourceMap;
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.git.helpers.DSLTransformerHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -27,9 +33,12 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -55,27 +64,50 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
-import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_COLLECTION_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.CUSTOM_JS_LIB_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.DATASOURCE_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.DECRYPTED_FIELDS;
-import static com.appsmith.server.constants.ce.FieldNameCE.EDIT_MODE_THEME;
-import static com.appsmith.server.constants.ce.FieldNameCE.EXPORTED_APPLICATION;
-import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_LIST;
+import static com.appsmith.git.constants.CommonConstants.DELIMITER_PATH;
+import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
+import static com.appsmith.git.constants.CommonConstants.MAIN_CONTAINER;
+import static com.appsmith.git.constants.CommonConstants.WIDGETS;
+import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
+import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
+import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.CHILDREN;
+import static com.appsmith.server.constants.FieldName.CUSTOM_JS_LIB_LIST;
+import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
+import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
+import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
+import static com.appsmith.server.constants.FieldName.PAGE_LIST;
+import static com.appsmith.server.constants.FieldName.WIDGET_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.WIDGET_NAME;
 import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwantedFieldsFromBaseDomain;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 @Import({FileUtilsImpl.class})
 public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
 
     private final Gson gson;
+    private final ObjectMapper objectMapper;
     private final NewActionService newActionService;
     private final FileInterface fileUtils;
     private final JsonSchemaMigration jsonSchemaMigration;
     private final ActionCollectionService actionCollectionService;
+
+    public ApplicationGitFileUtilsCEImpl(
+            Gson gson,
+            ObjectMapper objectMapper,
+            NewActionService newActionService,
+            FileInterface fileUtils,
+            JsonSchemaMigration jsonSchemaMigration,
+            ActionCollectionService actionCollectionService) {
+        this.gson = gson;
+        this.objectMapper = objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS);
+        this.newActionService = newActionService;
+        this.fileUtils = fileUtils;
+        this.jsonSchemaMigration = jsonSchemaMigration;
+        this.actionCollectionService = actionCollectionService;
+    }
 
     // Only include the application helper fields in metadata object
     protected Set<String> getBlockedMetadataFields() {
@@ -103,6 +135,11 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
     }
 
     @Override
+    public ArtifactExchangeJson createArtifactExchangeJsonObject() {
+        return new ApplicationJson();
+    }
+
+    @Override
     public void addArtifactReferenceFromExportedJson(
             ArtifactExchangeJson artifactExchangeJson, ArtifactGitReference artifactGitReference) {
 
@@ -122,6 +159,73 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         setActionCollectionsInApplicationReference(applicationJson, applicationReference);
 
         setCustomJSLibsInApplicationReference(applicationJson, applicationReference);
+    }
+
+    @Override
+    public void setArtifactDependentResources(
+            ArtifactExchangeJson artifactExchangeJson, GitResourceMap gitResourceMap) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+
+        // application
+        Application application = applicationJson.getExportedApplication();
+        removeUnwantedFieldsFromApplication(application);
+        final String applicationFilePath = CommonConstants.APPLICATION + JSON_EXTENSION;
+        GitResourceIdentity applicationIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, applicationFilePath, applicationFilePath);
+        resourceMap.put(applicationIdentity, application);
+
+        // metadata
+        Iterable<String> keys = AppsmithBeanUtils.getAllFields(applicationJson.getClass())
+                .map(Field::getName)
+                .filter(name -> !getBlockedMetadataFields().contains(name))
+                .collect(Collectors.toList());
+
+        ApplicationJson applicationMetadata = new ApplicationJson();
+        applicationJson.setModifiedResources(null);
+        copyProperties(applicationJson, applicationMetadata, keys);
+        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
+        ObjectNode metadata = objectMapper.valueToTree(applicationMetadata);
+        GitResourceIdentity metadataIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
+        resourceMap.put(metadataIdentity, metadata);
+
+        // pages and widgets
+        applicationJson.getPageList().stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
+                .filter(newPage -> newPage.getUnpublishedPage() != null
+                        && newPage.getUnpublishedPage().getDeletedAt() == null)
+                .forEach(newPage -> {
+                    removeUnwantedFieldsFromPage(newPage);
+                    PageDTO pageDTO = newPage.getUnpublishedPage();
+                    JSONObject dsl = pageDTO.getLayouts().get(0).getDsl();
+                    // Get MainContainer widget data, remove the children and club with Canvas.json file
+                    JSONObject mainContainer = new JSONObject(dsl);
+                    mainContainer.remove(CHILDREN);
+                    pageDTO.getLayouts().get(0).setDsl(mainContainer);
+                    // pageName will be used for naming the json file
+                    final String pagePathPrefix = PAGE_DIRECTORY + DELIMITER_PATH + pageDTO.getName() + DELIMITER_PATH;
+                    final String pageFilePath = pagePathPrefix + pageDTO.getName() + JSON_EXTENSION;
+                    GitResourceIdentity pageIdentity = new GitResourceIdentity(
+                            GitResourceType.CONTEXT_CONFIG, newPage.getGitSyncId(), pageFilePath);
+                    resourceMap.put(pageIdentity, newPage);
+
+                    Map<String, org.json.JSONObject> result =
+                            DSLTransformerHelper.flatten(new org.json.JSONObject(dsl.toString()));
+                    result.forEach((key, jsonObject) -> {
+                        String widgetId = newPage.getGitSyncId() + "-" + jsonObject.getString(WIDGET_ID);
+                        String widgetsPath = pagePathPrefix + WIDGETS + DELIMITER_PATH;
+                        String widgetName = jsonObject.getString(WIDGET_NAME);
+                        String subPath = DSLTransformerHelper.getPathToWidgetFile(key, jsonObject, widgetName);
+
+                        String widgetPath = widgetsPath + subPath + widgetName + JSON_EXTENSION;
+                        GitResourceIdentity widgetIdentity =
+                                new GitResourceIdentity(GitResourceType.WIDGET_CONFIG, widgetId, widgetPath);
+                        resourceMap.put(widgetIdentity, jsonObject);
+                    });
+                });
     }
 
     private void setApplicationInApplicationReference(
@@ -492,7 +596,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need
                     // to be
                     // deserialized separately unlike the body which is stored as string in the db.
-                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                    if (PluginType.REMOTE.equals(newAction.getPluginType())) {
                         Map<String, Object> formData = gson.fromJson(actionBody.get(keyName), Map.class);
                         newAction
                                 .getUnpublishedAction()
@@ -564,5 +668,81 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         List<String> varargs = new ArrayList<>(List.of(artifactId, repoName));
         varargs.addAll(List.of(args));
         return Paths.get(workspaceId, varargs.toArray(new String[0]));
+    }
+
+    @Override
+    public void setArtifactDependentPropertiesInJson(
+            GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson) {
+        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+
+        // exported application
+        final String applicationFilePath = CommonConstants.APPLICATION + JSON_EXTENSION;
+        GitResourceIdentity applicationJsonIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, applicationFilePath, applicationFilePath);
+
+        Object applicationObject = resourceMap.get(applicationJsonIdentity);
+        Application application = objectMapper.convertValue(applicationObject, Application.class);
+        artifactExchangeJson.setArtifact(application);
+
+        // metadata
+        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
+        GitResourceIdentity metadataIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
+
+        Object metadataObject = resourceMap.get(metadataIdentity);
+        ApplicationJson metadata = objectMapper.convertValue(metadataObject, ApplicationJson.class);
+        copyNestedNonNullProperties(metadata, artifactExchangeJson);
+
+        // pages
+        List<NewPage> pageList = resourceMap.entrySet().stream()
+                .filter(entry -> {
+                    GitResourceIdentity key = entry.getKey();
+                    return GitResourceType.CONTEXT_CONFIG.equals(key.getResourceType());
+                })
+                .map(Map.Entry::getValue)
+                .map(pageObject -> objectMapper.convertValue(pageObject, NewPage.class))
+                .collect(Collectors.toList());
+        artifactExchangeJson.setContextList(pageList);
+
+        // widgets
+
+        pageList.parallelStream().forEach(newPage -> {
+            Map<String, org.json.JSONObject> widgetsData = resourceMap.entrySet().stream()
+                    .filter(entry -> {
+                        GitResourceIdentity key = entry.getKey();
+                        return GitResourceType.WIDGET_CONFIG.equals(key.getResourceType())
+                                && key.getResourceIdentifier().startsWith(newPage.getGitSyncId() + "-");
+                    })
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey()
+                                    .getFilePath()
+                                    .replaceFirst(
+                                            PAGE_DIRECTORY
+                                                    + newPage.getUnpublishedPage()
+                                                            .getName()
+                                                    + DELIMITER_PATH
+                                                    + WIDGETS
+                                                    + DELIMITER_PATH,
+                                            MAIN_CONTAINER + DELIMITER_PATH),
+                            entry -> (org.json.JSONObject) entry.getValue()));
+
+            Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
+            org.json.JSONObject mainContainer;
+            try {
+                mainContainer = new org.json.JSONObject(objectMapper.writeValueAsString(layout.getDsl()));
+
+                Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(
+                        widgetsData.keySet().stream().toList());
+                org.json.JSONObject nestedDSL =
+                        DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories, mainContainer);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject parsedDSL = jsonParser.parse(nestedDSL.toString(), JSONObject.class);
+
+                layout.setDsl(parsedDSL);
+            } catch (ParseException | JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

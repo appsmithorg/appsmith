@@ -3,7 +3,6 @@ import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-  EditorState,
 } from "ee/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -28,18 +27,8 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-
-export const useCurrentAppState = () => {
-  const [appState, setAppState] = useState(EditorState.EDITOR);
-  const { pathname } = useLocation();
-  const entityInfo = identifyEntityFromPath(pathname);
-
-  useEffect(() => {
-    setAppState(entityInfo.appState);
-  }, [entityInfo.appState]);
-
-  return appState;
-};
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -71,7 +60,9 @@ export const useCurrentEditorState = () => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const basePageId = useSelector(getCurrentBasePageId);
+  const editorType = useEditorType(location.pathname);
+  const { parentEntityId: baseParentEntityId } =
+    useParentEntityInfo(editorType);
 
   /**
    * Callback to handle the segment change
@@ -83,17 +74,17 @@ export const useSegmentNavigation = (): {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ basePageId }), {
+        history.push(queryListURL({ baseParentEntityId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ basePageId }), {
+        history.push(jsCollectionListURL({ baseParentEntityId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.UI:
-        history.push(widgetListURL({ basePageId }), {
+        history.push(widgetListURL({ baseParentEntityId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
@@ -180,11 +171,13 @@ export const useIDETabClickHandlers = () => {
     (item: EntityItem) => {
       const navigateToUrl = tabsConfig.itemUrlSelector(item, basePageId);
 
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EditorTabs,
-      });
+      if (navigateToUrl !== history.location.pathname) {
+        history.push(navigateToUrl, {
+          invokedBy: NavigationMethod.EditorTabs,
+        });
+      }
     },
-    [segment, basePageId],
+    [tabsConfig, basePageId],
   );
 
   const closeClickHandler = useCallback(

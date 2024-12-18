@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source the helper script
+source pg-utils.sh
+
 set -e
 
 tlog "Running as: $(id)"
@@ -23,6 +26,13 @@ setup_proxy_variables() {
   fi
   if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
     export NO_PROXY="127.0.0.1,$NO_PROXY"
+  fi
+
+  # If one of NO_PROXY or no_proxy are set, copy it to the other. If both are set, prefer NO_PROXY.
+  if [[ -n ${NO_PROXY-} ]]; then
+    export no_proxy="$NO_PROXY"
+  elif [[ -n ${no_proxy-} ]]; then
+    export NO_PROXY="$no_proxy"
   fi
 
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
@@ -433,6 +443,12 @@ init_postgres() {
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
+    cp /opt/appsmith/postgres/appsmith_hba.conf "$POSTGRES_DB_PATH/pg_hba.conf"
+    # PostgreSQL requires strict file permissions for the pg_hba.conf file. Add file permission settings after copying the configuration file.
+    # 600 is the recommended permission for pg_hba.conf file for read and write access to the owner only.
+    chown postgres:postgres "$POSTGRES_DB_PATH/pg_hba.conf"
+    chmod 600 "$POSTGRES_DB_PATH/pg_hba.conf"
+
     create_appsmith_pg_db "$POSTGRES_DB_PATH"
   else
     runEmbeddedPostgres=0
@@ -467,8 +483,17 @@ create_appsmith_pg_db() {
   # Start the postgres , wait for it to be ready and create a appsmith db
   su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH -l $POSTGRES_DB_PATH/logfile start"
   echo "Waiting for Postgres to start"
-  until su postgres -c "env PATH='$PATH' pg_isready -d postgres"; do
-    tlog "Waiting for Postgres to be ready..."
+  local max_attempts=300
+  local attempt=0
+
+  local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
+  echo "Unix socket directory is $unix_socket_directory"
+  until su postgres -c "env PATH='$PATH' pg_isready -h $unix_socket_directory"; do
+    if (( attempt >= max_attempts )); then
+      echo "Postgres failed to start within 300 seconds."
+      return 1
+    fi
+    tlog "Waiting for Postgres to be ready... Attempt $((++attempt))/$max_attempts"
     sleep 1
   done
   # Check if the appsmith DB is present

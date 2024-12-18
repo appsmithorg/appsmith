@@ -446,9 +446,6 @@ public class DatabaseChangelog2 {
     /**
      * Changing the order of this function to 10000 so that it always gets executed at the end.
      * This ensures that any permission changes for super users happen once all other migrations are completed
-     *
-     * @param mongoTemplate
-     * @param cacheableRepositoryHelper
      */
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(

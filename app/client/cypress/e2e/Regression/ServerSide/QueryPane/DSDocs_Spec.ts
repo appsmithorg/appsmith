@@ -7,18 +7,21 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 import { DataSourceKVP } from "../../../../support/Pages/DataSources";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 let dsName: any;
+let pluginActionForm = new PluginActionForm();
 
 describe(
   "Check datasource doc links",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     it("1. Verify Postgres documentation opens", function () {
       CreateDummyDSNSave(DataSourceKVP["Postgres"]);
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-postgres#create-crud-queries",
@@ -32,6 +35,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-mongodb#create-queries",
@@ -45,6 +49,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-mysql#create-queries",
@@ -58,6 +63,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-arango-db#using-queries-in-applications",
@@ -71,6 +77,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-amazon-s3#list-files",
@@ -84,6 +91,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "connect-data/reference/using-smtp",
@@ -100,6 +108,7 @@ describe(
         cy.get("@dsName").then(($dsName) => {
           dsName = $dsName;
           dataSources.CreateQueryAfterDSSaved();
+          pluginActionForm.toolbar.openContextMenu();
           deployMode.StubWindowNAssert(
             dataSources._queryDoc,
             "airtable#create-queries",
@@ -119,6 +128,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-oracle#create-queries",
@@ -137,6 +147,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-firestore#understanding-commands",
@@ -165,7 +176,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn(pluginName);
-        agHelper.RenameWithInPane(pluginName + " " + uid, false);
+        agHelper.RenameDatasource(pluginName + " " + uid);
         dataSources.SaveDatasource();
         cy.wrap(pluginName + " " + uid).as("dsName");
       });

@@ -23,7 +23,7 @@ const pdf = "http://host.docker.internal:4200/sample-pdf-file.pdf";
 
 describe(
   "DocumentViewer Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.DocumentViewer"] },
+  { tags: ["@tag.Widget", "@tag.DocumentViewer", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);

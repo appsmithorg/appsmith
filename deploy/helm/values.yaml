@@ -9,7 +9,9 @@ redis:
     replicaCount: 1
     nodeSelector: {}
   image:
-    tag: 7.0.13-debian-11-r10
+    registry: docker.io
+    repository: redis
+    tag: 7.0.15
 
 mongodb:
   enabled: true
@@ -23,11 +25,14 @@ mongodb:
   replicaSetName: rs0
   nodeSelector: {}
   image:
-    tag: 5.0.21-debian-11-r5
+    registry: docker.io
+    repository: bitnami/mongodb
+    tag: 6.0.13
   arbiter:
     nodeSelector: {}
   hidden:
     nodeSelector: {}
+
 
 ## @section Global parameters
 ## Global Docker image parameters
@@ -311,3 +316,5 @@ applicationConfig:
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+
+#HTTPContainerPort: 8080

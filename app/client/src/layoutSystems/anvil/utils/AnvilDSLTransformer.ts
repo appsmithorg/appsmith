@@ -18,14 +18,8 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
     _dsl.layout = [
       {
         layoutId: generateReactKey(),
-        layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
+        layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         layout: [],
-        layoutStyle: {
-          border: "none",
-          height: "100%",
-          padding: "spacing-4",
-          gap: "spacing-4",
-        },
         isDropTarget: true,
         isPermanent: true,
         childTemplate: {

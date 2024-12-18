@@ -10,11 +10,14 @@ import EditorNavigation, {
   EntityType,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
+  let pluginActionForm = new PluginActionForm();
+
   before("Import the test application", () => {
     homePage.NavigateToHome();
     homePage.ImportApp("ContextSwitching.json");
@@ -181,16 +184,15 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     dataSources.ToggleUsePreparedStatement(false);
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
 
-    cy.xpath(queryLocators.querySettingsTab).click();
     cy.setQueryTimeout(10000);
 
     EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
-    cy.get(".bp3-editable-text-content").should("contain.text", "SQL_Query");
-    cy.xpath(queryLocators.querySettingsTab).click();
+    cy.get(locators._queryName).should("contain.text", "SQL_Query");
+    pluginActionForm.toolbar.toggleSettings();
     agHelper.GetElement(dataSources._usePreparedStatement).should("be.focused");
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
     agHelper.Sleep();
-    cy.xpath(queryLocators.querySettingsTab).click();
+    pluginActionForm.toolbar.toggleSettings();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 

@@ -96,6 +96,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
+  actionNames: Set<string>;
 }
 
 export interface JSActionEntity {
@@ -199,7 +200,6 @@ export interface DataTreeSeed {
   pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
-  pageList: Page[];
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];

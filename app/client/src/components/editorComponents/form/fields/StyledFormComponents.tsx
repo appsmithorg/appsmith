@@ -32,6 +32,9 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
       ? "5px"
       : "0px"};
   line-height: 16px;
+  max-width: 270px;
+  overflow: hidden;
+  break-word: break-all;
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
@@ -122,7 +125,7 @@ const StyledFormLabel = styled.label<{
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: normal;
   margin-bottom: ${(props) =>
     props.extraStyles?.marginBottom
       ? props.extraStyles?.marginBottom
@@ -153,6 +156,7 @@ const FormEncrytedSection = styled.div`
 `;
 
 interface FormLabelProps {
+  className?: string;
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
   // TODO: Fix this the next time the file is edited
@@ -163,7 +167,11 @@ interface FormLabelProps {
 //Wrapper on styled <label/>
 function FormLabel(props: FormLabelProps) {
   return (
-    <StyledFormLabel config={props.config} extraStyles={props.extraStyles}>
+    <StyledFormLabel
+      className={props.className}
+      config={props.config}
+      extraStyles={props.extraStyles}
+    >
       {props.children}
     </StyledFormLabel>
   );
@@ -172,7 +180,9 @@ function FormLabel(props: FormLabelProps) {
 //Wrapper on styled <span/>
 function FormInfoText(props: FormLabelProps) {
   return (
-    <StyledFormInfo config={props.config}>{props.children}</StyledFormInfo>
+    <StyledFormInfo className="ar-form-info-text" config={props.config}>
+      {props.children}
+    </StyledFormInfo>
   );
 }
 

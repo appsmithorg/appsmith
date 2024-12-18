@@ -13,16 +13,14 @@ import {
 } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Errors from "./Errors";
-import EntityDeps from "./EntityDependecies";
 import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  INSPECT_ENTITY,
 } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./constants";
 import EntityBottomTabs from "../EntityBottomTabs";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 
 function DebuggerTabs() {
@@ -49,20 +47,15 @@ function DebuggerTabs() {
 
   const DEBUGGER_TABS = [
     {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <Errors hasShortCut />,
-    },
-    {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs hasShortCut />,
     },
     {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
+      panelComponent: <Errors hasShortCut />,
     },
   ];
 
@@ -70,7 +63,7 @@ function DebuggerTabs() {
   const shouldRender = !(
     selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
     selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB ||
-    selectedTab === DEBUGGER_TAB_KEYS.SCHEMA_TAB
+    selectedTab === DEBUGGER_TAB_KEYS.DATASOURCE_TAB
   );
 
   return (

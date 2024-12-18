@@ -33,7 +33,6 @@ import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
 import pageSagas from "ee/sagas/PageSagas";
-import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
 import queryPaneSagas from "sagas/QueryPaneSagas";
 import replaySaga from "sagas/ReplaySaga";
@@ -42,7 +41,6 @@ import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
 import themeSagas from "sagas/ThemeSaga";
-import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
@@ -83,7 +81,6 @@ export const sagas = [
   actionExecutionChangeListeners,
   formEvaluationChangeListener,
   globalSearchSagas,
-  websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
   selectionCanvasSagas,
@@ -94,7 +91,6 @@ export const sagas = [
   appThemingSaga,
   NavigationSagas,
   editorContextSagas,
-  PageVisibilitySaga,
   AutoHeightSagas,
   tenantSagas,
   JSLibrarySaga,

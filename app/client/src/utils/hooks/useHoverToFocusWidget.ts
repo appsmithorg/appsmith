@@ -5,7 +5,7 @@ import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integration
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { AppState } from "ee/reducers";
 import type React from "react";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 
 export const useHoverToFocusWidget = (

@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Radio Widget test cases",
-  { tags: ["@tag.Widget", "@tag.Radio"] },
+  { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] },
   function () {
     it("1. Validate radio widget bindings", () => {
       //JS Object
@@ -37,8 +37,9 @@ describe(
         },
       );
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.RADIO_GROUP);
-      propPane.EnterJSContext("Options", "{{JSObject1.myFun1()}}");
 
+      propPane.ToggleJSModeByIndex("options", true, 1);
+      propPane.EnterJSContext("Options", "{{JSObject1.myFun1()}}");
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       );

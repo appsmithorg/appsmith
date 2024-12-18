@@ -6,7 +6,9 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "SMTP datasource test cases using ted",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let SMTPDatasourceName;
     beforeEach(() => {
@@ -34,7 +36,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
       });
       // create new query and bind fields with widgets
-      cy.get(queryLocators.queryNameField).type("smtpquery");
+      agHelper.RenameQuery("smtpquery");
       cy.get(queryLocators.queryFromEmail)
         .first()
         .type("{{From.text}}", { parseSpecialCharSequences: false });

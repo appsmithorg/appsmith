@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Category Slider spec",
-  { tags: ["@tag.Widget", "@tag.Slider"] },
+  { tags: ["@tag.Widget", "@tag.Slider", "@tag.Binding"] },
   () => {
     const options = `[
     {
@@ -107,6 +107,7 @@ describe(
     });
 
     it("3. Does not crash if an invalid mark option is passed", function () {
+      propPane.ToggleJSModeByIndex("options", true, 1);
       propPane.EnterJSContext("Options", "[[]]");
       assertHelper.AssertContains(
         "Oops, Something went wrong.",
@@ -176,7 +177,7 @@ describe(
 
     it("6. Data section Options tests", () => {
       propPane.MoveToTab("Content");
-      propPane.ToggleJSMode("options", false);
+      propPane.ToggleJSModeByIndex("options", false, 1);
       // User should be able to add and delete options
       agHelper.GetElementLength(propPane._placeholderName).then((len) => {
         agHelper.GetNClick(propPane._addOptionProperty);
@@ -208,7 +209,7 @@ describe(
 
     it("7. General section properties tests", () => {
       // Verify Show marks toggle
-      propPane.ToggleJSMode("options");
+      propPane.ToggleJSModeByIndex("options", true, 1);
       propPane.UpdatePropertyFieldValue("Options", options);
       agHelper.AssertContains("md", "be.visible", "p");
       propPane.TogglePropertyState("showmarks", "Off");

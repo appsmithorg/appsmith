@@ -55,6 +55,10 @@ export const StyledControlContainer = styled.div`
   cursor: pointer;
   height: 100%;
 
+  &[data-selected="false"]:hover {
+    background-color: var(--ads-v2-color-bg-muted);
+  }
+
   &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
@@ -77,23 +81,14 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
-  &:not(:last-child):not([data-selected="true"]):after {
+  &:not(:hover):not(:last-child):not([data-selected="true"]):not(
+      :has(+ [data-selected="true"])
+    ):after {
     content: "";
     position: absolute;
     right: 0;
     width: 1px;
     height: 16px;
     background-color: var(--ads-v2-colors-control-field-default-border);
-  }
-
-  /* This before is to mask the separator in left side of selected control */
-  /* Mask the seperator with track background color */
-  &[data-selected="true"]:not(:first-child):after {
-    content: "";
-    position: absolute;
-    left: -7px;
-    width: 2px;
-    height: 16px;
-    background-color: var(--ads-v2-colors-control-track-default-bg);
   }
 `;

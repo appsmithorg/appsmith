@@ -67,12 +67,9 @@ export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:baseColl
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
+export const APP_PACKAGES_EDITOR_PATH = `/packages`;
 export const APP_SETTINGS_EDITOR_PATH = `/settings`;
 export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
-export const GEN_TEMPLATE_URL = "generate-page";
-export const GENERATE_TEMPLATE_PATH = `/${GEN_TEMPLATE_URL}`;
-export const GEN_TEMPLATE_FORM_ROUTE = "/form";
-export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPLATE_FORM_ROUTE}`;
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
@@ -123,10 +120,12 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_CUSTOM_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
-export const matchGeneratePagePath = (pathName: string) =>
-  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
-  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
-  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName);
+
+export const matchAppLibrariesPath = (pathName: string) =>
+  match(`${BUILDER_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName);
+
+export const matchAppPackagesPath = (pathName: string) =>
+  match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);

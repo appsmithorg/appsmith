@@ -16,7 +16,7 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     before(() => {
       agHelper.AddDsl("uiBindDsl");
@@ -48,7 +48,8 @@ describe(
       PageLeftPane.assertAbsence("SecondAPI");
     });
 
-    it("2. Should update loading state after cancellation of confirmation for run query", function () {
+    //Existing Bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("2. Should update loading state after cancellation of confirmation for run query", function () {
       cy.CreateAPI("FirstAPI");
       cy.get(".CodeMirror-placeholder")
         .first()

@@ -16,7 +16,7 @@ import {
 
 describe(
   "Button Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Button", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Button", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("newFormDsl");

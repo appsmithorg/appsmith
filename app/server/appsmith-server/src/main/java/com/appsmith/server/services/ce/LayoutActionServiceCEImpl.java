@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -12,6 +13,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -36,7 +38,12 @@ import reactor.util.function.Tuple2;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_SINGLE_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpan.VALIDATE_AND_SAVE_ACTION_TO_REPOSITORY;
+import static com.appsmith.external.constants.spans.DatasourceSpan.FIND_DATASOURCE_BY_ID;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_PAGE_LAYOUT_BY_PAGE_ID;
+import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.PageSpan.IS_NAME_ALLOWED;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -79,6 +86,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (actionDTO.getCollectionId() == null) {
             return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                     .updatePageLayoutsByPageId(updatedAction.getPageId())
+                    .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                    .tap(Micrometer.observation(observationRegistry))
                     .thenReturn(updatedAction));
         } else if (actionDTO.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
@@ -91,6 +100,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         actionDTO.setCollectionId(null);
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                                 .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(updatedAction));
                     });
         } else {
@@ -120,6 +131,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 action1.getId());
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                                 .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(updatedAction));
                     });
         }
@@ -237,27 +250,40 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         String pageId = newAction.getUnpublishedAction().getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return updateSingleAction(newAction.getId(), action)
-                .name(UPDATE_SINGLE_ACTION)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMap(updatedAction -> updateLayoutService
-                        .updatePageLayoutsByPageId(pageId)
-                        .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
-                        .tap(Micrometer.observation(observationRegistry))
-                        .thenReturn(updatedAction))
-                .zipWhen(actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
-                .map(tuple2 -> {
-                    ActionDTO actionDTO = tuple2.getT1();
-                    PageDTO pageDTO = tuple2.getT2();
-                    // redundant check
-                    if (pageDTO.getLayouts().size() > 0) {
-                        actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
-                    }
-                    log.debug(
-                            "Update action based on context type completed, returning actionDTO with action id: {}",
-                            actionDTO != null ? actionDTO.getId() : null);
-                    return actionDTO;
-                });
+
+        // Update page layout is skipped for JS actions here because when JSobject is updated, we first
+        // update all actions, action
+        // collection and then we update the page layout, hence updating page layout with each action update
+        // is not required here
+        if (action.getPluginType() == PluginType.JS) {
+            return updateSingleAction(newAction.getId(), action)
+                    .name(UPDATE_SINGLE_ACTION)
+                    .tap(Micrometer.observation(observationRegistry));
+        } else {
+            return updateSingleAction(newAction.getId(), action)
+                    .name(UPDATE_SINGLE_ACTION)
+                    .tap(Micrometer.observation(observationRegistry))
+                    .flatMap(updatedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(pageId)
+                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                            .tap(Micrometer.observation(observationRegistry))
+                            .thenReturn(updatedAction))
+                    .zipWhen(
+                            actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
+                    .map(tuple2 -> {
+                        ActionDTO actionDTO = tuple2.getT1();
+                        PageDTO pageDTO = tuple2.getT2();
+                        // redundant check
+                        if (pageDTO.getLayouts().size() > 0) {
+                            actionDTO.setErrorReports(
+                                    pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
+                        }
+                        log.debug(
+                                "Update action based on context type completed, returning actionDTO with action id: {}",
+                                actionDTO != null ? actionDTO.getId() : null);
+                        return actionDTO;
+                    });
+        }
     }
 
     @Override
@@ -276,6 +302,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
+                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
                 });
     }
@@ -289,6 +317,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .deleteUnpublishedAction(id)
                 .flatMap(actionDTO -> Mono.zip(
                         Mono.just(actionDTO), updateLayoutService.updatePageLayoutsByPageId(actionDTO.getPageId())))
+                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tuple -> {
                     ActionDTO actionDTO = tuple.getT1();
                     return Mono.just(actionDTO);
@@ -308,25 +338,31 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (!StringUtils.hasLength(actionDTO.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
+
+        AclPermission aclPermission =
+                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+
         return newPageService
-                .findById(actionDTO.getPageId(), pagePermission.getActionCreatePermission())
+                .findById(actionDTO.getPageId(), aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
                     actionDTO.setBranchName(newPage.getBranchName());
-                    return createAction(actionDTO, isJsAction);
+                    AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+                    CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+                    createActionMetaDTO.setIsJsAction(isJsAction);
+                    createActionMetaDTO.setNewPage(newPage);
+                    createActionMetaDTO.setEventContext(eventContext);
+                    return createAction(actionDTO, createActionMetaDTO);
                 });
     }
 
-    protected Mono<ActionDTO> createAction(ActionDTO actionDTO, Boolean isJsAction) {
-        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(actionDTO, eventContext, isJsAction);
-    }
-
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction) {
-
-        return validateAndGenerateActionDomainBasedOnContext(actionDTO, isJsAction)
+    public Mono<ActionDTO> createAction(ActionDTO actionDTO, CreateActionMetaDTO actionMetaDTO) {
+        AppsmithEventContext eventContext = actionMetaDTO.getEventContext();
+        return validateAndGenerateActionDomainBasedOnContext(actionDTO, actionMetaDTO)
+                .name(VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(newAction -> {
                     // If the datasource is embedded, check for workspaceId and set it in action
                     if (actionDTO.getDatasource() != null
@@ -351,13 +387,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 })
                 .flatMap(savedNewAction -> newActionService
                         .validateAndSaveActionToRepository(savedNewAction)
+                        .name(VALIDATE_AND_SAVE_ACTION_TO_REPOSITORY)
+                        .tap(Micrometer.observation(observationRegistry))
                         .zipWith(Mono.just(savedNewAction)))
                 .zipWhen(zippedActions -> {
                     ActionDTO savedActionDTO = zippedActions.getT1();
                     if (savedActionDTO.getDatasource() != null
                             && savedActionDTO.getDatasource().getId() != null) {
-                        return datasourceService.findById(
-                                savedActionDTO.getDatasource().getId());
+                        return datasourceService
+                                .findById(savedActionDTO.getDatasource().getId())
+                                .name(FIND_DATASOURCE_BY_ID)
+                                .tap(Micrometer.observation(observationRegistry));
                     } else {
                         return Mono.justOrEmpty(savedActionDTO.getDatasource());
                     }
@@ -377,7 +417,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 });
     }
 
-    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(
+            ActionDTO action, CreateActionMetaDTO actionMetaDTO) {
+        Boolean isJsAction = actionMetaDTO.getIsJsAction();
+        NewPage newPage = actionMetaDTO.getNewPage();
         if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -386,11 +429,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         AclPermission aclPermission =
                 isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
 
-        Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), aclPermission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
-                .cache();
+        Mono<NewPage> pageMono = newPage != null
+                ? Mono.just(newPage)
+                : newPageService
+                        .findById(action.getPageId(), aclPermission)
+                        .name(GET_PAGE_BY_ID)
+                        .tap(Micrometer.observation(observationRegistry))
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
+                        .cache();
 
         final NewAction newAction = newActionService.generateActionDomain(action);
 
@@ -399,7 +446,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     String name = action.getValidName();
                     CreatorContextType contextType =
                             action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
-                    return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), name);
+
+                    if (!isJsAction) {
+                        return refactoringService
+                                .isNameAllowed(page.getId(), contextType, layout.getId(), name)
+                                .name(IS_NAME_ALLOWED)
+                                .tap(Micrometer.observation(observationRegistry));
+                    }
+                    return Mono.just(true);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing

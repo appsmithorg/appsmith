@@ -7,10 +7,11 @@ import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
-} from "PluginActionEditor/hooks";
+} from "../hooks";
 import { useToggle } from "@mantine/hooks";
 import { useSelector } from "react-redux";
-import { isActionRunning } from "PluginActionEditor/store";
+import { isActionRunning } from "../store";
+import PluginActionSettings from "./PluginActionSettings";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -42,6 +43,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           showArrow={false}
         >
           <Button
+            data-testid="t--run-action"
             isDisabled={blockExecution}
             isLoading={isRunning}
             kind="primary"
@@ -51,15 +53,11 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             Run
           </Button>
         </Tooltip>
-        <Button
-          isIconButton
-          kind="secondary"
-          size="sm"
-          startIcon="settings-2-line"
-        />
+        <PluginActionSettings />
         <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
           <MenuTrigger>
             <Button
+              data-testid="t--more-action-trigger"
               isIconButton
               kind="tertiary"
               size="sm"
@@ -70,7 +68,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             key={action.id}
             loop
             style={{ zIndex: 100 }}
-            width="200px"
+            width="204px"
           >
             {props.menuContent}
           </MenuContent>

@@ -6,6 +6,7 @@ const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
   assertHelper,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
@@ -51,7 +52,7 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
-    cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
+    jsEditor.RenameJSObjFromPane(jsObjectName);
 
     agHelper.GetNClick(omnibar.globalSearch, 0, true, 2000);
     agHelper.GetNClickByContains(
@@ -66,7 +67,7 @@ describe("Omnibar functionality test cases", () => {
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
     EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     agHelper.AssertURL("/api");
-    agHelper.RenameWithInPane(apiName);
+    agHelper.RenameQuery(apiName);
 
     agHelper.GetNClick(omnibar.globalSearch, 0, true);
     agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");

@@ -109,6 +109,8 @@ export interface TableWidgetProps
   firstEditableColumnIdByOrder: string;
   enableServerSideFiltering: boolean;
   onTableFilterUpdate: string;
+  customIsLoading: boolean;
+  customIsLoadingValue: boolean;
 }
 
 export enum TableVariantTypes {
@@ -144,6 +146,7 @@ export enum ColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   CURRENCY = "currency",
+  HTML = "html",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -156,6 +159,7 @@ export enum ReadOnlyColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   SELECT = "select",
+  HTML = "html",
 }
 
 export const ActionColumnTypes = [
@@ -163,6 +167,7 @@ export const ActionColumnTypes = [
   ColumnTypes.ICON_BUTTON,
   ColumnTypes.MENU_BUTTON,
   ColumnTypes.EDIT_ACTIONS,
+  ColumnTypes.HTML,
 ];
 
 export const FilterableColumnTypes = [
@@ -173,6 +178,7 @@ export const FilterableColumnTypes = [
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
+  ColumnTypes.HTML,
 ];
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -237,3 +243,9 @@ export const DEFAULT_COLUMN_NAME = "Table Column";
 
 export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
   FEATURE_FLAG["release_table_serverside_filtering_enabled"];
+
+export const CUSTOM_LOADING_STATE_ENABLED =
+  FEATURE_FLAG["release_table_custom_loading_state_enabled"];
+
+export const HTML_COLUMN_TYPE_ENABLED =
+  FEATURE_FLAG["release_table_html_column_type_enabled"];

@@ -16,7 +16,7 @@ import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 import {
@@ -27,13 +27,13 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
 
 interface Props {
   currentActionConfig: Action;
   theme?: EditorTheme;
-  disabled: boolean;
+  isRunDisabled: boolean;
   onRunClick: () => void;
   actionResponse?: ActionResponse;
   isRunning: boolean;
@@ -43,7 +43,7 @@ function ApiResponseView(props: Props) {
   const {
     actionResponse = EMPTY_RESPONSE,
     currentActionConfig,
-    disabled,
+    isRunDisabled = false,
     isRunning,
     theme = EditorTheme.LIGHT,
   } = props;
@@ -96,10 +96,10 @@ function ApiResponseView(props: Props) {
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
-        <ApiResponse
+        <Response
           action={currentActionConfig}
           actionResponse={actionResponse}
-          isRunDisabled={disabled}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           responseTabHeight={responseTabHeight}
@@ -113,7 +113,7 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ApiResponseHeaders
           actionResponse={actionResponse}
-          isRunDisabled={disabled}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onDebugClick={onDebugClick}
           onRunClick={onRunClick}

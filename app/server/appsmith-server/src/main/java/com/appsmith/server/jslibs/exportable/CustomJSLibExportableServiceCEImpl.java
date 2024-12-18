@@ -1,5 +1,6 @@
 package com.appsmith.server.jslibs.exportable;
 
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
@@ -77,6 +78,11 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     artifactExchangeJson
                             .getModifiedResources()
                             .putResource(FieldName.CUSTOM_JS_LIB_LIST, updatedCustomJSLibSet);
+                    artifactExchangeJson
+                            .getModifiedResources()
+                            .getModifiedResourceIdentifiers()
+                            .get(GitResourceType.JSLIB_CONFIG)
+                            .addAll(updatedCustomJSLibSet);
 
                     /**
                      * Previously it was a Set and as Set is an unordered collection of elements that

@@ -19,7 +19,8 @@ public class FileUtils {
     }
 
     public static List<String> getFileIds(DatasourceConfiguration datasourceConfiguration) {
-        if (datasourceConfiguration.getProperties() != null
+        if (datasourceConfiguration != null
+                && datasourceConfiguration.getProperties() != null
                 && datasourceConfiguration.getProperties().size() > 0) {
             for (Property property : datasourceConfiguration.getProperties()) {
                 if (property.getKey().equalsIgnoreCase(FILES)

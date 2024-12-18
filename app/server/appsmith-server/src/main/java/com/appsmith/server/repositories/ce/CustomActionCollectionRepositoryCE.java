@@ -42,4 +42,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission);
+
+    Flux<ActionCollection> findByApplicationId(String applicationId);
 }

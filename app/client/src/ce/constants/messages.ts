@@ -337,7 +337,7 @@ export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving action ${actionName}`;
 export const ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} action copied to page ${pageName} successfully`;
+  `${actionName} action copied ${pageName.length > 0 ? "to page " + pageName : ""} successfully`;
 export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying action ${actionName}`;
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
@@ -354,7 +354,7 @@ export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 
 export const ACTION_ID_NOT_FOUND_IN_URL =
   "No correct API id or Query id found in the url.";
-export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+export const JS_OBJECT_ID_NOT_FOUND_IN_URL =
   "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
@@ -365,8 +365,10 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit";
-export const SAVE_DATASOURCE = () => "Save";
+export const EDIT_DATASOURCE = () => "Edit configuration";
+export const SAVE_DATASOURCE = () => "Save URL";
+export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
+export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -391,6 +393,7 @@ export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
+export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -554,7 +557,7 @@ export const LOGS_FILTER_OPTION_CONSOLE = () => "Console logs";
 export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
-export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_ERRORS = () => "Linter";
 export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
@@ -567,6 +570,7 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const EMPTY_RESPONSE_RUN = () => "Click ‘Run’ to get a response";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
   "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
@@ -626,8 +630,9 @@ export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
 export const ACTION_EXECUTION_FAILED = (actionName: string) =>
   `The action "${actionName}" has failed.`;
-export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
-export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_TRIGGERED = () => "Function triggered";
+export const JS_EXECUTION_SUCCESS = () => "Function executed";
+export const JS_EXECUTION_FAILURE = () => "Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
@@ -645,6 +650,7 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+export const MORE_ON_QUERY_SETTINGS = () => "More on query settings";
 
 export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
   `Remove 'Confirm before calling' `;
@@ -749,7 +755,10 @@ export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
 export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
-export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
+export const GENERATE_PAGE_FORM_TITLE = () =>
+  "Generate a page based on your data";
+export const GENERATE_PAGE_FORM_SUB_TITLE = () =>
+  "Use your datasource's schema to generate a simple CRUD page.";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready for use.";
@@ -794,10 +803,11 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 // Datasource structure
 
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_NOT_AVAILABLE = () =>
+  "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
-  `Tables in ${name}`;
+  `Search tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1059,6 +1069,10 @@ export const IS_EMPTY_REPO_QUESTION = () =>
 export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
 export const IMPORT_APP_IF_NOT_EMPTY = () =>
   "If you already have an app connected to Git, you can import it to the workspace.";
+export const IMPORT_ARTIFACT_IF_NOT_EMPTY = (artifactType: string) =>
+  `If you already have an ${artifactType.toLocaleLowerCase()} connected to Git, you can import it to the workspace.`;
+export const I_HAVE_EXISTING_ARTIFACT_REPO = (artifactType: string) =>
+  `I have an existing appsmith ${artifactType.toLocaleLowerCase()} connected to Git`;
 export const I_HAVE_EXISTING_REPO = () =>
   "I have an existing appsmith app connected to Git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
@@ -1731,6 +1745,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
@@ -2262,14 +2277,28 @@ export const COMMUNITY_TEMPLATES = {
 
 // Interim data state info
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_SCHEMA_TITLE_TEXT = () => "Empty schema";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const EMPTY_SCHEMA_MESSAGE_TEXT = () =>
+  "There are no schema records to show";
 export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
-export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading columns";
+export const LOADING_SCHEMA_TITLE_TEXT = () => "Loading schema";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
-export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
+export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load datasource";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
-  "There was an error connecting to the datasource. Please check the datasource configuration and retry. If the issue persists, review the datasource settings.";
+  "Please check the datasource configuration and retry.";
+export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
+export const CANT_SHOW_SCHEMA = () =>
+  "We can’t show the schema for this datasource";
+export const COLUMNS_TITLE = () => "Columns";
+export const COLUMNS_SEARCH_PLACEHOLDER = (tableName: string) =>
+  `Search columns in ${tableName}`;
+export const NO_ACCESS_TITLE_TEXT = () =>
+  "You do not have access to this datasource";
+export const NO_ACCESS_MESSAGE_TEXT = () =>
+  "Please contact your workspace administrator to gain access";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
@@ -2467,7 +2496,8 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
 
 export const HEADER_TITLES = {
   DATA: () => "Data",
-  EDITOR: () => "Pages",
+  PAGES: () => "Pages",
+  EDITOR: () => "Editor",
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };
@@ -2509,6 +2539,46 @@ export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
 
 export const PREPARED_STATEMENT_WARNING = {
   MESSAGE: () =>
-    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+    "Prepared statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
   LINK: () => "Open settings",
+};
+
+export const JS_EDITOR_SETTINGS = {
+  TITLE: () => "Settings",
+  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
+};
+
+export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
+  AI: () => "AI",
+  HTML: () => "HTML",
+  STYLE: () => "Style",
+  JS: () => "Javascript",
+};
+
+export const REQUEST_NEW_INTEGRATIONS = {
+  UNABLE_TO_FIND: () => "Can’t find what you are looking for?",
+  REQUEST_NEW_BUTTON: () => "Request a new integration",
+  REQUEST_BUTTON: () => "Request integration",
+  CANCEL_BUTTON: () => "Cancel",
+  REQUEST_MODAL_HEADING: () => "Request a new integration",
+  REQUEST_MODAL_INTEGRATION: {
+    LABEL: () => "Integration",
+    PLACEHOLDER: () => "E.g. Zendesk, JIRA, Slack, others",
+    NAME: "integration",
+    ERROR: () => "Please enter integration name",
+  },
+  REQUEST_MODAL_USECASE: {
+    LABEL: () => "Tell us more about your case",
+    PLACEHOLDER: () =>
+      "E.g. I want to create an app to manage my customers’ account.",
+    NAME: "useCase",
+  },
+  REQUEST_MODAL_EMAIL: {
+    LABEL: () => "Email",
+    DESCRIPTION: () =>
+      "Appsmith might use this email exclusively to follow up on your integration request.",
+    NAME: "email",
+    ERROR: () => "Please enter email",
+  },
+  SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
 };

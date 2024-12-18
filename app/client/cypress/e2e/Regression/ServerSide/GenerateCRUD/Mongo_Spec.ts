@@ -16,7 +16,9 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Validate Mongo CRUD with JSON Form",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     let dsName: any;
 

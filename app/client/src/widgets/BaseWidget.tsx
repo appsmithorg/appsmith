@@ -18,7 +18,7 @@ import type {
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { Context, ReactNode, RefObject } from "react";
+import type { Context, ReactNode, RefObject, SVGProps } from "react";
 import { Component } from "react";
 import type {
   ModifyMetaWidgetPayload,
@@ -217,7 +217,7 @@ abstract class BaseWidget<
 
     actionPayload.triggerPropertyName &&
       AppsmithConsole.info({
-        text: `${actionPayload.triggerPropertyName} triggered`,
+        text: `Event ${actionPayload.triggerPropertyName} fired`,
         source: {
           type: ENTITY_TYPE.WIDGET,
           id: this.props.widgetId,
@@ -535,10 +535,12 @@ export const WIDGET_DISPLAY_PROPS = {
   isDisabled: true,
   backgroundColor: true,
 };
+
 export interface WidgetError extends Error {
   type: "property" | "configuration" | "other";
   path?: string;
 }
+
 export interface WidgetErrorProps {
   errors?: WidgetError[];
 }
@@ -587,8 +589,8 @@ export interface WidgetCardProps {
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;
-  IconCmp?: () => JSX.Element;
-  ThumbnailCmp?: () => JSX.Element;
+  IconCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  ThumbnailCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
 export const WidgetOperations = {

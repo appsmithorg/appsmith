@@ -90,6 +90,7 @@ import {
 } from "UITelemetry/generateTraces";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
+import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -133,6 +134,7 @@ export interface EditConsolidatedApi {
   pluginFormConfigs: ApiResponse<PluginFormPayload>[];
   unpublishedActions: ApiResponse<Action[]>;
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
+  packagePullStatus: ApiResponse<PACKAGE_PULL_STATUS>;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
 export function* failFastApiCalls(
@@ -219,7 +221,6 @@ export function* getInitResponses({
 }: {
   applicationId?: string;
   basePageId?: string;
-  branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
   // TODO: Fix this the next time the file is edited
@@ -241,10 +242,13 @@ export function* getInitResponses({
       shouldInitialiseUserDetails,
     );
 
+    const rootSpan = startRootSpan("fetch-consolidated-api");
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
         ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
         : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+
+    endSpan(rootSpan);
 
     const isValidResponse: boolean = yield validateResponse(
       initConsolidatedApiResponse,

@@ -8,7 +8,7 @@ import {
 
 describe(
   "Execute Action Functionality",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       homePage.ImportApp("executeAction.json");

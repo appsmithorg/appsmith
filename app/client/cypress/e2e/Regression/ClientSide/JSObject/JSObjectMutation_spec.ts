@@ -6,7 +6,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
+describe("JSObject testing", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("JSObjectMutationTestApp.json");
@@ -130,7 +130,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    _.agHelper.GetNAssertContains(locators._selectionItem, "getData");
+    _.agHelper.GetNAssertContains(_.jsEditor._funcDropdownValue, "getData");
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
     EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);

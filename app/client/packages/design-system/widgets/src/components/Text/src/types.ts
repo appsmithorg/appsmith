@@ -5,7 +5,7 @@ import type {
 import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
+export interface TextProps {
   /** size variant of the text
    * @default body
    */
@@ -13,7 +13,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   /** Color of the text
    * @default inherit
    */
-  color?: keyof typeof COLORS;
+  color?: keyof typeof COLORS | "neutral-subtle";
   /** Sets the weight (or boldness) of the font
    * @default false
    */
@@ -35,7 +35,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   /** Sets the CSS [className](https://developer.mozilla.org/en-US/docs/Web/API/Element/className) for the element. Only use as a **last resort**. Use style props instead. */
   className?: string;
   /** The children of the component. */
-  children: ReactNode;
+  children?: ReactNode;
   /** title attribute for the component */
   title?: string;
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */

@@ -1,5 +1,7 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
+// Initialise eval worker instance
+import "utils/workerInstances";
 
 import React from "react";
 import "./wdyr";
@@ -30,7 +32,6 @@ import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timin
 import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
 import { Agent } from "@newrelic/browser-agent/loaders/agent";
 import { getCommonTelemetryAttributes } from "UITelemetry/generateTraces";
-import Heartbeat from "Heartbeat";
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;
 
@@ -73,11 +74,7 @@ if (enableNewRelic) {
   newRelicBrowserAgent.setCustomAttribute("appMode", appMode);
 }
 
-const { cloudHosting } = getAppsmithConfigs();
-
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
-
-const isProduction = process.env.NODE_ENV === "production";
 
 setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
@@ -100,7 +97,6 @@ function App() {
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
-          {cloudHosting && isProduction && <Heartbeat />}
           <ThemedAppWithProps />
         </LayersContext.Provider>
       </Provider>

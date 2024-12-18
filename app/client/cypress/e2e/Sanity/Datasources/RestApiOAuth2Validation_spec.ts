@@ -10,11 +10,14 @@ import {
 
 describe(
   "Datasource form OAuth2 client credentials related tests",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let clientId, clientSecret;
 
-    it("1. Create an API with app url and save as Datasource for Authorization code details test", function () {
+    //Existing Bug:  https://github.com/appsmithorg/appsmith/issues/37353
+    it.skip("1. Create an API with app url and save as Datasource for Authorization code details test", function () {
       dataSources.CreateOAuthClient("authorization_code");
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].OAuth_ApiUrl +

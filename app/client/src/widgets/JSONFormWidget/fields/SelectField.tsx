@@ -1,4 +1,11 @@
-import React, { useCallback, useContext, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { useController } from "react-hook-form";
 
@@ -18,6 +25,7 @@ import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 interface MetaProps {
   filterText?: string;
@@ -100,12 +108,37 @@ function SelectField({
     schemaItem.defaultValue,
     passedDefaultValue as DefaultValue,
   );
+  const [dropDownWidth, setDropDownWidth] = useState(10);
 
   useRegisterFieldValidity({
     isValid: isValueValid,
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
+  useUnmountFieldValidation({ fieldName: name });
+  useEffect(() => {
+    const updateWidth = () => {
+      if (wrapperRef.current) {
+        setDropDownWidth(wrapperRef.current.offsetWidth);
+      }
+    };
+
+    // Initial width
+    updateWidth();
+
+    // Create ResizeObserver instance
+    const resizeObserver = new ResizeObserver(updateWidth);
+
+    // Start observing the trigger element
+    if (wrapperRef.current) {
+      resizeObserver.observe(wrapperRef.current);
+    }
+
+    // Cleanup
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [wrapperRef]);
 
   const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,
@@ -156,7 +189,6 @@ function SelectField({
     [onChange, schemaItem.onOptionChange, executeAction],
   );
 
-  const dropdownWidth = wrapperRef.current?.clientWidth;
   const fieldComponent = useMemo(
     () => (
       <StyledSelectWrapper ref={wrapperRef}>
@@ -166,7 +198,7 @@ function SelectField({
           boxShadow={schemaItem.boxShadow}
           compactMode={false}
           disabled={schemaItem.isDisabled}
-          dropDownWidth={dropdownWidth || 100}
+          dropDownWidth={dropDownWidth || 100}
           hasError={isDirtyRef.current ? !isValueValid : false}
           height={10}
           isFilterable={schemaItem.isFilterable}
@@ -201,7 +233,7 @@ function SelectField({
       isValueValid,
       onOptionSelected,
       selectedIndex,
-      dropdownWidth,
+      dropDownWidth,
       fieldClassName,
     ],
   );

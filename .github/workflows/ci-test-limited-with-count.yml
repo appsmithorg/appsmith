@@ -17,7 +17,7 @@ on:
       run_count:
         description: 'Number of times to repeat the test run'
         required: false
-        type: number 
+        type: number
         default: 1
   workflow_call:
     inputs:
@@ -176,10 +176,8 @@ jobs:
             -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
             -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
             -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
-            -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
             -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
-            -e APPSMITH_CLOUD_SERVER_BASE_URL=https://release.app.appsmith.com \
             -e AUTH0_ISSUER_URL=https://login.release-customer.appsmith.com/ \
             -e AUTH0_CLIENT_ID=dummy-client-id \
             -e AUTH0_CLIENT_SECRET=dummy-secret-id \
@@ -232,11 +230,14 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          sudo apt-get remove google-chrome-stable
+          wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -350,11 +351,12 @@ jobs:
             cd app/client
             npx cypress-repeat-pro run -n ${{ inputs.run_count }} --force \
                 --spec ${{ env.specs_to_run }} \
-                --config-file "cypress_ci_custom.config.ts"
-            cat cy-repeat-summary.txt  
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser ${{ env.BROWSER_PATH }}
+            cat cy-repeat-summary.txt
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
-            
+
             # Check for test results and store the status in the file
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
                 echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
@@ -362,7 +364,7 @@ jobs:
                 echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
             fi
             cat "$FAILURE_FLAG_FILE"
-            
+
       - name: Trim number of cypress log files
         if: failure()
         run: |
@@ -375,7 +377,7 @@ jobs:
           name: cypress-repeat-logs
           path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
           overwrite: true
-      
+
       - name: Upload ci_test_status.txt artifact
         if: always()
         uses: actions/upload-artifact@v4

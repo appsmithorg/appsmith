@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { useDispatch, useSelector } from "react-redux";
 import { setPluginActionEditorDebuggerState } from "../../store";
@@ -8,15 +8,92 @@ import { getPluginActionDebuggerState } from "../../store";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { usePluginActionResponseTabs } from "./hooks";
+import { usePluginActionContext } from "../../PluginActionContext";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import useShowSchema from "./hooks/useShowSchema";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { PluginType } from "entities/Action";
+import { hasFailed } from "./utils";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
+  const { actionResponse, plugin } = usePluginActionContext();
 
   const tabs = usePluginActionResponseTabs();
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
+
+  const showSchema = useShowSchema(plugin?.id || "") && pluginRequireDatasource;
 
   // TODO combine API and Query Debugger state
   const { open, responseTabHeight, selectedTab } = useSelector(
     getPluginActionDebuggerState,
+  );
+
+  const { responseDisplayFormat } =
+    actionResponseDisplayDataFormats(actionResponse);
+
+  const executionFailed = useMemo(
+    () => (actionResponse ? hasFailed(actionResponse) : false),
+    [actionResponse],
+  );
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(
+    function openResponseTabForPageLoadQueries() {
+      // actionResponse and responseDisplayFormat is present only when query has response available
+      if (
+        !!responseDisplayFormat?.title &&
+        actionResponse?.isExecutionSuccess
+      ) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [
+      responseDisplayFormat?.title,
+      actionResponse?.isExecutionSuccess,
+      dispatch,
+    ],
+  );
+
+  useEffect(
+    function openResponseTabOnError() {
+      if (executionFailed) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [executionFailed, dispatch],
+  );
+
+  useEffect(
+    function openDefaultTabWhenNoTabIsSelected() {
+      if (showSchema && !selectedTab) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+          }),
+        );
+      } else if (plugin.type === PluginType.API && !selectedTab) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [showSchema, selectedTab, dispatch, plugin.type],
   );
 
   const toggleHide = useCallback(

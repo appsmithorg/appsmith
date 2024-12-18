@@ -9,8 +9,8 @@ export class CommonLocators {
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
-  _queryName = ".t--action-name-edit-field span";
-  _queryNameTxt = ".t--action-name-edit-field input";
+  _queryName = ".editor-tab.active > .ads-v2-text";
+  _queryNameTxt = ".editor-tab.active > .ads-v2-text input";
   _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
@@ -70,7 +70,7 @@ export class CommonLocators {
     this._toastMsg + ":contains('" + toastText + "')";
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
-  _contextMenuInPane = "[data-testid='more-action-trigger']";
+  _contextMenuInPane = "[data-testid='t--more-action-trigger']";
   _contextMenuItem = (item: string) =>
     "//span[text()='" +
     item +
@@ -102,7 +102,7 @@ export class CommonLocators {
     entityNameinLeftSidebar +
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
-    ".t--property-control-" + controlToToggle + " .t--js-toggle";
+    `.t--property-control-${controlToToggle} .t--js-toggle, [data-guided-tour-iid='${controlToToggle}']`;
   _buttonByText = (btnVisibleText: string) =>
     `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
@@ -316,18 +316,18 @@ export class CommonLocators {
     `.uppy-Informer p:contains('${msg}')`;
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
-  _richText_TitleBlock = "[data-mce-name='blocks']";
-  _richText_Heading = "[aria-label='Heading 1']";
+  _richText_TitleBlock = "[aria-label='Block Paragraph']";
+  _richText_Heading = "[title='Heading 1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
-  _richText_Text_Color =
-    '[data-mce-name="forecolor"] .tox-split-button__chevron';
-  _richText_color = (value: string) => `[data-mce-name="${value}"]`;
+  _richText_Text_Color = (color: string) =>
+    `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
+  _richText_color = (value: string) => `[title="${value}"]`;
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
   _root = "#root";
-  _pageHeaderToggle = ".mobile-ui-page-header-toggle-icon";
-  _pageHeaderMenuList = ".mobile-ui-page-header-menu-list";
+  _pageHeaderToggle = ".navbar__items > button";
+  _pageHeaderMenuList = ".navbar-sidebar__backdrop";
   _enterFullScreen = ".application-demo-new-dashboard-control-enter-fullscreen";
   _dashboardContainer = ".application-demo-new-dashboard-container";
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
@@ -341,4 +341,9 @@ export class CommonLocators {
   _saveDatasource = `[data-testid='t--store-as-datasource']`;
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
+  _widgetBorder = ".t--draggable-tabswidget div div div";
+  _modalButtonText = "[data-testid='modal-wrapper'] .bp3-button";
+  _showBoundary = ".show-boundary";
+  _entityItem = "[data-testid='t--entity-item-Api1']";
+  _rowData = "[data-colindex='0'][data-rowindex='0']";
 }

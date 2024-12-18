@@ -21,7 +21,9 @@ let dsName: any;
 
 describe(
   "Validate Mongo Query Pane Validations",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     before(() => {
       //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
@@ -330,7 +332,11 @@ describe(
         "Find",
       );
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-      dataSources.RunQueryNVerifyResponseViews(1, false);
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -349,7 +355,11 @@ describe(
         directInput: false,
         inputFieldName: "Query",
       });
-      dataSources.RunQueryNVerifyResponseViews(1, false);
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -427,8 +437,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(3);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -460,8 +475,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(0);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -503,8 +523,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(2);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -541,8 +566,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(1);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -568,8 +598,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(0);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -597,8 +632,13 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(1);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -630,8 +670,13 @@ describe(
           2,
         );
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -651,8 +696,13 @@ describe(
           7,
         );
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -684,8 +734,13 @@ describe(
           JSON.parse(JSON.stringify(resObj.response.body.data.body.values[1])),
         ).to.eql("51e062189c6ae665454e301d");
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 1,
+        operator: "gte",
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -699,7 +754,12 @@ describe(
         "Aggregate",
       );
       dataSources.ValidateNSelectDropdown("Command", "Aggregate");
-      dataSources.RunQueryNVerifyResponseViews(7, false);
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 7,
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -740,8 +800,7 @@ describe(
       dataSources.CreateQueryForDS(dsName);
 
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
-      agHelper.GetNClick(dataSources._templateMenu);
+      agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -759,8 +818,7 @@ describe(
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("DropAuthorNAwards");
+      agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -826,7 +884,7 @@ describe(
         "Insert document(s)",
       );
 
-      agHelper.RenameWithInPane("InsertBirthNDeath");
+      agHelper.RenameQuery("InsertBirthNDeath");
       dataSources.EnterJSContext({
         fieldLabel: "Collection",
         fieldValue: "BirthNDeath",
@@ -860,7 +918,12 @@ describe(
         "Find",
       );
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-      dataSources.RunQueryNVerifyResponseViews(4, false);
+
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 4,
+        responseTypes: ["JSON", "RAW"],
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -871,7 +934,7 @@ describe(
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
       agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("DropBirthNDeath");
+      agHelper.RenameQuery("DropBirthNDeath");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       dataSources.RunQuery();

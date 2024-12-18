@@ -5,7 +5,7 @@ import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import evaluateSync from "workers/Evaluation/evaluate";
+import { evaluateSync } from "workers/Evaluation/evaluate";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -114,18 +114,17 @@ export function saveResolvedFunctionsAndJSUpdates(
         JSObjectName: entityName,
         JSObjectASTParseTime,
       });
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const actions: any = [];
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const variables: any = [];
+
+      const actionsMap: Record<string, ParsedJSSubAction> = {};
+      const variablesMap: Record<string, { name: string; value: unknown }> = {};
 
       if (success) {
         if (!!parsedObject) {
           jsPropertiesState.update(entityName, parsedObject);
           parsedObject.forEach((parsedElement) => {
             if (isJSFunctionProperty(parsedElement)) {
+              if (actionsMap[parsedElement.key]) return;
+
               try {
                 ExecutionMetaData.setExecutionMetaData({
                   enableJSVarUpdateTracking: false,
@@ -164,12 +163,11 @@ export function saveResolvedFunctionsAndJSUpdates(
                     `${entityName}.${parsedElement.key}`,
                     functionString,
                   );
-                  actions.push({
+                  actionsMap[parsedElement.key] = {
                     name: parsedElement.key,
                     body: functionString,
                     arguments: params,
-                    parsedFunction: result,
-                  });
+                  };
                 }
               } catch {
                 // in case we need to handle error state
@@ -184,10 +182,10 @@ export function saveResolvedFunctionsAndJSUpdates(
                 ? parsedElement.key.slice(1, -1)
                 : parsedElement.key;
 
-              variables.push({
+              variablesMap[parsedKey] = {
                 name: parsedKey,
                 value: parsedElement.value,
-              });
+              };
               JSObjectCollection.updateUnEvalState(
                 `${entityName}.${parsedElement.key}`,
                 parsedElement.value,
@@ -196,8 +194,8 @@ export function saveResolvedFunctionsAndJSUpdates(
           });
           const parsedBody = {
             body: entity.body,
-            actions: actions,
-            variables,
+            actions: Object.values(actionsMap),
+            variables: Object.values(variablesMap),
           };
 
           set(jsUpdates, `${entityName}`, {
@@ -312,8 +310,6 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        // parsedFunction - used only to determine if function is async
-        parsedFunction: undefined,
       } as ParsedJSSubAction;
     });
   });

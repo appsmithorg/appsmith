@@ -25,9 +25,9 @@ import {
   HTTP_METHOD,
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_OPTIONS_ARRAY,
-} from "constants/ApiEditorConstants/CommonApiConstants";
-import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+} from "PluginActionEditor/constants/CommonApiConstants";
+import { DEFAULT_CREATE_API_CONFIG } from "PluginActionEditor/constants/ApiEditorConstants";
+import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "PluginActionEditor/constants/GraphQLEditorConstants";
 import history from "utils/history";
 import { autofill, change, initialize, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
@@ -61,7 +61,10 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Plugin } from "api/PluginApi";
-import { getPostBodyFormat } from "../PluginActionEditor/store";
+import {
+  getPostBodyFormat,
+  setExtraFormData,
+} from "../PluginActionEditor/store";
 import { apiEditorIdURL, datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
@@ -78,12 +81,12 @@ import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "ee/selectors/applicationSelectors";
-import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
+import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "PluginActionEditor/constants/AppsmithAIEditorConstants";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { klonaLiteWithTelemetry } from "utils/helpers";
-import { POST_BODY_FORM_DATA_KEY } from "../PluginActionEditor/constants";
+import { POST_BODY_FORM_DATA_KEY } from "PluginActionEditor/store/constants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -135,10 +138,8 @@ function* syncApiParamsSaga(
   }
 }
 
-function* handleUpdateBodyContentType(
-  action: ReduxAction<{ title: string; apiId: string }>,
-) {
-  const { apiId, title } = action.payload;
+function* handleUpdateBodyContentType(action: ReduxAction<{ title: string }>) {
+  const { title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   const displayFormatValue = POST_BODY_FORMAT_OPTIONS_ARRAY.find(
@@ -216,18 +217,14 @@ function* handleUpdateBodyContentType(
   // Quick Context: The extra formadata action is responsible for updating the current multi switch mode you see on api editor body tab
   // whenever a user selects a new content type through the tab e.g application/json, this action is dispatched to update that value, which is then read in the PostDataBody file
   // to show the appropriate content type section.
-  yield put({
-    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-    payload: {
-      id: apiId,
-      values: {
-        displayFormat: {
-          label: title,
-          value: title,
-        },
+  yield put(
+    setExtraFormData({
+      [POST_BODY_FORM_DATA_KEY]: {
+        label: title,
+        value: title,
       },
-    },
-  });
+    }),
+  );
 
   // help to prevent cyclic dependency error in case the bodyFormData is empty.
 
@@ -257,7 +254,8 @@ function* updateExtraFormDataSaga() {
   const { values } = formData;
 
   // when initializing, check if theres a display format present.
-  const extraFormData: GetFormData = yield select(getPostBodyFormat, values.id);
+  const extraFormData: { label: string; value: string } =
+    yield select(getPostBodyFormat);
 
   const headers: Array<{ key: string; value: string }> =
     get(values, "actionConfiguration.headers") || [];
@@ -363,15 +361,11 @@ function* setApiBodyTabHeaderFormat(apiId: string, apiContentType?: string) {
     };
   }
 
-  yield put({
-    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-    payload: {
-      id: apiId,
-      values: {
-        [POST_BODY_FORM_DATA_KEY]: displayFormat,
-      },
-    },
-  });
+  yield put(
+    setExtraFormData({
+      [POST_BODY_FORM_DATA_KEY]: displayFormat,
+    }),
+  );
 }
 
 function* formValueChangeSaga(

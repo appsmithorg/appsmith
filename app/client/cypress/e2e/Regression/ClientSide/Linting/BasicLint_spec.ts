@@ -57,7 +57,7 @@ const createMySQLDatasourceQuery = () => {
   dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
-describe("Linting", { tags: ["@tag.JS"] }, () => {
+describe("Linting", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
     dataSources.CreateDataSource("MySql");
@@ -115,12 +115,12 @@ describe("Linting", { tags: ["@tag.JS"] }, () => {
 
   it("2. TC 1927 Cont'd - Doesn't show lint errors when Api is renamed", () => {
     EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
-    agHelper.RenameWithInPane("Api2");
+    agHelper.RenameQuery("Api2");
 
     clickButtonAndAssertLintError(false);
 
     EditorNavigation.SelectEntityByName("Api2", EntityType.Api);
-    agHelper.RenameWithInPane("Api1");
+    agHelper.RenameQuery("Api1");
 
     clickButtonAndAssertLintError(false);
   });
@@ -237,13 +237,13 @@ describe("Linting", { tags: ["@tag.JS"] }, () => {
 
   it("6. TC 1928 Cont'd - Shows correct lint error when Query is renamed", () => {
     EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
-    agHelper.RenameWithInPane("Query2");
+    agHelper.RenameQuery("Query2");
 
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);
 
     EditorNavigation.SelectEntityByName("Query2", EntityType.Query);
-    agHelper.RenameWithInPane("Query1");
+    agHelper.RenameQuery("Query1");
 
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);

@@ -21,7 +21,9 @@ let dsName: any, query: string;
 
 describe(
   "Bug #14299 - The data from the query does not show up on the widget",
-  { tags: ["@tag.Widget", "@tag.Datasource"] },
+  {
+    tags: ["@tag.Widget", "@tag.Datasource", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     before("Create Postgress DS & set theme", () => {
       agHelper.AddDsl("Bugs/14299dsl");
@@ -125,7 +127,11 @@ describe(
         debuggerHelper.OpenDebugger();
         debuggerHelper.ClickLogsTab();
         debuggerHelper.DebuggerLogsFilter("JSObject1.runAstros");
-        debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");
+        agHelper.AssertContains(
+          "Function executed",
+          "exist",
+          debuggerHelper.locators._logMessage,
+        );
         debuggerHelper.CloseBottomBar();
 
         PageLeftPane.switchSegment(PagePaneSegment.JS);

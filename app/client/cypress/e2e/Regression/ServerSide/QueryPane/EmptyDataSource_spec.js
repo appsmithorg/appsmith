@@ -6,7 +6,7 @@ import {
 
 describe(
   "Create a query with a empty datasource, run, save the query",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();
@@ -22,7 +22,7 @@ describe(
       dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait(500);
-      cy.get("[data-testid=t--query-error]").contains(
+      cy.get(dataSources._queryError).contains(
         "[Missing username for authentication., Missing hostname., Missing password for authentication.]",
       );
       agHelper.ActionContextMenuWithInPane({

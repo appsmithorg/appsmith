@@ -7,7 +7,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
-  entityExplorer,
   agHelper,
   dataSources,
   table,
@@ -16,7 +15,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Addwidget from Query and bind with other widgets",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     before(() => {
       agHelper.AddDsl("inputdsl");

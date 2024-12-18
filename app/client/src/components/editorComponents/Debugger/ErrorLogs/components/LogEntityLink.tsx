@@ -26,6 +26,7 @@ const IconWrapper = styled.span`
     width: 12px;
     height: 12px;
   }
+
   margin-right: 4px;
 `;
 
@@ -77,7 +78,6 @@ export default function LogEntityLink(props: LogItemProps) {
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />
-          :
         </EntityLinkWrapper>
       )}
     </div>

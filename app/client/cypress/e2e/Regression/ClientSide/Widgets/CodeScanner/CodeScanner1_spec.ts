@@ -8,7 +8,7 @@ const codeScannerDisabledSVGIconOnPublishPage = `${publish.codescannerwidget} ${
 
 describe(
   "Code Scanner widget's functionality",
-  { tags: ["@tag.Widget", "@tag.Scanner"] },
+  { tags: ["@tag.Widget", "@tag.Scanner", "@tag.Binding"] },
   () => {
     it("1 => Check if code scanner widget can be dropped on the canvas", () => {
       // Drop the widget

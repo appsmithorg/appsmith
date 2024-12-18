@@ -25,7 +25,7 @@ import {
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
-import { GracefulWorkerService } from "utils/WorkerUtil";
+import { evalWorker } from "utils/workerInstances";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
@@ -111,20 +111,14 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
-export const evalWorker = new GracefulWorkerService(
-  new Worker(
-    new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
-    {
-      type: "module",
-      // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
-      // relies on it to find workers in the list of all requests.
-      name: "evalWorker",
-    },
-  ),
-);
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -261,7 +255,10 @@ export function* evaluateTreeSaga(
     yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-
+  const instanceId: string = yield select(getInstanceId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
@@ -269,6 +266,13 @@ export function* evaluateTreeSaga(
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
+    cacheProps: {
+      appMode,
+      appId: applicationId,
+      pageId,
+      timestamp: lastDeployedAt,
+      instanceId,
+    },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,
@@ -334,9 +338,13 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
+
+  endSpan(rootSpan);
 
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
@@ -475,14 +483,18 @@ export function* executeJSFunction(
   // After every function execution, log execution errors if present
   yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
 
-  return { result, isDirty };
+  return { result, isDirty, errors };
 }
 
 export // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* validateProperty(property: string, value: any, props: WidgetProps) {
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
+
+  endSpan(rootSpan);
   const configTree = unEvalAndConfigTree.configTree;
   const entityConfig = configTree[props.widgetName] as WidgetEntityConfig;
   const validation = entityConfig?.validationPaths[property];
@@ -523,6 +535,7 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
   isAllAffected: false,
   ids: [],
 };
+
 export function evalQueueBuffer() {
   let canTake = false;
   // TODO: Fix this the next time the file is edited
@@ -645,9 +658,14 @@ function* evalAndLintingHandler(
     return;
   }
 
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   // Generate all the data needed for both eval and linting
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
+
+  endSpan(rootSpan);
+
   const postEvalActions = getPostEvalActions(action);
   const fn: (...args: unknown[]) => CallEffect<unknown> | ForkEffect<unknown> =
     isBlockingCall ? call : fork;
@@ -872,5 +890,3 @@ export default function* evaluationSagaListeners() {
     }
   }
 }
-
-export { evalWorker as EvalWorker };

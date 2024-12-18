@@ -33,7 +33,10 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  isGitPersistBranchEnabledSelector,
+} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
 import type { AppEnginePayload } from ".";
@@ -50,7 +53,7 @@ import {
 } from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { getAIPromptTriggered } from "utils/storage";
+import { getAIPromptTriggered, setLatestGitBranchInLocal } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
@@ -68,6 +71,9 @@ import {
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { getCurrentUser } from "selectors/usersSelectors";
+import type { User } from "constants/userConstants";
+import log from "loglevel";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -118,13 +124,19 @@ export default class AppEditorEngine extends AppEngine {
     const {
       currentTheme,
       customJSLibraries,
+      packagePullStatus,
       pageWithMigratedDsl,
       themes,
       unpublishedActionCollections,
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction({
+        id: toLoadPageId,
+        isFirstLoad: true,
+        pageWithMigratedDsl,
+        packagePullStatus,
+      }),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
@@ -186,6 +198,13 @@ export default class AppEditorEngine extends AppEngine {
     yield call(waitForFetchEnvironments);
     endSpan(waitForFetchEnvironmentsSpan);
 
+    yield call(
+      this.loadPluginsAndDatasources,
+      allResponses,
+      rootSpan,
+      applicationId,
+    );
+
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     endSpan(loadPageThemesAndActionsSpan);
   }
@@ -193,6 +212,7 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPluginsAndDatasources(
     allResponses: EditConsolidatedApi,
     rootSpan: Span,
+    applicationId: string,
   ) {
     const loadPluginsAndDatasourcesSpan = startNestedSpan(
       "AppEditorEngine.loadPluginsAndDatasources",
@@ -205,7 +225,12 @@ export default class AppEditorEngine extends AppEngine {
       getFeatureFlagsForEngine,
     );
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId, featureFlags, allResponses);
+      getPageDependencyActions(
+        currentWorkspaceId,
+        featureFlags,
+        allResponses,
+        applicationId,
+      );
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
@@ -253,7 +278,6 @@ export default class AppEditorEngine extends AppEngine {
       allResponses,
       rootSpan,
     );
-    yield call(this.loadPluginsAndDatasources, allResponses, rootSpan);
   }
 
   public *completeChore(rootSpan: Span) {
@@ -268,6 +292,27 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+
+    const isGitPersistBranchEnabled: boolean = yield select(
+      isGitPersistBranchEnabledSelector,
+    );
+
+    if (isGitPersistBranchEnabled) {
+      const currentUser: User = yield select(getCurrentUser);
+      const currentBranch: string = yield select(getCurrentGitBranch);
+
+      if (currentUser?.email && currentApplication?.baseId && currentBranch) {
+        yield setLatestGitBranchInLocal(
+          currentUser.email,
+          currentApplication.baseId,
+          currentBranch,
+        );
+      } else {
+        log.error(
+          `There was an error setting the latest git branch in local - userEmail: ${!!currentUser?.email}, applicationId: ${currentApplication?.baseId}, branch: ${currentBranch}`,
+        );
+      }
+    }
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
       trackOpenEditorTabs,

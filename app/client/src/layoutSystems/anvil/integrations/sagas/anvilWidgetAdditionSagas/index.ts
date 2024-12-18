@@ -27,6 +27,7 @@ import log from "loglevel";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { addWidgetsToPreset } from "layoutSystems/anvil/utils/layouts/update/additionUtils";
 import { addNewAnvilWidgetToDSL } from "./helpers";
+import { klona } from "klona";
 
 // The suggested widget functionality allows users to bind data from the Query pane
 // to a new or existing widget on the Canvas.
@@ -109,7 +110,8 @@ export function* getUpdatedListOfWidgetsAfterAddingNewWidget(
   isSection: boolean, // Indicates if the drop zone is a section
 ) {
   const { alignment, canvasId } = highlight;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgetsFromRedux: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets = klona(allWidgetsFromRedux) as CanvasWidgetsReduxState;
 
   const parentWidgetWithLayout = allWidgets[canvasId];
 

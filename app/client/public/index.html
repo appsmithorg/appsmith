@@ -228,6 +228,10 @@
           apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
           ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
+        observability: {
+          deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
+          serviceInstanceId: parseConfig('{{env "HOSTNAME"}}') || "appsmith-0",
+        },
         newRelic:{
           enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),
           accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),
@@ -243,11 +247,9 @@
         fusioncharts: {
           licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
         },
-        enableMixpanel: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
-        algolia: {
-          apiId: parseConfig('{{env "APPSMITH_ALGOLIA_API_ID"}}'),
-          apiKey: parseConfig('{{env "APPSMITH_ALGOLIA_API_KEY"}}'),
-          indexName: parseConfig('{{env "APPSMITH_ALGOLIA_SEARCH_INDEX_NAME"}}'),
+        mixpanel: {
+          enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+          apiKey: parseConfig('{{env "APPSMITH_MIXPANEL_KEY"}}'),
         },
         logLevel:
           CONFIG_LOG_LEVEL_INDEX > -1
@@ -255,15 +257,12 @@
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
         appVersion: {
-          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}'),
+          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}') || "UNKNOWN",
           sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
           releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
         },
         intercomAppID: INTERCOM_APP_ID,
         mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
-        cloudServicesBaseUrl:
-          parseConfig('{{env "APPSMITH_CLOUD_SERVICES_BASE_URL"}}') ||
-          "https://cs.appsmith.com",
         googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
         hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
         disableIframeWidgetSandbox: parseConfig(

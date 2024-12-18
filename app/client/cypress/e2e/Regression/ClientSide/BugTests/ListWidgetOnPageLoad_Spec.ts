@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "JS Function execution data mutation",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("Listv2/simpleList");

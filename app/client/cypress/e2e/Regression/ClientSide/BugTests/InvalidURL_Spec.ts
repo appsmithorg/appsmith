@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Invalid page routing", { tags: ["@tag.JS"] }, () => {
+describe("Invalid page routing", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   it("1. Bug #16047 - Shows Invalid URL UI for invalid JS Object page url", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],

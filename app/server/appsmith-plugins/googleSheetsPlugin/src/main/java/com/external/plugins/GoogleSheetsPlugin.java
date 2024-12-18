@@ -51,7 +51,7 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.utils.SheetsUtil.getUserAuthorizedSheetIds;
+import static com.external.utils.SheetsUtil.validateAndGetUserAuthorizedSheetIds;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -81,6 +81,23 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+            return executeParameterizedWithFlags(
+                    connection, executeActionDTO, datasourceConfiguration, actionConfiguration, null);
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            return triggerWithFlags(connection, datasourceConfiguration, request, null);
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterizedWithFlags(
+                Void connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration,
+                Map<String, Boolean> featureFlagMap) {
 
             log.debug(Thread.currentThread().getName() + ": executeParameterized() called for GoogleSheets plugin.");
             boolean smartJsonSubstitution;
@@ -133,13 +150,14 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, featureFlagMap);
         }
 
         public Mono<ActionExecutionResult> executeCommon(
                 Void connection,
                 DatasourceConfiguration datasourceConfiguration,
-                ActionConfiguration actionConfiguration) {
+                ActionConfiguration actionConfiguration,
+                Map<String, Boolean> featureFlagMap) {
 
             log.debug(Thread.currentThread().getName() + ": executeCommon() called for GoogleSheets plugin.");
             // Initializing object for error condition
@@ -175,7 +193,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // This will get list of authorised sheet ids from datasource config, and transform execution response to
             // contain only authorised files
-            final Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
+            final Set<String> userAuthorizedSheetIds =
+                    validateAndGetUserAuthorizedSheetIds(datasourceConfiguration, methodConfig);
 
             // Triggering the actual REST API call
             return executionMethod
@@ -184,7 +203,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     // method
                     .flatMap(res -> {
                         return executionMethod
-                                .getExecutionClient(client, methodConfig)
+                                .getExecutionClientWithFlags(client, methodConfig, featureFlagMap)
                                 .headers(headers -> headers.set(
                                         "Authorization",
                                         "Bearer "
@@ -318,8 +337,11 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<TriggerResultDTO> trigger(
-                Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+        public Mono<TriggerResultDTO> triggerWithFlags(
+                Void connection,
+                DatasourceConfiguration datasourceConfiguration,
+                TriggerRequestDTO request,
+                Map<String, Boolean> featureFlagMap) {
             log.debug(Thread.currentThread().getName() + ": trigger() called for GoogleSheets plugin.");
             final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
             MethodConfig methodConfig = new MethodConfig(request);
@@ -338,10 +360,11 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // This will get list of authorised sheet ids from datasource config, and transform trigger response to
             // contain only authorised files
-            Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
+            Set<String> userAuthorizedSheetIds =
+                    validateAndGetUserAuthorizedSheetIds(datasourceConfiguration, methodConfig);
 
             return triggerMethod
-                    .getTriggerClient(client, methodConfig)
+                    .getTriggerClientWithFlags(client, methodConfig, featureFlagMap)
                     .headers(headers -> headers.set(
                             "Authorization",
                             "Bearer " + oauth2.getAuthenticationResponse().getToken()))

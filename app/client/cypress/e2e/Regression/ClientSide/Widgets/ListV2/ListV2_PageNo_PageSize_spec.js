@@ -3,7 +3,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -88,7 +87,7 @@ const listData = [
 
 describe(
   "List widget V2 page number and page size",
-  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("listv2PaginationDsl");
@@ -162,11 +161,7 @@ describe(
       _.dataSources.CreateDataSource("Postgres");
       _.dataSources.CreateQueryAfterDSSaved();
 
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({ force: true });
-
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query1");
+      _.agHelper.RenameQuery("Query1");
 
       // switching off Use Prepared Statement toggle
       _.dataSources.ToggleUsePreparedStatement(false);

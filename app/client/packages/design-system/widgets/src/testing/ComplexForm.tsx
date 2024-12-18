@@ -16,7 +16,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
-  TextInput,
+  TextField,
   ComboBox,
   Radio,
   ListBoxItem,
@@ -139,7 +139,7 @@ export const ComplexForm = () => {
           <TextArea label="Your comment" />
         </Flex>
         <Flex gap="spacing-2">
-          <TextInput />
+          <TextField />
           <ComboBox>
             {[
               {
@@ -167,7 +167,7 @@ export const ComplexForm = () => {
           <Button>Ok</Button>
         </Flex>
         <Flex gap="spacing-2">
-          <TextInput size="small" />
+          <TextField size="small" />
           <ComboBox
             items={[
               {
@@ -202,10 +202,10 @@ export const ComplexForm = () => {
           Ok
         </Button>
         <Modal
-          dataAttributes={{ "data-size": "small" }}
           initialFocus={2}
           isOpen={isModalOpen}
           setOpen={setModalOpen}
+          size="small"
           triggerRef={submitRef}
         >
           <ModalContent>
