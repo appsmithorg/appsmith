@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { SearchAndAdd, type SearchAndAddProps } from ".";
 
 const meta: Meta<typeof SearchAndAdd> = {
-  title: "ADS/Templates/EntityExplorer/SearchAndAdd",
+  title: "ADS/Templates/Entity Explorer/Search And Add",
   component: SearchAndAdd,
 };
 
