@@ -21,7 +21,7 @@ describe(
       PageLeftPane.expandCollapseItem("List1");
       PageLeftPane.expandCollapseItem("Container1");
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-      //propPane.UpdatePropertyFieldValue("Default value", "Widget Input2");
+
       agHelper.EnterInputText("Label", "Widget Input2");
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       cy.get(locators._widgetInputSelector("inputwidgetv2"))
