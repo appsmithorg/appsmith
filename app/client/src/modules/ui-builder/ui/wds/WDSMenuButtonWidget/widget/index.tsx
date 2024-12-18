@@ -183,7 +183,7 @@ class WDSMenuButtonWidget extends BaseWidget<
 
             if (clickedItemIndex > -1) {
               this.menuItemClickHandler(
-                visibleItems[clickedItemIndex]?.onClick,
+                visibleItems[clickedItemIndex]?.onClick as string,
                 clickedItemIndex,
               );
             }
