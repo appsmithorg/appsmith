@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Flex, Icon, TextField, Button } from "@appsmith/wds";
 
 const meta: Meta<typeof TextField> = {
-  title: "WDS/Widgets/TextField",
+  title: "WDS/Widgets/Text Field",
   component: TextField,
   tags: ["autodocs"],
   args: {
