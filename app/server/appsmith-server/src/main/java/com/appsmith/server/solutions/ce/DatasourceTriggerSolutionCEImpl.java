@@ -101,11 +101,12 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         // If the plugin has overridden and implemented the same, use the plugin result
         Mono<TriggerResultDTO> resultFromPluginMono = Mono.zip(
-                        validatedDatasourceStorageMono, pluginMono, pluginExecutorMono)
+                        validatedDatasourceStorageMono, pluginMono, pluginExecutorMono, datasourceMonoCached)
                 .flatMap(tuple -> {
                     final DatasourceStorage datasourceStorage = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
+                    final Datasource datasource = tuple.getT4();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
@@ -118,7 +119,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // Now that we have the context (connection details), execute the action.
                             // datasource remains unevaluated for datasource of DBAuth Type Authentication,
                             // However the context comes from evaluated datasource.
-                            .flatMap(resourceContext -> setTenantAndInstanceId(triggerRequestDTO)
+                            .flatMap(resourceContext -> populateTriggerRequestDto(triggerRequestDTO, datasource)
                                     .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
                                             .triggerWithFlags(
                                                     resourceContext.getConnection(),
@@ -161,13 +162,14 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
+    private Mono<TriggerRequestDTO> populateTriggerRequestDto(TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
         return tenantService
                 .getDefaultTenantId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
                     triggerRequestDTO.setTenantId(tuple.getT1());
                     triggerRequestDTO.setInstanceId(tuple.getT2());
+                    triggerRequestDTO.setWorkspaceId(datasource.getWorkspaceId());
                     return triggerRequestDTO;
                 });
     }
