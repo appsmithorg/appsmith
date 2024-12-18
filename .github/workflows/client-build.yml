@@ -76,13 +76,13 @@ jobs:
         id: changed-files-specific
         run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Run step if any file(s) in the client folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
-        run: |
-         echo "One or more files in the server folder has changed."
-         echo "List all the files that have changed: $ALL_CHANGED_FILES"
+      # - name: Run step if any file(s) in the client folder change
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   env:
+      #     ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+      #   run: |
+      #    echo "One or more files in the server folder has changed."
+      #    echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
