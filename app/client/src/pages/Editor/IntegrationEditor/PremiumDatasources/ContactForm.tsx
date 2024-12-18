@@ -1,4 +1,4 @@
-import { Button, Flex, ModalHeader, toast } from "@appsmith/ads";
+import { Button, Flex, ModalHeader, Text, toast } from "@appsmith/ads";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
 import React, { useCallback } from "react";
@@ -28,6 +28,7 @@ import {
   handleSubmitEvent,
   shouldLearnMoreButtonBeVisible,
 } from "utils/PremiumDatasourcesHelpers";
+import { PREMIUM_INTEGRATION_CONTACT_FORM } from "constants/PremiumDatasourcesConstants";
 
 const FormWrapper = styled.form`
   display: flex;
@@ -80,12 +81,12 @@ const PremiumDatasourceContactForm = (
         {getContactFormModalTitle(props.integrationName, !isFreePlanInstance)}
       </ModalHeader>
       <FormWrapper onSubmit={props.handleSubmit(onSubmit)}>
-        <p>
+        <Text renderAs="p">
           {getContactFormModalDescription(
             props.email || "",
             !isFreePlanInstance,
           )}
-        </p>
+        </Text>
         <Field
           component={ReduxFormTextField}
           description={createMessage(
@@ -118,8 +119,6 @@ const PremiumDatasourceContactForm = (
     </>
   );
 };
-
-const PREMIUM_INTEGRATION_CONTACT_FORM = "PREMIUM_INTEGRATION_CONTACT_FORM";
 
 const selector = formValueSelector(PREMIUM_INTEGRATION_CONTACT_FORM);
 

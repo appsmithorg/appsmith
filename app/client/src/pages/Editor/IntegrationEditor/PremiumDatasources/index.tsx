@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ApiCard, CardContentWrapper } from "../NewApi";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Modal, ModalContent, Tag } from "@appsmith/ads";
+import { Modal, ModalContent, Tag, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
@@ -46,7 +46,9 @@ export default function PremiumDatasources() {
               className={"content-icon saasImage"}
               src={getAssetUrl(integration.icon)}
             />
-            <p className="t--plugin-name textBtn">{integration.name}</p>
+            <Text className="t--plugin-name textBtn" renderAs="p">
+              {integration.name}
+            </Text>
             <Tag isClosable={false} kind={"premium"}>
               {getTagText(!isFreePlanInstance)}
             </Tag>

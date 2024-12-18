@@ -1,10 +1,21 @@
-export const PREMIUM_INTEGRATIONS = [
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
+
+interface PremiumIntegration {
+  name: string;
+  icon: string;
+}
+
+export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   {
     name: "Zendesk",
-    icon: "https://assets.appsmith.com/zendesk-icon.png",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/zendesk-icon.png`),
   },
   {
     name: "Salesforce",
-    icon: "https://assets.appsmith.com/salesforce-icon.png",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-icon.png`),
   },
 ];
+
+export const PREMIUM_INTEGRATION_CONTACT_FORM =
+  "PREMIUM_INTEGRATION_CONTACT_FORM";
