@@ -117,11 +117,14 @@ export const selectConflictErrorModalOpen = (
 
 export const selectCurrentBranch = (
   state: GitRootState,
+  // need the arg to preserve type
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   artifactDef: GitArtifactDef,
 ) => {
-  const gitMetadataState = selectMetadataState(state, artifactDef).value;
-
-  return gitMetadataState?.branchName;
+  return (
+    state?.ui?.applications?.currentApplication?.gitApplicationMetadata
+      ?.branchName ?? null
+  );
 };
 
 export const selectFetchBranchesState = (

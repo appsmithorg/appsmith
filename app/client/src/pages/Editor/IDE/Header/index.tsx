@@ -61,10 +61,6 @@ import DeployLinkButtonDialog from "components/designSystems/appsmith/header/Dep
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAppsmithConfigs } from "ee/configs";
-import {
-  getIsGitConnected,
-  protectedModeSelector,
-} from "selectors/gitSyncSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -79,6 +75,10 @@ import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
+import {
+  useGitConnected,
+  useGitProtectedMode,
+} from "pages/Editor/gitSync/hooks/modHooks";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -129,9 +129,9 @@ const Header = () => {
   const currentApplication = useSelector(getCurrentApplication);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isProtectedMode = useGitProtectedMode();
   const isPublishing = useSelector(getIsPublishingApplication);
-  const isGitConnected = useSelector(getIsGitConnected);
+  const isGitConnected = useGitConnected();
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
   const appState = useCurrentAppState();

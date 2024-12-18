@@ -35,7 +35,10 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "ee/constants/messages";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCurrentBaseApplicationId,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
@@ -45,8 +48,9 @@ import { toast } from "@appsmith/ads";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
+import { selectGitProtectedMode } from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -372,15 +376,22 @@ class GlobalHotKeys extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
-  selectedWidget: getLastSelectedWidget(state),
-  selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: showDebuggerFlag(state),
-  appMode: getAppMode(state),
-  isPreviewMode: previewModeSelector(state),
-  isProtectedMode: protectedModeSelector(state),
-  isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
-});
+const mapStateToProps = (state: AppState) => {
+  const baseApplicationId = getCurrentBaseApplicationId(state);
+
+  return {
+    selectedWidget: getLastSelectedWidget(state),
+    selectedWidgets: getSelectedWidgets(state),
+    isDebuggerOpen: showDebuggerFlag(state),
+    appMode: getAppMode(state),
+    isPreviewMode: previewModeSelector(state),
+    isProtectedMode: selectGitProtectedMode(
+      state,
+      applicationArtifact(baseApplicationId),
+    ),
+    isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
+  };
+};
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

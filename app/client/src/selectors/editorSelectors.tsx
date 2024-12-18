@@ -49,6 +49,8 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
 import { objectKeys } from "@appsmith/utils";
+import { selectGitProtectedMode } from "./gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -993,6 +995,13 @@ export const getGsheetProjectID = (state: AppState) =>
 
 export const combinedPreviewModeSelector = createSelector(
   previewModeSelector,
-  protectedModeSelector,
+  (state: AppState) => {
+    const baseApplicationId = getCurrentBaseApplicationId(state);
+
+    return selectGitProtectedMode(
+      state,
+      applicationArtifact(baseApplicationId),
+    );
+  },
   (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
 );

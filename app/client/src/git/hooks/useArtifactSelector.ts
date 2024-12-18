@@ -11,11 +11,11 @@ export default function useAritfactSelector<
   // need any type to properly infer the return type
   /* eslint-disable @typescript-eslint/no-explicit-any */
   Fn extends (state: any, artifactDef: GitArtifactDef, ...args: any[]) => any,
->(selectorFn: Fn, ...args: Tail<Tail<Parameters<Fn>>>): ReturnType<Fn> | null {
+>(selector: Fn, ...args: Tail<Tail<Parameters<Fn>>>): ReturnType<Fn> | null {
   const { artifactDef } = useGitContext();
 
   return useSelector((state: GitRootState) => {
-    if (typeof selectorFn !== "function" || !artifactDef) {
+    if (typeof selector !== "function" || !artifactDef) {
       return null;
     }
 
@@ -25,6 +25,6 @@ export default function useAritfactSelector<
       return null;
     }
 
-    return selectorFn(state, artifactDef, ...args);
+    return selector(state, artifactDef, ...args);
   });
 }

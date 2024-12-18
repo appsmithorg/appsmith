@@ -17,7 +17,10 @@ export { default as useGitConnected } from "./hooks/useConnected";
 export { gitReducer } from "./store";
 
 // selectors
-export { selectCurrentBranch as selectGitCurrentBranch } from "./store/selectors/gitSingleArtifactSelectors";
+export {
+  selectCurrentBranch as selectGitCurrentBranch,
+  selectProtectedMode as selectGitProtectedMode,
+} from "./store/selectors/gitSingleArtifactSelectors";
 
 // sagas
 export { default as gitSagas } from "./sagas";

@@ -88,6 +88,16 @@ export interface GitConfigReduxState {
 }
 
 export interface GitRootState {
+  // will have to remove this later, once metadata is fixed
+  ui: {
+    applications: {
+      currentApplication?: {
+        gitApplicationMetadata?: {
+          branchName: string;
+        };
+      };
+    };
+  };
   git: {
     artifacts: GitArtifactReduxState;
     config: GitConfigReduxState;

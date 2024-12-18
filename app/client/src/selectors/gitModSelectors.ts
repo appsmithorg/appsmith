@@ -3,9 +3,12 @@
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import type { GitArtifactDef } from "git/store/selectors/gitSingleArtifactSelectors";
 import { createSelector } from "reselect";
-import { getCurrentGitBranch } from "./gitSyncSelectors";
+import { getCurrentGitBranch, protectedModeSelector } from "./gitSyncSelectors";
 import type { AppState } from "ee/reducers";
-import { selectGitCurrentBranch as selectGitCurrentBranchNew } from "git";
+import {
+  selectGitCurrentBranch as selectGitCurrentBranchNew,
+  selectGitProtectedMode as selectGitProtectedModeNew,
+} from "git";
 
 export const selectGitModEnabled = createSelector(
   selectFeatureFlags,
@@ -23,5 +26,18 @@ export function selectGitCurrentBranch(
     return getCurrentGitBranch(state);
   } else {
     return selectGitCurrentBranchNew(state, artifactDef);
+  }
+}
+
+export function selectGitProtectedMode(
+  state: AppState,
+  artifactDef: GitArtifactDef,
+) {
+  const isGitModEnabled = selectGitModEnabled(state);
+
+  if (isGitModEnabled) {
+    return protectedModeSelector(state);
+  } else {
+    return selectGitProtectedModeNew(state, artifactDef);
   }
 }
