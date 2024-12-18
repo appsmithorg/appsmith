@@ -1,4 +1,4 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -58,12 +58,6 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { getAppsmithConfigs } from "ee/configs";
-import { getSegmentState } from "selectors/analyticsSelectors";
-import {
-  segmentInitUncertain,
-  segmentInitSuccess,
-} from "actions/analyticsActions";
-import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
@@ -80,20 +74,6 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-
-export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
-  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
-
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  const segmentState: SegmentState | undefined = yield select(getSegmentState);
-
-  if (currentUser?.enableTelemetry && !segmentState) {
-    yield race([
-      take(ReduxActionTypes.SEGMENT_INITIALIZED),
-      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
-    ]);
-  }
-}
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -130,10 +110,8 @@ export function* getCurrentUserSaga(action?: {
 function* initTrackers(currentUser: User) {
   try {
     yield call(AnalyticsUtil.initialize, currentUser);
-    yield put(segmentInitSuccess());
   } catch (e) {
     log.error(e);
-    yield put(segmentInitUncertain());
   }
 }
 
