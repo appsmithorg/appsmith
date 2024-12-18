@@ -154,7 +154,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "[data-testid='t--query-error']";
+  _queryError = "[data-testid='t--response-error']";
   _queryEditorTabs = (responseType: string) =>
     "//button[@role='tab' or @role='tablist']//span[text()='" +
     responseType +
@@ -206,7 +206,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
+  _dsTabSchema = "[data-testid='t--tab-DATASOURCE_TAB']";
   private _pageSelectionMenu = "[data-testid='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -1142,25 +1142,6 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
-  /** @deprecated */
-  public RunQueryNVerifyResponseViews(
-    expectedRecordsCount = 1,
-    tableCheck = true,
-  ) {
-    this.RunQuery();
-    if (tableCheck) {
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("TABLE"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("JSON"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("RAW"),
-      );
-    }
-  }
-
   public runQueryAndVerifyResponseViews({
     count = 1,
     operator = "eq",
@@ -1891,7 +1872,9 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
-    cy.get("[data-testid=t--tab-SCHEMA_TAB]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-DATASOURCE_TAB]")
+      .first()
+      .click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)

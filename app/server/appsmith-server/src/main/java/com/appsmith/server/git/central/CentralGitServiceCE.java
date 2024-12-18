@@ -1,5 +1,8 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitRefDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
@@ -21,4 +24,32 @@ public interface CentralGitServiceCE {
 
     Mono<String> commitArtifact(
             CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> detachRemote(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<String> fetchRemoteChanges(
+            String referenceArtifactId,
+            boolean isFileLock,
+            ArtifactType artifactType,
+            GitType gitType,
+            RefType refType);
+
+    Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<GitStatusDTO> getStatus(
+            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> checkoutReference(
+            String referenceArtifactId,
+            String referenceToBeCheckedOut,
+            boolean addFileLock,
+            ArtifactType artifactType,
+            GitType gitType,
+            RefType refType);
+
+    Mono<? extends Artifact> createReference(
+            String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> deleteGitReference(
+            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType);
 }

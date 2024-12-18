@@ -41,20 +41,15 @@ jobs:
 
     # Service containers to run with this job. Required for running tests
     services:
-      # Label used to access the service container
       redis:
-        # Docker Hub image for Redis
         image: redis
         ports:
-          # Opens tcp port 6379 on the host and service container
           - 6379:6379
       postgres:
-        if: github.base_ref == 'pg' || github.ref_name == 'pg'
         image: postgres:14
         ports:
           - 5432:5432
       mongo:
-        if: github.base_ref == 'release' || github.ref_name == 'release'
         image: mongo
         ports:
           - 27017:27017
@@ -225,12 +220,15 @@ jobs:
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
-
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          sudo apt-get remove google-chrome-stable
+          wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
