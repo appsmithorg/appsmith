@@ -85,7 +85,7 @@ export const EditorWrapper = styled.div<{
 
   && {
     ${(props) =>
-      !props.showFocusRing &&
+      props.showFocusRing &&
       `
         .CodeMirror-focused {
           outline: var(--ads-v2-border-width-outline) solid
