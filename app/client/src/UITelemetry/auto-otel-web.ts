@@ -9,15 +9,6 @@ import {
 } from "@opentelemetry/semantic-conventions/incubating";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
-import {
-  MeterProvider,
-  PeriodicExportingMetricReader,
-} from "@opentelemetry/sdk-metrics";
-import {
-  AggregationTemporalityPreference,
-  OTLPMetricExporter,
-} from "@opentelemetry/exporter-metrics-otlp-http";
-import { metrics } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
 import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
@@ -44,7 +35,7 @@ const tracerProvider = new WebTracerProvider({
 });
 
 const nrTracesExporter = new OTLPTraceExporter({
-  url: addPathToCurrentUrl("/monitoring/traces"),
+  url: getAbsoluteUrl("/monitoring/traces"),
   compression: CompressionAlgorithm.GZIP,
   headers: {
     "api-key": otlpLicenseKey,
@@ -71,41 +62,13 @@ tracerProvider.register({
   contextManager: new ZoneContextManager(),
 });
 
-const nrMetricsExporter = new OTLPMetricExporter({
-  compression: CompressionAlgorithm.GZIP,
-  temporalityPreference: AggregationTemporalityPreference.DELTA,
-  url: addPathToCurrentUrl("/monitoring/metrics"),
-  headers: {
-    "api-key": otlpLicenseKey,
-  },
-});
-
-const meterProvider = new MeterProvider({
-  resource: new Resource({
-    [ATTR_DEPLOYMENT_NAME]: deploymentName,
-    [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
-    [ATTR_SERVICE_NAME]: serviceName,
-  }),
-  readers: [
-    new PeriodicExportingMetricReader({
-      exporter: nrMetricsExporter,
-      exportIntervalMillis: 30000, // Adjust the export interval as needed
-    }),
-  ],
-});
-
-// Register the MeterProvider globally
-metrics.setGlobalMeterProvider(meterProvider);
-
 registerInstrumentations({
   tracerProvider,
-  meterProvider,
   instrumentations: [
     new PageLoadInstrumentation({
       ignoreResourceUrls: [
         browserAgentEndpoint,
-        addPathToCurrentUrl("/monitoring/traces"),
-        addPathToCurrentUrl("/monitoring/metrics"),
+        getAbsoluteUrl("/monitoring/traces"),
         smartlookBaseDomain,
       ],
     }),
@@ -117,13 +80,11 @@ registerInstrumentations({
   ],
 });
 
-// Replaces the pathname of the current URL with the provided path.
-function addPathToCurrentUrl(path: string) {
-  const origin = window.location.origin;
-
-  const currentUrl = new URL(origin);
-
-  currentUrl.pathname = path.startsWith("/") ? path : `/${path}`;
-
-  return currentUrl.toString();
+/**
+ * This function adds the given path to the current URL and returns the absolute URL.
+ * @param path The path to be added to the current URL.
+ * @returns The absolute URL.
+ */
+function getAbsoluteUrl(path: string) {
+  return new URL(path, window.location.origin).toString();
 }
