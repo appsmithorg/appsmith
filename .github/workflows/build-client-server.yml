@@ -1,8 +1,7 @@
 name: Build Client, Server & Run only Cypress
 
 on:
-  repository_dispatch:
-    types: [ci-test-limit-command]
+  workflow_dispatch:
 
 jobs:
   file-check:

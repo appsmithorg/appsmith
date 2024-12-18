@@ -17,6 +17,8 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
       is-pg-build: ${{steps.args.outputs.is-pg-build}}
+      update_snapshot : ${{steps.args.outputs.update_snapshot}}
+      spec : ${{steps.args.outputs.spec}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -37,6 +39,17 @@ jobs:
           else
               runId=$((checkArg + 0))
               echo "runId=$runId" >> $GITHUB_OUTPUT
+          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("update_snapshot")'`
+          if [[ $checkArg == 'true' ]]; then
+            echo "update_snapshot=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}" >> $GITHUB_OUTPUT
+          else
+          fi
+          
+          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("spec")'`
+          if [[ $checkArg == 'true' ]]; then
+            echo "spec=${{ github.event.client_payload.slash_command.args.named.spec }}" >> $GITHUB_OUTPUT
+          else
+            echo "spec='cypress/e2e/example_spec.ts'" >> $GITHUB_OUTPUT
           fi
        
       - name: Set run count
@@ -149,6 +162,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+      update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
     
 
   ci-test-limited-existing-docker-image:
@@ -162,6 +176,7 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+      update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
