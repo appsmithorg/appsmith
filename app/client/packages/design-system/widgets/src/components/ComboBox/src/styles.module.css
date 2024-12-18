@@ -1,4 +1,4 @@
 .comboboxPopover {
-  width: calc(var(--trigger-width) + var(--inner-spacing-1) * 2);
+  width: calc(var(--trigger-width) + var(--inner-spacing-2) * 2);
   transform: translateX(calc(-1 * var(--inner-spacing-1)));
 }
