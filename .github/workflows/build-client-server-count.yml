@@ -144,7 +144,6 @@ jobs:
           echo "Run Count: ${{fromJson(needs.file-check.outputs.run_count)}}"
           echo "Update Snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}"
           echo "Specs to Run: ${{needs.file-check.outputs.specs_to_run}}"
-          echo "Specs to Run2: ${{fromJson(needs.file-check.outputs.specs_to_run)}}"
 
   client-build:
     name: client-build
@@ -200,7 +199,7 @@ jobs:
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
       update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
-      specs_to_run: ${{fromJson(needs.file-check.outputs.specs_to_run)}}
+      specs_to_run: ${{needs.file-check.outputs.specs_to_run}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
