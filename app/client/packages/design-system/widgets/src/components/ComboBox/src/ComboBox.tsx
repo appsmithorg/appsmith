@@ -55,7 +55,6 @@ export const ComboBox = (props: ComboBoxProps) => {
       <Popover
         UNSTABLE_portalContainer={root}
         className={styles.comboboxPopover}
-        isOpen
         maxHeight={POPOVER_LIST_BOX_MAX_HEIGHT}
       >
         <ListBox shouldFocusWrap>{children}</ListBox>
