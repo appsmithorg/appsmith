@@ -91,7 +91,7 @@ export const EditorWrapper = styled.div<{
           outline: var(--ads-v2-border-width-outline) solid
             var(--ads-v2-color-outline) !important;
           outline-offset: var(--ads-v2-offset-outline) !important;
-          z-index: 1;
+          z-index: 1 !important;
         }
       `}
 
