@@ -46,7 +46,7 @@ const IconContainer = styled.div`
   position: relative;
 
   &[data-selected="false"] {
-    background-color: white;
+    background-color: var(--ads-v2-color-bg);
 
     &:hover {
       background-color: var(--ads-v2-color-bg-subtle, #f1f5f9);
