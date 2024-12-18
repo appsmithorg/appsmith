@@ -68,9 +68,9 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
   }
 
   // Initialize the TrackedUser singleton
-  TrackedUser.init(userData);
+  const trackedUserInstance = TrackedUser.init(userData);
 
-  const trackedUser = TrackedUser.getInstance().getUser();
+  const trackedUser = trackedUserInstance.getUser();
   const instanceId = getInstanceId();
 
   const additionalData = {

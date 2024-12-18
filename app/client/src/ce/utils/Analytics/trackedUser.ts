@@ -51,6 +51,8 @@ class TrackedUser {
     if (!TrackedUser.instance) {
       TrackedUser.instance = new TrackedUser(user);
     }
+
+    return TrackedUser.instance;
   }
 
   static getInstance(): TrackedUser {
