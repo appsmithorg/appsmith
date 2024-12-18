@@ -230,11 +230,14 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          sudo apt-get remove google-chrome-stable
+          wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -348,7 +351,8 @@ jobs:
             cd app/client
             npx cypress-repeat-pro run -n ${{ inputs.run_count }} --force \
                 --spec ${{ env.specs_to_run }} \
-                --config-file "cypress_ci_custom.config.ts"
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser ${{ env.BROWSER_PATH }}
             cat cy-repeat-summary.txt
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
