@@ -8,7 +8,7 @@ import {
   dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
-xdescribe(
+describe.skip(
   "Datasource form OAuth2 client credentials related tests",
   {
     tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
