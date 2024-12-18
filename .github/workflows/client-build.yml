@@ -66,15 +66,15 @@ jobs:
         with:
           fetch-tags: true
 
-      - name: Get changed files in the client folder
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v41
-        with:
-          files: "app/client/**"
-
-      # - name: Updating the client changed file variable
+      # - name: Get changed files in the client folder
       #   id: changed-files-specific
-      #   run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
+      #   uses: tj-actions/changed-files@v41
+      #   with:
+      #     files: "app/client/**"
+
+      - name: Updating the client changed file variable
+        id: changed-files-specific
+        run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Run step if any file(s) in the client folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
