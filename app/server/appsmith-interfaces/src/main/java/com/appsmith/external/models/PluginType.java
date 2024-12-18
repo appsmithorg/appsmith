@@ -16,6 +16,7 @@ public enum PluginType {
     AI,
     INTERNAL;
 
+    // Add EE Plugin Types below this line, to avoid conflicts.
     public static List<Enum<?>> getPluginTypes(List<String> pluginTypes) {
         return pluginTypes.stream()
                 .map(string -> {
