@@ -86,7 +86,7 @@ export class CommonLocators {
   _anvilDnDHighlight = "[data-type=anvil-dnd-highlight]";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--add-item";
+  _createNew = "[data-testid='t--add-item']";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR_TAB]";
