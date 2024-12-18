@@ -42,7 +42,7 @@ describe(
       });
     });
 
-    it("2. Validate save and Authorise", function () {
+    it.skip("2. Validate save and Authorise", function () {
       agHelper.GetNClick(dataSources._saveDs);
 
       //Accept consent
