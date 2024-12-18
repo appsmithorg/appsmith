@@ -4,18 +4,23 @@ import type { WidgetProps } from "widgets/BaseWidget";
 export interface ConfigureMenuItems {
   label: string;
   id: string;
-  config: Record<string, unknown>;
+  config: {
+    id: string;
+    label: string;
+    isVisible: boolean;
+    isDisabled: boolean;
+    onClick: string;
+  };
 }
 
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
-  sourceData?: Array<Record<string, unknown>>;
+  sourceData?: Array<ConfigureMenuItems["config"]>;
   menuItemsSource: "static" | "dynamic";
   configureMenuItems: ConfigureMenuItems;
-  menuItems: Record<string, Record<string, unknown>>;
-  getVisibleItems: () => Array<Record<string, unknown>>;
+  menuItems: Record<string, ConfigureMenuItems["config"]>;
   triggerButtonIconName?: IconProps["name"];
   triggerButtonIconAlign?: ButtonProps["iconPosition"];
   triggerButtonVariant?: ButtonProps["variant"];
