@@ -9,10 +9,10 @@ import {
   updateCustomColumnAliasOnLabelChange,
   selectColumnOptionsValidation,
   allowedFirstDayOfWeekRange,
-} from "./propertyUtils";
+} from "../propertyUtils";
 import _ from "lodash";
-import type { ColumnTypes, TableWidgetProps } from "../constants";
-import { StickyType } from "../component/Constants";
+import type { ColumnTypes, TableWidgetProps } from "../../constants";
+import { StickyType } from "../../component/Constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {

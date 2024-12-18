@@ -1,6 +1,6 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import TableWidgetV2 from ".";
-import type { TableWidgetProps } from "../constants";
+import TableWidgetV2 from "..";
+import type { TableWidgetProps } from "../../constants";
 
 describe("TableWidgetV2 getWidgetView", () => {
   const tableWidgetProps: TableWidgetProps = {

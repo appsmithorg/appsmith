@@ -538,7 +538,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 Artifact newRefArtifact = tuple.getT1();
 
                                 Mono<String> refCreationMono = gitHandlingService
-                                        .prepareForNewRefCreation(jsonTransformationDTO)
+                                        .createGitReference(jsonTransformationDTO)
                                         // TODO: ths error could be shipped to handling layer as well?
                                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED,
@@ -570,6 +570,127 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> createBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    @Override
+    public Mono<? extends Artifact> deleteGitReference(
+            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType) {
+
+        String refName = gitRefDTO.getRefName();
+        RefType refType = gitRefDTO.getRefType();
+
+        if (refType == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
+        }
+
+        if (!hasText(refName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_NAME));
+        }
+
+        if (!hasText(baseArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+
+        Mono<? extends Artifact> baseArtifactMono =
+                gitArtifactHelper.getArtifactById(baseArtifactId, artifactEditPermission);
+
+        Mono<? extends Artifact> branchedArtifactMono =
+                gitArtifactHelper.getArtifactByBaseIdAndBranchName(baseArtifactId, refName, artifactEditPermission);
+
+        return Mono.zip(baseArtifactMono, branchedArtifactMono).flatMap(tuple2 -> {
+            Artifact baseArtifact = tuple2.getT1();
+            Artifact referenceArtifact = tuple2.getT2();
+            return deleteGitReference(baseArtifact, referenceArtifact, gitType, refType);
+        });
+    }
+
+    protected Mono<? extends Artifact> deleteGitReference(
+            Artifact baseArtifact, Artifact referenceArtifact, GitType gitType, RefType refType) {
+
+        GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+        GitArtifactMetadata referenceArtifactMetadata = referenceArtifact.getGitArtifactMetadata();
+
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+
+        // TODO: write a migration to shift everything to refName in gitMetadata
+        final String finalRefName = referenceArtifactMetadata.getRefName();
+        final String baseArtifactId = referenceArtifact.getGitArtifactMetadata().getDefaultArtifactId();
+
+        if (finalRefName.equals(baseGitMetadata.getDefaultBranchName())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.GIT_ACTION_FAILED, "delete ref", " Cannot delete default branch"));
+        }
+
+        Mono<? extends Artifact> deleteReferenceMono = gitPrivateRepoHelper
+                .isBranchProtected(baseGitMetadata, finalRefName)
+                .flatMap(isBranchProtected -> {
+                    if (!TRUE.equals(isBranchProtected)) {
+                        return gitRedisUtils.acquireGitLock(
+                                baseArtifactId, GitConstants.GitCommandConstants.DELETE, TRUE);
+                    }
+
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            "delete",
+                            "Cannot delete protected branch " + finalRefName));
+                })
+                .flatMap(ignoreLockAcquisition -> {
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+                    jsonTransformationDTO.setRefType(refType);
+                    jsonTransformationDTO.setRefName(finalRefName);
+                    jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
+                    jsonTransformationDTO.setRepoName(referenceArtifactMetadata.getRepoName());
+
+                    return gitHandlingService
+                            .deleteGitReference(jsonTransformationDTO)
+                            .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, TRUE))
+                            .flatMap(isReferenceDeleted -> {
+                                if (FALSE.equals(isReferenceDeleted)) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.GIT_ACTION_FAILED,
+                                            " delete branch. Branch does not exists in the repo"));
+                                }
+
+                                if (referenceArtifact.getId().equals(baseArtifactId)) {
+                                    return Mono.just(referenceArtifact);
+                                }
+
+                                return gitArtifactHelper
+                                        .deleteArtifactByResource(referenceArtifact)
+                                        .onErrorResume(throwable -> {
+                                            log.error(
+                                                    "An error occurred while deleting db artifact and resources for reference {}",
+                                                    throwable.getMessage());
+
+                                            return gitAnalyticsUtils
+                                                    .addAnalyticsForGitOperation(
+                                                            AnalyticsEvents.GIT_DELETE_BRANCH,
+                                                            referenceArtifact,
+                                                            throwable.getClass().getName(),
+                                                            throwable.getMessage(),
+                                                            baseGitMetadata.getIsRepoPrivate())
+                                                    .then(Mono.error(new AppsmithException(
+                                                            AppsmithError.GIT_ACTION_FAILED,
+                                                            "Cannot delete branch from database")));
+                                        });
+                            });
+                })
+                .flatMap(deletedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
+                        AnalyticsEvents.GIT_DELETE_BRANCH,
+                        deletedArtifact,
+                        deletedArtifact.getGitArtifactMetadata().getIsRepoPrivate()))
+                .name(GitSpan.OPS_DELETE_BRANCH)
+                .tap(Micrometer.observation(observationRegistry));
+
+        return Mono.create(
+                sink -> deleteReferenceMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
