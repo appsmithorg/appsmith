@@ -3,7 +3,6 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { sourceDataArrayValidation } from "./validations";
 import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
-import { updateMenuItemsSource } from "../helper";
 import type { MenuButtonWidgetProps } from "../../widget/types";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
@@ -20,30 +19,6 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: "menuItemsSource",
-        helpText: "Sets the source for the menu items",
-        label: "Menu items source",
-        controlType: "ICON_TABS",
-        defaultValue: "static",
-        fullWidth: true,
-        options: [
-          {
-            label: "Static",
-            value: "static",
-          },
-          {
-            label: "Dynamic",
-            value: "dynamic",
-          },
-        ],
-        isJSConvertible: false,
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        updateHook: updateMenuItemsSource,
-        dependencies: ["sourceData", "configureMenuItems"],
       },
       {
         helpText: "Menu items",

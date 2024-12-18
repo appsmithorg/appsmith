@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type Key } from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -12,9 +12,9 @@ import {
   methodsConfig,
 } from "../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Button, MenuTrigger, Menu } from "@appsmith/wds";
+import { Button, MenuTrigger, Menu, MenuItem } from "@appsmith/wds";
 import { isArray, orderBy } from "lodash";
-import type { MenuButtonWidgetProps, MenuItem } from "./types";
+import type { MenuButtonWidgetProps } from "./types";
 import {
   EventType,
   type ExecuteTriggerPayload,
@@ -116,7 +116,7 @@ class WDSMenuButtonWidget extends BaseWidget<
     ) {
       const { config } = configureMenuItems;
 
-      const getValue = (propertyName: keyof MenuItem, index: number) => {
+      const getValue = (propertyName: keyof typeof config, index: number) => {
         const value = config[propertyName];
 
         if (isArray(value)) {
@@ -136,9 +136,6 @@ class WDSMenuButtonWidget extends BaseWidget<
           widgetId: "",
           label: getValue("label", index),
           onClick: config?.onClick,
-          iconAlign: getValue("iconAlign", index),
-          iconName: getValue("iconName", index),
-          textColor: getValue("textColor", index),
         }))
         .filter((item) => item.isVisible === true);
 
@@ -159,7 +156,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       triggerButtonVariant,
     } = this.props;
 
-    const visibleItems: MenuItem[] = this.getVisibleItems();
+    const visibleItems = this.getVisibleItems();
     const disabledKeys = visibleItems
       .filter((item) => item.isDisabled === true)
       .map((item) => item.id);
@@ -178,8 +175,7 @@ class WDSMenuButtonWidget extends BaseWidget<
         </Button>
 
         <Menu
-          disabledKeys={disabledKeys}
-          items={visibleItems}
+          disabledKeys={disabledKeys as Iterable<Key>}
           onAction={(key) => {
             const clickedItemIndex = visibleItems.findIndex(
               (item) => item.id === key,
@@ -192,7 +188,17 @@ class WDSMenuButtonWidget extends BaseWidget<
               );
             }
           }}
-        />
+        >
+          {visibleItems.map((item) => (
+            <MenuItem
+              id={item.id as Key}
+              key={item.id as Key}
+              textValue={item.label}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+        </Menu>
       </MenuTrigger>
     );
   }
