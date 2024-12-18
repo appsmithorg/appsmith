@@ -17,8 +17,8 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
       is-pg-build: ${{steps.args.outputs.is-pg-build}}
-      update_snapshot : ${{steps.args.outputs.update_snapshot}}
-      spec : ${{steps.args.outputs.spec}}
+      update_snapshot: ${{steps.args.outputs.update_snapshot}}
+      spec: ${{steps.args.outputs.spec}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
