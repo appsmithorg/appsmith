@@ -281,6 +281,8 @@ export class GracefulWorkerService {
       WebworkerSpanData | SpanAttributes
     > = {};
 
+    // eslint-disable-next-line no-console
+    method === "EVAL_TREE" && console.log("*** evaluation");
     try {
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
