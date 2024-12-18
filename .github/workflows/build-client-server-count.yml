@@ -33,23 +33,27 @@ jobs:
         run: |
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "is-pg-build=${{ github.event.client_payload.pull_request.base.ref == 'pg' }}" >> $GITHUB_OUTPUT
+
           checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
           if [[ -z "$checkArg" ]]; then
               echo "runId=0" >> $GITHUB_OUTPUT
           else
               runId=$((checkArg + 0))
               echo "runId=$runId" >> $GITHUB_OUTPUT
+          fi
+
           checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("update_snapshot")'`
           if [[ $checkArg == 'true' ]]; then
-            echo "update_snapshot=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}" >> $GITHUB_OUTPUT
+              echo "update_snapshot=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}" >> $GITHUB_OUTPUT
           else
+              echo "update_snapshot=false" >> $GITHUB_OUTPUT
           fi
-          
+
           checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("spec")'`
           if [[ $checkArg == 'true' ]]; then
-            echo "spec=${{ github.event.client_payload.slash_command.args.named.spec }}" >> $GITHUB_OUTPUT
+              echo "spec=${{ github.event.client_payload.slash_command.args.named.spec }}" >> $GITHUB_OUTPUT
           else
-            echo "spec='cypress/e2e/example_spec.ts'" >> $GITHUB_OUTPUT
+              echo "spec='cypress/e2e/example_spec.ts'" >> $GITHUB_OUTPUT
           fi
        
       - name: Set run count
