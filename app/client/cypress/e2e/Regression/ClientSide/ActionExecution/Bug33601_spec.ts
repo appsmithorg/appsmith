@@ -1,6 +1,7 @@
 import {
   agHelper,
   appSettings,
+  assertHelper,
   deployMode,
   homePage,
   locators,
@@ -39,6 +40,7 @@ describe(
         .first()
         .invoke("attr", "value")
         .should("be.empty");
+      assertHelper.WaitForNetworkCall("@postExecute");
       agHelper
         .GetAttribute(locators._imgWidgetInsideList, "src")
         .then((labelValue) => {
