@@ -16,6 +16,7 @@ const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
 
 export interface SidebarButtonProps {
   title?: string;
+  testId: string;
   selected: boolean;
   icon: string;
   onClick: (urlSuffix: string) => void;
@@ -82,6 +83,7 @@ function SidebarButton(props: SidebarButtonProps) {
         <IconContainer
           className={`t--sidebar-${title || tooltip}`}
           data-selected={selected}
+          data-testid={"t--sidebar-" + props.testId}
           onClick={handleOnClick}
           role="button"
           selected={selected}

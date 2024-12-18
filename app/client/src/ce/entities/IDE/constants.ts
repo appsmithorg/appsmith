@@ -62,6 +62,7 @@ export const TopButtons: IDESidebarButton[] = [
     state: EditorState.EDITOR,
     icon: "editor-v3",
     title: SidebarTopButtonTitles.EDITOR,
+    testId: SidebarTopButtonTitles.EDITOR,
     urlSuffix: "",
   },
 ];
@@ -71,18 +72,21 @@ export const BottomButtons: IDESidebarButton[] = [
     state: EditorState.DATA,
     icon: "datasource-v3",
     tooltip: SidebarBottomButtonTitles.DATA,
+    testId: SidebarBottomButtonTitles.DATA,
     urlSuffix: "datasource",
   },
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",
     tooltip: SidebarBottomButtonTitles.LIBRARIES,
+    testId: SidebarBottomButtonTitles.LIBRARIES,
     urlSuffix: "libraries",
   },
   {
     state: EditorState.SETTINGS,
     icon: "settings-v3",
     tooltip: SidebarBottomButtonTitles.SETTINGS,
+    testId: SidebarBottomButtonTitles.SETTINGS,
     urlSuffix: "settings",
   },
 ];
