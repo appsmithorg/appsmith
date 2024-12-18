@@ -477,6 +477,8 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 // Modules
 export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
 export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
+export const PACKAGE_UPGRADING_ACTION_STATUS = (action: string) =>
+  `You're not able to ${action} while package references are updating. Please wait until the update is complete.`;
 
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
