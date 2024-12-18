@@ -28,3 +28,9 @@ export const commitErrorAction =
 
     return state;
   });
+
+export const clearCommitErrorAction = createSingleArtifactAction((state) => {
+  state.apiResponses.commit.error = null;
+
+  return state;
+});

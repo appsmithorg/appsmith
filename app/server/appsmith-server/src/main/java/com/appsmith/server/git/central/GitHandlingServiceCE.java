@@ -1,5 +1,7 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -39,7 +41,15 @@ public interface GitHandlingServiceCE {
 
     Mono<Boolean> removeRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
+    Mono<List<String>> listBranches(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteBranches);
+
     Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
+    Mono<List<String>> listReferences(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
+            Boolean checkRemoteReferences,
+            RefType refType);
 
     Mono<Boolean> validateEmptyRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
@@ -51,11 +61,22 @@ public interface GitHandlingServiceCE {
 
     Mono<String> createFirstCommit(ArtifactJsonTransformationDTO jsonTransformationDTO, CommitDTO commitDTO);
 
+    // TODO: provide a proper name
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<Tuple2<? extends Artifact, String>> commitArtifact(
             Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 
-    Mono<String> fetchRemoteChanges(ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth);
+    Mono<String> fetchRemoteChanges(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth, Boolean isFetchAll);
+
+    Mono<? extends ArtifactExchangeJson> recreateArtifactJsonFromLastCommit(
+            ArtifactJsonTransformationDTO jsonTransformationDTO);
+
+    Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
+
+    Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
+    Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }
