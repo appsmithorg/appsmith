@@ -116,7 +116,7 @@ jobs:
           body: |
             Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             [Cypress dashboard](https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail)
-            PR: #${{ fromJson(steps.args.outputs.pr) }} with spec: ${{fromJson(steps.args.outputs.specs_to_run)}}.
+            PR: #${{ fromJson(steps.args.outputs.pr) }} with spec: ${{steps.args.outputs.specs_to_run}}.
 
 
   server-build:
