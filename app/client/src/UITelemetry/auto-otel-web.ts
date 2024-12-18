@@ -81,8 +81,8 @@ registerInstrumentations({
 });
 
 /**
- * This function adds the given path to the current URL and returns the absolute URL.
- * @param path The path to be added to the current URL.
+ * This function adds the given path to the current origin and returns the absolute URL.
+ * @param path The path to be added to the current origin.
  * @returns The absolute URL.
  */
 function getAbsoluteUrl(path: string) {
