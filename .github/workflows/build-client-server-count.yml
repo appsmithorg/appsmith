@@ -42,18 +42,20 @@ jobs:
               echo "runId=$runId" >> $GITHUB_OUTPUT
           fi
 
-          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("update_snapshot")'`
-          if [[ $checkArg == 'true' ]]; then
-              echo "update_snapshot=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}" >> $GITHUB_OUTPUT
-          else
+          # Check for update_snapshot
+          checkArg=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}
+          if [[ -z "$checkArg" ]]; then
               echo "update_snapshot=false" >> $GITHUB_OUTPUT
+          else
+              echo "update_snapshot=$checkArg" >> $GITHUB_OUTPUT
           fi
 
-          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("spec")'`
-          if [[ $checkArg == 'true' ]]; then
-              echo "spec=${{ github.event.client_payload.slash_command.args.named.spec }}" >> $GITHUB_OUTPUT
-          else
+          # Check for spec file
+          checkArg=${{ github.event.client_payload.slash_command.args.named.spec }}
+          if [[ -z "$checkArg" ]]; then
               echo "spec='cypress/e2e/example_spec.ts'" >> $GITHUB_OUTPUT
+          else
+              echo "spec=$checkArg" >> $GITHUB_OUTPUT
           fi
        
       - name: Set run count
@@ -167,7 +169,7 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
       update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
-    
+      spec: ${{fromJson(needs.file-check.outputs.spec)}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
