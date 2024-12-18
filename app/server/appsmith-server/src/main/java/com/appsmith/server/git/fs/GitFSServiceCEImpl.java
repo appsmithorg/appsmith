@@ -2,8 +2,10 @@ package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.acl.AclPermission;
@@ -42,6 +44,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -261,20 +264,44 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
 
+        return listBranches(artifactJsonTransformationDTO, Boolean.FALSE);
+    }
+
+    @Override
+    public Mono<List<String>> listBranches(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, Boolean listRemoteBranches) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
-                artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getBaseArtifactId(),
-                artifactJsonTransformationDTO.getRepoName());
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
 
         return fsGitHandler
                 .listBranches(repoSuffix)
                 .flatMapMany(Flux::fromIterable)
                 .filter(gitBranchDTO -> {
-                    return StringUtils.hasText(gitBranchDTO.getBranchName())
-                            && !gitBranchDTO.getBranchName().startsWith("origin");
+                    boolean branchToBeListed = !gitBranchDTO.getBranchName().startsWith("origin")
+                            || Boolean.TRUE.equals(listRemoteBranches);
+
+                    return StringUtils.hasText(gitBranchDTO.getBranchName()) && branchToBeListed;
                 })
                 .map(GitBranchDTO::getBranchName)
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<String>> listReferences(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
+            Boolean checkRemoteReferences,
+            RefType refType) {
+        if (RefType.BRANCH.equals(refType)) {
+            listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
+        }
+
+        // TODO: include ref type for tags in fsGit Handler
+        return Mono.just(List.of());
     }
 
     @Override
@@ -579,7 +606,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
      * @return : returns string for remote fetch
      */
     @Override
-    public Mono<String> fetchRemoteChanges(ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth) {
+    public Mono<String> fetchRemoteChanges(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth, Boolean isFetchAll) {
 
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
@@ -594,7 +622,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Mono<Boolean> checkoutBranchMono = fsGitHandler.checkoutToBranch(repoSuffix, refName);
 
         Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
-                repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, false);
+                repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, isFetchAll);
 
         return checkoutBranchMono.then(Mono.defer(() -> fetchRemoteMono));
     }
@@ -616,5 +644,58 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
                     workspaceId, baseArtifactId, repoName, refName, artifactType);
         });
+    }
+
+    @Override
+    public Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String refName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
+        return fsGitHandler.getStatus(repoPath, refName);
+    }
+
+    @Override
+    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.createAndCheckoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+    }
+
+    @Override
+    public Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler
+                .deleteBranch(repoSuffix, jsonTransformationDTO.getRefName())
+                .onErrorResume(throwable -> {
+                    log.error("Delete branch failed {}", throwable.getMessage());
+                    if (throwable instanceof CannotDeleteCurrentBranchException) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "delete branch",
+                                "Cannot delete current checked out branch"));
+                    }
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
+                });
     }
 }

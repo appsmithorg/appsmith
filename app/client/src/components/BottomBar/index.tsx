@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import PackageUpgradeStatus from "ee/components/BottomBar/PackageUpgradeStatus";
 
 export default function BottomBar() {
   const appId = useSelector(getCurrentApplicationId) || "";
@@ -44,6 +45,7 @@ export default function BottomBar() {
       </Wrapper>
       {!isPreviewMode && (
         <Wrapper>
+          <PackageUpgradeStatus />
           <ManualUpgrades showTooltip>
             <Button
               className="t--upgrade"
