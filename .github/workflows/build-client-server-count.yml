@@ -18,7 +18,7 @@ jobs:
       run_count: ${{ steps.countArgs.outputs.run_count }}
       is-pg-build: ${{steps.args.outputs.is-pg-build}}
       update_snapshot: ${{steps.args.outputs.update_snapshot}}
-      spec: ${{steps.args.outputs.spec}}
+      specs_to_run: ${{steps.args.outputs.specs_to_run}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -51,11 +51,11 @@ jobs:
           fi
 
           # Check for spec file
-          checkArg=${{ github.event.client_payload.slash_command.args.named.spec }}
+          checkArg=${{ github.event.client_payload.slash_command.args.named.specs_to_run }}
           if [[ -z "$checkArg" ]]; then
-              echo "spec='cypress/e2e/example_spec.ts'" >> $GITHUB_OUTPUT
+              echo "specs_to_run=''" >> $GITHUB_OUTPUT
           else
-              echo "spec=$checkArg" >> $GITHUB_OUTPUT
+              echo "specs_to_run=$checkArg" >> $GITHUB_OUTPUT
           fi
        
       - name: Set run count
@@ -169,7 +169,7 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
       update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
-      spec: ${{fromJson(needs.file-check.outputs.spec)}}
+      specs_to_run: ${{fromJson(needs.file-check.outputs.specs_to_run)}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -183,6 +183,7 @@ jobs:
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
       update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
+      specs_to_run: ${{fromJson(needs.file-check.outputs.specs_to_run)}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]

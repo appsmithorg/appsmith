@@ -24,7 +24,7 @@ on:
           required: false
           type: boolean
           default: false
-      spec:
+      specs_to_run:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
@@ -51,11 +51,11 @@ on:
         required: false
         type: boolean
         default: false
-      spec:
+      input_spec:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
-        default: 'app/client/cypress/e2e/example_spec.ts'  
+        default: ''  
 
 jobs:
   ci-test-limited:
@@ -135,7 +135,7 @@ jobs:
 
       # Get specs to run
       - name: Get specs to run
-        if: ${{ inputs.spec == '' && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
+        if: ${{ inputs.specs_to_run == '' && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
         run: |
           specs_to_run=""
           while IFS= read -r line
@@ -374,7 +374,7 @@ jobs:
             if [[ "${{ inputs.update_snapshot }}" == "true" ]]; then
               echo "Running Cypress with snapshot updates..."
               CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
-                --spec "${{ env.specs_to_run }}" \
+                --spec "${{ inputs.specs_to_run }}" \
                 --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
             else
