@@ -4,7 +4,7 @@ import type { SearchInputProps } from "./SearchInput.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Components/Input/SearchInput",
+  title: "ADS/Components/Input/Search Input",
   component: SearchInput,
   decorators: [
     (Story: () => React.ReactNode) => (
