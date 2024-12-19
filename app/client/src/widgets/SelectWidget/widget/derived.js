@@ -5,6 +5,17 @@ export default {
       values = [],
       sourceData = props.sourceData || [];
 
+    const processOptionArray = (optionArray, sourceData) => {
+      if (!sourceData.length) return [];
+
+      const allEqual = optionArray.every((item, _, arr) => item === arr[0]);
+      const keyExistsInSource = optionArray[0] in sourceData[0];
+
+      return allEqual && keyExistsInSource
+        ? sourceData.map((d) => d[optionArray[0]])
+        : optionArray;
+    };
+
     /**
      * SourceData:
      *  [{
@@ -31,31 +42,13 @@ export default {
     if (typeof props.optionLabel === "string") {
       labels = sourceData.map((d) => d[props.optionLabel]);
     } else if (_.isArray(props.optionLabel)) {
-      const allLabelsEqual = props.optionLabel.every(
-        (label, _, arr) => label === arr[0],
-      );
-      const doesKeyExistInSourceData = props.optionLabel[0] in sourceData[0];
-
-      if (allLabelsEqual && doesKeyExistInSourceData) {
-        labels = sourceData.map((d, i) => d[props.optionLabel[0]]);
-      } else {
-        labels = props.optionLabel;
-      }
+      labels = processOptionArray(props.optionLabel, sourceData);
     }
 
     if (typeof props.optionValue === "string") {
       values = sourceData.map((d) => d[props.optionValue]);
     } else if (_.isArray(props.optionValue)) {
-      const allValuesEqual = props.optionValue.every(
-        (value, _, arr) => value === arr[0],
-      );
-      const doesKeyExistInSourceData = props.optionValue[0] in sourceData[0];
-
-      if (allValuesEqual && doesKeyExistInSourceData) {
-        values = sourceData.map((d, i) => d[props.optionValue[0]]);
-      } else {
-        values = props.optionValue;
-      }
+      values = processOptionArray(props.optionValue, sourceData);
     }
 
     return sourceData.map((d, i) => ({
