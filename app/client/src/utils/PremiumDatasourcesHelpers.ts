@@ -1,23 +1,6 @@
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { CSSProperties } from "react";
 import { isRelevantEmail } from "utils/formhelpers";
-
-export const getTagStyle = (
-  isBusinessOrEnterprise?: boolean,
-): CSSProperties => {
-  return isBusinessOrEnterprise
-    ? {
-        color: "var(--ads-v2-color-gray-700)",
-        backgroundColor: "var(--ads-v2-color-gray-100)",
-        borderColor: "#36425233",
-      }
-    : {
-        color: "var(--ads-v2-color-purple-700)",
-        backgroundColor: "var(--ads-v2-color-purple-100)",
-        borderColor: "#401d7333",
-      };
-};
 
 export const getTagText = (isBusinessOrEnterprise?: boolean) => {
   return isBusinessOrEnterprise

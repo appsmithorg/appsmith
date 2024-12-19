@@ -2600,8 +2600,8 @@ export const PREMIUM_DATASOURCES = {
     NAME: "email",
     ERROR: () => "Please enter email",
   },
-  PREMIUM_TAG: () => "PREMIUM",
-  SOON_TAG: () => "SOON",
+  PREMIUM_TAG: () => "Premium",
+  SOON_TAG: () => "Soon",
   COMING_SOON_SUFFIX: () => "Coming soon",
   COMING_SOON_DESCRIPTION: () =>
     "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",

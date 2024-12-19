@@ -6,7 +6,6 @@ import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
 import {
-  getTagStyle,
   getTagText,
   handlePremiumDatasourceClick,
 } from "utils/PremiumDatasourcesHelpers";
@@ -15,6 +14,25 @@ import { useSelector } from "react-redux";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
+`;
+
+const PremiumTag = styled(Tag)<{ isBusinessOrEnterprise: boolean }>`
+  color: ${(props) =>
+    props.isBusinessOrEnterprise
+      ? "var(--ads-v2-color-gray-700)"
+      : "var(--ads-v2-color-purple-700)"};
+  background-color: ${(props) =>
+    props.isBusinessOrEnterprise
+      ? "var(--ads-v2-color-gray-100)"
+      : "var(--ads-v2-color-purple-100)"};
+  border-color: ${(props) =>
+    props.isBusinessOrEnterprise ? "#36425233" : "#401d7333"};
+  padding: 6px 4px;
+  text-transform: uppercase;
+  > span {
+    font-weight: 700;
+    font-size: 10px;
+  }
 `;
 
 export default function PremiumDatasources() {
@@ -50,13 +68,13 @@ export default function PremiumDatasources() {
             <Text className="t--plugin-name textBtn" renderAs="p">
               {integration.name}
             </Text>
-            <Tag
+            <PremiumTag
+              isBusinessOrEnterprise={!isFreePlanInstance}
               isClosable={false}
               kind={"premium"}
-              style={getTagStyle(!isFreePlanInstance)}
             >
               {getTagText(!isFreePlanInstance)}
-            </Tag>
+            </PremiumTag>
           </CardContentWrapper>
         </ApiCard>
       ))}
