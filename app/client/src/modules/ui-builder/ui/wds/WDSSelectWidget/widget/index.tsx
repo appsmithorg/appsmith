@@ -161,6 +161,12 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     } = this.props;
 
     const validation = validateInput(this.props);
+    // This is key is used to force re-render of the widget when the options change.
+    // Why force re-render on   options change?
+    // Sometimes when the user is changing options, the select throws an error saying "cannot change id of item".
+    const key = this.optionsToSelectItems(options)
+      .map((option) => option.id)
+      .join(",");
 
     return (
       <Select
@@ -168,12 +174,13 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
+        key={key}
         onSelectionChange={this.handleChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       >
         {this.optionsToSelectItems(options).map((option) => (
-          <ListBoxItem key={option.id} textValue={option.label}>
+          <ListBoxItem id={option.id} key={option.id} textValue={option.label}>
             {option.label}
           </ListBoxItem>
         ))}
