@@ -39,7 +39,6 @@
           return result;
         };
         const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-        const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
         const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
       </script>
@@ -63,21 +62,6 @@
           }
         })()
           %>
-    </script>
-    <script>
-      if (CLOUD_HOSTING && ZIPY_KEY) {
-        const script = document.createElement("script");
-        script.crossOrigin = "anonymous";
-        script.defer = true;
-        script.src = "https://cdn.zipy.ai/sdk/v1.0/zipy.min.umd.js";
-        script.onload = () => {
-          window.zipy && window.zipy.init(ZIPY_KEY);
-        };
-        const head = document.getElementsByTagName("head")[0];
-        head && head.appendChild(script);
-      }
-
-
     </script>
 
     <!-- Start of Reo Javascript -->
