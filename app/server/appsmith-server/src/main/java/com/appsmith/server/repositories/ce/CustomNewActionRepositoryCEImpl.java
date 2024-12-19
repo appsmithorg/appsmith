@@ -12,7 +12,6 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.IteratorUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -27,10 +26,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -500,9 +499,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findAllByIdIn(Iterable<String> ids) {
-        return queryBuilder()
-                .criteria(Bridge.in(NewAction.Fields.id, IteratorUtils.toList((Iterator) ids)))
-                .all();
+        List<String> idList = StreamSupport.stream(ids.spliterator(), false).toList();
+        return queryBuilder().criteria(Bridge.in(NewAction.Fields.id, idList)).all();
     }
 
     @Override
