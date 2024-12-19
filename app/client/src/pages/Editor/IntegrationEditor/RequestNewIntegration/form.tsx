@@ -41,6 +41,7 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
     <FormWrapper onSubmit={props.handleSubmit(onSubmit)}>
       <Field
         component={ReduxFormTextField}
+        isRequired
         label={createMessage(
           REQUEST_NEW_INTEGRATIONS.REQUEST_MODAL_INTEGRATION.LABEL,
         )}
@@ -118,7 +119,7 @@ const validate = (values: RequestIntegrationFormValues) => {
     );
   }
 
-  if (!values.email || !isEmail(values.email)) {
+  if (values.email && !isEmail(values.email)) {
     errors.email = createMessage(
       REQUEST_NEW_INTEGRATIONS.REQUEST_MODAL_EMAIL.ERROR,
     );
