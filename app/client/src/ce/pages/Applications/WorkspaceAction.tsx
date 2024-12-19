@@ -71,15 +71,6 @@ function WorkspaceAction({
       open={isActionMenuOpen}
     >
       <MenuTrigger>
-      <Button
-          className="t--new-button createnew"
-          isLoading={isCreatingApplication}
-          onClick={() => window.location.href = "https://appghalam.ir"}
-          size="md"
-        >
-          {createMessage(APPGHALAM_STORE)}
-        </Button>
-
         <Button
           className="t--new-button createnew"
           endIcon="arrow-down-s-line"
