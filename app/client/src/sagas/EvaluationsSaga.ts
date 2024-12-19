@@ -542,11 +542,15 @@ export function evalQueueBuffer() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collectedPostEvalActions: any = [];
   let collectedAffectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let collectedHandleUpdates: any = [];
 
   const take = () => {
     if (canTake) {
       const resp = collectedPostEvalActions;
+      const respCollectedHandleUpdates = collectedHandleUpdates;
 
+      collectedHandleUpdates = [];
       collectedPostEvalActions = [];
       const affectedJSObjects = collectedAffectedJSObjects;
 
@@ -554,6 +558,7 @@ export function evalQueueBuffer() {
       canTake = false;
 
       return {
+        actionDataPayload: respCollectedHandleUpdates,
         postEvalActions: resp,
         affectedJSObjects,
         type: ReduxActionTypes.BUFFERED_ACTION,
@@ -568,9 +573,22 @@ export function evalQueueBuffer() {
     return [];
   };
 
-  const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessAction(action)) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const put = (action: EvaluationReduxAction<any>) => {
+    if (
+      !shouldProcessAction(action) &&
+      action.type !== ReduxActionTypes.UPDATE_ACTION_DATA
+    ) {
       return;
+    }
+
+    const { actionDataPayload } = action.payload;
+
+    if (
+      action.type === ReduxActionTypes.UPDATE_ACTION_DATA &&
+      actionDataPayload.length
+    ) {
+      collectedHandleUpdates.push(...actionDataPayload);
     }
 
     canTake = true;
@@ -750,13 +768,23 @@ function* evaluationChangeListenerSaga(): any {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
-    EVAL_AND_LINT_REDUX_ACTIONS,
+    [...EVAL_AND_LINT_REDUX_ACTIONS, ReduxActionTypes.UPDATE_ACTION_DATA],
     evalQueueBuffer(),
   );
 
   while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> =
-      yield take(evtActionChannel);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const action: any = yield take(evtActionChannel);
+
+    if (action?.actionDataPayload?.length) {
+      yield call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+        action.actionDataPayload,
+      );
+    }
+
+    yield delay(500);
 
     // We are dequing actions from the buffer and inferring the JS actions affected by each
     // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
