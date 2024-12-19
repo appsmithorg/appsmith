@@ -497,7 +497,7 @@ jobs:
         if: always()
         with:
           name: server-logs
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
 
       - name: Upload new compared snapshot data
