@@ -878,6 +878,11 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("createSuperUser", () => {
+  cy.screenshot('current-before', {
+    capture: 'fullPage', // Capture the entire page
+    scale: true,         // Scale the screenshot for better clarity
+    blackout: ['.sensitive'], // Blackout sensitive elements
+  });
   cy.wait(1000);
   cy.get(welcomePage.firstName).should("be.visible");
   cy.get(welcomePage.lastName).should("be.visible");
@@ -902,6 +907,11 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.submitButton).should("not.be.disabled");
 
   cy.get(welcomePage.submitButton).click();
+  cy.screenshot('next-page', {
+    capture: 'fullPage', // Capture the entire page
+    scale: true,         // Scale the screenshot for better clarity
+    blackout: ['.sensitive'], // Blackout sensitive elements
+  });
   //in case of airgapped both anonymous data and newsletter are disabled
   if (Cypress.env("AIRGAPPED")) {
     cy.wait("@createSuperUser").then((interception) => {

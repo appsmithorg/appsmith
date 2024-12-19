@@ -131,6 +131,14 @@ jobs:
             echo "rerun=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Upload existing snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-existing-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true      
+
       # Get specs to run
       - name: Get specs to run
         if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}  
@@ -420,7 +428,7 @@ jobs:
         with:
             name: ci_test_status
             path: ${{ github.workspace }}/app/client/ci_test_status.txt
-            overwrite: true
+            overwrite: true   
 
       - name: Upload failed test cypress logs artifact
         if: always()
@@ -490,6 +498,22 @@ jobs:
         with:
           name: server-logs
           path: app/server/server-logs.log
+          overwrite: true
+
+      - name: Upload new compared snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-new-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true      
+
+      - name: Upload existing snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-report-screenshots
+          path: ${{ github.workspace }}/app/client/cypress/screenshots
           overwrite: true
 
       # Set status = success
