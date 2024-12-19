@@ -49,4 +49,7 @@ public interface CentralGitServiceCE {
 
     Mono<? extends Artifact> createReference(
             String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> deleteGitReference(
+            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType);
 }
