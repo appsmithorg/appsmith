@@ -5,6 +5,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalTrigger,
+  Text,
 } from "@appsmith/ads";
 import { createMessage, REQUEST_NEW_INTEGRATIONS } from "ee/constants/messages";
 import React, { useState, type ReactNode } from "react";
@@ -42,8 +43,10 @@ function RequestModal({ children }: { children: ReactNode }) {
 
 export default function RequestNewIntegration() {
   return (
-    <RequestNewIntegrationWrapper gap="spaces-5">
-      <p>{createMessage(REQUEST_NEW_INTEGRATIONS.UNABLE_TO_FIND)}</p>
+    <RequestNewIntegrationWrapper gap="spaces-5" justifyContent="flex-end">
+      <Text renderAs="p">
+        {createMessage(REQUEST_NEW_INTEGRATIONS.UNABLE_TO_FIND)}
+      </Text>
       <RequestModal>
         <Button
           kind="secondary"
