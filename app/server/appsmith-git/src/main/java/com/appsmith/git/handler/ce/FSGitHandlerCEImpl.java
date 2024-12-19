@@ -5,9 +5,11 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -336,6 +338,61 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                                     processStopwatch.stopAndLogTimeInMillis();
                                     return git.getRepository().getBranch();
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_CREATE_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
+                .subscribeOn(scheduler);
+    }
+
+    private String createAndCheckoutBranch(Git git, GitRefDTO gitRefDTO) throws GitAPIException, IOException {
+        String branchName = gitRefDTO.getRefName();
+        git.checkout()
+                .setCreateBranch(TRUE)
+                .setName(branchName)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                .call();
+
+        repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+        return git.getRepository().getBranch();
+    }
+
+    private String createAndCheckoutTag(Git git, GitRefDTO gitRefDTO) throws GitAPIException {
+        String tagName = gitRefDTO.getRefName();
+        String message = gitRefDTO.getMessage();
+        git.tag().setName(tagName).setMessage(message).call();
+
+        String checkedOutTagName = git.checkout()
+                .setCreateBranch(FALSE)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setName(tagName)
+                .call()
+                .getName();
+
+        return checkedOutTagName;
+    }
+
+    @Override
+    public Mono<String> createAndCheckoutReference(Path repoSuffix, GitRefDTO gitRefDTO) {
+        RefType refType = gitRefDTO.getRefType();
+        String refName = gitRefDTO.getRefName();
+
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.info(
+                                            "{} : Creating reference of type {} and name {} for the repo {}",
+                                            Thread.currentThread().getName(),
+                                            refType.name(),
+                                            refName,
+                                            repoSuffix);
+
+                                    if (RefType.TAG.equals(refType)) {
+                                        return createAndCheckoutTag(git, gitRefDTO);
+                                    }
+
+                                    return createAndCheckoutBranch(git, gitRefDTO);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_CREATE_BRANCH)

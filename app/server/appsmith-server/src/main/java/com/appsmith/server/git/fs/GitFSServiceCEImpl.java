@@ -2,6 +2,7 @@ package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
@@ -662,7 +663,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
-    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO, GitRefDTO gitRefDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 
@@ -671,7 +672,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        return fsGitHandler.createAndCheckoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+        return fsGitHandler.createAndCheckoutReference(repoSuffix, gitRefDTO);
     }
 
     @Override

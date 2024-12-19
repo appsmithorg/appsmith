@@ -522,6 +522,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     FieldName.BRANCH_NAME));
                                         }
 
+                                        Mono<Boolean> refCreationValidationMono = isValidationForRefCreationComplete(
+                                                baseArtifact, parentArtifact, gitType, refType);
+
                                         Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
                                                 exportService.exportByArtifactId(
                                                         parentArtifact.getId(), VERSION_CONTROL, artifactType);
@@ -531,15 +534,24 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                 gitArtifactHelper.createNewArtifactForCheckout(
                                                         parentArtifact, refDTO.getRefName());
 
-                                        return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                        return refCreationValidationMono.flatMap(isOkayToProceed -> {
+                                            if (!TRUE.equals(isOkayToProceed)) {
+                                                return Mono.error(new AppsmithException(
+                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                        "ref creation",
+                                                        "status unclean"));
+                                            }
+
+                                            return Mono.zip(newArtifactFromSourceMono, artifactExchangeJsonMono);
+                                        });
                                     }))
                             .flatMap(tuple -> {
                                 ArtifactExchangeJson exportedJson = tuple.getT2();
                                 Artifact newRefArtifact = tuple.getT1();
 
                                 Mono<String> refCreationMono = gitHandlingService
-                                        .createGitReference(jsonTransformationDTO)
-                                        // TODO: ths error could be shipped to handling layer as well?
+                                        .createGitReference(jsonTransformationDTO, refDTO)
+                                        // TODO: this error could be shipped to handling layer as well?
                                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED,
                                                 "ref creation preparation",
@@ -553,8 +565,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     exportedJson,
                                                     refDTO.getRefName());
                                         })
-                                        // after the branch is created, we need to reset the older branch to initial
-                                        // commit
+                                        .flatMap(importedArtifact -> {
+                                            return gitArtifactHelper.publishArtifactPostRefCreation(
+                                                    importedArtifact, refType, TRUE);
+                                        })
+                                        // after the branch is created, we need to reset the older branch to the
+                                        // clean status, i.e. last commit
                                         .doOnSuccess(newImportedArtifact ->
                                                 discardChanges(parentArtifact.getId(), artifactType, gitType));
                             });
@@ -570,6 +586,21 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> createBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Boolean> isValidationForRefCreationComplete(
+            Artifact baseArtifact, Artifact parentArtifact, GitType gitType, RefType refType) {
+        if (RefType.BRANCH.equals(refType)) {
+            return Mono.just(TRUE);
+        }
+
+        return getStatus(baseArtifact, parentArtifact, false, true, gitType).map(gitStatusDTO -> {
+            if (!Boolean.TRUE.equals(gitStatusDTO.getIsClean())) {
+                return FALSE;
+            }
+
+            return TRUE;
+        });
     }
 
     @Override

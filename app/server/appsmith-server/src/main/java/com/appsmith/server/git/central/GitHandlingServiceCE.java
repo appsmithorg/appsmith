@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
@@ -76,7 +77,7 @@ public interface GitHandlingServiceCE {
 
     Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
-    Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+    Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO, GitRefDTO gitRefDTO);
 
     Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }
