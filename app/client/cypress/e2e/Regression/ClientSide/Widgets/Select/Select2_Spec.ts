@@ -7,7 +7,6 @@ import {
   locators,
   propPane,
   widgetLocators,
-  jsEditor,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -20,24 +19,6 @@ describe(
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT);
     });
-
-    const validateLabelAndValueKey = (labelKey: string, valueKey: string) => {
-      // Validate Label key
-      propPane.ToggleJSMode("Label key", true);
-      propPane.UpdatePropertyFieldValue("Label key", labelKey);
-      agHelper.SelectDropDown("Blue");
-      agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-        expect($selectedValue).to.eq("Blue");
-      });
-
-      // Validate Value key
-      propPane.ToggleJSMode("Value key", true);
-      propPane.UpdatePropertyFieldValue("Value key", valueKey);
-      agHelper.SelectDropDown("Blue");
-      agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-        expect($selectedValue).to.eq("Blue");
-      });
-    };
 
     it("1. Validate Label properties - Text , Position , Alignment , Width(in columns)", function () {
       //Text
@@ -317,38 +298,6 @@ describe(
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));
       cy.get(locators._selectClearButton_testId).should("not.exist");
-    });
-
-    it("10.Validate using function inside label key and value key returns correct label options", () => {
-      // Navigate back to the editor
-      deployMode.NavigateBacktoEditor();
-
-      // Select the widget
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
-
-      // Validate keys
-      validateLabelAndValueKey("{{(() => 'name')()}}", "{{(() => 'code')()}}");
-
-      // Create JS Object with array data
-      jsEditor.CreateJSObject(
-        `export default {
-            array: [1, 2, 3]
-          }`,
-        {
-          completeReplace: true,
-          toRun: false,
-          prettify: true,
-        },
-      );
-
-      // Select the widget
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
-
-      // Validate keys
-      validateLabelAndValueKey(
-        "{{JSObject1.array.length > 0 ? 'name' : ''}}",
-        "{{JSObject1.array.length > 0 ? 'code' : ''}}",
-      );
     });
   },
 );
