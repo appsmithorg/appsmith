@@ -358,19 +358,10 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return git.getRepository().getBranch();
     }
 
-    private String createAndCheckoutTag(Git git, GitRefDTO gitRefDTO) throws GitAPIException {
+    private String createTag(Git git, GitRefDTO gitRefDTO) throws GitAPIException {
         String tagName = gitRefDTO.getRefName();
         String message = gitRefDTO.getMessage();
-        git.tag().setName(tagName).setMessage(message).call();
-
-        String checkedOutTagName = git.checkout()
-                .setCreateBranch(FALSE)
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                .setName(tagName)
-                .call()
-                .getName();
-
-        return checkedOutTagName;
+        return git.tag().setName(tagName).setMessage(message).call().getName();
     }
 
     @Override
@@ -389,7 +380,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             repoSuffix);
 
                                     if (RefType.TAG.equals(refType)) {
-                                        return createAndCheckoutTag(git, gitRefDTO);
+                                        return createTag(git, gitRefDTO);
                                     }
 
                                     return createAndCheckoutBranch(git, gitRefDTO);
