@@ -2,7 +2,7 @@ import { Select, ListBoxItem } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import isNumber from "lodash/isNumber";
-import React from "react";
+import React, { type Key } from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -103,8 +103,10 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return settersConfig;
   }
 
-  handleChange = (updatedValue: string | number) => {
+  handleChange = (updatedValue: Key | null) => {
     let newVal;
+
+    if (updatedValue === null) return;
 
     if (isNumber(updatedValue)) {
       newVal = updatedValue;
