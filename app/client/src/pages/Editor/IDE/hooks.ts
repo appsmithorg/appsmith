@@ -27,8 +27,6 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -60,9 +58,7 @@ export const useCurrentEditorState = () => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId: baseParentEntityId } =
-    useParentEntityInfo(editorType);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   /**
    * Callback to handle the segment change
@@ -74,17 +70,17 @@ export const useSegmentNavigation = (): {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ baseParentEntityId }), {
+        history.push(queryListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ baseParentEntityId }), {
+        history.push(jsCollectionListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.UI:
-        history.push(widgetListURL({ baseParentEntityId }), {
+        history.push(widgetListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
