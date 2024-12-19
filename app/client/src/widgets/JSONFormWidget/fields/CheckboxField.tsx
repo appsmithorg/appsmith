@@ -27,6 +27,7 @@ type CheckboxComponentProps = FieldComponentBaseProps &
     accentColor?: string;
     borderRadius?: string;
     boxShadow?: string;
+    labelPosition: LabelPosition;
   };
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
@@ -46,6 +47,7 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   isVisible: true,
   label: "",
+  labelPosition: LabelPosition.Left,
 };
 
 const isValid = (
@@ -116,7 +118,7 @@ function CheckboxField({
           isRequired={schemaItem.isRequired}
           isValid={isDirty ? isValueValid : true}
           label=""
-          labelPosition={LabelPosition.Left}
+          labelPosition={schemaItem.labelPosition}
           noContainerPadding
           onCheckChange={onCheckChange}
           widgetId=""
@@ -135,6 +137,7 @@ function CheckboxField({
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
+      labelPosition={schemaItem.labelPosition}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

@@ -24,6 +24,7 @@ type SwitchComponentOwnProps = FieldComponentBaseProps &
     alignWidget: AlignWidget;
     accentColor?: string;
     onChange?: string;
+    labelPosition: LabelPosition;
   };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
@@ -37,6 +38,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
+  labelPosition: LabelPosition.Left,
 };
 
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
@@ -101,7 +103,7 @@ function SwitchField({
         isLoading={false}
         isSwitchedOn={value ?? false}
         label=""
-        labelPosition={LabelPosition.Left}
+        labelPosition={schemaItem.labelPosition}
         onChange={onSwitchChange}
         widgetId=""
       />
@@ -111,6 +113,7 @@ function SwitchField({
       schemaItem.accentColor,
       schemaItem.isDisabled,
       onSwitchChange,
+      schemaItem.labelPosition,
       value,
     ],
   );
@@ -118,11 +121,13 @@ function SwitchField({
   return (
     <Field
       accessor={schemaItem.accessor}
+      alignField={schemaItem.alignWidget}
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
+      labelPosition={schemaItem.labelPosition}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
