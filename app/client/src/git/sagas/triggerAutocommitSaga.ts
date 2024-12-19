@@ -88,10 +88,11 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
       yield put(gitArtifactActions.pollAutocommitProgressStart(basePayload));
 
       while (true) {
-        progressResponse = yield put(
-          gitArtifactActions.fetchAutocommitProgressInit(basePayload),
+        yield put(gitArtifactActions.fetchAutocommitProgressInit(basePayload));
+        progressResponse = yield call(
+          fetchAutocommitProgressRequest,
+          baseArtifactId,
         );
-        yield call(fetchAutocommitProgressRequest, baseArtifactId);
         const isValidResponse: boolean =
           yield validateResponse(progressResponse);
 
