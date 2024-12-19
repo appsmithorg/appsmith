@@ -80,4 +80,14 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 
     Flux<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    Flux<NewAction> findByApplicationId(String applicationId);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    Flux<NewAction> findAllByIdIn(Iterable<String> ids);
+
+    Mono<Long> countByDeletedAtNull();
 }
