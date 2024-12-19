@@ -558,7 +558,7 @@ export const LOGS_FILTER_OPTION_CONSOLE = () => "Console logs";
 export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
-export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_ERRORS = () => "Linter";
 export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
@@ -631,8 +631,9 @@ export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
 export const ACTION_EXECUTION_FAILED = (actionName: string) =>
   `The action "${actionName}" has failed.`;
-export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
-export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_TRIGGERED = () => "Function triggered";
+export const JS_EXECUTION_SUCCESS = () => "Function executed";
+export const JS_EXECUTION_FAILURE = () => "Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
@@ -1069,6 +1070,10 @@ export const IS_EMPTY_REPO_QUESTION = () =>
 export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
 export const IMPORT_APP_IF_NOT_EMPTY = () =>
   "If you already have an app connected to Git, you can import it to the workspace.";
+export const IMPORT_ARTIFACT_IF_NOT_EMPTY = (artifactType: string) =>
+  `If you already have an ${artifactType.toLocaleLowerCase()} connected to Git, you can import it to the workspace.`;
+export const I_HAVE_EXISTING_ARTIFACT_REPO = (artifactType: string) =>
+  `I have an existing appsmith ${artifactType.toLocaleLowerCase()} connected to Git`;
 export const I_HAVE_EXISTING_REPO = () =>
   "I have an existing appsmith app connected to Git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>

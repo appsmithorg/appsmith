@@ -261,4 +261,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
         return queryBuilder().criteria(q).updateFirst(update);
     }
+
+    @Override
+    public Flux<NewPage> findByApplicationId(String applicationId) {
+        final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.applicationId, applicationId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Mono<Long> countByDeletedAtNull() {
+        final BridgeQuery<NewPage> q = Bridge.notExists(NewPage.Fields.deletedAt);
+        return queryBuilder().criteria(q).count();
+    }
 }

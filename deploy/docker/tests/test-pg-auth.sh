@@ -1,8 +1,8 @@
 #!/bin/bash
 set -o errexit
-# set -x
 
 source ./composes.sh
+source ./pg-test-utils.sh
 
 
 # Function to update the APPSMITH_DB_URL in docker.env
@@ -11,41 +11,6 @@ source ./composes.sh
 update_db_url() {
   docker exec "${container_name}" bash -c "sed -i 's|^APPSMITH_DB_URL=mongodb|# &|' /appsmith-stacks/configuration/docker.env"
   docker exec "${container_name}" bash -c "sed -i 's|^APPSMITH_POSTGRES_DB_URL=|APPSMITH_DB_URL=|' /appsmith-stacks/configuration/docker.env"
-}
-
-# Function to check if the Appsmith instance is up
-is_appsmith_instance_ready() {
-  local max_retries=200
-  local retry_count=0
-  local response_code
-
-  while [ $retry_count -lt $max_retries ]; do
-    response_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/health)
-    if [[ $response_code -eq 200 ]]; then
-      echo "Appsmith instance is ready."
-      return 0
-    fi
-    echo "Waiting for Appsmith instance to be ready... (Attempt: $((retry_count + 1)))"
-    retry_count=$((retry_count + 1))
-    sleep 2
-  done
-  return 1
-}
-
-# Function to wait until the postgres is ready
-wait_for_postgres() {
-  local max_retries=200
-  local retry_count=0
-
-  while [ $retry_count -lt $max_retries ]; do
-    if docker exec "${container_name}" pg_isready; then
-      echo "Postgres is ready."
-      return 0
-    fi
-    echo "Waiting for Postgres to be ready... (Attempt: $((retry_count + 1)))"
-    retry_count=$((retry_count + 1))
-    sleep 2
-  done
 }
 
 # Function to read the password from the PostgreSQL URL in docker.env.sh
@@ -94,18 +59,6 @@ EOF
     echo "appsmith user does not have read access to databases with local tcp socket: ❌"
   fi
   return 1
-}
-
-# Function to check if the Appsmith user has read access to databases
-check_user_datasource_access_with_host_port_wo_auth() {
-  docker exec "${container_name}" bash -c "psql -h 127.0.0.1 -p 5432 -U postgres -c '\l'"
-  return $?
-}
-
-# Function to check if the Appsmith user has read access to databases
-check_user_datasource_access_with_local_port_wo_auth() {
-  docker exec "${container_name}" bash -c "psql -p 5432 -U postgres -c '\l'"
-  return $?
 }
 
 # Test to check if the postgres auth is enabled after upgrading from 1.50 to local image
@@ -167,31 +120,23 @@ test_postgres_auth_enabled_upgrade_from_150tolocal() {
     RETRYSECONDS=5
     retry_count=0
 
-    while true; do
-        retry_count=$((retry_count + 1))
-        if docker exec "${container_name}" pg_isready &&
-          [ "$(docker exec "${container_name}" bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION')" = "14" ]; then
-            break
-        fi
-        if [ $retry_count -le $MAX_RETRIES ]; then
-            echo "Waiting for postgres to be up..."
-            sleep $RETRYSECONDS
-        else
-            echo "Test ${FUNCNAME[0]} Failed"
-            exit 1
-        fi
-    done
+    # Wait until postgres to come up
+    wait_for_postgres
     
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-
-        # Check if the Appsmith user has read access to databases
-        if check_user_datasource_access_with_auth; then
-            echo "Test ${FUNCNAME[0]} Passed ✅"
-        else 
-            echo "Test ${FUNCNAME[0]} Failed ❌"
-            exit 1
-        fi
+      if ! check_user_exists appsmith; then
+          echo "Appsmith user does not exist"
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
+      # Check if the Appsmith user has read access to databases
+      if check_user_datasource_access_with_auth; then
+          echo "Test ${FUNCNAME[0]} Passed ✅"
+      else 
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
     else
         echo "Appsmith instance failed to start."
         echo "Test ${FUNCNAME[0]} Failed ❌"
@@ -253,23 +198,26 @@ test_postgres_auth_enabled_restart_localtolocal() {
 
     echo "Starting Appsmith local to check the auth"
     compose_appsmith_local
-
     wait_for_postgres
 
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-
-        # Check if the Appsmith user has read access to databases
-        if check_user_datasource_access_with_auth; then
-            echo "Test ${FUNCNAME[0]} Passed ✅"
-        else 
-            echo "Test ${FUNCNAME[0]} Failed ❌"
-            exit 1
-        fi
+      if ! check_user_exists appsmith; then
+          echo "Appsmith user does not exist"
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
+      # Check if the Appsmith user has read access to databases
+      if check_user_datasource_access_with_auth; then
+          echo "Test ${FUNCNAME[0]} Passed ✅"
+      else 
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
     else
-        echo "Appsmith instance failed to start."
-        echo "Test ${FUNCNAME[0]} Failed ❌"
-        exit 1
+      echo "Appsmith instance failed to start."
+      echo "Test ${FUNCNAME[0]} Failed ❌"
+      exit 1
     fi
 }
 

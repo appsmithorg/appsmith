@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +61,8 @@ public class ASTServiceCETest {
         token1.setValue("abc['foo']");
         MustacheBindingToken token2 = new MustacheBindingToken();
         token2.setValue("xyz['bar']");
-        Set<MustacheBindingToken> bindings = Set.of(token1, token2);
+        MustacheBindingToken dummyToken = new MustacheBindingToken();
+        Set<MustacheBindingToken> bindings = Set.of(token1, token2, dummyToken);
 
         String refactoredScript1 = "xyz['foo']";
         String refactoredScript2 = "xyz['bar']";
@@ -71,7 +73,7 @@ public class ASTServiceCETest {
 
         doReturn(Mono.just(responseMap1))
                 .when(astService)
-                .refactorNameInDynamicBindings(Set.of(token1, token2), "abc", "xyz", 2, false);
+                .refactorNameInDynamicBindings(Set.of(token1, token2, dummyToken), "abc", "xyz", 2, false);
 
         Mono<Map<MustacheBindingToken, String>> result =
                 astService.refactorNameInDynamicBindings(bindings, "abc", "xyz", 2, false);
@@ -81,6 +83,23 @@ public class ASTServiceCETest {
                     assertThat(map).hasSize(2); // Only one binding refactored
                     assertThat(map.get(token1)).isEqualTo(refactoredScript1);
                     assertThat(map.get(token2)).isEqualTo(refactoredScript2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void refactorNameInDynamicBindings_nullBindingValue_returnsEmptyMap() {
+        MustacheBindingToken token1 = new MustacheBindingToken();
+
+        Set<MustacheBindingToken> bindings = new HashSet<>();
+        bindings.add(token1);
+
+        Mono<Map<MustacheBindingToken, String>> result =
+                astService.refactorNameInDynamicBindings(bindings, "abc", "xyz", 2, false);
+
+        StepVerifier.create(result)
+                .assertNext(map -> {
+                    assertThat(map).hasSize(0);
                 })
                 .verifyComplete();
     }
