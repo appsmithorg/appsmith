@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
 import _ from "lodash";
-import { put, debounce, takeEvery, all } from "redux-saga/effects";
+import { put } from "redux-saga/effects";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { batchActionSuccess } from "actions/batchActions";
@@ -88,8 +89,8 @@ function* executeBatchSaga() {
 }
 
 export default function* root() {
-  yield all([
-    debounce(20, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
-    takeEvery(ReduxActionTypes.BATCHED_UPDATE, storeUpdatesSaga),
-  ]);
+  // yield all([
+  //   debounce(20, ReduxActionTypes.EXECUTE_BATCH, executeBatchSaga),
+  //   takeEvery(ReduxActionTypes.BATCHED_UPDATE, storeUpdatesSaga),
+  // ]);
 }
