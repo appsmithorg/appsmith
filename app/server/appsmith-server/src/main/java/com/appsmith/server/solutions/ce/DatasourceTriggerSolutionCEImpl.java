@@ -162,7 +162,8 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<TriggerRequestDTO> populateTriggerRequestDto(TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
+    private Mono<TriggerRequestDTO> populateTriggerRequestDto(
+            TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
         return tenantService
                 .getDefaultTenantId()
                 .zipWith(configService.getInstanceId())
