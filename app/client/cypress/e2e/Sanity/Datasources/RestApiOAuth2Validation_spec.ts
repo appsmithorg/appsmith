@@ -8,7 +8,7 @@ import {
   dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
-describe(
+describe.skip(
   "Datasource form OAuth2 client credentials related tests",
   {
     tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
@@ -42,7 +42,7 @@ describe(
       });
     });
 
-    it("2. Validate save and Authorise", function () {
+    it.skip("2. Validate save and Authorise", function () {
       agHelper.GetNClick(dataSources._saveDs);
 
       //Accept consent

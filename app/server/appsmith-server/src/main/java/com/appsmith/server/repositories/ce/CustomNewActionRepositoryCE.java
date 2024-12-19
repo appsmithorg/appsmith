@@ -90,4 +90,14 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             boolean includeJs);
 
     List<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    List<NewAction> findByApplicationId(String applicationId);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    List<NewAction> findAllByIdIn(Iterable<String> ids);
+
+    Optional<Long> countByDeletedAtNull();
 }
