@@ -1,12 +1,12 @@
 import React from "react";
 import ProtectedBranchesView from "./ProtectedBranchesView";
-import { useGitContext } from "../GitContextProvider";
 import useProtectedBranches from "git/hooks/useProtectedBranches";
 import useGitFeatureFlags from "git/hooks/useGitFeatureFlags";
 import useDefaultBranch from "git/ee/hooks/useDefaultBranch";
+import useBranches from "git/hooks/useBranches";
 
 function ProtectedBranches() {
-  const { branches } = useGitContext();
+  const { branches } = useBranches();
   const { defaultBranch } = useDefaultBranch();
   const {
     isUpdateProtectedBranchesLoading,

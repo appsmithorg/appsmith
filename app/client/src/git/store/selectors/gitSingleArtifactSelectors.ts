@@ -27,6 +27,31 @@ export const selectGitConnected = (
 ) => !!selectMetadataState(state, artifactDef)?.value;
 
 // CONNECT
+export const selectConnectState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.connect;
+
+export const selectGitImportState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.gitImport;
+
+export const selectFetchSSHKeysState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.sshKey;
+
+export const selectGenerateSSHKeyState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.generateSSHKey;
+
+export const selectConnectModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.connectModalOpen;
+
 export const selectDisconnectState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -43,31 +68,35 @@ export const selectDisconnectArtifactName = (
 ) => selectGitArtifact(state, artifactDef)?.ui.disconnectArtifactName;
 
 // git ops
-export const selectCommit = (
+export const selectCommitState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.commit;
 
-export const selectDiscard = (
+export const selectDiscardState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.discard;
 
-export const selectStatus = (
+export const selectStatusState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.status;
 
-export const selectMerge = (state: GitRootState, artifactDef: GitArtifactDef) =>
-  selectGitArtifact(state, artifactDef)?.apiResponses?.merge;
+export const selectMergeState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.merge;
 
-export const selectMergeStatus = (
+export const selectMergeStatusState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.mergeStatus;
 
-export const selectPull = (state: GitRootState, artifactDef: GitArtifactDef) =>
-  selectGitArtifact(state, artifactDef)?.apiResponses?.pull;
+export const selectPullState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.pull;
 
 export const selectOpsModalOpen = (
   state: GitRootState,
@@ -95,25 +124,35 @@ export const selectCurrentBranch = (
   return gitMetadataState?.branchName;
 };
 
-export const selectBranches = (
+export const selectFetchBranchesState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.branches;
 
-export const selectCreateBranch = (
+export const selectCreateBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.createBranch;
 
-export const selectDeleteBranch = (
+export const selectDeleteBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.deleteBranch;
 
-export const selectCheckoutBranch = (
+export const selectCheckoutBranchState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.checkoutBranch;
+
+export const selectCheckoutDestBranch = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.checkoutDestBranch;
+
+export const selectBranchPopupOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.branchPopupOpen;
 
 // SETTINGS
 
@@ -133,6 +172,11 @@ export const selectToggleAutocommitState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.toggleAutocommit;
+
+export const selectTriggerAutocommitState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.triggerAutocommit;
 
 export const selectAutocommitDisableModalOpen = (
   state: GitRootState,
