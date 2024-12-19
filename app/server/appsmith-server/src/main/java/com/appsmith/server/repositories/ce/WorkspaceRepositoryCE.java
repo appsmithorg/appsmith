@@ -3,13 +3,21 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomWorkspaceRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.Optional;
 
 public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 
-    Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
+    // TODO(Shri): Native queries are debt. Fix DB model to avoid this.
+    @Query(
+            value = "SELECT * FROM workspace "
+                    + "WHERE id = ? "
+                    + "AND jsonb_path_exists(plugins, '$[*].pluginId ? (@ == $p)',  jsonb_build_object('p', ?))",
+            nativeQuery = true)
+    Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
-    Mono<Workspace> findByName(String name);
+    Optional<Workspace> findByName(String name);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 }

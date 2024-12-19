@@ -1,6 +1,7 @@
 package com.appsmith.server.plugins.base;
 
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,8 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
     public PluginServiceImpl(
             Validator validator,
-            PluginRepository repository,
+            PluginRepository repositoryDirect,
+            PluginRepositoryCake repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
@@ -27,6 +29,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 workspaceService,

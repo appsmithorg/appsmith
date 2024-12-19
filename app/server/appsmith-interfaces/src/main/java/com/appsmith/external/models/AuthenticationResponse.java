@@ -1,13 +1,13 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 

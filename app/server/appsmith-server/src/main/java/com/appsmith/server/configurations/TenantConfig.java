@@ -4,7 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -19,7 +19,7 @@ import static com.appsmith.external.models.BaseDomain.policySetToMap;
 @Slf4j
 public class TenantConfig implements ApplicationListener<ApplicationStartedEvent> {
 
-    private final TenantRepository tenantRepository;
+    private final TenantRepositoryCake tenantRepository;
     private final CacheableRepositoryHelper cachableRepositoryHelper;
 
     // Method to cleanup the cache and update the default tenant policies if the policyMap is empty. This will make sure

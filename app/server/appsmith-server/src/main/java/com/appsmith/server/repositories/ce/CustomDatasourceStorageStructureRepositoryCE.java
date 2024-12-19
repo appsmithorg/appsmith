@@ -2,11 +2,13 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.repositories.AppsmithRepository;
 
-public interface CustomDatasourceStorageStructureRepositoryCE {
+import java.util.Optional;
 
-    Mono<Integer> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure);
+public interface CustomDatasourceStorageStructureRepositoryCE extends AppsmithRepository<DatasourceStorageStructure> {
 
-    Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+    int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure);
+
+    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 }
