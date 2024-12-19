@@ -100,10 +100,10 @@ function InputText(props: InputTextProp) {
 
 class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
   static getBindingPrefix(tableName: string) {
-    return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
+    return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => { try { return ( `;
   }
 
-  static bindingSuffix = `))}}`;
+  static bindingSuffix = `); } catch (e) { return null; }})}}`;
 
   render() {
     const {
