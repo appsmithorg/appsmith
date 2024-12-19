@@ -53,6 +53,13 @@ export default function* connectSaga(
         history.replace(newUrl);
         // ! case for updating lastDeployedAt in application manually?
       }
+
+      yield put(
+        gitArtifactActions.initGitForEditor({
+          ...basePayload,
+          artifact: response.data,
+        }),
+      );
     }
   } catch (e) {
     if (response && response.responseMeta.error) {
@@ -67,12 +74,7 @@ export default function* connectSaga(
         );
       }
 
-      yield put(
-        gitArtifactActions.connectError({
-          ...basePayload,
-          error,
-        }),
-      );
+      yield put(gitArtifactActions.connectError({ ...basePayload, error }));
     } else {
       log.error(e);
       captureException(e);
