@@ -6,6 +6,7 @@ import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
 import {
+  getTagStyle,
   getTagText,
   handlePremiumDatasourceClick,
 } from "utils/PremiumDatasourcesHelpers";
@@ -49,7 +50,11 @@ export default function PremiumDatasources() {
             <Text className="t--plugin-name textBtn" renderAs="p">
               {integration.name}
             </Text>
-            <Tag isClosable={false} kind={"premium"}>
+            <Tag
+              isClosable={false}
+              kind={"premium"}
+              style={getTagStyle(!isFreePlanInstance)}
+            >
               {getTagText(!isFreePlanInstance)}
             </Tag>
           </CardContentWrapper>

@@ -2576,7 +2576,7 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith might use this email exclusively to follow up on your integration request.",
+      "Appsmith will use this email exclusively to follow up on your integration request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
@@ -2596,12 +2596,12 @@ export const PREMIUM_DATASOURCES = {
   FORM_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith might use this email to follow up on your integration interest.",
+      "Appsmith will use this email to follow up on your integration interest.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
-  PREMIUM_TAG: () => "Premium",
-  SOON_TAG: () => "Soon",
+  PREMIUM_TAG: () => "PREMIUM",
+  SOON_TAG: () => "SOON",
   COMING_SOON_SUFFIX: () => "Coming soon",
   COMING_SOON_DESCRIPTION: () =>
     "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
