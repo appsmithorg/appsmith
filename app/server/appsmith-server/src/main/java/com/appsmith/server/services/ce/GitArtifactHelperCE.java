@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -68,4 +69,6 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     T getNewArtifact(String workspaceId, String repoName);
 
     Mono<T> publishArtifactPostCommit(Artifact committedArtifact);
+
+    Mono<T> publishArtifactPostRefCreation(Artifact artifact, RefType refType, Boolean isPublishedManually);
 }

@@ -14,6 +14,11 @@ public class GitRefDTO {
 
     RefType refType;
 
+    /**
+     * for tags, while tagging we require messages.
+     */
+    String message;
+
     boolean isDefault;
 
     boolean createdFromLocal;
