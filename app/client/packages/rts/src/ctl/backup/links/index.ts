@@ -16,3 +16,4 @@ export * from "./EnvFileLink";
 export * from "./GitStorageLink";
 export * from "./ManifestLink";
 export * from "./MongoDumpLink";
+export * from "./PostgresDumpLink";
