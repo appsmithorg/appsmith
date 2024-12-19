@@ -289,4 +289,21 @@ describe("Validate JSObj", {}, () => {
     }
     agHelper.AssertElementAbsence(locators._toastMsg);
   });
+
+  it("10. Verify selecting JSObject does not change the page", () => {
+    PageList.AddNewPage("New blank page");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
+    agHelper.GetNClick(locators._createNew);
+    agHelper.AssertContains("JSObject1", "exist", entityExplorer._entityName);
+    agHelper.GetNClick(jsEditor._addJSObj);
+    agHelper.AssertContains("JSObject2", "exist", entityExplorer._entityName);
+    EditorNavigation.NavigateToPage("Page1", true);
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
+    agHelper.GetNClick(locators._editorTab);
+    PageList.VerifyIsCurrentPage("Page1");
+    EditorNavigation.NavigateToPage("Page2", true);
+    agHelper.AssertContains("JSObject1", "exist", entityExplorer._entityName);
+    agHelper.GetNClick(locators._editorTab);
+    PageList.VerifyIsCurrentPage("Page2");
+  });
 });
