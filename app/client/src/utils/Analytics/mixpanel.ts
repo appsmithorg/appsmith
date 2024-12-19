@@ -32,6 +32,8 @@ class MixpanelSingleton {
         this.mixpanel = loadedMixpanel;
         this.mixpanel.init(mixpanel.apiKey, {
           record_sessions_percent: 100,
+          record_block_selector: ".mp-block",
+          record_mask_text_selector: ".mp-mask",
         });
 
         await this.addSegmentMiddleware();
