@@ -63,6 +63,16 @@ export const propertyPaneContentConfig = [
         },
       },
       {
+        propertyName: "allowCurrencyChange",
+        label: "Allow currency change",
+        helpText: "Search by currency or country",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "No. of decimals in currency input",
         propertyName: "decimals",
         label: "Decimals allowed",
