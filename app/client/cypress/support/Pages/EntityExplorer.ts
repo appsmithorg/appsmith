@@ -72,6 +72,7 @@ export class EntityExplorer {
   _widgetTagSuggestedWidgets = ".widget-tag-collapsible-suggested";
   _widgetTagBuildingBlocks = ".widget-tag-collapsible-building-blocks";
   _widgetSeeMoreButton = "[data-testid='t--explorer-ui-entity-tag-see-more']";
+  _entityName = ".t--entity-name"
 
   public ActionContextMenuByEntityName({
     action = "Delete",
