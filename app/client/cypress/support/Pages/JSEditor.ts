@@ -32,7 +32,7 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
   private assertHelper = ObjectsRegistry.AssertHelper;
-  public runButtonLocator = "[data-testid='t--run-js-action']";
+  public runButtonLocator = ".run-js-action";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
@@ -89,6 +89,9 @@ export class JSEditor {
     "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
     text +
     "']";
+  _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
+  _jsPageActions = ".entity-context-menu";
+  _moreActions = '[data-testid="t--more-action-trigger"]';
   //#endregion
 
   //#region constants
