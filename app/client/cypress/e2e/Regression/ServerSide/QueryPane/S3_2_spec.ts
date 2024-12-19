@@ -78,7 +78,7 @@ describe(
     });
 
     after("Deletes the datasource", () => {
-      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409); //since crud page is still active
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 200); //since crud page is not active
     });
   },
 );
