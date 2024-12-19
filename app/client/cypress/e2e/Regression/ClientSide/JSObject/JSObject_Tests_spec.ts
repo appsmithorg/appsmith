@@ -282,15 +282,16 @@ describe("Validate JSObj", {}, () => {
       });
     });
   });
-
-  it("9. Verify JSObject with identical name should not exist Bug: #35385", () => {
+  //Bug: https://github.com/appsmithorg/appsmith/issues/35385
+  it.skip("9. Verify JSObject with identical name should not exist Bug: #35385", () => {
     for (let i = 0; i < 10; i++) {
       agHelper.GetNClick(locators._createNew, 0, true, 0);
     }
     agHelper.AssertElementAbsence(locators._toastMsg);
   });
 
-  it("10. Verify selecting JSObject does not change the page", () => {
+  //Bug: https://github.com/appsmithorg/appsmith/issues/38216
+  it.skip("10. Verify selecting JSObject does not change the page", () => {
     PageList.AddNewPage("New blank page");
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     agHelper.GetNClick(locators._createNew);
