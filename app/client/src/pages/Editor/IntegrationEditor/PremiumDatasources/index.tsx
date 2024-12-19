@@ -27,7 +27,7 @@ const PremiumTag = styled(Tag)<{ isBusinessOrEnterprise: boolean }>`
       : "var(--ads-v2-color-purple-100)"};
   border-color: ${(props) =>
     props.isBusinessOrEnterprise ? "#36425233" : "#401d7333"};
-  padding: 6px 4px;
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-2);
   text-transform: uppercase;
   > span {
     font-weight: 700;

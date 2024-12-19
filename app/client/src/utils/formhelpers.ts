@@ -41,6 +41,7 @@ export function isRelevantEmail(email: string) {
     "protonmail.com",
     "zoho.com",
     "yandex.com",
+    "appsmith.com",
   ];
 
   // Extract the domain from the email
