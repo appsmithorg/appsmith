@@ -418,7 +418,7 @@ jobs:
         if: failure()
         with:
           name: server-logs
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
 
       # Set status = success
