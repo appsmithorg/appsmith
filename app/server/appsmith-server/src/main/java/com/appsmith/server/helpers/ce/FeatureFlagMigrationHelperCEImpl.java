@@ -34,7 +34,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
      * to update the tenant level feature flags
      */
-    private static final long TENANT_FEATURES_CACHE_TIME_MIN = 115;
+    private static final long TENANT_FEATURES_CACHE_TIME_MIN = 29;
 
     @Override
     public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(Tenant defaultTenant) {
