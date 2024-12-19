@@ -1,24 +1,17 @@
-import React from "react";
-import type { SetterConfig } from "entities/AppTheming";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import {
-  metaConfig,
-  defaultsConfig,
-  autocompleteConfig,
-  propertyPaneContentConfig,
-  propertyPaneStyleConfig,
-  settersConfig,
-  methodsConfig,
-} from "../config";
-import type { AnvilConfig } from "WidgetProvider/constants";
-import { Button, MenuTrigger, Menu } from "@appsmith/wds";
+import React, { type Key } from "react";
 import { isArray, orderBy } from "lodash";
-import type { MenuButtonWidgetProps, MenuItem } from "./types";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
+import type { SetterConfig } from "entities/AppTheming";
 import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import type { AnvilConfig } from "WidgetProvider/constants";
+import { Button, MenuTrigger, Menu, MenuItem } from "@appsmith/wds";
+
+import * as config from "../config";
+import type { MenuButtonWidgetProps } from "./types";
 
 class WDSMenuButtonWidget extends BaseWidget<
   MenuButtonWidgetProps,
@@ -26,56 +19,43 @@ class WDSMenuButtonWidget extends BaseWidget<
 > {
   constructor(props: MenuButtonWidgetProps) {
     super(props);
-
-    this.state = {
-      isLoading: false,
-    };
   }
 
   static type = "WDS_MENU_BUTTON_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return {
-      isLargeWidget: false,
-      widgetSize: {
-        maxWidth: {
-          base: "100%",
-          "280px": "sizing-70",
-        },
-        minWidth: "sizing-14",
-      },
-    };
+    return config.anvilConfig;
   }
 
   static getAutocompleteDefinitions() {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
+    return config.propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
-    return propertyPaneStyleConfig;
+    return config.propertyPaneStyleConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
   }
 
   static getMethods() {
-    return methodsConfig;
+    return config.methodsConfig;
   }
 
-  menuItemClickHandler = (onClick: string | undefined, index: number) => {
+  onMenuItemClick = (onClick: string | undefined, index: number) => {
     if (onClick) {
       const config: ExecuteTriggerPayload = {
         triggerPropertyName: "onClick",
@@ -85,6 +65,9 @@ class WDSMenuButtonWidget extends BaseWidget<
         },
       };
 
+      // in case when the menu items source is dynamic, we need to pass the current item to the global context
+      // the reason is in onClick, we can access the current item and current index by writing `{{currentItem}}` and `{{currentIndex}}`,
+      // so we need to pass the current item to the global context
       if (this.props.menuItemsSource === "dynamic") {
         config.globalContext = {
           currentItem: this.props.sourceData
@@ -108,7 +91,9 @@ class WDSMenuButtonWidget extends BaseWidget<
         .filter((item) => item.isVisible === true);
 
       return orderBy(visibleItems, ["index"], ["asc"]);
-    } else if (
+    }
+
+    if (
       menuItemsSource === "dynamic" &&
       isArray(sourceData) &&
       sourceData?.length &&
@@ -116,7 +101,10 @@ class WDSMenuButtonWidget extends BaseWidget<
     ) {
       const { config } = configureMenuItems;
 
-      const getValue = (propertyName: keyof MenuItem, index: number) => {
+      const getDynamicMenuItemValue = (
+        propertyName: keyof typeof config,
+        index: number,
+      ) => {
         const value = config[propertyName];
 
         if (isArray(value)) {
@@ -130,15 +118,12 @@ class WDSMenuButtonWidget extends BaseWidget<
         .map((item, index) => ({
           ...item,
           id: index.toString(),
-          isVisible: getValue("isVisible", index),
-          isDisabled: getValue("isDisabled", index),
+          isVisible: getDynamicMenuItemValue("isVisible", index),
+          isDisabled: getDynamicMenuItemValue("isDisabled", index),
           index: index,
           widgetId: "",
-          label: getValue("label", index),
+          label: getDynamicMenuItemValue("label", index),
           onClick: config?.onClick,
-          iconAlign: getValue("iconAlign", index),
-          iconName: getValue("iconName", index),
-          textColor: getValue("textColor", index),
         }))
         .filter((item) => item.isVisible === true);
 
@@ -159,7 +144,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       triggerButtonVariant,
     } = this.props;
 
-    const visibleItems: MenuItem[] = this.getVisibleItems();
+    const visibleItems = this.getVisibleItems();
     const disabledKeys = visibleItems
       .filter((item) => item.isDisabled === true)
       .map((item) => item.id);
@@ -178,21 +163,30 @@ class WDSMenuButtonWidget extends BaseWidget<
         </Button>
 
         <Menu
-          disabledKeys={disabledKeys}
-          items={visibleItems}
+          disabledKeys={disabledKeys as Iterable<Key>}
           onAction={(key) => {
             const clickedItemIndex = visibleItems.findIndex(
               (item) => item.id === key,
             );
 
             if (clickedItemIndex > -1) {
-              this.menuItemClickHandler(
+              this.onMenuItemClick(
                 visibleItems[clickedItemIndex]?.onClick,
                 clickedItemIndex,
               );
             }
           }}
-        />
+        >
+          {visibleItems.map((item) => (
+            <MenuItem
+              id={item.id as Key}
+              key={item.id as Key}
+              textValue={item.label}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+        </Menu>
       </MenuTrigger>
     );
   }
