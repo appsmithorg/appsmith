@@ -9,12 +9,15 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
@@ -35,9 +38,10 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
+public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRepositoryCake, Tenant, String>
+        implements TenantServiceCE {
 
-    private String tenantId = null;
+    private String tenantId;
 
     private final ConfigService configService;
 
@@ -52,7 +56,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     public TenantServiceCEImpl(
             Validator validator,
-            TenantRepository repository,
+            TenantRepository repositoryDirect,
+            TenantRepositoryCake repository,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
@@ -60,7 +65,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
             ObservationRegistry observationRegistry) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
@@ -179,12 +184,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
                 .name(FETCH_DEFAULT_TENANT_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .flatMap(tenant -> currentUserMono
+                        .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
+                        .switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
                     log.error("Error fetching default tenant from redis!", e);
                     // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
@@ -202,8 +210,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                             }))
                             .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
-                            .flatMap(tenant -> repository
-                                    .setUserPermissionsInObject(tenant)
+                            .flatMap(tenant -> currentUserMono
+                                    .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
                                     .switchIfEmpty(Mono.just(tenant)));
                 });
     }

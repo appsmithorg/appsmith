@@ -1,11 +1,12 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.CustomJSLibCE;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Where;
 
 import java.util.Set;
 
@@ -13,7 +14,8 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 public class CustomJSLib extends CustomJSLibCE {
 
     public CustomJSLib(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {

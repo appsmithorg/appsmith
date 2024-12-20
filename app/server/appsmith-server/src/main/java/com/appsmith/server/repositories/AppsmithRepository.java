@@ -2,28 +2,37 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    Mono<T> findById(String id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission, User currentUser);
 
-    Mono<T> updateById(String id, T resource, AclPermission permission);
+    /**
+     * This method is used to find a domain by its ID without checking for permissions. This method should be used
+     * when the caller is sure that the permissions have already been checked.
+     * @param id ID of the domain to be found
+     * @return Domain with the given ID if it exists, empty otherwise
+     */
+    Optional<T> getById(String id);
 
-    Mono<Integer> updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
+    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 
-    QueryAllParams<T> queryBuilder();
+    int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 
-    Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+    /*no-cake*/ QueryAllParams<T> queryBuilder();
 
-    Mono<T> setUserPermissionsInObject(T obj);
+    T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
-    Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
+    T setUserPermissionsInObject(T obj, User user);
+
+    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
@@ -36,7 +45,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param domainList List of domains that'll be saved in bulk
      * @return List of actions that were passed in the method
      */
-    Mono<Void> bulkInsert(List<T> domainList);
+    Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
 
-    Mono<Void> bulkUpdate(List<T> domainList);
+    Optional<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainList);
 }

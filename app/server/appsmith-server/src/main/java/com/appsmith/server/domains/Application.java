@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.ApplicationCE;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,7 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 
@@ -16,7 +18,8 @@ import java.io.Serializable;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Application extends ApplicationCE implements Artifact {
 

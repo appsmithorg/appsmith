@@ -41,13 +41,13 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -58,15 +58,12 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
-import com.google.common.base.Strings;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -83,6 +80,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGES_BY_APP_ID_DB;
@@ -101,13 +99,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
     private final UpdateLayoutService updateLayoutService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
@@ -117,13 +115,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final TransactionalOperator transactionalOperator;
 
     private final PermissionGroupService permissionGroupService;
-    private final ActionCollectionRepository actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
-    private final NewPageRepository newPageRepository;
-    private final DatasourceRepository datasourceRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
+    private final NewActionRepositoryCake newActionRepository;
+    private final NewPageRepositoryCake newPageRepository;
+    private final DatasourceRepositoryCake datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final ClonePageService<NewAction> actionClonePageService;
@@ -153,7 +150,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         for (final Layout layout : layoutList) {
             if (StringUtils.isEmpty(layout.getId())) {
-                layout.setId(new ObjectId().toString());
+                layout.setId(UUID.randomUUID().toString());
             }
         }
 
@@ -430,7 +427,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, workspaceId, application);
+        Mono<Application> applicationWithPoliciesMono = userMono.flatMap(
+                        user -> setApplicationPolicies(user, workspaceId, application))
+                .cache();
 
         return applicationWithPoliciesMono
                 .zipWith(userMono)
@@ -471,20 +470,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
-        return userMono.flatMap(user -> {
-            Mono<Workspace> workspaceMono = workspaceRepository
-                    .findById(workspaceId, workspacePermission.getApplicationCreatePermission())
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+        return userMono.flatMap(user -> setApplicationPolicies(user, workspaceId, application));
+    }
 
-            return workspaceMono.map(org -> {
-                application.setWorkspaceId(org.getId());
-                Set<Policy> documentPolicies =
-                        policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
-                application.setPolicies(documentPolicies);
-                return application;
-            });
-        });
+    public Mono<Application> setApplicationPolicies(User user, String workspaceId, Application application) {
+        return workspaceRepository
+                .findById(workspaceId, workspacePermission.getApplicationCreatePermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
+                .map(org -> {
+                    application.setWorkspaceId(org.getId());
+                    Set<Policy> documentPolicies =
+                            policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
+                    application.setPolicies(documentPolicies);
+                    return application;
+                });
     }
 
     public void generateAndSetPagePolicies(Application application, PageDTO page) {
@@ -598,7 +598,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> {
                             Layout newLayout = new Layout();
-                            String id = new ObjectId().toString();
+                            String id = UUID.randomUUID().toString();
                             newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
                             newLayout.setDsl(layout.getDsl());
@@ -629,7 +629,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 ApplicationPagesDTO pageNames = tuple.getT1();
                                 Application application = tuple.getT2();
 
-                                if (!Strings.isNullOrEmpty(newPageNameSuffix)) {
+                                if (!StringUtils.isEmpty(newPageNameSuffix)) {
                                     String newPageName = page.getName() + newPageNameSuffix;
 
                                     Set<String> names = pageNames.getPages().stream()
@@ -1123,7 +1123,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // this is a map of pluginType to count of actions for that pluginType, required for analytics
         Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono = newActionService
                 .countActionsByPluginType(applicationId)
-                .collectMap(PluginTypeAndCountDTO::getPluginType, PluginTypeAndCountDTO::getCount);
+                .collectMap(PluginTypeAndCountDTO::getPluginType, pluginTypeAndCountDTO -> pluginTypeAndCountDTO
+                        .getCount()
+                        .intValue());
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
@@ -1393,6 +1395,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
+        Flux<User> userFlux = sessionUserService.getCurrentUser().cache().repeat();
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1402,7 +1405,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newPage.setPolicies(policies);
                     return newPage;
                 })
-                .flatMap(newPageRepository::setUserPermissionsInObject));
+                .zipWith(userFlux)
+                .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
+
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1412,7 +1417,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPolicies(policies);
                     return newAction;
                 })
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .zipWith(userFlux)
+                .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
+
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1422,7 +1429,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     actionCollection.setPolicies(policies);
                     return actionCollection;
                 })
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                .zipWith(userFlux)
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1451,6 +1459,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
+        Flux<User> userFlux = sessionUserService.getCurrentUser().cache().repeat();
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
@@ -1466,13 +1475,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findIdsAndPolicyMapByIdIn(datasourceIds)
-                        .flatMap(idPolicy -> {
+                        .map(idPolicy -> {
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
                             Set<Policy> policies = policyMapToSet(idPolicy.getPolicyMap());
                             datasource.setPolicies(policies);
-                            return datasourceRepository.setUserPermissionsInObject(datasource);
-                        }));
+                            return datasource;
+                        })
+                        .zipWith(userFlux)
+                        .flatMap(tuple ->
+                                datasourceRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,
