@@ -152,5 +152,27 @@ describe(
         0,
       );
     });
+
+    it("5. Verify onRecordingComplete called once after stopping", () => {
+      // Select the AudioRecorder1 widget
+      EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
+      propPane.TogglePropertyState("Disabled", "Off");
+      // Set up the onRecordingStart action to show an alert with the message "Recording Started"
+      propPane.SelectPlatformFunction("onRecordingStart", "Show alert");
+      agHelper.EnterActionValue("Message", "Recording Started");
+      // Set up the onRecordingComplete action to show an alert with the message "Recording Completed"
+      propPane.SelectPlatformFunction("onRecordingComplete", "Show alert");
+      agHelper.EnterActionValue("Message", "Recording Completed");
+      agHelper.GetNClick(widgetLocators.recorderPrompt);
+      agHelper.GetNClick(widgetLocators.recorderStart);
+
+      // Validate that the toast message "Recording Started" is displayed
+      agHelper.validateToastMessageNTimes("Recording Started", 1);
+      agHelper.WaitUntilAllToastsDisappear();
+      agHelper.GetNClick(widgetLocators.recorderStop);
+
+      // Validate that there is exactly one toast message with "Recording Completed"
+      agHelper.validateToastMessageNTimes("Recording Completed", 1);
+    });
   },
 );
