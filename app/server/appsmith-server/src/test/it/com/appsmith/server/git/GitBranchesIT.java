@@ -4,10 +4,12 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
@@ -53,26 +55,69 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * This integration test suite template is meant to be executed for artifacts that were initially not git connected,
- * and then were connected to an empty git repository. We only work with branches in this suite.
- * We use an older schema of an artifact as the golden use case, and perform the following operations:
- * - Connect to git
- * - Check for auto commit
- * - Check for default branch
- * - Check for protected branch
- * - Make changes to base branch, verify status
- * - Set up `master` as a protected branch
- * - Check for protected branch functionalities
- * - Create a new branch `foo`, verify checkout and status
- * - Delete `foo` branch locally and re-populate from remote
- * - Verify latest commit on `foo` should be with changes made on master
- * - Make more changes and attempt discard
- * - Create a new branch `bar`, verify checkout and no status
- * - Make changes on `bar`, commit and attempt to merge to master
- * - Switch default branch to `foo`
- * - Verify consolidated response switches to `foo` by default on edit and view mode
- * - Disconnect artifact and verify non-existence of `master` and `bar`
+ * This integration test suite validates the end-to-end Git workflow for artifacts, performing a sequence of
+ * operations that test repository setup, branch management, status validation, and cleanup. The operations
+ * proceed as follows:
+ *
+ * 1. **Connect Artifact to Git**:
+ *    - The artifact is connected to an empty Git repository using a remote URL provided by the Git server initializer.
+ *    - A system-generated commit is created as part of the connection process.
+ *    - Auto-commit is enabled by default, as verified in the artifact metadata.
+ *    - The repository is checked to confirm a single system-generated commit and a clean working directory.
+ *
+ * 2. **Verify Initial Repository State**:
+ *    - The default branch is initialized, and its name is verified to match the metadata.
+ *    - The repository status is confirmed to be clean with no uncommitted changes.
+ *
+ * 3. **Trigger and Validate Auto-Commit**:
+ *    - Auto-commit is triggered, and the resulting commit is validated in the Git log.
+ *    - Commit history is checked to confirm the auto-commit appears as a second commit following the initial system-generated commit.
+ *
+ * 4. **Perform Status, Pull, and Commit Operations on the Default Branch (`master`)**:
+ *    - The repository status is checked to confirm no changes (`isClean = true`).
+ *    - A `pull` operation is executed to ensure synchronization, even when no updates are available.
+ *    - A `commit` is attempted with no changes, and the response is validated to confirm no new commits were created.
+ *
+ * 5. **Create and Verify Branches**:
+ *    - A new branch `foo` is created from the default branch (`master`).
+ *    - Metadata for `foo` is validated, and the commit history confirms that `foo` starts from the latest commit on `master`.
+ *    - A second branch `bar` is created from `foo`. Its metadata is verified, and the commit log confirms it starts from the latest commit on `foo`.
+ *
+ * 6. **Test Merging Scenarios**:
+ *    - A merge from `bar` to `foo` is validated and shows no action required (`ALREADY_UP_TO_DATE`), as no changes exist.
+ *    - Additional changes made to `bar` are merged back into `foo` successfully.
+ *
+ * 7. **Branch Deletion and Repopulation**:
+ *    - The branch `foo` is deleted locally but repopulated from the remote repository.
+ *    - The latest commit on `foo` is verified to match the changes made on `foo` before deletion.
+ *    - An attempt to delete the currently checked-out branch (`master`) fails as expected.
+ *
+ * 8. **Make Changes and Validate Commits**:
+ *    - Changes are made to the artifact on `foo` to trigger diffs.
+ *    - The repository status is validated as `isClean = false` with pending changes.
+ *    - A commit is created with a custom message, and the Git log confirms the commit as the latest on `foo`.
+ *    - Changes are successfully discarded, restoring the repository to a clean state.
+ *
+ * 9. **Set and Test Branch Protection**:
+ *    - The `master` branch is marked as protected. Commits directly to `master` are restricted.
+ *    - Attempts to commit to `master` fail with the appropriate error message.
+ *
+ * 10. **Merge Branches (`baz` to `bar`)**:
+ *     - A new branch `baz` is created from `bar`, and its commit log is verified.
+ *     - Changes are made to `baz` and successfully merged into `bar` via a fast-forward merge.
+ *     - The commit history confirms the merge, and the top commit matches the changes made in `baz`.
+ *
+ * 11. **Disconnect Artifact and Cleanup**:
+ *     - The artifact is disconnected from the Git repository.
+ *     - All repository branches (`foo`, `bar`, `baz`) except `master` are removed.
+ *     - The file system is verified to confirm all repository data is cleaned up.
+ *     - Applications associated with the deleted branches are also removed.
+ *
+ * This test suite ensures comprehensive coverage of Git workflows, including repository connection, branch creation,
+ * branch protection, merging, status validation, and repository cleanup. Each operation includes detailed assertions
+ * to validate expected outcomes and handle edge cases.
  */
+
 @Testcontainers
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -102,6 +147,8 @@ public class GitBranchesIT {
     AutoCommitService autoCommitService;
     @Autowired
     ProjectProperties projectProperties;
+    @Autowired
+    ApplicationService applicationService;
 
     final String ORIGIN = "https://foo.bar.com";
 
@@ -184,7 +231,6 @@ public class GitBranchesIT {
             branch = git.log().getRepository().getBranch();
             assertThat(branch).isEqualTo(artifactMetadata.getBranchName());
 
-            // Assert only single system generated commit exists on FS
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
             assertThat(commitIterator.hasNext()).isTrue();
@@ -234,7 +280,7 @@ public class GitBranchesIT {
             assertThat(commits.iterator().next().getId()).isEqualTo(topOfCommits);
         }
 
-        // Check that discard says that there is nothing to discard
+        // Check that discard, even when not required, goes through
         Artifact discardedArtifact = commonGitService.discardChanges(artifactId, artifactType).block();
         assertThat(discardedArtifact).isNotNull();
 
@@ -449,64 +495,84 @@ public class GitBranchesIT {
 //        assertThat(discardedStatus.getIsClean()).isTrue();
 
         // Make a change to trigger a diff on bar
-//        gitTestUtils.createADiffInArtifact(barArtifact).block();
-//
-//        // Check merge status to master shows merge-able
-//        GitMergeDTO gitMergeDTO2 = new GitMergeDTO();
-//        gitMergeDTO2.setSourceBranch("bar");
-//        gitMergeDTO2.setDestinationBranch("master");
-//        MergeStatusDTO mergeStatusDTO2 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO2, artifactType).block();
-//
-//        assertThat(mergeStatusDTO2).isNotNull();
-//        assertThat(mergeStatusDTO2.isMergeAble()).isFalse();
-//        assertThat(mergeStatusDTO2.getMessage()).isEqualTo(GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage("bar"));
-//
-//        // Create a new branch baz and check for new commit
-//        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-//        gitBranchDTO.setBranchName("baz");
-//        Artifact bazArtifact = commonGitService.createBranch(barArtifactId, gitBranchDTO, artifactType).block();
-//
-//        assertThat(bazArtifact).isNotNull();
-//
-//        try (Git git = Git.open(path.toFile())) {
-//            Iterable<RevCommit> commits = git.log().call();
-//            Iterator<RevCommit> commitIterator = commits.iterator();
-//            RevCommit newCommit = commitIterator.next();
-//            assertThat(newCommit.getFullMessage()).contains("baz");
-//
-//            assertThat(commitIterator.next().getId()).isEqualTo(topOfCommits);
-//
-//            topOfCommits = newCommit.getId();
-//        }
-//
-//        GitMergeDTO gitMergeDTO3 = new GitMergeDTO();
-//        gitMergeDTO3.setSourceBranch("baz");
-//        gitMergeDTO3.setDestinationBranch("bar");
-//
-//        MergeStatusDTO mergeStatusDTO3 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO3, artifactType).block();
-//
-//        assertThat(mergeStatusDTO3).isNotNull();
-//        assertThat(mergeStatusDTO3.isMergeAble()).isTrue();
-//
-//        // Merge bar to master and check log of commits on foo is same as bar (with merge commit on top)
-//        MergeStatusDTO barToMasterMergeStatus = commonGitService.mergeBranch(barArtifactId, gitMergeDTO3, artifactType).block();
-//
-//        assertThat(barToMasterMergeStatus).isNotNull();
-//        assertThat(barToMasterMergeStatus.isMergeAble()).isTrue();
-//
-//        // Switch default branch to foo - whoops is this only on EE?
-//
-//        // Verify consolidated response switches to foo by default on edit and view mode
-//
-//        // Disconnect artifact and verify non-existence of `foo` and `bar`
-//        Artifact disconnectedArtifact = commonGitService.detachRemote(artifactId, artifactType).block();
-//
-//        assertThat(disconnectedArtifact).isNotNull();
-//        assertThat(disconnectedArtifact.getGitArtifactMetadata()).isNull();
-//
-//        // Verify FS is clean after disconnect
-//        boolean repoDirectoryNotExists = Files.notExists(path);
-//        assertThat(repoDirectoryNotExists).isTrue();
+        gitTestUtils.createADiffInArtifact(barArtifact).block();
+
+        // Check merge status to master shows not merge-able
+        GitMergeDTO gitMergeDTO2 = new GitMergeDTO();
+        gitMergeDTO2.setSourceBranch("bar");
+        gitMergeDTO2.setDestinationBranch("master");
+        MergeStatusDTO mergeStatusDTO2 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO2, artifactType).block();
+
+        assertThat(mergeStatusDTO2).isNotNull();
+        assertThat(mergeStatusDTO2.isMergeAble()).isFalse();
+        assertThat(mergeStatusDTO2.getMessage()).isEqualTo(GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage("bar"));
+
+        // Create a new branch baz and check for new commit
+        GitBranchDTO gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("baz");
+        Artifact bazArtifact = commonGitService.createBranch(barArtifactId, gitBranchDTO, artifactType).block();
+
+        assertThat(bazArtifact).isNotNull();
+
+        try (Git git = Git.open(path.toFile())) {
+            Iterable<RevCommit> commits = git.log().call();
+            Iterator<RevCommit> commitIterator = commits.iterator();
+            RevCommit newCommit = commitIterator.next();
+            assertThat(newCommit.getFullMessage()).contains("branch: baz");
+
+            assertThat(commitIterator.next().getId()).isEqualTo(topOfCommits);
+
+            topOfCommits = newCommit.getId();
+        }
+
+        // TODO: We're having to discard on bar because
+        //  create branch today retains uncommitted change on source branch as well
+        //  We will need to update this line once that is fixed.
+        //  It won't get caught in tests otherwise since this discard would be a redundant op
+        commonGitService.discardChanges(barArtifactId, artifactType).block();
+
+        GitMergeDTO gitMergeDTO3 = new GitMergeDTO();
+        gitMergeDTO3.setSourceBranch("baz");
+        gitMergeDTO3.setDestinationBranch("bar");
+
+        MergeStatusDTO mergeStatusDTO3 = commonGitService.isBranchMergeable(barArtifactId, gitMergeDTO3, artifactType).block();
+
+        assertThat(mergeStatusDTO3).isNotNull();
+        assertThat(mergeStatusDTO3.isMergeAble()).isTrue();
+
+        // Merge bar to master and check log of commits on foo is same as bar
+        MergeStatusDTO barToBazMergeStatus = commonGitService.mergeBranch(barArtifactId, gitMergeDTO3, artifactType).block();
+
+        assertThat(barToBazMergeStatus).isNotNull();
+        assertThat(barToBazMergeStatus.isMergeAble()).isTrue();
+        assertThat(barToBazMergeStatus.getStatus()).contains("FAST_FORWARD");
+
+        // Since fast-forward should succeed here, top of commit should not change
+        try (Git git = Git.open(path.toFile())) {
+            Iterable<RevCommit> commits = git.log().call();
+            Iterator<RevCommit> commitIterator = commits.iterator();
+            assertThat(commitIterator.next().getId()).isEqualTo(topOfCommits);
+        }
+
+        // Disconnect artifact and verify non-existence of `foo`, `bar` and `baz`
+        Artifact disconnectedArtifact = commonGitService.detachRemote(artifactId, artifactType).block();
+
+        assertThat(disconnectedArtifact).isNotNull();
+        assertThat(disconnectedArtifact.getGitArtifactMetadata()).isNull();
+
+        // TODO: This needs to be generified for artifacts
+        Application deletedFooArtifact = applicationService.findById(checkedOutFooArtifact.getId()).block();
+        assertThat(deletedFooArtifact).isNull();
+        Application deletedBarArtifact = applicationService.findById(barArtifactId).block();
+        assertThat(deletedBarArtifact).isNull();
+        Application deletedBazArtifact = applicationService.findById(bazArtifact.getId()).block();
+        assertThat(deletedBazArtifact).isNull();
+        Application existingMasterArtifact = applicationService.findById(artifactId).block();
+        assertThat(existingMasterArtifact).isNotNull();
+
+        // Verify FS is clean after disconnect
+        boolean repoDirectoryNotExists = Files.notExists(path);
+        assertThat(repoDirectoryNotExists).isTrue();
     }
 
     private AutoCommitResponseDTO.AutoCommitResponse getAutocommitProgress(String artifactId, Artifact artifact, GitArtifactMetadata artifactMetadata) {
