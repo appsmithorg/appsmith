@@ -2,11 +2,20 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 import { useMemo } from "react";
-import { getUserSource } from "ee/utils/AnalyticsUtil";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
+import log from "loglevel";
 
 export const useAppsmithEnterpriseUrl = (feature: string) => {
   const instanceId = useSelector(getInstanceId);
-  const source = getUserSource();
+  let source = "unknown";
+
+  try {
+    const user = TrackedUser.getInstance().getUser();
+
+    source = user.source;
+  } catch (e) {
+    log.error("Failed to get user source:", e);
+  }
   const constructedUrl = useMemo(() => {
     const url = new URL(ENTERPRISE_PRICING_PAGE);
 
