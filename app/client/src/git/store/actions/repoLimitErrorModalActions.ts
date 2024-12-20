@@ -9,7 +9,7 @@ export const toggleRepoLimitErrorModalAction =
     (state, action) => {
       const { open } = action.payload;
 
-      state.ui.repoLimitErrorModal.open = open;
+      state.ui.repoLimitErrorModalOpen = open;
 
       return state;
     },

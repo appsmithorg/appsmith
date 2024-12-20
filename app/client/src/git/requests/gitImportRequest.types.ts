@@ -1,4 +1,6 @@
-export interface ImportGitRequestParams {
+import type { ApiResponse } from "api/types";
+
+export interface GitImportRequestParams {
   remoteUrl: string;
   gitProfile?: {
     authorName: string;
@@ -7,7 +9,7 @@ export interface ImportGitRequestParams {
   };
 }
 
-export interface ImportGitResponse {
+export interface GitImportResponseData {
   id: string;
   baseId: string;
   gitApplicationMetadata: {
@@ -22,3 +24,5 @@ export interface ImportGitResponse {
     repoName: string;
   };
 }
+
+export type GitImportResponse = ApiResponse<GitImportResponseData>;

@@ -277,7 +277,7 @@ function LocalProfileView({
                 {...register("authorName", {
                   required: createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY),
                 })}
-                onChange={handleInputChange("authorEmail")}
+                onChange={handleInputChange("authorName")}
               />
             ) : (
               <DummyField />

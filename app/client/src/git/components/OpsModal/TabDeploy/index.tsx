@@ -2,25 +2,23 @@ import React from "react";
 import TabDeployView from "./TabDeployView";
 import { useGitContext } from "git/components/GitContextProvider";
 import useMetadata from "git/hooks/useMetadata";
+import useBranches from "git/hooks/useBranches";
+import useCommit from "git/hooks/useCommit";
+import useDiscard from "git/hooks/useDiscard";
+import usePull from "git/hooks/usePull";
+import useStatus from "git/hooks/useStatus";
 
 export default function TabDeploy() {
-  const {
-    artifact,
-    clearCommitError,
-    clearDiscardError,
-    commit,
-    commitError,
-    commitLoading,
-    currentBranch,
-    discard,
-    discardError,
-    discardLoading,
-    fetchStatusLoading,
-    pull,
-    pullError,
-    pullLoading,
-    status,
-  } = useGitContext();
+  const { artifact } = useGitContext();
+  const { clearCommitError, commit, commitError, isCommitLoading } =
+    useCommit();
+
+  const { clearDiscardError, discard, discardError, isDiscardLoading } =
+    useDiscard();
+
+  const { isPullLoading, pull, pullError } = usePull();
+  const { isFetchStatusLoading, status } = useStatus();
+  const { currentBranch } = useBranches();
   const { metadata } = useMetadata();
 
   const lastDeployedAt = artifact?.lastDeployedAt ?? null;
@@ -38,11 +36,11 @@ export default function TabDeploy() {
       currentBranch={currentBranch}
       discard={discard}
       discardError={discardError}
-      isCommitLoading={commitLoading}
-      isDiscardLoading={discardLoading}
-      isFetchStatusLoading={fetchStatusLoading}
+      isCommitLoading={isCommitLoading}
+      isDiscardLoading={isDiscardLoading}
+      isFetchStatusLoading={isFetchStatusLoading}
       isPullFailing={isPullFailing}
-      isPullLoading={pullLoading}
+      isPullLoading={isPullLoading}
       lastDeployedAt={lastDeployedAt}
       pull={pull}
       remoteUrl={remoteUrl}
