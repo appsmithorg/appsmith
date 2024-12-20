@@ -66,8 +66,8 @@ function usePluginActionResponseTabs() {
         panelComponent: (
           <DatasourceTab
             currentActionId={action.id}
-            datasourceId={datasource?.id || ""}
-            datasourceName={datasource?.name || ""}
+            datasourceId={datasource?.id || action.datasource.id || ""}
+            datasourceName={datasource?.name || action.datasource.name || ""}
           />
         ),
       });
@@ -121,8 +121,8 @@ function usePluginActionResponseTabs() {
         panelComponent: (
           <DatasourceTab
             currentActionId={action.id}
-            datasourceId={datasource?.id || ""}
-            datasourceName={datasource?.name || ""}
+            datasourceId={datasource?.id || action.datasource.id || ""}
+            datasourceName={datasource?.name || action.datasource.name || ""}
           />
         ),
       });

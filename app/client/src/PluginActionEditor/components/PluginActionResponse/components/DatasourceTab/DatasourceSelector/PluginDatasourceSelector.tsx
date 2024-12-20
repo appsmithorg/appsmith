@@ -117,6 +117,7 @@ export const PluginDatasourceSelector = ({
       <CurrentDataSourceLink
         datasourceId={datasourceId}
         datasourceName={datasourceName}
+        pluginId={plugin?.id || ""}
       />
     );
   }
@@ -137,8 +138,8 @@ export const PluginDatasourceSelector = ({
         options={DATASOURCES_OPTIONS}
       >
         <CurrentDataSource
-          datasourceId={datasourceId}
           datasourceName={datasourceName}
+          pluginId={plugin?.id || ""}
         />
       </MenuField>
     </Flex>

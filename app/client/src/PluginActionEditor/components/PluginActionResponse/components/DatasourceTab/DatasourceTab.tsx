@@ -30,6 +30,7 @@ import { getPlugin } from "ee/selectors/entitiesSelector";
 import {
   getHasCreateDatasourceActionPermission,
   getHasManageDatasourcePermission,
+  getHasReadDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -79,7 +80,12 @@ const DatasourceTab = (props: Props) => {
     datasource?.userPermissions || [],
   );
 
-  const canManageDatasourceActions = getHasManageDatasourcePermission(
+  const canReadDatasource = getHasReadDatasourcePermission(
+    isFeatureEnabled,
+    datasource?.userPermissions || [],
+  );
+
+  const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasource?.userPermissions || [],
   );
@@ -147,9 +153,12 @@ const DatasourceTab = (props: Props) => {
   const getStatusState = () => {
     if (isLoading) return SchemaDisplayStatus.SCHEMA_LOADING;
 
-    if (!canCreateDatasourceActions) return SchemaDisplayStatus.NOACCESS;
+    /* When a user doesn't have view access on a datasource  */
+    if (!canReadDatasource) return SchemaDisplayStatus.NOACCESS;
 
-    if (!datasourceStructure) return SchemaDisplayStatus.NOSCHEMA;
+    /* When a user doesn't have create new query access but has view access on the datasource  */
+    if (!datasourceStructure || !canCreateDatasourceActions)
+      return SchemaDisplayStatus.NOSCHEMA;
 
     if (datasourceStructure && "error" in datasourceStructure)
       return SchemaDisplayStatus.FAILED;
@@ -172,7 +181,7 @@ const DatasourceTab = (props: Props) => {
           datasourceId={datasourceId}
           datasourceName={datasourceName}
           plugin={plugin}
-          showEditButton={!isLoading && canManageDatasourceActions}
+          showEditButton={!isLoading && canManageDatasource}
         />
         <StatusDisplay
           editDatasource={editDatasource}
