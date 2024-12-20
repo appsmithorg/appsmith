@@ -16,9 +16,7 @@ export const transformDataPureFn = (
 ): tableData => {
   if (isArray(tableData)) {
     return tableData.map((row, rowIndex) => {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newRow: { [key: string]: any } = {};
+      const newRow: { [key: string]: unknown } = {};
 
       columns.forEach((column) => {
         const { alias } = column;
