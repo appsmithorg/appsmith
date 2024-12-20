@@ -560,6 +560,7 @@ class CurrencyInputWidget extends BaseInputWidget<
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
             this.props.text,
+            this.props.countryCode,
           );
 
           this.props.updateWidgetMetaProperty("text", formattedValue);
