@@ -76,16 +76,12 @@ export function TextArea(props: TextAreaProps) {
 
       input.style.height = `${
         // subtract comptued padding and border to get the actual content height
-        input.scrollHeight -
-        paddingTop -
-        paddingBottom +
-        // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
-        1
+        input.scrollHeight - paddingTop - paddingBottom
       }px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
     }
-  }, [inputRef.current, props.height]);
+  }, [props.height]);
 
   useLayoutEffect(() => {
     if (inputRef.current) {

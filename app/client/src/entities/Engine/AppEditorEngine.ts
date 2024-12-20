@@ -47,10 +47,7 @@ import AppEngine, {
 } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import {
-  waitForSegmentInit,
-  waitForFetchUserSuccess,
-} from "ee/sagas/userSagas";
+import { waitForFetchUserSuccess } from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getAIPromptTriggered, setLatestGitBranchInLocal } from "utils/storage";
@@ -124,13 +121,19 @@ export default class AppEditorEngine extends AppEngine {
     const {
       currentTheme,
       customJSLibraries,
+      packagePullStatus,
       pageWithMigratedDsl,
       themes,
       unpublishedActionCollections,
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction({
+        id: toLoadPageId,
+        isFirstLoad: true,
+        pageWithMigratedDsl,
+        packagePullStatus,
+      }),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
@@ -175,14 +178,6 @@ export default class AppEditorEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
-
-    const waitForSegmentInitSpan = startNestedSpan(
-      "AppEditorEngine.waitForSegmentInit",
-      rootSpan,
-    );
-
-    yield call(waitForSegmentInit, true);
-    endSpan(waitForSegmentInitSpan);
 
     const waitForFetchEnvironmentsSpan = startNestedSpan(
       "AppEditorEngine.waitForFetchEnvironments",

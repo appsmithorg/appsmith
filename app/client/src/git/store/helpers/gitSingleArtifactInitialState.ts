@@ -1,4 +1,8 @@
 import {
+  gitArtifactAPIResponsesInitialState as gitArtifactAPIResponsesInitialStateExtended,
+  gitArtifactUIInitialState as gitArtifactUIInitialStateExtended,
+} from "git/ee/store/helpers/initialState";
+import {
   GitConnectStep,
   GitImportStep,
   GitOpsTab,
@@ -15,6 +19,8 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
     step: GitConnectStep.Provider,
   },
+  disconnectBaseArtifactId: null,
+  disconnectArtifactName: null,
   importModal: {
     open: false,
     step: GitImportStep.Provider,
@@ -22,17 +28,18 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   branchListPopup: {
     open: false,
   },
-  opsModal: {
-    open: false,
-    tab: GitOpsTab.Deploy,
-  },
-  settingsModal: {
-    open: false,
-    tab: GitSettingsTab.General,
-  },
+  opsModalOpen: false,
+  opsModalTab: GitOpsTab.Deploy,
+  settingsModalOpen: false,
+  settingsModalTab: GitSettingsTab.General,
+  autocommitDisableModalOpen: false,
+  autocommitPolling: false,
+  conflictErrorModalOpen: false,
   repoLimitErrorModal: {
     open: false,
   },
+  // EE
+  ...gitArtifactUIInitialStateExtended,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -112,7 +119,6 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     autocommitProgress: {
-      value: null,
       loading: false,
       error: null,
     },
@@ -133,6 +139,8 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
+    // EE
+    ...gitArtifactAPIResponsesInitialStateExtended,
   };
 
 export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {

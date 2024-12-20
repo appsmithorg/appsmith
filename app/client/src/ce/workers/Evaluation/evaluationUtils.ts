@@ -14,7 +14,7 @@ import type {
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
-import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
+import _, { difference, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -987,11 +987,8 @@ export const isATriggerPath = (
 };
 
 // Checks if entity newly got added to the unevalTree
-export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
-  return !!find(updates, {
-    event: DataTreeDiffEvent.NEW,
-    payload: { propertyPath: entityName },
-  });
+export const isNewEntity = (updates: Set<string>, entityName: string) => {
+  return updates.has(entityName);
 };
 
 const widgetPathsNotToOverride = (
@@ -1104,6 +1101,19 @@ export const isNotEntity = (entity: DataTreeEntity) => {
 export const isEntityAction = (entity: DataTreeEntity) => {
   return isAction(entity);
 };
+
+export const isPropertyAnEntityAction = (
+  entity: DataTreeEntity,
+  propertyPath: string,
+  entityConfig: DataTreeEntityConfig,
+) => {
+  if (!isJSAction(entity)) return false;
+
+  const { actionNames } = entityConfig as JSActionEntityConfig;
+
+  return actionNames.has(propertyPath);
+};
+
 export const convertMicroDiffToDeepDiff = (
   microDiffDifferences: Difference[],
 ): Diff<unknown, unknown>[] =>

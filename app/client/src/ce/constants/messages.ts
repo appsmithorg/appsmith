@@ -1069,6 +1069,10 @@ export const IS_EMPTY_REPO_QUESTION = () =>
 export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
 export const IMPORT_APP_IF_NOT_EMPTY = () =>
   "If you already have an app connected to Git, you can import it to the workspace.";
+export const IMPORT_ARTIFACT_IF_NOT_EMPTY = (artifactType: string) =>
+  `If you already have an ${artifactType.toLocaleLowerCase()} connected to Git, you can import it to the workspace.`;
+export const I_HAVE_EXISTING_ARTIFACT_REPO = (artifactType: string) =>
+  `I have an existing appsmith ${artifactType.toLocaleLowerCase()} connected to Git`;
 export const I_HAVE_EXISTING_REPO = () =>
   "I have an existing appsmith app connected to Git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
@@ -2572,9 +2576,34 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith might use this email exclusively to follow up on your integration request.",
+      "Appsmith will use this email exclusively to follow up on your integration request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
   SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
+};
+
+export const PREMIUM_DATASOURCES = {
+  RELEVANT_EMAIL_DESCRIPTION: () =>
+    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Schedule a call now to see how Appsmith can transform your workflows!",
+  NON_RELEVANT_EMAIL_DESCRIPTION: () =>
+    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Give us your email and the Appsmith team will reach out to you soon.",
+  LEARN_MORE: () => "Learn more about Premium",
+  SCHEDULE_CALL: () => "Schedule a call",
+  SUBMIT: () => "Submit",
+  SUCCESS_TOAST_MESSAGE: () =>
+    "Thank you! The Appsmith Team will contact you shortly.",
+  FORM_EMAIL: {
+    LABEL: () => "Email",
+    DESCRIPTION: () =>
+      "Appsmith will use this email to follow up on your integration interest.",
+    NAME: "email",
+    ERROR: () => "Please enter email",
+  },
+  PREMIUM_TAG: () => "Premium",
+  SOON_TAG: () => "Soon",
+  COMING_SOON_SUFFIX: () => "Coming soon",
+  COMING_SOON_DESCRIPTION: () =>
+    "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
+  NOTIFY_ME: () => "Notify me",
 };

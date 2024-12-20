@@ -1,3 +1,6 @@
+import { call, put } from "redux-saga/effects";
+import { captureException } from "@sentry/react";
+import log from "loglevel";
 import type { CommitInitPayload } from "../store/actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import commitRequest from "../requests/commitRequest";
@@ -7,7 +10,6 @@ import type {
 } from "../requests/commitRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
-import { call, put } from "redux-saga/effects";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -17,6 +19,7 @@ export default function* commitSaga(
 ) {
   const { artifactType, baseArtifactId } = action.payload;
   const basePayload = { artifactType, baseArtifactId };
+
   let response: CommitResponse | undefined;
 
   try {
@@ -42,23 +45,23 @@ export default function* commitSaga(
         // ! case for updating lastDeployedAt in application manually?
       }
     }
-  } catch (error) {
-    if (
-      GitErrorCodes.REPO_LIMIT_REACHED === response?.responseMeta?.error?.code
-    ) {
-      yield put(
-        gitArtifactActions.toggleRepoLimitErrorModal({
-          ...basePayload,
-          open: true,
-        }),
-      );
-    }
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
 
-    yield put(
-      gitArtifactActions.commitError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+      if (error.code === GitErrorCodes.REPO_LIMIT_REACHED) {
+        yield put(
+          gitArtifactActions.toggleRepoLimitErrorModal({
+            ...basePayload,
+            open: true,
+          }),
+        );
+      }
+
+      yield put(gitArtifactActions.commitError({ ...basePayload, error }));
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

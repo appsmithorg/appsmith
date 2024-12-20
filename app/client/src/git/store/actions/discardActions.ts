@@ -24,3 +24,9 @@ export const discardErrorAction = createSingleArtifactAction(
     return state;
   },
 );
+
+export const clearDiscardErrorAction = createSingleArtifactAction((state) => {
+  state.apiResponses.discard.error = null;
+
+  return state;
+});

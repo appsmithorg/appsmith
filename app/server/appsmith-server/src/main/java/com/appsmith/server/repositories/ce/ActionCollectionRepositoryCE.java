@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
-    Flux<ActionCollection> findByApplicationId(String applicationId);
 
     Flux<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

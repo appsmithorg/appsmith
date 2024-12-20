@@ -9,7 +9,7 @@ interface UseGitConnectParams {
 }
 
 export interface UseGitConnectReturnValue {
-  toggleGitConnectModal: (open: boolean) => void;
+  toggleConnectModal: (open: boolean) => void;
 }
 
 export default function useGitConnect({
@@ -22,9 +22,9 @@ export default function useGitConnect({
     [artifactType, baseArtifactId],
   );
 
-  const toggleGitConnectModal = (open: boolean) => {
+  const toggleConnectModal = (open: boolean) => {
     dispatch(
-      gitArtifactActions.toggleGitConnectModal({
+      gitArtifactActions.toggleConnectModal({
         ...basePayload,
         open,
       }),
@@ -32,6 +32,6 @@ export default function useGitConnect({
   };
 
   return {
-    toggleGitConnectModal,
+    toggleConnectModal,
   };
 }

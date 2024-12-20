@@ -81,4 +81,16 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<String> findAllBranchedApplicationIdsByBranchedApplicationId(
             String branchedApplicationId, AclPermission permission);
+
+    Flux<Application> findByIdIn(List<String> ids);
+
+    Flux<Application> findByWorkspaceId(String workspaceId);
+
+    Mono<Long> countByWorkspaceId(String workspaceId);
+
+    Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+
+    Mono<Long> countByDeletedAtNull();
+
+    Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 }

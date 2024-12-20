@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect } from "react";
-import type { GitArtifactType } from "git/constants/enums";
-import type { GitContextValue } from "./hooks/useGitContextValue";
+import React, { createContext, useContext } from "react";
 import useGitContextValue from "./hooks/useGitContextValue";
+import type { UseGitContextValueParams } from "./hooks/useGitContextValue";
+import type { GitContextValue } from "./hooks/useGitContextValue";
 
 const gitContextInitialValue = {} as GitContextValue;
 
@@ -11,27 +11,15 @@ export const useGitContext = () => {
   return useContext(GitContext);
 };
 
-interface GitContextProviderProps {
-  artifactType: keyof typeof GitArtifactType;
-  baseArtifactId: string;
+interface GitContextProviderProps extends UseGitContextValueParams {
   children: React.ReactNode;
 }
 
 export default function GitContextProvider({
-  artifactType,
-  baseArtifactId,
   children,
+  ...useContextValueParams
 }: GitContextProviderProps) {
-  const contextValue = useGitContextValue({ artifactType, baseArtifactId });
-
-  const { fetchBranches } = contextValue;
-
-  useEffect(
-    function gitInitEffect() {
-      fetchBranches();
-    },
-    [fetchBranches],
-  );
+  const contextValue = useGitContextValue(useContextValueParams);
 
   return (
     <GitContext.Provider value={contextValue}>{children}</GitContext.Provider>
