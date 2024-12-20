@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type ReactNode } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
@@ -132,6 +132,7 @@ interface DatasourceHomeScreenProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
   isAirgappedInstance?: boolean;
+  children?: ReactNode;
 }
 
 interface ReduxDispatchProps {
@@ -294,6 +295,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
               </DatasourceCard>
             );
           })}
+          {this.props.children}
         </DatasourceCardsContainer>
       </DatasourceHomePage>
     );
