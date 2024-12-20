@@ -6,11 +6,12 @@ import { LeftPane } from "./IDE/LeftPane";
 import PageList from "./PageList";
 
 export enum AppSidebarButton {
-  Data = "Data",
+  Data = "Datasources",
   Editor = "Editor",
   Libraries = "Libraries",
   Settings = "Settings",
 }
+
 export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
 
 export enum PagePaneSegment {
@@ -42,6 +43,7 @@ export enum EntityType {
   JSObject = "JSObject",
   Page = "Page",
 }
+
 class EditorNavigation {
   public locators = {
     MaximizeBtn: "[data-testid='t--ide-maximize']",

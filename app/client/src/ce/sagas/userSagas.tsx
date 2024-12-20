@@ -1,4 +1,4 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -57,14 +57,7 @@ import {
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ee/configs";
-import { getSegmentState } from "selectors/analyticsSelectors";
-import {
-  segmentInitUncertain,
-  segmentInitSuccess,
-} from "actions/analyticsActions";
-import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
@@ -81,25 +74,6 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-
-export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
-  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
-
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  const segmentState: SegmentState | undefined = yield select(getSegmentState);
-  const appsmithConfig = getAppsmithConfigs();
-
-  if (
-    currentUser?.enableTelemetry &&
-    appsmithConfig.segment.enabled &&
-    !segmentState
-  ) {
-    yield race([
-      take(ReduxActionTypes.SEGMENT_INITIALIZED),
-      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
-    ]);
-  }
-}
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -134,14 +108,10 @@ export function* getCurrentUserSaga(action?: {
 }
 
 function* initTrackers(currentUser: User) {
-  const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
-
-  const sentryInitialized: boolean = yield initializeSentry;
-
-  if (sentryInitialized) {
-    yield put(segmentInitSuccess());
-  } else {
-    yield put(segmentInitUncertain());
+  try {
+    yield call(AnalyticsUtil.initialize, currentUser);
+  } catch (e) {
+    log.error(e);
   }
 }
 

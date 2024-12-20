@@ -44,6 +44,7 @@ function IDESidebar(props: IDESidebarProps) {
             key={button.state}
             onClick={onClick}
             selected={editorState === button.state}
+            testId={button.testId}
             title={button.title}
             tooltip={button.tooltip}
             urlSuffix={button.urlSuffix}
@@ -58,6 +59,7 @@ function IDESidebar(props: IDESidebarProps) {
             key={button.state}
             onClick={onClick}
             selected={editorState === button.state}
+            testId={button.testId}
             title={button.title}
             tooltip={button.tooltip}
             urlSuffix={button.urlSuffix}
