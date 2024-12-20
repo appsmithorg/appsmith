@@ -8,6 +8,7 @@ import {
   encryptBackupArchive,
   executeCopyCMD,
   executeMongoDumpCMD,
+  executePostgresDumpCMD,
   getAvailableBackupSpaceInBytes,
   getEncryptionPasswordFromUser,
   getGitRoot,
@@ -61,6 +62,17 @@ describe("Backup Tests", () => {
     const cmd =
       "mongodump --uri=mongodb://username:password@host/appsmith --archive=/dest/mongodb-data.gz --gzip";
     const res = await executeMongoDumpCMD(dest, appsmithMongoURI);
+
+    expect(res).toBe(cmd);
+    console.log(res);
+  });
+
+  test("Test postgres dump CMD generation", async () => {
+    const dest = "/dest";
+    const url = "postgresql://username:password@host/appsmith";
+    const cmd =
+      "pg_dump postgresql://username:password@host/appsmith --schema=appsmith --format=custom --file=/dest/pg-data";
+    const res = await executePostgresDumpCMD(dest, url);
 
     expect(res).toBe(cmd);
     console.log(res);
@@ -246,7 +258,7 @@ test("Get DB name from Mongo URI 1", async () => {
   const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/my_db_name?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin";
   const expectedDBName = "my_db_name";
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
+  const dbName = utils.getDatabaseNameFromUrl(mongodb_uri);
 
   expect(dbName).toEqual(expectedDBName);
 });
@@ -255,7 +267,7 @@ test("Get DB name from Mongo URI 2", async () => {
   const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/test123?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin";
   const expectedDBName = "test123";
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
+  const dbName = utils.getDatabaseNameFromUrl(mongodb_uri);
 
   expect(dbName).toEqual(expectedDBName);
 });
@@ -264,7 +276,7 @@ test("Get DB name from Mongo URI 3", async () => {
   const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/test123";
   const expectedDBName = "test123";
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
+  const dbName = utils.getDatabaseNameFromUrl(mongodb_uri);
 
   expect(dbName).toEqual(expectedDBName);
 });
@@ -272,7 +284,22 @@ test("Get DB name from Mongo URI 3", async () => {
 test("Get DB name from Mongo URI 4", async () => {
   const mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith";
   const expectedDBName = "appsmith";
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
+  const dbName = utils.getDatabaseNameFromUrl(mongodb_uri);
 
   expect(dbName).toEqual(expectedDBName);
+});
+test("Get DB name from Postgres URL", async () => {
+  const dbName = utils.getDatabaseNameFromUrl(
+    "postgresql://user:password@host:5432/postgres_db",
+  );
+
+  expect(dbName).toEqual("postgres_db");
+});
+
+test("Get DB name from Postgres URL with query params", async () => {
+  const dbName = utils.getDatabaseNameFromUrl(
+    "postgresql://user:password@host:5432/postgres_db?sslmode=disable",
+  );
+
+  expect(dbName).toEqual("postgres_db");
 });
