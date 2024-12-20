@@ -302,19 +302,21 @@ export default {
     const columnsWithHTML = Object.values(props.primaryColumns).filter(
       (column) => column.columnType === "html",
     );
-    const htmlColumnAliases = columnsWithHTML.map((column) => column.alias);
+    const htmlColumnAliases = new Set(
+      columnsWithHTML.map((column) => column.alias),
+    );
 
     const isFilteringByColumnThatHasHTML = props.filters?.some((filter) =>
-      htmlColumnAliases.includes(filter.column),
+      htmlColumnAliases.has(filter.column),
     );
     const isSortingByColumnThatHasHTML =
-      props.sortOrder?.column &&
-      htmlColumnAliases.includes(props.sortOrder.column);
+      props.sortOrder?.column && htmlColumnAliases.has(props.sortOrder.column);
 
-    const shouldExtractHTMLText =
-      props.searchKey ||
+    const shouldExtractHTMLText = !!(
+      props.searchText ||
       isFilteringByColumnThatHasHTML ||
-      isSortingByColumnThatHasHTML;
+      isSortingByColumnThatHasHTML
+    );
     const getKeyForExtractedTextFromHTML = (columnAlias) =>
       `__htmlExtractedText_${columnAlias}__`;
 
@@ -921,9 +923,7 @@ export default {
             /*
              * We don't want html tags and inline styles to match in filter conditions
              */
-            const isHTMLColumn = htmlColumnAliases.includes(
-              props.filters[i].column,
-            );
+            const isHTMLColumn = htmlColumnAliases.has(props.filters[i].column);
             const originalColValue = isHTMLColumn
               ? originalRow[
                   getKeyForExtractedTextFromHTML(props.filters[i].column)

@@ -183,6 +183,21 @@ describe("HTML columns", () => {
     delete input.searchText;
   });
 
+  it("validate search does not filter based on html attributes", () => {
+    input.searchText = "span";
+    const expected = [];
+
+    let result = getFilteredTableData(input, moment, _);
+
+    expect(result).toStrictEqual(expected);
+
+    input.searchText = "color";
+    result = getFilteredTableData(input, moment, _);
+
+    expect(result).toStrictEqual(expected);
+    delete input.searchText;
+  });
+
   it("validates filters on table for HTML columns", () => {
     input.filters = [
       {
