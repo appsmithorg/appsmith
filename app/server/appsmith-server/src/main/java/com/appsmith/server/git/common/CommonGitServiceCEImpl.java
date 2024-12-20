@@ -1262,6 +1262,10 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         return Mono.create(sink -> pushStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    protected Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish) {
+        return publishArtifact(artifact, publish);
+    }
+
     private Mono<? extends Artifact> publishArtifact(Artifact artifact, boolean publish) {
         if (!Boolean.TRUE.equals(publish)) {
             return Mono.just(artifact);
@@ -2288,7 +2292,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     artifactExchangeJson,
                                     branchName))
                             // Update the last deployed status after the rebase
-                            .flatMap(importedArtifact -> publishArtifact(importedArtifact, true));
+                            .flatMap(importedArtifact -> validateAndPublishArtifact(importedArtifact, true));
                 })
                 .flatMap(branchedArtifact -> releaseFileLock(
                                 branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())

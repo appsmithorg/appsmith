@@ -64,6 +64,18 @@ public class GitFileSystemTestHelper {
         // checkout to the new branch
         gitExecutor.createAndCheckoutToBranch(suffix, branchName).block();
 
+        commitArtifact(workspaceId, applicationId, branchName, repoName, applicationJson, "commit message two");
+    }
+
+    public void commitArtifact(
+            String workspaceId,
+            String applicationId,
+            String branchName,
+            String repoName,
+            ApplicationJson applicationJson,
+            String commitMessage)
+            throws GitAPIException, IOException {
+        Path suffix = Paths.get(workspaceId, applicationId, repoName);
         // saving the files into the git repository from application json
         // The files would later be saved in this git repository from resources section instead of applicationJson
         commonGitFileUtils
@@ -72,7 +84,7 @@ public class GitFileSystemTestHelper {
 
         // commit the application
         gitExecutor
-                .commitArtifact(suffix, "commit message two", "user", "user@domain.xy", true, false)
+                .commitArtifact(suffix, commitMessage, "user", "user@domain.xy", true, false)
                 .block();
     }
 
