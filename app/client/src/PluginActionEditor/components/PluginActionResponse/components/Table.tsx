@@ -311,7 +311,11 @@ function Table(props: TableProps) {
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
-              <div {...cell.getCellProps()} className="td" key={cellIndex}>
+              <div
+                {...cell.getCellProps()}
+                className="td mp-mask"
+                key={cellIndex}
+              >
                 <CellWrapper>{cell.render("Cell")}</CellWrapper>
               </div>
             );
@@ -344,7 +348,7 @@ function Table(props: TableProps) {
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
                   {...headerGroup.getHeaderGroupProps()}
-                  className="tr"
+                  className="tr mp-mask"
                   key={index}
                 >
                   {headerGroup.headers.map(
