@@ -74,6 +74,7 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+import type { SessionRecordingConfig } from "utils/Analytics/mixpanel";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -107,9 +108,42 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
+function* getSessionRecordingConfig() {
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+  // This is a tenant level flag to kill session recordings
+  // If this is true, we do not do any session recordings
+  if (featureFlags.kill_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // This is a user level flag to control session recordings for a user
+  // If this is false, we do not do any session recordings
+  if (!featureFlags.config_user_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // Now we know that both tenant and user level flags are not blocking session recordings
+  return {
+    enabled: true,
+    // Check if we need to mask the session recordings from feature flags
+    mask: featureFlags.config_mask_session_recordings_enabled,
+  };
+}
+
 function* initTrackers(currentUser: User) {
   try {
-    yield call(AnalyticsUtil.initialize, currentUser);
+    const sessionRecordingConfig: SessionRecordingConfig = yield call(
+      getSessionRecordingConfig,
+    );
+
+    yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
   } catch (e) {
     log.error(e);
   }
