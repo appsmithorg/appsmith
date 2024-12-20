@@ -8,7 +8,7 @@ const items = [
 ];
 
 const meta: Meta<typeof RadioGroup> = {
-  title: "WDS/Widgets/RadioGroup",
+  title: "WDS/Widgets/Radio Group",
   component: RadioGroup,
   tags: ["autodocs"],
   args: {
