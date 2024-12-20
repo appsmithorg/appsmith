@@ -222,7 +222,9 @@ function QueryDebuggerTabs({
         <DatasourceTab
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
-          datasourceName={datasource?.name || ""}
+          datasourceName={
+            datasource?.name || currentActionConfig.datasource.name || ""
+          }
         />
       ),
     });
