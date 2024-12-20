@@ -689,14 +689,34 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .deleteBranch(repoSuffix, jsonTransformationDTO.getRefName())
                 .onErrorResume(throwable -> {
                     log.error("Delete branch failed {}", throwable.getMessage());
+
+                    Mono<Boolean> releaseLockMono =
+                            gitRedisUtils.releaseFileLock(jsonTransformationDTO.getBaseArtifactId(), Boolean.TRUE);
+
                     if (throwable instanceof CannotDeleteCurrentBranchException) {
-                        return Mono.error(new AppsmithException(
+                        return releaseLockMono.then(Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "delete branch",
-                                "Cannot delete current checked out branch"));
+                                "Cannot delete current checked out branch")));
                     }
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
+
+                    return releaseLockMono.then(Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage())));
                 });
+    }
+
+    @Override
+    public Mono<Boolean> checkoutArtifact(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        // Tags and branch checkout with the same mechanism.
+        return fsGitHandler.checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
     }
 }

@@ -80,4 +80,6 @@ public interface GitHandlingServiceCE {
     Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO, GitRefDTO gitRefDTO);
 
     Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
+
+    Mono<Boolean> checkoutArtifact(ArtifactJsonTransformationDTO jsonTransformationDTO);
 }

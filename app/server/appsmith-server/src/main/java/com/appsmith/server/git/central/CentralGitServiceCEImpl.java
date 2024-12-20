@@ -419,17 +419,21 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     });
         } else {
             // TODO refactor method to account for RefName as well
-            checkedOutArtifactMono = Mono.defer(() -> gitArtifactHelper
-                    .getArtifactByBaseIdAndBranchName(
-                            baseArtifactId, finalRefName, gitArtifactHelper.getArtifactReadPermission())
+            checkedOutArtifactMono = gitHandlingService
+                    .checkoutArtifact(jsonTransformationDTO)
+                    .flatMap(isCheckedOut -> gitArtifactHelper.getArtifactByBaseIdAndBranchName(
+                            baseArtifactId, finalRefName, gitArtifactHelper.getArtifactReadPermission()))
                     .flatMap(artifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_CHECKOUT_BRANCH,
                             artifact,
-                            artifact.getGitArtifactMetadata().getIsRepoPrivate())));
+                            artifact.getGitArtifactMetadata().getIsRepoPrivate()));
         }
 
-        return checkedOutArtifactMono
-                .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, addFileLock))
+        return acquireFileLock
+                .then(checkedOutArtifactMono)
+                .flatMap(checkedOutArtifact -> gitRedisUtils
+                        .releaseFileLock(baseArtifactId, addFileLock)
+                        .thenReturn(checkedOutArtifact))
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
@@ -575,13 +579,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                 discardChanges(parentArtifact.getId(), artifactType, gitType));
                             });
                 })
-                .flatMap(newImportedArtifact -> gitAnalyticsUtils
-                        .addAnalyticsForGitOperation(
+                .flatMap(newImportedArtifact -> gitRedisUtils
+                        .releaseFileLock(
+                                newImportedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)
+                        .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_CREATE_BRANCH,
                                 newImportedArtifact,
-                                newImportedArtifact.getGitArtifactMetadata().getIsRepoPrivate())
-                        .doFinally(signalType -> gitRedisUtils.releaseFileLock(
-                                newImportedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)))
+                                newImportedArtifact.getGitArtifactMetadata().getIsRepoPrivate())))
                 .name(GitSpan.OPS_CREATE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
@@ -681,7 +685,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     return gitHandlingService
                             .deleteGitReference(jsonTransformationDTO)
-                            .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, TRUE))
+                            .flatMap(isReferenceDeleted -> gitRedisUtils
+                                    .releaseFileLock(baseArtifactId, TRUE)
+                                    .thenReturn(isReferenceDeleted))
                             .flatMap(isReferenceDeleted -> {
                                 if (FALSE.equals(isReferenceDeleted)) {
                                     return Mono.error(new AppsmithException(
@@ -1415,10 +1421,16 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         fetchRemoteMono = Mono.just("ignored");
                     }
 
-                    return Mono.zip(prepareForStatus, fetchRemoteMono)
-                            .then(gitHandlingService.getStatus(jsonTransformationDTO));
+                    return Mono.zip(prepareForStatus, fetchRemoteMono).flatMap(tuple2 -> {
+                        return gitHandlingService
+                                .getStatus(jsonTransformationDTO)
+                                .flatMap(gitStatusDTO -> {
+                                    return gitRedisUtils
+                                            .releaseFileLock(baseArtifactId, isFileLock)
+                                            .thenReturn(gitStatusDTO);
+                                });
+                    });
                 })
-                .doFinally(signalType -> gitRedisUtils.releaseFileLock(baseArtifactId, isFileLock))
                 .onErrorResume(throwable -> {
                     /*
                      in case of any error, the global exception handler will release the lock
@@ -1671,11 +1683,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
 
-                    return Mono.just(branchedArtifact)
-                            .doFinally(signalType -> gitRedisUtils.acquireGitLock(
+                    return gitRedisUtils
+                            .acquireGitLock(
                                     branchedGitData.getDefaultArtifactId(),
                                     GitConstants.GitCommandConstants.DISCARD,
-                                    TRUE));
+                                    TRUE)
+                            .thenReturn(branchedArtifact);
                 })
                 .flatMap(branchedArtifact -> {
                     GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
@@ -1708,10 +1721,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             // Update the last deployed status after the rebase
                             .flatMap(importedArtifact -> gitArtifactHelper.publishArtifact(importedArtifact, true));
                 })
-                .flatMap(branchedArtifact -> gitAnalyticsUtils
-                        .addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)
-                        .doFinally(signalType -> gitRedisUtils.releaseFileLock(
-                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)))
+                .flatMap(branchedArtifact -> {
+                    return gitRedisUtils
+                            .releaseFileLock(
+                                    branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)
+                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null));
+                })
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
