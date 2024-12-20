@@ -1,7 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Flex } from "@appsmith/ads";
-import { CREATE_NEW_DATASOURCE, createMessage } from "ee/constants/messages";
+import {
+  CREATE_NEW_DATASOURCE,
+  createMessage,
+  NOT_FOUND,
+} from "ee/constants/messages";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
@@ -66,7 +70,7 @@ export const PluginDatasourceSelector = ({
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
-  const isChangePermitted = getHasManageActionPermission(
+  const isActionChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
@@ -108,13 +112,20 @@ export const PluginDatasourceSelector = ({
     });
   }
 
-  if (!showDatasourceSelector || !isChangePermitted) {
+  if (!showDatasourceSelector || !isActionChangePermitted) {
     return (
       <CurrentDataSourceLink
         datasourceId={datasourceId}
         datasourceName={datasourceName}
       />
     );
+  }
+
+  if (DATASOURCES_OPTIONS.length < 1) {
+    DATASOURCES_OPTIONS.push({
+      label: createMessage(NOT_FOUND),
+      value: "not found",
+    });
   }
 
   return (

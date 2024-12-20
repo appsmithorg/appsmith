@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
+import { Flex, Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import {
   getPluginIdFromDatasourceId,
   getPluginImages,
 } from "ee/selectors/entitiesSelector";
+import { createMessage, SELECT_DATASOURCE } from "ee/constants/messages";
 
 interface Props {
   datasourceId: string;
@@ -24,9 +25,13 @@ const CurrentDataSource = ({ datasourceId, datasourceName }: Props) => {
   return (
     <Flex alignItems="center" gap="spaces-2">
       <EntityIcon height="16px" width="16px">
-        <img alt="entityIcon" src={getAssetUrl(datasourceIcon)} />
+        {datasourceIcon ? (
+          <img alt="entityIcon" src={getAssetUrl(datasourceIcon)} />
+        ) : (
+          <Icon name="datasource-v3" />
+        )}
       </EntityIcon>
-      {datasourceName}
+      {datasourceName || createMessage(SELECT_DATASOURCE)}
     </Flex>
   );
 };

@@ -24,7 +24,7 @@ import {
 } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
-import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
+import { DatasourceTab } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import {
   useBlockExecution,
   useHandleRunClick,
@@ -64,7 +64,7 @@ function usePluginActionResponseTabs() {
         key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         title: "Datasource",
         panelComponent: (
-          <Datasource
+          <DatasourceTab
             currentActionId={action.id}
             datasourceId={datasource?.id || ""}
             datasourceName={datasource?.name || ""}
@@ -119,7 +119,7 @@ function usePluginActionResponseTabs() {
         key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         title: "Datasource",
         panelComponent: (
-          <Datasource
+          <DatasourceTab
             currentActionId={action.id}
             datasourceId={datasource?.id || ""}
             datasourceName={datasource?.name || ""}

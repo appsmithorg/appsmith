@@ -7,6 +7,7 @@ import {
   getIsFetchingDatasourceStructure,
   getPluginIdFromDatasourceId,
   getPluginDatasourceComponentFromId,
+  getDatasource,
 } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
@@ -26,6 +27,12 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import DatasourceInfo from "./DatasourceInfo";
 import { getPlugin } from "ee/selectors/entitiesSelector";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasManageDatasourcePermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface Props {
   datasourceId: string;
@@ -33,17 +40,19 @@ interface Props {
   currentActionId: string;
 }
 
-const Datasource = (props: Props) => {
+const DatasourceTab = (props: Props) => {
   const dispatch = useDispatch();
 
+  const { datasourceId, datasourceName } = props;
+
   const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, props.datasourceId),
+    getDatasourceStructureById(state, datasourceId),
   );
 
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const pluginId = useSelector((state) =>
-    getPluginIdFromDatasourceId(state, props.datasourceId),
+    getPluginIdFromDatasourceId(state, datasourceId),
   );
 
   const plugin = useSelector((state) => getPlugin(state, pluginId || ""));
@@ -54,32 +63,46 @@ const Datasource = (props: Props) => {
   const [selectedTable, setSelectedTable] = useState<string>();
 
   const isLoading = useSelector((state: AppState) =>
-    getIsFetchingDatasourceStructure(state, props.datasourceId),
+    getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
   const pluginDatasourceForm = useSelector((state) =>
     getPluginDatasourceComponentFromId(state, pluginId || ""),
   );
 
+  const datasource = useSelector((state) => getDatasource(state, datasourceId));
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    datasource?.userPermissions || [],
+  );
+
+  const canManageDatasourceActions = getHasManageDatasourcePermission(
+    isFeatureEnabled,
+    datasource?.userPermissions || [],
+  );
+
   useEffect(
     function resetSelectedTable() {
       setSelectedTable(undefined);
     },
-    [props.datasourceId],
+    [datasourceId],
   );
 
   useEffect(
     function fetchDatasourceStructureEffect() {
       function fetchStructure() {
         if (
-          props.datasourceId &&
+          datasourceId &&
           datasourceStructure === undefined &&
           pluginDatasourceForm !==
             DatasourceComponentTypes.RestAPIDatasourceForm
         ) {
           dispatch(
             fetchDatasourceStructure(
-              props.datasourceId,
+              datasourceId,
               true,
               DatasourceStructureContext.QUERY_EDITOR,
             ),
@@ -89,7 +112,7 @@ const Datasource = (props: Props) => {
 
       fetchStructure();
     },
-    [props.datasourceId, datasourceStructure, dispatch, pluginDatasourceForm],
+    [datasourceId, datasourceStructure, dispatch, pluginDatasourceForm],
   );
 
   useEffect(
@@ -98,7 +121,7 @@ const Datasource = (props: Props) => {
         setSelectedTable(datasourceStructure.tables[0].name);
       }
     },
-    [selectedTable, props.datasourceId, isLoading, datasourceStructure],
+    [selectedTable, datasourceId, isLoading, datasourceStructure],
   );
 
   // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
@@ -106,14 +129,14 @@ const Datasource = (props: Props) => {
     const entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
 
     AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
-      datasourceId: props.datasourceId,
+      datasourceId,
       pluginName: "",
       entryPoint: entryPoint,
     });
 
     const url = datasourcesEditorIdURL({
       baseParentEntityId: parentEntityId,
-      datasourceId: props.datasourceId,
+      datasourceId,
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,
     });
@@ -123,6 +146,8 @@ const Datasource = (props: Props) => {
 
   const getStatusState = () => {
     if (isLoading) return SchemaDisplayStatus.SCHEMA_LOADING;
+
+    if (!canCreateDatasourceActions) return SchemaDisplayStatus.NOACCESS;
 
     if (!datasourceStructure) return SchemaDisplayStatus.NOSCHEMA;
 
@@ -144,10 +169,10 @@ const Datasource = (props: Props) => {
     return (
       <Flex flexDirection="column" padding="spaces-3">
         <DatasourceInfo
-          datasourceId={props.datasourceId}
-          datasourceName={props.datasourceName}
+          datasourceId={datasourceId}
+          datasourceName={datasourceName}
           plugin={plugin}
-          showEditButton={!isLoading}
+          showEditButton={!isLoading && canManageDatasourceActions}
         />
         <StatusDisplay
           editDatasource={editDatasource}
@@ -171,8 +196,8 @@ const Datasource = (props: Props) => {
       <Flex h="100%">
         <DatasourceTables
           currentActionId={props.currentActionId}
-          datasourceId={props.datasourceId}
-          datasourceName={props.datasourceName}
+          datasourceId={datasourceId}
+          datasourceName={datasourceName}
           datasourceStructure={datasourceStructure}
           plugin={plugin}
           selectedTable={selectedTable}
@@ -200,4 +225,4 @@ const Datasource = (props: Props) => {
   );
 };
 
-export { Datasource };
+export { DatasourceTab };
