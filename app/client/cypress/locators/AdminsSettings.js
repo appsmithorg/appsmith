@@ -46,4 +46,5 @@ export default {
   singleSessionPerUserInput: "[data-testid='singleSessionPerUserEnabled']",
   sessionTimeoutWrapper: ".t--admin-settings-userSessionTimeoutInMinutes",
   sessionTimeoutInput: "[name='userSessionTimeoutInMinutes']",
+  adminEmailsData: ".t--admin-settings-APPSMITH_ADMIN_EMAILS span > span",
 };
