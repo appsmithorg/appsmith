@@ -1,7 +1,5 @@
-import clsx from "clsx";
 import React, { useMemo } from "react";
-import { getTypographyClassName } from "@appsmith/wds-theming";
-import { Spinner, textInputStyles, Input, IconButton } from "@appsmith/wds";
+import { Spinner, Input, IconButton } from "@appsmith/wds";
 
 import type { ComboBoxProps } from "./types";
 
@@ -27,12 +25,5 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
     );
   }, [isLoading, size, isDisabled]);
 
-  return (
-    <Input
-      className={clsx(textInputStyles.input, getTypographyClassName("body"))}
-      placeholder={placeholder}
-      size={size}
-      suffix={suffix}
-    />
-  );
+  return <Input placeholder={placeholder} size={size} suffix={suffix} />;
 };
