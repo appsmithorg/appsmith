@@ -16,3 +16,6 @@ export const getPackagesList = (state: AppState): PackageMetadata[] =>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getPackagesOfWorkspace = (state: AppState) => [];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getIsPackageUpgrading = (state: AppState): boolean => false;
