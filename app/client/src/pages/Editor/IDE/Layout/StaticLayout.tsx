@@ -25,7 +25,7 @@ const LayoutContainer = styled.div<{ name: string }>`
   overflow: auto;
 `;
 
-function UnanimatedLayout() {
+export const StaticLayout = React.memo(() => {
   const isProtectedMode = useSelector(protectedModeSelector);
   const { areas, columns } = useGridLayoutTemplate();
 
@@ -61,8 +61,4 @@ function UnanimatedLayout() {
       <BottomBar />
     </>
   );
-}
-
-const MemoUanimatedLayout = React.memo(UnanimatedLayout);
-
-export { MemoUanimatedLayout as UnanimatedLayout };
+});
