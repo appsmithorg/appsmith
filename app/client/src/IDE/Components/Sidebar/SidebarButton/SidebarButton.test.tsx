@@ -11,9 +11,16 @@ const sidebarButtonProps: SidebarButtonProps = {
   selected: false,
   title: "Test",
   urlSuffix: "/test",
+  testId: "testId",
 };
 
 describe("SidebarButton", () => {
+  it("should render the button with the correct test id", () => {
+    const { getByTestId } = render(<SidebarButton {...sidebarButtonProps} />);
+
+    expect(getByTestId("t--sidebar-testId")).toBeDefined();
+  });
+
   it("should render the warning icon in case the datasource list is empty", () => {
     const withWarningCondition = {
       ...sidebarButtonProps,

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Text } from "@appsmith/ads";
+import { Flex, Text, SearchAndAdd } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -18,7 +18,6 @@ import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
-import { AddAndSearchbar } from "../components/AddAndSearchbar";
 import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
@@ -55,10 +54,10 @@ const ListQuery = () => {
       py="spaces-3"
     >
       {itemGroups.length > 0 ? (
-        <AddAndSearchbar
-          hasAddPermission={canCreateActions}
-          onAddClick={openAddQuery}
+        <SearchAndAdd
+          onAdd={openAddQuery}
           onSearch={setSearchTerm}
+          showAddButton={canCreateActions}
         />
       ) : null}
       <Flex flexDirection={"column"} gap="spaces-4" overflowY="auto">
