@@ -49,6 +49,11 @@ export const FEATURE_FLAG = {
   release_gs_all_sheets_options_enabled:
     "release_gs_all_sheets_options_enabled",
   ab_premium_datasources_view_enabled: "ab_premium_datasources_view_enabled",
+  kill_session_recordings_enabled: "kill_session_recordings_enabled",
+  config_mask_session_recordings_enabled:
+    "config_mask_session_recordings_enabled",
+  config_user_session_recordings_enabled:
+    "config_user_session_recordings_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -91,6 +96,9 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_table_html_column_type_enabled: false,
   release_gs_all_sheets_options_enabled: false,
   ab_premium_datasources_view_enabled: false,
+  kill_session_recordings_enabled: false,
+  config_user_session_recordings_enabled: true,
+  config_mask_session_recordings_enabled: true,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
