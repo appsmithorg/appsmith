@@ -284,6 +284,10 @@ export default {
     const getTextFromHTML = (html) => {
       if (!html) return "";
 
+      if (typeof html === "object") {
+        html = JSON.stringify(html);
+      }
+
       try {
         const tempDiv = document.createElement("div");
 

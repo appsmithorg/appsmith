@@ -183,6 +183,31 @@ describe("HTML columns", () => {
     delete input.searchText;
   });
 
+  it("validate search works when a javascript object is sent in HTMLcolumn", () => {
+    const jsObjectInput = _.cloneDeep(input);
+
+    jsObjectInput.processedTableData[0].status = {
+      color: "yellow",
+      text: "Adventure",
+    };
+    jsObjectInput.searchText = "Adventure";
+    const expected = [
+      {
+        id: 1,
+        name: "Jim Doe",
+        status: {
+          color: "yellow",
+          text: "Adventure",
+        },
+        __originalIndex__: 0,
+      },
+    ];
+
+    let result = getFilteredTableData(jsObjectInput, moment, _);
+
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validate search does not filter based on html attributes", () => {
     input.searchText = "span";
     const expected = [];
