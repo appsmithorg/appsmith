@@ -28,6 +28,8 @@ module.exports = async function ({ core, context }, imageRepo) {
   core.summary.addHeading("Docker image tags", 3);
   core.summary.addCodeBlock(dockerTags.join("\n"));
   core.setOutput("docker_tags", dockerTags.join("\n"));
+
+  core.summary.write();
 }
 
 function getLatestTag() {
