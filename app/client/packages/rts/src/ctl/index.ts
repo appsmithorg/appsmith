@@ -9,6 +9,7 @@ import * as restore from "./restore";
 import * as check_replica_set from "./check_replica_set";
 import * as version from "./version";
 import * as mongo_shell_utils from "./mongo_shell_utils";
+import moveToPostgres from "./move-to-postgres";
 import { config } from "dotenv";
 
 const APPLICATION_CONFIG_PATH = "/appsmith-stacks/configuration/docker.env";
@@ -60,6 +61,8 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   version.exec();
 } else if (["mongo-eval", "mongo_eval", "mongoEval"].includes(command)) {
   mongo_shell_utils.exec();
+} else if (command === "move-to-postgres") {
+  moveToPostgres();
 } else {
   showHelp();
 }
