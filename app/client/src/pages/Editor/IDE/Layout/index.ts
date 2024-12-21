@@ -1,2 +1,2 @@
 export { AnimatedLayout } from "./AnimatedLayout";
-export { UnanimatedLayout } from "./UnanimatedLayout";
+export { StaticLayout } from "./StaticLayout";
