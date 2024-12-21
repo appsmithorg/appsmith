@@ -1,11 +1,11 @@
 const { exec } = require("child_process");
 
 module.exports = async function ({ core, context }, imageRepo) {
-  core.summary.addList([
-    "PWD: " + process.cwd(),
-    "GITHUB_REF: " + context.ref,
-    "GITHUB_SHA: " + context.sha,
-    "GITHUB_EVENT_NAME: " + context.eventName,
+  core.summary.addTable([
+    [{ data: "PWD", header: true }, process.cwd()],
+    [{ data: "GITHUB_REF", header: true }, context.ref],
+    [{ data: "GITHUB_SHA", header: true }, context.sha],
+    [{ data: "GITHUB_EVENT_NAME", header: true }, context.eventName],
   ]);
 
   if (!context.ref?.match(/^refs\/tags\/v/)) {
