@@ -21,7 +21,7 @@ describe(
         const { isPartialImport } = interception.response?.body.data;
         cy.log("isPartialImport is", isPartialImport);
         if (isPartialImport) {
-          // should reconnect modal
+          // should reconnect modal test comment
           cy.get("body").then(($ele) => {
             if ($ele.find(reconnectDatasourceModal.SkipToAppBtn))
               agHelper.GetNClick(
