@@ -13,13 +13,17 @@ module.exports = async function ({ core, context }, imageRepo) {
     return;
   }
 
+  // Current version being tagged, including the 'v' prefix.
   const thisVersion = context.ref.replace("refs/tags/", "");
   core.setOutput("tag", thisVersion);
 
+  // The latest version of Appsmith available, including the 'v' prefix, including the currently tagged version.
+  const latestVersion = await getLatestTag();
+
+  // The docker tags to be pushed to the registry.
   const dockerTags = [
     `${imageRepo}:${thisVersion}`,
   ];
-  const latestVersion = await getLatestTag();
 
   if (latestVersion === thisVersion) {
     dockerTags.push(`${imageRepo}:latest`);
