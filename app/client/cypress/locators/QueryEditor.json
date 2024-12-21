@@ -9,7 +9,7 @@
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
   "switch": ".t--form-control-SWITCH input",
-  "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td']",
+  "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td mp-mask']",
   "querySelect": "//div[contains(@class, 't--template-menu')]//div[text()='Select']",
   "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
   "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
