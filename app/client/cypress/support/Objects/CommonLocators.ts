@@ -347,4 +347,6 @@ export class CommonLocators {
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
   _editorTab = ".editor-tab";
+  _entityTestId = (entity: string) =>
+    `[data-testid="t--entity-item-${entity}"]`;
 }
