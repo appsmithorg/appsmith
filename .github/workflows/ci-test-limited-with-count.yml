@@ -139,10 +139,6 @@ jobs:
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true    
 
-          # Step to log the specs_to_run value
-      - name: Print specs_to_run value
-        run: |
-          echo "Spec list: ${{ inputs.specs_to_run }}" 
 
       # Get specs to run
       - name: Get specs to run
