@@ -137,28 +137,39 @@ jobs:
         with:
           name: cypress-existing-compare-snapshots
           path: ${{ github.workspace }}/app/client/cypress/snapshots
-          overwrite: true      
-
-      # Get specs to run
-      - name: Get specs to run
-        if: ${{ inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run }}
+          overwrite: true    
+            
+      # Step to use the provided specs if available Get spec
+      - name: Use provided specs to run
+        if: ${{ inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run }} # Runs only if specs_to_run is provided
         run: |
+          echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
+
+      # Step to get specs from the file as the fallback option
+      - name: Get specs to run
+        if: ${{ inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run }} # Runs if specs_to_run is blank, null, or not provided
+        run: |
+          if [[ ! -f app/client/cypress/limited-tests.txt ]]; then
+            echo "Error: limited-tests.txt file not found!" >&2
+            exit 1
+          fi
+
           specs_to_run=""
-          while IFS= read -r line
-          do
-            if [[ $line =~ ^#|^\/\/ ]]; then
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
               continue
             else
               specs_to_run="$specs_to_run,$line"
             fi
           done < app/client/cypress/limited-tests.txt
           specs_to_run=${specs_to_run#,}
-          echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
-      - name: Use provided specs to run
-        if: ${{ inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run }}
-        run: |
-          echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
+          if [[ -z $specs_to_run ]]; then
+            echo "Error: No specs found in limited-tests.txt!" >&2
+            exit 1
+          fi
+
+          echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
