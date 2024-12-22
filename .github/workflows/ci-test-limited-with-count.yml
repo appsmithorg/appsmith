@@ -167,7 +167,7 @@ jobs:
 
       # Step to use the provided specs if available Get spec
       - name: Use provided specs to run
-        if: ${{ inputs.specs_to_run && inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run != "''" }} # Ensures specs_to_run is valid and not explicitly blank
+        if: ${{ inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run }} # Runs only if specs_to_run is provided
         run: |
           echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
 
