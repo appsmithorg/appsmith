@@ -28,7 +28,7 @@ on:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
-        default: "no_data"
+        default: 'no_data'
 
   workflow_call:
     inputs:

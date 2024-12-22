@@ -53,7 +53,7 @@ jobs:
           # Check for spec file
           checkArg=${{ github.event.client_payload.slash_command.args.named.specs_to_run }}
           if [[ -z "$checkArg" ]]; then
-              echo "specs_to_run=''" >> $GITHUB_OUTPUT
+              echo "specs_to_run='no_data'" >> $GITHUB_OUTPUT
           else
               echo "specs_to_run=$checkArg" >> $GITHUB_OUTPUT
           fi
