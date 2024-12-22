@@ -302,11 +302,19 @@ export const isChildPropertyPath = (
   // Eg. "Api1" is a child property path of "Api1"
   strict = false,
 ): boolean => {
-  return (
-    (!strict && parentPropertyPath === childPropertyPath) ||
-    childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
-    childPropertyPath.startsWith(`${parentPropertyPath}[`)
-  );
+  if (!strict && parentPropertyPath === childPropertyPath) {
+    return true;
+  }
+
+  if (childPropertyPath.startsWith(parentPropertyPath)) {
+    if (
+      childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+      childPropertyPath.startsWith(`${parentPropertyPath}[`)
+    )
+      return true;
+  }
+
+  return false;
 };
 
 /**
