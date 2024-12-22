@@ -141,7 +141,7 @@ jobs:
 
       # Get specs to run
       - name: Get specs to run
-        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}  
+        if: ${{ inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run }}
         run: |
           specs_to_run=""
           while IFS= read -r line
@@ -154,6 +154,11 @@ jobs:
           done < app/client/cypress/limited-tests.txt
           specs_to_run=${specs_to_run#,}
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+
+      - name: Use provided specs to run
+        if: ${{ inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run }}
+        run: |
+          echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
