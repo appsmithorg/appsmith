@@ -139,12 +139,6 @@ jobs:
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true    
             
-      # Step to use the provided specs if available Get spec
-      - name: Use provided specs to run
-        if: ${{ inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run }} # Runs only if specs_to_run is provided
-        run: |
-          echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
-
       # Step to get specs from the file as the fallback option
       - name: Get specs to run
         if: ${{ inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run }} # Runs if specs_to_run is blank, null, or not provided
@@ -170,6 +164,13 @@ jobs:
           fi
 
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+
+      # Step to use the provided specs if available Get spec
+      - name: Use provided specs to run
+        if: ${{ inputs.specs_to_run && inputs.specs_to_run != '' && inputs.specs_to_run != null && inputs.specs_to_run != "''" }} # Ensures specs_to_run is valid and not explicitly blank
+        run: |
+          echo "specs_to_run=${{ inputs.specs_to_run }}" >> $GITHUB_ENV
+
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
