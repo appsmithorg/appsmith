@@ -5,11 +5,7 @@ import useImport from "git/hooks/useImport";
 import useGlobalSSHKey from "git/hooks/useGlobalSSHKey";
 import noop from "lodash/noop";
 
-interface ImportModalProps {
-  workspaceId: string;
-}
-
-function ImportModal({ workspaceId }: ImportModalProps) {
+function ImportModal() {
   const {
     gitImport,
     gitImportError,
@@ -28,9 +24,9 @@ function ImportModal({ workspaceId }: ImportModalProps) {
 
   const onSubmit = useCallback(
     (params: GitImportRequestParams) => {
-      gitImport(workspaceId, { ...params });
+      gitImport(params);
     },
-    [gitImport, workspaceId],
+    [gitImport],
   );
 
   return (

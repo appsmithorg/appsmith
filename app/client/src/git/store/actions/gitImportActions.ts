@@ -2,9 +2,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { GitAsyncErrorPayload, GitGlobalReduxState } from "../types";
 import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 
-export interface GitImportInitPayload extends GitImportRequestParams {
-  workspaceId: string;
-}
+export interface GitImportInitPayload extends GitImportRequestParams {}
 
 export const gitImportInitAction = (
   state: GitGlobalReduxState,

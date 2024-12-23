@@ -13,8 +13,8 @@ export default function useImport() {
   const gitImportState = useSelector(selectGitImportState);
 
   const gitImport = useCallback(
-    (workspaceId: string, params: GitImportRequestParams) => {
-      dispatch(gitGlobalActions.gitImportInit({ workspaceId, ...params }));
+    (params: GitImportRequestParams) => {
+      dispatch(gitGlobalActions.gitImportInit(params));
     },
     [dispatch],
   );

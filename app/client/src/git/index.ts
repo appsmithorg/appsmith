@@ -17,6 +17,7 @@ export { default as useGitConnected } from "./hooks/useConnected";
 // actions
 import { gitGlobalActions } from "./store/gitGlobalSlice";
 export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
+export const toggleGitImportModal = gitGlobalActions.toggleImportModal;
 
 // reducer
 export { gitReducer } from "./store";
