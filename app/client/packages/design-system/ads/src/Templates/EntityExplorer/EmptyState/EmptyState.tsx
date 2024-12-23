@@ -1,24 +1,6 @@
 import React from "react";
-import {
-  Flex,
-  Icon,
-  Text,
-  Button,
-  type IconNames,
-  type ButtonKind,
-} from "../..";
-
-interface EmptyStateProps {
-  icon: IconNames;
-  description: string;
-  button?: {
-    text: string;
-    onClick?: () => void;
-    kind?: ButtonKind;
-    className?: string;
-    testId?: string;
-  };
-}
+import { Button, Flex, Icon, Text } from "../../..";
+import type { EmptyStateProps } from "./EmptyState.types";
 
 const EmptyState = ({ button, description, icon }: EmptyStateProps) => {
   return (
@@ -48,11 +30,10 @@ const EmptyState = ({ button, description, icon }: EmptyStateProps) => {
       >
         {description}
       </Text>
-      {button ? (
+      {button && button.onClick ? (
         <Button
           className={button.className}
           data-testid={button.testId}
-          disabled={button.onClick === undefined}
           kind={button.kind}
           onClick={button.onClick}
           size="sm"
