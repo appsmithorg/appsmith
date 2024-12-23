@@ -87,18 +87,37 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       }
     }
 
+    function isInAsyncFunction(node: ESTree.Node | null): boolean {
+      while (node) {
+        if (
+          (node.type === "FunctionDeclaration" ||
+            node.type === "FunctionExpression") &&
+          node.async
+        ) {
+          return true;
+        }
+
+        // @ts-expect-error: Types are not available
+        node = node?.parent;
+      }
+
+      return false;
+    }
+
     function traverseObjectExpression(node: ESTree.ObjectExpression) {
       for (const property of node.properties) {
         if (property.type === "Property") {
           const value = property.value;
 
           if (
-            (value.type === "FunctionExpression" ||
-              value.type === "ArrowFunctionExpression") &&
-            value.async
+            value.type === "FunctionExpression" ||
+            value.type === "ArrowFunctionExpression"
           ) {
-            // Found an async function within the object
-            traverseNode(value.body, null);
+            if (value.async) {
+              // Found an async function within the object
+              traverseNode(value.body, null);
+              //console.log("Ayush inside", value.body);
+            }
           }
         }
       }
@@ -144,7 +163,7 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
         }
       }
 
-      if (isPotentialAsyncCall) {
+      if (isPotentialAsyncCall && isInAsyncFunction(parent)) {
         if (
           parent &&
           parent.type !== "AwaitExpression" &&

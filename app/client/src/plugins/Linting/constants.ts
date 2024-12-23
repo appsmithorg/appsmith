@@ -58,6 +58,10 @@ export const lintOptions = (
         globals: eslintGlobals,
         sourceType: "script",
       },
+      // Need to pass for custom rules
+      settings: {
+        eslintGlobals,
+      },
       plugins: {
         customRules: {
           rules: {
