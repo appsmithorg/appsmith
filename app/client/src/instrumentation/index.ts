@@ -17,9 +17,7 @@ import {
 import {
   FaroTraceExporter,
   FaroSessionSpanProcessor,
-  TracingInstrumentation,
 } from "@grafana/faro-web-tracing";
-import { getCommonTelemetryAttributes } from "./utils";
 
 const { observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
@@ -35,13 +33,7 @@ export const faro = initializeFaro({
     version: "1.0.0",
     environment: deploymentName,
   },
-  instrumentations: [
-    new ReactIntegration(),
-    new TracingInstrumentation({
-      resourceAttributes: getCommonTelemetryAttributes(),
-    }),
-    ...getWebInstrumentations(),
-  ],
+  instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
   ignoreUrls: [smartlookBaseDomain],
   consoleInstrumentation: {
     consoleErrorAsLog: true,
