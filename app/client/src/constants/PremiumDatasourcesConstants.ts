@@ -15,6 +15,14 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
     name: "Salesforce",
     icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-icon.png`),
   },
+  {
+    name: "Slack",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/slack.png`),
+  },
+  {
+    name: "Jira",
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/jira.png`),
+  },
 ];
 
 export const PREMIUM_INTEGRATION_CONTACT_FORM =
