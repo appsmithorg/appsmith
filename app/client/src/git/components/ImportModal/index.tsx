@@ -33,8 +33,6 @@ function ImportModal({ workspaceId }: ImportModalProps) {
     [gitImport, workspaceId],
   );
 
-  console.log({ isImportModalOpen });
-
   return (
     <ConnectModalView
       artifactType="artifact"
