@@ -27,6 +27,10 @@ export const Tab = styled.div`
     border-top-color: var(--ads-v2-color-bg-brand);
     border-left-color: var(--ads-v2-color-border-muted);
     border-right-color: var(--ads-v2-color-border-muted);
+
+    span {
+      font-weight: var(--ads-v2-font-weight-bold);
+    }
   }
 
   & > .tab-close {
@@ -48,6 +52,7 @@ export const IconContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+
   img {
     width: 12px;
   }
