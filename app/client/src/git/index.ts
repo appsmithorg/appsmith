@@ -29,5 +29,5 @@ export { default as gitSagas } from "./sagas";
 export type {
   GitArtifactDef,
   GitArtifactRootReduxState,
-  GitConfigReduxState,
+  GitGlobalReduxState,
 } from "./store/types";

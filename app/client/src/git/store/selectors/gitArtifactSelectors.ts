@@ -26,11 +26,6 @@ export const selectConnectState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.connect;
 
-export const selectGitImportState = (
-  state: GitRootState,
-  artifactDef: GitArtifactDef,
-) => selectGitArtifact(state, artifactDef)?.apiResponses.gitImport;
-
 export const selectFetchSSHKeysState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -45,6 +40,11 @@ export const selectConnectModalOpen = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.ui.connectModalOpen;
+
+export const selectConnectSuccessModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.connectSuccessModalOpen;
 
 export const selectDisconnectState = (
   state: GitRootState,

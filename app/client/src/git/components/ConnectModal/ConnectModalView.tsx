@@ -1,12 +1,9 @@
 import { Modal, ModalContent } from "@appsmith/ads";
-import type { ConnectRequestParams } from "git/requests/connectRequest.types";
-import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
-import type { GitApiError } from "git/store/types";
 import React, { useCallback } from "react";
-import ConnectInitialize from "./ConnectInitialize";
-import ConnectSuccess from "./ConnectSuccess";
+import ConnectInitialize, {
+  type ConnectInitializeProps,
+} from "./ConnectInitialize";
 import { noop } from "lodash";
-import type { GitSettingsTab } from "git/constants/enums";
 import styled from "styled-components";
 
 const StyledModalContent = styled(ModalContent)`
@@ -19,82 +16,33 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-interface ConnectModalViewProps {
-  artifactType: string;
-  connect: (params: ConnectRequestParams) => void;
-  connectError: GitApiError | null;
-  fetchSSHKey: () => void;
-  generateSSHKey: (keyType: string) => void;
-  gitImport: (params: GitImportRequestParams) => void;
-  isConnectLoading: boolean;
-  isConnectModalOpen: boolean;
-  isFetchSSHKeyLoading: boolean;
-  isGenerateSSHKeyLoading: boolean;
-  isGitImportLoading: boolean;
-  isImport: boolean;
-  resetFetchSSHKey: () => void;
-  resetGenerateSSHKey: () => void;
-  sshPublicKey: string | null;
-  toggleConnectModal: (open: boolean) => void;
-  isConnected: boolean;
-  remoteUrl: string | null;
-  toggleSettingsModal: (
-    open: boolean,
-    tab?: keyof typeof GitSettingsTab,
-  ) => void;
-  defaultBranch: string | null;
-  repoName: string | null;
-  setImportWorkspaceId: () => void;
-  isCreateArtifactPermitted: boolean;
+interface ConnectModalViewProps extends ConnectInitializeProps {
+  isModalOpen: boolean;
+  resetSSHKey: () => void;
+  toggleModalOpen: (open: boolean) => void;
 }
 
 function ConnectModalView({
-  defaultBranch = null,
-  isConnected = false,
-  isConnectModalOpen = false,
-  remoteUrl = null,
-  repoName = null,
-  resetFetchSSHKey = noop,
-  resetGenerateSSHKey = noop,
-  toggleConnectModal = noop,
-  toggleSettingsModal = noop,
+  isModalOpen = false,
+  resetSSHKey = noop,
+  toggleModalOpen = noop,
   ...rest
 }: ConnectModalViewProps) {
   const handleModalOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        resetFetchSSHKey();
-        resetGenerateSSHKey();
+        resetSSHKey();
       }
 
-      toggleConnectModal(open);
+      toggleModalOpen(open);
     },
-    [resetFetchSSHKey, resetGenerateSSHKey, toggleConnectModal],
+    [resetSSHKey, toggleModalOpen],
   );
 
   return (
-    <Modal onOpenChange={handleModalOpenChange} open={isConnectModalOpen}>
+    <Modal onOpenChange={handleModalOpenChange} open={isModalOpen}>
       <StyledModalContent data-testid="t--git-connect-modal">
-        {isConnectModalOpen ? (
-          // need fragment to arrange conditions properly
-          // eslint-disable-next-line react/jsx-no-useless-fragment
-          <>
-            {isConnected ? (
-              <ConnectSuccess
-                defaultBranch={defaultBranch}
-                remoteUrl={remoteUrl}
-                repoName={repoName}
-                toggleConnectModal={toggleConnectModal}
-                toggleSettingsModal={toggleSettingsModal}
-              />
-            ) : (
-              <ConnectInitialize
-                toggleConnectModal={toggleConnectModal}
-                {...rest}
-              />
-            )}
-          </>
-        ) : null}
+        {isModalOpen ? <ConnectInitialize {...rest} /> : null}
       </StyledModalContent>
     </Modal>
   );

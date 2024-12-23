@@ -63,6 +63,15 @@ export default function* connectSaga(
           artifact: response.data,
         }),
       );
+      yield put(
+        gitArtifactActions.toggleConnectModal({ artifactDef, open: false }),
+      );
+      yield put(
+        gitArtifactActions.toggleConnectSuccessModal({
+          artifactDef,
+          open: true,
+        }),
+      );
     }
   } catch (e) {
     if (response && response.responseMeta.error) {

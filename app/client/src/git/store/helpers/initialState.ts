@@ -7,10 +7,12 @@ import type {
   GitArtifactAPIResponsesReduxState,
   GitArtifactUIReduxState,
   GitArtifactReduxState,
+  GitGlobalReduxState,
 } from "../types";
 
 const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   connectModalOpen: false,
+  connectSuccessModalOpen: false,
   disconnectBaseArtifactId: null,
   disconnectArtifactName: null,
   branchPopupOpen: false,
@@ -34,10 +36,6 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     error: null,
   },
   connect: {
-    loading: false,
-    error: null,
-  },
-  gitImport: {
     loading: false,
     error: null,
   },
@@ -134,4 +132,26 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
 export const gitArtifactInitialState: GitArtifactReduxState = {
   ui: gitArtifactInitialUIState,
   apiResponses: gitArtifactInitialAPIResponses,
+};
+
+export const gitGlobalInitialState: GitGlobalReduxState = {
+  globalProfile: {
+    value: null,
+    loading: false,
+    error: null,
+  },
+  updateGlobalProfile: {
+    loading: false,
+    error: null,
+  },
+  globalSSHKey: {
+    value: null,
+    loading: false,
+    error: null,
+  },
+  gitImport: {
+    loading: false,
+    error: null,
+  },
+  isImportModalOpen: false,
 };

@@ -1,70 +1,78 @@
-import React from "react";
+import React, { useCallback } from "react";
 import ConnectModalView from "./ConnectModalView";
 import { useGitContext } from "../GitContextProvider";
 import useConnect from "git/hooks/useConnect";
-import useMetadata from "git/hooks/useMetadata";
-import useSettings from "git/hooks/useSettings";
-import useConnected from "git/hooks/useConnected";
 import { GitArtifactType } from "git/constants/enums";
+import type { ConnectRequestParams } from "git/requests/connectRequest.types";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import useSSHKey from "git/hooks/useSSHKey";
+import useImport from "git/hooks/useImport";
+import history from "utils/history";
 
-interface ConnectModalProps {
-  isImport?: boolean;
-}
-
-function ConnectModal({ isImport = false }: ConnectModalProps) {
+function ConnectModal() {
   const { artifactDef, isCreateArtifactPermitted, setImportWorkspaceId } =
     useGitContext();
   const {
     connect,
     connectError,
-    fetchSSHKey,
-    generateSSHKey,
-    gitImport,
     isConnectLoading,
     isConnectModalOpen,
+    toggleConnectModal,
+  } = useConnect();
+  const { toggleImportModal } = useImport();
+  const {
+    fetchSSHKey,
+    generateSSHKey,
     isFetchSSHKeyLoading,
     isGenerateSSHKeyLoading,
-    isGitImportLoading,
     resetFetchSSHKey,
     resetGenerateSSHKey,
     sshKey,
-    toggleConnectModal,
-  } = useConnect();
-  const isConnected = useConnected();
-  const { metadata } = useMetadata();
-  const { toggleSettingsModal } = useSettings();
+  } = useSSHKey();
 
   const artifactType = artifactDef?.artifactType ?? GitArtifactType.Application;
   const sshPublicKey = sshKey?.publicKey ?? null;
-  const remoteUrl = metadata?.remoteUrl ?? null;
-  const repoName = metadata?.repoName ?? null;
-  const defaultBranch = metadata?.defaultBranchName ?? null;
+  const isSSHKeyLoading = isFetchSSHKeyLoading || isGenerateSSHKeyLoading;
+
+  const onSubmit = useCallback(
+    (params: ConnectRequestParams) => {
+      AnalyticsUtil.logEvent("GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK", {
+        repoUrl: params?.remoteUrl,
+        connectFlow: "v2",
+      });
+      connect(params);
+    },
+    [connect],
+  );
+
+  const onOpenImport = useCallback(() => {
+    toggleConnectModal(false);
+    history.push("/applications");
+    setImportWorkspaceId();
+    toggleImportModal(true);
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
+  }, [setImportWorkspaceId, toggleConnectModal, toggleImportModal]);
+
+  const resetSSHKey = useCallback(() => {
+    resetFetchSSHKey();
+    resetGenerateSSHKey();
+  }, [resetFetchSSHKey, resetGenerateSSHKey]);
 
   return (
     <ConnectModalView
       artifactType={artifactType}
-      connect={connect}
-      connectError={connectError}
-      defaultBranch={defaultBranch}
-      fetchSSHKey={fetchSSHKey}
-      generateSSHKey={generateSSHKey}
-      gitImport={gitImport}
-      isConnectLoading={isConnectLoading}
-      isConnectModalOpen={isConnectModalOpen}
-      isConnected={isConnected}
-      isCreateArtifactPermitted={isCreateArtifactPermitted}
-      isFetchSSHKeyLoading={isFetchSSHKeyLoading}
-      isGenerateSSHKeyLoading={isGenerateSSHKeyLoading}
-      isGitImportLoading={isGitImportLoading}
-      isImport={isImport}
-      remoteUrl={remoteUrl}
-      repoName={repoName}
-      resetFetchSSHKey={resetFetchSSHKey}
-      resetGenerateSSHKey={resetGenerateSSHKey}
-      setImportWorkspaceId={setImportWorkspaceId}
+      error={connectError}
+      isImport={false}
+      isModalOpen={isConnectModalOpen}
+      isSSHKeyLoading={isSSHKeyLoading}
+      isSubmitLoading={isConnectLoading}
+      onFetchSSHKey={fetchSSHKey}
+      onGenerateSSHKey={generateSSHKey}
+      onOpenImport={isCreateArtifactPermitted ? onOpenImport : null}
+      onSubmit={onSubmit}
+      resetSSHKey={resetSSHKey}
       sshPublicKey={sshPublicKey}
-      toggleConnectModal={toggleConnectModal}
-      toggleSettingsModal={toggleSettingsModal}
+      toggleModalOpen={toggleConnectModal}
     />
   );
 }

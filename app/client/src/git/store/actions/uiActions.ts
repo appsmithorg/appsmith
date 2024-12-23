@@ -1,5 +1,7 @@
 import type { GitOpsTab, GitSettingsTab } from "git/constants/enums";
 import { createArtifactAction } from "../helpers/createArtifactAction";
+import type { GitGlobalReduxState } from "../types";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 // connect modal
 export interface ToggleConnectModalPayload {
@@ -14,6 +16,34 @@ export const toggleConnectModalAction =
 
     return state;
   });
+
+export interface ToggleConnectSuccessModalPayload {
+  open: boolean;
+}
+
+export const toggleConnectSuccessModalAction =
+  createArtifactAction<ToggleConnectSuccessModalPayload>((state, action) => {
+    const { open } = action.payload;
+
+    state.ui.connectSuccessModalOpen = open;
+
+    return state;
+  });
+
+export interface ToggleImportModalPayload {
+  open: boolean;
+}
+
+export const toggleImportModalAction = (
+  state: GitGlobalReduxState,
+  action: PayloadAction<ToggleImportModalPayload>,
+) => {
+  const { open } = action.payload;
+
+  state.isImportModalOpen = open;
+
+  return state;
+};
 
 // disconnect modal
 export interface OpenDisconnectModalPayload {

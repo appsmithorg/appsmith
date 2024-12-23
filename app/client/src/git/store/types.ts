@@ -17,6 +17,7 @@ import type {
   GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
+import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -37,7 +38,6 @@ export interface GitArtifactAPIResponsesReduxState
   extends GitArtifactAPIResponsesReduxStateExtended {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
-  gitImport: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
   pull: GitAsyncStateWithoutValue;
@@ -63,6 +63,7 @@ export interface GitArtifactAPIResponsesReduxState
 export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
   connectModalOpen: boolean;
+  connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
   disconnectArtifactName: string | null;
   branchPopupOpen: boolean;
@@ -86,9 +87,13 @@ export interface GitArtifactReduxState {
   apiResponses: GitArtifactAPIResponsesReduxState;
 }
 
-export interface GitConfigReduxState {
+export interface GitGlobalReduxState {
   globalProfile: GitAsyncState<FetchGlobalProfileResponseData>;
   updateGlobalProfile: GitAsyncStateWithoutValue;
+  gitImport: GitAsyncStateWithoutValue;
+  globalSSHKey: GitAsyncState<FetchGlobalSSHKeyResponseData>;
+  // ui
+  isImportModalOpen: boolean;
 }
 
 export type GitArtifactRootReduxState = Record<
@@ -98,7 +103,7 @@ export type GitArtifactRootReduxState = Record<
 
 export interface GitReduxState {
   artifacts: GitArtifactRootReduxState;
-  global: GitConfigReduxState;
+  global: GitGlobalReduxState;
 }
 
 export interface GitRootState {

@@ -1,26 +1,37 @@
-import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { GitAsyncErrorPayload, GitGlobalReduxState } from "../types";
+import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 
-export const gitImportInitAction = createArtifactAction((state) => {
-  state.apiResponses.gitImport.loading = true;
-  state.apiResponses.gitImport.error = null;
+export interface GitImportInitPayload extends GitImportRequestParams {
+  workspaceId: string;
+}
+
+export const gitImportInitAction = (
+  state: GitGlobalReduxState,
+  // need type for better import
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  action: PayloadAction<GitImportInitPayload>,
+) => {
+  state.gitImport.loading = true;
+  state.gitImport.error = null;
 
   return state;
-});
+};
 
-export const gitImportSuccessAction = createArtifactAction((state) => {
-  state.apiResponses.gitImport.loading = false;
+export const gitImportSuccessAction = (state: GitGlobalReduxState) => {
+  state.gitImport.loading = false;
 
   return state;
-});
+};
 
-export const gitImportErrorAction = createArtifactAction<GitAsyncErrorPayload>(
-  (state, action) => {
-    const { error } = action.payload;
+export const gitImportErrorAction = (
+  state: GitGlobalReduxState,
+  action: PayloadAction<GitAsyncErrorPayload>,
+) => {
+  const { error } = action.payload;
 
-    state.apiResponses.gitImport.loading = false;
-    state.apiResponses.gitImport.error = error;
+  state.gitImport.loading = false;
+  state.gitImport.error = error;
 
-    return state;
-  },
-);
+  return state;
+};

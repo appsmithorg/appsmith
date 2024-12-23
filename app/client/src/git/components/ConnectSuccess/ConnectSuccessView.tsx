@@ -112,38 +112,38 @@ function ConnectSuccessModalView({
   );
 }
 
-interface ConnectSuccessProps {
+export interface ConnectSuccessViewProps {
   defaultBranch: string | null;
   remoteUrl: string | null;
   repoName: string | null;
-  toggleConnectModal: (open: boolean) => void;
+  toggleModalOpen: (open: boolean) => void;
   toggleSettingsModal: (
     open: boolean,
     tab?: keyof typeof GitSettingsTab,
   ) => void;
 }
 
-function ConnectSuccess({
+function ConnectSuccessView({
   defaultBranch,
   remoteUrl = null,
   repoName,
-  toggleConnectModal = noop,
+  toggleModalOpen = noop,
   toggleSettingsModal = noop,
-}: ConnectSuccessProps) {
+}: ConnectSuccessViewProps) {
   const handleStartGit = useCallback(() => {
-    toggleConnectModal(false);
+    toggleModalOpen(false);
     AnalyticsUtil.logEvent("GS_START_USING_GIT", {
       repoUrl: remoteUrl,
     });
-  }, [remoteUrl, toggleConnectModal]);
+  }, [remoteUrl, toggleModalOpen]);
 
   const handleOpenSettings = useCallback(() => {
-    toggleConnectModal(false);
+    toggleModalOpen(false);
     toggleSettingsModal(true);
     AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
       repoUrl: remoteUrl,
     });
-  }, [remoteUrl, toggleConnectModal, toggleSettingsModal]);
+  }, [remoteUrl, toggleModalOpen, toggleSettingsModal]);
 
   return (
     <>
@@ -175,4 +175,4 @@ function ConnectSuccess({
   );
 }
 
-export default ConnectSuccess;
+export default ConnectSuccessView;

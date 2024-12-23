@@ -1,12 +1,21 @@
 import type { GitRootState } from "../types";
 
-export const selectGitConfig = (state: GitRootState) => {
+export const selectGitGlobal = (state: GitRootState) => {
   return state.git.global;
 };
 
 // global profile
 export const selectFetchGlobalProfileState = (state: GitRootState) =>
-  selectGitConfig(state).globalProfile;
+  selectGitGlobal(state).globalProfile;
 
 export const selectUpdateGlobalProfileState = (state: GitRootState) =>
-  selectGitConfig(state).updateGlobalProfile;
+  selectGitGlobal(state).updateGlobalProfile;
+
+export const selectImportModalOpen = (state: GitRootState) =>
+  selectGitGlobal(state).isImportModalOpen;
+
+export const selectGitImportState = (state: GitRootState) =>
+  selectGitGlobal(state).gitImport;
+
+export const selectFetchGlobalSSHKeyState = (state: GitRootState) =>
+  selectGitGlobal(state).globalSSHKey;

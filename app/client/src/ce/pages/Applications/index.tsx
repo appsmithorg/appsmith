@@ -133,13 +133,21 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import { GitImportModal as NewGitImportModal } from "git";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
+import { GitImportModal as NewGitImportModal } from "git";
 
-function GitImportModals() {
+interface GitImportModalProps {
+  workspaceId: string;
+}
+
+function GitImportModal({ workspaceId }: GitImportModalProps) {
   const isGitModEnabled = useGitModEnabled();
 
-  return isGitModEnabled ? <NewGitImportModal /> : <OldGitSyncModal isImport />;
+  return isGitModEnabled ? (
+    <NewGitImportModal workspaceId={workspaceId} />
+  ) : (
+    <OldGitSyncModal isImport />
+  );
 }
 
 export const { cloudHosting } = getAppsmithConfigs();
@@ -963,7 +971,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <GitImportModals />
+      <GitImportModal workspaceId={activeWorkspaceId} />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
