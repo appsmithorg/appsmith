@@ -27,3 +27,6 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
 
 export const PREMIUM_INTEGRATION_CONTACT_FORM =
   "PREMIUM_INTEGRATION_CONTACT_FORM";
+
+export const SCHEDULE_CALL_URL =
+  "https://calendly.com/carina-neves-fonseca/appsmith";
