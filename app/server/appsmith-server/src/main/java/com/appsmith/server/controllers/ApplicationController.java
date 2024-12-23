@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ApplicationControllerCE;
 import com.appsmith.server.exports.internal.ExportService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicationController extends ApplicationControllerCE {
 
     public ApplicationController(
+            ArtifactService artifactService,
             ApplicationService service,
             ApplicationPageService applicationPageService,
             UserReleaseNotes userReleaseNotes,
@@ -33,6 +35,7 @@ public class ApplicationController extends ApplicationControllerCE {
             ImportService importService,
             ExportService exportService) {
         super(
+                artifactService,
                 service,
                 applicationPageService,
                 userReleaseNotes,
