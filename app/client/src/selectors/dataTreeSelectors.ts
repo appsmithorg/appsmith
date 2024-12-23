@@ -174,8 +174,6 @@ export const getUnevaluatedDataTree = createSelector(
       ...widgets.configTree,
     };
 
-    // const { currentPageName, workspaceName, appName } = someObj;
-
     dataTree.appsmith = {
       ...appData,
       // combine both persistent and transient state with the transient state
