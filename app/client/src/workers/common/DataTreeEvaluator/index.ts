@@ -1094,6 +1094,11 @@ export default class DataTreeEvaluator {
     const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
+    const allNewEntityDiffSet = new Set(
+      unevalUpdates
+        .filter((v) => v.event === DataTreeDiffEvent.NEW)
+        .map((v) => v.payload.propertyPath),
+    );
     let evalContextCache;
 
     if (WorkerEnv.flags.release_evaluation_scope_cache) {
@@ -1200,7 +1205,7 @@ export default class DataTreeEvaluator {
             if (isATriggerPath) continue;
 
             const isNewWidget =
-              isFirstTree || isNewEntity(unevalUpdates, entityName);
+              isFirstTree || isNewEntity(allNewEntityDiffSet, entityName);
 
             const widgetEntity = entity as WidgetEntity;
 
