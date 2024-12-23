@@ -78,9 +78,11 @@ import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTi
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import {
   useGitConnected,
+  useGitModEnabled,
   useGitProtectedMode,
 } from "pages/Editor/gitSync/hooks/modHooks";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
+import { useGitOps } from "git";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -168,6 +170,9 @@ const Header = () => {
     FEATURE_FLAG.license_private_embeds_enabled,
   );
 
+  const isGitModEnabled = useGitModEnabled();
+  const { toggleOpsModal } = useGitOps();
+
   const deployLink = useHref(viewerURL, {
     basePageId: currentPage?.basePageId,
   });
@@ -218,7 +223,12 @@ const Header = () => {
 
   const handleClickDeploy = useCallback(() => {
     if (isGitConnected) {
-      dispatch(showConnectGitModal());
+      if (isGitModEnabled) {
+        toggleOpsModal(true);
+      } else {
+        dispatch(showConnectGitModal());
+      }
+
       AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
         source: "Deploy button",
       });
