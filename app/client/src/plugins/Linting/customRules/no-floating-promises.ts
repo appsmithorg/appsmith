@@ -1,12 +1,5 @@
-import { objectKeys } from "@appsmith/utils";
 import type { Rule } from "eslint";
 import type * as ESTree from "estree";
-
-function isIdentifier(
-  node: ESTree.Node | null | undefined,
-): node is ESTree.Identifier {
-  return node?.type === "Identifier";
-}
 
 export const noFloatingPromisesLintRule: Rule.RuleModule = {
   meta: {
@@ -22,18 +15,7 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
     schema: [], // No options for now
   },
   create: function (context: Rule.RuleContext) {
-    const eslintGlobals = context.settings?.eslintGlobals || {};
-
-    // eslint-disable-next-line @appsmith/object-keys
-    const asyncFunctionNames: string[] = Object.keys(eslintGlobals).filter(
-      (name) => {
-        // Assuming functions marked as async have a specific property
-        return eslintGlobals[name] === true; // Adjust based on your implementation
-      },
-    );
-
     return {
-      // Entry point: FunctionDeclaration (for $$closedFn)
       FunctionDeclaration(node: ESTree.FunctionDeclaration) {
         traverseNode(node.body, null);
       },
@@ -45,44 +27,23 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
     ) {
       if (!node) return;
 
-      // Check if the node is a VariableDeclaration
-      if (node.type === "VariableDeclaration") {
-        // Process variable declarations
-        for (const declarator of node.declarations) {
-          if (
-            declarator.id.type === "Identifier" &&
-            declarator.id.name === "$$result" &&
-            declarator.init &&
-            declarator.init.type === "ObjectExpression"
-          ) {
-            // Found the ObjectExpression assigned to $$result
-            traverseObjectExpression(declarator.init);
-          }
-        }
-      }
-
       // Check for CallExpression
       if (node.type === "CallExpression") {
         checkCallExpression(node as ESTree.CallExpression, parent);
       }
 
-      const visitorKeys = context.getSourceCode().visitorKeys;
-      const keys =
-        visitorKeys[node.type] ||
-        objectKeys(node).filter((key) => typeof node[key] === "object");
+      // Traverse child nodes
+      const visitorKeys = context.getSourceCode().visitorKeys[node.type] || [];
 
-      for (const key of keys) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const child = (node as any)[key];
+      for (const key of visitorKeys) {
+        const child = (node as any)[key]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
         if (Array.isArray(child)) {
-          for (const c of child) {
-            if (c && typeof c.type === "string") {
-              traverseNode(c as ESTree.Node, node);
-            }
-          }
+          child.forEach(
+            (c) => c && typeof c.type === "string" && traverseNode(c, node),
+          );
         } else if (child && typeof child.type === "string") {
-          traverseNode(child as ESTree.Node, node);
+          traverseNode(child, node);
         }
       }
     }
@@ -98,29 +59,10 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
         }
 
         // @ts-expect-error: Types are not available
-        node = node?.parent;
+        node = node.parent;
       }
 
       return false;
-    }
-
-    function traverseObjectExpression(node: ESTree.ObjectExpression) {
-      for (const property of node.properties) {
-        if (property.type === "Property") {
-          const value = property.value;
-
-          if (
-            value.type === "FunctionExpression" ||
-            value.type === "ArrowFunctionExpression"
-          ) {
-            if (value.async) {
-              // Found an async function within the object
-              traverseNode(value.body, null);
-              //console.log("Ayush inside", value.body);
-            }
-          }
-        }
-      }
     }
 
     function checkCallExpression(
@@ -128,37 +70,12 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       parent: ESTree.Node | null,
     ) {
       const callee = node.callee;
-
       let isPotentialAsyncCall = false;
-      let objectName = "";
-      let propertyName = "";
 
       if (callee.type === "MemberExpression") {
-        const memberExpr = callee;
-        const object = memberExpr.object;
-        const property = memberExpr.property;
+        const property = callee.property;
 
-        if (property.type === "Identifier") {
-          propertyName = property.name;
-        } else if (property.type === "Literal") {
-          propertyName = String(property.value);
-        }
-
-        if (object.type === "ThisExpression") {
-          objectName = "this";
-
-          if (asyncFunctionNames.includes(propertyName)) {
-            isPotentialAsyncCall = true;
-          }
-        } else if (object.type === "Identifier") {
-          objectName = object.name;
-
-          if (propertyName === "run") {
-            isPotentialAsyncCall = true;
-          }
-        }
-      } else if (callee.type === "Identifier") {
-        if (asyncFunctionNames.includes(callee.name)) {
+        if (property.type === "Identifier" && property.name === "run") {
           isPotentialAsyncCall = true;
         }
       }
@@ -167,36 +84,29 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
         if (
           parent &&
           parent.type !== "AwaitExpression" &&
-          parent.type !== "ReturnStatement"
+          parent.type !== "ReturnStatement" &&
+          !isHandledWithPromiseMethods(parent)
         ) {
-          if (
-            parent.type === "MemberExpression" &&
-            (parent as ESTree.MemberExpression).property
-          ) {
-            const memberExpr = parent as ESTree.MemberExpression;
-            const property = memberExpr.property;
-
-            if (isIdentifier(property)) {
-              if (["then", "catch", "finally"].includes(property.name)) {
-                // The promise is being handled with .then(), .catch(), or .finally()
-                return;
-              }
-            }
-          }
-
-          // Report error
           context.report({
             node,
             messageId: "unhandledPromise",
-            data: {
-              functionName:
-                callee.type === "Identifier"
-                  ? callee.name
-                  : `${objectName}.${propertyName}`,
-            },
           });
         }
       }
+    }
+
+    function isHandledWithPromiseMethods(parent: ESTree.Node): boolean {
+      if (
+        parent.type === "MemberExpression" &&
+        parent.property &&
+        ["then", "catch", "finally"].includes(
+          (parent.property as ESTree.Identifier).name,
+        )
+      ) {
+        return true;
+      }
+
+      return false;
     }
   },
 };
