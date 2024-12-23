@@ -4,6 +4,7 @@ import { validateInput } from "../../WDSSelectWidget/widget/helpers";
 import { ComboboxSelectIcon, ComboboxSelectThumbnail } from "appsmith-icons";
 
 import { WDSSelectWidget } from "../../WDSSelectWidget";
+import isArray from "lodash/isArray";
 
 class WDSComboBoxWidget extends WDSSelectWidget {
   static type = "WDS_COMBOBOX_WIDGET";
@@ -24,21 +25,17 @@ class WDSComboBoxWidget extends WDSSelectWidget {
   }
 
   getWidgetView() {
-    const {
-      labelTooltip,
-      options,
-      placeholderText,
-      selectedOptionValue,
-      ...rest
-    } = this.props;
-
+    const { labelTooltip, placeholderText, selectedOptionValue, ...rest } =
+      this.props;
     const validation = validateInput(this.props);
+    const options = (isArray(this.props.options) ? this.props.options : []) as {
+      value: string;
+      label: string;
+    }[];
     // This is key is used to force re-render of the widget when the options change.
     // Why force re-render on   options change?
-    // Sometimes when the user is changing options, the select throws an error saying "cannot change id of item".
-    const key = this.optionsToSelectItems(options)
-      .map((option) => option.id)
-      .join(",");
+    // Sometimes when the user is changing options, the select throws an error ( related to react-aria code ) saying "cannot change id of item".
+    const key = options.map((option) => option.value).join(",");
 
     return (
       <ComboBox
@@ -51,8 +48,12 @@ class WDSComboBoxWidget extends WDSSelectWidget {
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       >
-        {this.optionsToSelectItems(options).map((option) => (
-          <ListBoxItem id={option.id} key={option.id} textValue={option.label}>
+        {options.map((option) => (
+          <ListBoxItem
+            id={option.value}
+            key={option.value}
+            textValue={option.label}
+          >
             {option.label}
           </ListBoxItem>
         ))}

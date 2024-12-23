@@ -1,13 +1,21 @@
+import React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WDSSelectWidgetProps } from "../../widget/types";
-import {
-  defaultOptionValidation,
-  optionsCustomValidation,
-} from "./validations";
+import { defaultOptionValueValidation } from "./validations";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { PropertyUpdates } from "WidgetProvider/constants";
+import { valueKeyValidation } from "./validations/valueKeyValidation";
+import {
+  defaultValueExpressionPrefix,
+  getDefaultValueExpressionSuffix,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
+  getOptionLabelValueExpressionPrefix,
+  optionLabelValueExpressionSuffix,
+} from "../../widget/helpers";
+import { labelKeyValidation } from "./validations/labelKeyValidation";
 
 type WidgetTypeValue = "SELECT" | "COMBOBOX";
 
@@ -64,52 +72,146 @@ export const propertyPaneContentConfig = [
         },
       },
       {
-        helpText: "Displays a list of unique options",
-        propertyName: "options",
-        label: "Options",
-        controlType: "OPTION_INPUT",
+        helpText:
+          "Takes in an array of objects to display options. Bind data from an API using {{}}",
+        propertyName: "sourceData",
+        label: "Source Data",
+        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlConfig: {
+          aliases: [
+            {
+              name: "label",
+              isSearcheable: true,
+              isRequired: true,
+            },
+            {
+              name: "value",
+              isRequired: true,
+            },
+          ],
+          sampleData: JSON.stringify(
+            [
+              { name: "Blue", code: "BLUE" },
+              { name: "Green", code: "GREEN" },
+              { name: "Red", code: "RED" },
+            ],
+            null,
+            2,
+          ),
+        },
         isJSConvertible: true,
+        placeholderText: '[{ "label": "label1", "value": "value1" }]',
         isBindProperty: true,
         isTriggerProperty: false,
-        dependencies: ["optionLabel", "optionValue"],
         validation: {
-          type: ValidationTypes.FUNCTION,
+          type: ValidationTypes.ARRAY,
           params: {
-            fn: optionsCustomValidation,
-            expected: {
-              type: 'Array<{ "label": "string", "value": "string" | number}>',
-              example: `[{"label": "One", "value": "one"}]`,
-              autocompleteDataType: AutocompleteDataType.STRING,
+            children: {
+              type: ValidationTypes.OBJECT,
+              params: {
+                required: true,
+              },
             },
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
-        helpText: "Sets a default selected option",
-        propertyName: "defaultOptionValue",
-        label: "Default selected value",
+        helpText: "Choose or set a field from source data as the display label",
+        propertyName: "optionLabel",
+        label: "Label key",
+        controlType: "DROP_DOWN",
+        customJSControl: "WRAPPED_CODE_EDITOR",
+        controlConfig: {
+          wrapperCode: {
+            prefix: getOptionLabelValueExpressionPrefix,
+            suffix: optionLabelValueExpressionSuffix,
+          },
+        },
         placeholderText: "",
-        controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        dependencies: ["options"],
-        /**
-         * Changing the validation to FUNCTION.
-         * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.
-         * If user enters 1 e.g. then it should evaluate as string.
-         */
+        isJSConvertible: true,
+        evaluatedDependencies: ["sourceData"],
+        options: getLabelValueKeyOptions,
+        alwaysShowSelected: true,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
-            fn: defaultOptionValidation,
+            fn: labelKeyValidation,
             expected: {
-              type: `string |\nnumber (only works in mustache syntax)`,
-              example: `abc | {{1}}`,
+              type: "String or Array<string>",
+              example: `color | ["blue", "green"]`,
               autocompleteDataType: AutocompleteDataType.STRING,
             },
           },
         },
+        additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+      },
+      {
+        helpText: "Choose or set a field from source data as the value",
+        propertyName: "optionValue",
+        label: "Value key",
+        controlType: "DROP_DOWN",
+        customJSControl: "WRAPPED_CODE_EDITOR",
+        controlConfig: {
+          wrapperCode: {
+            prefix: getOptionLabelValueExpressionPrefix,
+            suffix: optionLabelValueExpressionSuffix,
+          },
+        },
+        placeholderText: "",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        isJSConvertible: true,
+        evaluatedDependencies: ["sourceData"],
+        options: getLabelValueKeyOptions,
+        alwaysShowSelected: true,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: valueKeyValidation,
+            expected: {
+              type: "String or Array<string | number | boolean>",
+              example: `color | [1, "orange"]`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+      },
+      {
+        helpText: "Selects the option with value by default",
+        propertyName: "defaultOptionValue",
+        label: "Default selected value",
+        controlType: "WRAPPED_CODE_EDITOR",
+        controlConfig: {
+          wrapperCode: {
+            prefix: defaultValueExpressionPrefix,
+            suffix: getDefaultValueExpressionSuffix,
+          },
+        },
+        placeholderText: '{ "label": "label1", "value": "value1" }',
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultOptionValueValidation,
+            expected: {
+              type: 'value1 or { "label": "label1", "value": "value1" }',
+              example: `value1 | { "label": "label1", "value": "value1" }`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        dependencies: ["serverSideFiltering", "options"],
+        helperText: (
+          <div style={{ marginTop: "10px" }}>
+            Make sure the default value is present in the source data to have it
+            selected by default in the UI.
+          </div>
+        ),
       },
     ],
   },

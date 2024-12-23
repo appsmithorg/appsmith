@@ -20,6 +20,9 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
+import isArray from "lodash/isArray";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -46,9 +49,8 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
 
   static getDependencyMap(): Record<string, string[]> {
     return {
-      optionLabel: ["options"],
-      optionValue: ["options"],
-      defaultOptionValue: ["options"],
+      optionLabel: ["sourceData"],
+      optionValue: ["sourceData"],
     };
   }
 
@@ -65,11 +67,13 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      selectedOption:
-        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
-      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
-      value: `{{this.selectedOptionValue}}`,
+      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValue}})()}}`,
+      selectedOptionLabel: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
@@ -90,6 +94,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return {};
   }
 
+  // in case default value changes, we need to reset isDirty to false
   componentDidUpdate(prevProps: WDSSelectWidgetProps): void {
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
@@ -136,39 +141,18 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  optionsToSelectItems = (options: WDSSelectWidgetProps["options"]) => {
-    if (Array.isArray(options)) {
-      const items = options.map((option) => ({
-        label: option[this.props.optionLabel || "label"] as string,
-        id: option[this.props.optionValue || "value"] as string,
-      }));
-
-      const isValidItems = items.every(
-        (item) => item.label !== undefined && item.id !== undefined,
-      );
-
-      return isValidItems ? items : [];
-    }
-
-    return [];
-  };
-
   getWidgetView() {
-    const {
-      labelTooltip,
-      options,
-      placeholderText,
-      selectedOptionValue,
-      ...rest
-    } = this.props;
-
+    const { labelTooltip, placeholderText, selectedOptionValue, ...rest } =
+      this.props;
     const validation = validateInput(this.props);
+    const options = (isArray(this.props.options) ? this.props.options : []) as {
+      value: string;
+      label: string;
+    }[];
     // This is key is used to force re-render of the widget when the options change.
     // Why force re-render on   options change?
-    // Sometimes when the user is changing options, the select throws an error saying "cannot change id of item".
-    const key = this.optionsToSelectItems(options)
-      .map((option) => option.id)
-      .join(",");
+    // Sometimes when the user is changing options, the select throws an error ( related to react-aria code ) saying "cannot change id of item".
+    const key = options.map((option) => option.value).join(",");
 
     return (
       <Select
@@ -181,8 +165,12 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       >
-        {this.optionsToSelectItems(options).map((option) => (
-          <ListBoxItem id={option.id} key={option.id} textValue={option.label}>
+        {options.map((option) => (
+          <ListBoxItem
+            id={option.value}
+            key={option.value}
+            textValue={option.label}
+          >
             {option.label}
           </ListBoxItem>
         ))}

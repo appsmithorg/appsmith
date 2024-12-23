@@ -4,11 +4,17 @@ import type { WidgetDefaultProps } from "WidgetProvider/constants";
 export const defaultsConfig = {
   animateLoading: true,
   label: "Label",
-  options: [
-    { label: "Option 1", value: "1" },
-    { label: "Option 2", value: "2" },
-    { label: "Option 3", value: "3" },
-  ],
+  sourceData: JSON.stringify(
+    [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
+    ],
+    null,
+    2,
+  ),
+  optionLabel: "name",
+  optionValue: "code",
   defaultOptionValue: "",
   isRequired: false,
   isDisabled: false,
@@ -18,4 +24,6 @@ export const defaultsConfig = {
   widgetType: "SELECT",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  dynamicPropertyPathList: [{ key: "sourceData" }],
+  placeholderText: "Select an item",
 } as unknown as WidgetDefaultProps;
