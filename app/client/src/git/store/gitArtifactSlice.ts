@@ -53,7 +53,7 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleBranchListPopupAction,
+  toggleBranchPopupAction,
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
@@ -119,6 +119,23 @@ import {
   disconnectInitAction,
   disconnectSuccessAction,
 } from "./actions/disconnectActions";
+import {
+  gitImportErrorAction,
+  gitImportInitAction,
+  gitImportSuccessAction,
+} from "./actions/gitImportActions";
+import {
+  fetchSSHKeyErrorAction,
+  fetchSSHKeyInitAction,
+  fetchSSHKeySuccessAction,
+  resetFetchSSHKeyAction,
+} from "./actions/fetchSSHKeyActions";
+import {
+  generateSSHKeyErrorAction,
+  generateSSHKeyInitAction,
+  generateSSHKeySuccessAction,
+  resetGenerateSSHKeyAction,
+} from "./actions/generateSSHKeyActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -139,6 +156,17 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    gitImportInit: gitImportInitAction,
+    gitImportSuccess: gitImportSuccessAction,
+    gitImportError: gitImportErrorAction,
+    fetchSSHKeyInit: fetchSSHKeyInitAction,
+    fetchSSHKeySuccess: fetchSSHKeySuccessAction,
+    fetchSSHKeyError: fetchSSHKeyErrorAction,
+    resetFetchSSHKey: resetFetchSSHKeyAction,
+    generateSSHKeyInit: generateSSHKeyInitAction,
+    generateSSHKeySuccess: generateSSHKeySuccessAction,
+    generateSSHKeyError: generateSSHKeyErrorAction,
+    resetGenerateSSHKey: resetGenerateSSHKeyAction,
     disconnectInit: disconnectInitAction,
     disconnectSuccess: disconnectSuccessAction,
     disconnectError: disconnectErrorAction,
@@ -185,7 +213,7 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleBranchListPopup: toggleBranchListPopupAction,
+    toggleBranchPopup: toggleBranchPopupAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,

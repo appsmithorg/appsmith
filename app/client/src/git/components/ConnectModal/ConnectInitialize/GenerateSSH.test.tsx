@@ -1,12 +1,12 @@
 /* eslint-disable react-perf/jsx-no-new-object-as-prop */
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { isValidGitRemoteUrl } from "../utils";
+import { isValidGitRemoteUrl } from "../../utils";
 import GenerateSSH from "./GenerateSSH";
 import type { GitProvider } from "./ChooseGitProvider";
 import "@testing-library/jest-dom";
 
-jest.mock("../utils", () => ({
+jest.mock("../../utils", () => ({
   isValidGitRemoteUrl: jest.fn(),
 }));
 
@@ -16,6 +16,7 @@ const defaultProps = {
     gitProvider: "github" as GitProvider,
     remoteUrl: "",
   },
+  connectError: null,
 };
 
 describe("GenerateSSH Component", () => {
@@ -33,18 +34,11 @@ describe("GenerateSSH Component", () => {
 
   it("renders an error callout when errorData has code 'AE-GIT-4033'", () => {
     const errorData = {
-      data: {},
-      responseMeta: {
-        status: 503,
-        success: false,
-        error: {
-          message: "",
-          code: "AE-GIT-4033",
-        },
-      },
+      message: "",
+      code: "AE-GIT-4033",
     };
 
-    render(<GenerateSSH {...defaultProps} errorData={errorData} />);
+    render(<GenerateSSH {...defaultProps} connectError={errorData} />);
     expect(
       screen.getByText("The repo you added isn't empty"),
     ).toBeInTheDocument();
@@ -57,18 +51,11 @@ describe("GenerateSSH Component", () => {
 
   it("does not render error callout for other error codes", () => {
     const errorData = {
-      data: {},
-      responseMeta: {
-        status: 503,
-        success: false,
-        error: {
-          message: "",
-          code: "SOME_OTHER_ERROR",
-        },
-      },
+      message: "",
+      code: "SOME_OTHER_ERROR",
     };
 
-    render(<GenerateSSH {...defaultProps} errorData={errorData} />);
+    render(<GenerateSSH {...defaultProps} connectError={errorData} />);
     expect(
       screen.queryByText("The repo you added isn't empty"),
     ).not.toBeInTheDocument();

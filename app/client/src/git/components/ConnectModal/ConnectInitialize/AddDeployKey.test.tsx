@@ -18,18 +18,19 @@ const DEFAULT_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
 const defaultProps: AddDeployKeyProps = {
-  isModalOpen: true,
+  connectError: null,
+  isLoading: false,
   onChange: jest.fn(),
   value: {
     gitProvider: "github",
     isAddedDeployKey: false,
     remoteUrl: "git@github.com:owner/repo.git",
   },
-  fetchSSHKeyPair: jest.fn(),
+  fetchSSHKey: jest.fn(),
   generateSSHKey: jest.fn(),
-  isFetchingSSHKeyPair: false,
-  isGeneratingSSHKey: false,
-  sshKeyPair: "ecdsa-sha2-nistp256 AAAAE2VjZHNhAAAIBaj...",
+  isFetchSSHKeyLoading: false,
+  isGenerateSSHKeyLoading: false,
+  sshPublicKey: "ecdsa-sha2-nistp256 AAAAE2VjZHNhAAAIBaj...",
 };
 
 describe("AddDeployKey Component", () => {
@@ -44,25 +45,27 @@ describe("AddDeployKey Component", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("combobox")).toBeInTheDocument();
     // Should show ECDSA by default since sshKeyPair includes "ecdsa"
-    expect(screen.getByText(defaultProps.sshKeyPair)).toBeInTheDocument();
+    expect(
+      screen.getByText(defaultProps.sshPublicKey as string),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("I've added the deploy key and gave it write access"),
     ).toBeInTheDocument();
   });
 
-  it("calls fetchSSHKeyPair if modal is open and not importing", () => {
+  it("calls fetchSSHKey if modal is open and not importing", () => {
     render(<AddDeployKey {...defaultProps} isImport={false} />);
-    expect(defaultProps.fetchSSHKeyPair).toHaveBeenCalledTimes(1);
+    expect(defaultProps.fetchSSHKey).toHaveBeenCalledTimes(1);
   });
 
-  it("does not call fetchSSHKeyPair if importing", () => {
+  it("does not call fetchSSHKey if importing", () => {
     render(<AddDeployKey {...defaultProps} isImport />);
-    expect(defaultProps.fetchSSHKeyPair).not.toHaveBeenCalled();
+    expect(defaultProps.fetchSSHKey).not.toHaveBeenCalled();
   });
 
   it("shows dummy key loader if loading keys", () => {
     render(
-      <AddDeployKey {...defaultProps} isFetchingSSHKeyPair sshKeyPair="" />,
+      <AddDeployKey {...defaultProps} isFetchSSHKeyLoading sshPublicKey="" />,
     );
     // The actual key text should not be displayed
     expect(screen.queryByText("ecdsa-sha2-nistp256")).not.toBeInTheDocument();
@@ -75,7 +78,7 @@ describe("AddDeployKey Component", () => {
       <AddDeployKey
         {...defaultProps}
         generateSSHKey={generateSSHKey}
-        sshKeyPair="" // No key to force generation
+        sshPublicKey="" // No key to force generation
       />,
     );
 
@@ -85,46 +88,32 @@ describe("AddDeployKey Component", () => {
     fireEvent.click(rsaOption);
 
     await waitFor(() => {
-      expect(generateSSHKey).toHaveBeenCalledWith("RSA", expect.any(Object));
+      expect(generateSSHKey).toHaveBeenCalledWith("RSA", false);
     });
   });
 
   it("displays a generic error when errorData is provided and error code is not AE-GIT-4032 or AE-GIT-4033", () => {
     // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-    const errorData = {
-      data: {},
-      responseMeta: {
-        success: false,
-        status: 503,
-        error: {
-          code: "GENERIC-ERROR",
-          errorType: "Some Error",
-          message: "Something went wrong",
-        },
-      },
+    const connectError = {
+      code: "GENERIC-ERROR",
+      errorType: "Some Error",
+      message: "Something went wrong",
     };
 
-    render(<AddDeployKey {...defaultProps} errorData={errorData} />);
+    render(<AddDeployKey {...defaultProps} connectError={connectError} />);
     expect(screen.getByText("Some Error")).toBeInTheDocument();
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
   });
 
   it("displays a misconfiguration error if error code is AE-GIT-4032", () => {
     // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-    const errorData = {
-      data: {},
-      responseMeta: {
-        success: false,
-        status: 503,
-        error: {
-          code: "AE-GIT-4032",
-          errorType: "SSH Key Error",
-          message: "SSH Key misconfiguration",
-        },
-      },
+    const connectError = {
+      code: "AE-GIT-4032",
+      errorType: "SSH Key Error",
+      message: "SSH Key misconfiguration",
     };
 
-    render(<AddDeployKey {...defaultProps} errorData={errorData} />);
+    render(<AddDeployKey {...defaultProps} connectError={connectError} />);
     expect(screen.getByText("SSH key misconfiguration")).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -154,7 +143,7 @@ describe("AddDeployKey Component", () => {
   });
 
   it("hides copy button when connectLoading is true", () => {
-    render(<AddDeployKey {...defaultProps} connectLoading />);
+    render(<AddDeployKey {...defaultProps} isLoading />);
     expect(screen.queryByTestId("t--copy-generic")).not.toBeInTheDocument();
   });
 
@@ -172,6 +161,7 @@ describe("AddDeployKey Component", () => {
     render(
       <AddDeployKey
         {...defaultProps}
+        // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
         value={{ gitProvider: "others", remoteUrl: "git@xyz.com:repo.git" }}
       />,
     );
@@ -217,54 +207,25 @@ describe("AddDeployKey Component", () => {
     expect(docsLink).toHaveAttribute("href", DEFAULT_DOCS_URL);
   });
 
-  it("uses custom documentation link if provided", () => {
-    render(
-      <AddDeployKey
-        {...defaultProps}
-        deployKeyDocUrl="https://custom-docs.com"
-      />,
-    );
-    const docsLink = screen.getByRole("link", { name: "Read Docs" });
-
-    expect(docsLink).toHaveAttribute("href", "https://custom-docs.com");
-  });
-
-  it("does not generate SSH key if modal is closed", () => {
-    const generateSSHKey = jest.fn();
-
-    render(
-      <AddDeployKey
-        {...defaultProps}
-        generateSSHKey={generateSSHKey}
-        isModalOpen={false}
-        sshKeyPair=""
-      />,
-    );
-    // Should not call generateSSHKey since modal is not open
-    expect(generateSSHKey).not.toHaveBeenCalled();
-  });
-
   it("generates SSH key if none is present and conditions are met", async () => {
-    const fetchSSHKeyPair = jest.fn((props) => {
-      props.onSuccessCallback && props.onSuccessCallback();
-    });
+    const fetchSSHKey = jest.fn();
     const generateSSHKey = jest.fn();
 
     render(
       <AddDeployKey
         {...defaultProps}
-        fetchSSHKeyPair={fetchSSHKeyPair}
+        fetchSSHKey={fetchSSHKey}
         generateSSHKey={generateSSHKey}
-        isFetchingSSHKeyPair={false}
-        isGeneratingSSHKey={false}
-        sshKeyPair=""
+        isFetchSSHKeyLoading={false}
+        isGenerateSSHKeyLoading={false}
+        sshPublicKey=""
       />,
     );
 
-    expect(fetchSSHKeyPair).toHaveBeenCalledTimes(1);
+    expect(fetchSSHKey).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
-      expect(generateSSHKey).toHaveBeenCalledWith("ECDSA", expect.any(Object));
+      expect(generateSSHKey).toHaveBeenCalledWith("ECDSA", false);
     });
   });
 });
