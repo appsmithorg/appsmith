@@ -24,6 +24,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -41,7 +42,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @SpringBootTest
 public class ApplicationSnapshotServiceUnitTest {
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     @MockBean
@@ -82,9 +83,9 @@ public class ApplicationSnapshotServiceUnitTest {
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setPageList(List.of(newPage));
 
-        Mockito.when(applicationService.findBranchedApplicationId(
-                        branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
-                .thenReturn(Mono.just(branchedAppId));
+        Mockito.doReturn(Mono.just(branchedAppId))
+                .when(applicationService)
+                .findBranchedApplicationId(branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS);
 
         Mockito.when(exportService.exportByArtifactId(
                         branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION))
@@ -119,8 +120,9 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setWorkspaceId(workspaceId);
         application.setId(branchedAppId);
 
-        Mockito.when(applicationService.findById(branchedAppId, AclPermission.MANAGE_APPLICATIONS))
-                .thenReturn(Mono.just(application));
+        Mockito.doReturn(Mono.just(branchedAppId))
+                .when(applicationService)
+                .findById(branchedAppId, AclPermission.MANAGE_APPLICATIONS);
 
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setExportedApplication(application);
