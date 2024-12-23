@@ -19,6 +19,7 @@ export enum PERMISSION_TYPE {
   CREATE_APPLICATION = "create:applications",
   /* Datasource permissions */
   CREATE_DATASOURCES = "create:datasources",
+  READ_DATASOURCES = "read:datasources",
   EXECUTE_DATASOURCES = "execute:datasources",
   CREATE_DATASOURCE_ACTIONS = "create:datasourceActions",
   DELETE_DATASOURCES = "delete:datasources",
@@ -84,6 +85,8 @@ export const hasInviteUserToApplicationPermission = (
 export const hasCreateWorkspacePermission = (_permissions?: string[]) => true;
 
 export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
+
+export const hasReadDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasManageDatasourcePermission = (_permissions?: string[]) => true;
 
