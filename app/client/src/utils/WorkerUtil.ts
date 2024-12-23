@@ -5,7 +5,6 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
-import type { OtlpSpan, SpanAttributes } from "instrumentation/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
@@ -17,6 +16,7 @@ import {
   filterSpanData,
   newWebWorkerSpanData,
 } from "instrumentation/generateWebWorkerTraces";
+import type { Attributes, Span } from "@opentelemetry/api";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -189,9 +189,9 @@ export class GracefulWorkerService {
     webworkerTelemetry,
   }: {
     webworkerTelemetry:
-      | Record<string, WebworkerSpanData | SpanAttributes>
+      | Record<string, WebworkerSpanData | Attributes>
       | undefined;
-    rootSpan: OtlpSpan | undefined;
+    rootSpan: Span | undefined;
     method: string;
     startTime: number;
     endTime: number;
@@ -261,7 +261,7 @@ export class GracefulWorkerService {
 
     const webworkerTelemetryData: Record<
       string,
-      WebworkerSpanData | SpanAttributes
+      WebworkerSpanData | Attributes
     > = {
       transferDataToWorkerThread: newWebWorkerSpanData(
         "transferDataToWorkerThread",
@@ -278,7 +278,7 @@ export class GracefulWorkerService {
 
     let webworkerTelemetryResponse: Record<
       string,
-      WebworkerSpanData | SpanAttributes
+      WebworkerSpanData | Attributes
     > = {};
 
     try {
@@ -330,7 +330,7 @@ export class GracefulWorkerService {
       ) {
         setAttributesToSpan(
           rootSpan,
-          webworkerTelemetryResponse.__spanAttributes as SpanAttributes,
+          webworkerTelemetryResponse.__spanAttributes as Attributes,
         );
       }
 

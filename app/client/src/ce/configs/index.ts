@@ -237,6 +237,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: segment.value,
       ceKey: segmentCEKey.value,
     },
+    // TODO @diljit - Remove the following keys from the feature configs
     newRelic: {
       enableNewRelic:
         ENV_CONFIG.newRelic.enableNewRelic ||
@@ -250,6 +251,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       otlpEndpoint: newRelicOtlpEndpoint.value,
     },
     observability: {
+      // TODO @diljit - Add faro related keys here
       deploymentName: observabilityDeploymentName.value,
       serviceInstanceId: observabilityServiceInstanceId.value,
       serviceName: "appsmith-client",

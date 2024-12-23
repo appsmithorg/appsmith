@@ -213,9 +213,11 @@
           ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
         observability: {
+          // TODO @diljit - Add faro related keys here
           deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
           serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}') || "appsmith-0",
         },
+        // TODO @diljit - Remove the following keys from the feature configs
         newRelic:{
           enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),
           accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),

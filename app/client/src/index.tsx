@@ -15,7 +15,6 @@ import { appInitializer } from "utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "ee/AppRouter";
-import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
@@ -28,6 +27,7 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { getAppsmithConfigs } from "ee/configs";
+import { FaroErrorBoundary } from "@grafana/faro-react";
 
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;
@@ -39,6 +39,7 @@ runSagaMiddleware();
 
 appInitializer();
 
+// TODO @diljit: Change env variable name
 enableNewRelic &&
   (async () => {
     try {
@@ -52,13 +53,13 @@ enableNewRelic &&
 
 function App() {
   return (
-    <Sentry.ErrorBoundary fallback={"An error has occured"}>
+    <FaroErrorBoundary fallback={<div>An error has occured</div>}>
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
           <ThemedAppWithProps />
         </LayersContext.Provider>
       </Provider>
-    </Sentry.ErrorBoundary>
+    </FaroErrorBoundary>
   );
 }
 

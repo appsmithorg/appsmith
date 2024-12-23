@@ -154,7 +154,6 @@ import {
 } from "ee/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
-import type { OtlpSpan } from "instrumentation/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
@@ -175,6 +174,7 @@ import {
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
+import type { Span } from "@opentelemetry/api";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1094,7 +1094,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 
 function* executePageLoadAction(
   pageAction: PageAction,
-  span?: OtlpSpan,
+  span?: Span,
   actionExecutionContext?: ActionExecutionContext,
 ) {
   const currentEnvDetails: { id: string; name: string } = yield select(
@@ -1334,7 +1334,7 @@ function* executePluginActionSaga(
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
-  parentSpan?: OtlpSpan,
+  parentSpan?: Span,
 ) {
   const actionId = pluginAction.id;
   const baseActionId = pluginAction.baseId;
