@@ -44,7 +44,6 @@ import {
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import { getCurrentEnvironmentName } from "ee/selectors/environmentSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -153,7 +152,6 @@ export const getUnevaluatedDataTree = createSelector(
   getCurrentAppWorkspace,
   getCurrentApplication,
   getCurrentPageName,
-  getCurrentEnvironmentName,
   (
     actions,
     jsActions,
@@ -164,7 +162,6 @@ export const getUnevaluatedDataTree = createSelector(
     currentWorkspace,
     currentApplication,
     getCurrentPageName,
-    currentEnvironmentName,
   ) => {
     let dataTree: UnEvalTree = {
       ...actions.dataTree,
@@ -186,7 +183,6 @@ export const getUnevaluatedDataTree = createSelector(
       currentPageName: getCurrentPageName,
       workspaceName: currentWorkspace.name,
       appName: currentApplication?.name,
-      currentEnvName: currentEnvironmentName,
     } as AppsmithEntity;
     (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     dataTree = { ...dataTree, ...metaWidgets.dataTree };
