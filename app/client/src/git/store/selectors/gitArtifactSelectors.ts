@@ -1,10 +1,4 @@
-import type { GitArtifactType } from "git/constants/enums";
-import type { GitRootState } from "../types";
-
-export interface GitArtifactDef {
-  artifactType: keyof typeof GitArtifactType;
-  baseArtifactId: string;
-}
+import type { GitArtifactDef, GitRootState } from "../types";
 
 export const selectGitArtifact = (
   state: GitRootState,

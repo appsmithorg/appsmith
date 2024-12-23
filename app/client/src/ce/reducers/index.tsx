@@ -78,10 +78,7 @@ import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selecte
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
 import { gitReducer } from "git";
-import type {
-  GitArtifactReduxState,
-  GitConfigReduxState,
-} from "git/store/types";
+import type { GitArtifactRootReduxState, GitConfigReduxState } from "git";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -185,7 +182,7 @@ export interface AppState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tenant: TenantReduxState<any>;
   git: {
-    config: GitConfigReduxState;
-    artifacts: GitArtifactReduxState;
+    global: GitConfigReduxState;
+    artifacts: GitArtifactRootReduxState;
   };
 }

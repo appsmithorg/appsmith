@@ -1,6 +1,6 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectStatusState } from "git/store/selectors/gitSingleArtifactSelectors";
+import { selectStatusState } from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import useArtifactSelector from "./useArtifactSelector";

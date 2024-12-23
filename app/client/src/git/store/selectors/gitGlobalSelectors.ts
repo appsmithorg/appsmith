@@ -1,7 +1,7 @@
 import type { GitRootState } from "../types";
 
 export const selectGitConfig = (state: GitRootState) => {
-  return state.git.config;
+  return state.git.global;
 };
 
 // global profile

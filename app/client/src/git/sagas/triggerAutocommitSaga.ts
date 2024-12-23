@@ -12,11 +12,8 @@ import type {
 } from "git/requests/triggerAutocommitRequest.types";
 import type { TriggerAutocommitInitPayload } from "git/store/actions/triggerAutocommitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import {
-  selectAutocommitEnabled,
-  type GitArtifactDef,
-} from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitArtifactPayloadAction } from "git/store/types";
+import { selectAutocommitEnabled } from "git/store/selectors/gitArtifactSelectors";
+import type { GitArtifactDef, GitArtifactPayloadAction } from "git/store/types";
 import {
   call,
   cancel,

@@ -20,7 +20,14 @@ export { gitReducer } from "./store";
 export {
   selectCurrentBranch as selectGitCurrentBranch,
   selectProtectedMode as selectGitProtectedMode,
-} from "./store/selectors/gitSingleArtifactSelectors";
+} from "./store/selectors/gitArtifactSelectors";
 
 // sagas
 export { default as gitSagas } from "./sagas";
+
+// types
+export type {
+  GitArtifactDef,
+  GitArtifactRootReduxState,
+  GitConfigReduxState,
+} from "./store/types";

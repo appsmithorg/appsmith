@@ -4,5 +4,5 @@ import { gitConfigReducer } from "./gitConfigSlice";
 
 export const gitReducer = combineReducers({
   artifacts: gitArtifactReducer,
-  config: gitConfigReducer,
+  global: gitConfigReducer,
 });

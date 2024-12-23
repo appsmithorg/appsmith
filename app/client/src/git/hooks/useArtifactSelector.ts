@@ -1,6 +1,5 @@
 import { useGitContext } from "git/components/GitContextProvider";
-import type { GitArtifactDef } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitArtifactDef, GitRootState } from "git/store/types";
 import { useSelector } from "react-redux";
 import type { Tail } from "redux-saga/effects";
 

@@ -4,7 +4,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { StatusTreeStruct } from "../StatusChanges/StatusTree";
 import { useDispatch } from "react-redux";
-import type { GitArtifactDef } from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitArtifactDef } from "git/store/types";
 
 export interface GitContextValue {
   artifactDef: GitArtifactDef | null;

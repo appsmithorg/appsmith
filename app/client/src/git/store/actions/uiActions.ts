@@ -1,5 +1,5 @@
 import type { GitOpsTab, GitSettingsTab } from "git/constants/enums";
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 
 // connect modal
 export interface ToggleConnectModalPayload {
@@ -7,7 +7,7 @@ export interface ToggleConnectModalPayload {
 }
 
 export const toggleConnectModalAction =
-  createSingleArtifactAction<ToggleConnectModalPayload>((state, action) => {
+  createArtifactAction<ToggleConnectModalPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.connectModalOpen = open;
@@ -21,7 +21,7 @@ export interface OpenDisconnectModalPayload {
 }
 
 export const openDisconnectModalAction =
-  createSingleArtifactAction<OpenDisconnectModalPayload>((state, action) => {
+  createArtifactAction<OpenDisconnectModalPayload>((state, action) => {
     state.ui.disconnectBaseArtifactId =
       action.payload.artifactDef.baseArtifactId;
     state.ui.disconnectArtifactName = action.payload.artifactName;
@@ -29,14 +29,12 @@ export const openDisconnectModalAction =
     return state;
   });
 
-export const closeDisconnectModalAction = createSingleArtifactAction(
-  (state) => {
-    state.ui.disconnectBaseArtifactId = null;
-    state.ui.disconnectArtifactName = null;
+export const closeDisconnectModalAction = createArtifactAction((state) => {
+  state.ui.disconnectBaseArtifactId = null;
+  state.ui.disconnectArtifactName = null;
 
-    return state;
-  },
-);
+  return state;
+});
 
 // ops modal
 
@@ -45,15 +43,16 @@ export interface ToggleOpsModalPayload {
   tab: keyof typeof GitOpsTab;
 }
 
-export const toggleOpsModalAction =
-  createSingleArtifactAction<ToggleOpsModalPayload>((state, action) => {
+export const toggleOpsModalAction = createArtifactAction<ToggleOpsModalPayload>(
+  (state, action) => {
     const { open, tab } = action.payload;
 
     state.ui.opsModalOpen = open;
     state.ui.opsModalTab = tab;
 
     return state;
-  });
+  },
+);
 
 // settings modal
 export interface ToggleSettingsModalPayload {
@@ -62,7 +61,7 @@ export interface ToggleSettingsModalPayload {
 }
 
 export const toggleSettingsModalAction =
-  createSingleArtifactAction<ToggleSettingsModalPayload>((state, action) => {
+  createArtifactAction<ToggleSettingsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
     state.ui.settingsModalOpen = open;
@@ -77,29 +76,28 @@ interface ToggleAutocommitDisableModalPayload {
 }
 
 export const toggleAutocommitDisableModalAction =
-  createSingleArtifactAction<ToggleAutocommitDisableModalPayload>(
-    (state, action) => {
-      const { open } = action.payload;
+  createArtifactAction<ToggleAutocommitDisableModalPayload>((state, action) => {
+    const { open } = action.payload;
 
-      state.ui.autocommitDisableModalOpen = open;
+    state.ui.autocommitDisableModalOpen = open;
 
-      return state;
-    },
-  );
+    return state;
+  });
 
 // branch popup
 interface BranchPopupPayload {
   open: boolean;
 }
 
-export const toggleBranchPopupAction =
-  createSingleArtifactAction<BranchPopupPayload>((state, action) => {
+export const toggleBranchPopupAction = createArtifactAction<BranchPopupPayload>(
+  (state, action) => {
     const { open } = action.payload;
 
     state.ui.branchPopupOpen = open;
 
     return state;
-  });
+  },
+);
 
 // error modals
 interface ToggleRepoLimitModalPayload {
@@ -107,7 +105,7 @@ interface ToggleRepoLimitModalPayload {
 }
 
 export const toggleRepoLimitErrorModalAction =
-  createSingleArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
+  createArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.repoLimitErrorModalOpen = open;
@@ -120,12 +118,10 @@ interface ToggleConflictErrorModalPayload {
 }
 
 export const toggleConflictErrorModalAction =
-  createSingleArtifactAction<ToggleConflictErrorModalPayload>(
-    (state, action) => {
-      const { open } = action.payload;
+  createArtifactAction<ToggleConflictErrorModalPayload>((state, action) => {
+    const { open } = action.payload;
 
-      state.ui.conflictErrorModalOpen = open;
+    state.ui.conflictErrorModalOpen = open;
 
-      return state;
-    },
-  );
+    return state;
+  });

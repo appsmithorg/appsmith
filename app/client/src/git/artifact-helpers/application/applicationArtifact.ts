@@ -1,5 +1,5 @@
 import { GitArtifactType } from "git/constants/enums";
-import type { GitArtifactDef } from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitArtifactDef } from "git/store/types";
 
 export default function applicationArtifact(
   baseApplicationId: string,

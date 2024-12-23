@@ -1,4 +1,4 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { ApplicationPayload } from "entities/Application";
 
 export interface InitGitForEditorPayload {
@@ -6,6 +6,6 @@ export interface InitGitForEditorPayload {
 }
 
 export const initGitForEditorAction =
-  createSingleArtifactAction<InitGitForEditorPayload>((state) => {
+  createArtifactAction<InitGitForEditorPayload>((state) => {
     return state;
   });

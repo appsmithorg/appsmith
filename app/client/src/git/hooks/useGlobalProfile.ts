@@ -3,7 +3,7 @@ import { gitConfigActions } from "git/store/gitConfigSlice";
 import {
   selectFetchGlobalProfileState,
   selectUpdateGlobalProfileState,
-} from "git/store/selectors/gitConfigSelectors";
+} from "git/store/selectors/gitGlobalSelectors";
 
 import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";

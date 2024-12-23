@@ -1,5 +1,9 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { GitOpsTab, GitSettingsTab } from "../constants/enums";
+import type {
+  GitArtifactType,
+  GitOpsTab,
+  GitSettingsTab,
+} from "../constants/enums";
 import type { FetchGlobalProfileResponseData } from "../requests/fetchGlobalProfileRequest.types";
 import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest.types";
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
@@ -13,7 +17,6 @@ import type {
   GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
-import type { GitArtifactDef } from "./selectors/gitSingleArtifactSelectors";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -30,7 +33,7 @@ export interface GitAsyncStateWithoutValue {
   loading: boolean;
   error: GitApiError | null;
 }
-export interface GitSingleArtifactAPIResponsesReduxState
+export interface GitArtifactAPIResponsesReduxState
   extends GitArtifactAPIResponsesReduxStateExtended {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
@@ -57,7 +60,7 @@ export interface GitSingleArtifactAPIResponsesReduxState
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
-export interface GitSingleArtifactUIReduxState
+export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
   connectModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
@@ -73,18 +76,29 @@ export interface GitSingleArtifactUIReduxState
   conflictErrorModalOpen: boolean;
   repoLimitErrorModalOpen: boolean;
 }
-export interface GitSingleArtifactReduxState {
-  ui: GitSingleArtifactUIReduxState;
-  apiResponses: GitSingleArtifactAPIResponsesReduxState;
-}
 
+export interface GitArtifactDef {
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
+}
 export interface GitArtifactReduxState {
-  [key: string]: Record<string, GitSingleArtifactReduxState>;
+  ui: GitArtifactUIReduxState;
+  apiResponses: GitArtifactAPIResponsesReduxState;
 }
 
 export interface GitConfigReduxState {
   globalProfile: GitAsyncState<FetchGlobalProfileResponseData>;
   updateGlobalProfile: GitAsyncStateWithoutValue;
+}
+
+export type GitArtifactRootReduxState = Record<
+  string,
+  Record<string, GitArtifactReduxState>
+>;
+
+export interface GitReduxState {
+  artifacts: GitArtifactRootReduxState;
+  global: GitConfigReduxState;
 }
 
 export interface GitRootState {
@@ -98,10 +112,7 @@ export interface GitRootState {
       };
     };
   };
-  git: {
-    artifacts: GitArtifactReduxState;
-    config: GitConfigReduxState;
-  };
+  git: GitReduxState;
 }
 
 export interface GitArtifactBasePayload {

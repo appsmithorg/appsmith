@@ -4,7 +4,7 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectSettingsModalOpen,
   selectSettingsModalTab,
-} from "git/store/selectors/gitSingleArtifactSelectors";
+} from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import useArtifactSelector from "./useArtifactSelector";

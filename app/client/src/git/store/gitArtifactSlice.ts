@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { GitArtifactReduxState } from "./types";
+import type { GitArtifactRootReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
 import {
   connectErrorAction,
@@ -137,7 +137,7 @@ import {
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
 
-const initialState: GitArtifactReduxState = {};
+const initialState: GitArtifactRootReduxState = {};
 
 export const gitArtifactSlice = createSlice({
   name: "git/artifact",

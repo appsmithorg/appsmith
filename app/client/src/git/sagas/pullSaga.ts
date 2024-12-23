@@ -4,7 +4,7 @@ import type { PullResponse } from "git/requests/pullRequest.types";
 import type { PullInitPayload } from "git/store/actions/pullActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import { selectCurrentBranch } from "git/store/selectors/gitSingleArtifactSelectors";
+import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
