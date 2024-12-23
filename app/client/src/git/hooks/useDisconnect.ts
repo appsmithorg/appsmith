@@ -19,7 +19,11 @@ export default function useDisconnect() {
 
   const disconnect = useCallback(() => {
     if (artifactDef) {
-      dispatch(gitArtifactActions.disconnectInit);
+      dispatch(
+        gitArtifactActions.disconnectInit({
+          artifactDef,
+        }),
+      );
     }
   }, [artifactDef, dispatch]);
 
