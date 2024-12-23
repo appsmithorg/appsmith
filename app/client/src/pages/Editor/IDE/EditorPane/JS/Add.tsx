@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import type { ListItemProps } from "@appsmith/ads";
-import { Flex, SearchInput } from "@appsmith/ads";
+import { Flex, SearchInput, EmptySearchResult } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
@@ -13,7 +13,6 @@ import {
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { createAddClassName } from "../utils";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -99,7 +98,10 @@ const AddJS = () => {
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <EmptySearchResult
-            type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+            text={createMessage(
+              EDITOR_PANE_TEXTS.empty_search_result,
+              createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),
+            )}
           />
         ) : null}
       </Flex>

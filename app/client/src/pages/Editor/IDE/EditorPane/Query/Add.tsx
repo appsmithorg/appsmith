@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Flex, SearchInput } from "@appsmith/ads";
+import {
+  Flex,
+  SearchInput,
+  EmptySearchResult,
+  type FlexProps,
+} from "@appsmith/ads";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
@@ -9,10 +14,8 @@ import {
   useGroupedAddQueryOperations,
   useQueryAdd,
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
@@ -67,7 +70,10 @@ const AddQuery = () => {
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <EmptySearchResult
-            type={createMessage(EDITOR_PANE_TEXTS.search_objects.datasources)}
+            text={createMessage(
+              EDITOR_PANE_TEXTS.empty_search_result,
+              createMessage(EDITOR_PANE_TEXTS.search_objects.datasources),
+            )}
           />
         ) : null}
       </Flex>
