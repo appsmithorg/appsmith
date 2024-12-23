@@ -16,6 +16,13 @@ class WDSComboBoxWidget extends WDSSelectWidget {
     };
   }
 
+  static getDefaults() {
+    return {
+      ...super.getDefaults(),
+      widgetName: "ComboBox",
+    };
+  }
+
   static getMethods() {
     return {
       ...super.getMethods(),

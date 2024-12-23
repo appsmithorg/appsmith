@@ -5,10 +5,6 @@ export const autocompleteConfig = {
     "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
   "!url": "https://docs.appsmith.com/widget-reference/dropdown",
   isVisible: DefaultAutocompleteDefinitions.isVisible,
-  filterText: {
-    "!type": "string",
-    "!doc": "The filter text for Server side filtering",
-  },
   selectedOptionValue: {
     "!type": "string",
     "!doc": "The value selected in a single select dropdown",

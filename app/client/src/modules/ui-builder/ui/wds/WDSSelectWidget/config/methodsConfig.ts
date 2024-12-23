@@ -46,7 +46,7 @@ export const methodsConfig = {
         optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
         optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
         defaultOptionValue: "",
-        serverSideFiltering: true,
+        serverSideFiltering: false,
         onFilterUpdate: queryConfig.select.run,
       };
 

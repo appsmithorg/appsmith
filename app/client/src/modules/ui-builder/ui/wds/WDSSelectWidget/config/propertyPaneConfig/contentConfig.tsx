@@ -205,7 +205,7 @@ export const propertyPaneContentConfig = [
             },
           },
         },
-        dependencies: ["serverSideFiltering", "options"],
+        dependencies: ["options"],
         helperText: (
           <div style={{ marginTop: "10px" }}>
             Make sure the default value is present in the source data to have it
