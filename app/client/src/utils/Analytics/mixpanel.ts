@@ -4,6 +4,11 @@ import { getAppsmithConfigs } from "ee/configs";
 import SegmentSingleton from "./segment";
 import type { ID } from "@segment/analytics-next";
 
+export interface SessionRecordingConfig {
+  enabled: boolean;
+  mask: boolean;
+}
+
 class MixpanelSingleton {
   private static instance: MixpanelSingleton;
   private mixpanel: OverridedMixpanel | null = null;
@@ -17,11 +22,19 @@ class MixpanelSingleton {
   }
 
   // Segment needs to be initialized before Mixpanel
-  public async init(): Promise<boolean> {
+  public async init({
+    enabled,
+    mask,
+  }: SessionRecordingConfig): Promise<boolean> {
     if (this.mixpanel) {
       log.warn("Mixpanel is already initialized.");
 
       return true;
+    }
+
+    // Do not initialize Mixpanel if session recording is disabled
+    if (!enabled) {
+      return false;
     }
 
     try {
@@ -32,6 +45,8 @@ class MixpanelSingleton {
         this.mixpanel = loadedMixpanel;
         this.mixpanel.init(mixpanel.apiKey, {
           record_sessions_percent: 100,
+          record_block_selector: mask ? ".mp-block" : "",
+          record_mask_text_selector: mask ? ".mp-mask" : "",
         });
 
         await this.addSegmentMiddleware();

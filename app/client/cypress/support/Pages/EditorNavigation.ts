@@ -20,6 +20,9 @@ export enum PagePaneSegment {
   JS = "JS",
 }
 
+export const editorTabSelector = (name: string) =>
+  `[data-testid='t--ide-tab-${name.toLowerCase()}']`;
+
 export enum EditorViewMode {
   FullScreen = "FullScreen",
   SplitScreen = "SplitScreen",
