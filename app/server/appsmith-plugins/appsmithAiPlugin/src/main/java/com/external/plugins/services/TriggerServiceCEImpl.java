@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.external.plugins.dtos.SourceDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +26,13 @@ import static com.external.plugins.utils.FileUtils.getFileIds;
 @Slf4j
 public class TriggerServiceCEImpl implements TriggerService {
 
-    protected static final AiServerService aiServerService = new AiServerServiceImpl();
+    private final AiServerService aiServerService;
+    private final ObjectMapper objectMapper;
+
+    public TriggerServiceCEImpl(AiServerService aiServerService, ObjectMapper objectMapper) {
+        this.aiServerService = aiServerService;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Mono<TriggerResultDTO> executeTrigger(

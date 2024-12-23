@@ -54,7 +54,7 @@ public class AppsmithAiPlugin extends BasePlugin {
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
         private static final AiServerService aiServerService = new AiServerServiceImpl();
 
-        private static final TriggerService triggerService = new TriggerServiceImpl();
+        private static final TriggerService triggerService = new TriggerServiceImpl(aiServerService, objectMapper);
         private static final Gson gson = new GsonBuilder().create();
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
