@@ -7,11 +7,16 @@ export { default as GitModals } from "./ee/components/GitModals";
 export { default as GitImportModal } from "./components/ImportModal";
 export { default as GitQuickActions } from "./components/QuickActions";
 export { default as GitProtectedBranchCallout } from "./components/ProtectedBranchCallout";
+export { default as GitGlobalProfile } from "./components/GlobalProfile";
 
 // hooks
 export { default as useGitCurrentBranch } from "./hooks/useCurrentBranch";
 export { default as useGitProtectedMode } from "./hooks/useProtectedMode";
 export { default as useGitConnected } from "./hooks/useConnected";
+
+// actions
+import { gitGlobalActions } from "./store/gitGlobalSlice";
+export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
 
 // reducer
 export { gitReducer } from "./store";
