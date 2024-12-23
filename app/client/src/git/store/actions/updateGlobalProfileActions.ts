@@ -5,7 +5,14 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 export interface UpdateGlobalProfileInitPayload
   extends UpdateGlobalProfileRequestParams {}
 
-export const updateGlobalProfileInitAction = (state: GitConfigReduxState) => {
+type UpdateGlobalProfileInitAction = (
+  state: GitConfigReduxState,
+  action: PayloadAction<UpdateGlobalProfileInitPayload>,
+) => GitConfigReduxState;
+
+export const updateGlobalProfileInitAction: UpdateGlobalProfileInitAction = (
+  state,
+) => {
   state.updateGlobalProfile.loading = true;
   state.updateGlobalProfile.error = null;
 

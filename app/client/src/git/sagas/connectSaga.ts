@@ -15,6 +15,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { fetchPageAction } from "actions/pageActions";
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -51,24 +53,31 @@ export default function* connectSaga(
         history.replace(newUrl);
         // ! case for updating lastDeployedAt in application manually?
       }
-    }
-  } catch (error) {
-    if (
-      GitErrorCodes.REPO_LIMIT_REACHED === response?.responseMeta?.error?.code
-    ) {
+
       yield put(
-        gitArtifactActions.toggleRepoLimitErrorModal({
+        gitArtifactActions.initGitForEditor({
           ...basePayload,
-          open: true,
+          artifact: response.data,
         }),
       );
     }
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
 
-    yield put(
-      gitArtifactActions.connectError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+      if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
+        yield put(
+          gitArtifactActions.toggleRepoLimitErrorModal({
+            ...basePayload,
+            open: true,
+          }),
+        );
+      }
+
+      yield put(gitArtifactActions.connectError({ ...basePayload, error }));
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

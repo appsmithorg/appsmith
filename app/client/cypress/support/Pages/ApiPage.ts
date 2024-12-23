@@ -100,6 +100,9 @@ export class ApiPage {
   private curlImport = ".t--datasoucre-create-option-new_curl_import";
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
+  private runOnPageLoadJSObject =
+    "input[name^='execute-on-page-load'][type='checkbox']";
+  public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
 
   CreateApi(
     apiName = "",
@@ -494,5 +497,17 @@ export class ApiPage {
       201,
     );
     this.RunAPI();
+  }
+
+  ToggleOnPageLoadRunJsObject(enable = true || false) {
+    this.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
+    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+  }
+
+  public clickSettingIcon(enable: boolean) {
+    this.agHelper.GetNClick(this.settingsTriggerLocator);
+    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
+    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
   }
 }

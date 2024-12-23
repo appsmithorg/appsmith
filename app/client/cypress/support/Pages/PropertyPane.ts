@@ -178,6 +178,9 @@ export class PropertyPane {
   _iconDropdown = "[data-test-id='virtuoso-scroller']";
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
   _borderColorCursor = ".t--property-control-bordercolor .bp3-input-group div";
+  _buttonWidget = "[data-widgetname-cy='Button1']";
+  _getActionCardSelector = (type: string) =>
+    `[data-testid='action-card-Show ${type}']`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -701,6 +704,27 @@ export class PropertyPane {
               $element.click();
             }
           });
+      });
+  }
+
+  public ToggleJSModeByIndex(
+    endp: string,
+    toToggleOnJS: true | false = true,
+    index: number = 0,
+  ) {
+    const toggleLocator = this.locator._jsToggle(
+      endp.replace(/ +/g, "").toLowerCase(),
+    );
+
+    cy.get(toggleLocator)
+      .eq(index) // Use the index to interact with a specific toggle
+      .invoke("attr", "class")
+      .then((classes: string) => {
+        if (toToggleOnJS && !classes.includes("is-active")) {
+          this.agHelper.GetNClick(toggleLocator, index, true);
+        } else if (!toToggleOnJS && classes.includes("is-active")) {
+          this.agHelper.GetNClick(toggleLocator, index, true);
+        }
       });
   }
 }

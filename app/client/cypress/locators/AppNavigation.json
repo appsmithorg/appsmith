@@ -43,5 +43,6 @@
   "topInlineMoreButton": ".t--app-viewer-navigation-top-inline-more-button",
   "topInlineMoreDropdown": ".t--app-viewer-navigation-top-inline-more-dropdown",
   "topInlineMoreDropdownItem": ".t--app-viewer-navigation-top-inline-more-dropdown-item",
-  "sidebarCollapseButton": ".t--app-viewer-navigation-sidebar-collapse"
+  "sidebarCollapseButton": ".t--app-viewer-navigation-sidebar-collapse",
+  "copyAppUrl": "[data-testid='copy-application-url']"
 }

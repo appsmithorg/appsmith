@@ -1,4 +1,3 @@
-/* eslint-disable padding-line-between-statements */
 import { createSlice } from "@reduxjs/toolkit";
 import type { GitArtifactReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
@@ -8,10 +7,10 @@ import {
   connectSuccessAction,
 } from "./actions/connectActions";
 import {
-  fetchGitMetadataErrorAction,
-  fetchGitMetadataInitAction,
-  fetchGitMetadataSuccessAction,
-} from "./actions/fetchGitMetadataActions";
+  fetchMetadataErrorAction,
+  fetchMetadataInitAction,
+  fetchMetadataSuccessAction,
+} from "./actions/fetchMetadataActions";
 import {
   fetchBranchesErrorAction,
   fetchBranchesInitAction,
@@ -23,6 +22,7 @@ import {
   fetchStatusSuccessAction,
 } from "./actions/fetchStatusActions";
 import {
+  clearCommitErrorAction,
   commitErrorAction,
   commitInitAction,
   commitSuccessAction,
@@ -53,11 +53,15 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleGitBranchListPopupAction,
-  toggleGitConnectModalAction,
-  toggleGitOpsModalAction,
-  toggleGitSettingsModalAction,
+  toggleBranchPopupAction,
+  toggleConnectModalAction,
+  toggleOpsModalAction,
+  toggleSettingsModalAction,
   toggleRepoLimitErrorModalAction,
+  toggleConflictErrorModalAction,
+  openDisconnectModalAction,
+  closeDisconnectModalAction,
+  toggleAutocommitDisableModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -65,11 +69,13 @@ import {
   checkoutBranchSuccessAction,
 } from "./actions/checkoutBranchActions";
 import {
+  clearDiscardErrorAction,
   discardErrorAction,
   discardInitAction,
   discardSuccessAction,
 } from "./actions/discardActions";
 import {
+  clearMergeStatusAction,
   fetchMergeStatusErrorAction,
   fetchMergeStatusInitAction,
   fetchMergeStatusSuccessAction,
@@ -107,6 +113,29 @@ import {
   fetchAutocommitProgressInitAction,
   fetchAutocommitProgressSuccessAction,
 } from "./actions/fetchAutocommitProgressActions";
+import { gitArtifactCaseReducers } from "git/ee/store/actions";
+import {
+  disconnectErrorAction,
+  disconnectInitAction,
+  disconnectSuccessAction,
+} from "./actions/disconnectActions";
+import {
+  gitImportErrorAction,
+  gitImportInitAction,
+  gitImportSuccessAction,
+} from "./actions/gitImportActions";
+import {
+  fetchSSHKeyErrorAction,
+  fetchSSHKeyInitAction,
+  fetchSSHKeySuccessAction,
+  resetFetchSSHKeyAction,
+} from "./actions/fetchSSHKeyActions";
+import {
+  generateSSHKeyErrorAction,
+  generateSSHKeyInitAction,
+  generateSSHKeySuccessAction,
+  resetGenerateSSHKeyAction,
+} from "./actions/generateSSHKeyActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -119,37 +148,57 @@ export const gitArtifactSlice = createSlice({
     initGitForEditor: initGitForEditorAction,
     mount: mountAction,
     unmount: unmountAction,
-    fetchGitMetadataInit: fetchGitMetadataInitAction,
-    fetchGitMetadataSuccess: fetchGitMetadataSuccessAction,
-    fetchGitMetadataError: fetchGitMetadataErrorAction,
+    fetchMetadataInit: fetchMetadataInitAction,
+    fetchMetadataSuccess: fetchMetadataSuccessAction,
+    fetchMetadataError: fetchMetadataErrorAction,
 
     // connect
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    toggleGitConnectModal: toggleGitConnectModalAction,
+    gitImportInit: gitImportInitAction,
+    gitImportSuccess: gitImportSuccessAction,
+    gitImportError: gitImportErrorAction,
+    fetchSSHKeyInit: fetchSSHKeyInitAction,
+    fetchSSHKeySuccess: fetchSSHKeySuccessAction,
+    fetchSSHKeyError: fetchSSHKeyErrorAction,
+    resetFetchSSHKey: resetFetchSSHKeyAction,
+    generateSSHKeyInit: generateSSHKeyInitAction,
+    generateSSHKeySuccess: generateSSHKeySuccessAction,
+    generateSSHKeyError: generateSSHKeyErrorAction,
+    resetGenerateSSHKey: resetGenerateSSHKeyAction,
+    disconnectInit: disconnectInitAction,
+    disconnectSuccess: disconnectSuccessAction,
+    disconnectError: disconnectErrorAction,
+    toggleConnectModal: toggleConnectModalAction,
+    openDisconnectModal: openDisconnectModalAction,
+    closeDisconnectModal: closeDisconnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
     commitInit: commitInitAction,
     commitSuccess: commitSuccessAction,
     commitError: commitErrorAction,
+    clearCommitError: clearCommitErrorAction,
     discardInit: discardInitAction,
     discardSuccess: discardSuccessAction,
     discardError: discardErrorAction,
+    clearDiscardError: clearDiscardErrorAction,
     fetchStatusInit: fetchStatusInitAction,
     fetchStatusSuccess: fetchStatusSuccessAction,
     fetchStatusError: fetchStatusErrorAction,
     fetchMergeStatusInit: fetchMergeStatusInitAction,
     fetchMergeStatusSuccess: fetchMergeStatusSuccessAction,
     fetchMergeStatusError: fetchMergeStatusErrorAction,
+    clearMergeStatus: clearMergeStatusAction,
     mergeInit: mergeInitAction,
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
-    toggleGitOpsModal: toggleGitOpsModalAction,
+    toggleOpsModal: toggleOpsModalAction,
+    toggleConflictErrorModal: toggleConflictErrorModalAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,
@@ -164,10 +213,10 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleGitBranchListPopup: toggleGitBranchListPopupAction,
+    toggleBranchPopup: toggleBranchPopupAction,
 
     // settings
-    toggleGitSettingsModal: toggleGitSettingsModalAction,
+    toggleSettingsModal: toggleSettingsModalAction,
     fetchLocalProfileInit: fetchLocalProfileInitAction,
     fetchLocalProfileSuccess: fetchLocalProfileSuccessAction,
     fetchLocalProfileError: fetchLocalProfileErrorAction,
@@ -193,6 +242,9 @@ export const gitArtifactSlice = createSlice({
     fetchAutocommitProgressError: fetchAutocommitProgressErrorAction,
     pollAutocommitProgressStart: pollAutocommitProgressStartAction,
     pollAutocommitProgressStop: pollAutocommitProgressStopAction,
+    toggleAutocommitDisableModal: toggleAutocommitDisableModalAction,
+
+    ...gitArtifactCaseReducers,
   },
 });
 

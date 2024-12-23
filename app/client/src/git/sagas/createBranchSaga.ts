@@ -10,6 +10,8 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import { captureException } from "@sentry/react";
+import log from "loglevel";
 
 export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,
@@ -29,20 +31,38 @@ export default function* createBranchSaga(
     if (isValidResponse) {
       yield put(gitArtifactActions.createBranchSuccess(basePayload));
       yield put(
+        gitArtifactActions.toggleBranchPopup({
+          ...basePayload,
+          open: false,
+        }),
+      );
+      yield put(
         gitArtifactActions.fetchBranchesInit({
           ...basePayload,
           pruneBranches: true,
         }),
       );
 
-      // ! case to switch to the new branch
+      yield put(
+        gitArtifactActions.checkoutBranchInit({
+          ...basePayload,
+          branchName: action.payload.branchName,
+        }),
+      );
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.createBranchError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
+
+      yield put(
+        gitArtifactActions.createBranchError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

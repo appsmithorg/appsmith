@@ -138,6 +138,27 @@ export function labelKeyValidation(
       messages: [],
     };
   } else if (_.isArray(value)) {
+    /*
+     * Here assumption is that if evaluated array is all equal, then it is a key,
+     * and we can return the parsed value(from source data) as the options.
+     */
+    const areAllValuesEqual = value.every((item, _, arr) => item === arr[0]);
+
+    if (
+      areAllValuesEqual &&
+      props.sourceData[0].hasOwnProperty(String(value[0]))
+    ) {
+      const parsedValue = props.sourceData.map(
+        (d: Record<string, unknown>) => d[String(value[0])],
+      );
+
+      return {
+        parsed: parsedValue,
+        isValid: true,
+        messages: [],
+      };
+    }
+
     const errorIndex = value.findIndex((d) => !_.isString(d));
 
     return {
@@ -218,6 +239,27 @@ export function valueKeyValidation(
 
     options = sourceData.map((d: Record<string, unknown>) => d[value]);
   } else if (_.isArray(value)) {
+    /*
+     * Here assumption is that if evaluated array is all equal, then it is a key,
+     * and we can return the parsed value(from source data) as the options.
+     */
+    const areAllValuesEqual = value.every((item, _, arr) => item === arr[0]);
+
+    if (
+      areAllValuesEqual &&
+      props.sourceData[0].hasOwnProperty(String(value[0]))
+    ) {
+      const parsedValue = props.sourceData.map(
+        (d: Record<string, unknown>) => d[String(value[0])],
+      );
+
+      return {
+        parsed: parsedValue,
+        isValid: true,
+        messages: [],
+      };
+    }
+
     const errorIndex = value.findIndex(
       (d) =>
         !(_.isString(d) || (_.isNumber(d) && !_.isNaN(d)) || _.isBoolean(d)),

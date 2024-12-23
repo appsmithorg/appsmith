@@ -19,6 +19,8 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
@@ -46,7 +48,7 @@ export default function* checkoutBranchSaga(
         );
 
         yield put(
-          gitArtifactActions.toggleGitBranchListPopup({
+          gitArtifactActions.toggleBranchPopup({
             ...basePayload,
             open: false,
           }),
@@ -110,12 +112,19 @@ export default function* checkoutBranchSaga(
         }
       }
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.checkoutBranchError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
+
+      yield put(
+        gitArtifactActions.checkoutBranchError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

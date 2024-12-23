@@ -1,4 +1,4 @@
-import type { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/types";
 
 export interface FetchBranchesRequestParams {
   pruneBranches?: boolean;

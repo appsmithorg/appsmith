@@ -1,9 +1,8 @@
 import {
-  GitConnectStep,
-  GitImportStep,
-  GitOpsTab,
-  GitSettingsTab,
-} from "../../constants/enums";
+  gitArtifactAPIResponsesInitialState as gitArtifactAPIResponsesInitialStateExtended,
+  gitArtifactUIInitialState as gitArtifactUIInitialStateExtended,
+} from "git/ee/store/helpers/initialState";
+import { GitOpsTab, GitSettingsTab } from "../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
   GitSingleArtifactUIReduxState,
@@ -11,30 +10,21 @@ import type {
 } from "../types";
 
 const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
-  connectModal: {
-    open: false,
-    step: GitConnectStep.Provider,
-  },
-  importModal: {
-    open: false,
-    step: GitImportStep.Provider,
-  },
-  branchListPopup: {
-    open: false,
-  },
-  opsModal: {
-    open: false,
-    tab: GitOpsTab.Deploy,
-  },
-  settingsModal: {
-    open: false,
-    tab: GitSettingsTab.General,
-  },
-  repoLimitErrorModal: {
-    open: false,
-  },
-  autocommitModalOpen: false,
+  connectModalOpen: false,
+  disconnectBaseArtifactId: null,
+  disconnectArtifactName: null,
+  branchPopupOpen: false,
+  checkoutDestBranch: null,
+  opsModalOpen: false,
+  opsModalTab: GitOpsTab.Deploy,
+  settingsModalOpen: false,
+  settingsModalTab: GitSettingsTab.General,
+  autocommitDisableModalOpen: false,
   autocommitPolling: false,
+  conflictErrorModalOpen: false,
+  repoLimitErrorModalOpen: false,
+  // EE
+  ...gitArtifactUIInitialStateExtended,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -45,6 +35,10 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       error: null,
     },
     connect: {
+      loading: false,
+      error: null,
+    },
+    gitImport: {
       loading: false,
       error: null,
     },
@@ -134,6 +128,8 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
+    // EE
+    ...gitArtifactAPIResponsesInitialStateExtended,
   };
 
 export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {

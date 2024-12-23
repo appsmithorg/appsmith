@@ -23,7 +23,7 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
     ...rest
   } = props;
   const [isAnimating, setIsAnimating] = useState(false);
-  const { side, state } = useSidebar();
+  const { isMobile, side, state } = useSidebar();
   const sidebarRef = useRef<HTMLDivElement>();
 
   const onEnter = () => {
@@ -84,6 +84,7 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
         <div
           className={clsx(styles.mainSidebar)}
           data-collapsible={state === "collapsed" ? collapsible : ""}
+          data-is-mobile={isMobile ? "" : undefined}
           data-side={side}
           data-state={state}
           data-variant={variant}

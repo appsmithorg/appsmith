@@ -6,15 +6,8 @@
   width: 100%;
 }
 
-.input {
-  position: relative;
-  display: flex;
-  flex: 1;
-  align-items: center;
-  box-sizing: content-box;
+.inputGroup {
   max-inline-size: 100%;
-  padding-block: var(--inner-spacing-1);
-  padding-inline: var(--inner-spacing-2);
   gap: var(--inner-spacing-1);
   border: 0;
   border-radius: var(--border-radius-elevation-3);
@@ -25,8 +18,23 @@
   overflow: hidden;
 }
 
-.input:has(> [data-select-text]) {
-  block-size: var(--body-line-height);
+.input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  flex: 1;
+  padding: 0;
+  padding-block: var(--inner-spacing-1);
+  padding-inline: var(--inner-spacing-2);
+  box-sizing: content-box;
+}
+
+.inputGroup:has([data-input-prefix]) .input {
+  padding-inline-start: 0;
+}
+
+.inputGroup:has([data-input-suffix]) .input {
+  padding-inline-end: 0;
 }
 
 .input:is(textarea) {
@@ -51,44 +59,18 @@
  * SUFFIX and PREFIX
  * ----------------------------------------------------------------------------
  */
+.inputGroup [data-input-prefix] {
+  margin-inline-start: var(--inner-spacing-2);
+}
+
+.inputGroup [data-input-suffix] {
+  margin-inline-end: var(--inner-spacing-2);
+}
+
 .inputGroup :is([data-input-suffix], [data-input-prefix]) button {
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
   );
-}
-
-.inputGroup:has(> [data-input-prefix]) .input {
-  padding-left: var(--sizing-8);
-}
-
-.inputGroup:has(> [data-input-prefix]) .input[data-size="large"] {
-  padding-left: var(--sizing-12);
-}
-
-.inputGroup:has(> [data-input-prefix]) .input[data-size="small"] {
-  padding-left: var(--sizing-6);
-}
-
-.inputGroup:has(> [data-input-prefix]) [data-input-prefix] {
-  left: var(--inner-spacing-1);
-  position: absolute;
-}
-
-.inputGroup:has(> [data-input-suffix]) .input {
-  padding-right: var(--sizing-8);
-}
-
-.inputGroup:has(> [data-input-suffix]) .input[data-size="large"] {
-  padding-right: var(--sizing-12);
-}
-
-.inputGroup:has(> [data-input-suffix]) .input[data-size="small"] {
-  padding-right: var(--sizing-6);
-}
-
-.inputGroup:has(> [data-input-suffix]) [data-input-suffix] {
-  right: var(--inner-spacing-1);
-  position: absolute;
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
@@ -102,14 +84,15 @@
  * HOVERED
  * ----------------------------------------------------------------------------
  */
-.inputGroup[data-hovered]
-  .input:not(
-    :is(
-        [data-focused],
-        [data-readonly],
-        [data-disabled],
-        [data-focus-within],
-        :has(~ input[data-disabled="true"])
+.inputGroup[data-hovered]:has(
+    > .input:not(
+        :is(
+            [data-focused],
+            [data-readonly],
+            [data-disabled],
+            [data-focus-within],
+            :has(~ input[data-disabled="true"])
+          )
       )
   ) {
   background-color: var(--color-bg-neutral-subtle-hover);
@@ -121,9 +104,12 @@
  * READONLY
  * ----------------------------------------------------------------------------
  */
-.input[data-readonly] {
+.inputGroup:has(> .input[data-readonly]) {
   background-color: transparent;
   box-shadow: none;
+}
+
+.inputGroup input[data-readonly] {
   padding-inline: 0;
 }
 
@@ -157,8 +143,8 @@
  * DISABLED
  * ----------------------------------------------------------------------------
  */
-.input[data-disabled],
-.input:has(~ input[data-disabled]) {
+.inputGroup:has(> .input[data-disabled]),
+.inputGroup:has(> .input:has(~ input[data-disabled])) {
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -168,13 +154,14 @@
  * INVALID
  * ----------------------------------------------------------------------------
  */
-.input[data-invalid] {
+.inputGroup:has(> .input[data-invalid]) {
   box-shadow: 0 0 0 1px var(--color-bd-negative);
 }
 
-.inputGroup[data-hovered]
-  .input[data-invalid]:not(
-    :is([data-focused], [data-readonly], [data-disabled])
+.inputGroup[data-hovered]:has(
+    > .input[data-invalid]:not(
+        :is([data-focused], [data-readonly], [data-disabled])
+      )
   ) {
   box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
 }
@@ -184,7 +171,9 @@
  * FOCUSSED
  * ----------------------------------------------------------------------------
  */
-.input:is([data-focused], [data-focus-within]):not([data-readonly]) {
+.inputGroup:has(
+    > .input:is([data-focused], [data-focus-within]):not([data-readonly])
+  ) {
   background-color: transparent;
   box-shadow: 0 0 0 2px var(--color-bd-focus);
 }
@@ -194,31 +183,17 @@
  * SIZE
  * ----------------------------------------------------------------------------
  */
-.input[data-size="small"] {
+.inputGroup .input {
+  block-size: var(--body-line-height);
+}
+
+.inputGroup .input[data-size="small"] {
   block-size: calc(
     var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
   );
-  padding-block: var(--inner-spacing-2);
+  padding: var(--inner-spacing-2);
 }
 
-.input[data-size="large"] {
-  block-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
-  );
-  padding-block: var(--inner-spacing-3);
-  padding-inline: var(--inner-spacing-3);
-}
-
-/**
- * ----------------------------------------------------------------------------
- * SELECT BUTTON's TEXT
- * ----------------------------------------------------------------------------
- */
-.input [data-select-text] {
-  display: flex;
-  align-items: center;
-}
-
-.input [data-select-text] [data-icon] {
-  margin-inline-end: var(--inner-spacing-1);
+.inputGroup .input[data-size="large"] {
+  padding: var(--inner-spacing-3);
 }

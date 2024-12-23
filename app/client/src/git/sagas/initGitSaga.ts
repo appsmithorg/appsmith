@@ -13,9 +13,9 @@ export default function* initGitForEditorSaga(
   yield put(gitArtifactActions.mount(basePayload));
 
   if (artifactType === GitArtifactType.Application) {
-    if (!!artifact.gitApplicationMetadata) {
-      yield put(gitArtifactActions.fetchGitMetadataInit(basePayload));
-      yield take(gitArtifactActions.fetchGitMetadataSuccess.type);
+    if (!!artifact.gitApplicationMetadata?.remoteUrl) {
+      yield put(gitArtifactActions.fetchMetadataInit(basePayload));
+      yield take(gitArtifactActions.fetchMetadataSuccess.type);
       yield put(
         gitArtifactActions.triggerAutocommitInit({
           ...basePayload,
