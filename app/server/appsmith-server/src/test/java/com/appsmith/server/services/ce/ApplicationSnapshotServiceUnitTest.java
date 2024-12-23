@@ -120,7 +120,7 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setWorkspaceId(workspaceId);
         application.setId(branchedAppId);
 
-        Mockito.doReturn(Mono.just(branchedAppId))
+        Mockito.doReturn(Mono.just(application))
                 .when(applicationService)
                 .findById(branchedAppId, AclPermission.MANAGE_APPLICATIONS);
 
