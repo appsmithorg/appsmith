@@ -7,67 +7,17 @@ import type {
 import { SpanKind } from "@opentelemetry/api";
 import { context as OTEL_CONTEXT } from "@opentelemetry/api";
 import { trace as OTEL_TRACE } from "@opentelemetry/api";
-import {
-  deviceType,
-  browserName,
-  browserVersion,
-  osName,
-  osVersion,
-} from "react-device-detect";
-import nanoid from "nanoid";
-import memoizeOne from "memoize-one";
-import { getApplicationParamsFromUrl } from "ee/utils/serviceWorkerUtils";
 import { faro } from "./index";
 import type { WebworkerSpanData } from "./types";
+import { getCommonTelemetryAttributes } from "./utils";
 
+// If faro is not initialized, use the default OTEL context and trace
 const { context, trace } = faro.api.getOTEL() || {
   trace: OTEL_TRACE,
   context: OTEL_CONTEXT,
 };
 
 const DEFAULT_TRACE = "default";
-
-const OTLP_SESSION_ID = nanoid();
-
-const getAppParams = memoizeOne(
-  (origin: string, pathname: string, search: string) => {
-    const applicationParams = getApplicationParamsFromUrl({
-      origin,
-      pathname,
-      search,
-    });
-
-    const {
-      applicationSlug,
-      appMode = "",
-      basePageId: pageId,
-      branchName,
-    } = applicationParams || {};
-
-    return {
-      appMode,
-      pageId,
-      branchName,
-      applicationSlug,
-    };
-  },
-);
-
-export const getCommonTelemetryAttributes = () => {
-  const { origin, pathname, search } = window.location;
-  const appParams = getAppParams(origin, pathname, search);
-
-  return {
-    ...appParams,
-    deviceType,
-    browserName,
-    browserVersion,
-    otlpSessionId: OTLP_SESSION_ID,
-    hostname: window.location.hostname,
-    osName,
-    osVersion,
-  };
-};
 
 export function startRootSpan(
   spanName: string,

@@ -16,15 +16,7 @@ export interface INJECTED_CONFIGS {
   observability: {
     deploymentName: string;
     serviceInstanceId: string;
-  };
-  newRelic: {
-    enableNewRelic: boolean;
-    accountId: string;
-    applicationId: string;
-    browserAgentlicenseKey: string;
-    browserAgentEndpoint: string;
-    otlpLicenseKey: string;
-    otlpEndpoint: string;
+    tracingUrl: string;
   };
   fusioncharts: {
     licenseKey: string;
@@ -83,19 +75,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
     },
     observability: {
-      deploymentName: process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted",
-      serviceInstanceId: process.env.HOSTNAME || "appsmith-0",
-    },
-    newRelic: {
-      enableNewRelic: !!process.env.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
-      accountId: process.env.APPSMITH_NEW_RELIC_ACCOUNT_ID || "",
-      applicationId: process.env.APPSMITH_NEW_RELIC_APPLICATION_ID || "",
-      browserAgentlicenseKey:
-        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY || "",
-      browserAgentEndpoint:
-        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT || "",
-      otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
-      otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
+      deploymentName: "self-hosted",
+      serviceInstanceId: "appsmith-0",
+      tracingUrl: "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -141,7 +123,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     // This code might be called both from the main thread and a web worker
     typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
   const ENV_CONFIG = getConfigsFromEnvVars();
-  // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
     ENV_CONFIG.sentry.dsn,
     APPSMITH_FEATURE_CONFIGS?.sentry.dsn,
@@ -170,29 +151,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.observability.serviceInstanceId,
     APPSMITH_FEATURE_CONFIGS?.observability.serviceInstanceId,
   );
-  const newRelicAccountId = getConfig(
-    ENV_CONFIG.newRelic.accountId,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.accountId,
-  );
-  const newRelicApplicationId = getConfig(
-    ENV_CONFIG.newRelic.applicationId,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.applicationId,
-  );
-  const newRelicBrowserLicenseKey = getConfig(
-    ENV_CONFIG.newRelic.browserAgentlicenseKey,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentlicenseKey,
-  );
-  const newRelicBrowserAgentEndpoint = getConfig(
-    ENV_CONFIG.newRelic.browserAgentEndpoint,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentEndpoint,
-  );
-  const newRelicOtlpLicenseKey = getConfig(
-    ENV_CONFIG.newRelic.otlpLicenseKey,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
-  );
-  const newRelicOtlpEndpoint = getConfig(
-    ENV_CONFIG.newRelic.otlpEndpoint,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpEndpoint,
+  const observabilityFrontendTracingUrl = getConfig(
+    ENV_CONFIG.observability.tracingUrl,
+    APPSMITH_FEATURE_CONFIGS?.observability.tracingUrl,
   );
   const fusioncharts = getConfig(
     ENV_CONFIG.fusioncharts.licenseKey,
@@ -237,24 +198,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: segment.value,
       ceKey: segmentCEKey.value,
     },
-    // TODO @diljit - Remove the following keys from the feature configs
-    newRelic: {
-      enableNewRelic:
-        ENV_CONFIG.newRelic.enableNewRelic ||
-        APPSMITH_FEATURE_CONFIGS?.newRelic.enableNewRelic ||
-        false,
-      accountId: newRelicAccountId.value,
-      applicationId: newRelicApplicationId.value,
-      browserAgentlicenseKey: newRelicBrowserLicenseKey.value,
-      browserAgentEndpoint: newRelicBrowserAgentEndpoint.value,
-      otlpLicenseKey: newRelicOtlpLicenseKey.value,
-      otlpEndpoint: newRelicOtlpEndpoint.value,
-    },
     observability: {
-      // TODO @diljit - Add faro related keys here
       deploymentName: observabilityDeploymentName.value,
       serviceInstanceId: observabilityServiceInstanceId.value,
       serviceName: "appsmith-client",
+      tracingUrl: observabilityFrontendTracingUrl.value,
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,

@@ -17,23 +17,31 @@ import {
 import {
   FaroTraceExporter,
   FaroSessionSpanProcessor,
+  TracingInstrumentation,
 } from "@grafana/faro-web-tracing";
+import { getCommonTelemetryAttributes } from "./utils";
 
 const { observability } = getAppsmithConfigs();
-const { deploymentName, serviceInstanceId, serviceName } = observability;
+const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
+  observability;
 // This base domain is used to filter out the Smartlook requests from the browser agent
 // There are some requests made to subdomains of smartlook.cloud which will also be filtered out
 const smartlookBaseDomain = "smartlook.cloud";
 
 export const faro = initializeFaro({
-  // required: the URL of the Grafana collector
-  url: "https://faro-collector-prod-us-central-0.grafana.net/collect/4145e706a670446aee3c593ba1fff177",
+  url: tracingUrl,
   app: {
     name: serviceName,
     version: "1.0.0",
     environment: deploymentName,
   },
-  instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
+  instrumentations: [
+    new ReactIntegration(),
+    new TracingInstrumentation({
+      resourceAttributes: getCommonTelemetryAttributes(),
+    }),
+    ...getWebInstrumentations(),
+  ],
   ignoreUrls: [smartlookBaseDomain],
   consoleInstrumentation: {
     consoleErrorAsLog: true,
