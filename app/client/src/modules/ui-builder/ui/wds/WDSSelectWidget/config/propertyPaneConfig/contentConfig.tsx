@@ -16,6 +16,8 @@ import {
   optionLabelValueExpressionSuffix,
 } from "../../widget/helpers";
 import { labelKeyValidation } from "./validations/labelKeyValidation";
+import { Flex } from "@appsmith/ads";
+import { SAMPLE_DATA } from "../../widget/constants";
 
 type WidgetTypeValue = "SELECT" | "COMBOBOX";
 
@@ -89,15 +91,7 @@ export const propertyPaneContentConfig = [
               isRequired: true,
             },
           ],
-          sampleData: JSON.stringify(
-            [
-              { name: "Blue", code: "BLUE" },
-              { name: "Green", code: "GREEN" },
-              { name: "Red", code: "RED" },
-            ],
-            null,
-            2,
-          ),
+          sampleData: JSON.stringify(SAMPLE_DATA, null, 2),
         },
         isJSConvertible: true,
         placeholderText: '[{ "label": "label1", "value": "value1" }]',
@@ -207,10 +201,10 @@ export const propertyPaneContentConfig = [
         },
         dependencies: ["options"],
         helperText: (
-          <div style={{ marginTop: "10px" }}>
+          <Flex marginTop="spaces-2">
             Make sure the default value is present in the source data to have it
             selected by default in the UI.
-          </div>
+          </Flex>
         ),
       },
     ],
