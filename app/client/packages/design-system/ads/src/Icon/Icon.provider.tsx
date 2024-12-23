@@ -1103,6 +1103,10 @@ const ContentTypeRaw = importSvg(
   async () => import("../__assets__/icons/ads/content-type-raw.svg"),
 );
 
+const CloudIconV2 = importSvg(
+  async () => import("../__assets__/icons/ads/cloudy-line.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1177,6 +1181,7 @@ const ICON_LOOKUP = {
   "close-modal": CloseLineIcon,
   "close-x": CloseLineIcon,
   "cloud-off-line": CloudOfflineIcon,
+  "cloud-v2": CloudIconV2,
   "collapse-control": CollapseIcon,
   "column-freeze": ColumnFreeze,
   "column-unfreeze": SubtractIcon,
