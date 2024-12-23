@@ -2186,13 +2186,17 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             .onErrorResume(throwable -> {
                                 log.error("Delete branch failed {}", throwable.getMessage());
                                 if (throwable instanceof CannotDeleteCurrentBranchException) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.GIT_ACTION_FAILED,
-                                            "delete branch",
-                                            "Cannot delete current checked out branch"));
+                                    return releaseFileLock(baseArtifactId)
+                                            .then(Mono.error(new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED,
+                                                    "delete branch",
+                                                    "Cannot delete current checked out branch")));
                                 }
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
+                                return releaseFileLock(baseArtifactId)
+                                        .then(Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED,
+                                                "delete branch",
+                                                throwable.getMessage())));
                             })
                             .flatMap(isBranchDeleted ->
                                     releaseFileLock(baseArtifactId).map(status -> isBranchDeleted))
