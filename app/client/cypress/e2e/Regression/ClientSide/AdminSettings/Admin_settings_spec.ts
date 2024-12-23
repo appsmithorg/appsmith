@@ -24,26 +24,25 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("1. Should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(".admin-settings-menu-option").should("be.visible");
-    cy.get(".admin-settings-menu-option").click();
-    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+    agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
     cy.LogOut();
   });
 
   it("2. Should test that settings page is not accessible to normal users", () => {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
-    cy.get(".admin-settings-menu-option").should("not.exist");
+    agHelper.AssertElementAbsence(adminSettingsHelper._adminSettingsBtn);
     agHelper.VisitNAssert(adminSettingsHelper.routes.GENERAL);
     // non super users are redirected to home page
-    cy.url().should("contain", "/applications");
+    agHelper.AssertURL("/applications");
     cy.LogOut(false);
   });
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings", { timeout: 60000 });
-    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
   });
 
@@ -55,19 +54,19 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) cy.wait("@getAllWorkspaces");
 
-      cy.get(".admin-settings-menu-option").click();
+      agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
       cy.wait("@getEnvVariables");
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.ADVANCED);
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.EMAIL);
-      cy.get(adminsSettings.developerSettingsTab).should("not.exist");
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.VERSION);
+      agHelper.GetNClick(adminsSettings.generalTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+      agHelper.GetNClick(adminsSettings.advancedTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.ADVANCED);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.GetNClick(adminsSettings.emailTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+      agHelper.AssertElementAbsence(adminsSettings.developerSettingsTab);
+      agHelper.GetNClick(adminsSettings.versionTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
     },
   );
 
@@ -80,12 +79,12 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
         adminSettingsHelper.routes.GENERAL,
         "getEnvVariables",
       );
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
-      cy.get(adminsSettings.googleButton).should("not.exist");
-      cy.get(adminsSettings.githubButton).should("not.exist");
-      cy.get(adminsSettings.formloginButton).click();
-      cy.url().should("contain", adminSettingsHelper.routes.FORMLOGIN);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.AssertElementAbsence(adminsSettings.googleButton);
+      agHelper.AssertElementAbsence(adminsSettings.githubButton);
+      agHelper.GetNClick(adminsSettings.formloginButton);
+      agHelper.AssertURL(adminSettingsHelper.routes.FORMLOGIN);
     },
   );
 
@@ -97,16 +96,16 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
         adminSettingsHelper.routes.GENERAL,
         "getEnvVariables",
       );
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
-      cy.get(adminsSettings.googleButton).click();
-      cy.url().should("contain", adminSettingsHelper.routes.GOOGLEAUTH);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.GetNClick(adminsSettings.googleButton);
+      agHelper.AssertURL(adminSettingsHelper.routes.GOOGLEAUTH);
       cy.get(adminsSettings.readMoreLink).within(() => {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
           .click();
-        cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
+        agHelper.AssertURL(GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
   );
@@ -117,19 +116,19 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       "getEnvVariables",
     );
     const assertVisibilityAndDisabledState = () => {
-      cy.get(adminsSettings.saveButton).should("be.visible");
+      agHelper.AssertElementVisibility(adminsSettings.saveButton);
       cy.get(adminsSettings.saveButton).should("be.disabled");
-      cy.get(adminsSettings.resetButton).should("be.visible");
+      agHelper.AssertElementVisibility(adminsSettings.resetButton);
       cy.get(adminsSettings.resetButton).should("be.disabled");
     };
     assertVisibilityAndDisabledState();
-    cy.get(adminsSettings.instanceName).should("be.visible");
+    agHelper.AssertElementVisibility(adminsSettings.instanceName);
     cy.get(adminsSettings.instanceName).clear().type("AppsmithInstance");
-    cy.get(adminsSettings.saveButton).should("be.visible");
+    agHelper.AssertElementVisibility(adminsSettings.saveButton);
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
-    cy.get(adminsSettings.resetButton).should("be.visible");
+    agHelper.AssertElementVisibility(adminsSettings.resetButton);
     cy.get(adminsSettings.resetButton).should("not.be.disabled");
-    cy.get(adminsSettings.resetButton).click();
+    agHelper.GetNClick(adminsSettings.resetButton);
     assertVisibilityAndDisabledState();
   });
 
@@ -139,16 +138,16 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       "getEnvVariables",
     );
 
-    cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.get(adminsSettings.instanceName).should("be.visible");
-    let instanceName;
-    cy.generateUUID().then((uuid) => {
+    agHelper.AssertElementAbsence(adminsSettings.restartNotice);
+    agHelper.AssertElementVisibility(adminsSettings.instanceName);
+    let instanceName: string;
+    cy.generateUUID().then((uuid: string) => {
       instanceName = uuid;
       cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
-    cy.get(adminsSettings.saveButton).should("be.visible");
+    agHelper.AssertElementVisibility(adminsSettings.saveButton);
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
-    cy.get(adminsSettings.saveButton).click();
+    agHelper.GetNClick(adminsSettings.saveButton);
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
@@ -163,28 +162,28 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       adminSettingsHelper.routes.GENERAL,
       "getEnvVariables",
     );
-    cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.get(adminsSettings.instanceName).should("be.visible");
-    let instanceName;
-    cy.generateUUID().then((uuid) => {
+    agHelper.AssertElementAbsence(adminsSettings.restartNotice);
+    agHelper.AssertElementVisibility(adminsSettings.instanceName);
+    let instanceName: string;
+    cy.generateUUID().then((uuid: string) => {
       instanceName = uuid;
       cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
-    cy.get(adminsSettings.saveButton).should("be.visible");
+    agHelper.AssertElementVisibility(adminsSettings.saveButton);
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
-    cy.get(adminsSettings.emailTab).click();
-    cy.get(adminsSettings.saveButton).should("be.visible");
+    agHelper.GetNClick(adminsSettings.emailTab);
+    agHelper.AssertElementVisibility(adminsSettings.saveButton);
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
-    cy.get(adminsSettings.fromAddress).should("be.visible");
-    let fromAddress;
-    cy.generateUUID().then((uuid) => {
+    agHelper.AssertElementVisibility(adminsSettings.fromAddress);
+    let fromAddress: string;
+    cy.generateUUID().then((uuid: string) => {
       fromAddress = uuid;
       cy.get(adminsSettings.fromAddress).clear().type(`${uuid}@appsmith.com`);
     });
     cy.intercept("POST", "/api/v1/admin/restart", {
       body: { responseMeta: { status: 200, success: true }, data: true },
     });
-    cy.get(adminsSettings.saveButton).click();
+    agHelper.GetNClick(adminsSettings.saveButton);
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
@@ -193,7 +192,43 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
         `${fromAddress}@appsmith.com`,
       );
     });
-    cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.get(adminsSettings.restartNotice).should("not.exist");
+    agHelper.AssertElementVisibility(adminsSettings.restartNotice);
+  });
+
+  it("10. Verify default instance name", () => {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+    cy.wait("@getEnvVariables");
+    agHelper
+      .GetText(adminSettingsHelper._instanceName, "val")
+      .then(($text) => expect($text).to.eq("Appsmith"));
+  });
+
+  it("11. Verify all admin setting sections are accessible", () => {
+    cy.visit("/applications", { timeout: 60000 });
+    agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+    cy.wait("@getEnvVariables");
+    agHelper.GetNClick(adminsSettings.generalTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+    agHelper.GetNClick(adminsSettings.advancedTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.ADVANCED);
+    agHelper.GetNClick(adminsSettings.authenticationTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+    agHelper.GetNClick(adminsSettings.emailTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+    agHelper.GetNClick(adminsSettings.developerSettingsTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.DEVELOPER_SETTINGS);
+    agHelper.GetNClick(adminsSettings.versionTab);
+    agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
+    agHelper.GetNClick(adminsSettings.branding);
+    agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
+    agHelper.GetNClick(adminsSettings.provisioning);
+    agHelper.AssertURL(adminSettingsHelper.routes.PROVISIONING);
+    agHelper.GetNClick(adminsSettings.accessControl);
+    agHelper.AssertURL(adminSettingsHelper.routes.ACCESS_CONTROL);
+    agHelper.GetNClick(adminsSettings.auditLogs);
+    agHelper.AssertURL(adminSettingsHelper.routes.AUDIT_LOGS);
   });
 });

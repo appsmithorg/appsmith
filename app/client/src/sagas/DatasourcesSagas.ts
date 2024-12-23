@@ -1562,66 +1562,101 @@ function* fetchDatasourceStructureSaga(
     yield take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS);
   }
 
-  const datasource = shouldBeDefined<Datasource>(
-    yield select(getDatasource, action.payload.id),
-    `Datasource not found for id - ${action.payload.id}`,
-  );
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
   let errorMessage = "";
   let isSuccess = false;
 
   try {
-    const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
-      action.payload.id,
-      action.payload.ignoreCache,
+    const datasource = shouldBeDefined<Datasource>(
+      yield select(getDatasource, action.payload.id),
+      `Datasource not found for id - ${action.payload.id}`,
     );
-    const isValidResponse: boolean = yield validateResponse(response, false);
+    const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
 
-    if (isValidResponse) {
+    try {
+      const response: ApiResponse =
+        yield DatasourcesApi.fetchDatasourceStructure(
+          action.payload.id,
+          action.payload.ignoreCache,
+        );
+      const isValidResponse: boolean = yield validateResponse(response, false);
+
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
+          payload: {
+            data: response.data,
+            datasourceId: action.payload.id,
+          },
+        });
+
+        if (isEmpty(response.data)) {
+          errorMessage = createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE);
+          AppsmithConsole.warning({
+            text: "Datasource structure could not be retrieved",
+            source: {
+              id: action.payload.id,
+              name: datasource.name,
+              type: ENTITY_TYPE.DATASOURCE,
+            },
+          });
+        } else {
+          isSuccess = true;
+          AppsmithConsole.info({
+            text: "Datasource structure retrieved",
+            source: {
+              id: action.payload.id,
+              name: datasource.name,
+              type: ENTITY_TYPE.DATASOURCE,
+            },
+          });
+        }
+
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!!(response.data as any)?.error) {
+          isSuccess = false;
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          errorMessage = (response.data as any).error?.message;
+        }
+      }
+    } catch (error) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errorMessage = (error as any)?.message;
+      isSuccess = false;
       yield put({
-        type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
+        type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
         payload: {
-          data: response.data,
+          error,
+          show: false,
           datasourceId: action.payload.id,
         },
       });
-
-      if (isEmpty(response.data)) {
-        errorMessage = createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE);
-        AppsmithConsole.warning({
-          text: "Datasource structure could not be retrieved",
-          source: {
-            id: action.payload.id,
-            name: datasource.name,
-            type: ENTITY_TYPE.DATASOURCE,
-          },
-        });
-      } else {
-        isSuccess = true;
-        AppsmithConsole.info({
-          text: "Datasource structure retrieved",
-          source: {
-            id: action.payload.id,
-            name: datasource.name,
-            type: ENTITY_TYPE.DATASOURCE,
-          },
-        });
-      }
-
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (!!(response.data as any)?.error) {
-        isSuccess = false;
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        errorMessage = (response.data as any).error?.message;
-      }
+      AppsmithConsole.error({
+        text: "Datasource structure could not be retrieved",
+        source: {
+          id: action.payload.id,
+          name: datasource.name,
+          type: ENTITY_TYPE.DATASOURCE,
+        },
+      });
     }
+
+    const currentEnvDetails: { id: string; name: string } = yield select(
+      getCurrentEnvironmentDetails,
+    );
+
+    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
+      errorMessage: errorMessage,
+      isSuccess: isSuccess,
+      source: action.payload.schemaFetchContext,
+    });
   } catch (error) {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    errorMessage = (error as any)?.message;
-    isSuccess = false;
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1630,28 +1665,7 @@ function* fetchDatasourceStructureSaga(
         datasourceId: action.payload.id,
       },
     });
-    AppsmithConsole.error({
-      text: "Datasource structure could not be retrieved",
-      source: {
-        id: action.payload.id,
-        name: datasource.name,
-        type: ENTITY_TYPE.DATASOURCE,
-      },
-    });
   }
-  const currentEnvDetails: { id: string; name: string } = yield select(
-    getCurrentEnvironmentDetails,
-  );
-
-  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
-    datasourceId: datasource?.id,
-    pluginName: plugin?.name,
-    environmentId: currentEnvDetails.id,
-    environmentName: currentEnvDetails.name,
-    errorMessage: errorMessage,
-    isSuccess: isSuccess,
-    source: action.payload.schemaFetchContext,
-  });
 }
 
 function* addAndFetchDatasourceStructureSaga(
