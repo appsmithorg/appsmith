@@ -6,9 +6,10 @@ export interface CheckoutBranchInitPayload
   extends CheckoutBranchRequestParams {}
 
 export const checkoutBranchInitAction =
-  createSingleArtifactAction<CheckoutBranchInitPayload>((state) => {
+  createSingleArtifactAction<CheckoutBranchInitPayload>((state, action) => {
     state.apiResponses.checkoutBranch.loading = true;
     state.apiResponses.checkoutBranch.error = null;
+    state.ui.checkoutDestBranch = action.payload.branchName;
 
     return state;
   });
@@ -16,6 +17,8 @@ export const checkoutBranchInitAction =
 export const checkoutBranchSuccessAction = createSingleArtifactAction(
   (state) => {
     state.apiResponses.checkoutBranch.loading = false;
+    state.apiResponses.checkoutBranch.error = null;
+    state.ui.checkoutDestBranch = null;
 
     return state;
   },
@@ -27,6 +30,7 @@ export const checkoutBranchErrorAction =
 
     state.apiResponses.checkoutBranch.loading = false;
     state.apiResponses.checkoutBranch.error = error;
+    state.ui.checkoutDestBranch = null;
 
     return state;
   });

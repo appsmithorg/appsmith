@@ -8,8 +8,6 @@
 
 .inputGroup {
   max-inline-size: 100%;
-  padding-block: var(--inner-spacing-1);
-  padding-inline: var(--inner-spacing-2);
   gap: var(--inner-spacing-1);
   border: 0;
   border-radius: var(--border-radius-elevation-3);
@@ -26,6 +24,17 @@
   background-color: transparent;
   flex: 1;
   padding: 0;
+  padding-block: var(--inner-spacing-1);
+  padding-inline: var(--inner-spacing-2);
+  box-sizing: content-box;
+}
+
+.inputGroup:has([data-input-prefix]) .input {
+  padding-inline-start: 0;
+}
+
+.inputGroup:has([data-input-suffix]) .input {
+  padding-inline-end: 0;
 }
 
 .input:is(textarea) {
@@ -50,6 +59,14 @@
  * SUFFIX and PREFIX
  * ----------------------------------------------------------------------------
  */
+.inputGroup [data-input-prefix] {
+  margin-inline-start: var(--inner-spacing-2);
+}
+
+.inputGroup [data-input-suffix] {
+  margin-inline-end: var(--inner-spacing-2);
+}
+
 .inputGroup :is([data-input-suffix], [data-input-prefix]) button {
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
@@ -60,7 +77,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 0;
 }
 
 /**
@@ -88,9 +104,12 @@
  * READONLY
  * ----------------------------------------------------------------------------
  */
-.input[data-readonly] {
+.inputGroup:has(> .input[data-readonly]) {
   background-color: transparent;
   box-shadow: none;
+}
+
+.inputGroup input[data-readonly] {
   padding-inline: 0;
 }
 
@@ -164,17 +183,17 @@
  * SIZE
  * ----------------------------------------------------------------------------
  */
-.inputGroup:has(> .input[data-size="small"]) {
-  block-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
-      var(--inner-spacing-2) * 2
-  );
+.inputGroup .input {
+  block-size: var(--body-line-height);
 }
 
-.inputGroup:has(> .input[data-size="large"]) {
+.inputGroup .input[data-size="small"] {
   block-size: calc(
     var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
   );
-  padding-block: var(--inner-spacing-3);
-  padding-inline: var(--inner-spacing-3);
+  padding: var(--inner-spacing-2);
+}
+
+.inputGroup .input[data-size="large"] {
+  padding: var(--inner-spacing-3);
 }

@@ -6,7 +6,9 @@ import type { EventName } from "ee/utils/analyticsUtilTypes";
 import type { EventProperties } from "@segment/analytics-next";
 
 import SegmentSingleton from "utils/Analytics/segment";
-import MixpanelSingleton from "utils/Analytics/mixpanel";
+import MixpanelSingleton, {
+  type SessionRecordingConfig,
+} from "utils/Analytics/mixpanel";
 import SentryUtil from "utils/Analytics/sentry";
 import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
@@ -25,7 +27,10 @@ export enum AnalyticsEventType {
 let blockErrorLogs = false;
 let segmentAnalytics: SegmentSingleton | null = null;
 
-async function initialize(user: User) {
+async function initialize(
+  user: User,
+  sessionRecordingConfig: SessionRecordingConfig,
+) {
   SentryUtil.init();
   await SmartlookUtil.init();
 
@@ -34,7 +39,7 @@ async function initialize(user: User) {
   await segmentAnalytics.init();
 
   // Mixpanel needs to be initialized after Segment
-  await MixpanelSingleton.getInstance().init();
+  await MixpanelSingleton.getInstance().init(sessionRecordingConfig);
 
   // Identify the user after all services are initialized
   await identifyUser(user);

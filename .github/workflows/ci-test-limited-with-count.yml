@@ -19,6 +19,16 @@ on:
         required: false
         type: number
         default: 1
+      update_snapshot:
+          description: 'Give option to update snapshot (true/false)'
+          required: false
+          type: boolean
+          default: false
+      specs_to_run:
+        description: 'Cypress spec file(s) to run'
+        required: false
+        type: string
+
   workflow_call:
     inputs:
       pr:
@@ -35,6 +45,15 @@ on:
         required: false
         type: number
         default: 1
+      update_snapshot:
+          description: 'Give option to update snapshot (true/false)'
+          required: false
+          type: boolean
+          default: false
+      specs_to_run:
+        description: 'Cypress spec file(s) to run'
+        required: false
+        type: string  
 
 jobs:
   ci-test-limited:
@@ -111,10 +130,18 @@ jobs:
           else
             echo "rerun=false" >> $GITHUB_OUTPUT
           fi
+       
+      - name: Upload existing snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-existing-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true    
 
       # Get specs to run
       - name: Get specs to run
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
         run: |
           specs_to_run=""
           while IFS= read -r line
@@ -349,10 +376,19 @@ jobs:
             NODE_ENV: development
         run: |
             cd app/client
-            npx cypress-repeat-pro run -n ${{ inputs.run_count }} --force \
-                --spec ${{ env.specs_to_run }} \
+            if [[ "${{ inputs.update_snapshot }}" == "true" ]]; then
+              echo "Running Cypress with snapshot updates..."
+              CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+                --spec "${{ inputs.specs_to_run }}" \
                 --config-file "cypress_ci_custom.config.ts" \
-                --browser ${{ env.BROWSER_PATH }}
+                --browser "${{ env.BROWSER_PATH }}"
+            else
+              echo "Running Cypress tests without snapshot updates..."
+              npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+                --spec "${{ env.specs_to_run }}" \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}"
+            fi
             cat cy-repeat-summary.txt
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
@@ -453,8 +489,16 @@ jobs:
         if: always()
         with:
           name: server-logs
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
+
+      - name: Upload new compared snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-new-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true   
 
       # Set status = success
       - name: Save the status of the run
