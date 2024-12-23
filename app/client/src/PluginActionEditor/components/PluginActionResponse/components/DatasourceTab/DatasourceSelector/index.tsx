@@ -19,13 +19,12 @@ export interface DatasourceProps {
 }
 
 const DatasourceSelector = (props: DatasourceProps) => {
-  return props.plugin ? (
+  return props.plugin &&
     API_FORM_COMPONENTS.includes(props.plugin.uiComponent) ? (
-      <ApiDatasourceSelector {...props} formName={API_EDITOR_FORM_NAME} />
-    ) : (
-      <QueryDatasourceSelector {...props} formName={QUERY_EDITOR_FORM_NAME} />
-    )
-  ) : null;
+    <ApiDatasourceSelector {...props} formName={API_EDITOR_FORM_NAME} />
+  ) : (
+    <QueryDatasourceSelector {...props} formName={QUERY_EDITOR_FORM_NAME} />
+  );
 };
 
 export default DatasourceSelector;
