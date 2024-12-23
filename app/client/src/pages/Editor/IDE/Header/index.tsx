@@ -29,6 +29,7 @@ import {
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
   HEADER_TITLES,
+  PACKAGE_UPGRADING_ACTION_STATUS,
 } from "ee/constants/messages";
 import EditorName from "pages/Editor/EditorName";
 import {
@@ -79,11 +80,18 @@ import {
   useGitConnected,
   useGitProtectedMode,
 } from "pages/Editor/gitSync/hooks/modHooks";
+import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
   margin-left: 8px;
   margin-right: 8px;
+`;
+
+// This wrapper maintains pointer events for tooltips when the child button is disabled.
+// Without this, disabled buttons won't trigger tooltips because they have pointer-events: none
+const StyledTooltipTarget = styled.span`
+  display: inline-block;
 `;
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -130,6 +138,7 @@ const Header = () => {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isProtectedMode = useGitProtectedMode();
+  const isPackageUpgrading = useSelector(getIsPackageUpgrading);
   const isPublishing = useSelector(getIsPublishingApplication);
   const isGitConnected = useGitConnected();
   const pageId = useSelector(getCurrentPageId) as string;
@@ -137,7 +146,10 @@ const Header = () => {
   const appState = useCurrentAppState();
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
-
+  const isDeployDisabled = isPackageUpgrading || isProtectedMode;
+  const deployTooltipText = isPackageUpgrading
+    ? createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app")
+    : createMessage(DEPLOY_BUTTON_TOOLTIP);
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -326,23 +338,22 @@ const Header = () => {
             showModal={showPublishCommunityTemplateModal}
           />
           <div className="flex items-center">
-            <Tooltip
-              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-              placement="bottomRight"
-            >
-              <Button
-                className="t--application-publish-btn"
-                data-guided-tour-iid="deploy"
-                id={"application-publish-btn"}
-                isDisabled={isProtectedMode}
-                isLoading={isPublishing}
-                kind="tertiary"
-                onClick={handleClickDeploy}
-                size="md"
-                startIcon={"rocket"}
-              >
-                {DEPLOY_MENU_OPTION()}
-              </Button>
+            <Tooltip content={deployTooltipText} placement="bottomRight">
+              <StyledTooltipTarget>
+                <Button
+                  className="t--application-publish-btn"
+                  data-guided-tour-iid="deploy"
+                  id={"application-publish-btn"}
+                  isDisabled={isDeployDisabled}
+                  isLoading={isPublishing}
+                  kind="tertiary"
+                  onClick={handleClickDeploy}
+                  size="md"
+                  startIcon={"rocket"}
+                >
+                  {DEPLOY_MENU_OPTION()}
+                </Button>
+              </StyledTooltipTarget>
             </Tooltip>
 
             <DeployLinkButtonDialog link={deployLink} trigger="" />

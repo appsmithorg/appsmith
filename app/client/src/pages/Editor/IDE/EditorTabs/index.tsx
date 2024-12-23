@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import {
@@ -86,10 +86,13 @@ const EditorTabs = () => {
   });
 
   // TODO: this returns a new function every time, needs to be recomposed
-  const handleTabClick = useEventCallback((tab: EntityItem) => () => {
-    dispatch(setListViewActiveState(false));
-    tabClickHandler(tab);
-  });
+  const handleTabClick = useCallback(
+    (tab: EntityItem) => () => {
+      dispatch(setListViewActiveState(false));
+      tabClickHandler(tab);
+    },
+    [dispatch, tabClickHandler],
+  );
 
   const handleNewTabClick = useEventCallback(() => {
     dispatch(setListViewActiveState(false));

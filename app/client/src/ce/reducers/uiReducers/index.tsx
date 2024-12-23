@@ -39,7 +39,6 @@ import { editorContextReducer } from "ee/reducers/uiReducers/editorContextReduce
 import libraryReducer from "reducers/uiReducers/libraryReducer";
 import appSettingsPaneReducer from "reducers/uiReducers/appSettingsPaneReducer";
 import autoHeightUIReducer from "reducers/uiReducers/autoHeightReducer";
-import analyticsReducer from "reducers/uiReducers/analyticsReducer";
 import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
@@ -49,7 +48,6 @@ import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoa
 import { pluginActionReducer } from "PluginActionEditor/store";
 
 export const uiReducerObject = {
-  analytics: analyticsReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,

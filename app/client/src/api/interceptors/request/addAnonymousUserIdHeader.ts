@@ -1,8 +1,9 @@
 import type { InternalAxiosRequestConfig } from "axios";
+import type { ID } from "@segment/analytics-next";
 
 export const addAnonymousUserIdHeader = (
   config: InternalAxiosRequestConfig,
-  options: { anonymousId?: string; segmentEnabled?: boolean },
+  options: { anonymousId: ID; segmentEnabled?: boolean },
 ) => {
   const { anonymousId, segmentEnabled } = options;
 

@@ -40,9 +40,10 @@ const GridContainer = styled.div`
 const LayoutContainer = styled.div<{ name: string }>`
   position: relative;
   grid-area: ${(props) => props.name};
+  overflow: auto;
 `;
 
-function UnanimatedLayout() {
+export const StaticLayout = React.memo(() => {
   const { areas, columns } = useGridLayoutTemplate();
 
   const isSidebarVisible = columns[0] !== "0px";
@@ -77,8 +78,4 @@ function UnanimatedLayout() {
       <BottomBar />
     </>
   );
-}
-
-const MemoUanimatedLayout = React.memo(UnanimatedLayout);
-
-export { MemoUanimatedLayout as UnanimatedLayout };
+});

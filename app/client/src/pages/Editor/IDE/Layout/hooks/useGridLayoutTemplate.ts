@@ -50,17 +50,12 @@ function useGridLayoutTemplate(): ReturnValue {
       switch (appState) {
         case EditorState.DATA:
           if (isPreviewMode || isProtectedMode) {
-            setColumns([
-              "0px",
-              "0px",
-              (windowWidth + "px") as AnimatedGridUnit,
-              "0px",
-            ]);
+            setColumns(["0px", "0px", `${windowWidth}px`, "0px"]);
           } else {
             setColumns([
               SIDEBAR_WIDTH,
               "300px",
-              (windowWidth - 300 - 50 + "px") as AnimatedGridUnit,
+              `${windowWidth - 300 - 50}px`,
               "0px",
             ]);
           }
@@ -68,20 +63,12 @@ function useGridLayoutTemplate(): ReturnValue {
           break;
         case EditorState.SETTINGS:
           if (isPreviewMode || isProtectedMode) {
-            setColumns([
-              "0px",
-              "0px",
-              (windowWidth + "px") as AnimatedGridUnit,
-              "0px",
-            ]);
+            setColumns(["0px", "0px", `${windowWidth}px`, "0px"]);
           } else {
             setColumns([
               SIDEBAR_WIDTH,
-              (APP_SETTINGS_PANE_WIDTH + "px") as AnimatedGridUnit,
-              (windowWidth -
-                APP_SIDEBAR_WIDTH -
-                APP_SETTINGS_PANE_WIDTH +
-                "px") as AnimatedGridUnit,
+              `${APP_SETTINGS_PANE_WIDTH}px`,
+              `${windowWidth - APP_SIDEBAR_WIDTH - APP_SETTINGS_PANE_WIDTH}px`,
               "0px",
             ]);
           }
@@ -89,20 +76,12 @@ function useGridLayoutTemplate(): ReturnValue {
           break;
         case EditorState.LIBRARIES:
           if (isPreviewMode || isProtectedMode) {
-            setColumns([
-              "0px",
-              "0px",
-              (windowWidth + "px") as AnimatedGridUnit,
-              "0px",
-            ]);
+            setColumns(["0px", "0px", `${windowWidth}px`, "0px"]);
           } else {
             setColumns([
               SIDEBAR_WIDTH,
               `${APP_LIBRARIES_PANE_WIDTH}px`,
-              (windowWidth -
-                APP_SIDEBAR_WIDTH -
-                APP_LIBRARIES_PANE_WIDTH +
-                "px") as AnimatedGridUnit,
+              `${windowWidth - APP_SIDEBAR_WIDTH - APP_LIBRARIES_PANE_WIDTH}px`,
               "0px",
             ]);
           }
@@ -112,25 +91,22 @@ function useGridLayoutTemplate(): ReturnValue {
           if (isPreviewMode || isProtectedMode) {
             setColumns([
               "0px",
-              (editorStateLeftPaneWidth + "px") as AnimatedGridUnit,
-              (windowWidth + "px") as AnimatedGridUnit,
+              `${editorStateLeftPaneWidth}px`,
+              `${windowWidth}px`,
               "0px",
             ]);
           } else if (segment !== EditorEntityTab.UI) {
             if (editorMode === EditorViewMode.SplitScreen) {
               setColumns([
                 SIDEBAR_WIDTH,
-                (editorStateLeftPaneWidth + "px") as AnimatedGridUnit,
-                (windowWidth -
-                  APP_SIDEBAR_WIDTH -
-                  editorStateLeftPaneWidth +
-                  "px") as AnimatedGridUnit,
+                `${editorStateLeftPaneWidth}px`,
+                `${windowWidth - APP_SIDEBAR_WIDTH - editorStateLeftPaneWidth}px`,
                 "0px",
               ]);
             } else {
               setColumns([
                 SIDEBAR_WIDTH,
-                (editorStateLeftPaneWidth + "px") as AnimatedGridUnit,
+                `${editorStateLeftPaneWidth}px`,
                 "0px",
                 "0px",
               ]);
@@ -138,14 +114,9 @@ function useGridLayoutTemplate(): ReturnValue {
           } else {
             setColumns([
               SIDEBAR_WIDTH,
-              (editorStateLeftPaneWidth + "px") as AnimatedGridUnit,
-              (windowWidth -
-                APP_SIDEBAR_WIDTH -
-                editorStateLeftPaneWidth -
-                PropertyPaneWidth +
-                1 +
-                "px") as AnimatedGridUnit,
-              (PropertyPaneWidth + 1 + "px") as AnimatedGridUnit,
+              `${editorStateLeftPaneWidth}px`,
+              `${windowWidth - APP_SIDEBAR_WIDTH - editorStateLeftPaneWidth - PropertyPaneWidth + 1}px`,
+              `${PropertyPaneWidth + 1}px`,
             ]);
           }
       }
