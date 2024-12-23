@@ -160,7 +160,7 @@ public class GitBranchesIT {
         String artifactId = contextStore.get(FieldName.ARTIFACT_ID, String.class);
 
         GitConnectDTO connectDTO = new GitConnectDTO();
-        connectDTO.setRemoteUrl(gitServerInitializerExtension.getGitSshUrl("test"));
+        connectDTO.setRemoteUrl(gitServerInitializerExtension.getGitSshUrl("test" + artifactId));
         GitProfile gitProfile = new GitProfile("foo bar", "foo@bar.com", null);
         connectDTO.setGitProfile(gitProfile);
 

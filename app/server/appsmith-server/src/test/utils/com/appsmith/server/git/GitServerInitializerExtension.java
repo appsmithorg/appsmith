@@ -63,8 +63,8 @@ public class GitServerInitializerExtension implements BeforeAllCallback, BeforeE
         String filePath = parentContextStore.get("filePath", String.class);
         ExtensionContext.Store contextStore = extensionContext.getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
 
-        String repoName = "test";
         String artifactId = contextStore.get(FieldName.ARTIFACT_ID, String.class);
+        String repoName = "test" + artifactId;
 
         // TODO : Move this to artifact service to enable packages
         // Generate RSA public key for the given artifact
