@@ -13,6 +13,7 @@ import {
   initializeFaro,
   ReactIntegration,
   getWebInstrumentations,
+  type Faro,
 } from "@grafana/faro-react";
 import {
   FaroTraceExporter,
@@ -26,39 +27,53 @@ const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
 // There are some requests made to subdomains of smartlook.cloud which will also be filtered out
 const smartlookBaseDomain = "smartlook.cloud";
 
-export const faro = initializeFaro({
-  url: tracingUrl,
-  app: {
-    name: serviceName,
-    version: "1.0.0",
-    environment: deploymentName,
-  },
-  instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
-  ignoreUrls: [smartlookBaseDomain],
-  consoleInstrumentation: {
-    consoleErrorAsLog: true,
-  },
-  trackResources: true,
-  trackWebVitalsAttribution: true,
-});
+let faro: Faro | null = null;
 
-const tracerProvider = new WebTracerProvider({
-  resource: new Resource({
-    [ATTR_DEPLOYMENT_NAME]: deploymentName,
-    [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
-    [ATTR_SERVICE_NAME]: serviceName,
-  }),
-});
+if (tracingUrl) {
+  faro = initializeFaro({
+    url: tracingUrl,
+    app: {
+      name: serviceName,
+      version: "1.0.0",
+      environment: deploymentName,
+    },
+    instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
+    ignoreUrls: [smartlookBaseDomain],
+    consoleInstrumentation: {
+      consoleErrorAsLog: true,
+    },
+    trackResources: true,
+    trackWebVitalsAttribution: true,
+  });
 
-tracerProvider.addSpanProcessor(
-  new FaroSessionSpanProcessor(
-    new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
-    faro.metas,
-  ),
-);
+  const tracerProvider = new WebTracerProvider({
+    resource: new Resource({
+      [ATTR_DEPLOYMENT_NAME]: deploymentName,
+      [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
+      [ATTR_SERVICE_NAME]: serviceName,
+    }),
+  });
 
-tracerProvider.register({
-  contextManager: new ZoneContextManager(),
-});
+  tracerProvider.addSpanProcessor(
+    new FaroSessionSpanProcessor(
+      new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
+      faro.metas,
+    ),
+  );
 
-faro.api.initOTEL(trace, context);
+  tracerProvider.register({
+    contextManager: new ZoneContextManager(),
+  });
+
+  faro.api.initOTEL(trace, context);
+}
+
+export const getTraceAndContext = () => {
+  if (!faro) {
+    return { trace, context };
+  }
+
+  // The return type of getOTEL is OTELApi | undefined so we need to check for undefined
+  // return default OTEL context and trace if faro is not initialized
+  return faro.api.getOTEL() || { trace, context };
+};

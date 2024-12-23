@@ -5,17 +5,11 @@ import type {
   SpanOptions,
 } from "@opentelemetry/api";
 import { SpanKind } from "@opentelemetry/api";
-import { context as OTEL_CONTEXT } from "@opentelemetry/api";
-import { trace as OTEL_TRACE } from "@opentelemetry/api";
-import { faro } from "./index";
+import { getTraceAndContext } from "./index";
 import type { WebworkerSpanData } from "./types";
 import { getCommonTelemetryAttributes } from "./utils";
 
-// If faro is not initialized, use the default OTEL context and trace
-const { context, trace } = faro.api.getOTEL() || {
-  trace: OTEL_TRACE,
-  context: OTEL_CONTEXT,
-};
+const { context, trace } = getTraceAndContext();
 
 const DEFAULT_TRACE = "default";
 
@@ -27,7 +21,7 @@ export function startRootSpan(
   const tracer = trace.getTracer(DEFAULT_TRACE);
   const commonAttributes = getCommonTelemetryAttributes();
 
-  return tracer?.startSpan(spanName, {
+  return tracer.startSpan(spanName, {
     kind: SpanKind.CLIENT,
     attributes: {
       ...commonAttributes,
