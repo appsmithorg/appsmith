@@ -31,6 +31,12 @@ export default function* createBranchSaga(
     if (isValidResponse) {
       yield put(gitArtifactActions.createBranchSuccess(basePayload));
       yield put(
+        gitArtifactActions.toggleBranchPopup({
+          ...basePayload,
+          open: false,
+        }),
+      );
+      yield put(
         gitArtifactActions.fetchBranchesInit({
           ...basePayload,
           pruneBranches: true,

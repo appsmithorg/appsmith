@@ -1,22 +1,13 @@
 import { Button, Icon, Tooltip } from "@appsmith/ads";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import noop from "lodash/noop";
-import BranchList from "./BranchList";
+import BranchList from "../BranchList";
 import { Popover2 } from "@blueprintjs/popover2";
 
 // internal dependencies
 import { isEllipsisActive } from "utils/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-
-interface BranchButtonProps {
-  currentBranch?: string;
-  isOpen?: boolean;
-  setIsOpen?: (isOpen: boolean) => void;
-  isDisabled?: boolean;
-  isProtectedMode?: boolean;
-  isStatusClean?: boolean;
-}
 
 const ButtonContainer = styled(Button)`
   display: flex;
@@ -45,20 +36,32 @@ const popoverModifiers: { offset: Record<string, unknown> } = {
   offset: { enabled: true, options: { offset: [7, 10] } },
 };
 
+interface BranchButtonProps {
+  currentBranch: string | null;
+  isAutocommitPolling: boolean;
+  isBranchPopupOpen: boolean;
+  isProtectedMode: boolean;
+  isStatusClean: boolean;
+  isTriggerAutocommitLoading: boolean;
+  toggleBranchPopup: (open: boolean) => void;
+}
+
 export default function BranchButton({
-  currentBranch = "",
-  isDisabled = false,
-  isOpen = false,
+  currentBranch = null,
+  isAutocommitPolling = false,
+  isBranchPopupOpen = false,
   isProtectedMode = false,
   isStatusClean = false,
-  setIsOpen = noop,
+  isTriggerAutocommitLoading = false,
+  toggleBranchPopup = noop,
 }: BranchButtonProps) {
-  const [isEllipsis, setIsEllipsis] = useState<boolean>(false);
   const labelTarget = React.useRef<HTMLSpanElement>(null);
+
+  const isDisabled = isTriggerAutocommitLoading || isAutocommitPolling;
 
   const onPopoverInteraction = useCallback(
     (nextState: boolean) => {
-      setIsOpen(nextState);
+      toggleBranchPopup(nextState);
 
       if (nextState) {
         AnalyticsUtil.logEvent("GS_OPEN_BRANCH_LIST_POPUP", {
@@ -66,24 +69,20 @@ export default function BranchButton({
         });
       }
     },
-    [setIsOpen],
+    [toggleBranchPopup],
   );
 
-  useEffect(function ellipsisCheck() {
-    setIsEllipsis(isEllipsisActive(labelTarget.current) ?? false);
-  }, []);
-
-  const renderContent = useCallback(() => {
+  const content = useMemo(() => {
     return <BranchList />;
   }, []);
 
   return (
     <Popover2
-      content={renderContent()}
+      content={content}
       data-testid={"t--git-branch-button-popover"}
       disabled={isDisabled}
       hasBackdrop
-      isOpen={isOpen}
+      isOpen={isBranchPopupOpen}
       minimal
       modifiers={popoverModifiers}
       onInteraction={onPopoverInteraction}
@@ -91,7 +90,7 @@ export default function BranchButton({
     >
       <Tooltip
         content={currentBranch}
-        isDisabled={!isEllipsis}
+        isDisabled={!isEllipsisActive(labelTarget.current)}
         placement="topLeft"
       >
         <ButtonContainer

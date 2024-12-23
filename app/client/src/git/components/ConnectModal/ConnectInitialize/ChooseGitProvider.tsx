@@ -22,7 +22,6 @@ import {
 import styled from "styled-components";
 import { GIT_DEMO_GIF } from "./constants";
 import noop from "lodash/noop";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import {
   CHOOSE_A_GIT_PROVIDER_STEP,
   CHOOSE_GIT_PROVIDER_QUESTION,
@@ -34,6 +33,10 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import log from "loglevel";
+import type { ConnectFormDataState } from "./types";
+import history from "utils/history";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -48,34 +51,26 @@ const GIT_PROVIDERS = ["github", "gitlab", "bitbucket", "others"] as const;
 
 export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
-interface ChooseGitProviderState {
-  gitProvider?: GitProvider;
-  gitEmptyRepoExists: string;
-  gitExistingRepoExists: boolean;
-}
 interface ChooseGitProviderProps {
-  artifactId: string;
   artifactType: string;
-  onChange: (args: Partial<ChooseGitProviderState>) => void;
-  value: Partial<ChooseGitProviderState>;
+  isCreateArtifactPermitted: boolean;
   isImport?: boolean;
-  // Replaces handleImport in original ChooseGitProvider.tsx
-  onImportFromCalloutLinkClick: () => void;
-  // Replaces hasCreateNewApplicationPermission = hasCreateNewAppPermission(workspace.userPermissions)
-  canCreateNewArtifact: boolean;
+  onChange: (args: Partial<ConnectFormDataState>) => void;
+  setImportWorkspaceId: () => void;
+  toggleConnectModal: (open: boolean) => void;
+  value: Partial<ConnectFormDataState>;
 }
 
 function ChooseGitProvider({
   artifactType,
-  canCreateNewArtifact,
+  isCreateArtifactPermitted,
   isImport = false,
   onChange = noop,
-  onImportFromCalloutLinkClick,
+  setImportWorkspaceId = noop,
+  toggleConnectModal = noop,
   value = {},
 }: ChooseGitProviderProps) {
   const isMobile = useIsMobileDevice();
-
-  const hasCreateNewArtifactPermission = canCreateNewArtifact && !isMobile;
 
   const onGitProviderChange = useCallback(
     (value: string) => {
@@ -102,11 +97,19 @@ function ChooseGitProvider({
     [onChange],
   );
 
+  const handleClickOnImport = useCallback(() => {
+    toggleConnectModal(false);
+    history.push("/applications");
+    setImportWorkspaceId();
+    toggleConnectModal(true);
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
+  }, [setImportWorkspaceId, toggleConnectModal]);
+
   const importCalloutLinks = useMemo(() => {
-    return hasCreateNewArtifactPermission
-      ? [{ children: "Import via git", onClick: onImportFromCalloutLinkClick }]
+    return !isMobile && isCreateArtifactPermitted
+      ? [{ children: "Import via git", onClick: handleClickOnImport }]
       : [];
-  }, [hasCreateNewArtifactPermission, onImportFromCalloutLinkClick]);
+  }, [handleClickOnImport, isCreateArtifactPermitted, isMobile]);
 
   return (
     <>
