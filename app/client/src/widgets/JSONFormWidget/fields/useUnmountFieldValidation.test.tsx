@@ -8,7 +8,7 @@ jest.mock("react-hook-form", () => ({
   useFormContext: jest.fn(),
 }));
 
-jest.mock("UITelemetry/generateTraces", () => ({
+jest.mock("instrumentation/generateTraces", () => ({
   startAndEndSpanForFn: jest.fn((name, options, fn) => fn()),
 }));
 
