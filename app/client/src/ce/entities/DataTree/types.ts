@@ -193,6 +193,7 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   currentPageName: string;
   workspaceName: string;
   appName: string;
+  currentEnvName: string;
 }
 
 export interface DataTreeSeed {
