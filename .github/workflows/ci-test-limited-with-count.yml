@@ -141,7 +141,7 @@ jobs:
 
       # Get specs to run
       - name: Get specs to run
-        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }} 
+        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
         run: |
           specs_to_run=""
           while IFS= read -r line
