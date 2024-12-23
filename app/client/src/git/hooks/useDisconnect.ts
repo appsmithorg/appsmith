@@ -7,7 +7,7 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useDisconnect() {
   const { artifact, artifactDef } = useGitContext();
@@ -15,7 +15,7 @@ export default function useDisconnect() {
 
   const dispatch = useDispatch();
 
-  const disconnectState = useAritfactSelector(selectDisconnectState);
+  const disconnectState = useArtifactSelector(selectDisconnectState);
 
   const disconnect = useCallback(() => {
     if (artifactDef) {
@@ -23,11 +23,11 @@ export default function useDisconnect() {
     }
   }, [artifactDef, dispatch]);
 
-  const disconnectBaseArtifactId = useAritfactSelector(
+  const disconnectBaseArtifactId = useArtifactSelector(
     selectDisconnectBaseArtifactId,
   );
 
-  const disconnectArtifactName = useAritfactSelector(
+  const disconnectArtifactName = useArtifactSelector(
     selectDisconnectArtifactName,
   );
 

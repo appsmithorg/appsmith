@@ -7,16 +7,16 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useSettings() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const settingsModalOpen = useAritfactSelector(selectSettingsModalOpen);
+  const settingsModalOpen = useArtifactSelector(selectSettingsModalOpen);
 
-  const settingsModalTab = useAritfactSelector(selectSettingsModalTab);
+  const settingsModalTab = useArtifactSelector(selectSettingsModalTab);
 
   const toggleSettingsModal = useCallback(
     (

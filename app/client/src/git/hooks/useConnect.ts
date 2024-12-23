@@ -10,14 +10,14 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useConnect() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const connectState = useAritfactSelector(selectConnectState);
+  const connectState = useArtifactSelector(selectConnectState);
 
   const connect = useCallback(
     (params: ConnectRequestParams) => {
@@ -28,7 +28,7 @@ export default function useConnect() {
     [artifactDef, dispatch],
   );
 
-  const gitImportState = useAritfactSelector(selectGitImportState);
+  const gitImportState = useArtifactSelector(selectGitImportState);
 
   const gitImport = useCallback(
     (params) => {
@@ -37,7 +37,7 @@ export default function useConnect() {
     [artifactDef, dispatch],
   );
 
-  const fetchSSHKeyState = useAritfactSelector(selectFetchSSHKeysState);
+  const fetchSSHKeyState = useArtifactSelector(selectFetchSSHKeysState);
 
   const fetchSSHKey = useCallback(() => {
     if (artifactDef) {
@@ -51,7 +51,7 @@ export default function useConnect() {
     }
   }, [artifactDef, dispatch]);
 
-  const generateSSHKeyState = useAritfactSelector(selectGenerateSSHKeyState);
+  const generateSSHKeyState = useArtifactSelector(selectGenerateSSHKeyState);
 
   const generateSSHKey = useCallback(
     (keyType: string, isImport: boolean = false) => {
@@ -74,7 +74,7 @@ export default function useConnect() {
     }
   }, [artifactDef, dispatch]);
 
-  const isConnectModalOpen = useAritfactSelector(selectConnectModalOpen);
+  const isConnectModalOpen = useArtifactSelector(selectConnectModalOpen);
 
   const toggleConnectModal = useCallback(
     (open: boolean) => {

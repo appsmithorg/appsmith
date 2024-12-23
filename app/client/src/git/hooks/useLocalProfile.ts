@@ -7,14 +7,14 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useLocalProfile() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const fetchLocalProfileState = useAritfactSelector(
+  const fetchLocalProfileState = useArtifactSelector(
     selectFetchLocalProfileState,
   );
 
@@ -24,7 +24,7 @@ export default function useLocalProfile() {
     }
   }, [artifactDef, dispatch]);
 
-  const updateLocalProfileState = useAritfactSelector(
+  const updateLocalProfileState = useArtifactSelector(
     selectUpdateLocalProfileState,
   );
 

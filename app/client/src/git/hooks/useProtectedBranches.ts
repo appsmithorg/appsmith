@@ -6,14 +6,14 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 function useProtectedBranches() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const fetchProtectedBranchesState = useAritfactSelector(
+  const fetchProtectedBranchesState = useArtifactSelector(
     selectFetchProtectedBranchesState,
   );
 
@@ -23,7 +23,7 @@ function useProtectedBranches() {
     }
   }, [dispatch, artifactDef]);
 
-  const updateProtectedBranchesState = useAritfactSelector(
+  const updateProtectedBranchesState = useArtifactSelector(
     selectUpdateProtectedBranchesState,
   );
 

@@ -1,8 +1,8 @@
 import { selectMetadataState } from "git/store/selectors/gitSingleArtifactSelectors";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useMetadata() {
-  const metadataState = useAritfactSelector(selectMetadataState);
+  const metadataState = useArtifactSelector(selectMetadataState);
 
   return {
     metadata: metadataState?.value ?? null,

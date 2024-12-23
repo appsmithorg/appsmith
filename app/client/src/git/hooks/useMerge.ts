@@ -6,7 +6,7 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useMerge() {
   const { artifact, artifactDef } = useGitContext();
@@ -14,7 +14,7 @@ export default function useMerge() {
   const dispatch = useDispatch();
 
   // merge
-  const mergeState = useAritfactSelector(selectMergeState);
+  const mergeState = useArtifactSelector(selectMergeState);
 
   const merge = useCallback(() => {
     if (artifactDef) {
@@ -23,7 +23,7 @@ export default function useMerge() {
   }, [artifactDef, dispatch]);
 
   // merge status
-  const mergeStatusState = useAritfactSelector(selectMergeStatusState);
+  const mergeStatusState = useArtifactSelector(selectMergeStatusState);
 
   const fetchMergeStatus = useCallback(
     (sourceBranch: string, destinationBranch: string) => {

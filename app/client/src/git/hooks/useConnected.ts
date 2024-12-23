@@ -1,8 +1,8 @@
 import { selectConnected } from "git/store/selectors/gitSingleArtifactSelectors";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useConnected() {
-  const isConnected = useAritfactSelector(selectConnected);
+  const isConnected = useArtifactSelector(selectConnected);
 
   return isConnected ?? false;
 }

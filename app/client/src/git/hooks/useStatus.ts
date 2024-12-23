@@ -3,14 +3,14 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectStatusState } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useStatus() {
   const { artifact, artifactDef } = useGitContext();
   const artifactId = artifact?.id;
   const dispatch = useDispatch();
 
-  const statusState = useAritfactSelector(selectStatusState);
+  const statusState = useArtifactSelector(selectStatusState);
 
   const fetchStatus = useCallback(() => {
     if (artifactDef && artifactId) {

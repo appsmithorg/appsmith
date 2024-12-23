@@ -8,7 +8,7 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useOps() {
   const { artifactDef } = useGitContext();
@@ -16,9 +16,9 @@ export default function useOps() {
   const dispatch = useDispatch();
 
   // ops modal
-  const opsModalOpen = useAritfactSelector(selectOpsModalOpen);
+  const opsModalOpen = useArtifactSelector(selectOpsModalOpen);
 
-  const opsModalTab = useAritfactSelector(selectOpsModalTab);
+  const opsModalTab = useArtifactSelector(selectOpsModalTab);
 
   const toggleOpsModal = useCallback(
     (open: boolean, tab: keyof typeof GitOpsTab = GitOpsTab.Deploy) => {
@@ -30,7 +30,7 @@ export default function useOps() {
   );
 
   // conflict error modal
-  const conflictErrorModalOpen = useAritfactSelector(
+  const conflictErrorModalOpen = useArtifactSelector(
     selectConflictErrorModalOpen,
   );
 

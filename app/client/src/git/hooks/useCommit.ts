@@ -3,7 +3,7 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectCommitState } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useCommit() {
   const { artifact, artifactDef } = useGitContext();
@@ -11,7 +11,7 @@ export default function useCommit() {
 
   const dispatch = useDispatch();
 
-  const commitState = useAritfactSelector(selectCommitState);
+  const commitState = useArtifactSelector(selectCommitState);
 
   const commit = useCallback(
     (commitMessage: string) => {

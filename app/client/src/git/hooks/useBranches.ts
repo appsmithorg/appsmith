@@ -11,7 +11,7 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useBranches() {
   const { artifact, artifactDef } = useGitContext();
@@ -20,7 +20,7 @@ export default function useBranches() {
   const dispatch = useDispatch();
 
   // fetch branches
-  const branchesState = useAritfactSelector(selectFetchBranchesState);
+  const branchesState = useArtifactSelector(selectFetchBranchesState);
 
   const fetchBranches = useCallback(() => {
     if (artifactDef && artifactId) {
@@ -35,7 +35,7 @@ export default function useBranches() {
   }, [artifactDef, artifactId, dispatch]);
 
   // create branch
-  const createBranchState = useAritfactSelector(selectCreateBranchState);
+  const createBranchState = useArtifactSelector(selectCreateBranchState);
   const createBranch = useCallback(
     (branchName: string) => {
       if (artifactDef && artifactId) {
@@ -51,7 +51,7 @@ export default function useBranches() {
     [artifactDef, artifactId, dispatch],
   );
   // delete branch
-  const deleteBranchState = useAritfactSelector(selectDeleteBranchState);
+  const deleteBranchState = useArtifactSelector(selectDeleteBranchState);
   const deleteBranch = useCallback(
     (branchName: string) => {
       if (artifactDef && artifactId) {
@@ -67,7 +67,7 @@ export default function useBranches() {
     [artifactDef, artifactId, dispatch],
   );
   // checkout branch
-  const checkoutBranchState = useAritfactSelector(selectCheckoutBranchState);
+  const checkoutBranchState = useArtifactSelector(selectCheckoutBranchState);
   const checkoutBranch = useCallback(
     (branchName: string) => {
       if (artifactDef && artifactId) {
@@ -83,13 +83,13 @@ export default function useBranches() {
     [artifactDef, artifactId, dispatch],
   );
 
-  const checkoutDestBranch = useAritfactSelector(selectCheckoutDestBranch);
+  const checkoutDestBranch = useArtifactSelector(selectCheckoutDestBranch);
 
   // derived
-  const currentBranch = useAritfactSelector(selectCurrentBranch);
+  const currentBranch = useArtifactSelector(selectCurrentBranch);
 
   // git branch list popup
-  const isBranchPopupOpen = useAritfactSelector(selectBranchPopupOpen);
+  const isBranchPopupOpen = useArtifactSelector(selectBranchPopupOpen);
 
   const toggleBranchPopup = useCallback(
     (open: boolean) => {

@@ -9,17 +9,17 @@ import {
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useAutocommit() {
   const { artifactDef } = useGitContext();
   const dispatch = useDispatch();
 
-  const toggleAutocommitState = useAritfactSelector(
+  const toggleAutocommitState = useArtifactSelector(
     selectToggleAutocommitState,
   );
 
-  const triggerAutocommitState = useAritfactSelector(
+  const triggerAutocommitState = useArtifactSelector(
     selectTriggerAutocommitState,
   );
 
@@ -29,7 +29,7 @@ export default function useAutocommit() {
     }
   }, [artifactDef, dispatch]);
 
-  const isAutocommitDisableModalOpen = useAritfactSelector(
+  const isAutocommitDisableModalOpen = useArtifactSelector(
     selectAutocommitDisableModalOpen,
   );
 
@@ -47,9 +47,9 @@ export default function useAutocommit() {
     [artifactDef, dispatch],
   );
 
-  const isAutocommitEnabled = useAritfactSelector(selectAutocommitEnabled);
+  const isAutocommitEnabled = useArtifactSelector(selectAutocommitEnabled);
 
-  const isAutocommitPolling = useAritfactSelector(selectAutocommitPolling);
+  const isAutocommitPolling = useArtifactSelector(selectAutocommitPolling);
 
   return {
     isToggleAutocommitLoading: toggleAutocommitState?.loading ?? false,

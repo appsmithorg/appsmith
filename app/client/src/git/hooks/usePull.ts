@@ -3,14 +3,14 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectPullState } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function usePull() {
   const { artifact, artifactDef } = useGitContext();
   const artifactId = artifact?.id;
   const dispatch = useDispatch();
 
-  const pullState = useAritfactSelector(selectPullState);
+  const pullState = useArtifactSelector(selectPullState);
 
   const pull = useCallback(() => {
     if (artifactDef) {

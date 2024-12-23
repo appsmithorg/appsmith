@@ -3,13 +3,13 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectDiscardState } from "git/store/selectors/gitSingleArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useAritfactSelector from "./useArtifactSelector";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useDiscard() {
   const { artifactDef } = useGitContext();
   const dispatch = useDispatch();
 
-  const discardState = useAritfactSelector(selectDiscardState);
+  const discardState = useArtifactSelector(selectDiscardState);
 
   const discard = useCallback(() => {
     if (artifactDef) {
