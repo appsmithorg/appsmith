@@ -12,27 +12,31 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
     messages: {
       unhandledPromise: "Unhandled Promise detected.",
     },
-    schema: [], // No options for now
+    schema: [], // Rule does not accept configuration options
   },
   create: function (context: Rule.RuleContext) {
     return {
       FunctionDeclaration(node: ESTree.FunctionDeclaration) {
+        // Start traversal from the function body
         traverseNode(node.body, null);
       },
     };
 
+    /**
+     * Recursively traverses the AST node and its children.
+     * Processes CallExpressions and continues traversing child nodes.
+     */
     function traverseNode(
       node: ESTree.Node | null,
       parent: ESTree.Node | null,
     ) {
       if (!node) return;
 
-      // Check for CallExpression
       if (node.type === "CallExpression") {
         checkCallExpression(node as ESTree.CallExpression, parent);
       }
 
-      // Traverse child nodes
+      // Retrieve keys for child nodes and traverse them
       const visitorKeys = context.getSourceCode().visitorKeys[node.type] || [];
 
       for (const key of visitorKeys) {
@@ -48,6 +52,9 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       }
     }
 
+    /**
+     * Determines if a node is inside an async function by traversing its parent chain.
+     */
     function isInAsyncFunction(node: ESTree.Node | null): boolean {
       while (node) {
         if (
@@ -58,13 +65,18 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
           return true;
         }
 
-        // @ts-expect-error: Types are not available
+        // Move to the parent node in the AST
+        // @ts-expect-error: Types may not always define `parent`
         node = node.parent;
       }
 
       return false;
     }
 
+    /**
+     * Checks if a CallExpression represents an unhandled Promise.
+     * Reports an error if the promise is not awaited or chained with `.then()`, `.catch()`, or `.finally()`.
+     */
     function checkCallExpression(
       node: ESTree.CallExpression,
       parent: ESTree.Node | null,
@@ -72,6 +84,10 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       const callee = node.callee;
       let isPotentialAsyncCall = false;
 
+      // Identify async calls. We process the jsobject one function at a time with minimal
+      // data of the rest of the environment.
+      // With the given architecture, we are only able to target async methods
+      // by finding if they `.run()` at the end.
       if (callee.type === "MemberExpression") {
         const property = callee.property;
 
@@ -80,6 +96,7 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
         }
       }
 
+      // Report if the async call is unhandled and not properly awaited
       if (isPotentialAsyncCall && isInAsyncFunction(parent)) {
         if (
           parent &&
@@ -95,6 +112,9 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       }
     }
 
+    /**
+     * Determines if a CallExpression is handled with `.then()`, `.catch()`, or `.finally()`.
+     */
     function isHandledWithPromiseMethods(parent: ESTree.Node): boolean {
       if (
         parent.type === "MemberExpression" &&
