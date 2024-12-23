@@ -67,7 +67,7 @@ import {
 } from "actions/appThemingActions";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import log from "loglevel";

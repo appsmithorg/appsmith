@@ -11,8 +11,8 @@ import type {
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { WebworkerSpanData } from "instrumentation/types";
+import type { SpanAttributes } from "instrumentation/generateTraces";
 import type { LINTER_TYPE } from "./constants";
 
 export type WebworkerTelemetryAttribute = WebworkerSpanData | SpanAttributes;

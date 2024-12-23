@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { useFormContext } from "react-hook-form";
 import useUnmountFieldValidation from "./useUnmountFieldValidation";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 
 // Mock dependencies
 jest.mock("react-hook-form", () => ({

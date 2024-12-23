@@ -246,6 +246,7 @@ function finalizeHtmlFiles() {
     APPSMITH_VERSION_ID: info?.version ?? "",
     APPSMITH_VERSION_SHA: info?.commitSha ?? "",
     APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
+    APPSMITH_HOSTNAME: process.env.HOSTNAME ?? "appsmith-0"
   }
 
   for (const file of ["index.html", "404.html"]) {

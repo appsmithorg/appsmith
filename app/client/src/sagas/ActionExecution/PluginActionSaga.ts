@@ -154,12 +154,12 @@ import {
 } from "ee/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
+import type { OtlpSpan } from "instrumentation/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import {
   getActionExecutionAnalytics,
   getActionProperties,

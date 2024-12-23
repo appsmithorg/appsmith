@@ -30,10 +30,10 @@ import {
   profileFn,
   newWebWorkerSpanData,
   profileAsyncFn,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+} from "instrumentation/generateWebWorkerTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { Attributes } from "@opentelemetry/api";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,7 +94,7 @@ export async function evalTree(
   let isNewTree = false;
 
   try {
-    (webworkerTelemetry.__spanAttributes as SpanAttributes)["firstEvaluation"] =
+    (webworkerTelemetry.__spanAttributes as Attributes)["firstEvaluation"] =
       !dataTreeEvaluator;
 
     if (!dataTreeEvaluator) {

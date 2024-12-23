@@ -1,0 +1,64 @@
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import { ZoneContextManager } from "@opentelemetry/context-zone";
+import { trace, context } from "@opentelemetry/api";
+import { Resource } from "@opentelemetry/resources";
+import {
+  ATTR_DEPLOYMENT_NAME,
+  ATTR_SERVICE_INSTANCE_ID,
+} from "@opentelemetry/semantic-conventions/incubating";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import { getAppsmithConfigs } from "ee/configs";
+import {
+  initializeFaro,
+  ReactIntegration,
+  getWebInstrumentations,
+} from "@grafana/faro-react";
+import {
+  FaroTraceExporter,
+  FaroSessionSpanProcessor,
+} from "@grafana/faro-web-tracing";
+
+const { observability } = getAppsmithConfigs();
+const { deploymentName, serviceInstanceId, serviceName } = observability;
+// This base domain is used to filter out the Smartlook requests from the browser agent
+// There are some requests made to subdomains of smartlook.cloud which will also be filtered out
+const smartlookBaseDomain = "smartlook.cloud";
+
+export const faro = initializeFaro({
+  // required: the URL of the Grafana collector
+  url: "https://faro-collector-prod-us-central-0.grafana.net/collect/4145e706a670446aee3c593ba1fff177",
+  app: {
+    name: serviceName,
+    version: "1.0.0",
+    environment: deploymentName,
+  },
+  instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
+  ignoreUrls: [smartlookBaseDomain],
+  consoleInstrumentation: {
+    consoleErrorAsLog: true,
+  },
+  trackResources: true,
+  trackWebVitalsAttribution: true,
+});
+
+const tracerProvider = new WebTracerProvider({
+  resource: new Resource({
+    [ATTR_DEPLOYMENT_NAME]: deploymentName,
+    [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
+    [ATTR_SERVICE_NAME]: serviceName,
+  }),
+});
+
+tracerProvider.addSpanProcessor(
+  new FaroSessionSpanProcessor(
+    new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
+    faro.metas,
+  ),
+);
+
+tracerProvider.register({
+  contextManager: new ZoneContextManager(),
+});
+
+faro.api.initOTEL(trace, context);

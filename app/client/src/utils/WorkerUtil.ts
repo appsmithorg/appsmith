@@ -5,18 +5,18 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
-import type { OtlpSpan, SpanAttributes } from "UITelemetry/generateTraces";
+import type { OtlpSpan, SpanAttributes } from "instrumentation/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+} from "instrumentation/generateTraces";
+import type { WebworkerSpanData } from "instrumentation/types";
 import {
   convertWebworkerSpansToRegularSpans,
   filterSpanData,
   newWebWorkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
+} from "instrumentation/generateWebWorkerTraces";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.

@@ -35,18 +35,16 @@ import {
   type ICacheProps,
 } from "../AppComputationCache/types";
 import type DependencyMap from "entities/DependencyMap";
-import {
-  profileFn,
-  type WebworkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+import { profileFn } from "instrumentation/generateWebWorkerTraces";
+import type { WebworkerSpanData } from "instrumentation/types";
+import type { Attributes } from "@opentelemetry/api";
 
 export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
   cacheProps: ICacheProps,
-  webworkerSpans: Record<string, WebworkerSpanData | SpanAttributes> = {},
+  webworkerSpans: Record<string, WebworkerSpanData | Attributes> = {},
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
 

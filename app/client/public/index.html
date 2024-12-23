@@ -214,7 +214,7 @@
         },
         observability: {
           deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
-          serviceInstanceId: parseConfig('{{env "HOSTNAME"}}') || "appsmith-0",
+          serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}') || "appsmith-0",
         },
         newRelic:{
           enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),

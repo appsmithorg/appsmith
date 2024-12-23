@@ -1,6 +1,6 @@
 import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { PluginType } from "entities/Action";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
