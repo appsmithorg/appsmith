@@ -64,7 +64,6 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
 import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -188,13 +187,13 @@ export default function AppRouter() {
             <ErrorPage code={safeCrashCode} />
           </>
         ) : (
-          <GitApplicationContextProvider>
+          <>
             <Walkthrough>
               <AppHeader />
               <Routes />
             </Walkthrough>
             <ProductAlertBanner />
-          </GitApplicationContextProvider>
+          </>
         )}
       </Suspense>
     </Router>

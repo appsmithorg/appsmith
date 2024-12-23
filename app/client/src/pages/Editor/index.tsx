@@ -54,6 +54,7 @@ import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyM
 import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import { useGitModEnabled } from "./gitSync/hooks/modHooks";
+import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 
 function GitModals() {
   const isGitModEnabled = useGitModEnabled();
@@ -208,27 +209,29 @@ class Editor extends Component<Props> {
 
     return (
       <ThemeProvider theme={theme}>
-        <div>
-          <Helmet>
-            <meta charSet="utf-8" />
-            <title>
-              {`${this.props.currentApplicationName} | Editor | Appsmith`}
-            </title>
-          </Helmet>
-          <GlobalHotKeys>
-            <IDE />
-            <GitModals />
-            <TemplatesModal />
-            <ImportedApplicationSuccessModal />
-            <ReconnectDatasourceModal />
-            <SignpostingOverlay />
-            <PartialExportModal />
-            <PartialImportModal />
-            <AppCURLImportModal />
-            <GeneratePageModal />
-          </GlobalHotKeys>
-        </div>
-        <RequestConfirmationModal />
+        <GitApplicationContextProvider>
+          <div>
+            <Helmet>
+              <meta charSet="utf-8" />
+              <title>
+                {`${this.props.currentApplicationName} | Editor | Appsmith`}
+              </title>
+            </Helmet>
+            <GlobalHotKeys>
+              <IDE />
+              <GitModals />
+              <TemplatesModal />
+              <ImportedApplicationSuccessModal />
+              <ReconnectDatasourceModal />
+              <SignpostingOverlay />
+              <PartialExportModal />
+              <PartialImportModal />
+              <AppCURLImportModal />
+              <GeneratePageModal />
+            </GlobalHotKeys>
+          </div>
+          <RequestConfirmationModal />
+        </GitApplicationContextProvider>
       </ThemeProvider>
     );
   }
