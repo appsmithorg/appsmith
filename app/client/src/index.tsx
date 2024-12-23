@@ -29,8 +29,8 @@ import log from "loglevel";
 import { getAppsmithConfigs } from "ee/configs";
 import { FaroErrorBoundary } from "@grafana/faro-react";
 
-const { newRelic } = getAppsmithConfigs();
-const { enableNewRelic } = newRelic;
+const { observability } = getAppsmithConfigs();
+const { tracingUrl } = observability;
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -39,8 +39,7 @@ runSagaMiddleware();
 
 appInitializer();
 
-// TODO @diljit: Change env variable name
-enableNewRelic &&
+tracingUrl &&
   (async () => {
     try {
       await import(

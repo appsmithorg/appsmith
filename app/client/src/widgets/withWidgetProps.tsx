@@ -53,7 +53,9 @@ import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
 import { getAppsmithConfigs } from "ee/configs";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 
-const { newRelic } = getAppsmithConfigs();
+const {
+  observability: { tracingUrl },
+} = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -372,7 +374,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
     }
 
-    if (!newRelic.enableNewRelic) {
+    if (!tracingUrl) {
       return <WrappedWidget {...widgetProps} />;
     }
 
