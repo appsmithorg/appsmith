@@ -1,11 +1,8 @@
 import React from "react";
-import { Text } from "../..";
+import { Text } from "../../..";
+import type { NoSearchResultsProps } from "./NoSearchResults.types";
 
-interface EmptySearchResultProps {
-  text: string;
-}
-
-const EmptySearchResult = ({ text }: EmptySearchResultProps) => {
+const NoSearchResults = ({ text }: NoSearchResultsProps) => {
   return (
     <Text
       className="font-normal text-center"
@@ -17,4 +14,4 @@ const EmptySearchResult = ({ text }: EmptySearchResultProps) => {
   );
 };
 
-export { EmptySearchResult };
+export { NoSearchResults };

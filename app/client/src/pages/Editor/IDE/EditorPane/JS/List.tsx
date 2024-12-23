@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Flex, Text, SearchAndAdd, EmptySearchResult } from "@appsmith/ads";
+import { Flex, Text, SearchAndAdd, NoSearchResults } from "@appsmith/ads";
 import styled from "styled-components";
 
 import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
@@ -110,7 +110,7 @@ const ListJSObjects = () => {
             );
           })}
           {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-            <EmptySearchResult
+            <NoSearchResults
               text={createMessage(
                 EDITOR_PANE_TEXTS.empty_search_result,
                 createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),

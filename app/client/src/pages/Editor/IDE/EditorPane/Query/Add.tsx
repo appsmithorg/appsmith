@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Flex,
   SearchInput,
-  EmptySearchResult,
+  NoSearchResults,
   type FlexProps,
 } from "@appsmith/ads";
 
@@ -69,7 +69,7 @@ const AddQuery = () => {
           <GroupedList groups={filteredItemGroups} />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult
+          <NoSearchResults
             text={createMessage(
               EDITOR_PANE_TEXTS.empty_search_result,
               createMessage(EDITOR_PANE_TEXTS.search_objects.datasources),

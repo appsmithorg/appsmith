@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Text, SearchAndAdd, EmptySearchResult } from "@appsmith/ads";
+import { Flex, Text, SearchAndAdd, NoSearchResults } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -94,7 +94,7 @@ const ListQuery = () => {
           );
         })}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult
+          <NoSearchResults
             text={createMessage(
               EDITOR_PANE_TEXTS.empty_search_result,
               createMessage(EDITOR_PANE_TEXTS.search_objects.queries),

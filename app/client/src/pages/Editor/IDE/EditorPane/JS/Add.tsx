@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import type { ListItemProps } from "@appsmith/ads";
-import { Flex, SearchInput, EmptySearchResult } from "@appsmith/ads";
+import { Flex, SearchInput, NoSearchResults } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
@@ -97,7 +97,7 @@ const AddJS = () => {
           <GroupedList groups={filteredItemGroups} />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult
+          <NoSearchResults
             text={createMessage(
               EDITOR_PANE_TEXTS.empty_search_result,
               createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),

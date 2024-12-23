@@ -3,4 +3,4 @@ export { ListWithHeader } from "./ListWithHeader";
 export { EditorSegments } from "./EditorSegments";
 export * from "./SearchAndAdd";
 export { EmptyState } from "./EmptyState";
-export { EmptySearchResult } from "./EmptySearchResult";
+export { NoSearchResults } from "./NoSearchResults";
