@@ -322,4 +322,9 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     public Mono<Application> publishArtifactPostCommit(Artifact committedArtifact) {
         return publishArtifact(committedArtifact, true);
     }
+
+    @Override
+    public Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish) {
+        return publishArtifact(artifact, publish);
+    }
 }

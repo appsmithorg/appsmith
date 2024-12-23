@@ -1262,10 +1262,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         return Mono.create(sink -> pushStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    protected Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish) {
-        return publishArtifact(artifact, publish);
-    }
-
     private Mono<? extends Artifact> publishArtifact(Artifact artifact, boolean publish) {
         if (!Boolean.TRUE.equals(publish)) {
             return Mono.just(artifact);
@@ -2249,10 +2245,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         Mono<? extends Artifact> branchedArtifactMonoCached =
                 gitArtifactHelper.getArtifactById(branchedArtifactId, artifactEditPermission);
-        Mono<? extends Artifact> discardChangeMono;
 
-        // Rehydrate the artifact from local file system
-        discardChangeMono = branchedArtifactMonoCached
+        Mono<? extends Artifact> discardChangeMono = branchedArtifactMonoCached
                 .flatMap(branchedArtifact -> {
                     GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
                     if (branchedGitData == null || !hasText(branchedGitData.getDefaultArtifactId())) {
@@ -2292,14 +2286,19 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     artifactExchangeJson,
                                     branchName))
                             // Update the last deployed status after the rebase
-                            .flatMap(importedArtifact -> validateAndPublishArtifact(importedArtifact, true));
+                            .flatMap(importedArtifact ->
+                                    gitApplicationHelper.validateAndPublishArtifact(importedArtifact, true));
                 })
-                .flatMap(branchedArtifact -> releaseFileLock(
-                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())
-                        .then(this.addAnalyticsForGitOperation(
-                                AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)))
+                .flatMap(branchedArtifact ->
+                        this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null))
                 .name(GitSpan.OPS_DISCARD_CHANGES)
-                .tap(Micrometer.observation(observationRegistry));
+                .tap(Micrometer.observation(observationRegistry))
+                .doFinally(signalType -> {
+                    branchedArtifactMonoCached
+                            .flatMap(branchedArtifact -> releaseFileLock(
+                                    branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId()))
+                            .subscribe();
+                });
 
         return Mono.create(
                 sink -> discardChangeMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
