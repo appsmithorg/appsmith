@@ -136,18 +136,10 @@ import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import { GitImportModal as NewGitImportModal } from "git";
 
-interface GitImportModalProps {
-  workspaceId: string;
-}
-
-function GitImportModal({ workspaceId }: GitImportModalProps) {
+function GitImportModal() {
   const isGitModEnabled = useGitModEnabled();
 
-  return isGitModEnabled ? (
-    <NewGitImportModal workspaceId={workspaceId} />
-  ) : (
-    <OldGitSyncModal isImport />
-  );
+  return isGitModEnabled ? <NewGitImportModal /> : <OldGitSyncModal isImport />;
 }
 
 export const { cloudHosting } = getAppsmithConfigs();
@@ -971,7 +963,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <GitImportModal workspaceId={activeWorkspaceId} />
+      <GitImportModal />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
