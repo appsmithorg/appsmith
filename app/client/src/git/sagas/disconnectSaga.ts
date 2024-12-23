@@ -26,7 +26,7 @@ export default function* disconnectSaga(action: GitArtifactPayloadAction) {
       url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
       history.push(url.toString().slice(url.origin.length));
       yield put(gitArtifactActions.closeDisconnectModal({ artifactDef }));
-      // !case: why?
+      // ! case: why?
       //   yield put(importAppViaGitStatusReset());
       yield put(
         gitArtifactActions.toggleOpsModal({
