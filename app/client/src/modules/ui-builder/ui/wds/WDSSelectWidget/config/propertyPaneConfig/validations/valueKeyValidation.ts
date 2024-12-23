@@ -1,18 +1,17 @@
 import type { LoDashStatic } from "lodash";
 import type { WDSSelectWidgetProps } from "../../../widget/types";
 
+/**
+ * Validation rules:
+ * 1. Can be a string (representing a key in sourceData)
+ * 2. Can be an Array of string, number, boolean (for direct option values)
+ * 3. Values must be unique
+ */
 export function valueKeyValidation(
   value: unknown,
   props: WDSSelectWidgetProps,
   _: LoDashStatic,
 ) {
-  /*
-   * Validation rules
-   *  1. Can be a string.
-   *  2. Can be an Array of string, number, boolean (only for option Value).
-   *  3. should be unique.
-   */
-
   if (value === "" || _.isNil(value)) {
     return {
       parsed: "",
@@ -52,10 +51,8 @@ export function valueKeyValidation(
 
     options = sourceData.map((d: Record<string, unknown>) => d[value]);
   } else if (_.isArray(value)) {
-    /*
-     * Here assumption is that if evaluated array is all equal, then it is a key,
-     * and we can return the parsed value(from source data) as the options.
-     */
+    // Here assumption is that if evaluated array is all equal, then it is a key,
+    // and we can return the parsed value(from source data) as the options.
     const areAllValuesEqual = value.every((item, _, arr) => item === arr[0]);
 
     if (

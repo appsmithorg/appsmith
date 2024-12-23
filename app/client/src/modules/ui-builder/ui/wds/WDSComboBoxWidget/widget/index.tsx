@@ -49,7 +49,9 @@ class WDSComboBoxWidget extends WDSSelectWidget {
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
-        isInvalid={validation.validationStatus === "invalid"}
+        isInvalid={
+          validation.validationStatus === "invalid" && this.props.isDirty
+        }
         key={key}
         onSelectionChange={this.handleChange}
         placeholder={placeholderText}

@@ -1,18 +1,18 @@
 import type { LoDashStatic } from "lodash";
+import type { ValidationResponse } from "constants/WidgetValidation";
 
 import type { WDSSelectWidgetProps } from "../../../widget/types";
 
+/**
+ * Validation rules:
+ * 1. Can be a string
+ * 2. Can be an Array of strings
+ */
 export function labelKeyValidation(
   value: unknown,
   props: WDSSelectWidgetProps,
   _: LoDashStatic,
-) {
-  /*
-   * Validation rules
-   *  1. Can be a string.
-   *  2. Can be an Array of string, number, boolean (only for option Value).
-   */
-
+): ValidationResponse {
   if (value === "" || _.isNil(value)) {
     return {
       parsed: "",
@@ -20,44 +20,49 @@ export function labelKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string>`,
+          message: "Value cannot be empty or null",
         },
       ],
     };
   }
 
+  // Handle string values
   if (_.isString(value)) {
     return {
       parsed: value,
       isValid: true,
-      messages: [],
+      messages: [{ name: "", message: "" }],
     };
-  } else if (_.isArray(value)) {
-    const errorIndex = value.findIndex((d) => !_.isString(d));
+  }
+
+  // Handle array values
+  if (_.isArray(value)) {
+    const errorIndex = value.findIndex((item) => !_.isString(item));
+    const isValid = errorIndex === -1;
 
     return {
-      parsed: errorIndex === -1 ? value : [],
-      isValid: errorIndex === -1,
-      messages:
-        errorIndex !== -1
-          ? [
-              {
-                name: "ValidationError",
-                message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string`,
-              },
-            ]
-          : [],
-    };
-  } else {
-    return {
-      parsed: "",
-      isValid: false,
+      parsed: isValid ? value : [],
+      isValid,
       messages: [
         {
-          name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
+          name: isValid ? "" : "ValidationError",
+          message: isValid
+            ? ""
+            : `Invalid entry at index: ${errorIndex}. Value must be a string`,
         },
       ],
     };
   }
+
+  // Handle invalid types
+  return {
+    parsed: "",
+    isValid: false,
+    messages: [
+      {
+        name: "ValidationError",
+        message: "Value must be a string or an array of strings",
+      },
+    ],
+  };
 }

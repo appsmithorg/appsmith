@@ -1,62 +1,57 @@
-import type { ValidationResponse } from "constants/WidgetValidation";
 import type { LoDashStatic } from "lodash";
+import type { ValidationResponse } from "constants/WidgetValidation";
+
 import type { WDSSelectWidgetProps } from "../../../widget/types";
 
+/**
+ * Validation rules:
+ * 1. Can be a string, number, or an object with "label" and "value" properties.
+ * 2. If it's a string, it should be a valid JSON string.
+ */
 export function defaultOptionValueValidation(
   value: unknown,
   props: WDSSelectWidgetProps,
   _: LoDashStatic,
 ): ValidationResponse {
-  let isValid;
-  let parsed;
-  let message = { name: "", message: "" };
-  /*
-   * Function to check if the object has `label` and `value`
-   */
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const hasLabelValue = (obj: any) => {
+  function isValidSelectOption(value: unknown): boolean {
+    if (!_.isPlainObject(value)) return false;
+
+    const obj = value as Record<string, unknown>;
+
     return (
-      _.isPlainObject(value) &&
       obj.hasOwnProperty("label") &&
       obj.hasOwnProperty("value") &&
       _.isString(obj.label) &&
       (_.isString(obj.value) || _.isFinite(obj.value))
     );
-  };
+  }
 
-  /*
-   * When value is "{label: 'green', value: 'green'}"
-   */
-  if (typeof value === "string") {
+  function tryParseJSON(value: string): unknown {
     try {
-      const parsedValue = JSON.parse(value);
-
-      if (_.isObject(parsedValue)) {
-        value = parsedValue;
-      }
-    } catch (e) {}
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   }
 
-  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {
-    /*
-     * When value is "", "green", 444, {label: "green", value: "green"}
-     */
-    isValid = true;
-    parsed = value;
-  } else {
-    isValid = false;
-    parsed = undefined;
-    message = {
-      name: "TypeError",
-      message:
-        'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
-    };
-  }
+  const processedValue =
+    typeof value === "string" ? tryParseJSON(value) : value;
+
+  const isValid =
+    _.isString(processedValue) ||
+    _.isFinite(processedValue) ||
+    isValidSelectOption(processedValue);
 
   return {
     isValid,
-    parsed,
-    messages: [message],
+    parsed: isValid ? processedValue : undefined,
+    messages: [
+      {
+        name: isValid ? "" : "TypeError",
+        message: isValid
+          ? ""
+          : 'Value must be a string, number, or an object with "label" and "value" properties',
+      },
+    ],
   };
 }
