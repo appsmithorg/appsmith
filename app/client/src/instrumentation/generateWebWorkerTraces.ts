@@ -1,5 +1,4 @@
-import type { Span, Attributes } from "@opentelemetry/api";
-import { startNestedSpan } from "./generateTraces";
+import type { Attributes } from "@opentelemetry/api";
 import type { WebworkerSpanData } from "./types";
 
 //this is used in webworkers to generate telemetry data
@@ -49,21 +48,6 @@ export const profileFn = <T>(
   allSpans[spanName] = span;
 
   return res;
-};
-
-//convert webworker spans to OTLP spans
-export const convertWebworkerSpansToRegularSpans = (
-  parentSpan: Span,
-  allSpans: Record<string, WebworkerSpanData> = {},
-) => {
-  Object.values(allSpans)
-    .filter(({ endTime, startTime }) => startTime && endTime)
-    .forEach((spanData) => {
-      const { attributes, endTime, spanName, startTime } = spanData;
-      const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
-
-      span?.end(endTime);
-    });
 };
 
 export const filterSpanData = (

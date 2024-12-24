@@ -9,10 +9,10 @@ import {
   endSpan,
   setAttributesToSpan,
   startRootSpan,
+  convertWebworkerSpansToRegularSpans,
 } from "instrumentation/generateTraces";
 import type { WebworkerSpanData } from "instrumentation/types";
 import {
-  convertWebworkerSpansToRegularSpans,
   filterSpanData,
   newWebWorkerSpanData,
 } from "instrumentation/generateWebWorkerTraces";
