@@ -94,8 +94,7 @@ export default function BranchButton({
         placement="topLeft"
       >
         <ButtonContainer
-          className="t--branch-button"
-          data-testid={"t--branch-button-currentBranch"}
+          data-testid={"t--git-quick-actions-branch"}
           isDisabled={isDisabled}
           kind="secondary"
         >

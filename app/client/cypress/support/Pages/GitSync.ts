@@ -69,15 +69,187 @@ export class GitSync {
   public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
   public _mergeLoader = "[data-testid='t--git-merge-loader']";
 
-  OpenGitSyncModal() {
-    this.agHelper.GetNClick(this._connectGitBottomBar);
-    this.agHelper.AssertElementVisibility(this._gitSyncModal);
+  // git mod
+  public locators = {
+    quickActionConnectBtn: "[data-testid='t--git-quick-actions-connect']",
+    quickActionsCommitBtn: "[data-testid='t--git-quick-actions-commit'] button",
+    quickActionsPullBtn: "[data-testid='t--git-quick-actions-pull'] button",
+    quickActionsBranchBtn: "[data-testid='t--git-quick-actions-branch']",
+    quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge']",
+    quickActionsSettingsBtn: "[data-testid='t--git-quick-actions-settings']",
+    connectModal: "[data-testid='t--git-connect-modal']",
+    connectModalCloseBtn:
+      "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",
+    connectModalNextBtn: "[data-testid='t--git-connect-next']",
+    connectSuccessModal: "[data-testid='t--git-con-success-modal']",
+    connectSuccessModalCloseBtn:
+      "//div[@data-testid='t--git-success-modal']//button[@aria-label='Close']",
+    connectSuccessStartUsingBtn:
+      "[data-testid='t--git-con-success-start-using']",
+    connectSuccessOpenSettingsBtn:
+      "[data-testid='t--git-con-success-open-settings']",
+    opsModal: "[data-testid='t--git-ops-modal']",
+    opsModalCloseBtn:
+      "//div[@data-testid='t--git-ops-modal']//button[@aria-label='Close']",
+  };
+
+  public OpenConnectModal() {
+    this.agHelper.GetNClick(this.locators.quickActionConnectBtn);
+    this.agHelper.AssertElementVisibility(this.locators.connectModal);
   }
 
-  CloseGitSyncModal() {
-    this.agHelper.GetNClick(this._closeGitSyncModal);
-    this.agHelper.AssertElementAbsence(this._gitSyncModal);
+  public CloseConnectModal() {
+    this.agHelper.GetNClick(this.locators.connectModalCloseBtn);
+    this.agHelper.AssertElementAbsence(this.locators.connectModal);
   }
+
+  public OpenOpsModal() {
+    this.agHelper.GetNClick(this.locators.opsModal);
+    this.agHelper.AssertElementVisibility(this.locators.opsModal);
+  }
+
+  public CloseOpsModal() {
+    this.agHelper.GetNClick(this.locators.opsModalCloseBtn);
+    this.agHelper.AssertElementAbsence(this.locators.opsModal);
+  }
+
+  public CreateNConnectToGit(
+    repoName = "Repo",
+    assertConnect = true,
+    privateFlag = false,
+  ) {
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      repoName += uid;
+      this.CreateTestGiteaRepo(repoName, privateFlag);
+
+      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+        `generateKey-${repoName}`,
+      );
+
+      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
+        `protected-${repoName}`,
+      );
+
+      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
+        `branches-${repoName}`,
+      );
+
+      this.OpenConnectModal();
+
+      this.agHelper.GetNClick(this.providerRadioOthers);
+      this.agHelper.GetNClick(this.existingEmptyRepoYes);
+      this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+      this.agHelper.AssertAttribute(
+        this.remoteUrlInput,
+        "placeholder",
+        "git@example.com:user/repository.git",
+      );
+      this.agHelper.TypeText(
+        this.remoteUrlInput,
+        `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
+      );
+      this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+
+      this.agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        cy.wait(`@generateKey-${repoName}`).then((result: any) => {
+          let generatedKey = result.response.body.data.publicKey;
+          // fetch the generated key and post to the github repo
+          cy.request({
+            method: "POST",
+            url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
+            body: {
+              title: "key_" + uid,
+              key: generatedKey,
+              read_only: false,
+            },
+          }).then((resp: any) => {
+            cy.log("Deploy Key Id ", resp.body.key_id);
+            cy.wrap(resp.body.key_id).as("deployKeyId");
+          });
+        });
+      });
+      this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+      this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+
+      if (assertConnect) {
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.GetNClick(this.locators.connectSuccessStartUsingBtn);
+        this.agHelper.AssertElementExist(
+          this.locators.quickActionsCommitBtn,
+          0,
+          30000,
+        );
+      }
+
+      cy.wrap(repoName).as("gitRepoName");
+    });
+  }
+
+  public ImportAppFromGit(
+    workspaceName: string,
+    repoName: string,
+    assertConnect = true,
+  ) {
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `importKey-${repoName}`,
+    );
+
+    this.homePage.ImportGitApp(workspaceName);
+
+    this.agHelper.GetNClick(this.providerRadioOthers);
+    this.agHelper.GetNClick(this.existingRepoCheckbox, 0, true);
+    this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+    this.agHelper.AssertAttribute(
+      this.remoteUrlInput,
+      "placeholder",
+      "git@example.com:user/repository.git",
+    );
+    this.agHelper.TypeText(
+      this.remoteUrlInput,
+      `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
+    );
+    this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      cy.wait(`@importKey-${repoName}`).then((result: any) => {
+        let generatedKey = result.response.body.data.publicKey;
+        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+        // fetch the generated key and post to the github repo
+        cy.request({
+          method: "POST",
+          url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
+          body: {
+            title: "key_" + uid,
+            key: generatedKey,
+            read_only: false,
+          },
+        }).then((resp: any) => {
+          cy.log("Deploy Key Id ", resp.body.key_id);
+          cy.wrap(resp.body.key_id).as("deployKeyId");
+        });
+      });
+    });
+    this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+    this.agHelper.GetNClick(this.locators.connectModalNextBtn);
+
+    if (assertConnect) {
+      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
+    }
+  }
+
+  // old git
+
+  // OpenGitSyncModal() {
+  //   this.agHelper.AssertElementVisibility(this._gitSyncModal);
+  // }
+
+  // CloseGitSyncModal() {
+  //   this.agHelper.GetNClick(this._closeGitSyncModal);
+  //   this.agHelper.AssertElementAbsence(this._gitSyncModal);
+  // }
 
   OpenGitSettingsModal(tabName: "GENERAL" | "BRANCH" | "CD" = "GENERAL") {
     this.agHelper.GetNClick(this._bottomSettingsBtn);
@@ -116,129 +288,6 @@ export class GitSync {
   private startUsingGitButton =
     "[data-testid='t--git-success-modal-start-using-git-cta']";
   private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
-
-  CreateNConnectToGit(
-    repoName = "Repo",
-    assertConnect = true,
-    privateFlag = false,
-  ) {
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      repoName += uid;
-      this.CreateTestGiteaRepo(repoName, privateFlag);
-
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repoName}`,
-      );
-
-      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
-        `protected-${repoName}`,
-      );
-
-      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
-        `branches-${repoName}`,
-      );
-
-      this.OpenGitSyncModal();
-
-      this.agHelper.GetNClick(this.providerRadioOthers);
-      this.agHelper.GetNClick(this.existingEmptyRepoYes);
-      this.agHelper.GetNClick(this.gitConnectNextBtn);
-      this.agHelper.AssertAttribute(
-        this.remoteUrlInput,
-        "placeholder",
-        "git@example.com:user/repository.git",
-      );
-      this.agHelper.TypeText(
-        this.remoteUrlInput,
-        `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
-      );
-      this.agHelper.GetNClick(this.gitConnectNextBtn);
-
-      this.agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        cy.wait(`@generateKey-${repoName}`).then((result: any) => {
-          let generatedKey = result.response.body.data.publicKey;
-          // fetch the generated key and post to the github repo
-          cy.request({
-            method: "POST",
-            url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
-            body: {
-              title: "key_" + uid,
-              key: generatedKey,
-              read_only: false,
-            },
-          }).then((resp: any) => {
-            cy.log("Deploy Key Id ", resp.body.key_id);
-            cy.wrap(resp.body.key_id).as("deployKeyId");
-          });
-        });
-      });
-      this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
-      this.agHelper.GetNClick(this.gitConnectNextBtn);
-
-      if (assertConnect) {
-        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.GetNClick(this.startUsingGitButton);
-        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-      }
-
-      cy.wrap(repoName).as("gitRepoName");
-    });
-  }
-
-  public ImportAppFromGit(
-    workspaceName: string,
-    repoName: string,
-    assertConnect = true,
-  ) {
-    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-      `importKey-${repoName}`,
-    );
-
-    this.homePage.ImportGitApp(workspaceName);
-
-    this.agHelper.GetNClick(this.providerRadioOthers);
-    this.agHelper.GetNClick(this.existingRepoCheckbox, 0, true);
-    this.agHelper.GetNClick(this.gitConnectNextBtn);
-    this.agHelper.AssertAttribute(
-      this.remoteUrlInput,
-      "placeholder",
-      "git@example.com:user/repository.git",
-    );
-    this.agHelper.TypeText(
-      this.remoteUrlInput,
-      `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
-    );
-    this.agHelper.GetNClick(this.gitConnectNextBtn);
-
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      cy.wait(`@importKey-${repoName}`).then((result: any) => {
-        let generatedKey = result.response.body.data.publicKey;
-        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-        // fetch the generated key and post to the github repo
-        cy.request({
-          method: "POST",
-          url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
-          body: {
-            title: "key_" + uid,
-            key: generatedKey,
-            read_only: false,
-          },
-        }).then((resp: any) => {
-          cy.log("Deploy Key Id ", resp.body.key_id);
-          cy.wrap(resp.body.key_id).as("deployKeyId");
-        });
-      });
-    });
-    this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
-    this.agHelper.GetNClick(this.gitConnectNextBtn);
-
-    if (assertConnect) {
-      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-    }
-  }
 
   public clearBranchProtection() {
     this.agHelper.GetNClick(this._bottomSettingsBtn);
@@ -388,7 +437,7 @@ export class GitSync {
       Cypress.env("MESSAGES").MERGED_SUCCESSFULLY(),
       "be.visible",
     );
-    this.CloseGitSyncModal();
+    this.CloseOpsModal();
   }
 
   OpenRepositoryAndVerify() {
@@ -413,7 +462,7 @@ export class GitSync {
       });
     }
 
-    this.CloseGitSyncModal();
+    this.CloseOpsModal();
   }
 
   public DiscardChanges() {
@@ -451,7 +500,7 @@ export class GitSync {
         true,
       );
     }
-    this.CloseGitSyncModal();
+    this.CloseOpsModal();
   }
 
   public AssertBranchName(branch: string) {

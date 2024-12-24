@@ -72,7 +72,7 @@ function OpsModalView({
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
-        <StyledModalContent data-testid="t--git-sync-modal">
+        <StyledModalContent data-testid="t--git-ops-modal">
           <ModalHeader>{repoName}</ModalHeader>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
