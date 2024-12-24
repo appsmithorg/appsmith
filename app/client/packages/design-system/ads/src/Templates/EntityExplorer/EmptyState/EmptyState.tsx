@@ -34,7 +34,7 @@ const EmptyState = ({ button, description, icon }: EmptyStateProps) => {
         <Button
           className={button.className}
           data-testid={button.testId}
-          kind={button.kind}
+          kind={button.kind || "secondary"}
           onClick={button.onClick}
           size="sm"
         >
