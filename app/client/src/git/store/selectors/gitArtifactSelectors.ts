@@ -217,10 +217,8 @@ export const selectProtectedMode = (
   artifactDef: GitArtifactDef,
 ) => {
   const currentBranch = selectCurrentBranch(state, artifactDef);
-  const protectedBranches = selectFetchProtectedBranchesState(
-    state,
-    artifactDef,
-  ).value;
+  const protectedBranches =
+    selectFetchProtectedBranchesState(state, artifactDef)?.value ?? [];
 
   return protectedBranches?.includes(currentBranch ?? "") ?? false;
 };
