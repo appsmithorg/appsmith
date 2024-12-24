@@ -42,6 +42,10 @@ import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Linter } from "eslint-linter-browserify";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import { EditorNames, getEditorType } from "ee/hooks";
+import type { AppsmithEntity } from "ee/entities/DataTree/types";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -71,25 +75,86 @@ function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   return EvaluationScriptPositions[scriptType];
 }
 
-function generateLintingGlobalData(data: Record<string, unknown>) {
-  const globalData: Record<string, boolean> = {};
+function generateLintingGlobalData(
+  data: Record<string, unknown>,
+  linterType = LINTER_TYPE.JSHINT,
+) {
+  const asyncFunctions: string[] = [];
+  let editorType = EditorNames.APPLICATION;
+  let globalData: Record<string, boolean | "readonly" | "writable"> = {};
 
-  for (const dataKey in data) {
-    globalData[dataKey] = true;
+  if (linterType === LINTER_TYPE.JSHINT) {
+    for (const dataKey in data) {
+      globalData[dataKey] = true;
+    }
+
+    // Add all js libraries
+    const libAccessors = ([] as string[]).concat(
+      ...JSLibraries.map((lib) => lib.accessor),
+    );
+
+    libAccessors.forEach((accessor) => (globalData[accessor] = true));
+    // Add all supported web apis
+    objectKeys(SUPPORTED_WEB_APIS).forEach(
+      (apiName) => (globalData[apiName] = true),
+    );
+  } else {
+    globalData = {
+      setTimeout: "readonly",
+      clearTimeout: "readonly",
+      console: "readonly",
+    };
+
+    for (const dataKey in data) {
+      globalData[dataKey] = "readonly";
+
+      const dataValue = data[dataKey] as DataTreeEntity;
+
+      if (
+        !!dataValue &&
+        dataValue.hasOwnProperty("ENTITY_TYPE") &&
+        !!dataValue["ENTITY_TYPE"]
+      ) {
+        const { ENTITY_TYPE: dataValueEntityType } = dataValue;
+
+        if (dataValueEntityType === ENTITY_TYPE.ACTION) {
+          asyncFunctions.push(`${dataKey}.run`);
+        } else if (dataValueEntityType === ENTITY_TYPE.JSACTION) {
+          const ignoreKeys = ["body", "ENTITY_TYPE", "actionId"];
+
+          for (const key in dataValue) {
+            if (!ignoreKeys.includes(key)) {
+              const value = dataValue[key];
+
+              if (
+                typeof value === "string" &&
+                value.startsWith("async function")
+              ) {
+                asyncFunctions.push(`${dataKey}.${key}`);
+              }
+            }
+          }
+        }
+      } else if (dataKey === "appsmith") {
+        const appsmithEntity = data[dataKey] as AppsmithEntity;
+
+        editorType = getEditorType(appsmithEntity.URL.fullPath);
+      }
+    }
+
+    // Add all js libraries
+    const libAccessors = ([] as string[]).concat(
+      ...JSLibraries.map((lib) => lib.accessor),
+    );
+
+    libAccessors.forEach((accessor) => (globalData[accessor] = "readonly"));
+    // Add all supported web apis
+    objectKeys(SUPPORTED_WEB_APIS).forEach(
+      (apiName) => (globalData[apiName] = "readonly"),
+    );
   }
 
-  // Add all js libraries
-  const libAccessors = ([] as string[]).concat(
-    ...JSLibraries.map((lib) => lib.accessor),
-  );
-
-  libAccessors.forEach((accessor) => (globalData[accessor] = true));
-  // Add all supported web apis
-  objectKeys(SUPPORTED_WEB_APIS).forEach(
-    (apiName) => (globalData[apiName] = true),
-  );
-
-  return globalData;
+  return { globalData, asyncFunctions, editorType };
 }
 
 function sanitizeESLintErrors(
@@ -302,8 +367,17 @@ export default function getLintingErrors({
 }: getLintingErrorsProps): LintError[] {
   const linterType = getLinterTypeFn();
   const scriptPos = getEvaluationScriptPosition(scriptType);
-  const lintingGlobalData = generateLintingGlobalData(data);
-  const lintingOptions = lintOptions(lintingGlobalData, linterType);
+  const {
+    asyncFunctions,
+    editorType,
+    globalData: lintingGlobalData,
+  } = generateLintingGlobalData(data, linterType);
+  const lintingOptions = lintOptions(
+    lintingGlobalData,
+    asyncFunctions,
+    editorType,
+    linterType,
+  );
 
   let messages: Linter.LintMessage[] = [];
   let lintErrors: LintError[] = [];
