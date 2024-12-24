@@ -134,11 +134,11 @@ function generateLintingGlobalData(
               }
             }
           }
-        }
-      } else if (dataKey === "appsmith") {
-        const appsmithEntity = data[dataKey] as AppsmithEntity;
+        } else if (dataValueEntityType === ENTITY_TYPE.APPSMITH) {
+          const appsmithEntity: AppsmithEntity = dataValue;
 
-        editorType = getEditorType(appsmithEntity.URL.fullPath);
+          editorType = getEditorType(appsmithEntity.URL.pathname);
+        }
       }
     }
 
