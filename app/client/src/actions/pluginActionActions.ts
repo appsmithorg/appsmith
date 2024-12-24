@@ -21,7 +21,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
-import type { Span } from "@opentelemetry/api";
+import type { Span } from "instrumentation/types";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {

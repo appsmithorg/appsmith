@@ -36,8 +36,7 @@ import {
 } from "../AppComputationCache/types";
 import type DependencyMap from "entities/DependencyMap";
 import { profileFn } from "instrumentation/generateWebWorkerTraces";
-import type { WebworkerSpanData } from "instrumentation/types";
-import type { Attributes } from "@opentelemetry/api";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 
 export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,

@@ -22,7 +22,7 @@ import {
 } from "@grafana/faro-web-tracing";
 import log from "loglevel";
 
-const { observability } = getAppsmithConfigs();
+const { appVersion, observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
   observability;
 
@@ -39,7 +39,7 @@ if (tracingUrl) {
     url: tracingUrl,
     app: {
       name: serviceName,
-      version: "1.0.0",
+      version: appVersion.sha,
       environment: deploymentName,
     },
     instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],

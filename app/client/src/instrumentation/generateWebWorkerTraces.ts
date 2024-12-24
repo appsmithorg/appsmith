@@ -1,5 +1,4 @@
-import type { Attributes } from "@opentelemetry/api";
-import type { WebworkerSpanData } from "./types";
+import type { WebworkerSpanData, Attributes } from "./types";
 
 //this is used in webworkers to generate telemetry data
 //this telemetry data is pushed to the main thread which is converted

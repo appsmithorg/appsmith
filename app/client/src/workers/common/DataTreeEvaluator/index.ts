@@ -154,8 +154,7 @@ import {
 } from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
-import type { WebworkerSpanData } from "instrumentation/types";
-import type { Attributes } from "@opentelemetry/api";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

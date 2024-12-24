@@ -27,7 +27,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import type { Span } from "@opentelemetry/api";
+import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 
 export default class AppViewerEngine extends AppEngine {

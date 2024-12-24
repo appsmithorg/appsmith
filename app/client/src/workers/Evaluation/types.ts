@@ -15,10 +15,9 @@ import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types"
 import type { WorkerRequest } from "ee/workers/common/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
-import type { WebworkerSpanData } from "instrumentation/types";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type { ICacheProps } from "../common/AppComputationCache/types";
-import type { Attributes } from "@opentelemetry/api";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

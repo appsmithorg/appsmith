@@ -1,5 +1,4 @@
-import type { WebworkerSpanData } from "instrumentation/types";
-import type { Attributes } from "@opentelemetry/api";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 
 export enum AppsmithWorkers {
   LINT_WORKER = "LINT_WORKER",

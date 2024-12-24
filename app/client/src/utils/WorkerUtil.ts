@@ -11,12 +11,15 @@ import {
   startRootSpan,
   convertWebworkerSpansToRegularSpans,
 } from "instrumentation/generateTraces";
-import type { WebworkerSpanData } from "instrumentation/types";
+import type {
+  WebworkerSpanData,
+  Attributes,
+  Span,
+} from "instrumentation/types";
 import {
   filterSpanData,
   newWebWorkerSpanData,
 } from "instrumentation/generateWebWorkerTraces";
-import type { Attributes, Span } from "@opentelemetry/api";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
