@@ -1,9 +1,9 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.artifacts.permissions.ArtifactPermission;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProviderCE;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ArtifactPermission;
 import com.appsmith.server.solutions.ContextPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
