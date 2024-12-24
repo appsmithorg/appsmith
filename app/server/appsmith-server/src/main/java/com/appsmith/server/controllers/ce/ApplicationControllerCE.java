@@ -3,6 +3,8 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -62,6 +64,7 @@ import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 @RequiredArgsConstructor
 public class ApplicationControllerCE {
 
+    protected final ArtifactService artifactService;
     protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
     private final UserReleaseNotes userReleaseNotes;
@@ -248,7 +251,8 @@ public class ApplicationControllerCE {
     @PostMapping("/ssh-keypair/{branchedApplicationId}")
     public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(
             @PathVariable String branchedApplicationId, @RequestParam(required = false) String keyType) {
-        return service.createOrUpdateSshKeyPair(branchedApplicationId, keyType)
+        return artifactService
+                .createOrUpdateSshKeyPair(ArtifactType.APPLICATION, branchedApplicationId, keyType)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
