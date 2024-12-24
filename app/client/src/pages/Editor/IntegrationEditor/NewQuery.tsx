@@ -56,7 +56,9 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           parentEntityType={parentEntityType}
           showMostPopularPlugins={showMostPopularPlugins}
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          {this.props.children}
+        </DataSourceHome>
       </QueryHomePage>
     );
   }

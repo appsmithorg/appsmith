@@ -21,11 +21,7 @@ import {
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
-import {
-  waitForSegmentInit,
-  waitForFetchUserSuccess,
-} from "ee/sagas/userSagas";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import { waitForFetchUserSuccess } from "ee/sagas/userSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -145,22 +141,6 @@ export default class AppViewerEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
-
-    const waitForSegmentSpan = startNestedSpan(
-      "AppViewerEngine.waitForSegmentInit",
-      rootSpan,
-    );
-
-    yield call(waitForSegmentInit, true);
-    endSpan(waitForSegmentSpan);
-
-    const waitForEnvironmentsSpan = startNestedSpan(
-      "AppViewerEngine.waitForFetchEnvironments",
-      rootSpan,
-    );
-
-    yield call(waitForFetchEnvironments);
-    endSpan(waitForEnvironmentsSpan);
 
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 

@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Flex, SearchInput } from "@appsmith/ads";
+import {
+  Flex,
+  SearchInput,
+  NoSearchResults,
+  type FlexProps,
+} from "@appsmith/ads";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
@@ -9,13 +14,10 @@ import {
   useGroupedAddQueryOperations,
   useQueryAdd,
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { fuzzySearchInObjectItems } from "../utils";
-import type { GroupedListProps } from "../components/types";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
 const AddQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,15 +26,15 @@ const AddQuery = () => {
   const { closeAddQuery } = useQueryAdd();
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const groups = groupedActionOperations.map((group) => ({
+  const itemGroups = groupedActionOperations.map((group) => ({
     groupTitle: group.title,
     className: group.className,
     items: getListItems(group.operations),
   }));
 
-  const localGroups = fuzzySearchInObjectItems<GroupedListProps[]>(
+  const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
-    groups,
+    itemGroups,
   );
 
   const extraPadding: FlexProps =
@@ -63,10 +65,15 @@ const AddQuery = () => {
           titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
         />
         <SearchInput autoFocus onChange={setSearchTerm} value={searchTerm} />
-        {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
-        {localGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult
-            type={createMessage(EDITOR_PANE_TEXTS.search_objects.datasources)}
+        {filteredItemGroups.length > 0 ? (
+          <GroupedList groups={filteredItemGroups} />
+        ) : null}
+        {filteredItemGroups.length === 0 && searchTerm !== "" ? (
+          <NoSearchResults
+            text={createMessage(
+              EDITOR_PANE_TEXTS.empty_search_result,
+              createMessage(EDITOR_PANE_TEXTS.search_objects.datasources),
+            )}
           />
         ) : null}
       </Flex>

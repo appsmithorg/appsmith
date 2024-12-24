@@ -62,6 +62,16 @@ export const propertyPaneContentConfig = [
           type: ValidationTypes.TEXT,
         },
       },
+      {
+        propertyName: "allowDialCodeChange",
+        label: "Change country code",
+        helpText: "Allow users to change the country code",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
   {

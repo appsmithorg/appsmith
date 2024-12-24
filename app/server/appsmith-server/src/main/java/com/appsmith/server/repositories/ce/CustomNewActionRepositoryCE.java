@@ -150,4 +150,15 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager);
 
     List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
+    List<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    List<NewAction> findByApplicationId(String applicationId);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    List<NewAction> findAllByIdIn(Iterable<String> ids);
+
+    Optional<Long> countByDeletedAtNull();
 }

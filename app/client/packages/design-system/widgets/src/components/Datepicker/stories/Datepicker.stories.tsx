@@ -10,7 +10,7 @@ import { DatePicker } from "../src";
  */
 const meta: Meta<typeof DatePicker> = {
   component: DatePicker,
-  title: "WDS/Widgets/DatePicker",
+  title: "WDS/Widgets/Date Picker",
 };
 
 export default meta;

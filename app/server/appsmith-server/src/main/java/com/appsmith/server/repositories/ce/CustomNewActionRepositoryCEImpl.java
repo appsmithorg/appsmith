@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.models.PluginType.getPluginTypes;
 
@@ -587,5 +588,25 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.id, ids))
                 .entityManager(entityManager)
                 .all();
+    }
+
+    @Override
+    public List<NewAction> findByApplicationId(String applicationId) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
+                .all();
+    }
+
+    @Override
+    public List<NewAction> findAllByIdIn(Iterable<String> ids) {
+        List<String> idList = StreamSupport.stream(ids.spliterator(), false).toList();
+        return queryBuilder().criteria(Bridge.in(NewAction.Fields.id, idList)).all();
+    }
+
+    @Override
+    public Optional<Long> countByDeletedAtNull() {
+        return queryBuilder()
+                .criteria(Bridge.exists(NewAction.Fields.deletedAt))
+                .count();
     }
 }

@@ -445,4 +445,46 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         }
         return queryBuilder().criteria(q).entityManager(entityManager).one();
     }
+
+    @Override
+    public List<Application> findByIdIn(List<String> ids) {
+        final BridgeQuery<Application> q = Bridge.in(Application.Fields.id, ids);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public List<Application> findByWorkspaceId(String workspaceId) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Optional<Long> countByWorkspaceId(String workspaceId) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public List<Application> findByClonedFromApplicationId(String clonedFromApplicationId) {
+        final BridgeQuery<Application> q =
+                Bridge.equal(Application.Fields.clonedFromApplicationId, clonedFromApplicationId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Optional<Long> countByDeletedAtNull() {
+        final BridgeQuery<Application> q = Bridge.isNull(Application.Fields.deletedAt);
+        return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration) {
+        final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id);
+        if (TRUE.equals(exportWithConfiguration)) {
+            q.isTrue(Application.Fields.exportWithConfiguration);
+        } else {
+            q.isFalse(Application.Fields.exportWithConfiguration);
+        }
+        return queryBuilder().criteria(q).one();
+    }
 }

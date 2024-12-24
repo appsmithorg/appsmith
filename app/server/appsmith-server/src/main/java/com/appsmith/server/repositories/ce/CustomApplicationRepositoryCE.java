@@ -132,4 +132,17 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<Application> findByIdAndExportWithConfiguration(
             String id, boolean exportWithConfiguration, EntityManager entityManager);
+            String branchedApplicationId, AclPermission permission, User currentUser);
+
+    List<Application> findByIdIn(List<String> ids);
+
+    List<Application> findByWorkspaceId(String workspaceId);
+
+    Optional<Long> countByWorkspaceId(String workspaceId);
+
+    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+
+    Optional<Long> countByDeletedAtNull();
+
+    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 }
