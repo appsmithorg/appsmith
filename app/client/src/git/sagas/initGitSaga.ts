@@ -13,7 +13,7 @@ export default function* initGitForEditorSaga(
   yield put(gitArtifactActions.mount(basePayload));
 
   if (artifactType === GitArtifactType.Application) {
-    if (!!artifact.gitApplicationMetadata) {
+    if (!!artifact.gitApplicationMetadata?.remoteUrl) {
       yield put(gitArtifactActions.fetchMetadataInit(basePayload));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);
       yield put(

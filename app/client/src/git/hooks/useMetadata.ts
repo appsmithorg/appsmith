@@ -18,9 +18,9 @@ export default function useMetadata() {
   );
 
   return {
-    metadata: metadataState.value ?? null,
-    isFetchMetadataLoading: metadataState.loading ?? false,
-    fetchMetadataError: metadataState.error ?? null,
+    metadata: metadataState?.value ?? null,
+    isFetchMetadataLoading: metadataState?.loading ?? false,
+    fetchMetadataError: metadataState?.error ?? null,
     isGitConnected,
   };
 }

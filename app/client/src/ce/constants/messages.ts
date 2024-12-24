@@ -395,6 +395,7 @@ export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
+export const NOT_FOUND = () => "Not found";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -478,6 +479,8 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 // Modules
 export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
 export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
+export const PACKAGE_UPGRADING_ACTION_STATUS = (action: string) =>
+  `You're not able to ${action} while package references are updating. Please wait until the update is complete.`;
 
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
