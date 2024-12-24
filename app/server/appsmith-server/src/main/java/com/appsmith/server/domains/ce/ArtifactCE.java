@@ -13,8 +13,6 @@ public interface ArtifactCE {
 
     String getName();
 
-    void setName(String artifactName);
-
     String getWorkspaceId();
 
     Boolean getExportWithConfiguration();

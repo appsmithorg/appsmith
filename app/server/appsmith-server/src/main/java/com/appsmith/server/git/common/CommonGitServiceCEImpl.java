@@ -2187,17 +2187,13 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             .onErrorResume(throwable -> {
                                 log.error("Delete branch failed {}", throwable.getMessage());
                                 if (throwable instanceof CannotDeleteCurrentBranchException) {
-                                    return releaseFileLock(baseArtifactId)
-                                            .then(Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_ACTION_FAILED,
-                                                    "delete branch",
-                                                    "Cannot delete current checked out branch")));
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.GIT_ACTION_FAILED,
+                                            "delete branch",
+                                            "Cannot delete current checked out branch"));
                                 }
-                                return releaseFileLock(baseArtifactId)
-                                        .then(Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_ACTION_FAILED,
-                                                "delete branch",
-                                                throwable.getMessage())));
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
                             })
                             .flatMap(isBranchDeleted ->
                                     releaseFileLock(baseArtifactId).map(status -> isBranchDeleted))
@@ -2292,12 +2288,16 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     artifactExchangeJson,
                                     branchName))
                             // Update the last deployed status after the rebase
-                            .flatMap(importedArtifact -> publishArtifact(importedArtifact, true));
+                            .flatMap(importedArtifact ->
+                                    gitArtifactHelper.validateAndPublishArtifact(importedArtifact, true));
                 })
                 .flatMap(branchedArtifact -> releaseFileLock(
                                 branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())
                         .then(this.addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)))
+                .onErrorResume(error -> branchedArtifactMonoCached.flatMap(branchedArtifact -> releaseFileLock(
+                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())
+                        .then(Mono.error(error))))
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
