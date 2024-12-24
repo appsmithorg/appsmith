@@ -5,6 +5,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -483,6 +483,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
+                .entityManager(entityManager)
+                .all(PluginTypeAndCountDTO.class);
+    }
+
+    @Override
     public List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
@@ -578,14 +586,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
-                .entityManager(entityManager)
-                .all();
-    }
-
-    @Override
-    public List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager) {
-        return queryBuilder()
-                .criteria(Bridge.in(NewAction.Fields.id, ids))
                 .entityManager(entityManager)
                 .all();
     }

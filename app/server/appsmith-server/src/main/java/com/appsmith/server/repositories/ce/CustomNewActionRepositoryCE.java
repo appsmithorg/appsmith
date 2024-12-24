@@ -4,11 +4,11 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Sort;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -118,6 +118,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<Integer> archiveDeletedUnpublishedActions(
             String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
+    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager);
+
     List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
 
@@ -143,8 +145,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             User currentUser,
             boolean includeJs,
             EntityManager entityManager);
-
-    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
 
     List<NewAction> findAllByApplicationIds(
             List<String> branchedArtifactIds, List<String> includedFields, EntityManager entityManager);

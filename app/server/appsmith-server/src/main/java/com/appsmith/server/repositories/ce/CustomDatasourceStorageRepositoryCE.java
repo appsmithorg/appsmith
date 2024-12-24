@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.repositories.AppsmithRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;

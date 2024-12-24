@@ -419,14 +419,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public List<IdOnly> findIdsByWorkspaceId(String workspaceId, EntityManager entityManager) {
-        return queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .entityManager(entityManager)
-                .all(IdOnly.class);
-    }
-
-    @Override
     public Optional<Application> findByIdAndExportWithConfiguration(
             String branchedApplicationId, boolean exportWithConfiguration, EntityManager entityManager) {
         BridgeQuery<Application> q = Bridge.equal(Application.Fields.id, branchedApplicationId);

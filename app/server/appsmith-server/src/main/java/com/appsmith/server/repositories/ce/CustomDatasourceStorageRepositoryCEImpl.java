@@ -4,6 +4,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;
