@@ -1,6 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Tooltip } from "@appsmith/ads";
+import {
+  Button,
+  Flex,
+  Icon,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
 
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -14,6 +23,33 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import styled from "styled-components";
+
+const StyledPopoverContent = styled(PopoverContent)`
+  background: var(--ads-v2-color-bg-emphasis-max);
+  box-shadow: 0 1px 20px 0 #4c56641c;
+  border: none;
+`;
+
+const FocusButton = styled(Button)`
+  border: 2px solid #8bb0fa !important;
+`;
+
+const CloseIcon = styled(Icon)`
+  svg {
+    path {
+      fill: #ffffff;
+    }
+  }
+
+  padding: var(--ads-v2-spaces-2);
+  cursor: pointer;
+  border-radius: var(--ads-v2-border-radius);
+
+  &:hover {
+    background-color: #ffffff33;
+  }
+`;
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
@@ -55,6 +91,8 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, isAnimatedIDEEnabled]);
 
+  const [showNudge, setShowNudge] = useState(true);
+
   if (ideViewMode === EditorViewMode.SplitScreen) {
     return (
       <Tooltip
@@ -71,6 +109,40 @@ export const ScreenModeToggle = () => {
           startIcon={"maximize-v3"}
         />
       </Tooltip>
+    );
+  }
+
+  if (showNudge) {
+    return (
+      <Popover open>
+        <PopoverTrigger>
+          <FocusButton
+            className="ml-auto !min-w-[24px]"
+            data-testid={"t--ide-minimize"}
+            id={"editor-mode-minimize"}
+            isIconButton
+            kind="tertiary"
+            onClick={switchToSplitScreen}
+            startIcon={"minimize-v3"}
+          />
+        </PopoverTrigger>
+        <StyledPopoverContent align="center" side="left" size="sm">
+          <Flex
+            alignItems="flex-start"
+            backgroundColor="var(--ads-v2-color-bg-emphasis-max)"
+            gap="spaces-2"
+          >
+            <Text color="#fff" kind="heading-xs">
+              Write code and configure UI elements side by side
+            </Text>
+            <CloseIcon
+              name="close-line"
+              onClick={() => setShowNudge(false)}
+              size="md"
+            />
+          </Flex>
+        </StyledPopoverContent>
+      </Popover>
     );
   }
 
