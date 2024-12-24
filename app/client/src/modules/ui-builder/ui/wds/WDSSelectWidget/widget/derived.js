@@ -56,13 +56,11 @@ export default {
       value: values[i],
     }));
   },
-  //
   getIsValid: (props, moment, _) => {
     return props.isRequired
       ? !_.isNil(props.selectedOptionValue) && props.selectedOptionValue !== ""
       : true;
   },
-  //
   getSelectedOptionValue: (props, moment, _) => {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
@@ -122,5 +120,4 @@ export default {
 
     return label;
   },
-  //
 };

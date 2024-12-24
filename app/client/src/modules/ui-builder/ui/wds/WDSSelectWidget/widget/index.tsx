@@ -151,7 +151,8 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     }[];
     // This is key is used to force re-render of the widget when the options change.
     // Why force re-render on   options change?
-    // Sometimes when the user is changing options, the select throws an error ( related to react-aria code ) saying "cannot change id of item".
+    // When the user is changing options from propety pane, the select throws an error ( related to react-aria code ) saying "cannot change id of item" due
+    // change in options's id.
     const key = options.map((option) => option.value).join(",");
 
     return (
