@@ -98,6 +98,7 @@ export const useGetPageFocusUrl = (basePageId: string): string => {
   const [focusPageUrl, setFocusPageUrl] = useState(builderURL({ basePageId }));
 
   const branch = useGitCurrentBranch();
+
   const editorStateFocusInfo = useSelector((appState) =>
     getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
   );

@@ -21,7 +21,7 @@ export function useGitModEnabled() {
 
 export function useGitCurrentBranch() {
   const isGitModEnabled = useGitModEnabled();
-  const currentBranchOld = useSelector(getCurrentGitBranch);
+  const currentBranchOld = useSelector(getCurrentGitBranch) ?? null;
   const currentBranchNew = useGitCurrentBranchNew();
 
   return isGitModEnabled ? currentBranchNew : currentBranchOld;

@@ -1,8 +1,8 @@
-import { useGitContext } from "git/components/GitContextProvider";
+import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
+import { useSelector } from "react-redux";
 
-// refactor to use branch from git metadata
 export default function useCurrentBranch() {
-  const { artifact } = useGitContext();
+  const currentBranch = useSelector(selectCurrentBranch);
 
-  return artifact?.gitApplicationMetadata?.branchName ?? null;
+  return currentBranch;
 }

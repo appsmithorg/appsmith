@@ -213,11 +213,11 @@ describe("ChooseGitProvider Component", () => {
   });
 
   it("respects canCreateNewArtifact and device conditions for links", () => {
-    // If canCreateNewArtifact is false, "Import via git" should not appear even if conditions are met
+    // If onOpenImport is null, "Import via git" should not appear even if conditions are met
     render(
       <ChooseGitProvider
         {...defaultProps}
-        onOpenImport={jest.fn()}
+        onOpenImport={null}
         value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
       />,
     );

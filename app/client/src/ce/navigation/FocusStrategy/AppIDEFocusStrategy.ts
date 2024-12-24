@@ -90,8 +90,12 @@ const isPageChange = (prevPath: string, currentPath: string) => {
 
 export const createEditorFocusInfoKey = (
   basePageId: string,
-  branch?: string | null,
-) => `EDITOR_STATE.${basePageId}#${branch}`;
+  branch: string | null = null,
+) =>
+  branch
+    ? `EDITOR_STATE.${basePageId}#${branch}`
+    : `EDITOR_STATE.${basePageId}`;
+
 export const createEditorFocusInfo = (basePageId: string, branch?: string) => ({
   key: createEditorFocusInfoKey(basePageId, branch),
   entityInfo: {
