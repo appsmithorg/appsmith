@@ -1,15 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Flex,
-  Icon,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Text,
-  Tooltip,
-} from "@appsmith/ads";
+import { Button, Tooltip } from "@appsmith/ads";
 
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -23,33 +14,8 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import styled from "styled-components";
-
-const StyledPopoverContent = styled(PopoverContent)`
-  background: var(--ads-v2-color-bg-emphasis-max);
-  box-shadow: 0 1px 20px 0 #4c56641c;
-  border: none;
-`;
-
-const FocusButton = styled(Button)`
-  border: 2px solid #8bb0fa !important;
-`;
-
-const CloseIcon = styled(Icon)`
-  svg {
-    path {
-      fill: #ffffff;
-    }
-  }
-
-  padding: var(--ads-v2-spaces-2);
-  cursor: pointer;
-  border-radius: var(--ads-v2-border-radius);
-
-  &:hover {
-    background-color: #ffffff33;
-  }
-`;
+import { Nudge } from "IDE/Components/Nudge";
+import { useBoolean } from "usehooks-ts";
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
@@ -77,10 +43,14 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, isAnimatedIDEEnabled]);
 
+  const { setFalse: hideNudge, value: showNudge } = useBoolean(true);
+
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
+
+    hideNudge();
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
@@ -89,9 +59,22 @@ export const ScreenModeToggle = () => {
     } else {
       dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
     }
-  }, [dispatch, isAnimatedIDEEnabled]);
+  }, [dispatch, hideNudge, isAnimatedIDEEnabled]);
 
-  const [showNudge, setShowNudge] = useState(true);
+  const maximiseButton = useMemo(
+    () => (
+      <Button
+        className="ml-auto !min-w-[24px]"
+        data-testid={"t--ide-minimize"}
+        id={"editor-mode-minimize"}
+        isIconButton
+        kind="tertiary"
+        onClick={switchToSplitScreen}
+        startIcon={"minimize-v3"}
+      />
+    ),
+    [switchToSplitScreen],
+  );
 
   if (ideViewMode === EditorViewMode.SplitScreen) {
     return (
@@ -114,35 +97,13 @@ export const ScreenModeToggle = () => {
 
   if (showNudge) {
     return (
-      <Popover open>
-        <PopoverTrigger>
-          <FocusButton
-            className="ml-auto !min-w-[24px]"
-            data-testid={"t--ide-minimize"}
-            id={"editor-mode-minimize"}
-            isIconButton
-            kind="tertiary"
-            onClick={switchToSplitScreen}
-            startIcon={"minimize-v3"}
-          />
-        </PopoverTrigger>
-        <StyledPopoverContent align="center" side="left" size="sm">
-          <Flex
-            alignItems="flex-start"
-            backgroundColor="var(--ads-v2-color-bg-emphasis-max)"
-            gap="spaces-2"
-          >
-            <Text color="#fff" kind="heading-xs">
-              Write code and configure UI elements side by side
-            </Text>
-            <CloseIcon
-              name="close-line"
-              onClick={() => setShowNudge(false)}
-              size="md"
-            />
-          </Flex>
-        </StyledPopoverContent>
-      </Popover>
+      <Nudge
+        align="center"
+        message="Write code and configure UI elements side by side"
+        onDismissClick={hideNudge}
+        side="left"
+        trigger={maximiseButton}
+      />
     );
   }
 
@@ -150,16 +111,9 @@ export const ScreenModeToggle = () => {
     <Tooltip
       content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
       key={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
+      placement="left"
     >
-      <Button
-        className="ml-auto !min-w-[24px]"
-        data-testid={"t--ide-minimize"}
-        id={"editor-mode-minimize"}
-        isIconButton
-        kind="tertiary"
-        onClick={switchToSplitScreen}
-        startIcon={"minimize-v3"}
-      />
+      {maximiseButton}
     </Tooltip>
   );
 };
