@@ -99,6 +99,7 @@ export const ScreenModeToggle = () => {
     return (
       <Nudge
         align="center"
+        delayOpen={500}
         message="Write code and configure UI elements side by side"
         onDismissClick={hideNudge}
         side="left"

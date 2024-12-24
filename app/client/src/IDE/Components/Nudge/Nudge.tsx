@@ -9,18 +9,22 @@ interface Props {
   message: string;
   align?: Align;
   side?: Side;
+  delayOpen?: number;
 }
 
 export const Nudge = (props: Props) => {
   const [open, setOpen] = useState(false);
 
-  useEffect(function handleDelayOpenOnMount() {
-    const timer = setTimeout(() => {
-      setOpen(true);
-    }, 500);
+  useEffect(
+    function handleDelayOpenOnMount() {
+      const timer = setTimeout(() => {
+        setOpen(true);
+      }, props.delayOpen || 0);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    },
+    [props.delayOpen],
+  );
 
   return (
     <Popover open={open}>
