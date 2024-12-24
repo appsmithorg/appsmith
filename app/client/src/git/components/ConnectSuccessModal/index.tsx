@@ -1,11 +1,11 @@
 import React from "react";
-import ConnectSuccessView from "./ConnectSuccessView";
+import ConnectSuccessModalView from "./ConnectSuccessModalView";
 import useMetadata from "git/hooks/useMetadata";
 import useConnect from "git/hooks/useConnect";
 import useSettings from "git/hooks/useSettings";
 
-function ConnectSuccess() {
-  const { toggleConnectSuccessModal } = useConnect();
+function ConnectSuccessModal() {
+  const { isConnectSuccessModalOpen, toggleConnectSuccessModal } = useConnect();
   const { toggleSettingsModal } = useSettings();
 
   const { metadata } = useMetadata();
@@ -15,14 +15,15 @@ function ConnectSuccess() {
   const defaultBranch = metadata?.defaultBranchName ?? null;
 
   return (
-    <ConnectSuccessView
+    <ConnectSuccessModalView
       defaultBranch={defaultBranch}
+      isConnectSuccessModalOpen={isConnectSuccessModalOpen}
       remoteUrl={remoteUrl}
       repoName={repoName}
-      toggleModalOpen={toggleConnectSuccessModal}
+      toggleConnectSuccessModal={toggleConnectSuccessModal}
       toggleSettingsModal={toggleSettingsModal}
     />
   );
 }
 
-export default ConnectSuccess;
+export default ConnectSuccessModal;

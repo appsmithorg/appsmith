@@ -8,7 +8,7 @@ import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import type { GitArtifactPayloadAction } from "../store/types";
 import type { ConnectInitPayload } from "../store/actions/connectActions";
 
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 
 // Internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -17,6 +17,7 @@ import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -36,15 +37,18 @@ export default function* connectSaga(
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.connectSuccess({ artifactDef }));
+      yield put(
+        gitArtifactActions.connectSuccess({
+          artifactDef,
+          responseData: response.data,
+        }),
+      );
 
       // needs to happen only when artifactType is application
       if (artifactDef.artifactType === GitArtifactType.Application) {
-        const { branchedPageId } = action.payload;
+        const pageId: string = yield select(getCurrentPageId);
 
-        if (branchedPageId) {
-          yield put(fetchPageAction(branchedPageId));
-        }
+        yield put(fetchPageAction(pageId));
 
         const branch = response.data?.gitApplicationMetadata?.branchName;
 

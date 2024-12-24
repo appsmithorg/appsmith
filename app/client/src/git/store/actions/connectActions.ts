@@ -1,10 +1,11 @@
 import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
-import type { ConnectRequestParams } from "git/requests/connectRequest.types";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
+import type {
+  ConnectRequestParams,
+  ConnectResponseData,
+} from "git/requests/connectRequest.types";
 
-export interface ConnectInitPayload extends ConnectRequestParams {
-  branchedPageId?: string;
-}
+export interface ConnectInitPayload extends ConnectRequestParams {}
 
 export const connectInitAction = createArtifactAction<ConnectInitPayload>(
   (state) => {
@@ -15,11 +16,16 @@ export const connectInitAction = createArtifactAction<ConnectInitPayload>(
   },
 );
 
-export const connectSuccessAction = createArtifactAction((state) => {
-  state.apiResponses.connect.loading = false;
+export interface ConnectSuccessPayload
+  extends GitAsyncSuccessPayload<ConnectResponseData> {}
 
-  return state;
-});
+export const connectSuccessAction = createArtifactAction<ConnectSuccessPayload>(
+  (state) => {
+    state.apiResponses.connect.loading = false;
+
+    return state;
+  },
+);
 
 export const connectErrorAction = createArtifactAction<GitAsyncErrorPayload>(
   (state, action) => {

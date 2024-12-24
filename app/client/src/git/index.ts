@@ -21,6 +21,9 @@ import { gitGlobalActions } from "./store/gitGlobalSlice";
 export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
 export const toggleGitImportModal = gitGlobalActions.toggleImportModal;
 
+import { gitArtifactActions } from "./store/gitArtifactSlice";
+export const gitConnectSuccess = gitArtifactActions.connectSuccess;
+
 // selectors
 export {
   selectCurrentBranch as selectGitCurrentBranch,
@@ -33,3 +36,4 @@ export type {
   GitArtifactRootReduxState,
   GitGlobalReduxState,
 } from "./store/types";
+export type { ConnectSuccessPayload as GitConnectSuccessPayload } from "./store/actions/connectActions";
