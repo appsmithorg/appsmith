@@ -15,6 +15,7 @@ import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
+//test comment
 describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
   let pluginActionForm = new PluginActionForm();
 
