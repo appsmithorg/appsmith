@@ -145,45 +145,45 @@ jobs:
         run: |
           echo "Spec list: ${{ inputs.specs_to_run }}"     
             
-    # Step to get specs from the file or use the provided specs
+      # Step to get specs from the file or use the provided specs
       - name: Get specs to run
         run: |
-         # Check if specs_to_run is provided, if not, use the fallback file
-        if [[ -z "$specs_to_run" || "$specs_to_run" == "no_data" ]]; then
-          echo "No specs provided, falling back to limited-tests.txt file."
-          
-          # Check if limited-tests.txt exists
-          if [[ ! -f app/client/***/limited-tests.txt ]]; then
-            echo "Error: limited-tests.txt file not found!" >&2
-            exit 1
-          fi
-          
-          specs_to_run=""
-          
-          # Read each line of limited-tests.txt
-          while IFS= read -r line || [[ -n "$line" ]]; do
-            # Skip comments and empty lines
-            if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
-              continue
-            else
-              specs_to_run="$specs_to_run,$line"
+          # Check if specs_to_run is provided, if not, use the fallback file
+          if [[ -z "$specs_to_run" || "$specs_to_run" == "no_data" ]]; then
+            echo "No specs provided, falling back to limited-tests.txt file."
+            
+            # Check if limited-tests.txt exists
+            if [[ ! -f app/client/***/limited-tests.txt ]]; then
+              echo "Error: limited-tests.txt file not found!" >&2
+              exit 1
             fi
-          done < app/client/***/limited-tests.txt
-          
-          # Remove leading comma
-          specs_to_run=${specs_to_run#,}
-          
-          # If no specs found, return an error
-          if [[ -z $specs_to_run ]]; then
-            echo "Error: No specs found in limited-tests.txt!" >&2
-            exit 1
+            
+            specs_to_run=""
+            
+            # Read each line of limited-tests.txt
+            while IFS= read -r line || [[ -n "$line" ]]; do
+              # Skip comments and empty lines
+              if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
+                continue
+              else
+                specs_to_run="$specs_to_run,$line"
+              fi
+            done < app/client/***/limited-tests.txt
+            
+            # Remove leading comma
+            specs_to_run=${specs_to_run#,}
+            
+            # If no specs found, return an error
+            if [[ -z $specs_to_run ]]; then
+              echo "Error: No specs found in limited-tests.txt!" >&2
+              exit 1
+            fi
+          else
+            echo "Using provided specs: $specs_to_run"
           fi
-        else
-          echo "Using provided specs: $specs_to_run"
-        fi
 
-        # Set the final specs_to_run to GitHub environment variable
-        echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+          # Set the final specs_to_run to GitHub environment variable
+          echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
