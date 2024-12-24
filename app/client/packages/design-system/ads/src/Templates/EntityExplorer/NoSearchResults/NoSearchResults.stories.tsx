@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { NoSearchResults, type NoSearchResultsProps } from ".";
 
 const meta: Meta<typeof NoSearchResults> = {
-  title: "ADS/Templates/Entity Explorer/No search results",
+  title: "ADS/Templates/Entity Explorer/No Search Results",
   component: NoSearchResults,
 };
 
