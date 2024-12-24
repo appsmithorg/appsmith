@@ -63,7 +63,7 @@ export function AppJSEditorContextMenu({
     setTimeout(() => {
       dispatch(setRenameEntity(jsCollection.id));
     }, 100);
-  }, []);
+  }, [dispatch, jsCollection.id]);
 
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) => {
