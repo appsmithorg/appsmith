@@ -2,9 +2,9 @@ import React, { createContext, useCallback, useContext, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
-import type { StatusTreeStruct } from "../StatusChanges/StatusTree";
 import { useDispatch } from "react-redux";
 import type { GitArtifactDef } from "git/store/types";
+import type { StatusTreeStruct } from "../StatusChanges/types";
 
 export interface GitContextValue {
   artifactDef: GitArtifactDef | null;
