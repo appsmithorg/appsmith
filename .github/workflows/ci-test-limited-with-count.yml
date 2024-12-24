@@ -153,7 +153,7 @@ jobs:
             echo "No specs provided, falling back to limited-tests.txt file."
             
             # Check if limited-tests.txt exists
-            if [[ ! -f app/client/***/limited-tests.txt ]]; then
+            if [[ ! -f app/client/cypress/limited-tests.txt ]]; then
               echo "Error: limited-tests.txt file not found!" >&2
               exit 1
             fi
