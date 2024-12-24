@@ -388,7 +388,7 @@ export const bindDataOnCanvas = (payload: {
   };
 };
 
-type actionDataPayload = {
+export type actionDataPayload = {
   entityName: string;
   dataPath: string;
   data: unknown;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   all,
   call,
@@ -9,7 +10,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
-import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -1656,21 +1656,21 @@ function* softRefreshActionsSaga() {
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
-function* handleUpdateActionData(
-  action: ReduxAction<updateActionDataPayloadType>,
-) {
-  const { actionDataPayload, parentSpan } = action.payload;
+// function* handleUpdateActionData(
+//   action: ReduxAction<updateActionDataPayloadType>,
+// ) {
+//   const { actionDataPayload, parentSpan } = action.payload;
 
-  yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
-    actionDataPayload,
-  );
+//   yield call(
+//     evalWorker.request,
+//     EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+//     actionDataPayload,
+//   );
 
-  if (parentSpan) {
-    endSpan(parentSpan);
-  }
-}
+//   if (parentSpan) {
+//     endSpan(parentSpan);
+//   }
+// }
 
 export function* watchPluginActionExecutionSagas() {
   yield all([
@@ -1685,6 +1685,6 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
+    // takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

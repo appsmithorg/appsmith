@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
@@ -94,7 +95,10 @@ import type {
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
-import { executeJSUpdates } from "actions/pluginActionActions";
+import {
+  executeJSUpdates,
+  type actionDataPayload,
+} from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
@@ -538,6 +542,10 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 
 export function evalQueueBuffer() {
   let canTake = false;
+  let shouldHandleUpdate = false;
+  let shouldBuffered = false;
+  let actionDataPayloadConsolidated: actionDataPayload = [];
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collectedPostEvalActions: any = [];
@@ -552,8 +560,19 @@ export function evalQueueBuffer() {
 
       collectedAffectedJSObjects = defaultAffectedJSObjects;
       canTake = false;
+      const actionDataPayloadConsolidatedRes = actionDataPayloadConsolidated;
+
+      const shouldHandleUpdateRes = shouldHandleUpdate;
+      const shouldBufferedRes = shouldBuffered;
+
+      actionDataPayloadConsolidated = [];
+      shouldHandleUpdate = false;
+      shouldBuffered = false;
 
       return {
+        shouldHandleUpdateRes,
+        shouldBufferedRes,
+        actionDataPayloadConsolidatedRes,
         postEvalActions: resp,
         affectedJSObjects,
         type: ReduxActionTypes.BUFFERED_ACTION,
@@ -572,6 +591,24 @@ export function evalQueueBuffer() {
     if (!shouldProcessAction(action)) {
       return;
     }
+
+    if (action.type === ReduxActionTypes.UPDATE_ACTION_DATA) {
+      const { actionDataPayload } = action.payload as any;
+
+      if (actionDataPayload && actionDataPayload.length) {
+        actionDataPayloadConsolidated = [
+          ...actionDataPayloadConsolidated,
+          ...actionDataPayload,
+        ];
+      }
+
+      shouldHandleUpdate = true;
+      canTake = true;
+
+      return;
+    }
+
+    shouldBuffered = true;
 
     canTake = true;
     // extract the affected JS action ids from the action and pass them
@@ -758,16 +795,55 @@ function* evaluationChangeListenerSaga(): any {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
 
-    // We are dequing actions from the buffer and inferring the JS actions affected by each
-    // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
-    const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+    const { payload, type } = action as any;
 
-    yield call(evalAndLintingHandler, true, action, {
-      shouldReplay: get(action, "payload.shouldReplay"),
-      forceEvaluation: shouldForceEval(action),
-      requiresLogging: shouldLog(action),
-      affectedJSObjects,
-    });
+    if (type === ReduxActionTypes.UPDATE_ACTION_DATA) {
+      yield call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+        payload.actionDataPayload,
+      );
+      continue;
+    }
+
+    if (type !== ReduxActionTypes.BUFFERED_ACTION) {
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+      continue;
+    }
+
+    const {
+      actionDataPayloadConsolidatedRes,
+      shouldBufferedRes,
+      shouldHandleUpdateRes,
+    } = action as any;
+
+    if (shouldHandleUpdateRes) {
+      yield call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+        actionDataPayloadConsolidatedRes,
+      );
+    }
+
+    if (shouldBufferedRes) {
+      // We are dequing actions from the buffer and inferring the JS actions affected by each
+      // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+    }
   }
 }
 
