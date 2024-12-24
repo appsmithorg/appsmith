@@ -2,6 +2,7 @@ package com.appsmith.external.git.handler;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -79,6 +80,8 @@ public interface FSGitHandler {
      * @return created branch name
      */
     Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName);
+
+    Mono<String> createAndCheckoutReference(Path repoSuffix, GitRefDTO gitRefDTO);
 
     /**
      * Delete a branch in the local repo
