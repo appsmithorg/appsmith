@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -17,31 +17,31 @@
         transition: all ease-in 0.3s;
       }
     </style>
-    <script>
-      // '' (empty strings), 'false' are falsy
-      // could return either boolean or string based on value
-      const parseConfig = (config) => {
-        if (
-          (config.startsWith("{") && config.startsWith("}")) ||
-          config.indexOf("__") === 0 ||
-          config.indexOf("$") === 0 ||
-          config.indexOf("%") === 0
-        )
-          return "";
+      <script>
+        // '' (empty strings), 'false' are falsy
+        // could return either boolean or string based on value
+        const parseConfig = (config) => {
+          if (
+            (config.startsWith("{") && config.startsWith("}")) ||
+            config.indexOf("__") === 0 ||
+            config.indexOf("$") === 0 ||
+            config.indexOf("%") === 0
+          )
+            return "";
 
-        const result = config.trim();
-        if (result.toLowerCase() === "false" || result === "") {
-          return false;
-        } else if (result.toLowerCase() === "true") {
-          return true;
-        }
+          const result = config.trim();
+          if (result.toLowerCase() === "false" || result === "") {
+            return false;
+          } else if (result.toLowerCase() === "true") {
+            return true;
+          }
 
-        return result;
-      };
-      const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-      const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
-      const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
-    </script>
+          return result;
+        };
+        const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
+        const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
+        const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
+      </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
@@ -67,18 +67,7 @@
     <!-- Start of Reo Javascript -->
     <script type="text/javascript">
       if (CLOUD_HOSTING && REO_CLIENT_ID) {
-        !(function () {
-          var e, t, n;
-          (e = REO_CLIENT_ID),
-            (t = function () {
-              Reo.init({ clientID: REO_CLIENT_ID });
-            }),
-            ((n = document.createElement("script")).src =
-              "https://static.reo.dev/" + e + "/reo.js"),
-            (n.async = !0),
-            (n.onload = t),
-            document.head.appendChild(n);
-        })();
+        !function(){var e,t,n;e=REO_CLIENT_ID,t=function(){Reo.init({clientID:REO_CLIENT_ID})},(n=document.createElement("script")).src="https://static.reo.dev/"+e+"/reo.js",n.async=!0,n.onload=t,document.head.appendChild(n)}();
       }
     </script>
     <!-- End of Reo Javascript -->
@@ -170,9 +159,7 @@
       const INTERCOM_APP_ID =
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
         parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
-      const DISABLE_INTERCOM = parseConfig(
-        '{{env "APPSMITH_DISABLE_INTERCOM"}}',
-      );
+      const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -226,17 +213,12 @@
           ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
         observability: {
-          deploymentName:
-            parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
-          serviceInstanceId:
-            parseConfig('{{env "APPSMITH_HOSTNAME"}}') || "appsmith-0",
-          tracingUrl:
-            parseConfig('{{env "APPSMITH_FRONTEND_TRACING_URL"}}') || "",
+          deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
+          serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}') || "appsmith-0",
+          tracingUrl: parseConfig('{{env "APPSMITH_FRONTEND_TRACING_URL"}}') || "",
         },
         fusioncharts: {
-          licenseKey: parseConfig(
-            '{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}',
-          ),
+          licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
         },
         mixpanel: {
           enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
@@ -254,9 +236,7 @@
         },
         intercomAppID: INTERCOM_APP_ID,
         mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
-        googleRecaptchaSiteKey: parseConfig(
-          '{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}',
-        ),
+        googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
         hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
         disableIframeWidgetSandbox: parseConfig(
           '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
