@@ -1,4 +1,4 @@
-import { Button, Flex, ModalHeader, Text, toast } from "@appsmith/ads";
+import { Button, ModalFooter, ModalHeader, Text, toast } from "@appsmith/ads";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
 import React, { useCallback } from "react";
@@ -97,7 +97,7 @@ const PremiumDatasourceContactForm = (
           size="md"
           type="email"
         />
-        <Flex gap="spaces-3" justifyContent="flex-end" marginTop="spaces-3">
+        <ModalFooter>
           {shouldLearnMoreButtonBeVisible(!isFreePlanInstance) && (
             <Button
               aria-label="Learn more"
@@ -114,7 +114,7 @@ const PremiumDatasourceContactForm = (
               !isFreePlanInstance,
             )}
           </Button>
-        </Flex>
+        </ModalFooter>
       </FormWrapper>
     </>
   );
