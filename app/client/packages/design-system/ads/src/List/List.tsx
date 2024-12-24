@@ -3,10 +3,9 @@ import clsx from "classnames";
 
 import type { ListItemProps, ListProps } from "./List.types";
 import {
-  ContentTextWrapper,
   DescriptionWrapper,
-  EndIconWrapper,
   InlineDescriptionWrapper,
+  RightControlWrapper,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
@@ -14,7 +13,6 @@ import {
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
-import { Button } from "../Button";
 import { Tooltip } from "../Tooltip";
 import {
   ListClassName,
@@ -85,8 +83,9 @@ function ListItem(props: ListItemProps) {
   const {
     description,
     descriptionType = "inline",
-    endIcon,
     hasError,
+    rightControl,
+    rightControlVisibility = "always",
     size = "md",
     startIcon,
     title,
@@ -104,27 +103,6 @@ function ListItem(props: ListItemProps) {
     }
   };
 
-  const endIconhandleKeyDown = (e: React.KeyboardEvent) => {
-    e.stopPropagation();
-
-    if (!props.isDisabled && props.onEndIconClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onEndIconClick();
-          break;
-      }
-    }
-  };
-
-  const endIconOnClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!props.isDisabled && props.onEndIconClick) {
-      props.onEndIconClick();
-    }
-  };
-
   const handleOnClick = () => {
     if (!props.isDisabled && props.onClick) {
       props.onClick();
@@ -132,63 +110,53 @@ function ListItem(props: ListItemProps) {
   };
 
   return (
-    <Wrapper className={clsx(ListItemWrapperClassName, props.wrapperClassName)}>
+    <Wrapper
+      className={clsx(ListItemWrapperClassName, props.wrapperClassName)}
+      data-disabled={props.isDisabled || false}
+      data-selected={props.isSelected}
+      rightControlVisibility={rightControlVisibility}
+      tabIndex={props.isDisabled ? -1 : 0}
+    >
       <StyledListItem
         className={clsx(ListItemClassName, props.className)}
-        data-disabled={props.isDisabled || false}
-        data-selected={props.isSelected}
-        endIcon={props.endIcon}
         isBlockDescription={isBlockDescription}
         onClick={handleOnClick}
         onKeyDown={listItemhandleKeyDown}
         size={size}
-        tabIndex={props.isDisabled ? -1 : 0}
       >
-        <ContentTextWrapper>
-          {startIcon}
-          <InlineDescriptionWrapper>
-            <DescriptionWrapper>
+        {startIcon}
+        <InlineDescriptionWrapper>
+          <DescriptionWrapper>
+            <TextWithTooltip
+              className={ListItemTitleClassName}
+              color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
+            >
+              {title}
+            </TextWithTooltip>
+            {isBlockDescription && description && (
               <TextWithTooltip
-                className={ListItemTitleClassName}
-                color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
-              >
-                {title}
-              </TextWithTooltip>
-              {isBlockDescription && description && (
-                <TextWithTooltip
-                  className={ListItemBDescClassName}
-                  color="var(--ads-v2-color-fg-muted)"
-                  isMultiline
-                  kind="body-s"
-                >
-                  {description}
-                </TextWithTooltip>
-              )}
-            </DescriptionWrapper>
-            {!isBlockDescription && description && (
-              <TextWithTooltip
-                className={ListItemIDescClassName}
+                className={ListItemBDescClassName}
                 color="var(--ads-v2-color-fg-muted)"
+                isMultiline
                 kind="body-s"
               >
                 {description}
               </TextWithTooltip>
             )}
-          </InlineDescriptionWrapper>
-        </ContentTextWrapper>
+          </DescriptionWrapper>
+          {!isBlockDescription && description && (
+            <TextWithTooltip
+              className={ListItemIDescClassName}
+              color="var(--ads-v2-color-fg-muted)"
+              kind="body-s"
+            >
+              {description}
+            </TextWithTooltip>
+          )}
+        </InlineDescriptionWrapper>
       </StyledListItem>
-      {endIcon && (
-        <EndIconWrapper>
-          <Button
-            isDisabled={props.isDisabled}
-            isIconButton
-            kind="tertiary"
-            onClick={endIconOnClick}
-            onKeyDown={endIconhandleKeyDown}
-            size={"sm"}
-            startIcon={endIcon}
-          />
-        </EndIconWrapper>
+      {rightControl && (
+        <RightControlWrapper>{rightControl}</RightControlWrapper>
       )}
     </Wrapper>
   );

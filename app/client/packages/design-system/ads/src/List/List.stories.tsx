@@ -1,5 +1,5 @@
 import React from "react";
-import { List, ListItem, Icon } from "@appsmith/ads";
+import { List, ListItem, Icon, Button } from "@appsmith/ads";
 import type { StoryObj } from "@storybook/react";
 import type { ListItemProps, ListProps } from "@appsmith/ads";
 
@@ -79,14 +79,20 @@ const ListItemArgTypes = {
       },
     },
   },
-  endIcon: {
-    control: "text",
-    description: "The icon to display at the end of the list item",
+  rightControl: {
+    description: "The control to display at the end of the list item",
     table: {
       type: {
-        summary: "string",
+        summary: "ReactNode",
       },
     },
+  },
+  rightContolVisibility: {
+    description:
+      "`always` type will show the right control always. `hover` type will show the right control only when the list item is hovered.",
+    control: "radio",
+    options: ["always", "hover"],
+    defaultValue: "always",
   },
   description: {
     control: "text",
@@ -140,14 +146,6 @@ const ListItemArgTypes = {
       },
     },
   },
-  onEndIconClick: {
-    description: "callback for when the end icon is clicked",
-    table: {
-      type: {
-        summary: "() => void",
-      },
-    },
-  },
 };
 
 function ListItemTemplate(args: JSX.IntrinsicAttributes & ListItemProps) {
@@ -163,7 +161,8 @@ ListItemLargeStory.args = {
   description: "inline",
   descriptionType: "inline",
   size: "lg",
-  endIcon: "add-more",
+  rightControl: <Icon name="add-more" size={"md"} />,
+  rightControlVisibility: "hover",
 };
 
 export const ListItemErrorStory = ListItemTemplate.bind({}) as StoryObj;
@@ -215,10 +214,12 @@ ListItemOverflowStory.args = {
   title: "Action item 1 Action item 1 Action item 1 Action item 1",
 };
 
-export const ListItemEndIconStory = ListItemTemplate.bind({}) as StoryObj;
-ListItemEndIconStory.storyName = "List item end icon";
-ListItemEndIconStory.argTypes = ListItemArgTypes;
-ListItemEndIconStory.args = {
+export const ListItemRightControlStory = ListItemTemplate.bind({}) as StoryObj;
+ListItemRightControlStory.storyName = "List item right control";
+ListItemRightControlStory.argTypes = ListItemArgTypes;
+ListItemRightControlStory.args = {
   title: "Action item 1",
-  endIcon: "add-more",
+  rightControl: (
+    <Button isIconButton kind="tertiary" size={"sm"} startIcon="add-more" />
+  ),
 };

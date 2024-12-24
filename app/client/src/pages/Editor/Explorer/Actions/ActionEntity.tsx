@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import Entity, { EntityClassNames } from "../Entity";
+import { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history, { NavigationMethod } from "utils/history";
 import {
@@ -21,17 +21,18 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { saveActionNameBasedOnParentEntity } from "ee/actions/helpers";
+// import { saveActionNameBasedOnParentEntity } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
+import { ListItem } from "@appsmith/ads";
 
-const getUpdateActionNameReduxAction = (
-  id: string,
-  name: string,
-  parentEntityType: ActionParentEntityTypeInterface,
-) => {
-  return saveActionNameBasedOnParentEntity(id, name, parentEntityType);
-};
+// const getUpdateActionNameReduxAction = (
+//   id: string,
+//   name: string,
+//   parentEntityType: ActionParentEntityTypeInterface,
+// ) => {
+//   return saveActionNameBasedOnParentEntity(id, name, parentEntityType);
+// };
 
 interface ExplorerActionEntityProps {
   step: number;
@@ -109,21 +110,14 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   );
 
   return (
-    <Entity
-      action={switchToAction}
-      active={props.isActive}
-      canEditEntityName={canManageAction}
-      className="action t--action-entity"
-      contextMenu={contextMenu}
-      entityId={action.id}
-      icon={icon}
-      key={action.id}
-      name={action.name}
-      searchKeyword={props.searchKeyword}
-      step={props.step}
-      updateEntityName={(id, name) =>
-        getUpdateActionNameReduxAction(id, name, props.parentEntityType)
-      }
+    <ListItem
+      isSelected={props.isActive}
+      onClick={switchToAction}
+      rightControl={contextMenu}
+      rightControlVisibility="hover"
+      startIcon={icon}
+      title={action.name}
+      wrapperClassName="action t--action-entity"
     />
   );
 });

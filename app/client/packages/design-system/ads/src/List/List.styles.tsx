@@ -36,14 +36,49 @@ export const StyledList = styled.div`
   gap: var(--ads-v2-spaces-2);
 `;
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{
+  rightControlVisibility?: "hover" | "always";
+}>`
   display: flex;
   width: 100%;
   align-items: center;
-  gap: var(--ads-v2-spaces-3);
   cursor: pointer;
   box-sizing: border-box;
   position: relative;
+  border-radius: var(--ads-v2-border-radius);
+  min-height: 32px;
+
+  ${(props) =>
+    props.rightControlVisibility === "hover" &&
+    `
+    ${RightControlWrapper} { display: none; }
+    &:hover ${RightControlWrapper} { display: block; }`}
+
+  &:hover {
+    background-color: var(--ads-v2-colors-content-surface-hover-bg);
+  }
+
+  &:active {
+    background-color: var(--ads-v2-colors-content-surface-active-bg);
+  }
+
+  &[data-selected="true"] {
+    background-color: var(--ads-v2-colors-content-surface-active-bg);
+  }
+
+  /* disabled style */
+  &[data-disabled="true"] {
+    cursor: not-allowed;
+    opacity: var(--ads-v2-opacity-disabled);
+    background-color: var(--ads-v2-colors-content-surface-default-bg);
+  }
+
+  /* Focus styles */
+  &:focus-visible {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
+  }
 `;
 
 export const TooltipTextWrapper = styled.div`
@@ -54,13 +89,6 @@ export const TooltipTextWrapper = styled.div`
 export const ContentWrapper = styled.div`
   display: flex;
   gap: var(--ads-v2-spaces-3);
-`;
-
-export const ContentTextWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-  flex: 1;
-  min-width: 0;
 `;
 
 export const DescriptionWrapper = styled.div`
@@ -79,14 +107,17 @@ export const InlineDescriptionWrapper = styled.div`
   flex: 1;
 `;
 
-export const EndIconWrapper = styled.div`
-  position: absolute;
-  right: var(--ads-v2-spaces-3);
+export const RightControlWrapper = styled.div`
+  height: 100%;
+
+  button {
+    height: 100% !important;
+    width: 32px;
+  }
 `;
 
 export const StyledListItem = styled.div<{
   size: ListSizes;
-  endIcon?: string;
   isBlockDescription: boolean;
 }>`
   ${Variables};
@@ -94,14 +125,13 @@ export const StyledListItem = styled.div<{
   display: flex;
   width: 100%;
   align-items: center;
-  border-radius: var(--ads-v2-border-radius);
-  padding: var(--ads-v2-spaces-3);
   box-sizing: border-box;
-  // 40px is the offset to make it look like the end icon is part of this div
-  ${(props) => !!props.endIcon && `padding: 8px 40px 8px 8px;`}}
+  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-2) var(--ads-v2-spaces-2)
+    var(--ads-v2-spaces-3);
+  gap: var(--ads-v2-spaces-3);
+  overflow: hidden;
 
   ${({ size }) => Sizes[size]}
-
 
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
@@ -126,30 +156,6 @@ export const StyledListItem = styled.div<{
 
   & .${ListItemIDescClassName} {
     font-size: var(--listitem-idescription-font-size);
-  }
-
-  &:hover {
-    background-color: var(--ads-v2-colors-content-surface-hover-bg);
-  }
-
-  &:active {
-    background-color: var(--ads-v2-colors-content-surface-active-bg);
-  }
-
-  &[data-selected="true"] {
-    background-color: var(--ads-v2-colors-content-surface-active-bg);
-  }
-
-  /* disabled style */
-  &[data-disabled="true"] {
-    cursor: not-allowed;
-    opacity: var(--ads-v2-opacity-disabled);
-  }
-
-  /* Focus styles */
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+    line-height: 16px;
   }
 `;
