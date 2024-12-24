@@ -591,22 +591,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationId(String applicationId) {
+    public List<NewAction> findAllByIdIn(Iterable<String> ids, EntityManager entityManager) {
+        List<String> idList = StreamSupport.stream(ids.spliterator(), false).toList();
         return queryBuilder()
-                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
+                .criteria(Bridge.in(NewAction.Fields.id, idList))
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
-    public List<NewAction> findAllByIdIn(Iterable<String> ids) {
-        List<String> idList = StreamSupport.stream(ids.spliterator(), false).toList();
-        return queryBuilder().criteria(Bridge.in(NewAction.Fields.id, idList)).all();
-    }
-
-    @Override
-    public Optional<Long> countByDeletedAtNull() {
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.exists(NewAction.Fields.deletedAt))
+                .entityManager(entityManager)
                 .count();
     }
 }

@@ -294,7 +294,11 @@ def generate_cake_class(domain):
             + signature_wo_user_and_entity_mgr
             + " {\n    return "
             + (wrapper % ("repository." + call))
-            + ";\n}\n"
+            + ".name(\""
+            + method.ref.split("#")[0].replace("com.appsmith.server.repositories.", "")
+            + "."
+            + method.ref.split("#")[1].split("(")[0]
+            + "\").tap(Micrometer.observation(observationRegistry));\n}\n"
         )
 
     content = indent("\n".join(reactor_methods), " " * 4)
@@ -329,6 +333,9 @@ def generate_cake_class(domain):
     import reactor.core.publisher.Flux;
     import reactor.core.publisher.Mono;
     import reactor.core.scheduler.Schedulers;
+    import reactor.core.observability.micrometer.Micrometer;
+    import io.micrometer.observation.ObservationRegistry;
+
     {imports_code}
 
     import java.time.Instant;
@@ -346,11 +353,13 @@ def generate_cake_class(domain):
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
         private final {domain}Repository repository;
         private final EntityManager entityManager;
+        private final ObservationRegistry observationRegistry;
 
-        public {domain}RepositoryCake({domain}Repository repository, EntityManager entityManager) {{
+        public {domain}RepositoryCake({domain}Repository repository, EntityManager entityManager, ObservationRegistry observationRegistry) {{
             super(repository, {domain}.class);
             this.repository = repository;
             this.entityManager = entityManager;
+            this.observationRegistry = observationRegistry;
         }}
 
         {f"public QueryAllParams<{domain}> queryBuilder() {{ return repository.queryBuilder(); }}"

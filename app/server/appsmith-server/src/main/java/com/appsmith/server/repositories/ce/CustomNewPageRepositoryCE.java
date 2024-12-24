@@ -74,11 +74,10 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
 
-    Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
+    List<NewPage> findByApplicationId(String applicationId, EntityManager entityManager);
 
-    List<NewPage> findByApplicationId(String applicationId);
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
     Optional<Integer> updateDependencyMap(
             String pageId, Map<String, List<String>> dependencyMap, EntityManager entityManager);
 }

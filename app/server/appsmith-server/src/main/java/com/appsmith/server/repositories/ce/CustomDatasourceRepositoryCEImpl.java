@@ -38,14 +38,14 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
-    public List<Datasource> findByIdIn(List<String> ids) {
+    public List<Datasource> findByIdIn(List<String> ids, EntityManager entityManager) {
         final BridgeQuery<Datasource> q = Bridge.in(Datasource.Fields.id, ids);
-        return queryBuilder().criteria(q).all();
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
     }
 
     @Override
-    public Optional<Long> countByDeletedAtNull() {
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
         final BridgeQuery<Datasource> q = Bridge.isNull(Datasource.Fields.deletedAt);
-        return queryBuilder().criteria(q).count();
+        return queryBuilder().criteria(q).entityManager(entityManager).count();
     }
 }

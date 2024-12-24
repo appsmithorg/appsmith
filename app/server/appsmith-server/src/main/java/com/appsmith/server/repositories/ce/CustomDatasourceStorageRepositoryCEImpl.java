@@ -11,17 +11,18 @@ import java.util.Optional;
 public class CustomDatasourceStorageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<DatasourceStorage>
         implements CustomDatasourceStorageRepositoryCE {
     @Override
-    public Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    public Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId, EntityManager entityManager) {
         final BridgeQuery<DatasourceStorage> q = Bridge.<DatasourceStorage>equal(
                         DatasourceStorage.Fields.datasourceId, datasourceId)
                 .equal(DatasourceStorage.Fields.environmentId, environmentId);
-        return queryBuilder().criteria(q).one();
+        return queryBuilder().criteria(q).entityManager(entityManager).one();
     }
 
     @Override
-    public List<DatasourceStorage> findByDatasourceId(String datasourceId) {
+    public List<DatasourceStorage> findByDatasourceId(String datasourceId, EntityManager entityManager) {
         final BridgeQuery<DatasourceStorage> q =
                 Bridge.<DatasourceStorage>equal(DatasourceStorage.Fields.datasourceId, datasourceId);
-        return queryBuilder().criteria(q).all();
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
     }
 }

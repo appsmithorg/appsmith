@@ -9,7 +9,9 @@ import java.util.Optional;
 
 public interface CustomDatasourceStorageStructureRepositoryCE extends AppsmithRepository<DatasourceStorageStructure> {
 
-    int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure, EntityManager entityManager);
+    int updateStructure(
+            String datasourceId, String environmentId, DatasourceStructure structure, EntityManager entityManager);
 
-    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId, EntityManager entityManager);
 }

@@ -220,8 +220,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public List<ActionCollection> findByApplicationId(String applicationId) {
+    public List<ActionCollection> findByApplicationId(String applicationId, EntityManager entityManager) {
         final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
-        return queryBuilder().criteria(q).all();
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
     }
 }

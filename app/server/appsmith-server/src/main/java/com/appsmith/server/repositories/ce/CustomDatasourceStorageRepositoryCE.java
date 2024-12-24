@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomDatasourceStorageRepositoryCE extends AppsmithRepository<DatasourceStorage> {
-    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(
+            String datasourceId, String environmentId, EntityManager entityManager);
 
-    List<DatasourceStorage> findByDatasourceId(String datasourceId);
+    List<DatasourceStorage> findByDatasourceId(String datasourceId, EntityManager entityManager);
 }

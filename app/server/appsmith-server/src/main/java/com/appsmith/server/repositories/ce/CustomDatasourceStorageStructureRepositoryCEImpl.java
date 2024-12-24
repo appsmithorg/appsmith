@@ -31,10 +31,10 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
 
     @Override
     public Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
-            String datasourceId, String environmentId) {
+            String datasourceId, String environmentId, EntityManager entityManager) {
         final BridgeQuery<DatasourceStorageStructure> q = Bridge.<DatasourceStorageStructure>equal(
                         DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                 .equal(DatasourceStorageStructure.Fields.environmentId, environmentId);
-        return queryBuilder().criteria(q).one();
+        return queryBuilder().criteria(q).entityManager(entityManager).one();
     }
 }
