@@ -44,6 +44,7 @@ if (tracingUrl) {
     },
     trackResources: true,
     trackWebVitalsAttribution: true,
+    internalLoggerLevel: 0,
   });
 
   const tracerProvider = new WebTracerProvider({
