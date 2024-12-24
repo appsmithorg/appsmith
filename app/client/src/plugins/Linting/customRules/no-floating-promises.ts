@@ -15,6 +15,9 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
     schema: [], // Rule does not accept configuration options
   },
   create: function (context: Rule.RuleContext) {
+    // Access async functions from settings
+    const asyncFunctions = context.settings?.asyncFunctions || [];
+
     return {
       FunctionDeclaration(node: ESTree.FunctionDeclaration) {
         // Start traversal from the function body
@@ -84,14 +87,16 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       const callee = node.callee;
       let isPotentialAsyncCall = false;
 
-      // Identify async calls. We process the jsobject one function at a time with minimal
-      // data of the rest of the environment.
-      // With the given architecture, we are only able to target async methods
-      // by finding if they `.run()` at the end.
+      // Identify async calls by matching against the asyncFunctions list
       if (callee.type === "MemberExpression") {
+        const object = callee.object;
         const property = callee.property;
 
-        if (property.type === "Identifier" && property.name === "run") {
+        if (
+          property.type === "Identifier" &&
+          object.type === "Identifier" &&
+          asyncFunctions.includes(`${object.name}.${property.name}`)
+        ) {
           isPotentialAsyncCall = true;
         }
       }
