@@ -68,4 +68,6 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     T getNewArtifact(String workspaceId, String repoName);
 
     Mono<T> publishArtifactPostCommit(Artifact committedArtifact);
+
+    Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish);
 }
