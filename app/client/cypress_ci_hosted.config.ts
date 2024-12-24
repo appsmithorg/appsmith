@@ -53,10 +53,11 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: [
-      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
-      "cypress/e2e/GSheet/**/**/*",
-      "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
-      "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
+      // "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      // "cypress/e2e/GSheet/**/**/*",
+      // "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
+      // "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
+      "cypress/e2e/GSheet/SharedDrive_SelectedSheet_Access_Spec.ts"
     ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
