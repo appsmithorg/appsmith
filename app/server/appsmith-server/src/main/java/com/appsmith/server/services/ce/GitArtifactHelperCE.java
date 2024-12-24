@@ -70,5 +70,7 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> publishArtifactPostCommit(Artifact committedArtifact);
 
+    Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish);
+
     Mono<T> publishArtifactPostRefCreation(Artifact artifact, RefType refType, Boolean isPublishedManually);
 }

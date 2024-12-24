@@ -1,13 +1,15 @@
 import React from "react";
 import { useGitContext } from "../GitContextProvider";
 import StatusChangesView from "./StatusChangesView";
+import useStatus from "git/hooks/useStatus";
 
 function StatusChanges() {
-  const { fetchStatusLoading, status, statusTransformer } = useGitContext();
+  const { statusTransformer } = useGitContext();
+  const { isFetchStatusLoading, status } = useStatus();
 
   return (
     <StatusChangesView
-      isFetchStatusLoading={fetchStatusLoading}
+      isFetchStatusLoading={isFetchStatusLoading}
       status={status}
       statusTransformer={statusTransformer}
     />

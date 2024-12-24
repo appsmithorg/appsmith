@@ -1,0 +1,25 @@
+/**
+ * Reason for using div.selectInputGroup instead of just .selectInputGroup is to increase the specificity of the selector
+ * Also, we are removing the padding-inline from selectInputGroup and adding it to selectTriggerButton
+ * This is done to ensure that width of the select popover is same as the width of the select trigger button. Otherwise,
+ * the width of the popover will be less than the width of the trigger button because of the padding-inline by .inputGroup .
+ */
+div.selectInputGroup {
+  padding-inline: 0;
+}
+
+button.selectTriggerButton {
+  display: flex;
+  align-items: center;
+  padding-inline: var(--inner-spacing-2);
+}
+
+.selectTriggerButton:has(> [data-select-text]) {
+  block-size: var(--body-line-height);
+}
+
+.selectTriggerButton [data-select-text] {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}

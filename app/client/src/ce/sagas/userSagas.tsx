@@ -1,4 +1,4 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -57,14 +57,7 @@ import {
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ee/configs";
-import { getSegmentState } from "selectors/analyticsSelectors";
-import {
-  segmentInitUncertain,
-  segmentInitSuccess,
-} from "actions/analyticsActions";
-import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
@@ -81,25 +74,7 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-
-export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
-  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
-
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  const segmentState: SegmentState | undefined = yield select(getSegmentState);
-  const appsmithConfig = getAppsmithConfigs();
-
-  if (
-    currentUser?.enableTelemetry &&
-    appsmithConfig.segment.enabled &&
-    !segmentState
-  ) {
-    yield race([
-      take(ReduxActionTypes.SEGMENT_INITIALIZED),
-      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
-    ]);
-  }
-}
+import type { SessionRecordingConfig } from "utils/Analytics/mixpanel";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -133,15 +108,44 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
+function* getSessionRecordingConfig() {
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+  // This is a tenant level flag to kill session recordings
+  // If this is true, we do not do any session recordings
+  if (featureFlags.kill_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // This is a user level flag to control session recordings for a user
+  // If this is false, we do not do any session recordings
+  if (!featureFlags.config_user_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // Now we know that both tenant and user level flags are not blocking session recordings
+  return {
+    enabled: true,
+    // Check if we need to mask the session recordings from feature flags
+    mask: featureFlags.config_mask_session_recordings_enabled,
+  };
+}
+
 function* initTrackers(currentUser: User) {
-  const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
+  try {
+    const sessionRecordingConfig: SessionRecordingConfig = yield call(
+      getSessionRecordingConfig,
+    );
 
-  const sentryInitialized: boolean = yield initializeSentry;
-
-  if (sentryInitialized) {
-    yield put(segmentInitSuccess());
-  } else {
-    yield put(segmentInitUncertain());
+    yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
+  } catch (e) {
+    log.error(e);
   }
 }
 

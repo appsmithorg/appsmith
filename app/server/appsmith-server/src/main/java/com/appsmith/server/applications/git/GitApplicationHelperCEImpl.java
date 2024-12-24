@@ -325,6 +325,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
+    public Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish) {
+        return publishArtifact(artifact, publish);
+    }
+
+    @Override
     public Mono<Application> publishArtifactPostRefCreation(
             Artifact artifact, RefType refType, Boolean isPublishedManually) {
         // TODO: create publish for ref type creation.

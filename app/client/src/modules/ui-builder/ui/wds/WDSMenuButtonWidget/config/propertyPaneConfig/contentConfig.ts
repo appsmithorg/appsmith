@@ -3,9 +3,9 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { sourceDataArrayValidation } from "./validations";
 import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
-import { updateMenuItemsSource } from "../helper";
 import type { MenuButtonWidgetProps } from "../../widget/types";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { updateMenuItemsSource } from "../helper";
 
 export const propertyPaneContentConfig = [
   {
@@ -43,6 +43,7 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         updateHook: updateMenuItemsSource,
+        hidden: () => true,
         dependencies: ["sourceData", "configureMenuItems"],
       },
       {
