@@ -6,7 +6,7 @@ export interface EmptyStateProps {
   button?: {
     text: string;
     onClick?: () => void;
-    kind?: ButtonKind;
+    kind?: Extract<ButtonKind, "primary" | "secondary">;
     className?: string;
     testId?: string;
   };
