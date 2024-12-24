@@ -14,22 +14,27 @@ import {
   ReactIntegration,
   getWebInstrumentations,
   type Faro,
+  InternalLoggerLevel,
 } from "@grafana/faro-react";
 import {
   FaroTraceExporter,
   FaroSessionSpanProcessor,
 } from "@grafana/faro-web-tracing";
+import log from "loglevel";
 
 const { observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
   observability;
-// This base domain is used to filter out the Smartlook requests from the browser agent
-// There are some requests made to subdomains of smartlook.cloud which will also be filtered out
-const smartlookBaseDomain = "smartlook.cloud";
 
 let faro: Faro | null = null;
 
 if (tracingUrl) {
+  const ignoreUrls = ["smartlook.cloud"];
+  const internalLoggerLevel =
+    log.getLevel() === log.levels.DEBUG
+      ? InternalLoggerLevel.ERROR
+      : InternalLoggerLevel.OFF;
+
   faro = initializeFaro({
     url: tracingUrl,
     app: {
@@ -38,13 +43,13 @@ if (tracingUrl) {
       environment: deploymentName,
     },
     instrumentations: [new ReactIntegration(), ...getWebInstrumentations()],
-    ignoreUrls: [smartlookBaseDomain],
+    ignoreUrls,
     consoleInstrumentation: {
       consoleErrorAsLog: true,
     },
     trackResources: true,
     trackWebVitalsAttribution: true,
-    internalLoggerLevel: 0,
+    internalLoggerLevel,
   });
 
   const tracerProvider = new WebTracerProvider({
