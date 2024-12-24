@@ -29,6 +29,10 @@ import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useBoolean } from "usehooks-ts";
+import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -197,4 +201,17 @@ export const useIDETabClickHandlers = () => {
   );
 
   return { addClickHandler, tabClickHandler, closeClickHandler };
+};
+
+export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
+  const widgetBindingsExist = useSelector(isWidgetActionConnectionPresent);
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  const { setFalse, value } = useBoolean(
+    widgetBindingsExist && isActionRedesignEnabled,
+  );
+
+  return [value, setFalse];
 };

@@ -15,7 +15,7 @@ import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Nudge } from "IDE/Components/Nudge";
-import { useBoolean } from "usehooks-ts";
+import { useShowSideBySideNudge } from "../hooks";
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
@@ -43,14 +43,14 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, isAnimatedIDEEnabled]);
 
-  const { setFalse: hideNudge, value: showNudge } = useBoolean(true);
+  const [showNudge, dismissNudge] = useShowSideBySideNudge();
 
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
 
-    hideNudge();
+    dismissNudge();
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
@@ -59,7 +59,7 @@ export const ScreenModeToggle = () => {
     } else {
       dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
     }
-  }, [dispatch, hideNudge, isAnimatedIDEEnabled]);
+  }, [dispatch, dismissNudge, isAnimatedIDEEnabled]);
 
   const maximiseButton = useMemo(
     () => (
@@ -101,7 +101,7 @@ export const ScreenModeToggle = () => {
         align="center"
         delayOpen={500}
         message="Write code and configure UI elements side by side"
-        onDismissClick={hideNudge}
+        onDismissClick={dismissNudge}
         side="left"
         trigger={maximiseButton}
       />
