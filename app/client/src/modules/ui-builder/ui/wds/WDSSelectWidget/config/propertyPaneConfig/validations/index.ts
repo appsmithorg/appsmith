@@ -1,2 +1,1 @@
-export { defaultOptionValidation } from "./defaultOptionValidation";
-export { optionsCustomValidation } from "./optionsCustomValidation";
+export { defaultOptionValueValidation } from "./defaultOptionValueValidation";
