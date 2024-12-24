@@ -2287,12 +2287,16 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     artifactExchangeJson,
                                     branchName))
                             // Update the last deployed status after the rebase
-                            .flatMap(importedArtifact -> publishArtifact(importedArtifact, true));
+                            .flatMap(importedArtifact ->
+                                    gitArtifactHelper.validateAndPublishArtifact(importedArtifact, true));
                 })
                 .flatMap(branchedArtifact -> releaseFileLock(
                                 branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())
                         .then(this.addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)))
+                .onErrorResume(error -> branchedArtifactMonoCached.flatMap(branchedArtifact -> releaseFileLock(
+                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId())
+                        .then(Mono.error(error))))
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
