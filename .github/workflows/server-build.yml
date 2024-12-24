@@ -5,20 +5,25 @@ on:
   workflow_call:
     inputs:
       pr:
-        description: "This is the PR number in case the workflow is being called in a pull request"
+        description: "PR number for the workflow"
         required: false
         type: number
       skip-tests:
-        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        description: "Skip tests flag"
+        required: false
+        type: string
+        default: "false"
+      its:
+        description: "Whether we want to run integration tests"
         required: false
         type: string
         default: "false"
       branch:
-        description: "This is the branch to be used for the build."
+        description: "Branch for the build"
         required: false
         type: string
       is-pg-build:
-        description: "This is a boolean value in case the workflow is being called for a PG build"
+        description: "Flag for PG build"
         required: false
         type: string
         default: "false"
@@ -31,6 +36,11 @@ on:
         type: number
       skip-tests:
         description: "Skip tests flag"
+        required: false
+        type: string
+        default: "false"
+      its:
+        description: "Whether we want to run integration tests"
         required: false
         type: string
         default: "false"
@@ -210,13 +220,22 @@ jobs:
             fi
 
             args=()
+            
+            # Check if this run is requesting for unit tests or integration tests
+            # As of today, we don't expect both to get triggered in the same workflow
+            if [[ "${{ inputs.its }}" == "true" ]]; then
+                args+=("-DskipUTs=true")
+            else
+                args+=("-DskipITs=true")
+            fi
+
             if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
                 failed_tests="${{ steps.failed_tests.outputs.tests }}"
                 args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
             fi
 
             # Run tests and capture logs
-            mvn test "${args[@]}" | tee mvn_test.log
+            mvn verify "${args[@]}" | tee mvn_test.log
             
             # Check for "BUILD FAILURE" in the mvn_test.log
             if grep -q "BUILD FAILURE" mvn_test.log; then

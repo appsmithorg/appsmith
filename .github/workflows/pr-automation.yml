@@ -133,3 +133,12 @@ jobs:
       spec: ${{ needs.parse-tags.outputs.spec}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
+
+  perform-it:
+    needs: [ parse-tags ]
+    if: success() && needs.parse-tags.outputs.its == 'true'
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      its: 'true'
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
