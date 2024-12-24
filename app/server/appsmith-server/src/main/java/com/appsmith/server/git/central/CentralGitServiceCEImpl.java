@@ -1216,9 +1216,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     return gitHandlingService
                             .commitArtifact(updatedBranchedArtifact, commitDTO, jsonTransformationDTO)
                             .onErrorResume(error -> {
-                                return gitRedisUtils.releaseFileLock(baseArtifact.getId(), TRUE)
-                                    .then(gitAnalyticsUtils
-                                        .addAnalyticsForGitOperation(
+                                return gitRedisUtils
+                                        .releaseFileLock(baseArtifact.getId(), TRUE)
+                                        .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                                 AnalyticsEvents.GIT_COMMIT,
                                                 updatedBranchedArtifact,
                                                 error.getClass().getName(),
@@ -1254,11 +1254,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .tap(Micrometer.observation(observationRegistry));
                 })
                 .onErrorResume(error -> {
-                    log.error("An error occurred while committing changes to artifact with base id: {} and branch: {}",
-                        branchedGitMetadata.getDefaultArtifactId(), branchedGitMetadata.getBranchName());
+                    log.error(
+                            "An error occurred while committing changes to artifact with base id: {} and branch: {}",
+                            branchedGitMetadata.getDefaultArtifactId(),
+                            branchedGitMetadata.getBranchName());
 
-                    return gitRedisUtils.releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
-                        .then(Mono.error(error));
+                    return gitRedisUtils
+                            .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                            .then(Mono.error(error));
                 });
 
         return Mono.create(sink -> {
