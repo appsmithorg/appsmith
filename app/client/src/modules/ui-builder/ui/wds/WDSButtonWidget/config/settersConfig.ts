@@ -12,5 +12,9 @@ export const settersConfig = {
       path: "text",
       type: "string",
     },
+    setColor: {
+      path: "buttonColor",
+      type: "string",
+    },
   },
 };
