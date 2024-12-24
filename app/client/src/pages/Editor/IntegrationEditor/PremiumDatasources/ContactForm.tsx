@@ -97,7 +97,7 @@ const PremiumDatasourceContactForm = (
           size="md"
           type="email"
         />
-        <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
+        <Flex gap="spaces-3" justifyContent="flex-end" marginTop="spaces-3">
           {shouldLearnMoreButtonBeVisible(!isFreePlanInstance) && (
             <Button
               aria-label="Learn more"
