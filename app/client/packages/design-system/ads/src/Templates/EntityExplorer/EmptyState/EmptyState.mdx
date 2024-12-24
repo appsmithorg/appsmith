@@ -1,0 +1,35 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as EmptyStateStories from "./EmptyState.stories";
+
+<Meta of={EmptyStateStories} />
+
+# Empty State
+
+A placeholder for when there is no data to display. It can be used to guide users on what to do next.
+
+## Anatomy
+
+icon: The icon of the file type or the entity type that is being displayed.
+
+description: The details of the empty state. It should be a short and clear message.
+
+button: A button that can be used to trigger an action. This is optional.
+
+### Default implementation
+
+Below is the default implementation of the Empty State component. It does not have a button.
+
+<Canvas of={EmptyStateStories.Basic} />
+
+### With Button
+
+Button kind can be supplied. If no kind is supplied, default is "secondary".
+
+<Canvas of={EmptyStateStories.WithButton} />
+
+### With Button but no onClick is supplied
+
+onClick is optional. If not supplied, the button will not be shown.
+
+<Canvas of={EmptyStateStories.WithButtonWithoutOnClick} />
