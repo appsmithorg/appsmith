@@ -9,6 +9,8 @@ import {
   selectGitProtectedMode as selectGitProtectedModeNew,
   type GitArtifactDef,
 } from "git";
+import { getCurrentBaseApplicationId } from "./editorSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 export const selectGitModEnabled = createSelector(
   selectFeatureFlags,
@@ -41,3 +43,16 @@ export function selectGitProtectedMode(
     return selectGitProtectedModeNew(state, artifactDef);
   }
 }
+
+export const selectCombinedPreviewMode = createSelector(
+  protectedModeSelector,
+  (state: AppState) => {
+    const baseApplicationId = getCurrentBaseApplicationId(state);
+
+    return selectGitProtectedMode(
+      state,
+      applicationArtifact(baseApplicationId),
+    );
+  },
+  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);

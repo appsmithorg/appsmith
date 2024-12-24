@@ -25,7 +25,6 @@ import {
   getMetaWidget,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
-  combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -52,6 +51,7 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
 import { getAppsmithConfigs } from "ee/configs";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 const { newRelic } = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
@@ -72,7 +72,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     } = props;
 
     const span = startRootSpan("withWidgetProps", { widgetType: type });
-    const isPreviewMode = useSelector(combinedPreviewModeSelector);
+    const isPreviewMode = useSelector(selectCombinedPreviewMode);
 
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),

@@ -77,8 +77,8 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
-import { gitReducer } from "git";
 import type { GitArtifactRootReduxState, GitGlobalReduxState } from "git";
+import { gitReducer } from "git/store";
 
 export const reducerObject = {
   entities: entityReducer,

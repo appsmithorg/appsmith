@@ -75,7 +75,6 @@ import {
 import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
-  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentBaseApplicationId,
   getCurrentLayoutId,
@@ -150,7 +149,10 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
 import { ConsolidatedPageLoadApi } from "api";
-import { selectGitCurrentBranch } from "selectors/gitModSelectors";
+import {
+  selectCombinedPreviewMode,
+  selectGitCurrentBranch,
+} from "selectors/gitModSelectors";
 import { applicationArtifact } from "git/artifact-helpers/application";
 
 export const checkIfMigrationIsNeeded = (
@@ -643,7 +645,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
-    const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+    const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
@@ -1407,7 +1409,7 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+  const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
 
   if (action.payload) {
     // we animate out elements and then move to the canvas

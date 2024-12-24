@@ -209,14 +209,14 @@ class Editor extends Component<Props> {
 
     return (
       <ThemeProvider theme={theme}>
-        <GitApplicationContextProvider>
-          <div>
-            <Helmet>
-              <meta charSet="utf-8" />
-              <title>
-                {`${this.props.currentApplicationName} | Editor | Appsmith`}
-              </title>
-            </Helmet>
+        <div>
+          <Helmet>
+            <meta charSet="utf-8" />
+            <title>
+              {`${this.props.currentApplicationName} | Editor | Appsmith`}
+            </title>
+          </Helmet>
+          <GitApplicationContextProvider>
             <GlobalHotKeys>
               <IDE />
               <GitModals />
@@ -229,9 +229,9 @@ class Editor extends Component<Props> {
               <AppCURLImportModal />
               <GeneratePageModal />
             </GlobalHotKeys>
-          </div>
-          <RequestConfirmationModal />
-        </GitApplicationContextProvider>
+          </GitApplicationContextProvider>
+        </div>
+        <RequestConfirmationModal />
       </ThemeProvider>
     );
   }

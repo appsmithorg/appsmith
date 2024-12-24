@@ -21,17 +21,11 @@ import { gitGlobalActions } from "./store/gitGlobalSlice";
 export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
 export const toggleGitImportModal = gitGlobalActions.toggleImportModal;
 
-// reducer
-export { gitReducer } from "./store";
-
 // selectors
 export {
   selectCurrentBranch as selectGitCurrentBranch,
   selectProtectedMode as selectGitProtectedMode,
 } from "./store/selectors/gitArtifactSelectors";
-
-// sagas
-export { default as gitSagas } from "./sagas";
 
 // types
 export type {
