@@ -191,11 +191,12 @@ jobs:
             echo "[INFO] Using provided specs: $specs_to_run"
           fi
 
-# Log the final specs_to_run value before writing it to GitHub environment
-echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
+          # Log the final specs_to_run value before writing it to GitHub environment
+          echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
 
-# Set the final specs_to_run to GitHub environment variable
-echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+          # Set the final specs_to_run to GitHub environment variable
+          echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+          
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
