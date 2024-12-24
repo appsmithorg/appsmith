@@ -10,7 +10,8 @@ export enum LINTER_TYPE {
 }
 
 export const lintOptions = (
-  globalData: Record<string, boolean>,
+  globalData: Record<string, boolean | "readonly" | "writable">,
+  asyncFunctions: string[],
   linterType: LINTER_TYPE = LINTER_TYPE.JSHINT,
 ) => {
   if (linterType === LINTER_TYPE.JSHINT) {
@@ -40,27 +41,16 @@ export const lintOptions = (
       loopfunc: true,
     } as LintOptions;
   } else {
-    const eslintGlobals: Record<string, "writable" | "readonly"> = {
-      setTimeout: "readonly",
-      clearTimeout: "readonly",
-      console: "readonly",
-    };
-
-    for (const key in globalData) {
-      if (globalData.hasOwnProperty(key)) {
-        eslintGlobals[key] = "readonly";
-      }
-    }
-
     return {
       languageOptions: {
         ecmaVersion: ECMA_VERSION,
-        globals: eslintGlobals,
+        globals: globalData,
         sourceType: "script",
       },
       // Need to pass for custom rules
       settings: {
-        eslintGlobals,
+        globalData,
+        asyncFunctions,
       },
       plugins: {
         customRules: {
