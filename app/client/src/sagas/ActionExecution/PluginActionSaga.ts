@@ -174,7 +174,7 @@ import {
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
-import type { Span } from "@opentelemetry/api";
+import type { Span } from "instrumentation/types";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
