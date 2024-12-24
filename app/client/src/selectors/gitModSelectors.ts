@@ -20,8 +20,6 @@ export const selectGitModEnabled = createSelector(
 
 export function selectGitCurrentBranch(
   state: AppState,
-  // need this to preserve interface
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   artifactDef: GitArtifactDef,
 ) {
   const isGitModEnabled = selectGitModEnabled(state);
@@ -29,7 +27,7 @@ export function selectGitCurrentBranch(
   if (isGitModEnabled) {
     return getCurrentGitBranch(state);
   } else {
-    return selectGitCurrentBranchNew(state);
+    return selectGitCurrentBranchNew(state, artifactDef);
   }
 }
 

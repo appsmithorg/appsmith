@@ -1,8 +1,8 @@
 import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
-import { useSelector } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useCurrentBranch() {
-  const currentBranch = useSelector(selectCurrentBranch);
+  const currentBranch = useArtifactSelector(selectCurrentBranch);
 
   return currentBranch;
 }

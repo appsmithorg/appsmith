@@ -109,7 +109,12 @@ export const selectConflictErrorModalOpen = (
 
 // git branches
 
-export const selectCurrentBranch = (state: GitRootState) => {
+export const selectCurrentBranch = (
+  state: GitRootState,
+  // need this to preserve interface
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  artifactDef: GitArtifactDef,
+) => {
   return (
     state?.ui?.applications?.currentApplication?.gitApplicationMetadata
       ?.branchName ?? null
@@ -211,7 +216,7 @@ export const selectProtectedMode = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => {
-  const currentBranch = selectCurrentBranch(state);
+  const currentBranch = selectCurrentBranch(state, artifactDef);
   const protectedBranches = selectFetchProtectedBranchesState(
     state,
     artifactDef,
