@@ -303,7 +303,7 @@ function statusPackagesTransformer(status: FetchStatusResponseData) {
   if (modifiedModuleInstances > 0) {
     tree.push(
       createTreeNode({
-        subject: `${modifiedModuleInstances} module instance${modifiedPackages > 1 ? "s" : ""}`,
+        subject: `${modifiedModuleInstances} module instance${modifiedModuleInstances > 1 ? "s" : ""}`,
         verb: "modified",
         type: "moduleInstance",
       }),
