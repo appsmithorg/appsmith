@@ -298,7 +298,7 @@ describe("Autocomplete tests", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
           )
           .type(".");
 
-        agHelper.GetNAssertElementText(locators._hints, "geolocation");
+        agHelper.GetNAssertElementText(locators._hints, "appName");
       });
   });
 
@@ -313,6 +313,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
       .type("{downArrow}{leftArrow}{leftArrow}");
 
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
-    agHelper.GetNAssertElementText(locators._hints, "geolocation");
+    agHelper.GetNAssertElementText(locators._hints, "appName");
   });
 });

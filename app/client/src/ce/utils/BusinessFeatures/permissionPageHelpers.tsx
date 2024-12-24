@@ -5,6 +5,9 @@ import { hasCreateWorkspacePermission as hasCreateWorkspacePermission_EE } from 
 import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_CE } from "ce/utils/permissionHelpers";
 import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
+import { hasReadDatasourcePermission as hasReadDatasourcePermission_CE } from "ce/utils/permissionHelpers";
+import { hasReadDatasourcePermission as hasReadDatasourcePermission_EE } from "ee/utils/permissionHelpers";
+
 import { hasManageDatasourcePermission as hasManageDatasourcePermission_CE } from "ce/utils/permissionHelpers";
 import { hasManageDatasourcePermission as hasManageDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
@@ -56,6 +59,14 @@ export const getHasCreateDatasourcePermission = (
 ) => {
   if (isEnabled) return hasCreateDatasourcePermission_EE(permissions);
   else return hasCreateDatasourcePermission_CE(permissions);
+};
+
+export const getHasReadDatasourcePermission = (
+  isEnabled: boolean,
+  permissions?: string[],
+) => {
+  if (isEnabled) return hasReadDatasourcePermission_EE(permissions);
+  else return hasReadDatasourcePermission_CE(permissions);
 };
 
 export const getHasManageDatasourcePermission = (

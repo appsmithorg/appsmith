@@ -27,6 +27,11 @@ import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
 import fetchMetadataSaga from "./fetchMetadataSaga";
 import toggleAutocommitSaga from "./toggleAutocommitSaga";
 import disconnectSaga from "./disconnectSaga";
+import { fetchSSHKeySaga } from "./fetchSSHKeySaga";
+import { generateSSHKeySaga } from "./generateSSHKeySaga";
+import createBranchSaga from "./createBranchSaga";
+import deleteBranchSaga from "./deleteBranchSaga";
+import checkoutBranchSaga from "./checkoutBranchSaga";
 
 import {
   blockingActionSagas as blockingActionSagasExtended,
@@ -53,6 +58,9 @@ const blockingActionSagas: Record<
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
+  [gitArtifactActions.createBranchInit.type]: createBranchSaga,
+  [gitArtifactActions.deleteBranchInit.type]: deleteBranchSaga,
+  [gitArtifactActions.checkoutBranchInit.type]: checkoutBranchSaga,
 
   // user profiles
   [gitArtifactActions.fetchLocalProfileInit.type]: fetchLocalProfileSaga,
@@ -81,6 +89,10 @@ const nonBlockingActionSagas: Record<
   // init
   [gitArtifactActions.initGitForEditor.type]: initGitForEditorSaga,
   [gitArtifactActions.toggleAutocommitInit.type]: toggleAutocommitSaga,
+
+  // ssh key
+  [gitArtifactActions.fetchSSHKeyInit.type]: fetchSSHKeySaga,
+  [gitArtifactActions.generateSSHKeyInit.type]: generateSSHKeySaga,
 
   // EE
   ...nonBlockingActionSagasExtended,
