@@ -49,9 +49,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
         String username = (!StringUtils.isEmpty(oidcUser.getEmail())) ? oidcUser.getEmail() : oidcUser.getName();
 
-        return repository
-                .findByEmail(username)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(username))
+        return this.findByUsername(username)
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     if (oidcUser.getUserInfo() != null) {
@@ -81,5 +79,11 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                         // This is to differentiate between Appsmith exceptions and OAuth2 exceptions
                         error -> new AppsmithOAuth2AuthenticationException(
                                 new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
+    }
+
+    public Mono<User> findByUsername(String email) {
+        return repository
+                .findByEmail(email)
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email));
     }
 }
