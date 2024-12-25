@@ -244,7 +244,7 @@ export default function TabMergeView({
           </MergeSelectLabel>
           <SelectContainer>
             <Select
-              data-testid="t--merge-branch-dropdown-destination"
+              data-testid="t--git-ops-merge-branch-select"
               dropdownClassName={"merge-dropdown"}
               dropdownMatchSelectWidth
               getPopupContainer={handleGetPopupContainer}
@@ -290,13 +290,13 @@ export default function TabMergeView({
               <Option>{currentBranchDropdownOptions[0].label}</Option>
             </Select>
           </SelectContainer>
-          <div className="mb-4">
+          <div className="mb-4" data-testid="t--git-ops-merge-status">
             <MergeStatus message={message} status={status} />
           </div>
           {isConflicting ? <ConflictError /> : null}
           {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
           {isMergeLoading ? (
-            <StatusbarWrapper>
+            <StatusbarWrapper data-testid="t--git-ops-merge-loader">
               <Statusbar
                 completed={!isMergeLoading}
                 message={createMessage(IS_MERGING)}
@@ -309,8 +309,7 @@ export default function TabMergeView({
       <StyledModalFooter>
         {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
-            className="t--git-merge-button"
-            data-testid="t--git-merge-button"
+            data-testid="t--git-ops-merge-button"
             isDisabled={mergeBtnDisabled}
             isLoading={isMergeLoading}
             onClick={handleMergeBtnClick}

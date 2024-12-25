@@ -71,16 +71,22 @@ function SettingsModalView({
         <ModalHeader>{createMessage(SETTINGS_GIT)}</ModalHeader>
         <Tabs onValueChange={handleTabKeyChange} value={settingsModalTab}>
           <TabsList>
-            <Tab data-testid={"t--tab-general"} value={GitSettingsTab.General}>
+            <Tab
+              data-testid={"t--git-setting-tab-general"}
+              value={GitSettingsTab.General}
+            >
               {createMessage(GENERAL)}
             </Tab>
             {showBranchTab && (
-              <Tab data-testid={"t--tab-branch"} value={GitSettingsTab.Branch}>
+              <Tab
+                data-testid={"t--git-settings-tab-branch"}
+                value={GitSettingsTab.Branch}
+              >
                 {createMessage(BRANCH)}
               </Tab>
             )}
             <Tab
-              data-testid={"t--tab-cd"}
+              data-testid={"t--git-settings-tab-cd"}
               value={GitSettingsTab.ContinuousDelivery}
             >
               {createMessage(CONTINUOUS_DELIVERY)}

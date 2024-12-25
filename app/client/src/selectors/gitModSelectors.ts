@@ -17,7 +17,8 @@ import { applicationArtifact } from "git/artifact-helpers/application";
 
 export const selectGitModEnabled = createSelector(
   selectFeatureFlags,
-  (featureFlags) => featureFlags.release_git_modularisation_enabled ?? false,
+  // (featureFlags) => featureFlags.release_git_modularisation_enabled ?? false,
+  () => true,
 );
 
 export function selectGitCurrentBranch(

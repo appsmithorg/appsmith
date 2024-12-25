@@ -101,7 +101,7 @@ export default function BranchButton({
           {isProtectedMode ? (
             <BranchButtonIcon name="protected-icon" />
           ) : (
-            <BranchButtonIcon name={"git-branch"} />
+            <BranchButtonIcon name="git-branch" />
           )}
           <BranchButtonLabel ref={labelTarget}>
             {currentBranch}
