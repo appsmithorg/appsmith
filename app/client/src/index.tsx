@@ -26,11 +26,8 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
-import { getAppsmithConfigs } from "ee/configs";
 import { FaroErrorBoundary } from "@grafana/faro-react";
-
-const { observability } = getAppsmithConfigs();
-const { tracingUrl } = observability;
+import { isTracingEnabled } from "instrumentation/utils";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -39,7 +36,7 @@ runSagaMiddleware();
 
 appInitializer();
 
-tracingUrl &&
+isTracingEnabled() &&
   (async () => {
     try {
       await import(

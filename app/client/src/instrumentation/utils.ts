@@ -8,6 +8,7 @@ import {
 import nanoid from "nanoid";
 import memoizeOne from "memoize-one";
 import { getApplicationParamsFromUrl } from "ee/utils/serviceWorkerUtils";
+import { getAppsmithConfigs } from "ee/configs";
 
 const OTLP_SESSION_ID = nanoid();
 
@@ -49,4 +50,14 @@ export const getCommonTelemetryAttributes = () => {
     osName,
     osVersion,
   };
+};
+
+export const isTracingEnabled = () => {
+  const { observability } = getAppsmithConfigs();
+
+  if (observability.tracingUrl) {
+    return true;
+  }
+
+  return false;
 };

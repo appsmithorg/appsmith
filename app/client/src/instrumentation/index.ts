@@ -21,6 +21,7 @@ import {
   FaroSessionSpanProcessor,
 } from "@grafana/faro-web-tracing";
 import log from "loglevel";
+import { isTracingEnabled } from "instrumentation/utils";
 
 const { appVersion, observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
@@ -28,7 +29,7 @@ const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
 
 let faro: Faro | null = null;
 
-if (tracingUrl) {
+if (isTracingEnabled()) {
   const ignoreUrls = ["smartlook.cloud"];
   const internalLoggerLevel =
     log.getLevel() === log.levels.DEBUG
