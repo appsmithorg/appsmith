@@ -1,21 +1,19 @@
 import React from "react";
+import { Tab, TabsList } from "@appsmith/ads";
 import { type Action } from "entities/Action";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { InfoFields } from "./InfoFields";
-import { HintMessages } from "./HintMessages";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
+import { API_EDITOR_TAB_TITLES, createMessage } from "ee/constants/messages";
+
 import useGetFormActionValues from "./hooks/useGetFormActionValues";
-import * as Styled from "./styles";
-import { Tab, TabsList } from "@appsmith/ads";
-import { API_EDITOR_TABS } from "../../../../constants/CommonApiConstants";
-import {
-  API_EDITOR_TAB_TITLES,
-  createMessage,
-} from "../../../../../ee/constants/messages";
 import { DatasourceConfig } from "./components/DatasourceConfig";
-import KeyValueFieldArray from "../../../../../components/editorComponents/form/fields/KeyValueFieldArray";
+import { HintMessages } from "./HintMessages";
+import { InfoFields } from "./InfoFields";
+import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiAuthentication from "./components/ApiAuthentication";
 import { useSelectedFormTab } from "./hooks/useSelectedFormTab";
 import { getHeadersCount, getParamsCount } from "./utils";
+import * as Styled from "./styles";
 
 interface Props {
   httpMethodOptions: { value: string }[];
