@@ -119,6 +119,7 @@ class CreateNewDatasourceTab extends React.Component<
             active={false}
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
+            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
