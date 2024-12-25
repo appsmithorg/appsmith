@@ -36,6 +36,7 @@ export class JSEditor {
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
+  public listOfJsObjects = "[data-testid='t--tabs-container']>div>span";
 
   public toolbar = new PluginEditorToolbar(
     this.runButtonLocator,
