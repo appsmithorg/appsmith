@@ -52,6 +52,15 @@ export class GitSync {
   public _autocommitStatusbar = "[data-testid='t--autocommit-statusbar']";
   public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
   public _mergeLoader = "[data-testid='t--git-merge-loader']";
+  private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
+  private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
+  private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
+  private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
+  private addedDeployKeyCheckbox =
+    "[data-testid='t--added-deploy-key-checkbox']";
+  private startUsingGitButton =
+    "[data-testid='t--git-success-modal-start-using-git-cta']";
+  private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
   // git mod
   public locators = {
@@ -76,7 +85,8 @@ export class GitSync {
     connectSuccessOpenSettingsBtn:
       "[data-testid='t--git-con-success-open-settings']",
     settingsModal: "[data-testid='t--git-settings-modal']",
-    settingsModalCloseBtn: "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']",
+    settingsModalCloseBtn:
+      "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']",
     settingsModalTabGeneral: "[data-testid='t--git-settings-tab-general']",
     settingsModalTabBranch: "[data-testid='t--git-settings-tab-branch']",
     settingsModalTabCD: "[data-testid='t--git-settings-tab-cd']",
@@ -124,9 +134,9 @@ export class GitSync {
       GENERAL: this.locators.settingsModalTabGeneral,
       BRANCH: this.locators.settingsModalTabBranch,
       CD: this.locators.settingsModalTabCD,
-    }
+    };
     const tabSelector = lookup[tab];
-    if(tabSelector) {
+    if (tabSelector) {
       this.agHelper.AssertElementExist(tabSelector);
       this.agHelper.GetNClick(tabSelector);
     }
@@ -323,14 +333,23 @@ export class GitSync {
         ),
       );
       this.agHelper.WaitUntilEleAppear(this.locators.quickActionsBranchBtn);
-      this.agHelper.AssertElementVisibility(this.locators.quickActionsBranchBtn);
-      this.agHelper.GetNAssertContains(this.locators.quickActionsBranchBtn, branch + uid);
+      this.agHelper.AssertElementVisibility(
+        this.locators.quickActionsBranchBtn,
+      );
+      this.agHelper.GetNAssertContains(
+        this.locators.quickActionsBranchBtn,
+        branch + uid,
+      );
       this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
   }
 
-  public SwitchGitBranch(branch: string, expectError = false, refreshList = false) {
+  public SwitchGitBranch(
+    branch: string,
+    expectError = false,
+    refreshList = false,
+  ) {
     this.agHelper.AssertElementExist(this.locators.quickActionsPullBtn);
     this.agHelper.GetNClick(this.locators.quickActionsBranchBtn);
     if (refreshList) {
@@ -360,16 +379,23 @@ export class GitSync {
     this.agHelper.GetNClickByContains(this.locators.branchItem, branch);
 
     // checks if the spinner exists
-    cy.get(`div${this.locators.branchItem} ${this.commonLocators._btnSpinner}`, {
-      timeout: 500,
-    }).should("exist");
+    cy.get(
+      `div${this.locators.branchItem} ${this.commonLocators._btnSpinner}`,
+      {
+        timeout: 500,
+      },
+    ).should("exist");
 
     cy.wait("@gitCheckoutAPI");
 
     if (!expectError) {
       // increasing timeout to reduce flakyness
-      cy.get(this.commonLocators._btnSpinner, { timeout: 45000 }).should("exist");
-      cy.get(this.commonLocators._btnSpinner, { timeout: 45000 }).should("not.exist");
+      cy.get(this.commonLocators._btnSpinner, { timeout: 45000 }).should(
+        "exist",
+      );
+      cy.get(this.commonLocators._btnSpinner, { timeout: 45000 }).should(
+        "not.exist",
+      );
     }
 
     this.agHelper.Sleep(2000);
@@ -386,7 +412,11 @@ export class GitSync {
   }
 
   public GetCurrentBranchName() {
-    return this.agHelper.GetText(this.locators.quickActionsBranchBtn, "text", 0);
+    return this.agHelper.GetText(
+      this.locators.quickActionsBranchBtn,
+      "text",
+      0,
+    );
   }
 
   public AssertBranchName(branch: string) {
@@ -436,14 +466,25 @@ export class GitSync {
     this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelect);
     this.agHelper.GetNClick(this.locators.opsMergeBranchSelect, 0, true);
     this.agHelper.AssertContains(destinationBranch);
-    this.agHelper.GetNClickByContains(".rc-select-item-option-content", destinationBranch);
+    this.agHelper.GetNClickByContains(
+      ".rc-select-item-option-content",
+      destinationBranch,
+    );
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
-    this.agHelper.GetNAssertContains(this.locators.opsMergeStatus, "Checking mergeability", "not.exist");
+    this.agHelper.GetNAssertContains(
+      this.locators.opsMergeStatus,
+      "Checking mergeability",
+      "not.exist",
+    );
   }
 
   public MergeToMaster() {
     this.CheckMergeConflicts("master");
-    this.agHelper.AssertElementEnabledDisabled(this.locators.opsMergeBtn, 0, false);
+    this.agHelper.AssertElementEnabledDisabled(
+      this.locators.opsMergeBtn,
+      0,
+      false,
+    );
     this.agHelper.GetNClick(this.locators.opsMergeBtn);
     this.assertHelper.AssertNetworkStatus("@mergeBranch");
     this.agHelper.AssertContains(
@@ -472,7 +513,11 @@ export class GitSync {
     this.agHelper.AssertContains("Discarded changes successfully");
     this.assertHelper.AssertNetworkStatus("@discardChanges");
     this.assertHelper.AssertNetworkStatus("@gitStatus");
-    this.agHelper.AssertElementExist(this.locators.quickActionsCommitBtn, 0, 30000);
+    this.agHelper.AssertElementExist(
+      this.locators.quickActionsCommitBtn,
+      0,
+      30000,
+    );
   }
 
   public VerifyChangeLog(uncommitedChanges = false) {
@@ -500,39 +545,4 @@ export class GitSync {
       .invoke("get", "branch")
       .should("equal", branch);
   }
-  
-
-  
-
-  
-
-  
-
-  private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
-  private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
-  private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
-  private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
-  private addedDeployKeyCheckbox =
-    "[data-testid='t--added-deploy-key-checkbox']";
-  private startUsingGitButton =
-    "[data-testid='t--git-success-modal-start-using-git-cta']";
-  private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-
-
-  
 }
