@@ -144,7 +144,9 @@ function QuickActionsView({
       />
 
       {isAutocommitEnabled && isAutocommitPolling ? (
-        <AutocommitStatusbar completed={!isAutocommitPolling} />
+        <div data-testid="t--git-autocommit-loader">
+          <AutocommitStatusbar completed={!isAutocommitPolling} />
+        </div>
       ) : (
         <>
           <QuickActionButton

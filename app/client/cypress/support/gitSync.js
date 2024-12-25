@@ -29,7 +29,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
       window.location.target = "_self";
     });
   });
-  agHelper.GetNClick(gitSync._bottomBarCommit);
+  agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
@@ -37,7 +37,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
-  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
@@ -53,7 +53,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
@@ -73,7 +73,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
@@ -96,7 +96,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
 });
 
 Cypress.Commands.add("merge", (destinationBranch) => {
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
 
   cy.intercept("GET", "/api/v1/git/status/app/*").as(`gitStatus`);
 
@@ -111,19 +111,19 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   ); */
 
   agHelper.AssertElementEnabledDisabled(
-    gitSync._mergeBranchDropdownDestination,
+    gitSync.locators.opsMergeBranchSelect,
     0,
     false,
   );
-  agHelper.WaitUntilEleDisappear(gitSync._mergeLoader);
+  agHelper.WaitUntilEleDisappear(gitSync.locators.opsMergeLoader);
   cy.wait(["@gitBranches", "@gitStatus"]).then((interceptions) => {
     if (
       interceptions[0]?.response?.statusCode === 200 &&
       interceptions[1]?.response?.statusCode === 200
     ) {
-      cy.get(gitSync._mergeBranchDropdownDestination).click();
+      cy.get(gitSync.locators.opsMergeBranchSelect).click();
       cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
-      agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
+      gitSync.AssertAbsenceOfCheckingMergeability();
       assertHelper.WaitForNetworkCall("mergeStatus");
       cy.get("@mergeStatus").should(
         "have.nested.property",
@@ -132,7 +132,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
       );
       cy.wait(2000);
       cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
-      cy.get(gitSyncLocators.mergeCTA).click();
+      cy.get(gitSync.locators.opsMergeBtn).click();
       assertHelper.AssertNetworkStatus("mergeBranch", 200);
       agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
     }

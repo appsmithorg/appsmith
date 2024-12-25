@@ -54,12 +54,16 @@ describe(
 
       // this logic will have to be removed after decimal issue with auto-commit is resolved
       assertHelper.AssertNetworkResponseData("gitStatus");
-      agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
-      agHelper.GetNClick(gitSync._bottomBarCommit);
-      agHelper.AssertElementVisibility(gitSync._gitSyncModal);
-      agHelper.GetNClick(gitSync._commitButton);
+      agHelper.AssertElementExist(
+        gitSync.locators.quickActionsCommitBtn,
+        0,
+        30000,
+      );
+      agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
+      agHelper.AssertElementVisibility(gitSync.locators.opsModal);
+      agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
       assertHelper.AssertNetworkStatus("@commit", 201);
-      gitSync.CloseGitSyncModal();
+      gitSync.CloseOpsModal();
     });
 
     it("1. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {

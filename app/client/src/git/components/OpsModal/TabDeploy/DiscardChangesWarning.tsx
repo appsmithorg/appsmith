@@ -21,7 +21,7 @@ export default function DiscardChangesWarning({
   return (
     <Container>
       <Callout
-        data-testid="t--discard-callout"
+        data-testid="t--git-ops-discard-warning-callout"
         isClosable
         kind="error"
         links={[

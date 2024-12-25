@@ -88,10 +88,10 @@ describe(
         cy.wait(20000); // add wait for page to save
         cy.switchGitBranch(branchName);
         cy.get(homePage.publishButton).click({ force: true });
-        _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+        _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
         cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
         cy.get(gitSyncLocators.commitButton).click();
-        _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+        _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
     });

@@ -85,7 +85,7 @@ describe(
           gitSync.CreateGitBranch(repoName);
         });
 
-        agHelper.AssertElementExist(gitSync._bottomBarPull);
+        agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       });
     });
 
@@ -129,7 +129,7 @@ describe(
         cy.log(interception.response.body.data);
         cy.wait(1000);
       });
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
 
       cy.wait(3000); //for uncommited changes to appear if any!
       cy.get("body").then(($body) => {
@@ -179,11 +179,11 @@ describe(
       // deploy the app and validate data binding
       cy.wait(2000);
       cy.get(homePageLocators.publishButton).click();
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
       cy.get(gitSyncLocators.commitButton).click();
       cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
       cy.wait(2000);
       gitSync.MergeToMaster();

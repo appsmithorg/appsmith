@@ -8,61 +8,6 @@ export class GitSync {
   private assertHelper = ObjectsRegistry.AssertHelper;
   private homePage = ObjectsRegistry.HomePage;
 
-  public _gitSyncModal = "[data-testid=t--git-sync-modal]";
-  public _closeGitSettingsModal =
-    "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']";
-  _branchButton = ".t--branch-button";
-  public _bottomBarCommit = ".t--bottom-bar-commit button";
-  public _gitPullCount = ".t--bottom-bar-commit .count";
-  _bottomBarPull = ".t--bottom-bar-pull button";
-  _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
-  public _branchListItem = "[data-testid=t--branch-list-item]";
-  public _bottomBarMergeButton = ".t--bottom-bar-merge";
-  private mergeCTA = "[data-testid=t--git-merge-button]";
-  public _mergeBranchDropdownDestination =
-    "[data-testid=t--merge-branch-dropdown-destination]";
-  public _mergeBranchDropdownmenu =
-    "[data-testid=t--merge-branch-dropdown-destination] .rc-select-selection-search-input";
-  public _dropdownmenu = ".rc-select-item-option-content";
-  private _openRepoButton = "[data-testid=t--git-repo-button]";
-  public _commitButton = ".t--commit-button";
-  public _commitCommentInput = ".t--commit-comment-input textarea";
-
-  public _discardChanges = ".t--discard-button";
-  public _discardCallout = "[data-testid='t--discard-callout']";
-  public _gitStatusChanges = "[data-testid='t--git-status-changes']";
-  private _gitSyncBranches = ".t--sync-branches";
-  learnMoreSshUrl = ".t--learn-more-ssh-url";
-  repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
-  public _bottomSettingsBtn = ".t--bottom-git-settings";
-  public _defaultBranchSelect = "[data-testid='t--git-default-branch-select']";
-  public _defaultBranchUpdateBtn =
-    "[data-testid='t--git-default-branch-update-btn']";
-  public _protectedBranchesSelect =
-    "[data-testid='t--git-protected-branches-select']";
-  public _protectedBranchesUpdateBtn =
-    "[data-testid='t--git-protected-branches-update-btn']";
-  public _gitSettingsModal = "[data-testid='t--git-settings-modal']";
-  public _settingsTabGeneral = "[data-testid='t--tab-GENERAL']";
-  public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
-  public _branchProtectionSelectDropdown =
-    "[data-testid='t--git-protected-branches-select']";
-  public _branchProtectionUpdateBtn =
-    "[data-testid='t--git-protected-branches-update-btn']";
-  public _autocommitStatusbar = "[data-testid='t--autocommit-statusbar']";
-  public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
-  public _mergeLoader = "[data-testid='t--git-merge-loader']";
-  private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
-  private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
-  private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
-  private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
-  private addedDeployKeyCheckbox =
-    "[data-testid='t--added-deploy-key-checkbox']";
-  private startUsingGitButton =
-    "[data-testid='t--git-success-modal-start-using-git-cta']";
-  private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
-
-  // git mod
   public locators = {
     quickActionConnectBtn: "[data-testid='t--git-quick-actions-connect']",
     quickActionsCommitBtn: "[data-testid='t--git-quick-actions-commit'] button",
@@ -77,6 +22,13 @@ export class GitSync {
     connectModalCloseBtn:
       "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",
     connectModalNextBtn: "[data-testid='t--git-connect-next']",
+    connectProviderRadioOthers: "[data-testid='t--git-provider-radio-others']",
+    connectEmptyRepoYes: "[data-testid='t--git-connect-empty-repo-yes']",
+    connectRemoteInput: "[data-testid='t--git-connect-remote-input']",
+    connectDeployKeyCheckbox:
+      "[data-testid='t-git-connect-deploy-key-checkbox']",
+    importExistingRepoCheckbox:
+      "[data-testid='t--git-import-existing-repo-checkbox']",
     connectSuccessModal: "[data-testid='t--git-con-success-modal']",
     connectSuccessModalCloseBtn:
       "//div[@data-testid='t--git-success-modal']//button[@aria-label='Close']",
@@ -84,6 +36,7 @@ export class GitSync {
       "[data-testid='t--git-con-success-start-using']",
     connectSuccessOpenSettingsBtn:
       "[data-testid='t--git-con-success-open-settings']",
+    disconnectBtn: "[data-testid='t--git-disconnect-btn']",
     settingsModal: "[data-testid='t--git-settings-modal']",
     settingsModalCloseBtn:
       "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']",
@@ -96,15 +49,22 @@ export class GitSync {
     opsCommitInput: "[data-testid='t--git-ops-commit-input']",
     opsCommitBtn: "[data-testid='t--git-ops-commit-btn']",
     opsDiscardBtn: "[data-testid='t--git-ops-discard-btn']",
+    opsDiscardWarningCallout:
+      "[data-testid='t--git-ops-discard-warning-callout']",
     opsPullBtn: "[data-testid='t--git-ops-pull-btn']",
     opsMergeBranchSelect: "[data-testid='t--git-ops-merge-branch-select']",
+    opsMergeBranchSelectMenu:
+      "[data-testid='t--git-ops-merge-branch-select'] .rc-select-selection-search-input",
     opsMergeLoader: "[data-testid='t--git-ops-merge-loader']",
     opsMergeStatus: "[data-testid='t--git-ops-merge-status']",
     opsMergeBtn: "[data-testid='t--git-ops-merge-button']",
     branchProtectionSelect: "[data-testid='t--git-branch-protection-select']",
     branchProtectionUpdateBtn:
       "[data-testid='t--git-branch-protection-update-btn']",
+    status: "[data-testid='t--git-status']",
+    autocommitLoader: "[data-testid='t--git-autocommit-loader']",
     conflictErrorOpenRepo: "[data-testid='t--git-conflict-error-open-repo']",
+    repoLimitErrorModal: "[data-testid='t--git-repo-limit-error-modal']",
   };
 
   public OpenConnectModal() {
@@ -127,7 +87,7 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this.locators.opsModal);
   }
 
-  public OpenGitSettingsModal(tab: "GENERAL" | "BRANCH" | "CD" = "GENERAL") {
+  public OpenSettingsModal(tab: "GENERAL" | "BRANCH" | "CD" = "GENERAL") {
     this.agHelper.GetNClick(this.locators.quickActionsSettingsBtn);
     this.agHelper.AssertElementVisibility(this.locators.settingsModal);
     const lookup = {
@@ -196,16 +156,16 @@ export class GitSync {
 
       this.OpenConnectModal();
 
-      this.agHelper.GetNClick(this.providerRadioOthers);
-      this.agHelper.GetNClick(this.existingEmptyRepoYes);
+      this.agHelper.GetNClick(this.locators.connectProviderRadioOthers);
+      this.agHelper.GetNClick(this.locators.connectEmptyRepoYes);
       this.agHelper.GetNClick(this.locators.connectModalNextBtn);
       this.agHelper.AssertAttribute(
-        this.remoteUrlInput,
+        this.locators.connectRemoteInput,
         "placeholder",
         "git@example.com:user/repository.git",
       );
       this.agHelper.TypeText(
-        this.remoteUrlInput,
+        this.locators.connectRemoteInput,
         `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
       );
       this.agHelper.GetNClick(this.locators.connectModalNextBtn);
@@ -229,7 +189,7 @@ export class GitSync {
           });
         });
       });
-      this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+      this.agHelper.GetNClick(this.locators.connectDeployKeyCheckbox, 0, true);
       this.agHelper.GetNClick(this.locators.connectModalNextBtn);
 
       if (assertConnect) {
@@ -257,16 +217,16 @@ export class GitSync {
 
     this.homePage.ImportGitApp(workspaceName);
 
-    this.agHelper.GetNClick(this.providerRadioOthers);
-    this.agHelper.GetNClick(this.existingRepoCheckbox, 0, true);
+    this.agHelper.GetNClick(this.locators.connectProviderRadioOthers);
+    this.agHelper.GetNClick(this.locators.importExistingRepoCheckbox, 0, true);
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
     this.agHelper.AssertAttribute(
-      this.remoteUrlInput,
+      this.locators.connectRemoteInput,
       "placeholder",
       "git@example.com:user/repository.git",
     );
     this.agHelper.TypeText(
-      this.remoteUrlInput,
+      this.locators.connectRemoteInput,
       `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
     );
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
@@ -291,7 +251,7 @@ export class GitSync {
         });
       });
     });
-    this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+    this.agHelper.GetNClick(this.locators.connectDeployKeyCheckbox, 0, true);
     this.agHelper.GetNClick(this.locators.connectModalNextBtn);
 
     if (assertConnect) {
@@ -443,9 +403,8 @@ export class GitSync {
   }
 
   public ClearBranchProtection() {
-    this.OpenGitSettingsModal("BRANCH");
+    this.OpenSettingsModal("BRANCH");
     this.agHelper.GetNClick(this.locators.branchProtectionSelect);
-    // const dropdownEl = this.agHelper.GetElement(this._protectedBranchesSelect);
     const selectedOptionsEl = this.agHelper.GetElement(
       ".rc-select-dropdown .rc-select-item-option-active",
     );
@@ -457,25 +416,28 @@ export class GitSync {
     this.CloseGitSettingsModal();
   }
 
-  public CheckMergeConflicts(destinationBranch: string) {
-    this.agHelper.AssertElementExist(this.locators.quickActionsPullBtn);
-    this.agHelper.GetNClick(this.locators.quickActionsMergeBtn);
-    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelect);
-    this.agHelper.WaitUntilEleDisappear(this.locators.opsMergeLoader);
-    this.assertHelper.AssertNetworkStatus("@getBranch", 200);
-    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelect);
-    this.agHelper.GetNClick(this.locators.opsMergeBranchSelect, 0, true);
-    this.agHelper.AssertContains(destinationBranch);
-    this.agHelper.GetNClickByContains(
-      ".rc-select-item-option-content",
-      destinationBranch,
-    );
-    this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  public AssertAbsenceOfCheckingMergeability() {
     this.agHelper.GetNAssertContains(
       this.locators.opsMergeStatus,
       "Checking mergeability",
       "not.exist",
     );
+  }
+
+  public CheckMergeConflicts(destinationBranch: string) {
+    this.agHelper.AssertElementExist(this.locators.quickActionsPullBtn);
+    this.agHelper.GetNClick(this.locators.quickActionsMergeBtn);
+    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelectMenu);
+    this.agHelper.WaitUntilEleDisappear(this.locators.opsMergeLoader);
+    this.assertHelper.AssertNetworkStatus("@getBranch", 200);
+    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelectMenu);
+    this.agHelper.GetNClick(this.locators.opsMergeBranchSelectMenu, 0, true);
+    this.agHelper.AssertContains(destinationBranch);
+    this.agHelper.GetNClickByContains(
+      ".rc-select-item-option-content",
+      destinationBranch,
+    );
+    this.AssertAbsenceOfCheckingMergeability();
   }
 
   public MergeToMaster() {

@@ -47,9 +47,9 @@ describe(
 
       cy.get(gitSyncLocators.mergeButton).should("be.disabled");
       cy.wait(3000);
-      cy.get(_.gitSync._mergeBranchDropdownDestination).click();
+      cy.get(_.gitSync.locators.opsMergeBranchSelect).click();
       cy.get(commonLocators.dropdownmenu).contains(mainBranch).click();
-      _.agHelper.AssertElementAbsence(_.gitSync._checkMergeability, 30000);
+      _.gitSync.AssertAbsenceOfCheckingMergeability();
 
       cy.wait("@mergeStatus", { timeout: 35000 }).should(
         "have.nested.property",

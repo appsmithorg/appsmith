@@ -34,11 +34,10 @@ describe(
           repoName = repName;
         });
       });
-      cy.get(_.gitSync._bottomSettingsBtn).click();
-      cy.get(_.gitSync._settingsTabGeneral).click();
+      _.gitSync.OpenSettingsModal();
       // after clicked disconnect on connection modal,
       // it should be closed and disconnect modal should be opened
-      cy.get(_.gitSync._disconnectGitBtn).click();
+      cy.get(_.gitSync.locators.disconnectBtn).click();
       cy.get(gitSyncLocators.gitSyncModal).should("not.exist");
       cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
@@ -77,12 +76,11 @@ describe(
     });
 
     it("2. should have disconnect repo button", function () {
-      cy.get(_.gitSync._bottomSettingsBtn).click();
-      cy.get(_.gitSync._settingsTabGeneral).click();
+      _.gitSync.OpenSettingsModal();
 
       // after clicked disconnect on connection modal,
       // it should be closed and disconnect modal should be opened
-      cy.get(_.gitSync._disconnectGitBtn).click();
+      cy.get(_.gitSync.locators.disconnectBtn).click();
       cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
 
       cy.get(gitSyncLocators.disconnectAppNameInput).type(

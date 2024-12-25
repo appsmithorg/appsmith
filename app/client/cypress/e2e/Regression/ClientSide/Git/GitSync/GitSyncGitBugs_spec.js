@@ -130,7 +130,7 @@ describe(
           );
           // deploy the app and validate data binding
           cy.get(homePageLocators.publishButton).click();
-          agHelper.AssertElementExist(gitSync._bottomBarPull);
+          agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           cy.wait(8000);
@@ -279,12 +279,12 @@ describe(
 
           agHelper.GetNClick(gitSync.providerRadioOthers);
           agHelper.GetNClick(gitSync.existingEmptyRepoYes);
-          agHelper.GetNClick(gitSync.gitConnectNextBtn);
+          agHelper.GetNClick(gitSync.locators.connectModalNextBtn);
           agHelper.TypeText(
             gitSync.remoteUrlInput,
             `${dataManager.GIT_CLONE_URL}/${repoName}.git`,
           );
-          agHelper.GetNClick(gitSync.gitConnectNextBtn);
+          agHelper.GetNClick(gitSync.locators.connectModalNextBtn);
 
           // abort git flow after generating key
           cy.get(gitSyncLocators.closeGitSyncModal).click();
