@@ -10,7 +10,8 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
       recommended: false,
     },
     messages: {
-      unhandledPromise: "Unhandled Promise detected.",
+      unhandledPromise:
+        "Unhandled Promise detected. Handle using await or .then()",
     },
     schema: [], // Rule does not accept configuration options
   },
