@@ -81,7 +81,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                                 new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
     }
 
-    public Mono<User> findByUsername(String email) {
+    protected Mono<User> findByUsername(String email) {
         return repository
                 .findByEmail(email)
                 .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email));
