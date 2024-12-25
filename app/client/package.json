@@ -253,7 +253,6 @@
     "@faker-js/faker": "^7.4.0",
     "@octokit/rest": "^20.0.1",
     "@peculiar/webcrypto": "^1.4.3",
-    "@sentry/webpack-plugin": "^1.18.9",
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
