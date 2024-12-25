@@ -52,6 +52,8 @@ const ListQuery = () => {
       px="spaces-3"
       py="spaces-3"
     >
+      {Object.keys(itemGroups).length === 0 && <BlankState />}
+
       {itemGroups.length > 0 ? (
         <SearchAndAdd
           onAdd={openAddQuery}
@@ -102,8 +104,6 @@ const ListQuery = () => {
           />
         ) : null}
       </Flex>
-
-      {Object.keys(itemGroups).length === 0 && <BlankState />}
     </Flex>
   );
 };
