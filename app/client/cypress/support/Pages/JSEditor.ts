@@ -231,6 +231,13 @@ export class JSEditor {
     PageLeftPane.assertPresence(renameVal);
   }
 
+  public RenameJSObjectFromContextMenu(renameVal: string) {
+    cy.get(this.contextMenuTriggerLocator).click();
+    cy.contains("Rename").should("be.visible").click();
+    cy.get(this._jsObjTxt).clear().type(renameVal, { force: true }).blur();
+    PageLeftPane.assertPresence(renameVal);
+  }
+
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
     this.ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: entityName,
