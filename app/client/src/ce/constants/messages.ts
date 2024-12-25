@@ -394,6 +394,19 @@ export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
+export const CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API = () =>
+  "Authenticated API";
+export const CREATE_NEW_DATASOURCE_GRAPHQL_API = () => "GraphQL API";
+export const CREATE_NEW_API_SECTION_HEADER = () => "APIs";
+export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS integrations";
+export const CREATE_NEW_AI_SECTION_HEADER = () => "AI integrations";
+export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
+export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
+  "Select a sample datasource or connect your own";
+export const SEARCH_FOR_DATASOURCES = () => "Search for datasources";
+export const EMPTY_SEARCH_DATASOURCES_TITLE = () => "No results found";
+export const EMPTY_SEARCH_DATASOURCES_DESCRIPTION = () =>
+  "Please try again with a different search";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -2375,8 +2388,6 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
-
-export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
 
 export const CUSTOM_WIDGET_FEATURE = {
   addEvent: {

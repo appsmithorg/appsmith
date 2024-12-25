@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { ApiCard, CardContentWrapper } from "../NewApi";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Modal, ModalContent, Tag, Text } from "@appsmith/ads";
+import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
-import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
 import {
   getTagText,
   handlePremiumDatasourceClick,
 } from "utils/PremiumDatasourcesHelpers";
 import { isFreePlan } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
+import DatasourceItem from "../DatasourceItem";
+import type { PremiumIntegration } from "constants/PremiumDatasourcesConstants";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
@@ -35,7 +35,9 @@ const PremiumTag = styled(Tag)<{ isBusinessOrEnterprise: boolean }>`
   }
 `;
 
-export default function PremiumDatasources() {
+export default function PremiumDatasources(props: {
+  plugins: PremiumIntegration[];
+}) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
   const isFreePlanInstance = useSelector(isFreePlan);
   const handleOnClick = (name: string) => {
@@ -51,23 +53,16 @@ export default function PremiumDatasources() {
 
   return (
     <>
-      {PREMIUM_INTEGRATIONS.map((integration) => (
-        <ApiCard
+      {props.plugins.map((integration) => (
+        <DatasourceItem
           className={`t--create-${integration.name}`}
-          key={integration.name}
-          onClick={() => {
+          handleOnClick={() => {
             handleOnClick(integration.name);
           }}
-        >
-          <CardContentWrapper>
-            <img
-              alt={integration.name}
-              className={"content-icon saasImage"}
-              src={getAssetUrl(integration.icon)}
-            />
-            <Text className="t--plugin-name textBtn" renderAs="p">
-              {integration.name}
-            </Text>
+          icon={getAssetUrl(integration.icon)}
+          key={integration.name}
+          name={integration.name}
+          rightSibling={
             <PremiumTag
               isBusinessOrEnterprise={!isFreePlanInstance}
               isClosable={false}
@@ -75,8 +70,8 @@ export default function PremiumDatasources() {
             >
               {getTagText(!isFreePlanInstance)}
             </PremiumTag>
-          </CardContentWrapper>
-        </ApiCard>
+          }
+        />
       ))}
       <Modal onOpenChange={onOpenChange} open={!!selectedIntegration}>
         <ModalContentWrapper>

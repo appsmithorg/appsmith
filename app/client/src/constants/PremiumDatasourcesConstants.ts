@@ -1,7 +1,7 @@
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
 
-interface PremiumIntegration {
+export interface PremiumIntegration {
   name: string;
   icon: string;
 }
