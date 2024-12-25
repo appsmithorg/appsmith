@@ -49,9 +49,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
-import { isTracingEnabled } from "instrumentation/utils";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -368,14 +366,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             : undefined,
         };
       }
-    }
-
-    if (isTracingEnabled()) {
-      return (
-        <WidgetProfiler type={type} widgetId={widgetId}>
-          <WrappedWidget {...widgetProps} />
-        </WidgetProfiler>
-      );
     }
 
     return <WrappedWidget {...widgetProps} />;
