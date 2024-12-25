@@ -855,4 +855,8 @@ export class Table {
     this.agHelper.GetHoverNClick(selector, 1, true);
     verify && cy.get(selector).eq(1).should("be.disabled");
   }
+
+  public GetTableDataSelector(rowNum: number, colNum: number): string {
+    return `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  }
 }
