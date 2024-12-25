@@ -5,6 +5,7 @@ import {
   selectAutocommitEnabled,
   selectAutocommitPolling,
   selectToggleAutocommitState,
+  selectTriggerAutocommitState,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
@@ -16,6 +17,10 @@ export default function useAutocommit() {
 
   const toggleAutocommitState = useSelector((state: GitRootState) =>
     selectToggleAutocommitState(state, artifactDef),
+  );
+
+  const triggerAutocommitState = useSelector((state: GitRootState) =>
+    selectTriggerAutocommitState(state, artifactDef),
   );
 
   const toggleAutocommit = useCallback(() => {
@@ -50,6 +55,8 @@ export default function useAutocommit() {
     isToggleAutocommitLoading: toggleAutocommitState?.loading ?? false,
     toggleAutocommitError: toggleAutocommitState?.error ?? null,
     toggleAutocommit,
+    isTriggerAutocommitLoading: triggerAutocommitState?.loading ?? false,
+    triggerAutocommitError: triggerAutocommitState?.error ?? null,
     isAutocommitDisableModalOpen,
     toggleAutocommitDisableModal,
     isAutocommitEnabled,

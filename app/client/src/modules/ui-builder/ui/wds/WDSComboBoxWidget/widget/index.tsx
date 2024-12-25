@@ -1,187 +1,68 @@
-import { ComboBox, ListBoxItem } from "@appsmith/wds";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import isNumber from "lodash/isNumber";
 import React from "react";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import {
-  anvilConfig,
-  autocompleteConfig,
-  defaultsConfig,
-  metaConfig,
-  methodsConfig,
-  propertyPaneContentConfig,
-  settersConfig,
-} from "../config";
-import { validateInput } from "./helpers";
-import type { WDSComboBoxWidgetProps } from "./types";
+import { ComboBox, ListBoxItem } from "@appsmith/wds";
+import { validateInput } from "../../WDSSelectWidget/widget/helpers";
+import { ComboboxSelectIcon, ComboboxSelectThumbnail } from "appsmith-icons";
 
-const isTrueObject = (item: unknown): item is Record<string, unknown> => {
-  return Object.prototype.toString.call(item) === "[object Object]";
-};
+import { WDSSelectWidget } from "../../WDSSelectWidget";
+import isArray from "lodash/isArray";
 
-class WDSComboBoxWidget extends BaseWidget<
-  WDSComboBoxWidgetProps,
-  WidgetState
-> {
+class WDSComboBoxWidget extends WDSSelectWidget {
   static type = "WDS_COMBOBOX_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return {
+      ...super.getConfig(),
+      name: "ComboBox",
+    };
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return {
+      ...super.getDefaults(),
+      widgetName: "ComboBox",
+    };
   }
 
   static getMethods() {
-    return methodsConfig;
-  }
-
-  static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
-  }
-
-  static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return autocompleteConfig;
-  }
-
-  static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [];
-  }
-
-  static getDerivedPropertiesMap() {
     return {
-      selectedOption:
-        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
-      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
-      value: `{{this.selectedOptionValue}}`,
+      ...super.getMethods(),
+      IconCmp: ComboboxSelectIcon,
+      ThumbnailCmp: ComboboxSelectThumbnail,
     };
   }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      selectedOptionValue: "defaultOptionValue",
-    };
-  }
-
-  static getMetaPropertiesMap() {
-    return {
-      selectedOptionValue: undefined,
-      isDirty: false,
-    };
-  }
-
-  static getStylesheetConfig(): Stylesheet {
-    return {};
-  }
-
-  componentDidUpdate(prevProps: WDSComboBoxWidgetProps): void {
-    if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-  }
-
-  static getSetterConfig(): SetterConfig {
-    return settersConfig;
-  }
-
-  static getDependencyMap(): Record<string, string[]> {
-    return {
-      optionLabel: ["options"],
-      optionValue: ["options"],
-      defaultOptionValue: ["options"],
-    };
-  }
-
-  handleSelectionChange = (updatedValue: string | number | null) => {
-    let newVal;
-
-    if (updatedValue === null) {
-      newVal = "";
-    } else {
-      if (isNumber(updatedValue)) {
-        newVal = updatedValue;
-      } else if (
-        isTrueObject(this.props.options[0]) &&
-        isNumber(this.props.options[0].value)
-      ) {
-        newVal = parseFloat(updatedValue);
-      } else {
-        newVal = updatedValue;
-      }
-    }
-
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    // Set isDirty to true when the selection changes
-    if (!this.props.isDirty) {
-      pushBatchMetaUpdates("isDirty", true);
-    }
-
-    pushBatchMetaUpdates("selectedOptionValue", newVal, {
-      triggerPropertyName: "onSelectionChange",
-      dynamicString: this.props.onSelectionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-
-    commitBatchMetaUpdates();
-  };
-
-  optionsToItems = (options: WDSComboBoxWidgetProps["options"]) => {
-    if (Array.isArray(options)) {
-      const items = options.map((option) => ({
-        label: option["label"] as string,
-        id: option["value"] as string,
-      }));
-
-      const isValidItems = items.every(
-        (item) => item.label !== undefined && item.id !== undefined,
-      );
-
-      return isValidItems ? items : [];
-    }
-
-    return [];
-  };
 
   getWidgetView() {
-    const {
-      labelTooltip,
-      options,
-      placeholderText,
-      selectedOptionValue,
-      ...rest
-    } = this.props;
-
+    const { labelTooltip, placeholderText, selectedOptionValue, ...rest } =
+      this.props;
     const validation = validateInput(this.props);
+    const options = (isArray(this.props.options) ? this.props.options : []) as {
+      value: string;
+      label: string;
+    }[];
+    // This is key is used to force re-render of the widget when the options change.
+    // Why force re-render on   options change?
+    // Sometimes when the user is changing options, the select throws an error ( related to react-aria code ) saying "cannot change id of item".
+    const key = options.map((option) => option.value).join(",");
 
     return (
       <ComboBox
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
-        isInvalid={validation.validationStatus === "invalid"}
-        onSelectionChange={this.handleSelectionChange}
+        isInvalid={
+          validation.validationStatus === "invalid" && this.props.isDirty
+        }
+        key={key}
+        onSelectionChange={this.handleChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       >
-        {this.optionsToItems(options).map((option) => (
-          <ListBoxItem key={option.id} textValue={option.label}>
+        {options.map((option) => (
+          <ListBoxItem
+            id={option.value}
+            key={option.value}
+            textValue={option.label}
+          >
             {option.label}
           </ListBoxItem>
         ))}
