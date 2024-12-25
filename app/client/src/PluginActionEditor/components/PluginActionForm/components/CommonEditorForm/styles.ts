@@ -14,23 +14,18 @@ export const DatasourcePathFieldContainer = styled.div`
 
 export const FormHeader = styled.div`
   position: sticky;
-  grid-area: header;
   top: calc(-1 * var(--ads-v2-spaces-4));
   padding-top: var(--ads-v2-spaces-4);
   margin-top: calc(-1 * var(--ads-v2-spaces-4));
-  align-self: start;
-  z-index: 100;
+  z-index: var(--ads-v2-z-index-21);
   background-color: var(--ads-color-background);
+  height: 100px;
 `;
 
 export const Tabs = styled(AdsTabs)`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: "header" "body";
-  width: 100%;
+  height: max-content;
 `;
 
 export const TabPanel = styled(AdsTabPanel)`
-  height: calc(100% - 50px);
+  margin: 0 auto;
 `;
