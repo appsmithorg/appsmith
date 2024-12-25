@@ -17,7 +17,7 @@ export const FormHeader = styled.div`
   top: calc(-1 * var(--ads-v2-spaces-4));
   padding-top: var(--ads-v2-spaces-4);
   margin-top: calc(-1 * var(--ads-v2-spaces-4));
-  z-index: var(--ads-v2-z-index-21);
+  z-index: var(--ads-v2-z-index-1);
   background-color: var(--ads-color-background);
   height: 100px;
 `;
