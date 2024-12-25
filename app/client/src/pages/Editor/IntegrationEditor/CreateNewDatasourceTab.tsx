@@ -131,7 +131,6 @@ function CreateNewDatasource({
   active,
   isCreating,
   isOnboardingScreen,
-  isPremiumDatasourcesViewEnabled,
   pageId,
   showMostPopularPlugins,
   showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
@@ -172,11 +171,7 @@ function CreateNewDatasource({
         parentEntityType={parentEntityType}
         showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      >
-        {showMostPopularPlugins && isPremiumDatasourcesViewEnabled && (
-          <PremiumDatasources />
-        )}
-      </NewQueryScreen>
+      />
     </div>
   );
 }
@@ -184,6 +179,7 @@ function CreateNewDatasource({
 function CreateNewSaasIntegration({
   active,
   isCreating,
+  isPremiumDatasourcesViewEnabled,
   pageId,
   showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -217,7 +213,9 @@ function CreateNewSaasIntegration({
           pageId={pageId}
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          {isPremiumDatasourcesViewEnabled && <PremiumDatasources />}
+        </NewApiScreen>
       </div>
     </>
   ) : null;
@@ -321,7 +319,6 @@ class CreateNewDatasourceTab extends React.Component<
             active={false}
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
-            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showMostPopularPlugins
@@ -347,6 +344,7 @@ class CreateNewDatasourceTab extends React.Component<
           <CreateNewSaasIntegration
             active={false}
             isCreating={isCreating}
+            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
