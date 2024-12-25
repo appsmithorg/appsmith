@@ -1,8 +1,4 @@
-import {
-  entityExplorer,
-  jsEditor,
-} from "../../../../support/Objects/ObjectsCore";
-import { EntityExplorer } from "../../../../support/Pages/EntityExplorer";
+import { jsEditor } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "To test [Bug]: Action redesign: Focus shifts to another tab when renaming a JSObject #38207",
