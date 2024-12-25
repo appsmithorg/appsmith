@@ -75,7 +75,7 @@ function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   return EvaluationScriptPositions[scriptType];
 }
 
-function generateLintingGlobalData(
+export function generateLintingGlobalData(
   data: Record<string, unknown>,
   linterType = LINTER_TYPE.JSHINT,
 ) {
@@ -84,6 +84,8 @@ function generateLintingGlobalData(
   let globalData: Record<string, boolean | "readonly" | "writable"> = {};
 
   if (linterType === LINTER_TYPE.JSHINT) {
+    // TODO: cleanup jshint implementation once rollout is complete
+
     for (const dataKey in data) {
       globalData[dataKey] = true;
     }
