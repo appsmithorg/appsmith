@@ -34,6 +34,8 @@ export interface ListItemProps {
   wrapperClassName?: string;
   /** id for the list item */
   id?: string;
+  /** customTitleComponent for the list item to use input component for name editing */
+  customTitleComponent?: ReactNode | ReactNode[];
 }
 
 export interface ListProps {

@@ -87,7 +87,7 @@ const ListItemArgTypes = {
       },
     },
   },
-  rightContolVisibility: {
+  rightControlVisibility: {
     description:
       "`always` type will show the right control always. `hover` type will show the right control only when the list item is hovered.",
     control: "radio",
@@ -146,6 +146,15 @@ const ListItemArgTypes = {
       },
     },
   },
+  customTitleComponent: {
+    description:
+      "A custom title component for the list item to use input component for name editing",
+    table: {
+      type: {
+        summary: "ReactNode",
+      },
+    },
+  },
 };
 
 function ListItemTemplate(args: JSX.IntrinsicAttributes & ListItemProps) {
@@ -162,7 +171,6 @@ ListItemLargeStory.args = {
   descriptionType: "inline",
   size: "lg",
   rightControl: <Icon name="add-more" size={"md"} />,
-  rightControlVisibility: "hover",
 };
 
 export const ListItemErrorStory = ListItemTemplate.bind({}) as StoryObj;

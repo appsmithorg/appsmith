@@ -125,35 +125,39 @@ function ListItem(props: ListItemProps) {
         size={size}
       >
         {startIcon}
-        <InlineDescriptionWrapper>
-          <DescriptionWrapper>
-            <TextWithTooltip
-              className={ListItemTitleClassName}
-              color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
-            >
-              {title}
-            </TextWithTooltip>
-            {isBlockDescription && description && (
+        {props.customTitleComponent ? (
+          props.customTitleComponent
+        ) : (
+          <InlineDescriptionWrapper>
+            <DescriptionWrapper>
               <TextWithTooltip
-                className={ListItemBDescClassName}
+                className={ListItemTitleClassName}
+                color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
+              >
+                {title}
+              </TextWithTooltip>
+              {isBlockDescription && description && (
+                <TextWithTooltip
+                  className={ListItemBDescClassName}
+                  color="var(--ads-v2-color-fg-muted)"
+                  isMultiline
+                  kind="body-s"
+                >
+                  {description}
+                </TextWithTooltip>
+              )}
+            </DescriptionWrapper>
+            {!isBlockDescription && description && (
+              <TextWithTooltip
+                className={ListItemIDescClassName}
                 color="var(--ads-v2-color-fg-muted)"
-                isMultiline
                 kind="body-s"
               >
                 {description}
               </TextWithTooltip>
             )}
-          </DescriptionWrapper>
-          {!isBlockDescription && description && (
-            <TextWithTooltip
-              className={ListItemIDescClassName}
-              color="var(--ads-v2-color-fg-muted)"
-              kind="body-s"
-            >
-              {description}
-            </TextWithTooltip>
-          )}
-        </InlineDescriptionWrapper>
+          </InlineDescriptionWrapper>
+        )}
       </StyledListItem>
       {rightControl && (
         <RightControlWrapper>{rightControl}</RightControlWrapper>
