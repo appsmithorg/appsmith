@@ -1,12 +1,11 @@
 package com.appsmith.server.git;
 
 import com.appsmith.git.configurations.GitServiceConfig;
-import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.git.common.CommonGitService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -19,8 +18,6 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
@@ -40,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GitServerInitializerExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
     @Autowired
-    ApplicationService applicationService;
+    ArtifactService artifactService;
 
     @Autowired
     GitServiceConfig gitServiceConfig;
@@ -59,8 +56,7 @@ public class GitServerInitializerExtension implements BeforeAllCallback, BeforeE
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
         ExtensionContext.Store parentContextStore = extensionContext.getParent().get().getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
-        Class<? extends ArtifactExchangeJson> aClass = parentContextStore.get(ArtifactExchangeJson.class, Class.class);
-        String filePath = parentContextStore.get("filePath", String.class);
+        ArtifactType artifactType = parentContextStore.get("artifactType", ArtifactType.class);
         ExtensionContext.Store contextStore = extensionContext.getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
 
         String artifactId = contextStore.get(FieldName.ARTIFACT_ID, String.class);
@@ -68,7 +64,7 @@ public class GitServerInitializerExtension implements BeforeAllCallback, BeforeE
 
         // TODO : Move this to artifact service to enable packages
         // Generate RSA public key for the given artifact
-        Mono<GitAuth> gitAuthMono = applicationService.createOrUpdateSshKeyPair(artifactId, "RSA");
+        Mono<GitAuth> gitAuthMono = artifactService.createOrUpdateSshKeyPair(artifactType, artifactId, "RSA");
 
         String tedGitApiPath = "http://" + gitContainer.getHost() + ":" + gitContainer.getMappedPort(4200) + "/api/v1/git/";
 
