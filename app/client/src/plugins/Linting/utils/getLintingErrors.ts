@@ -38,7 +38,7 @@ import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
 import { objectKeys } from "@appsmith/utils";
-import { profileFn } from "UITelemetry/generateWebWorkerTraces";
+import { profileFn } from "instrumentation/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Linter } from "eslint-linter-browserify";

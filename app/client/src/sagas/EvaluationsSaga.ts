@@ -109,7 +109,7 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "ee/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
 import {
   getApplicationLastDeployedAt,

@@ -35,7 +35,6 @@
     "postcss-url",
     "@types/dom-view-transitions",
     "@types/jest",
-    "@sentry/webpack-plugin",
     "compression-webpack-plugin",
     "webpack-retry-chunk-load-plugin",
     "lint-staged",
@@ -47,6 +46,7 @@
     "@aws-sdk/lib-storage",
     "@octokit/rest",
     "@faker-js/faker",
+    "@grafana/faro-webpack-plugin",
     "pg",
     "factory.ts"
   ]

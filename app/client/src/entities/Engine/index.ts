@@ -19,8 +19,8 @@ import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 
 export interface AppEnginePayload {
   applicationId?: string;
