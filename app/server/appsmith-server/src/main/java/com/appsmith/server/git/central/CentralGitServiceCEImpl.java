@@ -1867,7 +1867,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
                     if (!baseArtifact.getId().equals(baseGitMetadata.getDefaultArtifactId())) {
                         log.error(
-                                "failed tp toggle auto commit. reason: {} is not the id of the base Artifact",
+                                "failed to toggle auto commit. reason: {} is not the id of the base Artifact",
                                 baseArtifactId);
                         throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default baseArtifact id");
                     }
