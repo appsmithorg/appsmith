@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";

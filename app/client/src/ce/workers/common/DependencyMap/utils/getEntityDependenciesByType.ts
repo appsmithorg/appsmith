@@ -3,7 +3,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type {
   ActionEntity,
   ActionEntityConfig,

@@ -2,7 +2,7 @@ import { Select, ListBoxItem } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import isNumber from "lodash/isNumber";
-import React from "react";
+import React, { type Key } from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -20,6 +20,9 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
+import isArray from "lodash/isArray";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -46,9 +49,8 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
 
   static getDependencyMap(): Record<string, string[]> {
     return {
-      optionLabel: ["options"],
-      optionValue: ["options"],
-      defaultOptionValue: ["options"],
+      optionLabel: ["sourceData"],
+      optionValue: ["sourceData"],
     };
   }
 
@@ -65,11 +67,13 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      selectedOption:
-        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
-      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
-      value: `{{this.selectedOptionValue}}`,
+      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValue}})()}}`,
+      selectedOptionLabel: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
@@ -90,6 +94,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return {};
   }
 
+  // in case default value changes, we need to reset isDirty to false
   componentDidUpdate(prevProps: WDSSelectWidgetProps): void {
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
@@ -103,8 +108,10 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return settersConfig;
   }
 
-  handleChange = (updatedValue: string | number) => {
+  handleChange = (updatedValue: Key | null) => {
     let newVal;
+
+    if (updatedValue === null) return;
 
     if (isNumber(updatedValue)) {
       newVal = updatedValue;
@@ -134,46 +141,39 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  optionsToSelectItems = (options: WDSSelectWidgetProps["options"]) => {
-    if (Array.isArray(options)) {
-      const items = options.map((option) => ({
-        label: option[this.props.optionLabel || "label"] as string,
-        id: option[this.props.optionValue || "value"] as string,
-      }));
-
-      const isValidItems = items.every(
-        (item) => item.label !== undefined && item.id !== undefined,
-      );
-
-      return isValidItems ? items : [];
-    }
-
-    return [];
-  };
-
   getWidgetView() {
-    const {
-      labelTooltip,
-      options,
-      placeholderText,
-      selectedOptionValue,
-      ...rest
-    } = this.props;
-
+    const { labelTooltip, placeholderText, selectedOptionValue, ...rest } =
+      this.props;
     const validation = validateInput(this.props);
+    const options = (isArray(this.props.options) ? this.props.options : []) as {
+      value: string;
+      label: string;
+    }[];
+    // This is key is used to force re-render of the widget when the options change.
+    // Why force re-render on   options change?
+    // When the user is changing options from propety pane, the select throws an error ( related to react-aria code ) saying "cannot change id of item" due
+    // change in options's id.
+    const key = options.map((option) => option.value).join(",");
 
     return (
       <Select
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
-        isInvalid={validation.validationStatus === "invalid"}
+        isInvalid={
+          validation.validationStatus === "invalid" && this.props.isDirty
+        }
+        key={key}
         onSelectionChange={this.handleChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       >
-        {this.optionsToSelectItems(options).map((option) => (
-          <ListBoxItem key={option.id} textValue={option.label}>
+        {options.map((option) => (
+          <ListBoxItem
+            id={option.value}
+            key={option.value}
+            textValue={option.label}
+          >
             {option.label}
           </ListBoxItem>
         ))}

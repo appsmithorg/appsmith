@@ -17,7 +17,6 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -722,13 +721,7 @@ export const updateEvaluatedSectionConfig = (
   // leaving the commented code as a reminder of the above observation.
   // const updatedSection = { ...section };
 
-  const updatedSection = startAndEndSpanForFn(
-    "klona",
-    {
-      codeSegment: "utils.updateEvaluatedSectionConfig",
-    },
-    () => klona(section),
-  );
+  const updatedSection = klona(section);
 
   let evaluatedConfig: FormConfigEvalObject = {};
 

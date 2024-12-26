@@ -8,9 +8,18 @@ export const settersConfig = {
       path: "isDisabled",
       type: "boolean",
     },
-    setData: {
+    setRequired: {
+      path: "isRequired",
+      type: "boolean",
+    },
+    setOptions: {
       path: "options",
       type: "array",
+    },
+    setSelectedOption: {
+      path: "defaultOptionValue",
+      type: "string",
+      accessor: "selectedOptionValue",
     },
   },
 };
