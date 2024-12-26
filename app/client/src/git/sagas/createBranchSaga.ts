@@ -10,8 +10,8 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
-import { captureException } from "@sentry/react";
 import log from "loglevel";
+import { captureException } from "instrumentation";
 
 export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,

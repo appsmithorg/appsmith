@@ -774,7 +774,7 @@ function* handleApiNameChangeSuccessSaga(
         actionId,
         show: true,
         error: { message: createMessage(ERROR_ACTION_RENAME_FAIL, "") },
-        logToSentry: true,
+        logToMonitoring: true,
       },
     });
 

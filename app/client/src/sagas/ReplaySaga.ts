@@ -8,7 +8,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
 import {
@@ -83,6 +82,7 @@ import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import { captureException } from "instrumentation";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -132,7 +132,7 @@ export function* openPropertyPaneSaga(replay: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e);
   }
 }
 
@@ -164,7 +164,7 @@ export function* postUndoRedoSaga(replay: any) {
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e);
   }
 }
 
@@ -257,7 +257,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     }
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    captureException(e);
   }
 }
 

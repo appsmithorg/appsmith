@@ -11,7 +11,7 @@ import type { SnapshotDetails } from "reducers/uiReducers/layoutConversionReduce
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getLogToSentryFromResponse } from "utils/helpers";
+import { getLogToMonitoringFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -32,7 +32,7 @@ export function* createSnapshotSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -57,14 +57,14 @@ export function* fetchSnapshotSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
       return response?.data;
     }
   } catch (error) {
-    if (getLogToSentryFromResponse(response)) {
+    if (getLogToMonitoringFromResponse(response)) {
       log.error(error);
       throw error;
     }
@@ -96,7 +96,7 @@ function* restoreApplicationFromSnapshotSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     // update the pages list temporarily with incomplete data.
@@ -167,7 +167,7 @@ export function* deleteApplicationSnapshotSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {

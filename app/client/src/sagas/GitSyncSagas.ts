@@ -117,7 +117,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { initEditorAction } from "actions/initActions";
 import { fetchPageAction } from "actions/pageActions";
-import { getLogToSentryFromResponse } from "utils/helpers";
+import { getLogToMonitoringFromResponse } from "utils/helpers";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { log } from "loglevel";
@@ -171,7 +171,7 @@ function* commitToGitRepoSaga(
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -238,7 +238,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -301,7 +301,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
         },
       });
     } else {
-      // Unexpected non api error: report to sentry
+      // Unexpected non api error: report to monitoring
       throw error;
     }
   }
@@ -315,7 +315,7 @@ function* fetchGlobalGitConfig() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -347,7 +347,7 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       true,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -382,7 +382,7 @@ function* switchBranch(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       true,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (!response || !isValidResponse) {
@@ -473,7 +473,7 @@ function* fetchBranches(action: ReduxAction<{ pruneBranches: boolean }>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -502,7 +502,7 @@ function* fetchLocalGitConfig() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -535,7 +535,7 @@ function* createNewBranch(
     const isValidResponse: boolean = yield validateResponse(
       response,
       true,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -575,7 +575,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -612,7 +612,7 @@ function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -667,7 +667,7 @@ function* mergeBranchSaga(
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -709,7 +709,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -740,7 +740,7 @@ function* gitPullSaga(
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -810,7 +810,7 @@ function* disconnectGitSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -873,7 +873,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -948,7 +948,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         },
       });
     } else {
-      // Unexpected non api error: report to sentry
+      // Unexpected non api error: report to monitoring
       log(error);
       throw error;
     }
@@ -1038,7 +1038,7 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1065,7 +1065,7 @@ function* discardChanges({
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1109,7 +1109,7 @@ function* fetchGitProtectedBranchesSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1152,7 +1152,7 @@ function* updateGitProtectedBranchesSaga({
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1189,7 +1189,7 @@ function* toggleAutocommitSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1233,7 +1233,7 @@ function* getGitMetadataSaga() {
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToMonitoringFromResponse(response),
     );
 
     if (isValidResponse) {
@@ -1287,7 +1287,7 @@ function* pollAutocommitProgressSaga(): any {
     const isValidResponse: boolean = yield validateResponse(
       res,
       false,
-      getLogToSentryFromResponse(res),
+      getLogToMonitoringFromResponse(res),
     );
 
     if (isValidResponse) {
@@ -1315,7 +1315,7 @@ function* pollAutocommitProgressSaga(): any {
         const isValidResponse: boolean = yield validateResponse(
           progressResponse,
           false,
-          getLogToSentryFromResponse(progressResponse),
+          getLogToMonitoringFromResponse(progressResponse),
         );
 
         if (isValidResponse) {

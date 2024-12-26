@@ -9,7 +9,6 @@ import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "api/PluginApi";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   checkIfSectionCanRender,
@@ -26,6 +25,7 @@ import { Spinner, Text } from "@appsmith/ads";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import { Section, Zone } from "../ActionForm";
+import { captureException } from "instrumentation";
 
 interface Props {
   // TODO: Fix this the next time the file is edited
@@ -103,7 +103,7 @@ const FormRender = (props: Props) => {
       }
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e);
 
       return (
         <ErrorComponent

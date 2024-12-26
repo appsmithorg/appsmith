@@ -1,10 +1,10 @@
 import { Doc, Map, UndoManager } from "yjs";
-import { captureException } from "@sentry/react";
 import type { Diff } from "deep-diff";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { getPathsFromDiff } from "./replayUtils";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { captureException } from "instrumentation";
 
 const _DIFF_ = "diff";
 
@@ -164,9 +164,9 @@ export default abstract class ReplayEntity<T> {
         applyDiff(this.entity, true, diff);
       } catch (e) {
         captureException(e, {
-          extra: {
-            diff,
-            updateLength: diffs.length,
+          context: {
+            diff: JSON.stringify(diff),
+            updateLength: diffs.length.toString(),
           },
         });
       }

@@ -51,8 +51,8 @@ import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
-import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
+import { captureException } from "instrumentation";
+
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
   const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
@@ -114,10 +114,9 @@ export function Login(props: LoginFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
-    Sentry.captureException("Login failed", {
-      level: Severity.Error,
-      extra: {
-        error: new Error(errorMessage),
+    captureException("Login failed", {
+      context: {
+        errorMessage,
       },
     });
   }

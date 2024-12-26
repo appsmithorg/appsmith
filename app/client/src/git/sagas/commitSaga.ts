@@ -1,5 +1,4 @@
 import { call, put } from "redux-saga/effects";
-import { captureException } from "@sentry/react";
 import log from "loglevel";
 import type { CommitInitPayload } from "../store/actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
@@ -13,6 +12,7 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import { captureException } from "instrumentation";
 
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,

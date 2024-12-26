@@ -3,7 +3,6 @@ import { call, take, select, put, actionChannel } from "redux-saga/effects";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import type {
@@ -31,6 +30,7 @@ import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { captureException } from "instrumentation";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -311,7 +311,7 @@ export default function* formEvaluationChangeListener() {
       yield call(formEvaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e);
     }
   }
 }

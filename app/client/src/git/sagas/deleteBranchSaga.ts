@@ -11,7 +11,7 @@ import { call, put } from "redux-saga/effects";
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
-import { captureException } from "@sentry/react";
+import { captureException } from "instrumentation";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
