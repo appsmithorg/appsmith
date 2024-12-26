@@ -114,7 +114,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     private final TransactionalOperator transactionalOperator;
     private final ObservationRegistry observationRegistry;
 
-
     protected static final String ORIGIN = "origin/";
     protected static final String REMOTE_NAME_REPLACEMENT = "";
 
@@ -1776,52 +1775,55 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<List<String>> updateProtectedBranches(
-        String baseArtifactId, List<String> branchNames, ArtifactType artifactType) {
+            String baseArtifactId, List<String> branchNames, ArtifactType artifactType) {
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        AclPermission artifactManageProtectedBranchPermission = gitArtifactHelper.getArtifactManageProtectedBranchPermission();
+        AclPermission artifactManageProtectedBranchPermission =
+                gitArtifactHelper.getArtifactManageProtectedBranchPermission();
 
         Mono<? extends Artifact> baseArtifactMono =
-            gitArtifactHelper.getArtifactById(baseArtifactId, artifactManageProtectedBranchPermission);
+                gitArtifactHelper.getArtifactById(baseArtifactId, artifactManageProtectedBranchPermission);
 
         return baseArtifactMono
-            .flatMap(baseArtifact -> {
-                GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-                final String defaultBranchName = baseGitData.getDefaultBranchName();
-                final List<String> incomingProtectedBranches =  CollectionUtils.isEmpty(branchNames) ? new ArrayList<>() : branchNames;
+                .flatMap(baseArtifact -> {
+                    GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
+                    final String defaultBranchName = baseGitData.getDefaultBranchName();
+                    final List<String> incomingProtectedBranches =
+                            CollectionUtils.isEmpty(branchNames) ? new ArrayList<>() : branchNames;
 
-                // user cannot protect multiple branches
-                if (incomingProtectedBranches.size() > 1) {
-                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                }
+                    // user cannot protect multiple branches
+                    if (incomingProtectedBranches.size() > 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
-                // user cannot protect a branch which is not default
-                if (incomingProtectedBranches.size() == 1
-                    && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
-                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                }
+                    // user cannot protect a branch which is not default
+                    if (incomingProtectedBranches.size() == 1
+                            && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
-                return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
-            })
-            .as(transactionalOperator::transactional);
+                    return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
+                })
+                .as(transactionalOperator::transactional);
     }
 
     protected Mono<List<String>> updateProtectedBranchesInArtifactAfterVerification(
-        Artifact baseArtifact, List<String> branchNames) {
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+            Artifact baseArtifact, List<String> branchNames) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
         GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
 
         // keep a copy of old protected branches as it's required to send analytics event later
         List<String> oldProtectedBranches = baseGitData.getBranchProtectionRules() == null
-            ? new ArrayList<>()
-            : baseGitData.getBranchProtectionRules();
+                ? new ArrayList<>()
+                : baseGitData.getBranchProtectionRules();
 
         baseGitData.setBranchProtectionRules(branchNames);
         return gitArtifactHelper
-            .saveArtifact(baseArtifact)
-            .then(gitArtifactHelper.updateArtifactWithProtectedBranches(baseArtifact.getId(), branchNames))
-            .then(gitAnalyticsUtils.sendBranchProtectionAnalytics(baseArtifact, oldProtectedBranches, branchNames))
-            .thenReturn(branchNames);
+                .saveArtifact(baseArtifact)
+                .then(gitArtifactHelper.updateArtifactWithProtectedBranches(baseArtifact.getId(), branchNames))
+                .then(gitAnalyticsUtils.sendBranchProtectionAnalytics(baseArtifact, oldProtectedBranches, branchNames))
+                .thenReturn(branchNames);
     }
 
     @Override
@@ -1831,7 +1833,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
 
         Mono<? extends Artifact> baseArtifactMono =
-            gitArtifactHelper.getArtifactById(baseArtifactId, artifactEditPermission);
+                gitArtifactHelper.getArtifactById(baseArtifactId, artifactEditPermission);
 
         return baseArtifactMono.map(defaultArtifact -> {
             GitArtifactMetadata gitArtifactMetadata = defaultArtifact.getGitArtifactMetadata();
@@ -1850,7 +1852,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         });
     }
 
-
     @Override
     public Mono<Boolean> toggleAutoCommitEnabled(String baseArtifactId, ArtifactType artifactType) {
 
@@ -1858,41 +1859,40 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         AclPermission artifactAutoCommitPermission = gitArtifactHelper.getArtifactAutoCommitPermission();
 
         Mono<? extends Artifact> baseArtifactMono =
-            gitArtifactHelper.getArtifactById(baseArtifactId, artifactAutoCommitPermission);
+                gitArtifactHelper.getArtifactById(baseArtifactId, artifactAutoCommitPermission);
         // get base app
 
         return baseArtifactMono
-            .map(baseArtifact -> {
-                GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
-                if (!baseArtifact.getId().equals(baseGitMetadata.getDefaultArtifactId())) {
-                    log.error(
-                        "failed tp toggle auto commit. reason: {} is not the id of the base Artifact",
-                        baseArtifactId);
-                    throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default baseArtifact id");
-                }
+                .map(baseArtifact -> {
+                    GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+                    if (!baseArtifact.getId().equals(baseGitMetadata.getDefaultArtifactId())) {
+                        log.error(
+                                "failed tp toggle auto commit. reason: {} is not the id of the base Artifact",
+                                baseArtifactId);
+                        throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "default baseArtifact id");
+                    }
 
-                AutoCommitConfig autoCommitConfig = baseGitMetadata.getAutoCommitConfig();
-                if (autoCommitConfig.getEnabled()) {
-                    autoCommitConfig.setEnabled(FALSE);
-                } else {
-                    autoCommitConfig.setEnabled(TRUE);
-                }
-                // need to call the setter because getter returns a default config if attribute is null
-                baseArtifact.getGitArtifactMetadata().setAutoCommitConfig(autoCommitConfig);
-                return baseArtifact;
-            })
-            .flatMap(baseArtifact -> gitArtifactHelper
-                .saveArtifact(baseArtifact)
-                .thenReturn(baseArtifact
-                    .getGitArtifactMetadata()
-                    .getAutoCommitConfig()
-                    .getEnabled()));
+                    AutoCommitConfig autoCommitConfig = baseGitMetadata.getAutoCommitConfig();
+                    if (autoCommitConfig.getEnabled()) {
+                        autoCommitConfig.setEnabled(FALSE);
+                    } else {
+                        autoCommitConfig.setEnabled(TRUE);
+                    }
+                    // need to call the setter because getter returns a default config if attribute is null
+                    baseArtifact.getGitArtifactMetadata().setAutoCommitConfig(autoCommitConfig);
+                    return baseArtifact;
+                })
+                .flatMap(baseArtifact -> gitArtifactHelper
+                        .saveArtifact(baseArtifact)
+                        .thenReturn(baseArtifact
+                                .getGitArtifactMetadata()
+                                .getAutoCommitConfig()
+                                .getEnabled()));
     }
 
     @Override
     public Mono<AutoCommitResponseDTO> getAutoCommitProgress(
-        String artifactId, String branchName, ArtifactType artifactType) {
+            String artifactId, String branchName, ArtifactType artifactType) {
         return gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName);
     }
-
 }

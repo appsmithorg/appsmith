@@ -57,12 +57,12 @@ public interface CentralGitServiceCE {
             String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType);
 
     Mono<List<String>> updateProtectedBranches(
-        String baseArtifactId, List<String> branchNames, ArtifactType artifactType);
+            String baseArtifactId, List<String> branchNames, ArtifactType artifactType);
 
     Mono<List<String>> getProtectedBranches(String baseArtifactId, ArtifactType artifactType);
 
     Mono<Boolean> toggleAutoCommitEnabled(String baseArtifactId, ArtifactType artifactType);
 
-    Mono<AutoCommitResponseDTO> getAutoCommitProgress(String baseArtifactId, String branchName, ArtifactType artifactType);
-
+    Mono<AutoCommitResponseDTO> getAutoCommitProgress(
+            String baseArtifactId, String branchName, ArtifactType artifactType);
 }

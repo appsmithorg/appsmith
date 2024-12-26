@@ -166,7 +166,7 @@ public class GitAnalyticsUtils {
      * @return An empty Mono
      */
     public Mono<Void> sendBranchProtectionAnalytics(
-        Artifact artifact, List<String> oldProtectedBranches, List<String> newProtectedBranches) {
+            Artifact artifact, List<String> oldProtectedBranches, List<String> newProtectedBranches) {
         List<String> itemsAdded = new ArrayList<>(newProtectedBranches); // add all new items
         itemsAdded.removeAll(oldProtectedBranches); // remove the items that were present earlier
 

@@ -23,9 +23,43 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Slf4j
 @Service
 public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
-    implements CentralGitServiceCECompatible {
+        implements CentralGitServiceCECompatible {
 
-    public CentralGitServiceCECompatibleImpl(GitRedisUtils gitRedisUtils, GitProfileUtils gitProfileUtils, GitAnalyticsUtils gitAnalyticsUtils, UserDataService userDataService, SessionUserService sessionUserService, GitArtifactHelperResolver gitArtifactHelperResolver, GitHandlingServiceResolver gitHandlingServiceResolver, GitPrivateRepoHelper gitPrivateRepoHelper, DatasourceService datasourceService, DatasourcePermission datasourcePermission, WorkspaceService workspaceService, PluginService pluginService, ImportService importService, ExportService exportService, GitAutoCommitHelper gitAutoCommitHelper, TransactionalOperator transactionalOperator, ObservationRegistry observationRegistry) {
-        super(gitRedisUtils, gitProfileUtils, gitAnalyticsUtils, userDataService, sessionUserService, gitArtifactHelperResolver, gitHandlingServiceResolver, gitPrivateRepoHelper, datasourceService, datasourcePermission, workspaceService, pluginService, importService, exportService, gitAutoCommitHelper, transactionalOperator, observationRegistry);
+    public CentralGitServiceCECompatibleImpl(
+            GitRedisUtils gitRedisUtils,
+            GitProfileUtils gitProfileUtils,
+            GitAnalyticsUtils gitAnalyticsUtils,
+            UserDataService userDataService,
+            SessionUserService sessionUserService,
+            GitArtifactHelperResolver gitArtifactHelperResolver,
+            GitHandlingServiceResolver gitHandlingServiceResolver,
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            DatasourceService datasourceService,
+            DatasourcePermission datasourcePermission,
+            WorkspaceService workspaceService,
+            PluginService pluginService,
+            ImportService importService,
+            ExportService exportService,
+            GitAutoCommitHelper gitAutoCommitHelper,
+            TransactionalOperator transactionalOperator,
+            ObservationRegistry observationRegistry) {
+        super(
+                gitRedisUtils,
+                gitProfileUtils,
+                gitAnalyticsUtils,
+                userDataService,
+                sessionUserService,
+                gitArtifactHelperResolver,
+                gitHandlingServiceResolver,
+                gitPrivateRepoHelper,
+                datasourceService,
+                datasourcePermission,
+                workspaceService,
+                pluginService,
+                importService,
+                exportService,
+                gitAutoCommitHelper,
+                transactionalOperator,
+                observationRegistry);
     }
 }
