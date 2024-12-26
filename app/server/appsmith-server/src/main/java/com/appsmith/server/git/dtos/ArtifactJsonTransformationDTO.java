@@ -1,7 +1,7 @@
 package com.appsmith.server.git.dtos;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.constants.ArtifactType;
-import com.appsmith.server.constants.ce.RefType;
 import lombok.Data;
 
 // TODO: Find a better name for this DTO

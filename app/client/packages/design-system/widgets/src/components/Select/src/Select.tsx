@@ -1,10 +1,12 @@
 import React from "react";
 import {
-  FieldError,
-  FieldLabel,
   ListBox,
-  inputFieldStyles,
   Popover,
+  FieldLabel,
+  FieldError,
+  inputFieldStyles,
+  useRootContainer,
+  POPOVER_LIST_BOX_MAX_HEIGHT,
 } from "@appsmith/wds";
 import { Select as HeadlessSelect } from "react-aria-components";
 
@@ -24,9 +26,7 @@ export const Select = (props: SelectProps) => {
     size = "medium",
     ...rest
   } = props;
-  const root = document.body.querySelector(
-    "[data-theme-provider]",
-  ) as HTMLButtonElement;
+  const root = useRootContainer();
 
   return (
     <HeadlessSelect
@@ -52,7 +52,10 @@ export const Select = (props: SelectProps) => {
             size={size}
           />
           <FieldError>{errorMessage}</FieldError>
-          <Popover UNSTABLE_portalContainer={root}>
+          <Popover
+            UNSTABLE_portalContainer={root}
+            maxHeight={POPOVER_LIST_BOX_MAX_HEIGHT}
+          >
             <ListBox shouldFocusWrap>{children}</ListBox>
           </Popover>
         </>

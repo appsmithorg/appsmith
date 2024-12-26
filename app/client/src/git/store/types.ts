@@ -1,8 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
   GitArtifactType,
-  GitConnectStep,
-  GitImportStep,
   GitOpsTab,
   GitSettingsTab,
 } from "../constants/enums";
@@ -11,30 +9,35 @@ import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
-import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
+import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
-
-export type GitSSHKey = Record<string, unknown>;
+import type { FetchSSHKeyResponseData } from "git/requests/fetchSSHKeyRequest.types";
+import type {
+  GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
+  GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
+} from "git/ee/store/types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
   referenceDoc?: string;
   title?: string;
 }
-interface GitAsyncState<T = unknown> {
+export interface GitAsyncState<T = unknown> {
   value: T | null;
   loading: boolean;
   error: GitApiError | null;
 }
 
-interface GitAsyncStateWithoutValue {
+export interface GitAsyncStateWithoutValue {
   loading: boolean;
   error: GitApiError | null;
 }
-export interface GitSingleArtifactAPIResponsesReduxState {
-  metadata: GitAsyncState<FetchGitMetadataResponseData>;
+export interface GitSingleArtifactAPIResponsesReduxState
+  extends GitArtifactAPIResponsesReduxStateExtended {
+  metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
+  gitImport: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
   pull: GitAsyncStateWithoutValue;
@@ -53,34 +56,25 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   autocommitProgress: GitAsyncStateWithoutValue;
   toggleAutocommit: GitAsyncStateWithoutValue;
   triggerAutocommit: GitAsyncStateWithoutValue;
-  sshKey: GitAsyncState<GitSSHKey>;
+  sshKey: GitAsyncState<FetchSSHKeyResponseData>;
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
-export interface GitSingleArtifactUIReduxState {
-  connectModal: {
-    open: boolean;
-    step: keyof typeof GitConnectStep;
-  };
-  importModal: {
-    open: boolean;
-    step: keyof typeof GitImportStep;
-  };
-  branchListPopup: {
-    open: boolean;
-  };
+export interface GitSingleArtifactUIReduxState
+  extends GitArtifactUIReduxStateExtended {
+  connectModalOpen: boolean;
+  disconnectBaseArtifactId: string | null;
+  disconnectArtifactName: string | null;
+  branchPopupOpen: boolean;
+  checkoutDestBranch: string | null;
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
-  conflictErrorModalOpen: boolean;
-  settingsModal: {
-    open: boolean;
-    tab: keyof typeof GitSettingsTab;
-  };
-  repoLimitErrorModal: {
-    open: boolean;
-  };
+  settingsModalOpen: boolean;
+  settingsModalTab: keyof typeof GitSettingsTab;
+  autocommitDisableModalOpen: boolean;
   autocommitPolling: boolean;
-  autocommitModalOpen: boolean;
+  conflictErrorModalOpen: boolean;
+  repoLimitErrorModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;

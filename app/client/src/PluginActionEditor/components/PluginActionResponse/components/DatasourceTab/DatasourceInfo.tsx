@@ -55,7 +55,7 @@ const DatasourceInfo = ({
         datasourceName={datasourceName}
         plugin={plugin}
       />
-      {showEditButton && (
+      {showEditButton && datasourceName && (
         <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
           <Button
             isIconButton

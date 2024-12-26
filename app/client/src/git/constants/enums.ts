@@ -4,18 +4,6 @@ export enum GitArtifactType {
   Workflow = "Workflow",
 }
 
-export enum GitConnectStep {
-  Provider = "Provider",
-  Remote = "Remote",
-  SSH = "SSH",
-}
-
-export enum GitImportStep {
-  Provider = "Provider",
-  remote = "remote",
-  SSH = "SSH",
-}
-
 export enum GitOpsTab {
   Deploy = "Deploy",
   Merge = "Merge",
@@ -24,6 +12,7 @@ export enum GitOpsTab {
 export enum GitSettingsTab {
   General = "General",
   Branch = "Branch",
+  ContinuousDelivery = "ContinuousDelivery",
 }
 
 export enum AutocommitStatusState {
@@ -44,6 +33,7 @@ export enum MergeStatusState {
 }
 
 export enum GitErrorCodes {
+  REPO_NOT_EMPTY = "AE-GIT-4033",
   REPO_LIMIT_REACHED = "AE-GIT-4043",
   PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD = "AE-GIT-4048",
 }

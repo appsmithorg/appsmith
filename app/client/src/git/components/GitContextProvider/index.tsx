@@ -1,9 +1,22 @@
-import React, { createContext, useContext } from "react";
-import type {
-  GitContextValue,
-  UseGitContextValueParams,
-} from "./hooks/useGitContextValue";
-import useGitContextValue from "./hooks/useGitContextValue";
+import React, { createContext, useCallback, useContext, useMemo } from "react";
+import type { GitArtifactType } from "git/constants/enums";
+import type { ApplicationPayload } from "entities/Application";
+import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
+import type { StatusTreeStruct } from "../StatusChanges/StatusTree";
+import { useDispatch } from "react-redux";
+
+export interface GitContextValue {
+  artifactDef: {
+    artifactType: keyof typeof GitArtifactType;
+    baseArtifactId: string;
+  };
+  artifact: ApplicationPayload | null;
+  statusTransformer: (
+    status: FetchStatusResponseData,
+  ) => StatusTreeStruct[] | null;
+  setImportWorkspaceId: () => void;
+  isCreateArtifactPermitted: boolean;
+}
 
 const gitContextInitialValue = {} as GitContextValue;
 
@@ -13,17 +26,65 @@ export const useGitContext = () => {
   return useContext(GitContext);
 };
 
-interface GitContextProviderProps extends UseGitContextValueParams {
+interface GitContextProviderProps {
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
+  artifact: ApplicationPayload | null;
+  isCreateArtifactPermitted: boolean;
+  setWorkspaceIdForImport: (params: {
+    workspaceId: string;
+    editorId: string;
+  }) => void;
+  statusTransformer: (
+    status: FetchStatusResponseData,
+  ) => StatusTreeStruct[] | null;
   children: React.ReactNode;
-  // extra
-  // connectPermitted?: boolean;
 }
 
 export default function GitContextProvider({
+  artifact = null,
+  artifactType,
+  baseArtifactId,
   children,
-  ...useContextValueParams
+  isCreateArtifactPermitted,
+  setWorkspaceIdForImport,
+  statusTransformer,
 }: GitContextProviderProps) {
-  const contextValue = useGitContextValue(useContextValueParams);
+  const artifactDef = useMemo(
+    () => ({ artifactType, baseArtifactId }),
+    [artifactType, baseArtifactId],
+  );
+
+  const dispatch = useDispatch();
+
+  const { id: artifactId, workspaceId } = artifact ?? {};
+  const setImportWorkspaceId = useCallback(() => {
+    if (workspaceId) {
+      dispatch(
+        setWorkspaceIdForImport({
+          workspaceId: workspaceId ?? "",
+          editorId: artifactId ?? "",
+        }),
+      );
+    }
+  }, [artifactId, dispatch, setWorkspaceIdForImport, workspaceId]);
+
+  const contextValue: GitContextValue = useMemo(
+    () => ({
+      artifactDef,
+      artifact,
+      statusTransformer,
+      isCreateArtifactPermitted,
+      setImportWorkspaceId,
+    }),
+    [
+      artifactDef,
+      artifact,
+      statusTransformer,
+      isCreateArtifactPermitted,
+      setImportWorkspaceId,
+    ],
+  );
 
   return (
     <GitContext.Provider value={contextValue}>{children}</GitContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Flex, List, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
@@ -17,17 +17,18 @@ import { useLocation } from "react-router";
 import {
   createMessage,
   DATA_PANE_TITLE,
+  DATASOURCE_BLANK_STATE_CTA,
   DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "ee/constants/messages";
 import PaneHeader from "./PaneHeader";
 import { useEditorType } from "ee/hooks";
-import { INTEGRATION_TABS } from "../../../../constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { EmptyState } from "../EditorPane/components/EmptyState";
+import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
@@ -86,13 +87,24 @@ const DataSidePane = (props: DataSidePaneProps) => {
     userWorkspacePermissions,
   );
 
-  const addButtonClickHandler = () =>
+  const addButtonClickHandler = useCallback(() => {
     history.push(
       integrationEditorURL({
         basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
+  }, [basePageId]);
+
+  const blankStateButtonProps = useMemo(
+    () => ({
+      className: "t--add-datasource-button-blank-screen",
+      testId: "t--add-datasource-button-blank-screen",
+      text: createMessage(DATASOURCE_BLANK_STATE_CTA),
+      onClick: canCreateDatasource ? addButtonClickHandler : undefined,
+    }),
+    [addButtonClickHandler, canCreateDatasource],
+  );
 
   return (
     <Flex
@@ -112,11 +124,9 @@ const DataSidePane = (props: DataSidePaneProps) => {
       <PaneBody>
         {datasources.length === 0 ? (
           <EmptyState
-            buttonClassName={"t--add-datasource-button-blank-screen"}
-            buttonText={"Bring your data"}
+            button={blankStateButtonProps}
             description={createMessage(DATASOURCE_LIST_BLANK_DESCRIPTION)}
             icon={"datasource-v3"}
-            onClick={canCreateDatasource ? addButtonClickHandler : undefined}
           />
         ) : null}
         <Flex

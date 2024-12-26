@@ -1,0 +1,25 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as EditorSegmentsStories from "./EditorSegments.stories";
+
+<Meta of={EditorSegmentsStories} />
+
+# Editor Segments
+
+Editor Segments is is built on top of the ADS component - Segmented Control. It is a preset template built for Entity Explorer which has a `max-width of 247px` and has extra padding around each of the segments.
+
+Editor Segments present a range of options, and should be used when the user can execute those options instantaneously. It can also accept `children` to add more UI controls, if needed. These will be placed on the right side of the segments. It takes `options`, `selectedSegment` and `onSegmentChange` props to handle the value and onChange functionalities of Segmented Control component.
+
+The options presented should not be binary. If you have a `yes | no` scenario, use a switch, instead.
+
+## Anatomy
+
+### Default implementation
+
+Note: The `options` needs to be passed as required, the UI shown below are not default values being provided to the Editor segments. It also means the `selectedSegment` and `onSegmentChange` props needs to be passed as well.
+
+<Canvas of={EditorSegmentsStories.EditorSegmentsStory} />
+
+### More UI controls
+
+<Canvas of={EditorSegmentsStories.EditorSegmentsStoryWithChildren} />
