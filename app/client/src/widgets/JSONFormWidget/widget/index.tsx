@@ -67,7 +67,7 @@ import {
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
 import { createMessage } from "ee/constants/messages";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {

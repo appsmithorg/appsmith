@@ -81,8 +81,8 @@ jobs:
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
-         echo "One or more files in the server folder has changed."
-         echo "List all the files that have changed: $ALL_CHANGED_FILES"
+          echo "One or more files in the server folder has changed."
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
@@ -166,6 +166,11 @@ jobs:
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+          REACT_APP_FARO_APP_ID=${{ secrets.REACT_APP_FARO_APP_ID }} \
+          REACT_APP_FARO_APP_NAME=${{ secrets.REACT_APP_FARO_APP_NAME }} \
+          REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY }} \
+          REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT }} \
+          REACT_APP_FARO_STACK_ID=${{ secrets.REACT_APP_FARO_STACK_ID }} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_EDITION="Community" \

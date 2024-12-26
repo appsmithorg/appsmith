@@ -18,8 +18,8 @@ import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { selectGitCurrentBranch } from "selectors/gitModSelectors";
 import { applicationArtifact } from "git/artifact-helpers/application";
 

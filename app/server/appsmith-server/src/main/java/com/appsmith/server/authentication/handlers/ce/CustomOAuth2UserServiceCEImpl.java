@@ -47,9 +47,7 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
 
         String username = oAuth2User.getName();
 
-        return repository
-                .findByEmail(username)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(username))
+        return this.findByUsername(username)
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     newUser.setName(oAuth2User.getName());
@@ -75,5 +73,11 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
                         // This is to differentiate between Appsmith exceptions and OAuth2 exceptions
                         error -> new AppsmithOAuth2AuthenticationException(
                                 new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
+    }
+
+    protected Mono<User> findByUsername(String email) {
+        return repository
+                .findByEmail(email)
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email));
     }
 }
