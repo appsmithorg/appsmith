@@ -155,7 +155,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
   position: absolute;
   z-index: 100000;
   max-width: 300px;
-  top: 125%;
+  bottom: 125%;
   left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
   margin-left: -60px;
 
@@ -172,7 +172,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: transparent transparent var(--ads-v2-color-bg-emphasis-max)
+    border-color: var(--ads-v2-color-bg-emphasis-max) transparent transparent
       transparent;
   }
 

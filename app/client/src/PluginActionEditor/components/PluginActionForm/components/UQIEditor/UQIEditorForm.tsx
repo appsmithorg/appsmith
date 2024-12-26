@@ -23,6 +23,7 @@ const UQIEditorForm = () => {
       alignItems="center"
       data-testid="t--uqi-editor-form"
       flexDirection="column"
+      overflowY="scroll"
       w="100%"
     >
       <FormRender

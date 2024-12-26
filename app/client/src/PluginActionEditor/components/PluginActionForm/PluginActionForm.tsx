@@ -12,7 +12,7 @@ const PluginActionForm = () => {
   const { plugin } = usePluginActionContext();
 
   return (
-    <Flex flex="1" overflow="auto" p="spaces-4" w="100%">
+    <Flex flex="1" overflow="hidden" p="spaces-4" w="100%">
       {plugin.uiComponent === UIComponentTypes.ApiEditorForm && (
         <APIEditorForm />
       )}
