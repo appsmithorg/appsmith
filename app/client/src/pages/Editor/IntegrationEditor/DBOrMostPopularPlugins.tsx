@@ -220,6 +220,7 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
               !!showMostPopularPlugins ? (
                 <DatasourceItem
                   className="t--createBlankApiCard create-new-api"
+                  dataCardWrapperTestId="newapi-datasource-content-wrapper"
                   handleOnClick={this.handleOnClick}
                   icon={getAssetUrl(`${ASSETS_CDN_URL}/plus.png`)}
                   key={`${plugin.id}_${idx}`}
@@ -228,6 +229,9 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
               ) : null
             ) : (
               <DatasourceItem
+                dataCardImageTestId="database-datasource-image"
+                dataCardTestId="database-datasource-card"
+                dataCardWrapperTestId="database-datasource-content-wrapper"
                 handleOnClick={() => {
                   AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
                     appName: currentApplication?.name,

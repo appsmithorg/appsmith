@@ -1,5 +1,16 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+# cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/BugTests/DS_Bug26716_Spec.ts
+cypress/e2e/Regression/ClientSide/BugTests/DS_Bug28750_Spec.ts
+cypress/e2e/Regression/ClientSide/BugTests/DatasourceSchema_spec.ts
+cypress/e2e/Regression/ClientSide/Google/EnableGoogle_spec.js
+cypress/e2e/Regression/ClientSide/MobileResponsiveTests/ConversionFlow_Generated_App_spec.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/PropertyControl_spec.ts
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/EntityBottomBar_spec.ts
+cypress/e2e/Regression/ServerSide/OnLoadTests/JSOnLoad_cyclic_dependency_errors_spec.js
+cypress/e2e/Sanity/Datasources/MockDBs_Spec.ts
+cypress/e2e/Sanity/Datasources/Styles_spec.js
+cypress/e2e/Smoke/GenerateCRUD/Generate_Crud_New_Page_spec.ts
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 

@@ -14,10 +14,20 @@ interface DatasourceItem {
   description?: string;
   handleOnClick: () => unknown;
   rightSibling?: ReactNode;
+  dataNameTestId?: string;
+  dataCardTestId?: string;
+  dataCardWrapperTestId?: string;
+  dataCardDescriptionTestId?: string;
+  dataCardImageTestId?: string;
 }
 
 export default function DatasourceItem({
   className,
+  dataCardDescriptionTestId = "datasource-description",
+  dataCardImageTestId = "datasource-image",
+  dataCardTestId = "datasource-card",
+  dataCardWrapperTestId = "datasource-content-wrapper",
+  dataNameTestId = "datasource-name",
   description,
   handleOnClick,
   icon,
@@ -27,14 +37,23 @@ export default function DatasourceItem({
   return (
     <DatasourceCard
       className={`t--create-${name} ${className}`}
+      data-testid={dataCardTestId}
       onClick={handleOnClick}
     >
-      <DatasourceImage alt={name} src={icon} />
-      <DatasourceNameWrapper>
-        <DatasourceName className="t--plugin-name" renderAs="p">
+      <DatasourceImage
+        alt={name}
+        data-testid={dataCardImageTestId}
+        src={icon}
+      />
+      <DatasourceNameWrapper data-testid={dataCardWrapperTestId}>
+        <DatasourceName
+          className="t--plugin-name"
+          data-testid={dataNameTestId}
+          renderAs="p"
+        >
           {name}
         </DatasourceName>
-        <DatasourceDescription data-testid="mockdatasource-description">
+        <DatasourceDescription data-testid={dataCardDescriptionTestId}>
           {description}
         </DatasourceDescription>
       </DatasourceNameWrapper>

@@ -176,6 +176,7 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
       {props.restAPIVisible && (
         <DatasourceItem
           className="t--createBlankApiCard create-new-api"
+          dataCardWrapperTestId="newapi-datasource-content-wrapper"
           handleOnClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
           icon={getAssetUrl(`${ASSETS_CDN_URL}/plus.png`)}
           name={createMessage(CREATE_NEW_DATASOURCE_REST_API)}
@@ -185,6 +186,7 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
       {props.graphQLAPIVisible && (
         <DatasourceItem
           className="t--createBlankApiGraphqlCard"
+          dataCardWrapperTestId="graphqlapi-datasource-content-wrapper"
           handleOnClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
           icon={getAssetUrl(`${ASSETS_CDN_URL}/GraphQL.png`)}
           name={createMessage(CREATE_NEW_DATASOURCE_GRAPHQL_API)}
@@ -193,6 +195,7 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
       {authApiPlugin && (
         <DatasourceItem
           className="t--createAuthApiDatasource"
+          dataCardWrapperTestId="authapi-datasource-content-wrapper"
           handleOnClick={() => handleOnClick(API_ACTION.AUTH_API)}
           icon={getAssetUrl(authApiPlugin.iconLocation)}
           name={createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API)}

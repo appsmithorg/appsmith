@@ -70,6 +70,10 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   return (
     <DatasourceItem
       className="t--mock-datasource"
+      dataCardDescriptionTestId="mockdatasource-description"
+      dataCardImageTestId="mock-datasource-image"
+      dataCardWrapperTestId="mock-datasource-name-wrapper"
+      dataNameTestId="mockdatasource-name"
       description={datasource.description}
       handleOnClick={addMockDataSource}
       icon={getAssetUrl(pluginImages[currentPlugin.id])}
