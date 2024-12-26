@@ -22,7 +22,8 @@ export class GitSync {
     connectModalCloseBtn:
       "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",
     connectModalNextBtn: "[data-testid='t--git-connect-next']",
-    connectProviderRadioOthers: "[data-testid='t--git-connect-provider-radio-others']",
+    connectProviderRadioOthers:
+      "[data-testid='t--git-connect-provider-radio-others']",
     connectEmptyRepoYes: "[data-testid='t--git-connect-empty-repo-yes']",
     connectRemoteInput: "[data-testid='t--git-connect-remote-input']",
     connectDeployKeyCheckbox:
