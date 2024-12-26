@@ -27,12 +27,7 @@ export const migrateNewlyAddedTabsWidgetsMissingData = (
       }
 
       currentDSL.version = 3;
-    } catch (error) {
-      //   Sentry.captureException({
-      //     message: "Tabs Migration to add missing fields Failed",
-      //     oldData: currentDSL.children,
-      //   });
-    }
+    } catch (error) {}
   }
 
   if (currentDSL.children && currentDSL.children.length) {

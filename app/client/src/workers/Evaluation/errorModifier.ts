@@ -12,8 +12,8 @@ import { get, isEmpty, toPath } from "lodash";
 import { APP_MODE } from "entities/App";
 import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
+import { captureException } from "instrumentation";
 
 interface ErrorMetaData {
   userScript: string;
@@ -224,7 +224,7 @@ export function convertAllDataTypesToString(e: any) {
       return JSON.stringify(e);
     } catch (error) {
       log.debug(error);
-      Sentry.captureException(error);
+      captureException(error);
     }
   }
 }

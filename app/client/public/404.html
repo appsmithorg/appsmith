@@ -28,7 +28,6 @@
     }
 
     const smartLookId = parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}');
-    const sentryDSN = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
   </script>
   <script type='text/javascript'>
     if(smartLookId) {
@@ -39,14 +38,6 @@
       })(document);
       smartlook('init', smartLookId, { region: 'eu' });
       smartlook("track", "UserReached404");
-    }
-  </script>
-  <script id="sentryScript"></script>
-  <script>
-    if(sentryDSN) {
-      const sentryURL = `https://js.sentry-cdn.com/${sentryDSN}.min.js`;
-      document.getElementById('sentryScript').src = sentryURL;
-      document.getElementById("sentryScript").crossorigin = "anonymous";
     }
   </script>
   </head>

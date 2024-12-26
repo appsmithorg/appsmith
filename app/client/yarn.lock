@@ -8630,86 +8630,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/browser@npm:6.2.4"
-  dependencies:
-    "@sentry/core": 6.2.4
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    tslib: ^1.9.3
-  checksum: 3e7f85bbe34d8cf8fa49d4ae8b6e5483839c2371473085251c2f9dfc8ae3b97afc931e810ee53bf3e9357c0c58256581ca18434fd8f5d6383e0698a80df39f1e
-  languageName: node
-  linkType: hard
-
-"@sentry/core@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/core@npm:6.2.4"
-  dependencies:
-    "@sentry/hub": 6.2.4
-    "@sentry/minimal": 6.2.4
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    tslib: ^1.9.3
-  checksum: f8c783ac303e0d95559a4287e3fc595211d7499eb5c3fac3477781f3cbd33f1830e12bf64c0a5d43cfbdc81cbef544b1c94409999dbed8d33470d975f9fce8c0
-  languageName: node
-  linkType: hard
-
-"@sentry/hub@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/hub@npm:6.2.4"
-  dependencies:
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    tslib: ^1.9.3
-  checksum: be94fa1581fac9c52196ab3311f50b39080855e8465f7e7bcf6d4eca6fc7bc3c56df51ad8872d84dc7a2ed9ce0b672aeb76a735537ed57b5fc7231b7c1f67c00
-  languageName: node
-  linkType: hard
-
-"@sentry/minimal@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/minimal@npm:6.2.4"
-  dependencies:
-    "@sentry/hub": 6.2.4
-    "@sentry/types": 6.2.4
-    tslib: ^1.9.3
-  checksum: 94e42479857344d1af9e1fb968ec9b9278b0dd1170d180a2468b6fd7c3d2b34c4b0495a2b2b6a5d816d835ceb4c8eca12bd1f987831d29f45cc254b0db10e807
-  languageName: node
-  linkType: hard
-
-"@sentry/react@npm:^6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/react@npm:6.2.4"
-  dependencies:
-    "@sentry/browser": 6.2.4
-    "@sentry/minimal": 6.2.4
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    hoist-non-react-statics: ^3.3.2
-    tslib: ^1.9.3
-  peerDependencies:
-    react: 15.x || 16.x || 17.x
-  checksum: 35f153ff4873dba870cf6535872bead58a55896f3db2fd85cde721719e8b4e9a7411e17bf6ae3f9586a5685086e8ba3555e64e83e0f97c503d389a8bf371a95c
-  languageName: node
-  linkType: hard
-
-"@sentry/types@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/types@npm:6.2.4"
-  checksum: 672afa1def180bc0ed3f1f1eefdcb9289f2e2890e57720e0799321662188e7d6215fa21158559b3421708d6ee6c57ce9c2a0799ad2a83720918cce212d62c31c
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/utils@npm:6.2.4"
-  dependencies:
-    "@sentry/types": 6.2.4
-    tslib: ^1.9.3
-  checksum: 689aec0fa72218ba394e86956bb7686ade10ab97d7fe922058b9fd9c1bbd3cc720b39cfe3be1b3333efb3efac2aeaecfcbff4f1e6eb40471b9b3e5267dbdb642
-  languageName: node
-  linkType: hard
-
 "@shared/ast@workspace:^, @shared/ast@workspace:packages/ast":
   version: 0.0.0-use.local
   resolution: "@shared/ast@workspace:packages/ast"
@@ -13163,7 +13083,6 @@ __metadata:
     "@redux-saga/types": 1.2.1
     "@reduxjs/toolkit": ^2.4.0
     "@segment/analytics-next": ^1.76.0
-    "@sentry/react": ^6.2.4
     "@shared/ast": "workspace:^"
     "@shared/dsl": "workspace:^"
     "@simonsmith/cypress-image-snapshot": ^9.1.0
@@ -33258,7 +33177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.13.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
+"tslib@npm:^1.13.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd

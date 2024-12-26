@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/react";
 import type { AxiosResponse } from "axios";
+import { captureException } from "instrumentation";
 import { CONTENT_TYPE_HEADER_KEY } from "PluginActionEditor/constants/CommonApiConstants";
 
 export const validateJsonResponseMeta = (response: AxiosResponse) => {
@@ -7,8 +7,8 @@ export const validateJsonResponseMeta = (response: AxiosResponse) => {
     response.headers[CONTENT_TYPE_HEADER_KEY] === "application/json" &&
     !response.data.responseMeta
   ) {
-    Sentry.captureException(new Error("Api responded without response meta"), {
-      contexts: { response: response.data },
+    captureException(new Error("Api responded without response meta"), {
+      context: { response: response.data },
     });
   }
 };
