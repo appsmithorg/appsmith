@@ -66,23 +66,6 @@ describe("Validate JSObj", {}, () => {
     agHelper.GetNClickByContains(HomePage.portalMenuItem, "Delete");
     agHelper.GetNClickByContains(HomePage.portalMenuItem, "Are you sure?");
     agHelper.ValidateToastMessage("JSObject4 deleted successfully");
-
-    // Verify Copy to Page
-    // agHelper.GetNClick(jsEditor._moreActions, 0, true);
-    // agHelper.GetNClickByContains(HomePage.portalMenuItem, "Copy to page");
-    // agHelper.GetNClickByContains(HomePage.portalMenuItem, "Page1");
-    // agHelper.ValidateToastMessage(
-    //   "JSObject3 copied to page Page1 successfully",
-    // );
-    // agHelper.AssertContains("JSObject3", "exist", entityExplorer._entityName);
-
-    // Verify Rename
-    // agHelper.GetNClick(jsEditor._moreActions, 0, true);
-    // agHelper.AssertContains("Rename", "exist", HomePage.portalMenuItem);
-    // agHelper.GetNClickByContains(HomePage.portalMenuItem, 'Rename');
-    // agHelper.ClearNType('[value="JSObject3"]', 'JSObject3New');
-    // agHelper.AssertContains("JSObject3New", "exist", entityExplorer._entityName);
-    // agHelper.AssertContains("Copy to page", "exist", HomePage.portalMenuItem);
   });
 
   it("2. Verify alert message on page load and adding Function 2 to remove message", () => {

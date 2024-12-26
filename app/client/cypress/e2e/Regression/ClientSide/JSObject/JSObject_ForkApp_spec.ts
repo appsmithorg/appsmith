@@ -12,8 +12,9 @@ import {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Fork application", {}, function () {
-  it("1. Fork app and verify", () => {
+describe("Fork application with Jsobjects", {}, function () {
+  //https://github.com/appsmithorg/appsmith/issues/36277
+  it("1. Fork app and verify all the elements", () => {
     homePage.ImportApp("jsObjectTesting.json");
     agHelper.GetNClick(homePage._applicationName);
     agHelper.GetNClickByContains;
