@@ -207,8 +207,9 @@ export const useIDETabClickHandlers = () => {
 export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
   const widgetBindingsExist = useSelector(isWidgetActionConnectionPresent);
 
-  const localStorageFlag =
-    localStorage.getItem(LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE) || "false";
+  const localStorageFlag = localStorage.getItem(
+    LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE,
+  );
 
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,

@@ -31,7 +31,12 @@ export const Nudge = (props: Props) => {
       <Styled.PopoverTrigger data-active={open}>
         {props.trigger}
       </Styled.PopoverTrigger>
-      <Styled.PopoverContent align={props.align} side={props.side} size="sm">
+      <Styled.PopoverContent
+        align={props.align}
+        showArrow
+        side={props.side}
+        size="sm"
+      >
         <Flex
           alignItems="flex-start"
           backgroundColor="var(--ads-v2-color-bg-emphasis-max)"
