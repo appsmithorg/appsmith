@@ -190,6 +190,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,
       postEvalActions: [],
@@ -207,6 +210,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1", "2"], isAllAffected: false },
       postEvalActions: [],
@@ -228,6 +234,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: [], isAllAffected: true },
       postEvalActions: [],
@@ -255,6 +264,9 @@ describe("evalQueueBuffer", () => {
     const bufferedActionsWithDefaultAffectedJSObjects = buffer.take();
 
     expect(bufferedActionsWithDefaultAffectedJSObjects).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,
       postEvalActions: [],
