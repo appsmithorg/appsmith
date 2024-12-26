@@ -58,7 +58,6 @@ export const DatasourceNameWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex-grow: 1;
 `;
 
 export const DatasourceName = styled(Text)`
