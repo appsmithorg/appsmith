@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Component;
@@ -19,19 +20,21 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     @Override
     @Transactional
     @Modifying
-    public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+    public int updateStructure(
+            String datasourceId, String environmentId, DatasourceStructure structure, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
+                .entityManager(entityManager)
                 .updateFirst(Bridge.update().set(DatasourceStorageStructure.Fields.structure, structure));
     }
 
     @Override
     public Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
-            String datasourceId, String environmentId) {
+            String datasourceId, String environmentId, EntityManager entityManager) {
         final BridgeQuery<DatasourceStorageStructure> q = Bridge.<DatasourceStorageStructure>equal(
                         DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                 .equal(DatasourceStorageStructure.Fields.environmentId, environmentId);
-        return queryBuilder().criteria(q).one();
+        return queryBuilder().criteria(q).entityManager(entityManager).one();
     }
 }

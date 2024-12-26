@@ -14,6 +14,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,45 +37,66 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findById(
-            String id, AclPermission permission, User currentUser, List<String> projectedFields) {
+            String id,
+            AclPermission permission,
+            User currentUser,
+            List<String> projectedFields,
+            EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.id, id))
                 .permission(permission, currentUser)
                 .fields(projectedFields)
+                .entityManager(entityManager)
                 .one();
     }
 
     @Override
-    public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
+    public List<NewPage> findByApplicationId(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<NewPage> findByApplicationId(
-            String applicationId, AclPermission permission, User currentUser, List<String> includeFields) {
+            String applicationId,
+            AclPermission permission,
+            User currentUser,
+            List<String> includeFields,
+            EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(permission, currentUser)
                 .fields(includeFields)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<NewPage> findByApplicationIdAndNonDeletedEditMode(
-            String applicationId, AclPermission permission, User currentUser) {
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<NewPage> q = Bridge.<NewPage>equal(NewPage.Fields.applicationId, applicationId)
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
                 // exist. To handle this, only fetch non-deleted pages
                 .isNull(NewPage.Fields.unpublishedPage_deletedAt);
-        return queryBuilder().criteria(q).permission(permission, currentUser).all();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission, currentUser)
+                .entityManager(entityManager)
+                .all();
     }
 
     @Override
     public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, AclPermission permission, User currentUser, Boolean viewMode) {
+            String id,
+            String layoutId,
+            AclPermission permission,
+            User currentUser,
+            Boolean viewMode,
+            EntityManager entityManager) {
         // TODO(Shri): Why is this method's code different from that in `release` branch.
 
         final boolean isViewMode = Boolean.TRUE.equals(viewMode);
@@ -107,12 +129,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .byId(id)
                 .criteria(specFn)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .one();
     }
 
     @Override
     public Optional<NewPage> findByNameAndViewMode(
-            String name, AclPermission permission, User currentUser, Boolean viewMode) {
+            String name, AclPermission permission, User currentUser, Boolean viewMode, EntityManager entityManager) {
         final BridgeQuery<NewPage> q = getNameCriterion(name, viewMode);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -121,12 +144,21 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder().criteria(q).permission(permission, currentUser).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission, currentUser)
+                .entityManager(entityManager)
+                .one();
     }
 
     @Override
     public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
-            String name, String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
+            String name,
+            String applicationId,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         BridgeQuery<NewPage> q = getNameCriterion(name, viewMode).equal(NewPage.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -135,11 +167,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder().criteria(q).permission(permission, currentUser).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission, currentUser)
+                .entityManager(entityManager)
+                .one();
     }
 
     @Override
-    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission permission, User currentUser) {
+    public List<NewPage> findAllPageDTOsByIds(
+            List<String> ids, AclPermission permission, User currentUser, EntityManager entityManager) {
         List<String> includedFields = List.of(
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
@@ -160,6 +197,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
                 .fields(includedFields)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -170,8 +208,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName) {
-        return queryBuilder().byId(pageId).one().map(p -> {
+    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName, EntityManager entityManager) {
+        return queryBuilder().byId(pageId).entityManager(entityManager).one().map(p -> {
             PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
             if (page != null) {
                 return page.getName();
@@ -187,7 +225,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             String basePageId,
             AclPermission permission,
             User currentUser,
-            List<String> projectedFieldNames) {
+            List<String> projectedFieldNames,
+            EntityManager entityManager) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
@@ -204,13 +243,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .criteria(q)
                 .permission(permission, currentUser)
                 .fields(projectedFieldNames)
+                .entityManager(entityManager)
                 .one()
         /*.name(FETCH_PAGE_FROM_DB)
         .tap(Micrometer.observation(observationRegistry))*/ ;
     }
 
     public Optional<String> findBranchedPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
+            String branchName,
+            String defaultPageId,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.baseId, defaultPageId);
@@ -219,25 +263,30 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(q)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .one(IdOnly.class)
                 .map(IdOnly::id);
     }
 
     @Override
-    public List<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+    public List<NewPage> findAllByApplicationIds(
+            List<String> applicationIds, List<String> includedFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
                 .fields(includedFields)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     @Modifying
     @Transactional
-    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser) {
+    public Optional<Void> publishPages(
+            Collection<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager) {
         int count = queryBuilder()
                 .permission(permission, currentUser)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
+                .entityManager(entityManager)
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));
 
@@ -246,33 +295,36 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
-            List<String> applicationIds, List<String> includeFields) {
+            List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     @Transactional
     @Modifying
-    public Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
+    public Optional<Integer> updateDependencyMap(
+            String pageId, Map<String, List<String>> dependencyMap, EntityManager entityManager) {
         final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
 
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
-        return Optional.of(queryBuilder().criteria(q).updateFirst(update));
+        return Optional.of(
+                queryBuilder().criteria(q).entityManager(entityManager).updateFirst(update));
     }
 
     @Override
-    public List<NewPage> findByApplicationId(String applicationId) {
+    public List<NewPage> findByApplicationId(String applicationId, EntityManager entityManager) {
         final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.applicationId, applicationId);
-        return queryBuilder().criteria(q).all();
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
     }
 
     @Override
-    public Optional<Long> countByDeletedAtNull() {
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
         final BridgeQuery<NewPage> q = Bridge.notExists(NewPage.Fields.deletedAt);
-        return queryBuilder().criteria(q).count();
+        return queryBuilder().criteria(q).entityManager(entityManager).count();
     }
 }

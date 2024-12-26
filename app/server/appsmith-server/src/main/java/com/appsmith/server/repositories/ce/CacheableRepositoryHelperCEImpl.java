@@ -39,6 +39,7 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
+import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
@@ -46,7 +47,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @Component
 @RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
-    private final EntityManager entityManager;
+    private final EntityManager defaultEntityManager;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
@@ -54,6 +55,21 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
+        return getPermissionGroupsOfUser(user, defaultEntityManager);
+    }
+    /**
+     * Returns the permission groups of the user. If the user is anonymous, then it returns the permission groups of
+     * the anonymous user.
+     * @param user          The user whose permission groups are
+     * @param entityManager The entity manager to use for fetching the permission groups, as we expect the permission
+     *                      groups will change over time for the user we are making requests with custom entity manager
+     *                      that can be passed by the consumer. This is helpful if the consumer wants to fetch the
+     *                      permission groups in a transactional context.
+     * @return    A set of permission group ids
+     */
+    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
+    @Override
+    public Mono<Set<String>> getPermissionGroupsOfUser(User user, EntityManager entityManager) {
 
         // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
         // return the cached permission group ids.
@@ -64,9 +80,17 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
+        Mono<EntityManager> entityManagerMono;
+        if (entityManager == null) {
+            entityManagerMono = Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)));
+        } else {
+            entityManagerMono = Mono.just(entityManager);
+        }
 
-        return getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
-            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        return getInstanceAdminPermissionGroupId().zipWith(entityManagerMono).map(tuple2 -> {
+            final String instanceAdminPermissionGroupId = tuple2.getT1();
+            EntityManager em = tuple2.getT2();
+            final CriteriaBuilder cb = em.getCriteriaBuilder();
             final CriteriaQuery<PermissionGroup> cq = cb.createQuery(PermissionGroup.class);
             final Root<PermissionGroup> root = cq.from(PermissionGroup.class);
 
@@ -88,7 +112,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
             cq.where(predicate);
             // cq.select(root.get(PermissionGroup.Fields.id));
-            return entityManager.createQuery(cq).getResultList().stream()
+            return em.createQuery(cq).getResultList().stream()
                     .map(PermissionGroup::getId)
                     .collect(Collectors.toSet());
         });
@@ -105,11 +129,11 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.debug(
                 "In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaBuilder cb = defaultEntityManager.getCriteriaBuilder();
         final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
         final Root<Config> config = cq.from(Config.class);
         cq.where(cb.equal(config.get(Config.Fields.name), FieldName.PUBLIC_PERMISSION_GROUP));
-        final TypedQuery<Config> query = entityManager.createQuery(cq);
+        final TypedQuery<Config> query = defaultEntityManager.createQuery(cq);
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
         return Mono.fromSupplier(query::getSingleResult)
@@ -144,14 +168,14 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(defaultTenantId);
         }
 
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaBuilder cb = defaultEntityManager.getCriteriaBuilder();
         final CriteriaQuery<String> cq = cb.createQuery(String.class);
         final Root<Tenant> root = cq.from(Tenant.class);
 
         cq.where(cb.equal(root.get(Tenant.Fields.slug), FieldName.DEFAULT));
         cq.select(root.get(Tenant.Fields.id));
 
-        final String id = entityManager.createQuery(cq).getSingleResult();
+        final String id = defaultEntityManager.createQuery(cq).getSingleResult();
 
         if (id != null) {
             inMemoryCacheableRepositoryHelper.setDefaultTenantId(id);
@@ -167,13 +191,13 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(instanceAdminPermissionGroupId);
         }
 
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaBuilder cb = defaultEntityManager.getCriteriaBuilder();
         final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
         final Root<Config> root = cq.from(Config.class);
 
         cq.where(cb.equal(root.get(Config.Fields.name), INSTANCE_CONFIG));
 
-        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+        return asMono(() -> Optional.of(defaultEntityManager.createQuery(cq).getSingleResult()))
                 .map(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     return (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
@@ -191,19 +215,21 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "tenant", key = "{#tenantId}")
     @Override
     public Mono<Tenant> fetchDefaultTenant(String tenantId) {
-        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
-        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
-        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
-
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
-        final Root<Tenant> root = cq.from(Tenant.class);
-
-        cq.where(andCriteria.toPredicate(root, cq, cb));
-
         log.info("Fetching tenant from database as it couldn't be found in the cache!");
 
-        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, defaultEntityManager)))
+                .flatMap(em -> {
+                    BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+                    BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
+                    BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
+
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
+                    final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
+                    final Root<Tenant> root = cq.from(Tenant.class);
+
+                    cq.where(andCriteria.toPredicate(root, cq, cb));
+                    return asMono(() -> Optional.of(em.createQuery(cq).getSingleResult()));
+                })
                 .map(tenant -> {
                     if (tenant.getTenantConfiguration() == null) {
                         tenant.setTenantConfiguration(new TenantConfiguration());

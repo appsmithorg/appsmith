@@ -16,6 +16,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,6 +75,9 @@ public class UserWorkspaceServiceUnitTest {
     @Autowired
     SessionUserService sessionUserService;
 
+    @Autowired
+    CustomTransactionalOperator transactionalOperator;
+
     ModelMapper modelMapper;
 
     Workspace workspace;
@@ -106,8 +110,12 @@ public class UserWorkspaceServiceUnitTest {
             workspace.setName(UUID.randomUUID().toString());
             workspaceList.add(workspace);
         }
+        // TODO Deep dive why without transactional operator test was not going to completion
         return Flux.fromIterable(workspaceList)
                 .flatMap(workspace -> workspaceService.create(workspace))
+                .collectList()
+                .as(transactionalOperator::transactional)
+                .flatMapMany(Flux::fromIterable)
                 .map(workspace -> {
                     workspaceIds.add(workspace.getId());
                     return workspace;

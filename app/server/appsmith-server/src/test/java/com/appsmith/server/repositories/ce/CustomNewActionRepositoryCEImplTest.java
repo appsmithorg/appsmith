@@ -51,11 +51,11 @@ public class CustomNewActionRepositoryCEImplTest {
         Flux<NewAction> newActionFlux = newActionRepository
                 .saveAll(newActionList)
                 .collectList()
-                .flatMap(newActions -> {
+                .flatMapMany(newActions -> {
                     newActions.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return newActionRepository.bulkUpdate(newActionRepository, newActions);
+                    return newActionRepository.saveAll(newActions);
                 })
                 .thenMany(newActionRepository.findByApplicationId(applicationId));
 
@@ -71,19 +71,29 @@ public class CustomNewActionRepositoryCEImplTest {
     }
 
     @Test
-    public void bulkInsert_WhenDuplicateId_ExceptionThrown() {
+    public void bulkInsert_WhenDuplicateId_InsertsSingleObject() {
         String duplicateId = UUID.randomUUID().toString();
+        String appId = UUID.randomUUID().toString();
         List<NewAction> actionList = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
             NewAction action = new NewAction();
             action.setModifiedBy("user " + i);
             action.setId(duplicateId);
+            action.setApplicationId(appId);
             actionList.add(action);
         }
-
-        StepVerifier.create(newActionRepository.bulkInsert(newActionRepository, actionList))
-                .verifyError();
+        Mono<List<NewAction>> newActionsMono = newActionRepository
+                .saveAll(actionList)
+                .thenMany(newActionRepository.findByApplicationId(appId))
+                .collectList();
+        StepVerifier.create(newActionsMono)
+                .assertNext(newActions -> {
+                    assertThat(newActions).hasSize(1);
+                    assertThat(newActions.get(0).getId()).isEqualTo(duplicateId);
+                    assertThat(newActions.get(0).getApplicationId()).isEqualTo(appId);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -102,7 +112,7 @@ public class CustomNewActionRepositoryCEImplTest {
         }
 
         Mono<List<NewAction>> newActionsMono = newActionRepository
-                .bulkInsert(newActionRepository, actionList)
+                .saveAll(actionList)
                 .thenMany(newActionRepository.findByApplicationId(applicationId))
                 .collectList();
 
