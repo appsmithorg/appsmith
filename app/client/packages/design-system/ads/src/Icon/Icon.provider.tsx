@@ -572,6 +572,10 @@ const AppsLineIcon = importRemixIcon(
   async () => import("remixicon-react/AppsLineIcon"),
 );
 
+const ProtectedIcon = importRemixIcon(
+  async () => import("remixicon-react/ShieldKeyholeLineIcon"),
+);
+
 const CornerDownLeftLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/corner-down-left-line.svg"),
 );
@@ -770,6 +774,9 @@ const PackageIcon = importSvg(
 );
 const ModuleIcon = importSvg(
   async () => import("../__assets__/icons/ads/module.svg"),
+);
+const CreateModuleIcon = importSvg(
+  async () => import("../__assets__/icons/ads/create-module.svg"),
 );
 const WorkflowsIcon = importSvg(
   async () => import("../__assets__/icons/ads/workflows.svg"),
@@ -1183,6 +1190,7 @@ const ICON_LOOKUP = {
   "contract-right-line": ContractRight,
   "copy-control": CopyIcon,
   "copy2-control": Copy2Icon,
+  "create-module": CreateModuleIcon,
   "cut-control": CutIcon,
   "dashboard-line": DashboardLineIcon,
   "database-2-line": Database2Line,
@@ -1394,6 +1402,7 @@ const ICON_LOOKUP = {
   "warning-triangle": WarningTriangleIcon,
   "widgets-v3": WidgetsV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
+  "protected-icon": ProtectedIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,

@@ -29,9 +29,6 @@ public class EmailConfig {
     @Value("${reply.to}")
     private String replyTo;
 
-    @Value("${emails.welcome.enabled:true}")
-    private boolean isWelcomeEmailEnabled;
-
     @Value("${mail.support}")
     private String supportEmailAddress;
 

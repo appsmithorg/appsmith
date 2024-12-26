@@ -76,4 +76,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Optional<Integer> updateDependencyMap(
             String pageId, Map<String, List<String>> dependencyMap, EntityManager entityManager);
+
+    List<NewPage> findByApplicationId(String applicationId, EntityManager entityManager);
+
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 }

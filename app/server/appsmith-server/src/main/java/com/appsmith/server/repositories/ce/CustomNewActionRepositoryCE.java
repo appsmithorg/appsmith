@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Sort;
@@ -118,6 +119,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<Integer> archiveDeletedUnpublishedActions(
             String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
+    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager);
+
     List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
 
@@ -147,7 +150,15 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findAllByApplicationIds(
             List<String> branchedArtifactIds, List<String> includedFields, EntityManager entityManager);
 
+    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
+
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
     List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager);
 
-    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
+    // @Meta(cursorBatchSize = 10000)
+    // TODO Implement cursor with batch size
+    List<NewAction> findAllByIdIn(Iterable<String> ids, EntityManager entityManager);
+
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 }

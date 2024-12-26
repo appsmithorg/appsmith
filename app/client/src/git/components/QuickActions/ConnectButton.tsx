@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo } from "react";
-import { GitSyncModalTab } from "entities/GitSync";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import {
   COMING_SOON,
@@ -8,13 +7,8 @@ import {
   createMessage,
   NOT_LIVE_FOR_YOU_YET,
 } from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Button, Icon, Tooltip } from "@appsmith/ads";
 
-interface ConnectButtonProps {
-  isConnectPermitted: boolean;
-  openGitSyncModal: (options: { tab: GitSyncModalTab }) => void;
-}
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 
 const CenterDiv = styled.div`
   text-align: center;
@@ -38,10 +32,12 @@ const OuterContainer = styled.div`
   height: 100%;
 `;
 
-function ConnectButton({
-  isConnectPermitted,
-  openGitSyncModal,
-}: ConnectButtonProps) {
+interface ConnectButtonProps {
+  isConnectPermitted: boolean;
+  onClick: () => void;
+}
+
+function ConnectButton({ isConnectPermitted, onClick }: ConnectButtonProps) {
   const isTooltipEnabled = !isConnectPermitted;
   const tooltipContent = useMemo(() => {
     if (!isConnectPermitted) {
@@ -56,16 +52,6 @@ function ConnectButton({
     );
   }, [isConnectPermitted]);
 
-  const handleClickOnGitConnect = useCallback(() => {
-    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
-      source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
-    });
-
-    openGitSyncModal({
-      tab: GitSyncModalTab.GIT_CONNECTION,
-    });
-  }, [openGitSyncModal]);
-
   return (
     <OuterContainer>
       <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
@@ -79,7 +65,7 @@ function ConnectButton({
             className="t--connect-git-bottom-bar"
             isDisabled={!isConnectPermitted}
             kind="secondary"
-            onClick={handleClickOnGitConnect}
+            onClick={onClick}
             size="sm"
           >
             {createMessage(CONNECT_GIT_BETA)}

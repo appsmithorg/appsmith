@@ -96,6 +96,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
+  actionNames: Set<string>;
 }
 
 export interface JSActionEntity {
@@ -189,6 +190,9 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: typeof ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
+  currentPageName: string;
+  workspaceName: string;
+  appName: string;
 }
 
 export interface DataTreeSeed {

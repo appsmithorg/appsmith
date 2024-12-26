@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
+import { ExplorerContainerBorder, Flex } from "@appsmith/ads";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
@@ -14,8 +14,8 @@ const EditorPane = () => {
     <Flex
       borderRight={
         ideViewMode === EditorViewMode.SplitScreen
-          ? "1px solid var(--ads-v2-color-border)"
-          : ""
+          ? ExplorerContainerBorder.STANDARD
+          : ExplorerContainerBorder.NONE
       }
       className="ide-editor-left-pane"
       flexDirection={
@@ -24,7 +24,7 @@ const EditorPane = () => {
       // @ts-expect-error Fix this the next time the file is edited
       gap="spacing-2"
       height="100%"
-      width={"100%"}
+      width="100%"
     >
       {/** Entity Properties component is necessary to render
        the Bindings popover in the context menu.

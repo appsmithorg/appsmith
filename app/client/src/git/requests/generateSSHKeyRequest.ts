@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 import type {
   GenerateSSHKeyRequestParams,
   GenerateSSHKeyResponse,
@@ -9,10 +9,10 @@ import Api from "api/Api";
 export default async function generateSSHKeyRequest(
   baseApplicationId: string,
   params: GenerateSSHKeyRequestParams,
-): Promise<AxiosResponse<GenerateSSHKeyResponse>> {
-  const url = params.isImporting
+): AxiosPromise<GenerateSSHKeyResponse> {
+  const url = params.isImport
     ? `${GIT_BASE_URL}/import/keys?keyType=${params.keyType}`
     : `${APPLICATION_BASE_URL}/ssh-keypair/${baseApplicationId}?keyType=${params.keyType}`;
 
-  return params.isImporting ? Api.get(url) : Api.post(url);
+  return params.isImport ? Api.get(url) : Api.post(url);
 }

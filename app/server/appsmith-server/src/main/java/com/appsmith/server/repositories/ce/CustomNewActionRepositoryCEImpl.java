@@ -5,6 +5,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.models.PluginType.getPluginTypes;
 
@@ -482,6 +484,26 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager) {
+        // TODO: Fix this to use query builder
+        return entityManager
+                .createQuery(
+                        "SELECT pluginType, COUNT(*) FROM NewAction "
+                                + "WHERE applicationId = :applicationId AND deletedAt IS NULL "
+                                + "GROUP BY pluginType",
+                        Object[].class)
+                .setParameter("applicationId", applicationId)
+                .getResultList()
+                .stream()
+                .map((result) -> {
+                    PluginType pluginType = (PluginType) result[0];
+                    Long count = (Long) result[1];
+                    return new PluginTypeAndCountDTO(pluginType, count);
+                })
+                .toList();
+    }
+
+    @Override
     public List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
@@ -587,5 +609,22 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.id, ids))
                 .entityManager(entityManager)
                 .all();
+    }
+
+    @Override
+    public List<NewAction> findAllByIdIn(Iterable<String> ids, EntityManager entityManager) {
+        List<String> idList = StreamSupport.stream(ids.spliterator(), false).toList();
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.id, idList))
+                .entityManager(entityManager)
+                .all();
+    }
+
+    @Override
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
+        return queryBuilder()
+                .criteria(Bridge.exists(NewAction.Fields.deletedAt))
+                .entityManager(entityManager)
+                .count();
     }
 }

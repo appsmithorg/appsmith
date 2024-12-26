@@ -1,7 +1,11 @@
-import type { AutocommitStatus } from "../constants/enums";
+import type { ApiResponse } from "api/types";
+import type { AutocommitStatusState } from "../constants/enums";
 
-export interface FetchAutocommitProgressResponse {
-  autoCommitResponse: AutocommitStatus;
+export interface FetchAutocommitProgressResponseData {
+  autoCommitResponse: AutocommitStatusState;
   progress: number;
   branchName: string;
 }
+
+export type FetchAutocommitProgressResponse =
+  ApiResponse<FetchAutocommitProgressResponseData>;

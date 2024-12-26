@@ -1,8 +1,8 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ce.RefType;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -128,6 +128,18 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     public void setDefaultApplicationId(String defaultApplicationId) {
         this.defaultApplicationId = defaultApplicationId;
         this.defaultArtifactId = defaultApplicationId;
+    }
+
+    /**
+     * this returns the branchName instead of reference name
+     * @return returns the ref name.
+     */
+    public String getRefName() {
+        return this.getBranchName();
+    }
+
+    public void setRefName(String refName) {
+        this.branchName = refName;
     }
 
     public static class Fields {}

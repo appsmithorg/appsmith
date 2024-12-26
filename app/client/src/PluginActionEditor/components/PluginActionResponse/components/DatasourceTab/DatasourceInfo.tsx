@@ -10,16 +10,19 @@ import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import type { Plugin } from "api/PluginApi";
 
 interface Props {
   datasourceId: string;
   datasourceName: string;
   showEditButton: boolean;
+  plugin?: Plugin;
 }
 
 const DatasourceInfo = ({
   datasourceId,
   datasourceName,
+  plugin,
   showEditButton,
 }: Props) => {
   const editorType = useEditorType(location.pathname);
@@ -50,8 +53,9 @@ const DatasourceInfo = ({
       <DatasourceSelector
         datasourceId={datasourceId}
         datasourceName={datasourceName}
+        plugin={plugin}
       />
-      {showEditButton && (
+      {showEditButton && datasourceName && (
         <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
           <Button
             isIconButton

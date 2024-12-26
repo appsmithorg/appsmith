@@ -4,6 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Sort;
@@ -34,5 +35,17 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
                 .permission(permission, currentUser)
                 .entityManager(entityManager)
                 .one();
+    }
+
+    @Override
+    public List<Datasource> findByIdIn(List<String> ids, EntityManager entityManager) {
+        final BridgeQuery<Datasource> q = Bridge.in(Datasource.Fields.id, ids);
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
+    }
+
+    @Override
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
+        final BridgeQuery<Datasource> q = Bridge.isNull(Datasource.Fields.deletedAt);
+        return queryBuilder().criteria(q).entityManager(entityManager).count();
     }
 }

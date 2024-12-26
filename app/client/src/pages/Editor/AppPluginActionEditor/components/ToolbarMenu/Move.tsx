@@ -46,7 +46,7 @@ export const Move = ({ disabled }: Props) => {
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent>
-        {menuPages.length > 1 ? (
+        {menuPages.length ? (
           menuPages.map((page) => {
             return (
               <PageMenuItem

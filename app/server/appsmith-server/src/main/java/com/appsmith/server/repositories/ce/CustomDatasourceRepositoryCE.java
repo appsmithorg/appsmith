@@ -16,4 +16,8 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
 
     Optional<Datasource> findByNameAndWorkspaceId(
             String name, String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
+
+    List<Datasource> findByIdIn(List<String> ids, EntityManager entityManager);
+
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 }

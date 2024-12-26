@@ -419,26 +419,42 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public List<Application> findByWorkspaceId(String workspaceId, EntityManager entityManager) {
-        return queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .entityManager(entityManager)
-                .all();
+    public List<Application> findByIdIn(List<String> ids, EntityManager entityManager) {
+        final BridgeQuery<Application> q = Bridge.in(Application.Fields.id, ids);
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
     }
 
     @Override
-    public List<IdOnly> findIdsByWorkspaceId(String workspaceId, EntityManager entityManager) {
-        return queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .entityManager(entityManager)
-                .all(IdOnly.class);
+    public List<Application> findByWorkspaceId(String workspaceId, EntityManager entityManager) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
+    }
+
+    @Override
+    public Optional<Long> countByWorkspaceId(String workspaceId, EntityManager entityManager) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).entityManager(entityManager).count();
+    }
+
+    @Override
+    public List<Application> findByClonedFromApplicationId(
+            String clonedFromApplicationId, EntityManager entityManager) {
+        final BridgeQuery<Application> q =
+                Bridge.equal(Application.Fields.clonedFromApplicationId, clonedFromApplicationId);
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
+    }
+
+    @Override
+    public Optional<Long> countByDeletedAtNull(EntityManager entityManager) {
+        final BridgeQuery<Application> q = Bridge.isNull(Application.Fields.deletedAt);
+        return queryBuilder().criteria(q).entityManager(entityManager).count();
     }
 
     @Override
     public Optional<Application> findByIdAndExportWithConfiguration(
             String id, boolean exportWithConfiguration, EntityManager entityManager) {
-        BridgeQuery<Application> q = Bridge.equal(Application.Fields.id, id);
-        if (exportWithConfiguration) {
+        final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id);
+        if (TRUE.equals(exportWithConfiguration)) {
             q.isTrue(Application.Fields.exportWithConfiguration);
         } else {
             q.isFalse(Application.Fields.exportWithConfiguration);

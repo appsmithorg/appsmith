@@ -218,4 +218,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String pageId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager) {
         return this.findByPageIdAndViewMode(pageId, viewMode, permission, currentUser, entityManager);
     }
+
+    @Override
+    public List<ActionCollection> findByApplicationId(String applicationId, EntityManager entityManager) {
+        final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+        return queryBuilder().criteria(q).entityManager(entityManager).all();
+    }
 }

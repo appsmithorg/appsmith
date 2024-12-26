@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
-    List<ActionCollection> findByApplicationId(String applicationId);
 
     List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

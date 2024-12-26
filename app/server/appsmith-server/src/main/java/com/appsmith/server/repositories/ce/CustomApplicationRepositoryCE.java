@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.AppsmithRepository;
 import jakarta.persistence.EntityManager;
 
@@ -126,9 +125,15 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     List<String> findAllBranchedApplicationIdsByBranchedApplicationId(
             String branchedApplicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
+    List<Application> findByIdIn(List<String> ids, EntityManager entityManager);
+
     List<Application> findByWorkspaceId(String workspaceId, EntityManager entityManager);
 
-    List<IdOnly> findIdsByWorkspaceId(String workspaceId, EntityManager entityManager);
+    Optional<Long> countByWorkspaceId(String workspaceId, EntityManager entityManager);
+
+    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId, EntityManager entityManager);
+
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
     Optional<Application> findByIdAndExportWithConfiguration(
             String id, boolean exportWithConfiguration, EntityManager entityManager);

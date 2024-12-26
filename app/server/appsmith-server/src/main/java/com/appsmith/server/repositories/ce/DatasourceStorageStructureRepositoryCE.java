@@ -3,11 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomDatasourceStorageStructureRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+@Repository
 public interface DatasourceStorageStructureRepositoryCE
-        extends BaseRepository<DatasourceStorageStructure, String>, CustomDatasourceStorageStructureRepository {
-
-    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
-}
+        extends BaseRepository<DatasourceStorageStructure, String>, CustomDatasourceStorageStructureRepository {}
