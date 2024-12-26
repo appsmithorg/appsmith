@@ -16,7 +16,7 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl", "@tag.Visual"] },
   function () {
     before(() => {
       agHelper.AddDsl("uiBindDsl");
