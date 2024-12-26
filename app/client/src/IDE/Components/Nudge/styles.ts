@@ -29,13 +29,13 @@ export const PopoverTrigger = styled(ADSPopoverTrigger)`
     border: 2px solid var(--ads-v2-color-blue-300) !important;
   }
 
-  transition: border 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: border 0.2s cubic-bezier(0, 0, 0.58, 1);
 `;
 
 export const CloseIcon = styled(Icon)`
   svg {
     path {
-      fill: #ffffff;
+      fill: var(--ads-v2-color-bg);
     }
   }
 

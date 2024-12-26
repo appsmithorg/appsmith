@@ -42,7 +42,7 @@ export const Nudge = (props: Props) => {
           backgroundColor="var(--ads-v2-color-bg-emphasis-max)"
           gap="spaces-2"
         >
-          <Text color="#fff" kind="heading-xs">
+          <Text color="var(--ads-v2-color-bg)" kind="heading-xs">
             {props.message}
           </Text>
           <Styled.CloseIcon

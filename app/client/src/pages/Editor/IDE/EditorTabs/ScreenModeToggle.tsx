@@ -61,7 +61,7 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, dismissNudge, isAnimatedIDEEnabled]);
 
-  const maximiseButton = useMemo(
+  const minimiseButton = useMemo(
     () => (
       <Button
         className="ml-auto !min-w-[24px]"
@@ -103,7 +103,7 @@ export const ScreenModeToggle = () => {
         message="Write code and configure UI elements side by side"
         onDismissClick={dismissNudge}
         side="left"
-        trigger={maximiseButton}
+        trigger={minimiseButton}
       />
     );
   }
@@ -114,7 +114,7 @@ export const ScreenModeToggle = () => {
       key={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
       placement="left"
     >
-      {maximiseButton}
+      {minimiseButton}
     </Tooltip>
   );
 };
