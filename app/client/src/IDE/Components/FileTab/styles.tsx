@@ -10,7 +10,6 @@ export const Tab = styled.div`
   color: var(--ads-v2-colors-text-default);
   cursor: pointer;
   gap: var(--ads-v2-spaces-2);
-  border-top: 1px solid transparent;
   border-top-left-radius: var(--ads-v2-border-radius);
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
@@ -19,7 +18,7 @@ export const Tab = styled.div`
   padding-top: 6px; // to accommodate border and make icons align correctly
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
-  border-top: 2px solid transparent;
+  border-top: 3px solid transparent;
   flex-shrink: 0;
 
   &.active {
