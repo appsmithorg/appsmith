@@ -26,7 +26,7 @@ export class GitSync {
     connectEmptyRepoYes: "[data-testid='t--git-connect-empty-repo-yes']",
     connectRemoteInput: "[data-testid='t--git-connect-remote-input']",
     connectDeployKeyCheckbox:
-      "[data-testid='t-git-connect-deploy-key-checkbox']",
+      "[data-testid='t--git-connect-deploy-key-checkbox']",
     importExistingRepoCheckbox:
       "[data-testid='t--git-import-existing-repo-checkbox']",
     connectSuccessModal: "[data-testid='t--git-con-success-modal']",
