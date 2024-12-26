@@ -17,12 +17,11 @@ import { useLocation } from "react-router";
 import {
   createMessage,
   DATA_PANE_TITLE,
-  DATASOURCE_BLANK_STATE_CTA,
   DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "ee/constants/messages";
 import PaneHeader from "./PaneHeader";
 import { useEditorType } from "ee/hooks";
-import { INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "../../../../constants/routes";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -100,7 +99,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
     () => ({
       className: "t--add-datasource-button-blank-screen",
       testId: "t--add-datasource-button-blank-screen",
-      text: createMessage(DATASOURCE_BLANK_STATE_CTA),
+      text: createMessage(DATA_PANE_TITLE),
       onClick: canCreateDatasource ? addButtonClickHandler : undefined,
     }),
     [addButtonClickHandler, canCreateDatasource],

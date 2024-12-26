@@ -52,11 +52,7 @@ const CommonEditorForm = (props: Props) => {
   const paramsCount = getParamsCount(actionParams, datasourceHeaders);
 
   return (
-    <Styled.Tabs
-      data-testid={props.dataTestId}
-      onValueChange={setCurrentTab}
-      value={currentTab}
-    >
+    <Styled.Tabs onValueChange={setCurrentTab} value={currentTab}>
       <Styled.FormHeader>
         <InfoFields
           actionName={action.name}
