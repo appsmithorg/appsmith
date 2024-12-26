@@ -252,6 +252,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1"], isAllAffected: false },
       postEvalActions: [],
