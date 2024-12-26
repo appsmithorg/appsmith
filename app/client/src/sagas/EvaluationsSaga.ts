@@ -541,14 +541,14 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 };
 
 interface BUFFERED_ACTION {
-  shouldHandleUpdate: boolean;
-  shouldBuffered: boolean;
+  hasDebouncedHandleUpdate: boolean;
+  hasBufferedAction: boolean;
   actionDataPayloadConsolidated: actionDataPayload[];
 }
 export function evalQueueBuffer() {
   let canTake = false;
-  let shouldHandleUpdate = false;
-  let shouldBuffered = false;
+  let hasDebouncedHandleUpdate = false;
+  let hasBufferedAction = false;
   let actionDataPayloadConsolidated: actionDataPayload = [];
 
   // TODO: Fix this the next time the file is edited
@@ -567,16 +567,16 @@ export function evalQueueBuffer() {
       canTake = false;
       const actionDataPayloadConsolidatedRes = actionDataPayloadConsolidated;
 
-      const shouldHandleUpdateRes = shouldHandleUpdate;
-      const shouldBufferedRes = shouldBuffered;
+      const hasDebouncedHandleUpdateRes = hasDebouncedHandleUpdate;
+      const hasBufferedActionRes = hasBufferedAction;
 
       actionDataPayloadConsolidated = [];
-      shouldHandleUpdate = false;
-      shouldBuffered = false;
+      hasDebouncedHandleUpdate = false;
+      hasBufferedAction = false;
 
       return {
-        shouldHandleUpdate: shouldHandleUpdateRes,
-        shouldBuffered: shouldBufferedRes,
+        hasDebouncedHandleUpdate: hasDebouncedHandleUpdateRes,
+        hasBufferedAction: hasBufferedActionRes,
         actionDataPayloadConsolidated: actionDataPayloadConsolidatedRes,
         postEvalActions: resp,
         affectedJSObjects,
@@ -608,13 +608,13 @@ export function evalQueueBuffer() {
         ];
       }
 
-      shouldHandleUpdate = true;
+      hasDebouncedHandleUpdate = true;
       canTake = true;
 
       return;
     }
 
-    shouldBuffered = true;
+    hasBufferedAction = true;
 
     canTake = true;
     // extract the affected JS action ids from the action and pass them
@@ -827,11 +827,11 @@ function* evaluationChangeListenerSaga(): any {
     // all buffered debounced actions are handled here
     const {
       actionDataPayloadConsolidated,
-      shouldBuffered,
-      shouldHandleUpdate,
+      hasBufferedAction,
+      hasDebouncedHandleUpdate,
     } = action as unknown as BUFFERED_ACTION;
 
-    if (shouldHandleUpdate) {
+    if (hasDebouncedHandleUpdate) {
       yield call(
         evalWorker.request,
         EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
@@ -839,7 +839,7 @@ function* evaluationChangeListenerSaga(): any {
       );
     }
 
-    if (shouldBuffered) {
+    if (hasBufferedAction) {
       // We are dequing actions from the buffer and inferring the JS actions affected by each
       // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
       const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
