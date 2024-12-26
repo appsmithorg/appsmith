@@ -17,11 +17,13 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_STATE,
 } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./constants";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
+import { StateInspector } from "./StateInspector";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
@@ -56,6 +58,11 @@ function DebuggerTabs() {
       title: createMessage(DEBUGGER_ERRORS),
       count: errorCount,
       panelComponent: <Errors hasShortCut />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.STATE_TAB,
+      title: createMessage(DEBUGGER_STATE),
+      panelComponent: <StateInspector />,
     },
   ];
 
