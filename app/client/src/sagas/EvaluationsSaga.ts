@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
@@ -98,6 +97,7 @@ import { getAppsmithConfigs } from "ee/configs";
 import {
   executeJSUpdates,
   type actionDataPayload,
+  type updateActionDataPayloadType,
 } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
@@ -540,6 +540,11 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
   ids: [],
 };
 
+interface BUFFERED_ACTION {
+  shouldHandleUpdate: boolean;
+  shouldBuffered: boolean;
+  actionDataPayloadConsolidated: actionDataPayload[];
+}
 export function evalQueueBuffer() {
   let canTake = false;
   let shouldHandleUpdate = false;
@@ -570,9 +575,9 @@ export function evalQueueBuffer() {
       shouldBuffered = false;
 
       return {
-        shouldHandleUpdateRes,
-        shouldBufferedRes,
-        actionDataPayloadConsolidatedRes,
+        shouldHandleUpdate: shouldHandleUpdateRes,
+        shouldBuffered: shouldBufferedRes,
+        actionDataPayloadConsolidated: actionDataPayloadConsolidatedRes,
         postEvalActions: resp,
         affectedJSObjects,
         type: ReduxActionTypes.BUFFERED_ACTION,
@@ -593,7 +598,8 @@ export function evalQueueBuffer() {
     }
 
     if (action.type === ReduxActionTypes.UPDATE_ACTION_DATA) {
-      const { actionDataPayload } = action.payload as any;
+      const { actionDataPayload } =
+        action.payload as updateActionDataPayloadType;
 
       if (actionDataPayload && actionDataPayload.length) {
         actionDataPayloadConsolidated = [
@@ -795,13 +801,13 @@ function* evaluationChangeListenerSaga(): any {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
 
-    const { payload, type } = action as any;
+    const { payload, type } = action;
 
     if (type === ReduxActionTypes.UPDATE_ACTION_DATA) {
       yield call(
         evalWorker.request,
         EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
-        payload.actionDataPayload,
+        (payload as updateActionDataPayloadType).actionDataPayload,
       );
       continue;
     }
@@ -818,21 +824,22 @@ function* evaluationChangeListenerSaga(): any {
       continue;
     }
 
+    // all buffered debounced actions are handled here
     const {
-      actionDataPayloadConsolidatedRes,
-      shouldBufferedRes,
-      shouldHandleUpdateRes,
-    } = action as any;
+      actionDataPayloadConsolidated,
+      shouldBuffered,
+      shouldHandleUpdate,
+    } = action as unknown as BUFFERED_ACTION;
 
-    if (shouldHandleUpdateRes) {
+    if (shouldHandleUpdate) {
       yield call(
         evalWorker.request,
         EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
-        actionDataPayloadConsolidatedRes,
+        actionDataPayloadConsolidated,
       );
     }
 
-    if (shouldBufferedRes) {
+    if (shouldBuffered) {
       // We are dequing actions from the buffer and inferring the JS actions affected by each
       // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
       const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
