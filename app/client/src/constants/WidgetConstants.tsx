@@ -108,7 +108,7 @@ export const CONTAINER_GRID_PADDING =
  */
 export const AUTO_LAYOUT_CONTAINER_PADDING = 5;
 
-export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
+export const WIDGET_PADDING = 0;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
@@ -193,7 +193,7 @@ export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
 // This also makes sure that widgets have sufficient area in which users can interact.
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
-  MIN_HEIGHT_IN_ROWS: 4,
+  MIN_HEIGHT_IN_ROWS: 1,
   MIN_CANVAS_HEIGHT_IN_ROWS: 10,
 };
 
