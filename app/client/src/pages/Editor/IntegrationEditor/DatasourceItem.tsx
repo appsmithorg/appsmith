@@ -22,7 +22,7 @@ interface DatasourceItem {
 }
 
 export default function DatasourceItem({
-  className,
+  className = "",
   dataCardDescriptionTestId = "datasource-description",
   dataCardImageTestId = "datasource-image",
   dataCardTestId = "datasource-card",

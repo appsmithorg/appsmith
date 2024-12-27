@@ -307,9 +307,8 @@ Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
 Cypress.Commands.add("datasourceCardStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "display", "flex")
-    .and("have.css", "justify-content", "space-between")
     .and("have.css", "align-items", "center")
-    .and("have.css", "height", "64px")
+    .and("have.css", "gap", "12px")
     .realHover()
     .should("have.css", "background-color", backgroundColorGray1)
     .and("have.css", "cursor", "pointer");
