@@ -17,9 +17,7 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import AppIDEFocusElements from "../FocusElements/AppIDE";
-import { getCurrentBaseApplicationId } from "selectors/editorSelectors";
-import { selectGitCurrentBranch } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 function shouldSetState(
   prevPath: string,
@@ -120,10 +118,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       return [];
     }
 
-    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
     const branch: string | undefined = yield select(
-      selectGitCurrentBranch,
-      applicationArtifact(baseApplicationId),
+      selectGitApplicationCurrentBranch,
     );
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
@@ -151,10 +147,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     return entities;
   },
   *getEntitiesForStore(path: string, currentPath: string) {
-    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
     const branch: string | undefined = yield select(
-      selectGitCurrentBranch,
-      applicationArtifact(baseApplicationId),
+      selectGitApplicationCurrentBranch,
     );
     const entities: Array<FocusPath> = [];
     const currentFocusEntityInfo = identifyEntityFromPath(currentPath);

@@ -76,7 +76,6 @@ import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
-  getCurrentBaseApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -151,9 +150,8 @@ import type { Page } from "entities/Page";
 import { ConsolidatedPageLoadApi } from "api";
 import {
   selectCombinedPreviewMode,
-  selectGitCurrentBranch,
+  selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -176,10 +174,8 @@ export function* refreshTheApp() {
     const currentPageId: string = yield select(getCurrentPageId);
     const defaultBasePageId: string = yield select(getDefaultBasePageId);
     const pagesList: Page[] = yield select(getPageList);
-    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
     const gitBranch: string | undefined = yield select(
-      selectGitCurrentBranch,
-      applicationArtifact(baseApplicationId),
+      selectGitApplicationCurrentBranch,
     );
 
     const isCurrentPageIdInList =

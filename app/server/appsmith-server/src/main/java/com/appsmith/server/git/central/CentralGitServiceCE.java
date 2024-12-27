@@ -7,8 +7,11 @@ import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactImportDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface CentralGitServiceCE {
 
@@ -52,4 +55,14 @@ public interface CentralGitServiceCE {
 
     Mono<? extends Artifact> deleteGitReference(
             String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType);
+
+    Mono<List<String>> updateProtectedBranches(
+            String baseArtifactId, List<String> branchNames, ArtifactType artifactType);
+
+    Mono<List<String>> getProtectedBranches(String baseArtifactId, ArtifactType artifactType);
+
+    Mono<Boolean> toggleAutoCommitEnabled(String baseArtifactId, ArtifactType artifactType);
+
+    Mono<AutoCommitResponseDTO> getAutoCommitProgress(
+            String baseArtifactId, String branchName, ArtifactType artifactType);
 }

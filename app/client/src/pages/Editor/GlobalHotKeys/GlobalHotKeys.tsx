@@ -35,10 +35,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "ee/constants/messages";
-import {
-  getCurrentBaseApplicationId,
-  previewModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
@@ -49,8 +46,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setPreviewModeInitAction } from "actions/editorActions";
-import { selectGitProtectedMode } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import { selectGitApplicationProtectedMode } from "selectors/gitModSelectors";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -377,18 +373,13 @@ class GlobalHotKeys extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => {
-  const baseApplicationId = getCurrentBaseApplicationId(state);
-
   return {
     selectedWidget: getLastSelectedWidget(state),
     selectedWidgets: getSelectedWidgets(state),
     isDebuggerOpen: showDebuggerFlag(state),
     appMode: getAppMode(state),
     isPreviewMode: previewModeSelector(state),
-    isProtectedMode: selectGitProtectedMode(
-      state,
-      applicationArtifact(baseApplicationId),
-    ),
+    isProtectedMode: selectGitApplicationProtectedMode(state),
     isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
   };
 };

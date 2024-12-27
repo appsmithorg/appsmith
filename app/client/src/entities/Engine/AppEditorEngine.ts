@@ -71,10 +71,9 @@ import {
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import {
-  selectGitCurrentBranch,
+  selectGitApplicationCurrentBranch,
   selectGitModEnabled,
 } from "selectors/gitModSelectors";
-import { getCurrentBaseApplicationId } from "selectors/editorSelectors";
 import { applicationArtifact } from "git/artifact-helpers/application";
 
 export default class AppEditorEngine extends AppEngine {
@@ -287,8 +286,7 @@ export default class AppEditorEngine extends AppEngine {
       getCurrentApplication,
     );
     const currentBranch: string | undefined = yield select(
-      selectGitCurrentBranch,
-      applicationArtifact(currentApplication.baseId),
+      selectGitApplicationCurrentBranch,
     );
 
     const isGitPersistBranchEnabled: boolean = yield select(
@@ -390,12 +388,8 @@ export default class AppEditorEngine extends AppEngine {
         }),
       );
     } else {
-      const baseApplicationId: string = yield select(
-        getCurrentBaseApplicationId,
-      );
       const currentBranch: string = yield select(
-        selectGitCurrentBranch,
-        applicationArtifact(baseApplicationId),
+        selectGitApplicationCurrentBranch,
       );
 
       // init of temporary remote url from old application

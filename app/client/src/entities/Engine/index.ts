@@ -20,8 +20,7 @@ import { updateBranchLocally } from "actions/gitSyncActions";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
-import { selectGitCurrentBranch } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -116,8 +115,7 @@ export default abstract class AppEngine {
 
     const application: ApplicationPayload = yield select(getCurrentApplication);
     const currentBranch: string | undefined = yield select(
-      selectGitCurrentBranch,
-      applicationArtifact(application.baseId),
+      selectGitApplicationCurrentBranch,
     );
 
     yield put(
