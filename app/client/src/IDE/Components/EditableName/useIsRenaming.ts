@@ -9,12 +9,9 @@ export const useIsRenaming = (id: string) => {
 
   const isEditingViaExternal = useSelector(getIsRenaming(id));
 
-  const isNew =
-    new URLSearchParams(window.location.search).get("editName") === "true";
-
   useEffect(
     function onExternalEditEvent() {
-      if (isEditingViaExternal || isNew) {
+      if (isEditingViaExternal) {
         setIsEditing(true);
       }
 
@@ -22,7 +19,7 @@ export const useIsRenaming = (id: string) => {
         setIsEditing(false);
       };
     },
-    [isEditingViaExternal, isNew],
+    [isEditingViaExternal],
   );
 
   const enterEditMode = useCallback(() => {
