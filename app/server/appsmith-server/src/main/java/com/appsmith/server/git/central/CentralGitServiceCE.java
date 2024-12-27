@@ -44,11 +44,10 @@ public interface CentralGitServiceCE {
 
     Mono<? extends Artifact> checkoutReference(
             String referenceArtifactId,
-            String referenceToBeCheckedOut,
+            GitRefDTO gitRefDTO,
             boolean addFileLock,
             ArtifactType artifactType,
-            GitType gitType,
-            RefType refType);
+            GitType gitType);
 
     Mono<? extends Artifact> createReference(
             String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType);

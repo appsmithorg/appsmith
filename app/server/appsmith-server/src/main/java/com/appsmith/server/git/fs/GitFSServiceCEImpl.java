@@ -294,10 +294,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<List<String>> listReferences(
-            ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
-            Boolean checkRemoteReferences,
-            RefType refType) {
-        if (RefType.BRANCH.equals(refType)) {
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
+        if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
             listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
@@ -619,13 +617,13 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
-        Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
+        Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
+                repoSuffix, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), false, refName, isFetchAll);
+
+        // TODO : check if we require to checkout the reference
         Mono<Boolean> checkoutBranchMono = fsGitHandler.checkoutToBranch(repoSuffix, refName);
 
-        Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
-                repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, isFetchAll);
-
-        return checkoutBranchMono.then(Mono.defer(() -> fetchRemoteMono));
+        return fetchRemoteMono.flatMap(remoteFetched -> checkoutBranchMono.thenReturn(remoteFetched));
     }
 
     @Override
