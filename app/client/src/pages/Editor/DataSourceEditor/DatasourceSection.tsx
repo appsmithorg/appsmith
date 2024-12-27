@@ -22,6 +22,7 @@ import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Text } from "@appsmith/ads";
 import { Table } from "@appsmith/ads-old";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { RagDocuments } from "ee/components/formControls/RagDocuments";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -184,6 +185,18 @@ export function renderDatasourceSection(
             const customConfigProperty =
               `datasourceStorages.${currentEnvironment}.` + configProperty;
             const reactKey = datasource.id + "_" + label;
+
+            if (controlType === "RAG_DOCUMENTS") {
+              return (
+                <RagDocuments
+                  datasourceId={datasource.id}
+                  isDeletedAvailable={false}
+                  isImportDataAvailable={false}
+                  key={reactKey}
+                  workspaceId={datasource.workspaceId}
+                />
+              );
+            }
 
             if (controlType === "FIXED_KEY_INPUT") {
               return (
