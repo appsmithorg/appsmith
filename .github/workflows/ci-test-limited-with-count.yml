@@ -149,6 +149,7 @@ jobs:
       # Step to get specs from the file or use the provided specs
       - name: Get specs to run
         run: |
+          ls -l
           # Determine the source of the specs_to_run input
           if [[ -n "${{ inputs.specs_to_run }}" ]]; then
             specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
