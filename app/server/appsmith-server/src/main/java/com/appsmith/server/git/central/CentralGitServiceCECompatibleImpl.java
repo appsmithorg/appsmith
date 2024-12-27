@@ -3,6 +3,7 @@ package com.appsmith.server.git.central;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
@@ -17,6 +18,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -24,6 +26,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
         implements CentralGitServiceCECompatible {
 
     public CentralGitServiceCECompatibleImpl(
+            GitRedisUtils gitRedisUtils,
             GitProfileUtils gitProfileUtils,
             GitAnalyticsUtils gitAnalyticsUtils,
             UserDataService userDataService,
@@ -37,9 +40,11 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             PluginService pluginService,
             ImportService importService,
             ExportService exportService,
-            GitRedisUtils gitRedisUtils,
+            GitAutoCommitHelper gitAutoCommitHelper,
+            TransactionalOperator transactionalOperator,
             ObservationRegistry observationRegistry) {
         super(
+                gitRedisUtils,
                 gitProfileUtils,
                 gitAnalyticsUtils,
                 userDataService,
@@ -53,7 +58,8 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
                 pluginService,
                 importService,
                 exportService,
-                gitRedisUtils,
+                gitAutoCommitHelper,
+                transactionalOperator,
                 observationRegistry);
     }
 }
