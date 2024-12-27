@@ -54,7 +54,8 @@ on:
       specs_to_run:
         description: 'Cypress spec file(s) to run'
         required: false
-        type: string 
+        type: string
+        default: 'no_data'
 
 jobs:
   ci-test-limited:
@@ -148,55 +149,40 @@ jobs:
       # Step to get specs from the file or use the provided specs
       - name: Get specs to run
         run: |
-          # Check if specs_to_run is provided; if not, use the fallback file
-          echo "[DEBUG] Initial specs_to_run value: $specs_to_run"
+          # Determine the source of the specs_to_run input
+          if [[ -n "${{ inputs.specs_to_run }}" ]]; then
+            specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
+            echo "[INFO] specs_to_run provided via workflow_call: $specs_to_run"
+          elif [[ -n "${{ github.event.inputs.specs_to_run }}" ]]; then
+            specs_to_run="${{ github.event.inputs.specs_to_run }}" # For workflow_dispatch
+            echo "[INFO] specs_to_run provided via workflow_dispatch: $specs_to_run"
+          else
+            specs_to_run=""
+            echo "[INFO] No specs provided. Falling back to app/client/cypress/limited-tests.txt."
+          fi
+
           if [[ -z "$specs_to_run" || "$specs_to_run" == "no_data" ]]; then
-            echo "[INFO] No specs provided, falling back to limited-tests.txt file."
-            
-            # Verify if the fallback file exists
             if [[ ! -f app/client/cypress/limited-tests.txt ]]; then
               echo "[ERROR] limited-tests.txt file not found in app/client/cypress!" >&2
               exit 1
-            else
-              echo "[DEBUG] limited-tests.txt file found. Proceeding to read specs."
             fi
 
-            specs_to_run=""
+            echo "[DEBUG] Found limited-tests.txt. Reading specs..."
+            specs_to_run=$(grep -vE '^\s*(#|//|$)' app/client/cypress/limited-tests.txt | tr '\n' ',' | sed 's/,$//')
 
-            # Read each line of limited-tests.txt
-            while IFS= read -r line || [[ -n "$line" ]]; do
-              # Log each line being read
-              echo "[DEBUG] Reading line: $line"
-
-              # Skip comments and empty lines
-              if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
-                echo "[DEBUG] Skipping comment/empty line: $line"
-                continue
-              else
-                echo "[DEBUG] Adding spec to specs_to_run: $line"
-                specs_to_run="$specs_to_run,$line"
-              fi
-            done < app/client/cypress/limited-tests.txt
-
-            # Remove leading comma
-            specs_to_run=${specs_to_run#,}
-            echo "[DEBUG] Final specs_to_run after processing limited-tests.txt: $specs_to_run"
-
-            # If no specs found, return an error
             if [[ -z "$specs_to_run" ]]; then
-              echo "[ERROR] No specs found in limited-tests.txt after processing!" >&2
+              echo "[ERROR] No valid specs found in limited-tests.txt!" >&2
               exit 1
             fi
+
+            echo "[DEBUG] Final specs_to_run value after processing: $specs_to_run"
           else
             echo "[INFO] Using provided specs: $specs_to_run"
           fi
 
-          # Log the final specs_to_run value before writing it to GitHub environment
-          echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
-
-          # Set the final specs_to_run to GitHub environment variable
+          echo "[DEBUG] Setting specs_to_run to GitHub environment variable."
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
-          
+
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
@@ -427,7 +413,7 @@ jobs:
                 --browser "${{ env.BROWSER_PATH }}"
             else
               echo "Running Cypress tests without snapshot updates..."
-              npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+              CYPRESS_updateSnapshots=false npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
                 --spec "${{ env.specs_to_run }}" \
                 --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
