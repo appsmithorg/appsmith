@@ -34,7 +34,7 @@ export const TooltipTextWrapper = styled.div`
 export const DescriptionWrapper = styled.div`
   flex-direction: column;
   min-width: 0;
-  gap: var(--ads-v2-spaces-3);
+  gap: var(--ads-v2-spaces-2);
   display: flex;
 `;
 
