@@ -87,7 +87,7 @@ import {
   endSpan,
   startNestedSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";

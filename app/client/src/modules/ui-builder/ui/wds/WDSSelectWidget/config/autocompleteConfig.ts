@@ -2,10 +2,21 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 export const autocompleteConfig = {
   "!doc":
-    "Select widget lets the user choose one option from a dropdown list. It is similar to a SingleSelect Dropdown in its functionality",
-  "!url": "https://docs.appsmith.com/widget-reference/radio",
+    "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+  "!url": "https://docs.appsmith.com/widget-reference/dropdown",
   isVisible: DefaultAutocompleteDefinitions.isVisible,
+  selectedOptionValue: {
+    "!type": "string",
+    "!doc": "The value selected in a single select dropdown",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+  },
+  selectedOptionLabel: {
+    "!type": "string",
+    "!doc": "The selected option label in a single select dropdown",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+  },
+  isDisabled: "bool",
+  isValid: "bool",
+  isDirty: "bool",
   options: "[$__dropdownOption__$]",
-  selectedOptionValue: "string",
-  isRequired: "bool",
 };

@@ -78,7 +78,7 @@ public class AutoCommitServiceTest {
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     @MockBean
@@ -201,12 +201,13 @@ public class AutoCommitServiceTest {
         baseRepoSuffix = Paths.get(WORKSPACE_ID, DEFAULT_APP_ID, REPO_NAME);
 
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
-                        anyString(), anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
         // create page-dto
         PageDTO pageDTO = createPageDTO();
@@ -224,8 +225,9 @@ public class AutoCommitServiceTest {
                 .when(gitExecutor)
                 .pushApplication(baseRepoSuffix, REPO_URL, PUBLIC_KEY, PRIVATE_KEY, BRANCH_NAME);
 
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(), anyString())).thenReturn(Mono.just(FALSE));
 
@@ -480,12 +482,13 @@ public class AutoCommitServiceTest {
     public void testAutoCommit_whenNoGitMetadata_returnsNonGitApp() {
         testApplication.setGitApplicationMetadata(null);
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
-        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
-                        anyString(), anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =

@@ -14,6 +14,8 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -175,6 +177,9 @@ public class ApplicationServiceCETest {
     static Datasource testDatasource1 = new Datasource();
 
     static Application gitConnectedApp = new Application();
+
+    @Autowired
+    ArtifactService artifactService;
 
     @Autowired
     ApplicationService applicationService;
@@ -3514,8 +3519,8 @@ public class ApplicationServiceCETest {
 
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(unsavedApplication)
-                .flatMap(savedApplication -> applicationService
-                        .createOrUpdateSshKeyPair(savedApplication.getId(), null)
+                .flatMap(savedApplication -> artifactService
+                        .createOrUpdateSshKeyPair(ArtifactType.APPLICATION, savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId()))
                 .flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
@@ -3544,8 +3549,8 @@ public class ApplicationServiceCETest {
                 .createApplication(unsavedMainApp, workspaceId)
                 .block();
 
-        Mono<Tuple2<Application, Application>> tuple2Mono = applicationService
-                .createOrUpdateSshKeyPair(savedApplication.getId(), null)
+        Mono<Tuple2<Application, Application>> tuple2Mono = artifactService
+                .createOrUpdateSshKeyPair(ArtifactType.APPLICATION, savedApplication.getId(), null)
                 .thenReturn(savedApplication)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
@@ -3555,8 +3560,8 @@ public class ApplicationServiceCETest {
                     unsavedChildApp.setWorkspaceId(workspaceId);
                     return applicationPageService.createApplication(unsavedChildApp, workspaceId);
                 })
-                .flatMap(savedChildApp -> applicationService
-                        .createOrUpdateSshKeyPair(savedChildApp.getId(), null)
+                .flatMap(savedChildApp -> artifactService
+                        .createOrUpdateSshKeyPair(ArtifactType.APPLICATION, savedChildApp.getId(), null)
                         .thenReturn(savedChildApp))
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications

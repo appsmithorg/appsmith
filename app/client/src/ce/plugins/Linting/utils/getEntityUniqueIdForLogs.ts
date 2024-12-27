@@ -1,5 +1,5 @@
 import type { JSActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 const entityUniqueIdGetterMap: Record<
