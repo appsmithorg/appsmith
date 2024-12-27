@@ -117,5 +117,36 @@ describe(
       cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
       cy.closePropertyPane();
     });
+
+    it("5. Verify computed value with try-catch blocks handles missing nested properties", function () {
+      cy.openPropertyPane("tablewidgetv2");
+
+      // Set table data with nested object and missing property
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        `{{[{"name": "Rahul", age: {value: 31}}, {"name": "Jacq", age: {}}, {"name": "John"}]}`,
+      );
+
+      cy.editColumn("age");
+      propPane.UpdatePropertyFieldValue(
+        "Computed value",
+        "{{currentRow.age.value}}",
+      );
+
+      cy.readTableV2data(0, 1).then((val) => {
+        expect(val).to.equal("31");
+      });
+
+      cy.readTableV2data(1, 1).then((val) => {
+        expect(val).to.equal("");
+      });
+
+      cy.readTableV2data(2, 1).then((val) => {
+        expect(val).to.equal("");
+      });
+
+      // Clean up
+      cy.backFromPropertyPanel();
+    });
   },
 );
