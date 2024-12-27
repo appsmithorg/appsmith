@@ -31,6 +31,7 @@ export const useStateInspectorItems: () => [
     description: "",
     descriptionType: "inline",
     size: "md",
+    className: "query-item",
   }));
 
   const jsObjects = useSelector(getJSSegmentItems);
@@ -59,37 +60,45 @@ export const useStateInspectorItems: () => [
     size: "md",
   }));
 
-  return [
-    selectedItem,
-    [
-      {
-        group: "Queries",
-        items: queryItems,
-      },
-      {
-        group: "JS objects",
-        items: jsItems,
-      },
-      {
-        group: "UI elements",
-        items: widgetItems,
-      },
-      {
-        group: "Globals",
-        items: [
-          {
-            id: "appsmith",
-            startIcon: GlobeIcon(),
-            title: "appsmith",
-            isSelected: selectedItem.key === "appsmith",
-            onClick: () =>
-              setSelectedItem({ key: "appsmith", title: "appsmith" }),
-            description: "",
-            descriptionType: "inline",
-            size: "md",
-          },
-        ],
-      },
-    ],
+  const groups: { group: string; items: ListItemProps[] }[] = [
+    {
+      group: "Globals",
+      items: [
+        {
+          id: "appsmith",
+          startIcon: GlobeIcon(),
+          title: "appsmith",
+          isSelected: selectedItem.key === "appsmith",
+          onClick: () =>
+            setSelectedItem({ key: "appsmith", title: "appsmith" }),
+          description: "",
+          descriptionType: "inline",
+          size: "md",
+        },
+      ],
+    },
   ];
+
+  if (widgetItems.length) {
+    groups.unshift({
+      group: "UI elements",
+      items: widgetItems,
+    });
+  }
+
+  if (jsItems.length) {
+    groups.unshift({
+      group: "JS objects",
+      items: jsItems,
+    });
+  }
+
+  if (queryItems.length) {
+    groups.unshift({
+      group: "Queries",
+      items: queryItems,
+    });
+  }
+
+  return [selectedItem, groups];
 };

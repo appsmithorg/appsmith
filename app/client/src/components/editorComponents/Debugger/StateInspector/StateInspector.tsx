@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import { getJSCollections } from "ee/selectors/entitiesSelector";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
+import * as Styled from "./styles";
 
 export const reactJsonProps = {
   name: null,
@@ -46,14 +47,18 @@ export const StateInspector = () => {
         p="spaces-3"
         w="400px"
       >
-        <SearchInput />
+        <SearchInput placeholder="Search entities" />
         <Flex
           flexDirection="column"
           height="calc(100% - 64px)"
           overflowY="auto"
         >
           {items.map((item) => (
-            <Flex flexDirection="column" gap="spaces-2" key={item.group}>
+            <Styled.Group
+              flexDirection="column"
+              gap="spaces-2"
+              key={item.group}
+            >
               <Text
                 className="overflow-hidden overflow-ellipsis whitespace-nowrap flex-shrink-0"
                 kind="body-s"
@@ -61,11 +66,17 @@ export const StateInspector = () => {
                 {item.group}
               </Text>
               <List items={item.items} />
-            </Flex>
+            </Styled.Group>
           ))}
         </Flex>
       </Flex>
-      <Flex flex="1" height="calc(100% - 40px)" overflowY="auto" p="spaces-3">
+      <Flex
+        className="mp-mask"
+        flex="1"
+        height="calc(100% - 40px)"
+        overflowY="auto"
+        p="spaces-3"
+      >
         <ReactJson src={filteredData} {...reactJsonProps} />
       </Flex>
     </Flex>

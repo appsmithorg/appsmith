@@ -11,6 +11,7 @@ import {
   DEBUGGER_HEADERS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
+  DEBUGGER_STATE,
 } from "ee/constants/messages";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -32,6 +33,7 @@ import {
 } from "PluginActionEditor/hooks";
 import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
+import { StateInspector } from "components/editorComponents/Debugger/StateInspector";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -157,6 +159,11 @@ function usePluginActionResponseTabs() {
         title: createMessage(DEBUGGER_ERRORS),
         count: errorCount,
         panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.STATE_TAB,
+        title: createMessage(DEBUGGER_STATE),
+        panelComponent: <StateInspector />,
       },
     );
   }

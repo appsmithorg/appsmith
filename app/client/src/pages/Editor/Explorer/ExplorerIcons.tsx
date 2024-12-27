@@ -369,5 +369,5 @@ export function WidgetIconByType(widgetType: WidgetType) {
 }
 
 export function GlobeIcon() {
-  return <Icon name="globe-line" size="md" />;
+  return <Icon name="global-line" size="md" />;
 }

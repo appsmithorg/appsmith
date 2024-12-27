@@ -10,6 +10,7 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
+  DEBUGGER_STATE,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
@@ -40,6 +41,7 @@ import ErrorLogs from "./Debugger/Errors";
 import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
 import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import { StateInspector } from "./Debugger/StateInspector";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -203,12 +205,19 @@ function JSResponseView(props: Props) {
   ];
 
   if (ideViewMode === EditorViewMode.FullScreen) {
-    tabs.push({
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    });
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.STATE_TAB,
+        title: createMessage(DEBUGGER_STATE),
+        panelComponent: <StateInspector />,
+      },
+    );
   }
 
   // get the selected tab from the store.
