@@ -11,11 +11,10 @@ import type {
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { LINTER_TYPE } from "./constants";
 
-export type WebworkerTelemetryAttribute = WebworkerSpanData | SpanAttributes;
+export type WebworkerTelemetryAttribute = WebworkerSpanData | Attributes;
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",

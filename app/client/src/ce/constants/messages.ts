@@ -2308,6 +2308,7 @@ export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
   "Connect a datasource to write your first query";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
+export const DATASOURCE_BLANK_STATE_CTA = () => "Bring your data";
 
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";

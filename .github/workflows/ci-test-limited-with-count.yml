@@ -28,6 +28,7 @@ on:
         description: 'Cypress spec file(s) to run'
         required: false
         type: string
+        default: 'no_data'
 
   workflow_call:
     inputs:
@@ -53,7 +54,8 @@ on:
       specs_to_run:
         description: 'Cypress spec file(s) to run'
         required: false
-        type: string  
+        type: string
+        default: 'no_data'
 
 jobs:
   ci-test-limited:
@@ -139,21 +141,58 @@ jobs:
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true    
 
-      # Get specs to run
+      # Step to get specs from the file or use the provided specs
       - name: Get specs to run
-        if: ${{ (inputs.specs_to_run == '' || inputs.specs_to_run == null || !inputs.specs_to_run) && steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest' }}
         run: |
-          specs_to_run=""
-          while IFS= read -r line
-          do
-            if [[ $line =~ ^#|^\/\/ ]]; then
-              continue
+          # Check if specs_to_run is provided; if not, use the fallback file
+          echo "[DEBUG] Initial specs_to_run value: $specs_to_run"
+          if [[ -z "$specs_to_run" || "$specs_to_run" == "no_data" ]]; then
+            echo "[INFO] No specs provided, falling back to limited-tests.txt file."
+            
+            # Verify if the fallback file exists
+            if [[ ! -f app/client/cypress/limited-tests.txt ]]; then
+              echo "[ERROR] limited-tests.txt file not found in app/client/cypress!" >&2
+              exit 1
             else
-              specs_to_run="$specs_to_run,$line"
+              echo "[DEBUG] limited-tests.txt file found. Proceeding to read specs."
             fi
-          done < app/client/cypress/limited-tests.txt
-          specs_to_run=${specs_to_run#,}
+
+            specs_to_run=""
+
+            # Read each line of limited-tests.txt
+            while IFS= read -r line || [[ -n "$line" ]]; do
+              # Log each line being read
+              echo "[DEBUG] Reading line: $line"
+
+              # Skip comments and empty lines
+              if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
+                echo "[DEBUG] Skipping comment/empty line: $line"
+                continue
+              else
+                echo "[DEBUG] Adding spec to specs_to_run: $line"
+                specs_to_run="$specs_to_run,$line"
+              fi
+            done < app/client/cypress/limited-tests.txt
+
+            # Remove leading comma
+            specs_to_run=${specs_to_run#,}
+            echo "[DEBUG] Final specs_to_run after processing limited-tests.txt: $specs_to_run"
+
+            # If no specs found, return an error
+            if [[ -z "$specs_to_run" ]]; then
+              echo "[ERROR] No specs found in limited-tests.txt after processing!" >&2
+              exit 1
+            fi
+          else
+            echo "[INFO] Using provided specs: $specs_to_run"
+          fi
+
+          # Log the final specs_to_run value before writing it to GitHub environment
+          echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
+
+          # Set the final specs_to_run to GitHub environment variable
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+          
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact

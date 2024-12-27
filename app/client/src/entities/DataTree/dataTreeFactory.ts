@@ -10,7 +10,7 @@ import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
