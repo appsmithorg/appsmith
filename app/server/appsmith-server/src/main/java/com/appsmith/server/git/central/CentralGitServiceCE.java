@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -41,6 +42,8 @@ public interface CentralGitServiceCE {
 
     Mono<GitStatusDTO> getStatus(
             String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
+
+    Mono<GitPullDTO> pullArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 
     Mono<? extends Artifact> checkoutReference(
             String referenceArtifactId,

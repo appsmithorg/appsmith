@@ -3,6 +3,7 @@ package com.appsmith.server.git.central;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
@@ -28,6 +29,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
@@ -63,6 +65,7 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -1579,6 +1582,165 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .name(OPS_STATUS)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    /**
+     * Method to pull artifact json files from remote repo, make a commit with the changes present in local DB and
+     * make a system commit to remote repo
+     *
+     * @param branchedArtifactId artifact for which we want to pull remote changes and merge
+     * @param artifactType
+     * @return return the status of pull operation
+     */
+    @Override
+    public Mono<GitPullDTO> pullArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        /*
+         * 1.Dehydrate the artifact from DB so that the file system has the latest artifact data
+         * 2.Do git pull after the rehydration and merge the remote changes to the current branch
+         *   On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+         *   TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+         * 3.Then rehydrate from the file system to DB so that the latest changes from remote are rendered to the artifact
+         * 4.Get the latest artifact from the DB and send it back to client
+         * */
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
+                getBaseAndBranchedArtifacts(branchedArtifactId, artifactType, artifactEditPermission);
+
+        return baseAndBranchedArtifactMono.flatMap(artifactTuple -> {
+            Artifact baseArtifact = artifactTuple.getT1();
+            Artifact branchedArtifact = artifactTuple.getT2();
+
+            return pullArtifact(baseArtifact, branchedArtifact, gitType);
+        });
+    }
+
+    protected Mono<GitPullDTO> pullArtifact(Artifact baseArtifact, Artifact branchedArtifact, GitType gitType) {
+
+        GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
+        Mono<GitStatusDTO> statusMono = getStatus(baseArtifact, branchedArtifact, false, true, gitType);
+
+        Mono<GitPullDTO> pullDTOMono = gitRedisUtils
+                .acquireGitLock(branchedGitMetadata.getDefaultArtifactId(), GitConstants.GitCommandConstants.PULL, TRUE)
+                .then(statusMono)
+                .flatMap(status -> {
+                    // Check if the repo is clean
+                    if (!CollectionUtils.isEmpty(status.getModified())) {
+                        return gitRedisUtils
+                                .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                                .then(
+                                        Mono.error(
+                                                new AppsmithException(
+                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                        "pull",
+                                                        "There are uncommitted changes present in your local. Please commit them first and then try git pull")));
+                    }
+
+                    return pullAndRehydrateArtifact(baseArtifact, branchedArtifact, gitType)
+                            // Release file lock after the pull operation
+                            .flatMap(gitPullDTO -> gitRedisUtils
+                                    .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                                    .then(Mono.just(gitPullDTO)));
+                })
+                .name(GitSpan.OPS_PULL)
+                .tap(Micrometer.observation(observationRegistry));
+
+        return Mono.create(sink -> pullDTOMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    /**
+     * Method to pull the files from remote repo and rehydrate the application
+     *
+     * @param baseArtifact     : base artifact
+     * @param branchedArtifact : a branch created from branches of base artifact
+     * @return pull DTO with updated application
+     */
+    private Mono<GitPullDTO> pullAndRehydrateArtifact(
+            Artifact baseArtifact, Artifact branchedArtifact, GitType gitType) {
+        /*
+        1. Checkout to the concerned branch
+        2. Do git pull after
+            On Merge conflict - throw exception and ask user to resolve these conflicts on remote
+            TODO create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+        3. Rehydrate the application from filesystem so that the latest changes from remote are rendered to the application
+        */
+
+        ArtifactType artifactType = baseArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+
+        if (isBaseGitMetadataInvalid(baseGitMetadata, gitType)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
+
+        final String workspaceId = branchedArtifact.getWorkspaceId();
+        final String baseArtifactId = branchedGitMetadata.getDefaultArtifactId();
+        final String repoName = branchedGitMetadata.getRepoName();
+        final String branchName = branchedGitMetadata.getBranchName();
+
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+        jsonTransformationDTO.setRepoName(repoName);
+        jsonTransformationDTO.setRefType(RefType.BRANCH);
+        jsonTransformationDTO.setRefName(branchName);
+        jsonTransformationDTO.setWorkspaceId(workspaceId);
+        jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
+        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        return Mono.defer(() -> {
+                    // Rehydrate the artifact from git system
+
+                    Mono<MergeStatusDTO> mergeStatusDTOMono = gitHandlingService
+                            .pullArtifact(jsonTransformationDTO, baseGitMetadata)
+                            .cache();
+                    Mono<ArtifactExchangeJson> artifactExchangeJsonMono = mergeStatusDTOMono.flatMap(status ->
+                            gitHandlingService.reconstructArtifactJsonFromGitRepository(jsonTransformationDTO));
+
+                    return Mono.zip(mergeStatusDTOMono, artifactExchangeJsonMono);
+                })
+                .flatMap(tuple -> {
+                    MergeStatusDTO status = tuple.getT1();
+                    ArtifactExchangeJson artifactExchangeJson = tuple.getT2();
+                    // Get the latest artifact with all the changes
+                    // Commit and push changes to sync with remote
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
+                                    workspaceId, branchedArtifact.getId(), artifactExchangeJson, branchName)
+                            .flatMap(importedBranchedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_PULL,
+                                    importedBranchedArtifact,
+                                    importedBranchedArtifact
+                                            .getGitArtifactMetadata()
+                                            .getIsRepoPrivate()))
+                            .flatMap(importedBranchedArtifact -> {
+                                CommitDTO commitDTO = new CommitDTO();
+                                commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
+                                        + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+
+                                GitPullDTO gitPullDTO = new GitPullDTO();
+                                gitPullDTO.setMergeStatus(status);
+                                gitPullDTO.setArtifact(importedBranchedArtifact);
+
+                                return gitArtifactHelper
+                                        .publishArtifact(importedBranchedArtifact, false)
+                                        // TODO: Verify if we need to commit after pulling? (Gonna be a product
+                                        // decision, hence got
+                                        .then(commitArtifact(
+                                                        commitDTO,
+                                                        baseArtifact,
+                                                        importedBranchedArtifact,
+                                                        gitType,
+                                                        false)
+                                                .thenReturn(gitPullDTO));
+                            });
+                });
     }
 
     public Mono<String> fetchRemoteChanges(
