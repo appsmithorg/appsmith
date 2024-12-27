@@ -42,6 +42,7 @@ export default function DatasourceItem({
     >
       <DatasourceImage
         alt={name}
+        className="content-icon"
         data-testid={dataCardImageTestId}
         src={icon}
       />

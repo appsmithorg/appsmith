@@ -316,7 +316,7 @@ Cypress.Commands.add("datasourceCardStyle", (tag) => {
 
 Cypress.Commands.add("datasourceImageStyle", (tag) => {
   cy.get(tag)
-    .should("have.css", "height", "34px")
+    .should("have.css", "height", "24px")
     .and("have.css", "max-width", "100%");
 });
 
@@ -331,7 +331,7 @@ Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "background-color", backgroundColorGray2)
-    .and("have.css", "height", "34px")
+    .and("have.css", "height", "24px")
     .and("have.css", "border-radius", "0px")
     .and("have.css", "display", "block")
     .and("have.css", "align-items", "normal");
@@ -342,8 +342,7 @@ Cypress.Commands.add("datasourceNameStyle", (tag) => {
     .should("have.css", "color", backgroundColorBlack)
     .and("have.css", "font-size", "16px")
     .and("have.css", "font-weight", "400")
-    .and("have.css", "line-height", "24px")
-    .and("have.css", "letter-spacing", "-0.24px");
+    .and("have.css", "line-height", "24px");
 });
 
 Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
@@ -351,6 +350,5 @@ Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
     .should("have.css", "color", backgroundColorGray8)
     .and("have.css", "font-size", "13px")
     .and("have.css", "font-weight", "400")
-    .and("have.css", "line-height", "17px")
-    .and("have.css", "letter-spacing", "-0.24px");
+    .and("have.css", "line-height", "17px");
 });
