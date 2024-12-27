@@ -107,7 +107,5 @@ export const sagas = [
   ternSagas,
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
-  // not sure what is the best way to integrate git sagas behind a feature flag
-  // although integrating it directly should be fine as it will not be used unless the feature is enabled
   gitSagas,
 ];

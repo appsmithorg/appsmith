@@ -88,8 +88,6 @@ export const reducerObject = {
   settings: SettingsReducer,
   tenant: tenantReducer,
   linting: lintErrorReducer,
-  // not sure what is the best way to integrate git reducer behind a feature flag
-  // although integrating it directly should be fine as it will not be used unless the feature is enabled
   git: gitReducer,
 };
 

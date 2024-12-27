@@ -3,11 +3,9 @@
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { createSelector } from "reselect";
 import { getCurrentGitBranch, protectedModeSelector } from "./gitSyncSelectors";
-import type { AppState } from "ee/reducers";
 import {
   selectGitCurrentBranch as selectGitCurrentBranchNew,
   selectGitProtectedMode as selectGitProtectedModeNew,
-  type GitArtifactDef,
 } from "git";
 import {
   getCurrentBaseApplicationId,
@@ -20,41 +18,33 @@ export const selectGitModEnabled = createSelector(
   (featureFlags) => featureFlags.release_git_modularisation_enabled ?? false,
 );
 
-export function selectGitCurrentBranch(
-  state: AppState,
-  artifactDef: GitArtifactDef,
-) {
-  const isGitModEnabled = selectGitModEnabled(state);
+export const selectGitApplicationArtifactDef = createSelector(
+  getCurrentBaseApplicationId,
+  (baseApplicationId) => applicationArtifact(baseApplicationId),
+);
 
-  if (isGitModEnabled) {
-    return getCurrentGitBranch(state);
-  } else {
-    return selectGitCurrentBranchNew(state, artifactDef);
-  }
-}
+export const selectGitApplicationCurrentBranch = createSelector(
+  selectGitModEnabled,
+  getCurrentGitBranch,
+  (state) =>
+    selectGitCurrentBranchNew(state, selectGitApplicationArtifactDef(state)),
+  (isGitModEnabled, currentBranchOld, currentBranchNew) => {
+    return isGitModEnabled ? currentBranchNew : currentBranchOld;
+  },
+);
 
-export function selectGitProtectedMode(
-  state: AppState,
-  artifactDef: GitArtifactDef,
-) {
-  const isGitModEnabled = selectGitModEnabled(state);
-
-  if (isGitModEnabled) {
-    return protectedModeSelector(state);
-  } else {
-    return selectGitProtectedModeNew(state, artifactDef);
-  }
-}
+export const selectGitApplicationProtectedMode = createSelector(
+  selectGitModEnabled,
+  protectedModeSelector,
+  (state) =>
+    selectGitProtectedModeNew(state, selectGitApplicationArtifactDef(state)),
+  (isGitModEnabled, protectedModeOld, protectedModeNew) => {
+    return isGitModEnabled ? protectedModeNew : protectedModeOld;
+  },
+);
 
 export const selectCombinedPreviewMode = createSelector(
   previewModeSelector,
-  (state: AppState) => {
-    const baseApplicationId = getCurrentBaseApplicationId(state);
-
-    return selectGitProtectedMode(
-      state,
-      applicationArtifact(baseApplicationId),
-    );
-  },
+  selectGitApplicationProtectedMode,
   (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
 );
