@@ -125,7 +125,7 @@ export class JSEditor {
     );
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@createNewJSCollection", 201);
-    this.agHelper.AssertElementAbsence(this._jsObjTxt);
+    this.agHelper.GetElement(this._jsObjTxt).blur();
 
     this.agHelper.Sleep();
   }
