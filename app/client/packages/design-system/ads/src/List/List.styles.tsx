@@ -85,6 +85,7 @@ export const ContentTextWrapper = styled.div`
   & .${ListItemIDescClassName} {
     font-size: var(--listitem-idescription-font-size);
     line-height: 16px;
+    padding-right: var(--ads-v2-spaces-2);
   }
 `;
 

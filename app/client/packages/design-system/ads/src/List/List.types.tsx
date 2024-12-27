@@ -30,8 +30,6 @@ export interface ListItemProps {
   descriptionType?: "inline" | "block";
   /** class names for the list item */
   className?: string;
-  /** class names for the wrapper */
-  wrapperClassName?: string;
   /** id for the list item */
   id?: string;
   /** customTitleComponent for the list item to use input component for name editing */

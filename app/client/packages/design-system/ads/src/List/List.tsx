@@ -21,7 +21,6 @@ import {
   ListItemIDescClassName,
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
-  ListItemWrapperClassName,
 } from "./List.constants";
 
 function List({ className, items, ...rest }: ListProps) {
@@ -111,7 +110,7 @@ function ListItem(props: ListItemProps) {
 
   return (
     <StyledListItem
-      className={clsx(ListItemWrapperClassName, props.wrapperClassName)}
+      className={clsx(ListItemClassName, props.className)}
       data-disabled={props.isDisabled || false}
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
@@ -120,7 +119,6 @@ function ListItem(props: ListItemProps) {
       tabIndex={props.isDisabled ? -1 : 0}
     >
       <ContentTextWrapper
-        className={clsx(ListItemClassName, props.className)}
         onClick={handleOnClick}
         onKeyDown={listItemhandleKeyDown}
       >
