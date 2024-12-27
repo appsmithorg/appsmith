@@ -12,7 +12,7 @@ import { Text } from "../../Text";
 import { ListHeaderContainer } from "../EntityExplorer/styles";
 
 const meta: Meta = {
-  title: "ADS/Templates/IDEHeader",
+  title: "ADS/Templates/IDE Header",
   component: IDEHeader,
   parameters: {
     layout: "fullscreen",

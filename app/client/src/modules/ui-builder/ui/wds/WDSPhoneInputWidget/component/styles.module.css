@@ -1,0 +1,3 @@
+.dialCodeOption [data-component="name"] {
+  color: var(--color-fg-neutral-subtle);
+}

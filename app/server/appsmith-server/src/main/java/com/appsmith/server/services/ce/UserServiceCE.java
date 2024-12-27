@@ -41,6 +41,8 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
 
+    Mono<User> signupIfAllowed(User user);
+
     Mono<User> updateWithoutPermission(String id, User update);
 
     Mono<Boolean> resendEmailVerification(ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl);

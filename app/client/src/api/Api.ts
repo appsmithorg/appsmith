@@ -7,7 +7,7 @@ import {
 } from "./interceptors";
 import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 
 export const apiRequestConfig = {
   baseURL: "/api/",

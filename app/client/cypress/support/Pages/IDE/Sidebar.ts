@@ -2,7 +2,7 @@ export class Sidebar {
   buttons: string[];
   locators = {
     sidebar: ".t--sidebar",
-    sidebarButton: (name: string) => `.t--sidebar-${name}`,
+    sidebarButton: (name: string) => `[data-testid='t--sidebar-${name}']`,
   };
 
   constructor(buttons: string[]) {

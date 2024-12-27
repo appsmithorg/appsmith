@@ -13,6 +13,7 @@ import { LoaderContainer } from "pages/AdminSettings/components";
 import { useParams } from "react-router";
 import AdminConfig from "ee/pages/AdminSettings/config";
 import { Spinner } from "@appsmith/ads";
+import MixpanelSingleton from "../../utils/Analytics/mixpanel";
 
 const FlexContainer = styled.div`
   display: flex;
@@ -30,6 +31,16 @@ function Settings() {
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
+
+  useEffect(() => {
+    // Stop recording this screen
+    MixpanelSingleton.getInstance().stopRecording();
+
+    return () => {
+      // Start recording after this screen unmounts
+      MixpanelSingleton.getInstance().startRecording();
+    };
+  }, []);
 
   useEffect(() => {
     if (user?.isSuperUser) {

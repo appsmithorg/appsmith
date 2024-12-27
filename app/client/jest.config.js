@@ -86,27 +86,10 @@ module.exports = {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
       },
-      newRelic: {
-        enableNewRelic: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__"),
-        accountId: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__"),
-        applicationId: parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__"),
-        browserAgentlicenseKey: parseConfig(
-          "__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__",
-        ),
-        browserAgentEndpoint: parseConfig(
-          "__APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT__",
-        ),
-        otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
-        otlpServiceName: parseConfig(
-          "__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__",
-        ),
-        otlpEndpoint: parseConfig(
-          "__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__",
-        ),
-      },
       observability: {
         deploymentName: "jest-run",
         serviceInstanceId: "appsmith-0",
+        tracingUrl: "",
       },
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),

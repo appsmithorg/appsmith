@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.git;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -321,5 +322,22 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> publishArtifactPostCommit(Artifact committedArtifact) {
         return publishArtifact(committedArtifact, true);
+    }
+
+    @Override
+    public Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish) {
+        return publishArtifact(artifact, publish);
+    }
+
+    @Override
+    public Mono<Application> publishArtifactPostRefCreation(
+            Artifact artifact, RefType refType, Boolean isPublishedManually) {
+        // TODO: create publish for ref type creation.
+        Application application = (Application) artifact;
+        if (RefType.TAG.equals(refType)) {
+            return Mono.just(application);
+        }
+
+        return Mono.just(application);
     }
 }

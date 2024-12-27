@@ -21,9 +21,11 @@ jest.mock("./../Statusbar", () => () => (
 
 describe("QuickActionsView Component", () => {
   const defaultProps = {
+    currentBranch: "main",
     discard: jest.fn(),
     isAutocommitEnabled: false,
     isAutocommitPolling: false,
+    isBranchPopupOpen: false,
     isConnectPermitted: true,
     isDiscardLoading: false,
     isFetchStatusLoading: false,
@@ -32,12 +34,14 @@ describe("QuickActionsView Component", () => {
     isPullFailing: false,
     isPullLoading: false,
     isStatusClean: true,
+    isTriggerAutocommitLoading: false,
     pull: jest.fn(),
     statusBehindCount: 0,
     statusChangeCount: 0,
     toggleConnectModal: jest.fn(),
     toggleOpsModal: jest.fn(),
     toggleSettingsModal: jest.fn(),
+    toggleBranchPopup: jest.fn(),
   };
 
   afterEach(() => {

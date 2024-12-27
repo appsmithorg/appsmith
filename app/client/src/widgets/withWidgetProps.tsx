@@ -49,10 +49,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
-import { getAppsmithConfigs } from "ee/configs";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-const { newRelic } = getAppsmithConfigs();
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -371,15 +368,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
     }
 
-    if (!newRelic.enableNewRelic) {
-      return <WrappedWidget {...widgetProps} />;
-    }
-
-    return (
-      <WidgetProfiler type={type} widgetId={widgetId}>
-        <WrappedWidget {...widgetProps} />
-      </WidgetProfiler>
-    );
+    return <WrappedWidget {...widgetProps} />;
   }
 
   return WrappedPropsComponent;

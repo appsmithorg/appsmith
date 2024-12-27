@@ -41,6 +41,7 @@ import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
 import RequestNewIntegration from "./RequestNewIntegration";
+import PremiumDatasources from "pages/Editor/IntegrationEditor/PremiumDatasources";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -178,6 +179,7 @@ function CreateNewDatasource({
 function CreateNewSaasIntegration({
   active,
   isCreating,
+  isPremiumDatasourcesViewEnabled,
   pageId,
   showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -211,7 +213,9 @@ function CreateNewSaasIntegration({
           pageId={pageId}
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          {isPremiumDatasourcesViewEnabled && <PremiumDatasources />}
+        </NewApiScreen>
       </div>
     </>
   ) : null;
@@ -252,6 +256,7 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isOnboardingScreen?: boolean;
   isRequestNewIntegrationEnabled: boolean;
+  isPremiumDatasourcesViewEnabled: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -283,6 +288,7 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isCreating,
       isOnboardingScreen,
+      isPremiumDatasourcesViewEnabled,
       isRequestNewIntegrationEnabled,
       pageId,
       showDebugger,
@@ -338,6 +344,7 @@ class CreateNewDatasourceTab extends React.Component<
           <CreateNewSaasIntegration
             active={false}
             isCreating={isCreating}
+            isPremiumDatasourcesViewEnabled={isPremiumDatasourcesViewEnabled}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
@@ -386,6 +393,9 @@ const mapStateToProps = (state: AppState) => {
   const isRequestNewIntegrationEnabled =
     !!featureFlags?.ab_request_new_integration_enabled;
 
+  const isPremiumDatasourcesViewEnabled =
+    !!featureFlags?.ab_premium_datasources_view_enabled;
+
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -395,6 +405,7 @@ const mapStateToProps = (state: AppState) => {
     showDebugger,
     pageId,
     isRequestNewIntegrationEnabled,
+    isPremiumDatasourcesViewEnabled,
   };
 };
 
