@@ -1,4 +1,4 @@
-import type { Span } from "@opentelemetry/api";
+import type { Span } from "instrumentation/types";
 import { InstrumentationBase } from "@opentelemetry/instrumentation";
 import { startRootSpan, startNestedSpan } from "./generateTraces";
 import { onLCP, onFCP } from "web-vitals/attribution";
