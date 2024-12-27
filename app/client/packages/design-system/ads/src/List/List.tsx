@@ -113,9 +113,9 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemWrapperClassName, props.wrapperClassName)}
       data-disabled={props.isDisabled || false}
+      data-isblockdescription={isBlockDescription}
+      data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
-      isBlockDescription={isBlockDescription}
-      rightControlVisibility={rightControlVisibility}
       size={size}
       tabIndex={props.isDisabled ? -1 : 0}
     >
