@@ -103,8 +103,7 @@ describe(
         .wait(3000)
         .click({
           force: true,
-        })
-        .type("{enter}", { parseSpecialCharSequences: true });
+        });
 
       cy.validateEvaluatedValue(
         "http://host.docker.internal:5001/Cancel?key=test&val=Cancel",

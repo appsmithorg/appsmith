@@ -394,6 +394,7 @@ export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
+export const NOT_FOUND = () => "Not found";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -2306,6 +2307,7 @@ export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
   "Connect a datasource to write your first query";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
+export const DATASOURCE_BLANK_STATE_CTA = () => "Bring your data";
 
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";

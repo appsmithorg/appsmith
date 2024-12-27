@@ -1,10 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "test/testUtils";
-import { JSFunctionRun } from "./JSFunctionRun";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
+
 import { convertJSActionsToDropdownOptions } from "../utils";
+import { JSFunctionRun } from "./JSFunctionRun";
+import { JS_FUNCTION_RUN_NAME_LENGTH } from "./constants";
 
 jest.mock("utils/hooks/useFeatureFlag");
 const mockUseFeatureFlag = useFeatureFlag as jest.Mock;
@@ -79,5 +81,27 @@ describe("JSFunctionRun", () => {
     render(<JSFunctionRun {...mockProps} />);
     fireEvent.click(screen.getByText("Run"));
     expect(mockProps.onButtonClick).toHaveBeenCalled();
+  });
+
+  it("truncates long names to 30 characters", () => {
+    mockUseFeatureFlag.mockReturnValue(true);
+    const options = [
+      {
+        label:
+          "aReallyReallyLongFunctionNameThatConveysALotOfMeaningAndCannotBeShortenedAtAllBecauseItConveysALotOfMeaningAndCannotBeShortened",
+        value: "1",
+      },
+    ];
+    const [selected] = options;
+    const jsCollection = { name: "CollectionName" };
+    const params = { options, selected, jsCollection } as Parameters<
+      typeof JSFunctionRun
+    >[0];
+
+    render(<JSFunctionRun {...params} />);
+
+    expect(screen.getByTestId("t--js-function-run").textContent?.length).toBe(
+      JS_FUNCTION_RUN_NAME_LENGTH,
+    );
   });
 });
