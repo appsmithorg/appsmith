@@ -3,13 +3,13 @@ import clsx from "classnames";
 
 import type { ListItemProps, ListProps } from "./List.types";
 import {
+  ContentTextWrapper,
   DescriptionWrapper,
   InlineDescriptionWrapper,
   RightControlWrapper,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
-  Wrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
@@ -110,19 +110,19 @@ function ListItem(props: ListItemProps) {
   };
 
   return (
-    <Wrapper
+    <StyledListItem
       className={clsx(ListItemWrapperClassName, props.wrapperClassName)}
       data-disabled={props.isDisabled || false}
       data-selected={props.isSelected}
+      isBlockDescription={isBlockDescription}
       rightControlVisibility={rightControlVisibility}
+      size={size}
       tabIndex={props.isDisabled ? -1 : 0}
     >
-      <StyledListItem
+      <ContentTextWrapper
         className={clsx(ListItemClassName, props.className)}
-        isBlockDescription={isBlockDescription}
         onClick={handleOnClick}
         onKeyDown={listItemhandleKeyDown}
-        size={size}
       >
         {startIcon}
         {props.customTitleComponent ? (
@@ -158,11 +158,11 @@ function ListItem(props: ListItemProps) {
             )}
           </InlineDescriptionWrapper>
         )}
-      </StyledListItem>
+      </ContentTextWrapper>
       {rightControl && (
         <RightControlWrapper>{rightControl}</RightControlWrapper>
       )}
-    </Wrapper>
+    </StyledListItem>
   );
 }
 

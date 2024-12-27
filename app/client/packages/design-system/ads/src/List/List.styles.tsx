@@ -36,9 +36,13 @@ export const StyledList = styled.div`
   gap: var(--ads-v2-spaces-2);
 `;
 
-export const Wrapper = styled.div<{
+export const StyledListItem = styled.div<{
+  isBlockDescription?: boolean;
   rightControlVisibility?: "hover" | "always";
+  size: ListSizes;
 }>`
+  ${Variables};
+
   display: flex;
   width: 100%;
   align-items: center;
@@ -46,21 +50,19 @@ export const Wrapper = styled.div<{
   box-sizing: border-box;
   position: relative;
   border-radius: var(--ads-v2-border-radius);
-  min-height: 32px;
+  padding: var(--ads-v2-spaces-2);
+  padding-left: var(--ads-v2-spaces-3);
+
+  ${({ size }) => Sizes[size]}
+
+  ${({ isBlockDescription }) =>
+    `height: ${isBlockDescription ? "54px" : "32px"};`}
 
   ${(props) =>
     props.rightControlVisibility === "hover" &&
     `
     ${RightControlWrapper} { display: none; }
     &:hover ${RightControlWrapper} { display: block; }`}
-
-  &:hover {
-    background-color: var(--ads-v2-colors-content-surface-hover-bg);
-  }
-
-  &:active {
-    background-color: var(--ads-v2-colors-content-surface-active-bg);
-  }
 
   &[data-selected="true"] {
     background-color: var(--ads-v2-colors-content-surface-active-bg);
@@ -71,6 +73,14 @@ export const Wrapper = styled.div<{
     cursor: not-allowed;
     opacity: var(--ads-v2-opacity-disabled);
     background-color: var(--ads-v2-colors-content-surface-default-bg);
+  }
+
+  &:hover {
+    background-color: var(--ads-v2-colors-content-surface-hover-bg);
+  }
+
+  &:active {
+    background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
   /* Focus styles */
@@ -86,11 +96,6 @@ export const TooltipTextWrapper = styled.div`
   min-width: 0;
 `;
 
-export const ContentWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-`;
-
 export const DescriptionWrapper = styled.div`
   flex-direction: column;
   min-width: 0;
@@ -102,36 +107,24 @@ export const InlineDescriptionWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 0;
-  gap: var(--ads-v2-spaces-3);
   flex: 1;
+  min-width: 0;
 `;
 
 export const RightControlWrapper = styled.div`
   height: 100%;
-
-  button {
-    height: 100% !important;
-    width: 32px;
-  }
+  line-height: normal;
 `;
 
-export const StyledListItem = styled.div<{
-  size: ListSizes;
-  isBlockDescription: boolean;
-}>`
-  ${Variables};
-
+export const ContentTextWrapper = styled.div`
   display: flex;
   width: 100%;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-2) var(--ads-v2-spaces-2)
-    var(--ads-v2-spaces-3);
   gap: var(--ads-v2-spaces-3);
   overflow: hidden;
-
-  ${({ size }) => Sizes[size]}
+  flex: 1;
+  min-width: 0;
 
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
@@ -145,7 +138,7 @@ export const StyledListItem = styled.div<{
   }
 
   & .${ListItemBDescClassName} {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     text-overflow: initial;
