@@ -16,12 +16,12 @@ import { ActionExecutionContext } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
 import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
+import type { Span } from "instrumentation/types";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -397,11 +397,11 @@ type actionDataPayload = {
 
 export interface updateActionDataPayloadType {
   actionDataPayload: actionDataPayload;
-  parentSpan?: OtlpSpan;
+  parentSpan?: Span;
 }
 export const updateActionData = (
   payload: actionDataPayload,
-  parentSpan?: OtlpSpan,
+  parentSpan?: Span,
 ): {
   type: string;
   payload: updateActionDataPayloadType;
