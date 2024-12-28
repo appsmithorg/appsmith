@@ -35,10 +35,10 @@ describe(
     it("1. Validate commit comment inputbox and last deployed preview", function () {
       // last deployed preview
       // The deploy preview Link should be displayed only after the first commit done
-      cy.get(gitSync.locators.quickActionsCommitBtn).click();
+      cy.get(_.gitSync.locators.quickActionsCommitBtn).click();
 
-      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
-      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
+      cy.get(_.gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(_.gitSync.locators.opsCommitBtn).should("be.disabled");
       _.gitSync.CloseOpsModal();
     });
 
