@@ -15,7 +15,7 @@ export class GitSync {
       "[data-testid='t--git-quick-actions-commit-count']",
     quickActionsPullBtn: "[data-testid='t--git-quick-actions-pull'] button",
     quickActionsBranchBtn: "[data-testid='t--git-quick-actions-branch']",
-    quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge']",
+    quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge'] button",
     quickActionsSettingsBtn: "[data-testid='t--git-quick-actions-settings']",
     branchSearchInput: "[data-testid='t--git-branch-search-input'] input",
     branchSyncBtn: "[data-testid='t--git-branch-sync']",

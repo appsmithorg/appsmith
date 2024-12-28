@@ -15,6 +15,7 @@ import { getWorkspaceIdForImport } from "ee/selectors/applicationSelectors";
 import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { GitErrorCodes } from "git/constants/enums";
 
 export default function* gitImportSaga(
   action: PayloadAction<GitImportInitPayload>,
@@ -35,7 +36,7 @@ export default function* gitImportSaga(
       );
 
       if (currentWorkspace.length > 0) {
-        const { application, isPartialImport, unconfiguredDatasourceList } =
+        const { application, isPartialImport, unConfiguredDatasourceList } =
           response.data;
 
         yield put(gitGlobalActions.gitImportSuccess());
@@ -46,7 +47,7 @@ export default function* gitImportSaga(
           yield put(
             showReconnectDatasourceModal({
               application: application,
-              unConfiguredDatasourceList: unconfiguredDatasourceList ?? [],
+              unConfiguredDatasourceList: unConfiguredDatasourceList ?? [],
               workspaceId,
             }),
           );
@@ -73,17 +74,18 @@ export default function* gitImportSaga(
       }
     }
   } catch (e) {
-    // const isRepoLimitReachedError: boolean = yield call(
-    //   handleRepoLimitReachedError,
-    //   response,
-    // );
-
-    // if (isRepoLimitReachedError) return;
-
     if (response?.responseMeta?.error) {
-      yield put(
-        gitGlobalActions.gitImportError({ error: response.responseMeta.error }),
-      );
+      const { error } = response.responseMeta;
+
+      if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
+        yield put(
+          gitGlobalActions.toggleRepoLimitErrorModal({
+            open: true,
+          }),
+        );
+      }
+
+      yield put(gitGlobalActions.gitImportError({ error }));
     } else {
       log.error(e);
       captureException(e);

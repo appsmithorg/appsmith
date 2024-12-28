@@ -91,6 +91,11 @@ export const selectMergeState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.merge;
 
+export const selectMergeSuccess = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui.mergeSuccess;
+
 export const selectMergeStatusState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,

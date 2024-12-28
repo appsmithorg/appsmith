@@ -20,6 +20,7 @@ const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   checkoutDestBranch: null,
   opsModalOpen: false,
   opsModalTab: GitOpsTab.Deploy,
+  mergeSuccess: false,
   settingsModalOpen: false,
   settingsModalTab: GitSettingsTab.General,
   autocommitDisableModalOpen: false,

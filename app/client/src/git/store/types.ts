@@ -72,6 +72,7 @@ export interface GitArtifactUIReduxState
   checkoutDestBranch: string | null;
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
+  mergeSuccess: boolean;
   settingsModalOpen: boolean;
   settingsModalTab: keyof typeof GitSettingsTab;
   autocommitDisableModalOpen: boolean;

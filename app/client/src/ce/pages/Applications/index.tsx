@@ -123,7 +123,6 @@ import { Indices } from "constants/Layers";
 import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -134,12 +133,26 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-import { GitImportModal as NewGitImportModal } from "git";
+import {
+  GitRepoLimitErrorModal as NewGitRepoLimitErrorModal,
+  GitImportModal as NewGitImportModal,
+} from "git";
+import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 
-function GitImportModal() {
+function GitModals() {
   const isGitModEnabled = useGitModEnabled();
 
-  return isGitModEnabled ? <NewGitImportModal /> : <OldGitSyncModal isImport />;
+  return isGitModEnabled ? (
+    <>
+      <NewGitImportModal />
+      <NewGitRepoLimitErrorModal />
+    </>
+  ) : (
+    <>
+      <OldGitSyncModal isImport />;
+      <OldRepoLimitExceededErrorModal />
+    </>
+  );
 }
 
 export const { cloudHosting } = getAppsmithConfigs();
@@ -963,7 +976,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <GitImportModal />
+      <GitModals />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
@@ -1087,7 +1100,6 @@ export const ApplictionsMainPage = (props: any) => {
               workflows={workflowsOfWorkspace}
               workspaces={workspaces}
             />
-            <RepoLimitExceededErrorModal />
           </ApplicationsWrapper>
         )}
       </MediaQuery>

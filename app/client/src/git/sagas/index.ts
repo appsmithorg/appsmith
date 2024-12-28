@@ -39,6 +39,7 @@ import {
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { fetchGlobalSSHKeySaga } from "./fetchGlobalSSHKeySaga";
 import gitImportSaga from "./gitImportSaga";
+import mergeSaga from "./mergeSaga";
 
 const blockingActionSagas: Record<
   string,
@@ -60,6 +61,7 @@ const blockingActionSagas: Record<
   [gitArtifactActions.fetchStatusInit.type]: fetchStatusSaga,
   [gitArtifactActions.pullInit.type]: pullSaga,
   [gitArtifactActions.fetchMergeStatusInit.type]: fetchMergeStatusSaga,
+  [gitArtifactActions.mergeInit.type]: mergeSaga,
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
