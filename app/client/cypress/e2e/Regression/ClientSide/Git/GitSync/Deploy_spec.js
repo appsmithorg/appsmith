@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -36,19 +35,19 @@ describe(
     it("1. Validate commit comment inputbox and last deployed preview", function () {
       // last deployed preview
       // The deploy preview Link should be displayed only after the first commit done
-      cy.get(gitSyncLocators.bottomBarCommitButton).click();
+      cy.get(gitSync.locators.quickActionsCommitBtn).click();
 
-      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
-      cy.get(gitSyncLocators.commitButton).should("be.disabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
+      _.gitSync.CloseOpsModal();
     });
 
     it("2. Post connection app name deploy menu", function () {
       // deploy
       _.agHelper.GetNClick(_.locators._publishButton);
 
-      cy.get(gitSyncLocators.gitSyncModal);
-      cy.get(gitSyncLocators.gitSyncModalDeployTab)
+      cy.get(_.gitSync.locators.opsModal);
+      cy.get(_.gitSync.locators.opsModalTabDeploy)
         .should("have.attr", "aria-selected", "true")
         .and("not.be.empty");
       cy.window().then((window) => {
@@ -58,7 +57,7 @@ describe(
         });
       });
 
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      _.gitSync.CloseOpsModal();
 
       // current deployed version
       _.agHelper.GetNClick(homePage.deployPopupOptionTrigger);

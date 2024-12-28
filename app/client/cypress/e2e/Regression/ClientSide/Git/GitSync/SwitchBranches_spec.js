@@ -48,7 +48,7 @@ describe(
 
     it("1. create branch input", function () {
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.get(gitSyncLocators.branchButton).click();
+      cy.get(gitSync.locators.quickActionsBranchBtn).click();
 
       // validate of the branch name
       const hypenBranchName = "hypen-branch-name";
@@ -69,7 +69,7 @@ describe(
         "value",
         "special_branch-name_____________________",
       );
-      cy.get(gitSyncLocators.closeBranchList).click();
+      cy.get(gitSync.locators.branchCloseBtn).click();
     });
 
     it("2. creates a new branch and create branch specific resources", function () {
@@ -205,7 +205,7 @@ describe(
       // });
       // rename branch API missing in TED.
       // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
-      cy.get(gitSyncLocators.branchButton).click();
+      cy.get(gitSync.locators.quickActionsBranchBtn).click();
       cy.get(gitSyncLocators.branchSearchInput).type(
         `{selectall}${tempBranch}`,
       );
@@ -214,21 +214,21 @@ describe(
       const remoteTempBranchRenamedRegex = new RegExp(
         `^origin/${tempBranchRenamed}$`,
       );
-      cy.get(gitSyncLocators.branchListItem).contains(tempBranchRegex);
+      cy.get(gitSync.locators.branchItem).contains(tempBranchRegex);
       cy.get(gitSyncLocators.syncBranches).click();
-      cy.get(gitSyncLocators.branchListItem)
+      cy.get(gitSync.locators.branchItem)
         .contains(tempBranchRegex)
         .should("exist");
-      cy.get(gitSyncLocators.branchListItem)
+      cy.get(gitSync.locators.branchItem)
         .contains(remoteTempBranchRenamedRegex)
         .should("exist");
-      cy.get(gitSyncLocators.closeBranchList).click();
+      cy.get(gitSync.locators.branchCloseBtn).click();
       cy.switchGitBranch(`origin/${tempBranchRenamed}`);
       cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);
       cy.wait(4000); // wait for switch branch
       // assert error toast
       cy.contains(`origin/${tempBranchRenamed} already exists`);
-      cy.get(gitSyncLocators.closeBranchList).click();
+      cy.get(gitSync.locators.branchCloseBtn).click();
     });
 
     // Validate the error faced when user switches between the branches
@@ -238,10 +238,10 @@ describe(
         gitSync.CreateGitBranch(childBranchKey, true);
         //cy.createGitBranch(childBranchKey);
         PageList.AddNewPage();
-        cy.get(gitSyncLocators.branchButton).click({ force: true });
+        cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
         cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
         cy.wait(400);
-        cy.get(gitSyncLocators.branchListItem).contains("master").click();
+        cy.get(gitSync.locators.branchItem).contains("master").click();
         cy.wait(4000);
         PageLeftPane.switchSegment(PagePaneSegment.UI);
         PageList.VerifyIsCurrentPage("Page1");
@@ -263,32 +263,32 @@ describe(
         cy.get("@gitbranchName").then((branName) => {
           childBKey = branName;
 
-          cy.get(gitSyncLocators.branchButton).click();
+          cy.get(gitSync.locators.quickActionsBranchBtn).click();
           cy.get(gitSyncLocators.branchSearchInput).type(
             `{selectall}${parentBKey.slice(0, 3)}`,
           );
-          cy.get(gitSyncLocators.branchListItem).contains(parentBKey);
+          cy.get(gitSync.locators.branchItem).contains(parentBKey);
 
           cy.get(gitSyncLocators.branchSearchInput).type(
             `{selectall}${childBKey.slice(0, 3)}`,
           );
-          cy.get(gitSyncLocators.branchListItem).contains(childBKey);
+          cy.get(gitSync.locators.branchItem).contains(childBKey);
 
           cy.get(gitSyncLocators.branchSearchInput).type(
             `{selectall}${branchQueryKey}`,
           );
-          cy.get(gitSyncLocators.branchListItem).contains(childBKey);
-          cy.get(gitSyncLocators.branchListItem).contains(parentBKey);
+          cy.get(gitSync.locators.branchItem).contains(childBKey);
+          cy.get(gitSync.locators.branchItem).contains(parentBKey);
 
           cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcde`);
-          cy.get(gitSyncLocators.branchListItem).should("not.exist");
+          cy.get(gitSync.locators.branchItem).should("not.exist");
 
           cy.get(gitSyncLocators.branchSearchInput).clear();
-          cy.get(gitSyncLocators.branchListItem).contains(childBKey);
-          cy.get(gitSyncLocators.branchListItem).contains(parentBKey);
+          cy.get(gitSync.locators.branchItem).contains(childBKey);
+          cy.get(gitSync.locators.branchItem).contains(parentBKey);
         });
       });
-      cy.get(gitSyncLocators.closeBranchList).click();
+      cy.get(gitSync.locators.branchCloseBtn).click();
     });
 
     after(() => {

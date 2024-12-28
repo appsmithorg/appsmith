@@ -43,13 +43,13 @@ describe(
       _.agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
       // connect to git
-      _.agHelper.GetNClick(homePage.connectToGitBtn);
-      _.agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      _.agHelper.GetNClick(_.gitSync.locators.deployMenuConnect);
+      _.agHelper.AssertElementVisibility(_.gitSync.locators.connectModal);
+      _.gitSync.CloseConnectModal();
 
-      cy.get(gitSyncLocators.connectGitBottomBar).click();
-      _.agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(_.gitSync.locators.quickActionConnectBtn).click();
+      _.agHelper.AssertElementVisibility(_.gitSync.locators.connectModal);
+      _.gitSync.CloseConnectModal();
     });
   },
 );

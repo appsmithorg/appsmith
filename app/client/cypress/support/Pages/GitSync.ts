@@ -11,13 +11,18 @@ export class GitSync {
   public locators = {
     quickActionConnectBtn: "[data-testid='t--git-quick-actions-connect']",
     quickActionsCommitBtn: "[data-testid='t--git-quick-actions-commit'] button",
+    quickActionsCommitCount: "[data-testid='t--git-quick-actions-commit-count']",
     quickActionsPullBtn: "[data-testid='t--git-quick-actions-pull'] button",
     quickActionsBranchBtn: "[data-testid='t--git-quick-actions-branch']",
     quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge']",
     quickActionsSettingsBtn: "[data-testid='t--git-quick-actions-settings']",
     branchSearchInput: "[data-testid='t--git-branch-search-input'] input",
     branchSyncBtn: "[data-testid='t--git-branch-sync']",
+    branchCloseBtn: "[data-testid='t--git-branch-close']",
     branchItem: "[data-testid='t--git-branch-item']",
+    branchItemMenu: "[data-testid='t--branch-item-menu']",
+    branchItemMenuBtn: "[data-testid='t--branch-item-menu-btn']",
+    branchItemMenuDeleteBtn: "[data-testid='t--branch-item-menu-delete']",
     connectModal: "[data-testid='t--git-connect-modal']",
     connectModalCloseBtn:
       "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",
@@ -30,6 +35,13 @@ export class GitSync {
       "[data-testid='t--git-connect-deploy-key-checkbox']",
     importExistingRepoCheckbox:
       "[data-testid='t--git-import-existing-repo-checkbox']",
+    disconnectModal: "[data-testid='t--git-disconnect-modal']",
+    disconnectModalCloseBtn: "//div[@data-testid='t--git-disconnect-modal']//button[@aria-label='Close']",
+    disconnectModalInput: "[data-testid='t--git-disconnect-modal-input']",
+    disconnectModalBackBtn: "[data-testid='t--git-disconnect-modal-back-btn']",
+    disconnectModalRevokeBtn:
+      "[data-testid='t--git-disconnect-modal-revoke-btn']",
+    disconnectModalLearnMoreLink: "[data-testid='t--git-disconnect-learn-more']",
     connectSuccessModal: "[data-testid='t--git-con-success-modal']",
     connectSuccessModalCloseBtn:
       "//div[@data-testid='t--git-success-modal']//button[@aria-label='Close']",
@@ -45,6 +57,8 @@ export class GitSync {
     settingsModalTabBranch: "[data-testid='t--git-settings-tab-branch']",
     settingsModalTabCD: "[data-testid='t--git-settings-tab-cd']",
     opsModal: "[data-testid='t--git-ops-modal']",
+    opsModalTabDeploy: "[data-testid='t--git-ops-tab-deploy']",
+    opsModalTabMerge: "[data-testid='t--git-ops-tab-merge']",
     opsModalCloseBtn:
       "//div[@data-testid='t--git-ops-modal']//button[@aria-label='Close']",
     opsCommitInput: "[data-testid='t--git-ops-commit-input']",
@@ -66,6 +80,7 @@ export class GitSync {
     autocommitLoader: "[data-testid='t--git-autocommit-loader']",
     conflictErrorOpenRepo: "[data-testid='t--git-conflict-error-open-repo']",
     repoLimitErrorModal: "[data-testid='t--git-repo-limit-error-modal']",
+    deployMenuConnect: "[data-testid='t--git-deploy-menu-connect']",
   };
 
   public OpenConnectModal() {
@@ -336,7 +351,7 @@ export class GitSync {
       },
     ).as("gitCheckoutAPI");
 
-    //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+    //cy.get(gitSync.locators.branchItem).contains(branch).click();
     this.agHelper.GetNClickByContains(this.locators.branchItem, branch);
 
     // checks if the spinner exists

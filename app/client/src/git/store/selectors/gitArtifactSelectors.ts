@@ -51,10 +51,19 @@ export const selectDisconnectState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.disconnect;
 
-export const selectDisconnectBaseArtifactId = (
+export const selectDisconnectArtifactDef = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
-) => selectGitArtifact(state, artifactDef)?.ui.disconnectBaseArtifactId;
+) => {
+  const baseArtifactId = selectGitArtifact(state, artifactDef)?.ui
+    .disconnectBaseArtifactId;
+  const artifactType = selectGitArtifact(state, artifactDef)?.ui
+    .disconnectArtifactType;
+
+  if (!baseArtifactId || !artifactType) return null;
+
+  return { baseArtifactId, artifactType };
+};
 
 export const selectDisconnectArtifactName = (
   state: GitRootState,

@@ -78,14 +78,14 @@ function OpsModalView({
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
               <Tab
-                data-testid={"t--tab-deploy"}
+                data-testid={"t--git-ops-tab-deploy"}
                 disabled={isProtectedMode}
                 value={GitOpsTab.Deploy}
               >
                 {createMessage(DEPLOY)}
               </Tab>
               <Tab
-                data-testid={"t--tab-merge"}
+                data-testid={"t--git-ops-tab-merge"}
                 disabled={isProtectedMode}
                 value={GitOpsTab.Merge}
               >

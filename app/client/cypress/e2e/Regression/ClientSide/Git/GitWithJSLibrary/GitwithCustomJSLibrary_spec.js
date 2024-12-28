@@ -68,17 +68,17 @@ describe(
       installer.AssertLibraryinExplorer("uuidjs");
       // verify no uncommitted changes are there
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.bottomBarCommitButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
-      cy.get(gitSyncLocators.commitButton).should("be.disabled");
+      cy.get(gitSync.locators.quickActionsCommitBtn).click();
+      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
       cy.get(gitSyncLocators.closeGitSyncModal).click();
       AppSidebar.navigate(AppSidebarButton.Editor);
       // swtich to master, verify no uncommitted changes
       cy.switchGitBranch("master");
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.bottomBarCommitButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
-      cy.get(gitSyncLocators.commitButton).should("be.disabled");
+      cy.get(gitSync.locators.quickActionsCommitBtn).click();
+      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
 
@@ -92,8 +92,8 @@ describe(
 
       cy.get(HomePage.publishButton).click();
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
       cy.merge(mainBranch);

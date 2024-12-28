@@ -70,12 +70,12 @@ describe(
           // delete page from tempBranch and merge to master
           PageList.DeletePage(pagename);
           cy.get(homePageLocators.publishButton).click();
-          cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-          cy.get(gitSyncLocators.commitButton).click();
+          cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+          cy.get(gitSync.locators.opsCommitBtn).click();
           cy.wait(8000);
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          gitSync.CloseOpsModal();
           cy.merge(mainBranch);
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          gitSync.CloseOpsModal();
           // verify ChildPage is not on master
           cy.switchGitBranch(mainBranch);
           PageList.ShowList();
@@ -131,10 +131,10 @@ describe(
           // deploy the app and validate data binding
           cy.get(homePageLocators.publishButton).click();
           agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-          cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-          cy.get(gitSyncLocators.commitButton).click();
+          cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+          cy.get(gitSync.locators.opsCommitBtn).click();
           cy.wait(8000);
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          gitSync.CloseOpsModal();
           cy.latestDeployPreview();
           cy.wait(2000);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -240,8 +240,10 @@ describe(
                 "//input[@class='bp3-input' and @value='Success']",
               ).should("be.visible");
               cy.get(commonlocators.backToEditor).click();
+
+              // ! git mod: not a good idea to check states like here
             } else if (state.ui.gitSync.isGitSyncModalOpen) {
-              cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+              cy.get(gitSync.locators.opsModalCloseBtn).click({ force: true });
             }
 
             // verify jsObject data binding on Page 1
@@ -287,7 +289,7 @@ describe(
           agHelper.GetNClick(gitSync.locators.connectModalNextBtn);
 
           // abort git flow after generating key
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          gitSync.CloseConnectModal();
         });
         // verify app is visible and open
         homePage.NavigateToHome();

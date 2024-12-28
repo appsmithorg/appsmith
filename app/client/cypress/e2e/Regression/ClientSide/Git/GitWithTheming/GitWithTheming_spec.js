@@ -125,12 +125,12 @@ describe(
       backgroudColorMaster,
     );
     // delete tempBranch
-    cy.get(gitSyncLocators.branchButton).click();
-    cy.get(gitSyncLocators.branchListItem)
+    cy.get(gitSync.locators.quickActionsBranchBtn).click();
+    cy.get(gitSync.locators.branchItem)
       .eq(1)
       .trigger("mouseenter")
       .within(() => {
-        cy.get(gitSyncLocators.gitBranchContextMenu).click();
+        cy.get(gitSync.locators.branchItemMenuBtn).click();
         cy.get(gitSyncLocators.gitBranchDelete).click();
       });
     cy.wait("@deleteBranch").should(
@@ -138,7 +138,7 @@ describe(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(gitSyncLocators.closeBranchList).click();
+    cy.get(gitSync.locators.branchCloseBtn).click();
     // verify the app doesnt crash
     cy.xpath("(//button[@type='button'])").should(
       "have.css",

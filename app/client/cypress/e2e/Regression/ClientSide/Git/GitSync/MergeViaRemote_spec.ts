@@ -69,7 +69,7 @@ describe(
       cy.Createpage("NewPage");
       cy.commitAndPush();
       cy.merge(mainBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      _.gitSync.CloseOpsModal();
       cy.wait(4000);
       cy.switchGitBranch(mainBranch);
       cy.wait(4000); // wait for switch branch
@@ -77,13 +77,13 @@ describe(
     });
 
     it("2. Clicking '+' icon on bottom bar should open deploy popup", function () {
-      cy.get(gitSyncLocators.bottomBarCommitButton).click({ force: true });
-      cy.get(gitSyncLocators.gitSyncModal).should("exist");
-      cy.get("[data-testid=t--tab-DEPLOY]").should("exist");
-      cy.get("[data-testid=t--tab-DEPLOY]")
+      cy.get(_.gitSync.locators.quickActionsCommitBtn).click({ force: true });
+      cy.get(_.gitSync.locators.opsModal).should("exist");
+      cy.get(_.gitSync.locators.opsModalTabDeploy).should("exist");
+      cy.get(_.gitSync.locators.opsModalTabDeploy)
         .invoke("attr", "aria-selected")
         .should("eq", "true");
-      cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+      _.gitSync.CloseOpsModal();
     });
 
     it("3. Checks clean url updates across branches", () => {

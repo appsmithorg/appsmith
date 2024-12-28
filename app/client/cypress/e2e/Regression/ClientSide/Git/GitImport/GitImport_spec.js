@@ -133,7 +133,7 @@ describe(
 
       cy.wait(3000); //for uncommited changes to appear if any!
       cy.get("body").then(($body) => {
-        if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
+        if ($body.find(gitSync.locators.quickActionsCommitCount).length > 0) {
           gitSync.CommitAndPush();
         }
       });
@@ -180,11 +180,11 @@ describe(
       cy.wait(2000);
       cy.get(homePageLocators.publishButton).click();
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
       cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       cy.wait(2000);
       gitSync.MergeToMaster();
       cy.wait(2000);
@@ -230,7 +230,7 @@ describe(
       cy.wait(3000);
       gitSync.CommitAndPush();
       cy.merge(newBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       cy.wait(2000);
       cy.switchGitBranch(newBranch);
       cy.wait(4000);

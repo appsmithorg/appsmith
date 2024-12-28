@@ -18,6 +18,7 @@ import { addBranchParam } from "constants/routes";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -83,8 +84,7 @@ export default function* connectSaga(
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
-            artifactDef,
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );

@@ -89,8 +89,8 @@ describe(
         cy.switchGitBranch(branchName);
         cy.get(homePage.publishButton).click({ force: true });
         _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
-        cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-        cy.get(gitSyncLocators.commitButton).click();
+        cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+        cy.get(gitSync.locators.opsCommitBtn).click();
         _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });

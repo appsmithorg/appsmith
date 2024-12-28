@@ -38,7 +38,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
 
 Cypress.Commands.add("createGitBranch", (branch) => {
   agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
-  cy.get(gitSyncLocators.branchButton).click({ force: true });
+  cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
   agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
@@ -54,10 +54,10 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
-  cy.get(gitSyncLocators.branchButton).click({ force: true });
+  cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
   agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
   agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
-  cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+  cy.get(gitSync.locators.branchItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
     cy.get(".ads-v2-spinner", {
@@ -74,8 +74,8 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
   agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-  cy.get(gitSyncLocators.commitButton).click();
+  cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+  cy.get(gitSync.locators.opsCommitBtn).click();
   if (!assertFailure) {
     // check for commit success
     //adding timeout since commit is taking longer sometimes
@@ -195,17 +195,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("gitDiscardChanges", () => {
-  cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  cy.get(gitSyncLocators.discardChanges).should("be.visible");
-  cy.get(gitSyncLocators.discardChanges)
+  cy.get(gitSync.locators.quickActionsCommitBtn).click();
+  cy.get(gitSync.locators.opsDiscardBtn).should("be.visible");
+  cy.get(gitSync.locators.opsDiscardBtn)
     .children()
     .should("have.text", "Discard & pull");
-  cy.get(gitSyncLocators.discardChanges).click();
+  cy.get(gitSync.locators.opsDiscardBtn).click();
   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
-  cy.get(gitSyncLocators.discardChanges)
+  cy.get(gitSync.locators.opsDiscardBtn)
     .children()
     .should("have.text", "Are you sure?");
-  cy.get(gitSyncLocators.discardChanges).click();
+  cy.get(gitSync.locators.opsDiscardBtn).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
@@ -219,7 +219,7 @@ Cypress.Commands.add(
   "regenerateSSHKey",
   (repo, generateKey = true, protocol = "ECDSA") => {
     let generatedKey;
-    cy.get(gitSyncLocators.bottomBarCommitButton).click();
+    cy.get(gitSync.locators.quickActionsCommitBtn).click();
     cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
     cy.wait(2000);
     cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();

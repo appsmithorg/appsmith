@@ -44,7 +44,7 @@ describe(
           const message = interception.response.body.responseMeta.error.message;
           expect(status).to.be.gte(400);
           expect(message).to.contain(failureMessage);
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          _.gitSync.CloseConnectModal();
         });
       });
     });

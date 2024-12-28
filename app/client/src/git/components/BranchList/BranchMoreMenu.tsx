@@ -55,8 +55,8 @@ function DeleteButton({
 
   return (
     <MenuItem
-      className="git-branch-more-menu-item danger t--branch-more-menu-delete error-menuitem"
-      data-testid="t--branch-more-menu-delete"
+      className="danger error-menuitem"
+      data-testid="t--branch-item-menu-delete"
       key={"delete-branch-button"}
       onClick={handleClick}
       startIcon="delete"
@@ -109,10 +109,10 @@ export default function BranchMoreMenu({
   );
 
   return (
-    <Menu data-testid="t--git-branch-more-menu" modal open={open}>
+    <Menu data-testid="t--git-branch-item-menu" modal open={open}>
       <MenuTrigger>
         <Button
-          className="git-branch-more-menu"
+          data-testid="t--git-branch-item-menu-btn"
           isIconButton
           kind="tertiary"
           onClick={handleClickOnMenu}

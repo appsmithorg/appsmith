@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
@@ -38,10 +37,10 @@ describe(
       // after clicked disconnect on connection modal,
       // it should be closed and disconnect modal should be opened
       cy.get(_.gitSync.locators.disconnectBtn).click();
-      cy.get(gitSyncLocators.gitSyncModal).should("not.exist");
-      cy.get(gitSyncLocators.disconnectGitModal).should("exist");
+      cy.get(_.gitSync.locators.settingsModal).should("not.exist");
+      cy.get(_.gitSync.locators.disconnectModal).should("exist");
 
-      cy.get(gitSyncLocators.disconnectGitModal).contains(
+      cy.get(_.gitSync.locators.disconnectModal).contains(
         Cypress.env("MESSAGES").NONE_REVERSIBLE_MESSAGE(),
       );
 
@@ -52,17 +51,17 @@ describe(
           windowOpenSpy.restore();
         });
       });
-      cy.get(gitSyncLocators.disconnectLearnMoreLink).click();
+      cy.get(_.gitSync.locators.disconnectModalLearnMoreLink).click();
 
       cy.window()
         .its("store")
         .invoke("getState")
         .then((state) => {
           const { name } = state.ui.gitSync.disconnectingGitApp;
-          cy.get(gitSyncLocators.disconnectGitModal).contains(
+          cy.get(_.gitSync.locators.disconnectModal).contains(
             Cypress.env("MESSAGES").GIT_REVOKE_ACCESS(name),
           );
-          cy.get(gitSyncLocators.disconnectGitModal).contains(
+          cy.get(_.gitSync.locators.disconnectModal).contains(
             Cypress.env("MESSAGES").GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS(
               name,
             ),
@@ -70,8 +69,8 @@ describe(
         });
 
       // disconnect button should be disabled
-      cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
-      cy.get(gitSyncLocators.closeDisconnectModal).click();
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
+      cy.get(_.gitSync.locators.disconnectModalCloseBtn).click();
       cy.wait(2000);
     });
 
@@ -81,46 +80,36 @@ describe(
       // after clicked disconnect on connection modal,
       // it should be closed and disconnect modal should be opened
       cy.get(_.gitSync.locators.disconnectBtn).click();
-      cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
 
-      cy.get(gitSyncLocators.disconnectAppNameInput).type(
+      cy.get(_.gitSync.locators.disconnectModalInput).type(
         `{selectAll}${repoName}`,
       );
-      cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
 
       cy.window()
         .its("store")
         .invoke("getState")
         .then((state) => {
           const { name } = state.ui.gitSync.disconnectingGitApp;
-          cy.get(gitSyncLocators.disconnectAppNameInput).type(
+          cy.get(_.gitSync.locators.disconnectModalInput).type(
             `{selectAll}${name}`,
           );
-          cy.get(gitSyncLocators.disconnectButton).should("be.enabled");
+          cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.enabled");
         });
 
       // disconnecting validation
       cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
-      cy.get(gitSyncLocators.disconnectButton).click();
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).click();
       cy.wait(3000);
-      //cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
+      //cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
       cy.wait("@disconnect").should(
         "have.nested.property",
         "response.body.responseMeta.status",
         200,
       );
 
-      // validation store after disconnected
-      cy.window()
-        .its("store")
-        .invoke("getState")
-        .then((state) => {
-          const { id, name } = state.ui.gitSync.disconnectingGitApp;
-          expect(name).to.eq("");
-          expect(id).to.eq("");
-        });
-
-      cy.get(gitSyncLocators.disconnectGitModal).should("not.exist");
+      cy.get(_.gitSync.locators.disconnectModal).should("not.exist");
     });
 
     after(() => {

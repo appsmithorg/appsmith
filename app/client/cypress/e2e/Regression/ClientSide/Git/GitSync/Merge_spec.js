@@ -38,14 +38,14 @@ describe(
     it("1. Verify the functionality of the default dropdown under merge tab", function () {
       cy.get(commonLocators.canvas).click({ force: true });
       _.gitSync.CreateGitBranch(childBranchKey);
-      cy.get(gitSyncLocators.bottomBarMergeButton).click();
-      cy.get(gitSyncLocators.gitSyncModal).should("exist");
-      cy.get("[data-testid=t--tab-MERGE]").should("exist");
-      cy.get("[data-testid=t--tab-MERGE]")
+      cy.get(_.gitSync.locators.quickActionsMergeBtn).click();
+      cy.get(_.gitSync.locators.opsModal).should("exist");
+      cy.get(_.gitSync.locators.opsModalTabDeploy).should("exist");
+      cy.get(_.gitSync.locators.opsModalTabDeploy)
         .invoke("attr", "aria-selected")
         .should("eq", "true");
 
-      cy.get(gitSyncLocators.mergeButton).should("be.disabled");
+      cy.get(_.gitSync.locators.opsMergeBtn).should("be.disabled");
       cy.wait(3000);
       cy.get(_.gitSync.locators.opsMergeBranchSelect).click();
       cy.get(commonLocators.dropdownmenu).contains(mainBranch).click();
@@ -57,8 +57,8 @@ describe(
         true,
       );
       cy.wait(2000);
-      cy.get(gitSyncLocators.mergeButton).should("be.enabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(_.gitSync.locators.opsMergeBtn).should("be.enabled");
+      _.gitSync.CloseOpsModal();
     });
 
     after(() => {

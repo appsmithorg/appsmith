@@ -14,6 +14,7 @@ const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   connectModalOpen: false,
   connectSuccessModalOpen: false,
   disconnectBaseArtifactId: null,
+  disconnectArtifactType: null,
   disconnectArtifactName: null,
   branchPopupOpen: false,
   checkoutDestBranch: null,
@@ -24,7 +25,6 @@ const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   autocommitDisableModalOpen: false,
   autocommitPolling: false,
   conflictErrorModalOpen: false,
-  repoLimitErrorModalOpen: false,
   // EE
   ...gitArtifactUIInitialStateExtended,
 };
@@ -154,4 +154,5 @@ export const gitGlobalInitialState: GitGlobalReduxState = {
     error: null,
   },
   isImportModalOpen: false,
+  repoLimitErrorModalOpen: false,
 };

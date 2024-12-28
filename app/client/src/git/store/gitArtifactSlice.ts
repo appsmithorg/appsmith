@@ -57,7 +57,6 @@ import {
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
-  toggleRepoLimitErrorModalAction,
   toggleConflictErrorModalAction,
   openDisconnectModalAction,
   closeDisconnectModalAction,
@@ -167,7 +166,6 @@ export const gitArtifactSlice = createSlice({
     toggleConnectSuccessModal: toggleConnectSuccessModalAction,
     openDisconnectModal: openDisconnectModalAction,
     closeDisconnectModal: closeDisconnectModalAction,
-    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
     commitInit: commitInitAction,

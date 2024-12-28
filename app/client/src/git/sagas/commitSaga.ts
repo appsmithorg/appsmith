@@ -13,6 +13,7 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
 
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,
@@ -51,8 +52,7 @@ export default function* commitSaga(
 
       if (error.code === GitErrorCodes.REPO_LIMIT_REACHED) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
-            artifactDef,
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );

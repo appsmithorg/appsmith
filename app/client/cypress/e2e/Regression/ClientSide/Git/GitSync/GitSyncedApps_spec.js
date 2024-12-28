@@ -320,9 +320,9 @@ describe(
     it("5. Commit and push changes, validate data binding on all pages in edit and deploy mode on tempBranch", () => {
       // commit and push changes
       cy.get(homePageLocators.publishButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
+      gitSync.CloseOpsModal();
       // verfiy data binding on all pages in deploy mode
       cy.latestDeployPreview();
       cy.get(widgetsPage.dataclass).should("be.visible");
@@ -368,10 +368,10 @@ describe(
       cy.switchGitBranch("master");
       // verify commit input box is disabled
       cy.get(homePageLocators.publishButton).click();
-      cy.get(gitSyncLocators.commitCommentInput)
+      cy.get(gitSync.locators.opsCommitInput)
         .should("be.disabled")
         .and("have.text", "No changes to commit");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+        gitSync.CloseOpsModal();
     });
 
     it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
@@ -386,9 +386,9 @@ describe(
       EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
       cy.wait("@getConsolidatedData");
       cy.get(homePageLocators.publishButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
+      gitSync.CloseOpsModal();
 
       gitSync.MergeToMaster();
 
@@ -413,9 +413,9 @@ describe(
       cy.wait("@getConsolidatedData");
       PageList.DeletePage("Child_Page Copy");
       cy.get(homePageLocators.publishButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
+      gitSync.CloseOpsModal();
       gitSync.MergeToMaster();
       cy.latestDeployPreview();
       // verify page is hidden on deploy mode

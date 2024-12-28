@@ -216,8 +216,8 @@ export function Header({
         </span>
       </div>
       <Button
-        className="t--close-branch-list"
         color={get(theme, "colors.gitSyncModal.closeIcon")}
+        data-testid="t--git-branch-close"
         isIconButton
         kind="tertiary"
         onClick={onClickClose}
