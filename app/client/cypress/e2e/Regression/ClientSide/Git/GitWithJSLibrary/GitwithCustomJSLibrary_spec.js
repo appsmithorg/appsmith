@@ -1,5 +1,4 @@
 import HomePage from "../../../../../locators/HomePage";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
   homePage,
@@ -71,7 +70,7 @@ describe(
       cy.get(gitSync.locators.quickActionsCommitBtn).click();
       cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
       cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       AppSidebar.navigate(AppSidebarButton.Editor);
       // swtich to master, verify no uncommitted changes
       cy.switchGitBranch("master");
@@ -79,7 +78,7 @@ describe(
       cy.get(gitSync.locators.quickActionsCommitBtn).click();
       cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
       cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
     });
 
     it("3. Merge custom js lib changes from child branch to master, verify changes are merged", () => {
@@ -95,9 +94,9 @@ describe(
       cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
       cy.get(gitSync.locators.opsCommitBtn).click();
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       cy.merge(mainBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       AppSidebar.navigate(AppSidebarButton.Editor);
       // verify custom js library is present in master branch
       cy.switchGitBranch(mainBranch);

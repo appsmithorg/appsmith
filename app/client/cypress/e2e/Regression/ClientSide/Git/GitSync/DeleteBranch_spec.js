@@ -1,5 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-
 import { agHelper, gitSync } from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,

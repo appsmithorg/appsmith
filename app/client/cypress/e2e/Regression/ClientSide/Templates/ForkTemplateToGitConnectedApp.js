@@ -1,5 +1,4 @@
 import template from "../../../../locators/TemplatesLocators.json";
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import widgetLocators from "../../../../locators/Widgets.json";
 let repoName;
 let newWorkspaceName;
@@ -92,7 +91,7 @@ describe(
         cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
         cy.get(gitSync.locators.opsCommitBtn).click();
         _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
-        cy.get(gitSyncLocators.closeGitSyncModal).click();
+        _.gitSync.CloseOpsModal();
       });
     });
 

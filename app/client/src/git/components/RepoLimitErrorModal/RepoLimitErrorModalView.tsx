@@ -189,7 +189,7 @@ function RepoLimitErrorModalView({
 
               return (
                 <ApplicationWrapper
-                  className="t--connected-app-wrapper"
+                  data-testid="t--git-repo-limit-error-connected-artifact"
                   key={application.id}
                 >
                   <div>
@@ -203,7 +203,7 @@ function RepoLimitErrorModalView({
                     </TextWrapper>
                   </div>
                   <Button
-                    className="t--disconnect-link"
+                    className="t--git-repo-limit-error-disconnect-link"
                     endIcon="arrow-right-line"
                     onClick={handleOnClickDisconnect(
                       application.baseId,

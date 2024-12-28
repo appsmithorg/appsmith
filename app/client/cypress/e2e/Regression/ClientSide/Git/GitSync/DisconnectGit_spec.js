@@ -95,7 +95,9 @@ describe(
           cy.get(_.gitSync.locators.disconnectModalInput).type(
             `{selectAll}${name}`,
           );
-          cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.enabled");
+          cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should(
+            "be.enabled",
+          );
         });
 
       // disconnecting validation

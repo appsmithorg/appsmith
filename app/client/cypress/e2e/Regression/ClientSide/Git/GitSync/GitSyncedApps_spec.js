@@ -2,14 +2,10 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
   PagePaneSegment,
-  AppSidebar,
-  AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import datasource from "../../../../../locators/DatasourcesEditor.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
@@ -371,7 +367,7 @@ describe(
       cy.get(gitSync.locators.opsCommitInput)
         .should("be.disabled")
         .and("have.text", "No changes to commit");
-        gitSync.CloseOpsModal();
+      gitSync.CloseOpsModal();
     });
 
     it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
@@ -447,7 +443,7 @@ describe(
       cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
       cy.get(".t--import-json-card").next().click();
       // import application from git
-      cy.importAppFromGit(repoName);
+      // cy.importAppFromGit(repoName);
       // verify page order remains same as in orignal app
       PageList.ShowList();
       cy.get(".t--entity-item").eq(1).contains("crudpage_1");

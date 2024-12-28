@@ -11,7 +11,8 @@ export class GitSync {
   public locators = {
     quickActionConnectBtn: "[data-testid='t--git-quick-actions-connect']",
     quickActionsCommitBtn: "[data-testid='t--git-quick-actions-commit'] button",
-    quickActionsCommitCount: "[data-testid='t--git-quick-actions-commit-count']",
+    quickActionsCommitCount:
+      "[data-testid='t--git-quick-actions-commit-count']",
     quickActionsPullBtn: "[data-testid='t--git-quick-actions-pull'] button",
     quickActionsBranchBtn: "[data-testid='t--git-quick-actions-branch']",
     quickActionsMergeBtn: "[data-testid='t--git-quick-actions-merge']",
@@ -36,12 +37,14 @@ export class GitSync {
     importExistingRepoCheckbox:
       "[data-testid='t--git-import-existing-repo-checkbox']",
     disconnectModal: "[data-testid='t--git-disconnect-modal']",
-    disconnectModalCloseBtn: "//div[@data-testid='t--git-disconnect-modal']//button[@aria-label='Close']",
+    disconnectModalCloseBtn:
+      "//div[@data-testid='t--git-disconnect-modal']//button[@aria-label='Close']",
     disconnectModalInput: "[data-testid='t--git-disconnect-modal-input']",
     disconnectModalBackBtn: "[data-testid='t--git-disconnect-modal-back-btn']",
     disconnectModalRevokeBtn:
       "[data-testid='t--git-disconnect-modal-revoke-btn']",
-    disconnectModalLearnMoreLink: "[data-testid='t--git-disconnect-learn-more']",
+    disconnectModalLearnMoreLink:
+      "[data-testid='t--git-disconnect-learn-more']",
     connectSuccessModal: "[data-testid='t--git-con-success-modal']",
     connectSuccessModalCloseBtn:
       "//div[@data-testid='t--git-success-modal']//button[@aria-label='Close']",
@@ -80,6 +83,10 @@ export class GitSync {
     autocommitLoader: "[data-testid='t--git-autocommit-loader']",
     conflictErrorOpenRepo: "[data-testid='t--git-conflict-error-open-repo']",
     repoLimitErrorModal: "[data-testid='t--git-repo-limit-error-modal']",
+    repoLimitErrorModalConnectedArtifact:
+      "[data-testid='t--git-repo-limit-error-connected-artifact']",
+    repoLimitErrorModalDisconnectLink:
+      "[data-testid='t--git-repo-limit-error-disconnect-link']",
     deployMenuConnect: "[data-testid='t--git-deploy-menu-connect']",
   };
 

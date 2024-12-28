@@ -1,5 +1,4 @@
 import commonLocators from "../../../../../locators/commonlocators.json";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 import {
   agHelper,
@@ -52,20 +51,20 @@ describe(
 
       // validate of the branch name
       const hypenBranchName = "hypen-branch-name";
-      cy.get(gitSyncLocators.branchSearchInput).type(
+      cy.get(gitSync.locators.branchSearchInput).type(
         `{selectall}${hypenBranchName}`,
       );
       agHelper.AssertAttribute(
-        gitSyncLocators.branchSearchInput,
+        gitSync.locators.branchSearchInput,
         "value",
         "hypen-branch-name",
       );
       const specialBranchName = "special&branch-name~@#$%^&*()_+={}[]><,.";
-      cy.get(gitSyncLocators.branchSearchInput).type(
+      cy.get(gitSync.locators.branchSearchInput).type(
         `{selectall}${specialBranchName}`,
       );
       agHelper.AssertAttribute(
-        gitSyncLocators.branchSearchInput,
+        gitSync.locators.branchSearchInput,
         "value",
         "special_branch-name_____________________",
       );
@@ -206,7 +205,7 @@ describe(
       // rename branch API missing in TED.
       // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
       cy.get(gitSync.locators.quickActionsBranchBtn).click();
-      cy.get(gitSyncLocators.branchSearchInput).type(
+      cy.get(gitSync.locators.branchSearchInput).type(
         `{selectall}${tempBranch}`,
       );
       const tempBranchRegex = new RegExp(`^${tempBranch}$`);
@@ -215,7 +214,7 @@ describe(
         `^origin/${tempBranchRenamed}$`,
       );
       cy.get(gitSync.locators.branchItem).contains(tempBranchRegex);
-      cy.get(gitSyncLocators.syncBranches).click();
+      cy.get(gitSync.locators.branchSyncBtn).click();
       cy.get(gitSync.locators.branchItem)
         .contains(tempBranchRegex)
         .should("exist");
@@ -239,7 +238,7 @@ describe(
         //cy.createGitBranch(childBranchKey);
         PageList.AddNewPage();
         cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
-        cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
+        cy.get(gitSync.locators.branchSearchInput).type("{selectall}master");
         cy.wait(400);
         cy.get(gitSync.locators.branchItem).contains("master").click();
         cy.wait(4000);
@@ -264,26 +263,26 @@ describe(
           childBKey = branName;
 
           cy.get(gitSync.locators.quickActionsBranchBtn).click();
-          cy.get(gitSyncLocators.branchSearchInput).type(
+          cy.get(gitSync.locators.branchSearchInput).type(
             `{selectall}${parentBKey.slice(0, 3)}`,
           );
           cy.get(gitSync.locators.branchItem).contains(parentBKey);
 
-          cy.get(gitSyncLocators.branchSearchInput).type(
+          cy.get(gitSync.locators.branchSearchInput).type(
             `{selectall}${childBKey.slice(0, 3)}`,
           );
           cy.get(gitSync.locators.branchItem).contains(childBKey);
 
-          cy.get(gitSyncLocators.branchSearchInput).type(
+          cy.get(gitSync.locators.branchSearchInput).type(
             `{selectall}${branchQueryKey}`,
           );
           cy.get(gitSync.locators.branchItem).contains(childBKey);
           cy.get(gitSync.locators.branchItem).contains(parentBKey);
 
-          cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcde`);
+          cy.get(gitSync.locators.branchSearchInput).type(`{selectall}abcde`);
           cy.get(gitSync.locators.branchItem).should("not.exist");
 
-          cy.get(gitSyncLocators.branchSearchInput).clear();
+          cy.get(gitSync.locators.branchSearchInput).clear();
           cy.get(gitSync.locators.branchItem).contains(childBKey);
           cy.get(gitSync.locators.branchItem).contains(parentBKey);
         });

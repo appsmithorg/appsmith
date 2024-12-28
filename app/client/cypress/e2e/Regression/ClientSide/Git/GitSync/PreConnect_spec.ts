@@ -1,6 +1,5 @@
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 describe(
   "Pre git connection spec:",

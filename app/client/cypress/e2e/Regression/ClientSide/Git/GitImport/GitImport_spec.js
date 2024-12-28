@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");

@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePageLocators from "../../../../../locators/HomePage";
 import {

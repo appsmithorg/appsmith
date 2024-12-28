@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   gitSync,
   agHelper,
@@ -79,10 +78,7 @@ describe(
         cy.get(gitSync.locators.repoLimitErrorModal).contains(
           Cypress.env("MESSAGES").CONTACT_SUPPORT_TO_UPGRADE(),
         );
-        cy.get(gitSyncLocators.gitModalLink).should(
-          "contain.text",
-          "Contact support",
-        );
+        cy.get(locators._link).should("contain.text", "Contact support");
         cy.get(gitSync.locators.repoLimitErrorModal).contains(
           Cypress.env("MESSAGES").REVOKE_CAUSE_APPLICATION_BREAK(),
         );
@@ -94,15 +90,20 @@ describe(
             windowOpenSpy.restore();
           });
         });
-        cy.get(gitSyncLocators.gitModalLink).contains("Learn more").click();
+        cy.get(locators._link).contains("Learn more").click();
 
-        cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
-        cy.get(gitSyncLocators.diconnectLink).first().click();
+        cy.get(gitSync.locators.repoLimitErrorModalArtifactList).should(
+          "have.length",
+          3,
+        );
+        cy.get(gitSync.locators.repoLimitErrorModalDisconnectLink)
+          .first()
+          .click();
 
         cy.get(gitSync.locators.repoLimitErrorModal).should("not.exist");
-        cy.get(gitSyncLocators.disconnectGitModal).should("exist");
+        cy.get(gitSync.locators.disconnectModal).should("exist");
 
-        cy.get(gitSyncLocators.closeGitSyncModal).click();
+        cy.get(gitSync.locators.disconnectModalCloseBtn).click();
         cy.get(gitSync.locators.repoLimitErrorModal).should("not.exist");
       }
     });

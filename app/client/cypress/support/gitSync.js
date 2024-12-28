@@ -5,7 +5,6 @@ import { AppSidebar } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "./Objects/Registry";
 const gitSync = ObjectsRegistry.GitSync;
@@ -39,8 +38,8 @@ Cypress.Commands.add("latestDeployPreview", () => {
 Cypress.Commands.add("createGitBranch", (branch) => {
   agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
   cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
-  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
-  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
+  agHelper.AssertElementVisibility(gitSync.locators.branchSearchInput);
+  agHelper.ClearNType(gitSync.locators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
   cy.get(".ads-v2-spinner", {
     timeout: Cypress.config().pageLoadTimeout,
@@ -55,8 +54,8 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   agHelper.AssertElementVisibility(gitSync.locators.quickActionsPullBtn);
   cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
-  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
-  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
+  agHelper.AssertElementVisibility(gitSync.locators.branchSearchInput);
+  agHelper.ClearNType(gitSync.locators.branchSearchInput, `${branch}`);
   cy.get(gitSync.locators.branchItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
@@ -92,7 +91,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
     });
   }
 
-  cy.get(gitSyncLocators.closeGitSyncModal).click();
+  gitSync.CloseOpsModal();
 });
 
 Cypress.Commands.add("merge", (destinationBranch) => {
@@ -102,7 +101,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
 
   cy.intercept("GET", "/api/v1/git/branch/app/*").as(`gitBranches`);
 
-  cy.get(gitSyncLocators.bottomBarMergeButton).click({ force: true });
+  cy.get(gitSync.locators.quickActionsMergeBtn).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
     "have.nested.property",
@@ -139,61 +138,6 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   });
 });
 
-Cypress.Commands.add(
-  "importAppFromGit",
-  (repo, assertConnectFailure, failureMessage) => {
-    const testEmail = "test@test.com";
-    const testUsername = "testusername";
-
-    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-      `generateKey-${repo}`,
-    );
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `${dataManager.GIT_CLONE_URL}/${repo}.git`,
-    );
-    cy.get(gitSyncLocators.generateDeployKeyBtn).click();
-    cy.wait(`@generateKey-${repo}`).then((result) => {
-      const key = result.response.body.data.publicKey.trimEnd();
-      cy.request({
-        method: "POST",
-        url: `${dataManager.GIT_API_BASE}/api/v1/git/keys/${repo}`,
-        body: {
-          title: "key1",
-          key,
-          read_only: false,
-        },
-      });
-
-      cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
-
-      cy.get(gitSyncLocators.gitConfigNameInput).type(
-        `{selectall}${testUsername}`,
-      );
-      cy.get(gitSyncLocators.gitConfigEmailInput).type(
-        `{selectall}${testEmail}`,
-      );
-      // click on the connect button and verify
-      cy.get(gitSyncLocators.connectSubmitBtn).click();
-
-      if (!assertConnectFailure) {
-        // check for connect success
-        cy.wait("@importFromGit").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          201,
-        );
-      } else {
-        cy.wait("@importFromGit").then((interception) => {
-          const status = interception.response.body.responseMeta.status;
-          const message = interception.response.body.responseMeta.error.message;
-          expect(status).to.be.gte(400);
-          expect(message).to.contain(failureMessage);
-        });
-      }
-    });
-  },
-);
-
 Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSync.locators.quickActionsCommitBtn).click();
   cy.get(gitSync.locators.opsDiscardBtn).should("be.visible");
@@ -214,51 +158,3 @@ Cypress.Commands.add("gitDiscardChanges", () => {
     "not.exist",
   );
 });
-
-Cypress.Commands.add(
-  "regenerateSSHKey",
-  (repo, generateKey = true, protocol = "ECDSA") => {
-    let generatedKey;
-    cy.get(gitSync.locators.quickActionsCommitBtn).click();
-    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
-    cy.wait(2000);
-    cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();
-    if (protocol === "ECDSA") {
-      cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
-    } else if (protocol === "RSA") {
-      cy.get(gitSyncLocators.regenerateSSHKeyRSA).click();
-    }
-    cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
-    cy.xpath(gitSyncLocators.confirmButton).click();
-    if (protocol === "ECDSA") {
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repo}`,
-      );
-    } else if (protocol === "RSA") {
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*?keyType=RSA").as(
-        `generateKey-${repo}-RSA`,
-      );
-    }
-
-    if (generateKey) {
-      if (protocol === "ECDSA") {
-        cy.wait(`@generateKey-${repo}`).then((result) => {
-          const key = result.response.body.data.publicKey.trimEnd();
-          cy.request({
-            method: "POST",
-            url: `${dataManager.GIT_API_BASE}/api/v1/repos/Cypress/${repo}/keys`,
-            body: {
-              title: "key1",
-              key,
-              read_only: false,
-            },
-          });
-
-          cy.get(gitSyncLocators.closeGitSyncModal);
-        });
-      } else if (protocol === "RSA") {
-        // doesn't work with github
-      }
-    }
-  },
-);
