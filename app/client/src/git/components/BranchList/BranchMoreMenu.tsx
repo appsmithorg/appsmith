@@ -56,7 +56,7 @@ function DeleteButton({
   return (
     <MenuItem
       className="danger error-menuitem"
-      data-testid="t--branch-item-menu-delete"
+      data-testid="t--git-branch-item-menu-delete"
       key={"delete-branch-button"}
       onClick={handleClick}
       startIcon="delete"

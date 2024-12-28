@@ -21,9 +21,9 @@ export class GitSync {
     branchSyncBtn: "[data-testid='t--git-branch-sync']",
     branchCloseBtn: "[data-testid='t--git-branch-close']",
     branchItem: "[data-testid='t--git-branch-item']",
-    branchItemMenu: "[data-testid='t--branch-item-menu']",
-    branchItemMenuBtn: "[data-testid='t--branch-item-menu-btn']",
-    branchItemMenuDeleteBtn: "[data-testid='t--branch-item-menu-delete']",
+    branchItemMenu: "[data-testid='t--git-branch-item-menu']",
+    branchItemMenuBtn: "[data-testid='t--git-branch-item-menu-btn']",
+    branchItemMenuDeleteBtn: "[data-testid='t--git-branch-item-menu-delete']",
     connectModal: "[data-testid='t--git-connect-modal']",
     connectModalCloseBtn:
       "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",

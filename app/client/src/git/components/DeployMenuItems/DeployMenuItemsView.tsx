@@ -20,7 +20,7 @@ function DeployMenuItemsView({
 
   return (
     <MenuItem
-      className="t--git-deploy-menu-connect"
+      data-testid="t--git-deploy-menu-connect"
       onClick={handleClickOnConnect}
       startIcon="git-branch"
     >
