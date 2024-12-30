@@ -210,14 +210,6 @@ jobs:
             fi
 
             args=()
-            
-            # Check if this run is requesting for unit tests or integration tests
-            # As of today, we don't expect both to get triggered in the same workflow
-            if [[ "${{ inputs.its }}" == "true" ]]; then
-                args+=("-DskipUTs=true")
-            else
-                args+=("-DskipITs=true")
-            fi
 
             if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
                 failed_tests="${{ steps.failed_tests.outputs.tests }}"
@@ -371,7 +363,6 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        if: inputs.its != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: server-build
