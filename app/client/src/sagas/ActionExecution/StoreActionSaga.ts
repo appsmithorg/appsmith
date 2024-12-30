@@ -4,7 +4,6 @@ import localStorage from "utils/localStorage";
 import { updateAppStore } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "ee/selectors/entitiesSelector";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
@@ -13,6 +12,7 @@ import type {
   TRemoveValueDescription,
   TStoreValueDescription,
 } from "workers/Evaluation/fns/storeFns";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 type StoreOperation =
   | TStoreValueDescription
@@ -21,7 +21,9 @@ type StoreOperation =
 
 export function* handleStoreOperations(triggers: StoreOperation[]) {
   const applicationId: string = yield select(getCurrentApplicationId);
-  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const branch: string | undefined = yield select(
+    selectGitApplicationCurrentBranch,
+  );
   const appStoreName = getAppStoreName(applicationId, branch);
   const existingLocalStore = localStorage.getItem(appStoreName) || "{}";
   let parsedLocalStore = JSON.parse(existingLocalStore);

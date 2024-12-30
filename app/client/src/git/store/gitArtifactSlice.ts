@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { GitArtifactReduxState } from "./types";
+import type { GitArtifactRootReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
 import {
   connectErrorAction,
@@ -62,6 +62,7 @@ import {
   openDisconnectModalAction,
   closeDisconnectModalAction,
   toggleAutocommitDisableModalAction,
+  toggleConnectSuccessModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -120,11 +121,6 @@ import {
   disconnectSuccessAction,
 } from "./actions/disconnectActions";
 import {
-  gitImportErrorAction,
-  gitImportInitAction,
-  gitImportSuccessAction,
-} from "./actions/gitImportActions";
-import {
   fetchSSHKeyErrorAction,
   fetchSSHKeyInitAction,
   fetchSSHKeySuccessAction,
@@ -137,7 +133,7 @@ import {
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
 
-const initialState: GitArtifactReduxState = {};
+const initialState: GitArtifactRootReduxState = {};
 
 export const gitArtifactSlice = createSlice({
   name: "git/artifact",
@@ -156,9 +152,6 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    gitImportInit: gitImportInitAction,
-    gitImportSuccess: gitImportSuccessAction,
-    gitImportError: gitImportErrorAction,
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,
@@ -171,6 +164,7 @@ export const gitArtifactSlice = createSlice({
     disconnectSuccess: disconnectSuccessAction,
     disconnectError: disconnectErrorAction,
     toggleConnectModal: toggleConnectModalAction,
+    toggleConnectSuccessModal: toggleConnectSuccessModalAction,
     openDisconnectModal: openDisconnectModalAction,
     closeDisconnectModal: closeDisconnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,

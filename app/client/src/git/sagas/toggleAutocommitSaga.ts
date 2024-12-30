@@ -10,24 +10,23 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* toggleAutocommitSaga(
   action: GitArtifactPayloadAction,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const artifactDef = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: ToggleAutocommitResponse | undefined;
 
   try {
-    response = yield call(toggleAutocommitRequest, baseArtifactId);
+    response = yield call(toggleAutocommitRequest, artifactDef.baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.toggleAutocommitSuccess(artifactDef));
-      yield put(gitArtifactActions.fetchMetadataInit(artifactDef));
+      yield put(gitArtifactActions.toggleAutocommitSuccess({ artifactDef }));
+      yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
     }
   } catch (e) {
     if (response && response.responseMeta.error) {
       const { error } = response.responseMeta;
 
       yield put(
-        gitArtifactActions.toggleAutocommitError({ ...artifactDef, error }),
+        gitArtifactActions.toggleAutocommitError({ artifactDef, error }),
       );
     } else {
       log.error(e);
