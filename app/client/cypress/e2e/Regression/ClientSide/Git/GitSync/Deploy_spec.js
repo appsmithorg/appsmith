@@ -64,7 +64,7 @@ describe(
       _.agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
       // connect to git
-      _.agHelper.AssertElementAbsence(homePage.connectToGitBtn);
+      _.agHelper.AssertElementAbsence(_.gitSync.locators.deployMenuConnect);
     });
 
     after(() => {

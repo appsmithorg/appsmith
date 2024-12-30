@@ -66,7 +66,7 @@ describe(
       cy.wait(2000);
       cy.commitAndPush();
       cy.merge("master");
-      gitSync.CloseGitSyncModal();
+      gitSync.CloseOpsModal();
       cy.switchGitBranch("master");
       cy.wait(2000);
 

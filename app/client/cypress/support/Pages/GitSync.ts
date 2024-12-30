@@ -26,7 +26,7 @@ export class GitSync {
     branchItemMenuDeleteBtn: "[data-testid='t--git-branch-item-menu-delete']",
     connectModal: "[data-testid='t--git-connect-modal']",
     connectModalCloseBtn:
-      "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']",
+      "//div[@data-testid='t--git-connect-modal']//button[@aria-label='Close']",
     connectModalNextBtn: "[data-testid='t--git-connect-next']",
     connectProviderRadioOthers:
       "[data-testid='t--git-connect-provider-radio-others']",
