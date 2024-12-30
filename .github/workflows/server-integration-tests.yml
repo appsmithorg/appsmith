@@ -71,7 +71,7 @@ jobs:
 
       - name: Run rts using the untarred files
         run: |
-          nohup -- node app/client/packages/rts/dist/bundle/server.js
+          nohup -- node app/client/packages/rts/dist/bundle/server.js &
 
       - name: Run only integration tests on server
         env:
