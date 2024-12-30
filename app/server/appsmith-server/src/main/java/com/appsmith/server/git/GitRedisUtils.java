@@ -51,11 +51,14 @@ public class GitRedisUtils {
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    public Mono<Boolean> addFileLock(String key, String commandName) {
+    public Mono<Boolean> addFileLock(String baseArtifactId, String commandName) {
+        String key = ArtifactType.APPLICATION.lowerCaseName() + "-" + baseArtifactId;
         return addFileLock(key, commandName, true);
     }
 
-    public Mono<Boolean> releaseFileLock(String key) {
+    public Mono<Boolean> releaseFileLock(String baseArtifactId) {
+        String key = ArtifactType.APPLICATION.lowerCaseName() + "-" + baseArtifactId;
+
         return redisUtils
                 .releaseFileLock(key)
                 .name(GitSpan.RELEASE_FILE_LOCK)
@@ -80,7 +83,7 @@ public class GitRedisUtils {
 
         String key = artifactType.lowerCaseName() + "-" + baseArtifactId;
 
-        return addFileLock(key, commandName);
+        return addFileLock(key, commandName, true);
     }
 
     /**
@@ -100,6 +103,9 @@ public class GitRedisUtils {
 
         String key = artifactType.lowerCaseName() + "-" + baseArtifactId;
 
-        return releaseFileLock(key);
+        return redisUtils
+                .releaseFileLock(key)
+                .name(GitSpan.RELEASE_FILE_LOCK)
+                .tap(Micrometer.observation(observationRegistry));
     }
 }
