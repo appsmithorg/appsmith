@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   createMessage,
@@ -33,7 +33,12 @@ import {
 } from "PluginActionEditor/hooks";
 import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import type { Datasource as DatasourceType } from "entities/Datasource";
+import { RagDocuments } from "ee/components/formControls/RagDocuments";
 import { StateInspector } from "components/editorComponents/Debugger/StateInspector";
+import { useLocation } from "react-router";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -52,6 +57,8 @@ function usePluginActionResponseTabs() {
   const onDebugClick = useDebuggerTriggerClick();
   const isRunning = useSelector(isActionRunning(action.id));
   const blockExecution = useBlockExecution();
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
+  const [ragDocumentsCount, setRagDocumentsCount] = useState<number>();
 
   const tabs: BottomTab[] = [];
 
@@ -110,7 +117,6 @@ function usePluginActionResponseTabs() {
   if (
     [
       PluginType.DB,
-      PluginType.AI,
       PluginType.REMOTE,
       PluginType.SAAS,
       PluginType.INTERNAL,
@@ -147,6 +153,58 @@ function usePluginActionResponseTabs() {
     });
   }
 
+  if ([PluginType.AI].includes(plugin.type)) {
+    if (showSchema && !isAnvilEnabled) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+        title: "Datasource",
+        panelComponent: (
+          <DatasourceTab
+            currentActionId={action.id}
+            datasourceId={datasource?.id || action.datasource.id || ""}
+            datasourceName={datasource?.name || action.datasource.name || ""}
+          />
+        ),
+      });
+    }
+
+    if (isAnvilEnabled) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.DATA_TAB,
+        title: "Data",
+        count: ragDocumentsCount,
+        panelComponent: (
+          <RagDocuments
+            datasourceId={(datasource as DatasourceType)?.id}
+            isDeletedAvailable={false}
+            setCount={setRagDocumentsCount}
+            workspaceId={datasource?.workspaceId}
+          />
+        ),
+      });
+    }
+
+    tabs.push({
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      title: createMessage(DEBUGGER_RESPONSE),
+      panelComponent: (
+        <Response
+          action={action}
+          actionResponse={actionResponse}
+          isRunDisabled={blockExecution}
+          isRunning={isRunning}
+          onRunClick={onRunClick}
+          responseTabHeight={responseTabHeight}
+          theme={EditorTheme.LIGHT}
+        />
+      ),
+    });
+  }
+
+  const location = useLocation();
+
+  const ideType = getIDETypeByUrl(location.pathname);
+
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
       {
@@ -160,12 +218,15 @@ function usePluginActionResponseTabs() {
         count: errorCount,
         panelComponent: <ErrorLogs />,
       },
-      {
+    );
+
+    if (ideType === IDE_TYPE.App) {
+      tabs.push({
         key: DEBUGGER_TAB_KEYS.STATE_TAB,
         title: createMessage(DEBUGGER_STATE),
         panelComponent: <StateInspector />,
-      },
-    );
+      });
+    }
   }
 
   return tabs;

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,6 +24,9 @@ import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 import { StateInspector } from "./StateInspector";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { useLocation } from "react-router";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
@@ -33,38 +36,59 @@ function DebuggerTabs() {
   // get the height of the response pane.
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   // set the height of the response pane.
-  const updateResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
-  }, []);
-  const setSelectedTab = (tabKey: string) => {
-    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: "WIDGET_EDITOR",
+  const updateResponsePaneHeight = useCallback(
+    (height: number) => {
+      dispatch(setResponsePaneHeight(height));
+    },
+    [dispatch],
+  );
+
+  const setSelectedTab = useCallback(
+    (tabKey: string) => {
+      if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+          source: "WIDGET_EDITOR",
+        });
+      }
+
+      dispatch(setDebuggerSelectedTab(tabKey));
+    },
+    [dispatch],
+  );
+
+  const onClose = useCallback(() => {
+    dispatch(showDebugger(false));
+  }, [dispatch]);
+
+  const location = useLocation();
+
+  const ideType = getIDETypeByUrl(location.pathname);
+
+  const DEBUGGER_TABS = useMemo(() => {
+    const tabs = [
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs hasShortCut />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <Errors hasShortCut />,
+      },
+    ];
+
+    if (ideType === IDE_TYPE.App) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.STATE_TAB,
+        title: createMessage(DEBUGGER_STATE),
+        panelComponent: <StateInspector />,
       });
     }
 
-    dispatch(setDebuggerSelectedTab(tabKey));
-  };
-  const onClose = () => dispatch(showDebugger(false));
-
-  const DEBUGGER_TABS = [
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs hasShortCut />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <Errors hasShortCut />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.STATE_TAB,
-      title: createMessage(DEBUGGER_STATE),
-      panelComponent: <StateInspector />,
-    },
-  ];
+    return tabs;
+  }, [errorCount, ideType]);
 
   // Do not render if response, header or schema tab is selected in the bottom bar.
   const shouldRender = !(
