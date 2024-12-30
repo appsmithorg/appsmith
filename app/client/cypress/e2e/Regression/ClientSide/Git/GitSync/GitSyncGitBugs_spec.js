@@ -212,56 +212,37 @@ describe(
         repoName = repName;
         cy.wait(2000);
 
-        cy.window()
-          .its("store")
-          .invoke("getState")
-          .then((state) => {
-            const commitInputDisabled =
-              state.ui.gitSync.gitStatus?.isClean ||
-              state.ui.gitSync.isCommitting;
+        // check last deploy preview
+        cy.latestDeployPreview();
+        cy.wait(1000);
+        cy.xpath(
+          "//input[@class='bp3-input' and @value='Success']",
+        ).should("be.visible");
+        // switch to Page1 and validate data binding
+        cy.get(".t--page-switch-tab")
+          .contains("Page1")
+          .click({ force: true });
+        cy.xpath(
+          "//input[@class='bp3-input' and @value='Success']",
+        ).should("be.visible");
+        cy.get(commonlocators.backToEditor).click();
 
-            if (!commitInputDisabled) {
-              cy.commitAndPush();
-            }
-
-            // check last deploy preview
-            if (state.ui.applications.currentApplication?.lastDeployedAt) {
-              cy.latestDeployPreview();
-              cy.wait(1000);
-              cy.xpath(
-                "//input[@class='bp3-input' and @value='Success']",
-              ).should("be.visible");
-              // switch to Page1 and validate data binding
-              cy.get(".t--page-switch-tab")
-                .contains("Page1")
-                .click({ force: true });
-              cy.xpath(
-                "//input[@class='bp3-input' and @value='Success']",
-              ).should("be.visible");
-              cy.get(commonlocators.backToEditor).click();
-
-              // ! git mod: not a good idea to check states like here
-            } else if (state.ui.gitSync.isGitSyncModalOpen) {
-              cy.get(gitSync.locators.opsModalCloseBtn).click({ force: true });
-            }
-
-            // verify jsObject data binding on Page 1
-            PageLeftPane.switchSegment(PagePaneSegment.JS);
-            PageLeftPane.assertPresence(jsObject);
-            EditorNavigation.ShowCanvas();
-            cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-              "be.visible",
-            );
-            // switch to Page1 copy and verify jsObject data binding
-            EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-            PageLeftPane.switchSegment(PagePaneSegment.JS);
-            // verify jsObject is not duplicated
-            PageLeftPane.assertPresence(jsObject);
-            EditorNavigation.ShowCanvas();
-            cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-              "be.visible",
-            );
-          });
+        // verify jsObject data binding on Page 1
+        PageLeftPane.switchSegment(PagePaneSegment.JS);
+        PageLeftPane.assertPresence(jsObject);
+        EditorNavigation.ShowCanvas();
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // switch to Page1 copy and verify jsObject data binding
+        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        PageLeftPane.switchSegment(PagePaneSegment.JS);
+        // verify jsObject is not duplicated
+        PageLeftPane.assertPresence(jsObject);
+        EditorNavigation.ShowCanvas();
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
         gitSync.DeleteTestGithubRepo(repoName);
       });
     });
