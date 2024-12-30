@@ -297,10 +297,10 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     public Mono<List<String>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
         if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
-            listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
+            return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
-        // TODO: include ref type for tags in fsGit Handler
+        // TODO: Add logic for other reference types (e.g., tags)
         return Mono.just(List.of());
     }
 
