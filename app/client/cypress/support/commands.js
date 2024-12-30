@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
+
 dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
@@ -54,6 +55,7 @@ export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
+    window.localStorage.setItem("NUDGE_SHOWN_SPLIT_PANE", "true");
   });
 };
 
