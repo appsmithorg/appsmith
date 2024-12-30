@@ -21,6 +21,7 @@ module.exports = function ({core, context, github}) {
   }
 
   core.setOutput("tags", parseResult.tags ?? "");
+  core.setOutput("its", parseResult.its ?? "");
   core.setOutput("spec", parseResult.spec ?? "");
 }
 
