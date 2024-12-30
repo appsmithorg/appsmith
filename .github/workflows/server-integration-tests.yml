@@ -93,6 +93,7 @@ jobs:
             args=()
 
             # Run tests and capture logs
+            cd app/server
             mvn verify -DskipUTs=true "${args[@]}" | tee mvn_integration_test.log
 
 
