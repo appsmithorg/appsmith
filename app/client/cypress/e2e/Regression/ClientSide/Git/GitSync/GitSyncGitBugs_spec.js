@@ -215,16 +215,14 @@ describe(
         // check last deploy preview
         cy.latestDeployPreview();
         cy.wait(1000);
-        cy.xpath(
-          "//input[@class='bp3-input' and @value='Success']",
-        ).should("be.visible");
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
         // switch to Page1 and validate data binding
-        cy.get(".t--page-switch-tab")
-          .contains("Page1")
-          .click({ force: true });
-        cy.xpath(
-          "//input[@class='bp3-input' and @value='Success']",
-        ).should("be.visible");
+        cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
         cy.get(commonlocators.backToEditor).click();
 
         // verify jsObject data binding on Page 1

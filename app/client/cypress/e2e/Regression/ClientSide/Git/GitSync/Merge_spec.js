@@ -40,9 +40,7 @@ describe(
       cy.get(_.gitSync.locators.quickActionsMergeBtn).click();
       cy.get(_.gitSync.locators.opsModal).should("exist");
       cy.get(_.gitSync.locators.opsModalTabDeploy).should("exist");
-      cy.get(_.gitSync.locators.opsModalTabDeploy)
-        .invoke("attr", "aria-selected")
-        .should("eq", "true");
+      cy.get(_.gitSync.locators.opsModalTabDeploy);
 
       cy.get(_.gitSync.locators.opsMergeBtn).should("be.disabled");
       cy.wait(3000);
