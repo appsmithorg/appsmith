@@ -381,6 +381,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
+        if: inputs.its != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: server-build
