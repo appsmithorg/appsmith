@@ -2,10 +2,16 @@
 
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { createSelector } from "reselect";
-import { getCurrentGitBranch, protectedModeSelector } from "./gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  getIsGitSyncModalOpen,
+  protectedModeSelector,
+} from "./gitSyncSelectors";
 import {
   selectGitCurrentBranch as selectGitCurrentBranchNew,
   selectGitProtectedMode as selectGitProtectedModeNew,
+  selectGitOpsModalOpen as selectGitOpsModalOpenNew,
+  selectGitConnectModalOpen as selectGitConnectModalOpenNew,
 } from "git";
 import {
   getCurrentBaseApplicationId,
@@ -48,4 +54,24 @@ export const selectCombinedPreviewMode = createSelector(
   previewModeSelector,
   selectGitApplicationProtectedMode,
   (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);
+
+export const selectGitOpsModalOpen = createSelector(
+  selectGitModEnabled,
+  getIsGitSyncModalOpen,
+  (state) =>
+    selectGitOpsModalOpenNew(state, selectGitApplicationArtifactDef(state)),
+  (isGitModEnabled, isOldModalOpen, isNewModalOpen) => {
+    return isGitModEnabled ? isNewModalOpen : isOldModalOpen;
+  },
+);
+
+export const selectGitConnectModalOpen = createSelector(
+  selectGitModEnabled,
+  getIsGitSyncModalOpen,
+  (state) =>
+    selectGitConnectModalOpenNew(state, selectGitApplicationArtifactDef(state)),
+  (isGitModEnabled, isOldModalOpen, isNewModalOpen) => {
+    return isGitModEnabled ? isNewModalOpen : isOldModalOpen;
+  },
 );

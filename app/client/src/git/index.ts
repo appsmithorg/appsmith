@@ -10,6 +10,7 @@ export { default as GitQuickActions } from "./components/QuickActions";
 export { default as GitProtectedBranchCallout } from "./components/ProtectedBranchCallout";
 export { default as GitGlobalProfile } from "./components/GlobalProfile";
 export { default as GitDeployMenuItems } from "./components/DeployMenuItems";
+export { default as GitHotKeys } from "./components/HotKeys";
 
 // hooks
 export { default as useGitCurrentBranch } from "./hooks/useCurrentBranch";
@@ -29,6 +30,8 @@ export const gitConnectSuccess = gitArtifactActions.connectSuccess;
 export {
   selectCurrentBranch as selectGitCurrentBranch,
   selectProtectedMode as selectGitProtectedMode,
+  selectOpsModalOpen as selectGitOpsModalOpen,
+  selectConnectModalOpen as selectGitConnectModalOpen,
 } from "./store/selectors/gitArtifactSelectors";
 
 // types

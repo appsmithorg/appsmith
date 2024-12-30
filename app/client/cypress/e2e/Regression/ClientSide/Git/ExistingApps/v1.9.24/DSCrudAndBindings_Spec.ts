@@ -61,7 +61,7 @@ describe(
       );
       agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
       agHelper.AssertElementVisibility(gitSync.locators.opsModal);
-      agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
+      agHelper.GetNClick(gitSync.locators.opsCommitBtn);
       assertHelper.AssertNetworkStatus("@commit", 201);
       gitSync.CloseOpsModal();
     });

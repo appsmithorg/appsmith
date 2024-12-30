@@ -72,7 +72,7 @@ function SettingsModalView({
         <Tabs onValueChange={handleTabKeyChange} value={settingsModalTab}>
           <TabsList>
             <Tab
-              data-testid={"t--git-setting-tab-general"}
+              data-testid={"t--git-settings-tab-general"}
               value={GitSettingsTab.General}
             >
               {createMessage(GENERAL)}
