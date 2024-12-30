@@ -9,6 +9,10 @@ import CreateNewAppsOption from "./CreateNewAppsOption";
 import { BrowserRouter as Router } from "react-router-dom";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 
+jest.mock("selectors/gitModSelectors", () => ({
+  selectCombinedPreviewMode: jest.fn(() => false),
+}));
+
 const defaultStoreState = {
   ...unitTestBaseMockStore,
   tenant: {
