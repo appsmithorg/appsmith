@@ -27,8 +27,6 @@ module.exports = function ({core, context, github}) {
 function parseTags(body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
-  console.log("Body is: ", body);
-
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
   const okToTestPattern = body.match(/^(\/ok-to-test) tags="(.+?)"( it=true)?/m);
 
@@ -48,7 +46,7 @@ function parseTags(body) {
         response = { tags: tagsMatch };
       }
     }
-    const itsMatch = okToTestPattern?.[2];
+    const itsMatch = okToTestPattern?.[3];
     if (itsMatch) {
       response = { ...response, its: 'true' };
     }
