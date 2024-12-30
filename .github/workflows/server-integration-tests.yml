@@ -40,7 +40,6 @@ jobs:
 
       # Setup Java
       - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
@@ -48,7 +47,7 @@ jobs:
 
       - name: Conditionally start PostgreSQL
         if: |
-          inputs.is-pg-build == 'true' && inputs.skip-tests != 'true'
+          inputs.is-pg-build == 'true'
         run: |
           docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
 
@@ -72,7 +71,7 @@ jobs:
 
       - name: Run rts using the untarred files
         run: |
-          node app/client/packages/rts/dist/bundle/server.js
+          nohup -- node app/client/packages/rts/dist/bundle/server.js
 
       - name: Run only integration tests on server
         env:
@@ -92,11 +91,6 @@ jobs:
             fi
 
             args=()
-
-            if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-                failed_tests="${{ steps.failed_tests.outputs.tests }}"
-                args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
-            fi
 
             # Run tests and capture logs
             mvn verify -DskipUTs=true "${args[@]}" | tee mvn_integration_test.log
