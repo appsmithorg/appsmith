@@ -149,7 +149,7 @@ function GitModals() {
     </>
   ) : (
     <>
-      <OldGitSyncModal isImport />;
+      <OldGitSyncModal isImport />
       <OldRepoLimitExceededErrorModal />
     </>
   );

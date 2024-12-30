@@ -35,7 +35,9 @@ export default function GitApplicationContextProvider({
   );
 
   const setImportWorkspaceId = useCallback(() => {
-    setWorkspaceIdForImport({ editorId: "", workspaceId: workspace.id });
+    dispatch(
+      setWorkspaceIdForImport({ editorId: "", workspaceId: workspace.id }),
+    );
   }, [workspace.id]);
 
   const fetchApplications = useCallback(() => {

@@ -104,7 +104,6 @@ describe(
       cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).click();
       cy.wait(3000);
-      //cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
       cy.wait("@disconnect").should(
         "have.nested.property",
         "response.body.responseMeta.status",
