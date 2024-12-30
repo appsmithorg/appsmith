@@ -17,13 +17,22 @@ on:
 
 jobs:
   run-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'workflow_dispatch'
     defaults:
       run:
         shell: bash
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
 
     steps:
       # Check out merge commit
