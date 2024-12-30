@@ -455,8 +455,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
      * @return Success message
      */
     protected Mono<String> pushArtifact(Artifact branchedArtifact, boolean isFileLock) {
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(branchedArtifact.getArtifactType());
+        ArtifactType artifactType = branchedArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Mono<GitArtifactMetadata> gitArtifactMetadataMono = Mono.just(branchedArtifact.getGitArtifactMetadata());
 
         if (!branchedArtifact
@@ -478,6 +478,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .flatMap(gitMetadata -> {
                     return gitRedisUtils
                             .acquireGitLock(
+                                    artifactType,
                                     gitMetadata.getDefaultArtifactId(),
                                     GitConstants.GitCommandConstants.PUSH,
                                     isFileLock)
@@ -676,8 +677,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
 
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
@@ -689,8 +690,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .onErrorResume(throwable -> {
                     log.error("Delete branch failed {}", throwable.getMessage());
 
-                    Mono<Boolean> releaseLockMono =
-                            gitRedisUtils.releaseFileLock(jsonTransformationDTO.getBaseArtifactId(), Boolean.TRUE);
+                    Mono<Boolean> releaseLockMono = gitRedisUtils.releaseFileLock(
+                            artifactType, jsonTransformationDTO.getBaseArtifactId(), Boolean.TRUE);
 
                     if (throwable instanceof CannotDeleteCurrentBranchException) {
                         return releaseLockMono.then(Mono.error(new AppsmithException(
