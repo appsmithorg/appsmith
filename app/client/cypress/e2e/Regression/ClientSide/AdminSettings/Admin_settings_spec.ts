@@ -206,29 +206,33 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       .then(($text) => expect($text).to.eq("Appsmith"));
   });
 
-  it("11. Verify all admin setting sections are accessible", () => {
-    cy.visit("/applications", { timeout: 60000 });
-    agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
-    cy.wait("@getEnvVariables");
-    agHelper.GetNClick(adminsSettings.generalTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
-    agHelper.GetNClick(adminsSettings.advancedTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.ADVANCED);
-    agHelper.GetNClick(adminsSettings.authenticationTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
-    agHelper.GetNClick(adminsSettings.emailTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
-    agHelper.GetNClick(adminsSettings.developerSettingsTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.DEVELOPER_SETTINGS);
-    agHelper.GetNClick(adminsSettings.versionTab);
-    agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
-    agHelper.GetNClick(adminsSettings.branding);
-    agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
-    agHelper.GetNClick(adminsSettings.provisioning);
-    agHelper.AssertURL(adminSettingsHelper.routes.PROVISIONING);
-    agHelper.GetNClick(adminsSettings.accessControl);
-    agHelper.AssertURL(adminSettingsHelper.routes.ACCESS_CONTROL);
-    agHelper.GetNClick(adminsSettings.auditLogs);
-    agHelper.AssertURL(adminSettingsHelper.routes.AUDIT_LOGS);
-  });
+  it(
+    "11. Verify all admin setting sections are accessible",
+    { tags: ["@tag.excludeForAirgap"] },
+    () => {
+      cy.visit("/applications", { timeout: 60000 });
+      agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
+      cy.wait("@getEnvVariables");
+      agHelper.GetNClick(adminsSettings.generalTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
+      agHelper.GetNClick(adminsSettings.advancedTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.ADVANCED);
+      agHelper.GetNClick(adminsSettings.authenticationTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUTHENTICATION);
+      agHelper.GetNClick(adminsSettings.emailTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.EMAIL);
+      agHelper.GetNClick(adminsSettings.developerSettingsTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.DEVELOPER_SETTINGS);
+      agHelper.GetNClick(adminsSettings.versionTab);
+      agHelper.AssertURL(adminSettingsHelper.routes.VERSION);
+      agHelper.GetNClick(adminsSettings.branding);
+      agHelper.AssertURL(adminSettingsHelper.routes.BRANDING);
+      agHelper.GetNClick(adminsSettings.provisioning);
+      agHelper.AssertURL(adminSettingsHelper.routes.PROVISIONING);
+      agHelper.GetNClick(adminsSettings.accessControl);
+      agHelper.AssertURL(adminSettingsHelper.routes.ACCESS_CONTROL);
+      agHelper.GetNClick(adminsSettings.auditLogs);
+      agHelper.AssertURL(adminSettingsHelper.routes.AUDIT_LOGS);
+    },
+  );
 });
