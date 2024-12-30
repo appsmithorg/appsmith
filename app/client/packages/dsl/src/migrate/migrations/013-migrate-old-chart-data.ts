@@ -7,10 +7,6 @@ export const migrateOldChartData = (currentDSL: DSLWidget) => {
       try {
         currentDSL.chartData = JSON.parse(currentDSL.chartData);
       } catch (error) {
-        // Sentry.captureException({
-        //   message: "Chart Migration F`ailed",
-        //   oldData: currentDSL.chartData,
-        // });
         currentDSL.chartData = [];
       }
     }

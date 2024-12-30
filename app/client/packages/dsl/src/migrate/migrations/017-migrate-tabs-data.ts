@@ -9,10 +9,6 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       currentDSL.type = "TABS_MIGRATOR_WIDGET";
       currentDSL.version = 1;
     } catch (error) {
-      // Sentry.captureException({
-      //   message: "Tabs Migration Failed",
-      //   oldData: currentDSL.tabs,
-      // });
       currentDSL.tabsObj = {};
       delete currentDSL.tabs;
     }
@@ -95,10 +91,6 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
       currentDSL.version = 2;
       delete currentDSL.tabs;
     } catch (error) {
-      //   Sentry.captureException({
-      //     message: "Tabs Migration Failed",
-      //     oldData: currentDSL.tabs,
-      //   });
       currentDSL.tabsObj = {};
       delete currentDSL.tabs;
     }

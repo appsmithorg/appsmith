@@ -8,8 +8,6 @@ ENCRYPTION_SALT="$4"
 SUPERVISOR_PASSWORD="$5"
 
 cat <<EOF
-# Sentry
-APPSMITH_SENTRY_DSN=
 
 # Smart look
 APPSMITH_SMART_LOOK_ID=
@@ -50,8 +48,6 @@ APPSMITH_MAIL_SMTP_TLS_ENABLED=
 # Note: This only takes effect in self-hosted scenarios.
 # Please visit: https://docs.appsmith.com/telemetry to read more about anonymized data collected by Appsmith
 APPSMITH_DISABLE_TELEMETRY=false
-#APPSMITH_SENTRY_DSN=
-#APPSMITH_SENTRY_ENVIRONMENT=
 
 # Google Recaptcha Config
 APPSMITH_RECAPTCHA_SITE_KEY=

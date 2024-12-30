@@ -62,12 +62,7 @@ export const migrateWidgetsWithoutLeftRightColumns = (
         rightColumn,
         leftColumn,
       };
-    } catch (error) {
-      // Sentry.captureException({
-      //   message: "Migrating position of widget on data loss failed",
-      //   oldData: currentDSL,
-      // });
-    }
+    } catch (error) {}
   }
 
   if (currentDSL.children && currentDSL.children.length) {

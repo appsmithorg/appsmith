@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import Container from "./Container";
 import type { RouteComponentProps } from "react-router-dom";
 import { Spinner } from "@appsmith/ads";
-import * as Sentry from "@sentry/react";
 import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
+import { captureException } from "instrumentation";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -21,7 +21,7 @@ const VerifyUser = (
 
   useEffect(() => {
     if (!token || !email) {
-      Sentry.captureMessage("User email verification link is damaged");
+      captureException("User email verification link is damaged");
     }
 
     const formElement: HTMLFormElement = document.getElementById(

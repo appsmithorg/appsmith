@@ -69,24 +69,5 @@ describe(
         cy.wrap(interceptFlag).should("eq", false);
       });
     });
-
-    it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
-      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
-      cy.wait(3000);
-      cy.wait("@getConsolidatedData");
-      cy.window().then((window) => {
-        expect(window.Sentry).to.be.equal(undefined);
-      });
-      let interceptFlag = false;
-      cy.intercept("POST", "https://**.sentry.io/**", (req) => {
-        interceptFlag = true;
-        req.continue();
-      });
-      homePage.CreateNewApplication();
-      cy.wait(3000);
-      cy.window().then(() => {
-        cy.wrap(interceptFlag).should("eq", false);
-      });
-    });
   },
 );

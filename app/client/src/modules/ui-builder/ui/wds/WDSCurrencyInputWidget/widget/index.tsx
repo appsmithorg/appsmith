@@ -1,7 +1,6 @@
 import _ from "lodash";
 import React from "react";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import type { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -30,6 +29,7 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "modules/ui-builder/ui/wds/WDSBaseInputWidget/component/types";
+import { captureException } from "instrumentation";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -189,7 +189,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     } catch (e) {
       formattedValue = value;
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e);
     }
 
     this.props.updateWidgetMetaProperty("parsedText", String(formattedValue));
@@ -248,7 +248,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       }
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e);
       this.props.updateWidgetMetaProperty("parsedText", this.props.parsedText);
     }
 
@@ -311,7 +311,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         this.props.updateWidgetMetaProperty("parsedText", formattedValue);
       } catch (e) {
         log.error(e);
-        Sentry.captureException(e);
+        captureException(e);
       }
     }
   }

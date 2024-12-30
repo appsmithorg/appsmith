@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import { fetchAllApplicationsOfWorkspace } from "ee/actions/applicationActions";
 import { GitOpsTab } from "git/constants/enums";
 import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
@@ -6,6 +5,7 @@ import disconnectRequest from "git/requests/disconnectRequest";
 import type { DisconnectResponse } from "git/requests/disconnectRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
+import { captureException } from "instrumentation";
 import log from "loglevel";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";

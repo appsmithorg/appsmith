@@ -15,8 +15,8 @@ import {
   concatWithArray,
 } from "./helpers";
 import WidgetFactory from "../WidgetProvider/factory";
-import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
+import * as Instrumentation from "instrumentation";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {
@@ -541,10 +541,10 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
 
-    const sentrySpy = jest.spyOn(Sentry, "captureException");
+    const captureExceptionSpy = jest.spyOn(Instrumentation, "captureException");
 
     captureInvalidDynamicBindingPath(baseDSL);
-    expect(sentrySpy).toHaveBeenCalledWith(
+    expect(captureExceptionSpy).toHaveBeenCalledWith(
       new Error(
         `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: RadioGroup1.options`,
       ),

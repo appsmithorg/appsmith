@@ -27,8 +27,6 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import store from "store";
-
-import * as Sentry from "@sentry/react";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
@@ -37,6 +35,7 @@ import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "../entities/App";
+import { captureException } from "instrumentation";
 
 const shouldShowToast = (action: string) => {
   return action in toastMessageErrorTypes;
@@ -90,14 +89,14 @@ export class IncorrectBindingError extends Error {}
  * @throws {Error}
  * @param response
  * @param show
- * @param logToSentry
+ * @param logToMonitoring
  */
 export function* validateResponse(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   response: ApiResponse | any,
   show = true,
-  logToSentry = false,
+  logToMonitoring = false,
 ) {
   if (!response) {
     throw Error("");
@@ -119,7 +118,7 @@ export function* validateResponse(
         error: new Error(
           getErrorMessage(response.status, response.resourceType),
         ),
-        logToSentry,
+        logToMonitoring,
         show,
       },
     });
@@ -141,7 +140,7 @@ export function* validateResponse(
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
       error: new Error(response.responseMeta.error.message),
-      logToSentry,
+      logToMonitoring,
       show,
     },
   });
@@ -215,7 +214,7 @@ enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
   LOG_TO_CONSOLE = "LOG_TO_CONSOLE",
-  LOG_TO_SENTRY = "LOG_TO_SENTRY",
+  LOG_TO_MONITORING = "LOG_TO_MONITORING",
   LOG_TO_DEBUGGER = "LOG_TO_DEBUGGER",
 }
 
@@ -223,7 +222,7 @@ export interface ErrorActionPayload {
   error: ErrorPayloadType;
   show?: boolean;
   crash?: boolean;
-  logToSentry?: boolean;
+  logToMonitoring?: boolean;
   logToDebugger?: boolean;
   sourceEntity?: SourceEntity;
 }
@@ -231,7 +230,7 @@ export interface ErrorActionPayload {
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const { error, logToDebugger, logToSentry, show, sourceEntity } =
+  const { error, logToDebugger, logToMonitoring, show, sourceEntity } =
     payload || {};
   const appMode: APP_MODE = yield select(getAppMode);
 
@@ -252,12 +251,12 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   }
 
   if (error && error.crash) {
-    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
+    effects.push(ErrorEffectTypes.LOG_TO_MONITORING);
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
 
-  if (error && logToSentry) {
-    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
+  if (error && logToMonitoring) {
+    effects.push(ErrorEffectTypes.LOG_TO_MONITORING);
   }
 
   const message = getErrorMessageFromActionType(type, error);
@@ -296,8 +295,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         yield put(safeCrashApp(error));
         break;
       }
-      case ErrorEffectTypes.LOG_TO_SENTRY: {
-        yield call(Sentry.captureException, error);
+      case ErrorEffectTypes.LOG_TO_MONITORING: {
+        yield call(captureException, error);
         break;
       }
     }

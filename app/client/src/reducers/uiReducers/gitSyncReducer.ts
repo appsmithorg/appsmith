@@ -770,7 +770,7 @@ export interface GitErrorType {
   error: GitErrorPayloadType;
   show?: boolean;
   crash?: boolean;
-  logToSentry?: boolean;
+  logToMonitoring?: boolean;
 }
 
 export interface GitBranchDeleteState {

@@ -16,8 +16,8 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
+import { captureException } from "instrumentation";
 
 const actionExecutionRequestActions = [
   ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
@@ -101,7 +101,7 @@ export default function* actionExecutionChangeListeners() {
       yield call(actionExecutionChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      captureException(e);
     }
   }
 }

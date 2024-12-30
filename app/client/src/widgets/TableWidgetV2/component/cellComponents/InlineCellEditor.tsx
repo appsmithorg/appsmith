@@ -19,8 +19,8 @@ import {
   getLocaleThousandSeparator,
 } from "widgets/WidgetUtils";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
-import * as Sentry from "@sentry/react";
 import { getLocale } from "utils/helpers";
+import { captureException } from "instrumentation";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -237,7 +237,7 @@ export function InlineCellEditor({
 
           value = convertToNumber(inputValue);
         } catch (e) {
-          Sentry.captureException(e);
+          captureException(e);
         }
       }
 

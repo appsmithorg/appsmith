@@ -9,7 +9,6 @@ import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton, {
   type SessionRecordingConfig,
 } from "utils/Analytics/mixpanel";
-import SentryUtil from "utils/Analytics/sentry";
 import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
 
@@ -31,7 +30,6 @@ async function initialize(
   user: User,
   sessionRecordingConfig: SessionRecordingConfig,
 ) {
-  SentryUtil.init();
   await SmartlookUtil.init();
 
   segmentAnalytics = SegmentSingleton.getInstance();
@@ -93,8 +91,8 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
     log.debug("Identify User " + trackedUser.userId);
     await segmentAnalytics.identify(trackedUser.userId, userProperties);
   }
-
-  SentryUtil.identifyUser(trackedUser.userId, userData);
+  // TODO @dvj1988: Identify user in faro
+  // SentryUtil.identifyUser(trackedUser.userId, userData);
 
   if (trackedUser.email) {
     SmartlookUtil.identify(trackedUser.userId, trackedUser.email);

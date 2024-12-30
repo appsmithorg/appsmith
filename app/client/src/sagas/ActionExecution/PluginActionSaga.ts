@@ -8,7 +8,6 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
 import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
@@ -175,6 +174,7 @@ import {
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
 import type { Span } from "instrumentation/types";
+import { captureException } from "instrumentation";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1021,15 +1021,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
 
   if (!collection) {
-    Sentry.captureException(
+    captureException(
       new Error(
         "Collection present in layoutOnLoadActions but no collection exists ",
       ),
       {
-        extra: {
+        context: {
           collectionId,
           actionId: pageAction.id,
-          pageId,
+          pageId: pageId || "",
         },
       },
     );

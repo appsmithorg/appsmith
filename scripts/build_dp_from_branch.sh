@@ -70,7 +70,5 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set ingress.className="nginx" \
   --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=2Gi \
-  --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
-  --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --version $HELMCHART_VERSION

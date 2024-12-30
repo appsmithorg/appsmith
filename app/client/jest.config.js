@@ -74,11 +74,6 @@ module.exports = {
   },
   globals: {
     APPSMITH_FEATURE_CONFIGS: {
-      sentry: {
-        dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
-        release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
-        environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
-      },
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },

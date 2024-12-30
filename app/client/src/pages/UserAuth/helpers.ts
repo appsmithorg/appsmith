@@ -2,10 +2,10 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import { useCallback, useEffect, useState } from "react";
 import type { Dispatch } from "redux";
-import * as Sentry from "@sentry/react";
 import UserApi from "ee/api/UserApi";
 import { toast } from "@appsmith/ads";
 import type { ApiResponse } from "../../api/ApiResponses";
+import { captureException } from "instrumentation";
 
 export interface LoginFormValues {
   username?: string;
@@ -95,7 +95,7 @@ export const useResendEmailVerification = (
     if (!email) {
       const errorMessage = "Email not found for retry verification";
 
-      Sentry.captureMessage(errorMessage);
+      captureException(errorMessage);
       toast.show(errorMessage, { kind: "error" });
 
       return;

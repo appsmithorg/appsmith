@@ -1,10 +1,10 @@
 import { Doc, Map, UndoManager } from "yjs";
-import { captureException } from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import type { DSLDiff } from "./replayUtils";
 import { processDiff, getPathsFromDiff } from "./replayUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { captureException } from "instrumentation";
 
 const _DIFF_ = "diff";
 
@@ -152,9 +152,9 @@ export default class ReplayDSL {
         applyDiff(this.dsl, true, diff);
       } catch (e) {
         captureException(e, {
-          extra: {
-            diff,
-            updateLength: diffs.length,
+          context: {
+            diff: JSON.stringify(diff),
+            updateLength: diffs.length.toString(),
           },
         });
       }

@@ -27,12 +27,9 @@ server {
     sub_filter_once off;
     location / {
         proxy_pass __APPSMITH_CLIENT_PROXY_PASS__;
-        sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
         sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
         sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
-        sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE}';
-        sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT}';
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';

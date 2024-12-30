@@ -98,7 +98,6 @@ import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
-import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
@@ -150,6 +149,7 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
 import { ConsolidatedPageLoadApi } from "api";
+import { captureException } from "instrumentation";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -564,7 +564,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { message } = incorrectBindingError;
 
       if (isRetry) {
-        Sentry.captureException(new Error("Failed to correct binding paths"));
+        captureException(new Error("Failed to correct binding paths"));
         yield put({
           type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
           payload: {

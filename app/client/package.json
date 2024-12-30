@@ -87,7 +87,6 @@
     "@redux-saga/types": "1.2.1",
     "@reduxjs/toolkit": "^2.4.0",
     "@segment/analytics-next": "^1.76.0",
-    "@sentry/react": "^6.2.4",
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",

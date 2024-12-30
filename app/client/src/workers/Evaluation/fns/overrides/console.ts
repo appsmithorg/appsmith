@@ -1,4 +1,3 @@
-import { uuid4 } from "@sentry/utils";
 import type {
   LogObject,
   Methods,
@@ -11,6 +10,7 @@ import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas"
 import TriggerEmitter from "../utils/TriggerEmitter";
 import type { EventEmitter } from "events";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
+import uniqueId from "lodash/uniqueId";
 
 class UserLog {
   private isEnabled = true;
@@ -138,7 +138,7 @@ class UserLog {
   // parses the incoming log and converts it to the log object
   private parseLogs(method: Methods, data: unknown[]): LogObject {
     // Create an ID
-    const id = uuid4();
+    const id = uniqueId("log_");
     const timestamp = Date.now().toString();
     // Parse the methods
     let output = data;

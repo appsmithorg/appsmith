@@ -20,7 +20,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import log from "loglevel";
-import { captureException } from "@sentry/react";
+import { captureException } from "instrumentation";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,

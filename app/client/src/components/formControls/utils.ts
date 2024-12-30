@@ -9,7 +9,6 @@ import type { FormConfigType, HiddenType } from "./BaseControl";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
@@ -17,7 +16,7 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
-
+import type { Action } from "entities/Action";
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
 // already has url set. If user presses back button, we need to show the confirmation dialog
@@ -782,7 +781,6 @@ export function fixActionPayloadForMongoQuery(
           }
           // @ts-expect-error: Types are not available
           value = actionObjectDiff[i]?.rhs;
-          // @ts-expect-error: Types are not available
           set(action, path, value);
         }
       }

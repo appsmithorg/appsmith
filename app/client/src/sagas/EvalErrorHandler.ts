@@ -17,7 +17,6 @@ import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
-import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
@@ -30,6 +29,7 @@ import type { AppState } from "ee/reducers";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
+import { captureException } from "instrumentation";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -230,19 +230,15 @@ export function* evalErrorHandler(
             text: `${error.message} Node was: ${node}`,
           });
 
-          if (error.context.logToSentry) {
-            // Send the generic error message to sentry for better grouping
-            Sentry.captureException(new Error(error.message), {
-              tags: {
+          if (error.context.logToMonitoring) {
+            // Send the generic error message to monitoring for better grouping
+            captureException(new Error(error.message), {
+              context: {
                 node,
                 entityType,
-              },
-              extra: {
                 dependencyMap,
                 diffs,
               },
-              // Level is warning because it could be a user error
-              level: Sentry.Severity.Warning,
             });
           }
 
@@ -264,7 +260,7 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
-        Sentry.captureException(error);
+        captureException(error);
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
@@ -296,8 +292,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: error.context,
+        captureException(new Error(error.message), {
+          context: error.context,
         });
         break;
       }

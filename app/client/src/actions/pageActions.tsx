@@ -24,7 +24,6 @@ import type { APP_MODE } from "entities/App";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import * as Sentry from "@sentry/react";
 import type { DSLWidget } from "../WidgetProvider/constants";
 import type {
   LayoutOnLoadActionErrors,
@@ -33,6 +32,7 @@ import type {
 import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
+import { captureException } from "instrumentation";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -326,9 +326,7 @@ export const updatePageAction = (
   // where this was not happening and capturing the error to know gather
   // more info: https://github.com/appsmithorg/appsmith/issues/16435
   if (!payload.id) {
-    Sentry.captureException(
-      new Error("Attempting to update page without page id"),
-    );
+    captureException(new Error("Attempting to update page without page id"));
   }
 
   return {

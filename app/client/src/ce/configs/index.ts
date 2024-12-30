@@ -1,11 +1,6 @@
 import type { AppsmithUIConfigs } from "./types";
 
 export interface INJECTED_CONFIGS {
-  sentry: {
-    dsn: string;
-    release: string;
-    environment: string;
-  };
   smartLook: {
     id: string;
   };
@@ -42,22 +37,8 @@ export interface INJECTED_CONFIGS {
   customerPortalUrl: string;
 }
 
-const capitalizeText = (text: string) => {
-  const rest = text.slice(1);
-  const first = text[0].toUpperCase();
-
-  return `${first}${rest}`;
-};
-
 export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
-    sentry: {
-      dsn: process.env.REACT_APP_SENTRY_DSN || "",
-      release: process.env.REACT_APP_SENTRY_RELEASE || "",
-      environment:
-        process.env.REACT_APP_SENTRY_ENVIRONMENT ||
-        capitalizeText(process.env.NODE_ENV),
-    },
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",
     },
@@ -123,18 +104,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     // This code might be called both from the main thread and a web worker
     typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
   const ENV_CONFIG = getConfigsFromEnvVars();
-  const sentryDSN = getConfig(
-    ENV_CONFIG.sentry.dsn,
-    APPSMITH_FEATURE_CONFIGS?.sentry.dsn,
-  );
-  const sentryRelease = getConfig(
-    ENV_CONFIG.sentry.release,
-    APPSMITH_FEATURE_CONFIGS?.sentry.release,
-  );
-  const sentryENV = getConfig(
-    ENV_CONFIG.sentry.environment,
-    APPSMITH_FEATURE_CONFIGS?.sentry.environment,
-  );
   const segment = getConfig(
     ENV_CONFIG.segment.apiKey,
     APPSMITH_FEATURE_CONFIGS?.segment.apiKey,
@@ -181,14 +150,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   segment.enabled = segment.enabled || segmentCEKey.enabled;
 
   return {
-    sentry: {
-      enabled: sentryDSN.enabled && sentryRelease.enabled && sentryENV.enabled,
-      dsn: sentryDSN.value,
-      release: sentryRelease.value,
-      environment: sentryENV.value,
-      normalizeDepth: 3,
-      tracesSampleRate: 0.1,
-    },
     smartLook: {
       enabled: smartLook.enabled,
       id: smartLook.value,

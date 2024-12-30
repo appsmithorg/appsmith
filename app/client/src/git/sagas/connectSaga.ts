@@ -16,7 +16,7 @@ import { fetchPageAction } from "actions/pageActions";
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import log from "loglevel";
-import { captureException } from "@sentry/react";
+import { captureException } from "instrumentation";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,

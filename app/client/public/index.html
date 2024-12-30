@@ -198,13 +198,7 @@
         })();
       }
 
-      window.SENTRY_CONFIG = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
       window.APPSMITH_FEATURE_CONFIGS = {
-        sentry: {
-          dsn: parseConfig('{{env "APPSMITH_SENTRY_DSN"}}'),
-          release: parseConfig('{{env "APPSMITH_SENTRY_RELEASE"}}'),
-          environment: parseConfig('{{env "APPSMITH_SENTRY_ENVIRONMENT"}}'),
-        },
         smartLook: {
           id: parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}'),
         },

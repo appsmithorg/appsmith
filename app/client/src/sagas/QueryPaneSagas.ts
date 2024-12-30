@@ -511,7 +511,7 @@ function* handleNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
 
   if (!actionObj) {
-    // Error case, log to sentry
+    // Error case, log to monitoring
     yield put({
       type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       payload: {
@@ -519,7 +519,7 @@ function* handleNameChangeSuccessSaga(
         error: {
           message: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
         },
-        logToSentry: true,
+        logToMonitoring: true,
       },
     });
 

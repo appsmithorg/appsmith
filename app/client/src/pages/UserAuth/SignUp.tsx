@@ -57,8 +57,8 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
-import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
+import { captureException } from "instrumentation";
 
 declare global {
   interface Window {
@@ -135,7 +135,7 @@ export function SignUp(props: SignUpFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
-    Sentry.captureException("Sign up failed", {
+    captureException("Sign up failed", {
       level: Severity.Error,
       extra: {
         error: new Error(errorMessage),

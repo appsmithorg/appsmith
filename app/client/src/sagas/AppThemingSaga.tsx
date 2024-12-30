@@ -44,12 +44,12 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { find } from "lodash";
-import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { captureException } from "instrumentation";
 
 /**
  * init app theming
@@ -127,14 +127,14 @@ export function* fetchAppSelectedTheme(
         payload: response.data,
       });
     } else {
-      Sentry.captureException("Unable to fetch the selected theme", {
+      captureException(new Error("Unable to fetch the selected theme"), {
         level: Severity.Critical,
-        extra: {
-          pageIdentities,
+        context: {
+          pageIdentities: JSON.stringify(pageIdentities),
           applicationId,
           applicationVersion,
           userDetails,
-          themeResponse: response,
+          themeResponse: JSON.stringify(response),
         },
       });
 

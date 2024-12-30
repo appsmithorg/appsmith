@@ -8,14 +8,6 @@ export interface AppVersionData {
 }
 
 export interface AppsmithUIConfigs {
-  sentry: {
-    enabled: boolean;
-    dsn: string;
-    release: string;
-    environment: string;
-    normalizeDepth: number;
-    tracesSampleRate: number;
-  };
   smartLook: {
     enabled: boolean;
     id: string;

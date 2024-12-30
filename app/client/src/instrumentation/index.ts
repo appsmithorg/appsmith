@@ -15,6 +15,7 @@ import {
   getWebInstrumentations,
   type Faro,
   InternalLoggerLevel,
+  type PushErrorOptions,
 } from "@grafana/faro-react";
 import {
   FaroTraceExporter,
@@ -83,4 +84,17 @@ export const getTraceAndContext = () => {
   // The return type of getOTEL is OTELApi | undefined so we need to check for undefined
   // return default OTEL context and trace if faro is not initialized
   return faro.api.getOTEL() || { trace, context };
+};
+
+export const captureException = (
+  error: unknown,
+  options?: PushErrorOptions,
+) => {
+  if (faro) {
+    if (error instanceof Error) {
+      faro.api.pushError(error, options);
+    } else {
+      faro.api.pushError(new Error(String(error)), options);
+    }
+  }
 };
