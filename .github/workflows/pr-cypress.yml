@@ -82,7 +82,7 @@ jobs:
       matrix: ${{ inputs.matrix }}
 
   ci-test-result:
-    needs: [ci-test]
+    needs: [ci-test, server-it]
     # Only run if the ci-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
