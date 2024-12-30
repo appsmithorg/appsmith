@@ -1624,7 +1624,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         Mono<GitPullDTO> pullDTOMono = gitRedisUtils
                 .acquireGitLock(branchedGitMetadata.getDefaultArtifactId(), GitConstants.GitCommandConstants.PULL, TRUE)
-                .then(Mono.defer(() ->statusMono))
+                .then(Mono.defer(() -> statusMono))
                 .flatMap(status -> {
                     // Check if the repo is clean
                     if (!CollectionUtils.isEmpty(status.getModified())) {
@@ -1645,11 +1645,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     .then(Mono.just(gitPullDTO)));
                 })
                 .onErrorResume(error -> {
-                    log.error("An error occurred while trying to pull the artifact with base id: {} and branchName: {}",
-                        branchedGitMetadata.getDefaultArtifactId(), branchedGitMetadata.getBranchName());
+                    log.error(
+                            "An error occurred while trying to pull the artifact with base id: {} and branchName: {}",
+                            branchedGitMetadata.getDefaultArtifactId(),
+                            branchedGitMetadata.getBranchName());
 
-                    return gitRedisUtils.releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
-                        .then(Mono.error(error));
+                    return gitRedisUtils
+                            .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                            .then(Mono.error(error));
                 })
                 .name(GitSpan.OPS_PULL)
                 .tap(Micrometer.observation(observationRegistry));
@@ -1739,7 +1742,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         .publishArtifact(importedBranchedArtifact, false)
                                         // TODO: Verify if we need to commit after pulling? (Gonna be a product
                                         // decision, hence got
-                                        .then(Mono.defer(() ->commitArtifact(
+                                        .then(Mono.defer(() -> commitArtifact(
                                                         commitDTO,
                                                         baseArtifact,
                                                         importedBranchedArtifact,
