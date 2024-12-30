@@ -48,7 +48,7 @@ const AddJS = () => {
           : "",
       descriptionType: "inline",
       onClick: onCreateItemClick.bind(null, data),
-      wrapperClassName: createAddClassName(title),
+      className: createAddClassName(title),
     } as ListItemProps;
   };
 

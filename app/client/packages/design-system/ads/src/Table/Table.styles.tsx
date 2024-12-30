@@ -9,6 +9,7 @@ import {
   TableHeaderClassName,
   TableHeaderRowClassName,
 } from "./Table.constants";
+import { Icon, type IconProps } from "../Icon";
 
 export const StyledTable = styled.table.attrs(({ className }) => ({
   className: clsx(TableClassName, className),
@@ -28,9 +29,14 @@ export const StyledHeaderRow = styled.tr.attrs(({ className }) => ({
   height: var(--ads-v2-spaces-13);
 `;
 
+export const StyledIcon = styled(Icon)<IconProps & { isVisible: boolean }>`
+  display: inline-flex;
+  visibility: ${({ isVisible }) => (isVisible ? "unset" : "hidden")};
+`;
+
 export const StyledHeaderCell = styled.th.attrs(({ className }) => ({
   className: clsx(TableHeaderCellClassName, className),
-}))`
+}))<{ isSortable?: boolean }>`
   && {
     font-size: var(--ads-v2-font-size-4);
     font-style: normal;
@@ -44,6 +50,14 @@ export const StyledHeaderCell = styled.th.attrs(({ className }) => ({
     background-color: var(--ads-v2-colors-content-surface-neutral-bg);
     border-bottom: 1px solid var(--ads-v2-colors-content-surface-default-border);
     text-align: left;
+
+  &:has(${StyledIcon}) {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &:hover ${StyledIcon} {
+    visibility: visible;
   }
 `;
 
@@ -72,4 +86,10 @@ export const StyledCell = styled.td.attrs(({ className }) => ({
   &&.rc-table-cell.rc-table-cell-row-hover {
     background: var(--ads-v2-colors-content-surface-neutral-bg);
   }
+`;
+
+export const StyledTitle = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-2);
 `;

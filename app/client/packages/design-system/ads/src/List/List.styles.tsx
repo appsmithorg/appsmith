@@ -26,47 +26,15 @@ const Sizes = {
   `,
 };
 
-export const StyledList = styled.div`
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  padding: var(--ads-v2-spaces-1);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ads-v2-spaces-2);
-`;
-
-export const Wrapper = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: var(--ads-v2-spaces-3);
-  cursor: pointer;
-  box-sizing: border-box;
-  position: relative;
-`;
-
 export const TooltipTextWrapper = styled.div`
   display: flex;
-  min-width: 0;
-`;
-
-export const ContentWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-`;
-
-export const ContentTextWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-  flex: 1;
   min-width: 0;
 `;
 
 export const DescriptionWrapper = styled.div`
   flex-direction: column;
   min-width: 0;
-  gap: var(--ads-v2-spaces-3);
+  gap: var(--ads-v2-spaces-2);
   display: flex;
 `;
 
@@ -74,34 +42,24 @@ export const InlineDescriptionWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 0;
-  gap: var(--ads-v2-spaces-3);
   flex: 1;
+  min-width: 0;
 `;
 
-export const EndIconWrapper = styled.div`
-  position: absolute;
-  right: var(--ads-v2-spaces-3);
+export const RightControlWrapper = styled.div`
+  height: 100%;
+  line-height: normal;
 `;
 
-export const StyledListItem = styled.div<{
-  size: ListSizes;
-  endIcon?: string;
-  isBlockDescription: boolean;
-}>`
-  ${Variables};
-
+export const ContentTextWrapper = styled.div`
   display: flex;
   width: 100%;
   align-items: center;
-  border-radius: var(--ads-v2-border-radius);
-  padding: var(--ads-v2-spaces-3);
   box-sizing: border-box;
-  // 40px is the offset to make it look like the end icon is part of this div
-  ${(props) => !!props.endIcon && `padding: 8px 40px 8px 8px;`}}
-
-  ${({ size }) => Sizes[size]}
-
+  gap: var(--ads-v2-spaces-3);
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
 
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
@@ -115,7 +73,7 @@ export const StyledListItem = styled.div<{
   }
 
   & .${ListItemBDescClassName} {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     text-overflow: initial;
@@ -126,14 +84,53 @@ export const StyledListItem = styled.div<{
 
   & .${ListItemIDescClassName} {
     font-size: var(--listitem-idescription-font-size);
+    line-height: 16px;
+    padding-right: var(--ads-v2-spaces-2);
+  }
+`;
+
+export const StyledList = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: var(--ads-v2-spaces-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-2);
+`;
+
+export const StyledListItem = styled.div<{
+  size: ListSizes;
+}>`
+  ${Variables};
+
+  display: flex;
+  width: 100%;
+  align-items: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  position: relative;
+  border-radius: var(--ads-v2-border-radius);
+  padding: var(--ads-v2-spaces-2);
+  padding-left: var(--ads-v2-spaces-3);
+
+  ${({ size }) => Sizes[size]}
+
+  &[data-isblockdescription="true"] {
+    height: 54px;
   }
 
-  &:hover {
-    background-color: var(--ads-v2-colors-content-surface-hover-bg);
+  &[data-isblockdescription="false"] {
+    height: 32px;
   }
 
-  &:active {
-    background-color: var(--ads-v2-colors-content-surface-active-bg);
+  &[data-rightcontrolvisibility="hover"] {
+    ${RightControlWrapper} {
+      display: none;
+    }
+    &:hover ${RightControlWrapper} {
+      display: block;
+    }
   }
 
   &[data-selected="true"] {
@@ -144,6 +141,15 @@ export const StyledListItem = styled.div<{
   &[data-disabled="true"] {
     cursor: not-allowed;
     opacity: var(--ads-v2-opacity-disabled);
+    background-color: var(--ads-v2-colors-content-surface-default-bg);
+  }
+
+  &:hover {
+    background-color: var(--ads-v2-colors-content-surface-hover-bg);
+  }
+
+  &:active {
+    background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
   /* Focus styles */

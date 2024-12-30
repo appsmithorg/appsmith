@@ -270,8 +270,8 @@ export { EntityIcon };
 // fontSize is set to 56% by default.
 export function ApiMethodIcon(
   type: keyof typeof HTTP_METHOD,
-  height = "18px",
-  width = "36px",
+  height = "16px",
+  width = "34px",
   fontSize = 52,
 ) {
   return (
