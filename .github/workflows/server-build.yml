@@ -13,11 +13,6 @@ on:
         required: false
         type: string
         default: "false"
-      its:
-        description: "Whether we want to run integration tests"
-        required: false
-        type: string
-        default: "false"
       branch:
         description: "Branch for the build"
         required: false
@@ -36,11 +31,6 @@ on:
         type: number
       skip-tests:
         description: "Skip tests flag"
-        required: false
-        type: string
-        default: "false"
-      its:
-        description: "Whether we want to run integration tests"
         required: false
         type: string
         default: "false"
@@ -235,7 +225,7 @@ jobs:
             fi
 
             # Run tests and capture logs
-            mvn verify "${args[@]}" | tee mvn_test.log
+            mvn test "${args[@]}" | tee mvn_test.log
             
             # Check for "BUILD FAILURE" in the mvn_test.log
             if grep -q "BUILD FAILURE" mvn_test.log; then

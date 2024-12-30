@@ -1,0 +1,110 @@
+name: Server Integrations Tests Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+      is-pg-build:
+        description: "Flag for PG build"
+        required: false
+        type: string
+        default: "false"
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
+        if: inputs.pr != 0
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ inputs.pr }}/merge"
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+        uses: actions/checkout@v4
+
+      # Setup Java
+      - name: Set up JDK 17
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Conditionally start PostgreSQL
+        if: |
+          inputs.is-pg-build == 'true' && inputs.skip-tests != 'true'
+        run: |
+          docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: server-build
+          path: app/server/dist/
+
+      - name: Un-tar the server folder
+        run: |
+          tar -xvf app/server/dist/server.jar -C app/server/dist/
+          echo "Cleaning up the server tar files"
+          rm app/server/dist/server.jar
+      
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rts-dist
+          path: app/client/packages/rts/dist
+
+      - name: Un-tar the rts folder
+        run: |
+          tar -xvf app/client/packages/rts/dist/rts-dist.tar -C app/client/packages/rts/
+          echo "Cleaning up the rts tar files"
+          rm app/client/packages/rts/dist/rts-dist.tar
+
+      - name: Run rts using the untarred files
+        run: |
+          node --require source-map-support/register app/client/packages/rts/dist/bundle/server.js
+
+      - name: Run only integration tests on server
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+            if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+                export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
+            else
+                export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+            fi
+
+            args=()
+
+            if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+                failed_tests="${{ steps.failed_tests.outputs.tests }}"
+                args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
+            fi
+
+            # Run tests and capture logs
+            mvn verify -DskipUTs=true "${args[@]}" | tee mvn_integration_test.log
+
+

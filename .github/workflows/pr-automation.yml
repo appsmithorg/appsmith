@@ -136,10 +136,10 @@ jobs:
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   perform-it:
-    needs: [ parse-tags ]
+    needs: [ parse-tags, perform-test ]
     if: success() && needs.parse-tags.outputs.its == 'true'
-    uses: ./.github/workflows/server-build.yml
+    uses: ./.github/workflows/server-integration-tests.yml
     secrets: inherit
     with:
-      its: 'true'
+      pr: ${{ github.event.number }}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
