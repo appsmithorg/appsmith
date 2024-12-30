@@ -130,16 +130,8 @@ jobs:
     uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit
     with:
+      its: ${{ needs.parse-tags.outputs.its}}
       tags: ${{ needs.parse-tags.outputs.tags}}
       spec: ${{ needs.parse-tags.outputs.spec}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
-      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
-
-  perform-it:
-    needs: [ parse-tags, perform-test ]
-    if: success() && needs.parse-tags.outputs.its == 'true'
-    uses: ./.github/workflows/server-integration-tests.yml
-    secrets: inherit
-    with:
-      pr: ${{ github.event.number }}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}

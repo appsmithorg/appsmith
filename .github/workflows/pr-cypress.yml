@@ -3,6 +3,10 @@ name: Cypress test suite
 on:
   workflow_call:
     inputs:
+      its:
+        required: false
+        type: string
+        default: "false"
       tags:
         required: true
         type: string
@@ -44,6 +48,15 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
+
+  server-it:
+    needs: [ server-build, rts-build ]
+    if: success() && inputs.its == 'true'
+    uses: ./.github/workflows/server-integration-tests.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   build-docker-image:
     needs: [client-build, server-build, rts-build]
