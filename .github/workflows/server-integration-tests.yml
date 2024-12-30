@@ -72,7 +72,7 @@ jobs:
 
       - name: Run rts using the untarred files
         run: |
-          node --require source-map-support/register app/client/packages/rts/dist/bundle/server.js
+          node app/client/packages/rts/dist/bundle/server.js
 
       - name: Run only integration tests on server
         env:
