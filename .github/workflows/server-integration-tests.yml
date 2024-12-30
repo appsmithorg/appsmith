@@ -57,13 +57,6 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
-
-      - name: Un-tar the server folder
-        run: |
-          ls app/server/dist/
-          tar -xvf app/server/dist/server-build.zip -C app/server/dist/
-          echo "Cleaning up the server tar files"
-          rm app/server/dist/server-build.jar
       
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
