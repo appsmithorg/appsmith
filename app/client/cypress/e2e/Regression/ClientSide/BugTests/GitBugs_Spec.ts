@@ -162,7 +162,7 @@ describe(
       _.agHelper.GetNClick(_.gitSync.locators.opsMergeBranchSelect);
       // to verify scroll works and clicks on last branch in list
       _.agHelper.GetNClick(".rc-select-item-option-content", 5);
-      _.gitSync.CloseConnectModal();
+      _.gitSync.CloseOpsModal();
     });
 
     it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {

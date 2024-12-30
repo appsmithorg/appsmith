@@ -28,13 +28,13 @@ export default function* createBranchSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(
-        gitArtifactActions.fetchBranchesInit({
-          artifactDef,
-          artifactId,
-          pruneBranches: true,
-        }),
-      );
+      // yield put(
+      //   gitArtifactActions.fetchBranchesInit({
+      //     artifactDef,
+      //     artifactId,
+      //     pruneBranches: true,
+      //   }),
+      // );
       yield put(
         gitArtifactActions.checkoutBranchInit({
           artifactDef,

@@ -92,7 +92,7 @@ describe(
         });
         cy.get(locators._link).contains("Learn more").click();
 
-        cy.get(gitSync.locators.repoLimitErrorModalArtifactList).should(
+        cy.get(gitSync.locators.repoLimitErrorModalConnectedArtifact).should(
           "have.length",
           3,
         );
@@ -103,8 +103,8 @@ describe(
         cy.get(gitSync.locators.repoLimitErrorModal).should("not.exist");
         cy.get(gitSync.locators.disconnectModal).should("exist");
 
-        cy.get(gitSync.locators.disconnectModalCloseBtn).click();
-        cy.get(gitSync.locators.repoLimitErrorModal).should("not.exist");
+        agHelper.GetNClick(gitSync.locators.disconnectModalCloseBtn);
+        cy.get(gitSync.locators.disconnectModal).should("not.exist");
       }
     });
 

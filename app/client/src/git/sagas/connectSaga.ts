@@ -97,6 +97,12 @@ export default function* connectSaga(
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
+          gitArtifactActions.toggleConnectModal({
+            artifactDef,
+            open: false,
+          }),
+        );
+        yield put(
           gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),

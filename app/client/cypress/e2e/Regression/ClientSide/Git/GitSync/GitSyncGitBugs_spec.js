@@ -257,11 +257,11 @@ describe(
           gitSync.CreateTestGiteaRepo(repoName);
           gitSync.OpenGitSyncModal();
 
-          agHelper.GetNClick(gitSync.providerRadioOthers);
-          agHelper.GetNClick(gitSync.existingEmptyRepoYes);
+          agHelper.GetNClick(gitSync.locators.connectProviderRadioOthers);
+          agHelper.GetNClick(gitSync.locators.connectEmptyRepoYes);
           agHelper.GetNClick(gitSync.locators.connectModalNextBtn);
           agHelper.TypeText(
-            gitSync.remoteUrlInput,
+            gitSync.locators.connectRemoteInput,
             `${dataManager.GIT_CLONE_URL}/${repoName}.git`,
           );
           agHelper.GetNClick(gitSync.locators.connectModalNextBtn);

@@ -203,8 +203,9 @@ function RepoLimitErrorModalView({
                     </TextWrapper>
                   </div>
                   <Button
-                    className="t--git-repo-limit-error-disconnect-link"
+                    data-testid="t--git-repo-limit-error-disconnect-link"
                     endIcon="arrow-right-line"
+                    kind="tertiary"
                     onClick={handleOnClickDisconnect(
                       application.baseId,
                       application.name,

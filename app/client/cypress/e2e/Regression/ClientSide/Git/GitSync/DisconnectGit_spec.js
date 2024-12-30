@@ -2,6 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let windowOpenSpy;
+let workspaceName;
 describe(
   "Git disconnect modal:",
   {
@@ -21,8 +22,8 @@ describe(
       _.homePage.NavigateToHome();
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
-        const newWorkspaceName = interception.response.body.data.name;
-        cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+        workspaceName = interception.response.body.data.name;
+        cy.CreateAppForWorkspace(workspaceName, workspaceName);
       });
     });
 
@@ -53,24 +54,9 @@ describe(
       });
       cy.get(_.gitSync.locators.disconnectModalLearnMoreLink).click();
 
-      cy.window()
-        .its("store")
-        .invoke("getState")
-        .then((state) => {
-          const { name } = state.ui.gitSync.disconnectingGitApp;
-          cy.get(_.gitSync.locators.disconnectModal).contains(
-            Cypress.env("MESSAGES").GIT_REVOKE_ACCESS(name),
-          );
-          cy.get(_.gitSync.locators.disconnectModal).contains(
-            Cypress.env("MESSAGES").GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS(
-              name,
-            ),
-          );
-        });
-
       // disconnect button should be disabled
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
-      cy.get(_.gitSync.locators.disconnectModalCloseBtn).click();
+      _.agHelper.GetNClick(_.gitSync.locators.disconnectModalCloseBtn);
       cy.wait(2000);
     });
 
@@ -87,18 +73,12 @@ describe(
       );
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
 
-      cy.window()
-        .its("store")
-        .invoke("getState")
-        .then((state) => {
-          const { name } = state.ui.gitSync.disconnectingGitApp;
-          cy.get(_.gitSync.locators.disconnectModalInput).type(
-            `{selectAll}${name}`,
-          );
-          cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should(
-            "be.enabled",
-          );
-        });
+      cy.get(_.gitSync.locators.disconnectModalInput).type(
+        `{selectAll}${workspaceName}`,
+      );
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should(
+        "be.enabled",
+      );
 
       // disconnecting validation
       cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");

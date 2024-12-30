@@ -62,8 +62,12 @@ export default function* gitImportSaga(
             basePageId = defaultPage ? defaultPage.baseId : "";
           }
 
+          const branch =
+            response.data?.application?.gitApplicationMetadata?.branchName;
+
           const pageURL = builderURL({
             basePageId,
+            branch,
           });
 
           history.push(pageURL);
@@ -78,6 +82,11 @@ export default function* gitImportSaga(
       const { error } = response.responseMeta;
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
+        yield put(
+          gitGlobalActions.toggleImportModal({
+            open: false,
+          }),
+        );
         yield put(
           gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
