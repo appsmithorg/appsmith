@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Tooltip } from "@appsmith/ads";
 
@@ -14,6 +14,8 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { Nudge } from "IDE/Components/Nudge";
+import { useShowSideBySideNudge } from "../hooks";
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
@@ -41,10 +43,14 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, isAnimatedIDEEnabled]);
 
+  const [showNudge, dismissNudge] = useShowSideBySideNudge();
+
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
+
+    dismissNudge();
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
@@ -53,7 +59,22 @@ export const ScreenModeToggle = () => {
     } else {
       dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
     }
-  }, [dispatch, isAnimatedIDEEnabled]);
+  }, [dispatch, dismissNudge, isAnimatedIDEEnabled]);
+
+  const minimiseButton = useMemo(
+    () => (
+      <Button
+        className="ml-auto !min-w-[24px]"
+        data-testid={"t--ide-minimize"}
+        id={"editor-mode-minimize"}
+        isIconButton
+        kind="tertiary"
+        onClick={switchToSplitScreen}
+        startIcon={"minimize-v3"}
+      />
+    ),
+    [switchToSplitScreen],
+  );
 
   if (ideViewMode === EditorViewMode.SplitScreen) {
     return (
@@ -74,20 +95,26 @@ export const ScreenModeToggle = () => {
     );
   }
 
+  if (showNudge) {
+    return (
+      <Nudge
+        align="center"
+        delayOpen={500}
+        message="Write code and configure UI elements side by side"
+        onDismissClick={dismissNudge}
+        side="left"
+        trigger={minimiseButton}
+      />
+    );
+  }
+
   return (
     <Tooltip
       content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
       key={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
+      placement="left"
     >
-      <Button
-        className="ml-auto !min-w-[24px]"
-        data-testid={"t--ide-minimize"}
-        id={"editor-mode-minimize"}
-        isIconButton
-        kind="tertiary"
-        onClick={switchToSplitScreen}
-        startIcon={"minimize-v3"}
-      />
+      {minimiseButton}
     </Tooltip>
   );
 };

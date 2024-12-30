@@ -1103,6 +1103,54 @@ const ContentTypeRaw = importSvg(
   async () => import("../__assets__/icons/ads/content-type-raw.svg"),
 );
 
+const NotionIcon = importSvg(
+  async () => import("../__assets__/icons/ads/notion.svg"),
+);
+
+const ZendeskIcon = importSvg(
+  async () => import("../__assets__/icons/ads/zendesk.svg"),
+);
+
+const GoogleDriveIcon = importSvg(
+  async () => import("../__assets__/icons/ads/google-drive.svg"),
+);
+
+const SalesforceIcon = importSvg(
+  async () => import("../__assets__/icons/ads/salesforce.svg"),
+);
+
+const MdFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/md-file.svg"),
+);
+const PdfFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/pdf-file.svg"),
+);
+const TxtFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/txt-file.svg"),
+);
+
+const CsvFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/csv-file.svg"),
+);
+const DocFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/doc-file.svg"),
+);
+const JsonFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/json-file.svg"),
+);
+const PptFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/ppt-file.svg"),
+);
+const RtfFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/rtf-file.svg"),
+);
+const TsvFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/tsv-file.svg"),
+);
+const XlsFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/xls-file.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1493,6 +1541,20 @@ const ICON_LOOKUP = {
   widget: WidgetIcon,
   workflows: WorkflowsIcon,
   workspace: WorkspaceIcon,
+  notion: NotionIcon,
+  "md-file": MdFileIcon,
+  "pdf-file": PdfFileIcon,
+  "txt-file": TxtFileIcon,
+  "csv-file": CsvFileIcon,
+  "doc-file": DocFileIcon,
+  "json-file": JsonFileIcon,
+  "ppt-file": PptFileIcon,
+  "rtf-file": RtfFileIcon,
+  "tsv-file": TsvFileIcon,
+  "xls-file": XlsFileIcon,
+  zendesk: ZendeskIcon,
+  "google-drive": GoogleDriveIcon,
+  salesforce: SalesforceIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
