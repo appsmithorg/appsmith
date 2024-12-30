@@ -319,7 +319,7 @@ export const useAddQueryListItems = () => {
 
       return {
         startIcon: icon,
-        wrapperClassName: className,
+        className: className,
         title,
         description:
           fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE

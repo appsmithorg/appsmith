@@ -94,7 +94,11 @@ import type {
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
-import { executeJSUpdates } from "actions/pluginActionActions";
+import {
+  executeJSUpdates,
+  type actionDataPayload,
+  type updateActionDataPayloadType,
+} from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
@@ -536,8 +540,17 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
   ids: [],
 };
 
+interface BUFFERED_ACTION {
+  hasDebouncedHandleUpdate: boolean;
+  hasBufferedAction: boolean;
+  actionDataPayloadConsolidated: actionDataPayload[];
+}
 export function evalQueueBuffer() {
   let canTake = false;
+  let hasDebouncedHandleUpdate = false;
+  let hasBufferedAction = false;
+  let actionDataPayloadConsolidated: actionDataPayload = [];
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collectedPostEvalActions: any = [];
@@ -552,8 +565,19 @@ export function evalQueueBuffer() {
 
       collectedAffectedJSObjects = defaultAffectedJSObjects;
       canTake = false;
+      const actionDataPayloadConsolidatedRes = actionDataPayloadConsolidated;
+
+      const hasDebouncedHandleUpdateRes = hasDebouncedHandleUpdate;
+      const hasBufferedActionRes = hasBufferedAction;
+
+      actionDataPayloadConsolidated = [];
+      hasDebouncedHandleUpdate = false;
+      hasBufferedAction = false;
 
       return {
+        hasDebouncedHandleUpdate: hasDebouncedHandleUpdateRes,
+        hasBufferedAction: hasBufferedActionRes,
+        actionDataPayloadConsolidated: actionDataPayloadConsolidatedRes,
         postEvalActions: resp,
         affectedJSObjects,
         type: ReduxActionTypes.BUFFERED_ACTION,
@@ -572,6 +596,25 @@ export function evalQueueBuffer() {
     if (!shouldProcessAction(action)) {
       return;
     }
+
+    if (action.type === ReduxActionTypes.UPDATE_ACTION_DATA) {
+      const { actionDataPayload } =
+        action.payload as updateActionDataPayloadType;
+
+      if (actionDataPayload && actionDataPayload.length) {
+        actionDataPayloadConsolidated = [
+          ...actionDataPayloadConsolidated,
+          ...actionDataPayload,
+        ];
+      }
+
+      hasDebouncedHandleUpdate = true;
+      canTake = true;
+
+      return;
+    }
+
+    hasBufferedAction = true;
 
     canTake = true;
     // extract the affected JS action ids from the action and pass them
@@ -758,16 +801,56 @@ function* evaluationChangeListenerSaga(): any {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
 
-    // We are dequing actions from the buffer and inferring the JS actions affected by each
-    // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
-    const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+    const { payload, type } = action;
 
-    yield call(evalAndLintingHandler, true, action, {
-      shouldReplay: get(action, "payload.shouldReplay"),
-      forceEvaluation: shouldForceEval(action),
-      requiresLogging: shouldLog(action),
-      affectedJSObjects,
-    });
+    if (type === ReduxActionTypes.UPDATE_ACTION_DATA) {
+      yield call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+        (payload as updateActionDataPayloadType).actionDataPayload,
+      );
+      continue;
+    }
+
+    if (type !== ReduxActionTypes.BUFFERED_ACTION) {
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+      continue;
+    }
+
+    // all buffered debounced actions are handled here
+    const {
+      actionDataPayloadConsolidated,
+      hasBufferedAction,
+      hasDebouncedHandleUpdate,
+    } = action as unknown as BUFFERED_ACTION;
+
+    if (hasDebouncedHandleUpdate) {
+      yield call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+        actionDataPayloadConsolidated,
+      );
+    }
+
+    if (hasBufferedAction) {
+      // We are dequing actions from the buffer and inferring the JS actions affected by each
+      // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+    }
   }
 }
 

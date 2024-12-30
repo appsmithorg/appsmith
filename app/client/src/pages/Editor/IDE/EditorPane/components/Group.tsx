@@ -15,11 +15,11 @@ const StyledList = styled(List)`
   & .ds-load-more .ads-v2-listitem__title {
     --color: var(--ads-v2-color-fg-subtle);
   }
-  & .ads-v2-listitem__wrapper .ads-v2-listitem__idesc {
+  & .ads-v2-listitem .ads-v2-listitem__idesc {
     opacity: 0;
   }
 
-  & .ads-v2-listitem__wrapper:hover .ads-v2-listitem__idesc {
+  & .ads-v2-listitem:hover .ads-v2-listitem__idesc {
     opacity: 1;
   }
 `;
