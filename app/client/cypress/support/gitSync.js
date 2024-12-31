@@ -57,15 +57,6 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   agHelper.AssertElementVisibility(gitSync.locators.branchSearchInput);
   agHelper.ClearNType(gitSync.locators.branchSearchInput, `${branch}`);
   cy.get(gitSync.locators.branchItem).contains(branch).click();
-  if (!expectError) {
-    // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", {
-      timeout: Cypress.config().pageLoadTimeout,
-    }).should("exist");
-    cy.get(".ads-v2-spinner", {
-      timeout: Cypress.config().pageLoadTimeout,
-    }).should("not.exist");
-  }
   assertHelper.AssertDocumentReady();
   AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
 });

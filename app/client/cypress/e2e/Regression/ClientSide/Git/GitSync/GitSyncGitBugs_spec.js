@@ -255,7 +255,7 @@ describe(
         cy.generateUUID().then((uid) => {
           repoName = uid;
           gitSync.CreateTestGiteaRepo(repoName);
-          gitSync.OpenGitSyncModal();
+          gitSync.OpenConnectModal();
 
           agHelper.GetNClick(gitSync.locators.connectProviderRadioOthers);
           agHelper.GetNClick(gitSync.locators.connectEmptyRepoYes);

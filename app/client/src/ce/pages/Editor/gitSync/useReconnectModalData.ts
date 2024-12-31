@@ -17,6 +17,7 @@ function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(state, appId ?? ""),
   );
+  const branch = application?.gitApplicationMetadata?.branchName;
   const basePageId = application?.pages?.find(
     (page) => page.id === pageId,
   )?.baseId;
@@ -24,6 +25,7 @@ function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
     basePageId &&
     builderURL({
       basePageId,
+      branch,
     });
 
   return {
