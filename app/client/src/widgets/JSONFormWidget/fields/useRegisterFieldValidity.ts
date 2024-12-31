@@ -6,7 +6,7 @@ import { useContext, useEffect } from "react";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export interface UseRegisterFieldValidityProps {

@@ -21,10 +21,7 @@ import {
 } from "actions/autoHeightActions";
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
-import {
-  combinedPreviewModeSelector,
-  getOccupiedSpacesSelectorForContainer,
-} from "selectors/editorSelectors";
+import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -42,6 +39,7 @@ import {
 import DragLayerComponent from "./DragLayerComponent";
 import Onboarding from "./OnBoarding";
 import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -196,7 +194,7 @@ function useUpdateRows(
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
