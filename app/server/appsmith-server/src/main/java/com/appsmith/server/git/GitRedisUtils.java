@@ -8,6 +8,7 @@ import com.appsmith.server.helpers.RedisUtils;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
@@ -52,12 +53,12 @@ public class GitRedisUtils {
     }
 
     public Mono<Boolean> addFileLock(String baseArtifactId, String commandName) {
-        String key = ArtifactType.APPLICATION.lowerCaseName() + "-" + baseArtifactId;
+        String key = generateRedisKey(ArtifactType.APPLICATION, baseArtifactId);
         return addFileLock(key, commandName, true);
     }
 
     public Mono<Boolean> releaseFileLock(String baseArtifactId) {
-        String key = ArtifactType.APPLICATION.lowerCaseName() + "-" + baseArtifactId;
+        String key = generateRedisKey(ArtifactType.APPLICATION, baseArtifactId);
 
         return redisUtils
                 .releaseFileLock(key)
@@ -81,7 +82,7 @@ public class GitRedisUtils {
             return Mono.just(Boolean.TRUE);
         }
 
-        String key = artifactType.lowerCaseName() + "-" + baseArtifactId;
+        String key = generateRedisKey(artifactType, baseArtifactId);
 
         return addFileLock(key, commandName, true);
     }
@@ -101,11 +102,15 @@ public class GitRedisUtils {
             return Mono.just(Boolean.TRUE);
         }
 
-        String key = artifactType.lowerCaseName() + "-" + baseArtifactId;
+        String key = generateRedisKey(artifactType, baseArtifactId);
 
         return redisUtils
                 .releaseFileLock(key)
                 .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    @NotNull private String generateRedisKey(ArtifactType artifactType, String artifactId) {
+        return artifactType.lowerCaseName() + "-" + artifactId;
     }
 }
