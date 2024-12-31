@@ -1,27 +1,25 @@
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitAsyncErrorPayload } from "../types";
 import type { DeleteBranchRequestParams } from "../../requests/deleteBranchRequest.types";
 
-export interface DeleteBranchInitPayload extends DeleteBranchRequestParams {
-  artifactId: string;
-}
+export interface DeleteBranchInitPayload extends DeleteBranchRequestParams {}
 
 export const deleteBranchInitAction =
-  createArtifactAction<DeleteBranchInitPayload>((state) => {
+  createSingleArtifactAction<DeleteBranchInitPayload>((state) => {
     state.apiResponses.deleteBranch.loading = true;
     state.apiResponses.deleteBranch.error = null;
 
     return state;
   });
 
-export const deleteBranchSuccessAction = createArtifactAction((state) => {
+export const deleteBranchSuccessAction = createSingleArtifactAction((state) => {
   state.apiResponses.deleteBranch.loading = false;
 
   return state;
 });
 
 export const deleteBranchErrorAction =
-  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.deleteBranch.loading = false;

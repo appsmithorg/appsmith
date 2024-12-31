@@ -16,7 +16,8 @@ import { captureException } from "@sentry/react";
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
 ) {
-  const { artifactDef, artifactId } = action.payload;
+  const { artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   let response: DeleteBranchResponse | undefined;
 
   try {
@@ -24,19 +25,14 @@ export default function* deleteBranchSaga(
       branchName: action.payload.branchName,
     };
 
-    response = yield call(
-      deleteBranchRequest,
-      artifactDef.baseArtifactId,
-      params,
-    );
+    response = yield call(deleteBranchRequest, baseArtifactId, params);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.deleteBranchSuccess({ artifactDef }));
+      yield put(gitArtifactActions.deleteBranchSuccess(basePayload));
       yield put(
         gitArtifactActions.fetchBranchesInit({
-          artifactDef,
-          artifactId,
+          ...basePayload,
           pruneBranches: true,
         }),
       );
@@ -45,7 +41,12 @@ export default function* deleteBranchSaga(
     if (response && response.responseMeta.error) {
       const { error } = response.responseMeta;
 
-      yield put(gitArtifactActions.deleteBranchError({ artifactDef, error }));
+      yield put(
+        gitArtifactActions.deleteBranchError({
+          ...basePayload,
+          error,
+        }),
+      );
     } else {
       log.error(e);
       captureException(e);

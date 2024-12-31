@@ -10,17 +10,18 @@ import { captureException } from "@sentry/react";
 export default function* fetchLocalProfileSaga(
   action: GitArtifactPayloadAction,
 ) {
-  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   let response: FetchLocalProfileResponse | undefined;
 
   try {
-    response = yield call(fetchLocalProfileRequest, artifactDef.baseArtifactId);
+    response = yield call(fetchLocalProfileRequest, baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchLocalProfileSuccess({
-          artifactDef,
+          ...basePayload,
           responseData: response.data,
         }),
       );
@@ -30,7 +31,7 @@ export default function* fetchLocalProfileSaga(
       const { error } = response.responseMeta;
 
       yield put(
-        gitArtifactActions.fetchLocalProfileError({ artifactDef, error }),
+        gitArtifactActions.fetchLocalProfileError({ ...basePayload, error }),
       );
     } else {
       log.error(e);

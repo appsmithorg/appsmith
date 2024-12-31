@@ -30,8 +30,6 @@ import {
 import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-import { toggleGitImportModal } from "git";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -205,7 +203,6 @@ function ImportModal(props: ImportModalProps) {
     toEditor = false,
     workspaceId,
   } = props;
-  const isGitModEnabled = useGitModEnabled();
   const { mainDescription, title } = useMessages();
   const {
     appFileToBeUploaded,
@@ -226,21 +223,15 @@ function ImportModal(props: ImportModalProps) {
       setWorkspaceIdForImport({ editorId: editorId || "", workspaceId }),
     );
 
-    if (isGitModEnabled) {
-      dispatch(
-        toggleGitImportModal({
-          open: true,
-        }),
-      );
-    } else {
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: GitSyncModalTab.GIT_CONNECTION,
-        }),
-      );
-    }
-  }, [dispatch, editorId, isGitModEnabled, onClose, workspaceId]);
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+
+    // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+  }, []);
 
   useEffect(() => {
     // finished of importing application

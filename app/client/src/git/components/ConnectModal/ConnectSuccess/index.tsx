@@ -17,15 +17,13 @@ import {
   Text,
   Link,
   Tooltip,
-  Modal,
-  ModalContent,
 } from "@appsmith/ads";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import noop from "lodash/noop";
-import { GitSettingsTab } from "git/constants/enums";
+import type { GitSettingsTab } from "git/constants/enums";
 
 const TitleText = styled(Text)`
   flex: 1;
@@ -53,15 +51,15 @@ function ConnectionSuccessTitle() {
   );
 }
 
-interface ConnectSuccessContentProps {
+interface ConnectSuccessModalViewProps {
   repoName: string | null;
   defaultBranch: string | null;
 }
 
-function ConnectSuccessContent({
+function ConnectSuccessModalView({
   defaultBranch,
   repoName,
-}: ConnectSuccessContentProps) {
+}: ConnectSuccessModalViewProps) {
   return (
     <>
       <div className="flex gap-x-4 mb-6">
@@ -114,84 +112,67 @@ function ConnectSuccessContent({
   );
 }
 
-const StyledModalContent = styled(ModalContent)`
-  &&& {
-    width: 640px;
-    transform: none !important;
-    top: 100px;
-    left: calc(50% - 320px);
-    max-height: calc(100vh - 200px);
-  }
-`;
-
-export interface ConnectSuccessModalViewProps {
+interface ConnectSuccessProps {
   defaultBranch: string | null;
-  isConnectSuccessModalOpen: boolean;
   remoteUrl: string | null;
   repoName: string | null;
-  toggleConnectSuccessModal: (open: boolean) => void;
+  toggleConnectModal: (open: boolean) => void;
   toggleSettingsModal: (
     open: boolean,
     tab?: keyof typeof GitSettingsTab,
   ) => void;
 }
 
-function ConnectSuccessModalView({
-  defaultBranch = null,
-  isConnectSuccessModalOpen = false,
+function ConnectSuccess({
+  defaultBranch,
   remoteUrl = null,
-  repoName = null,
-  toggleConnectSuccessModal = noop,
+  repoName,
+  toggleConnectModal = noop,
   toggleSettingsModal = noop,
-}: ConnectSuccessModalViewProps) {
+}: ConnectSuccessProps) {
   const handleStartGit = useCallback(() => {
-    toggleConnectSuccessModal(false);
+    toggleConnectModal(false);
     AnalyticsUtil.logEvent("GS_START_USING_GIT", {
       repoUrl: remoteUrl,
     });
-  }, [remoteUrl, toggleConnectSuccessModal]);
+  }, [remoteUrl, toggleConnectModal]);
 
   const handleOpenSettings = useCallback(() => {
-    toggleConnectSuccessModal(false);
-    toggleSettingsModal(true, GitSettingsTab.Branch);
+    toggleConnectModal(false);
+    toggleSettingsModal(true);
     AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
       repoUrl: remoteUrl,
     });
-  }, [remoteUrl, toggleConnectSuccessModal, toggleSettingsModal]);
+  }, [remoteUrl, toggleConnectModal, toggleSettingsModal]);
 
   return (
-    <Modal
-      onOpenChange={toggleConnectSuccessModal}
-      open={isConnectSuccessModalOpen}
-    >
-      <StyledModalContent data-testid="t--git-connect-modal">
-        <ModalBody data-testid="t--git-success-modal-body">
-          <ConnectionSuccessTitle />
-          <ConnectSuccessContent
-            defaultBranch={defaultBranch}
-            repoName={repoName}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            data-testid="t--git-success-modal-open-settings-cta"
-            kind="secondary"
-            onClick={handleOpenSettings}
-            size="md"
-          >
-            {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
-          </Button>
-          <Button
-            data-testid="t--git-success-modal-start-using-git-cta"
-            onClick={handleStartGit}
-            size="md"
-          >
-            {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE)}
-          </Button>
-        </ModalFooter>
-      </StyledModalContent>
-    </Modal>
+    <>
+      <ModalBody data-testid="t--git-success-modal-body">
+        <ConnectionSuccessTitle />
+        <ConnectSuccessModalView
+          defaultBranch={defaultBranch}
+          repoName={repoName}
+        />
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          data-testid="t--git-success-modal-open-settings-cta"
+          kind="secondary"
+          onClick={handleOpenSettings}
+          size="md"
+        >
+          {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
+        </Button>
+        <Button
+          data-testid="t--git-success-modal-start-using-git-cta"
+          onClick={handleStartGit}
+          size="md"
+        >
+          {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE)}
+        </Button>
+      </ModalFooter>
+    </>
   );
 }
 
-export default ConnectSuccessModalView;
+export default ConnectSuccess;

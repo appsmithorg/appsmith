@@ -1,4 +1,5 @@
-import React, { useCallback } from "react";
+import React from "react";
+import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
@@ -15,30 +16,19 @@ import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import PackageUpgradeStatus from "ee/components/BottomBar/PackageUpgradeStatus";
-import OldGitQuickActions from "pages/Editor/gitSync/QuickGitActions";
-import { GitQuickActions } from "git";
-import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-
-function GitActions() {
-  const isGitModEnabled = useGitModEnabled();
-
-  return isGitModEnabled ? <GitQuickActions /> : <OldGitQuickActions />;
-}
 
 export default function BottomBar() {
   const appId = useSelector(getCurrentApplicationId) || "";
+  const isPreviewMode = useSelector(previewModeSelector);
+  const dispatch = useDispatch();
   // We check if the current application is an Anvil application.
   // If it is an Anvil application, we remove the Git features from the bottomBar
   // as they donot yet work correctly with Anvil.
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isGitEnabled = !isAnvilEnabled && !isPreviewMode;
 
-  const dispatch = useDispatch();
-
-  const onChangeEnv = useCallback(() => {
+  const onChangeEnv = () => {
     dispatch(softRefreshActions());
-  }, [dispatch]);
+  };
 
   return (
     <Container>
@@ -51,7 +41,7 @@ export default function BottomBar() {
             viewMode={isPreviewMode}
           />
         )}
-        {isGitEnabled && <GitActions />}
+        {!isPreviewMode && !isAnvilEnabled && <QuickGitActions />}
       </Wrapper>
       {!isPreviewMode && (
         <Wrapper>

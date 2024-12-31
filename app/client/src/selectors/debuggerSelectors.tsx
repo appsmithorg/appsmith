@@ -11,8 +11,8 @@ import {
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
+import { combinedPreviewModeSelector } from "./editorSelectors";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import { selectCombinedPreviewMode } from "./gitModSelectors";
 
 interface ErrorObejct {
   [k: string]: Log;
@@ -169,7 +169,7 @@ export const getDebuggerOpen = (state: AppState) => state.ui.debugger.isOpen;
 
 export const showDebuggerFlag = createSelector(
   getDebuggerOpen,
-  selectCombinedPreviewMode,
+  combinedPreviewModeSelector,
   (isOpen, isPreview) => isOpen && !isPreview,
 );
 

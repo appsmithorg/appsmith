@@ -8,105 +8,103 @@ import {
   selectCreateBranchState,
   selectDeleteBranchState,
   selectCurrentBranch,
-} from "git/store/selectors/gitArtifactSelectors";
+} from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function useBranches() {
-  const { artifact, artifactDef } = useGitContext();
-  const artifactId = artifact?.id;
+  const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
   // fetch branches
-  const branchesState = useArtifactSelector(selectFetchBranchesState);
-
+  const branchesState = useSelector((state: GitRootState) =>
+    selectFetchBranchesState(state, artifactDef),
+  );
   const fetchBranches = useCallback(() => {
-    if (artifactDef && artifactId) {
-      dispatch(
-        gitArtifactActions.fetchBranchesInit({
-          artifactId,
-          artifactDef,
-          pruneBranches: true,
-        }),
-      );
-    }
-  }, [artifactDef, artifactId, dispatch]);
+    dispatch(
+      gitArtifactActions.fetchBranchesInit({
+        ...artifactDef,
+        pruneBranches: true,
+      }),
+    );
+  }, [artifactDef, dispatch]);
 
   // create branch
-  const createBranchState = useArtifactSelector(selectCreateBranchState);
+  const createBranchState = useSelector((state: GitRootState) =>
+    selectCreateBranchState(state, artifactDef),
+  );
   const createBranch = useCallback(
     (branchName: string) => {
-      if (artifactDef && artifactId) {
-        dispatch(
-          gitArtifactActions.createBranchInit({
-            artifactDef,
-            artifactId,
-            branchName,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.createBranchInit({
+          ...artifactDef,
+          branchName,
+        }),
+      );
     },
-    [artifactDef, artifactId, dispatch],
+    [artifactDef, dispatch],
   );
   // delete branch
-  const deleteBranchState = useArtifactSelector(selectDeleteBranchState);
+  const deleteBranchState = useSelector((state: GitRootState) =>
+    selectDeleteBranchState(state, artifactDef),
+  );
   const deleteBranch = useCallback(
     (branchName: string) => {
-      if (artifactDef && artifactId) {
-        dispatch(
-          gitArtifactActions.deleteBranchInit({
-            artifactId,
-            artifactDef,
-            branchName,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.deleteBranchInit({
+          ...artifactDef,
+          branchName,
+        }),
+      );
     },
-    [artifactDef, artifactId, dispatch],
+    [artifactDef, dispatch],
   );
   // checkout branch
-  const checkoutBranchState = useArtifactSelector(selectCheckoutBranchState);
+  const checkoutBranchState = useSelector((state: GitRootState) =>
+    selectCheckoutBranchState(state, artifactDef),
+  );
   const checkoutBranch = useCallback(
     (branchName: string) => {
-      if (artifactDef && artifactId) {
-        dispatch(
-          gitArtifactActions.checkoutBranchInit({
-            artifactDef,
-            artifactId,
-            branchName,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.checkoutBranchInit({
+          ...artifactDef,
+          branchName,
+        }),
+      );
     },
-    [artifactDef, artifactId, dispatch],
+    [artifactDef, dispatch],
   );
 
-  const checkoutDestBranch = useArtifactSelector(selectCheckoutDestBranch);
+  const checkoutDestBranch = useSelector((state: GitRootState) =>
+    selectCheckoutDestBranch(state, artifactDef),
+  );
 
   // derived
-  const currentBranch = useArtifactSelector(selectCurrentBranch);
+  const currentBranch = useSelector((state: GitRootState) =>
+    selectCurrentBranch(state, artifactDef),
+  );
 
   // git branch list popup
-  const isBranchPopupOpen = useArtifactSelector(selectBranchPopupOpen);
+  const isBranchPopupOpen = useSelector((state: GitRootState) =>
+    selectBranchPopupOpen(state, artifactDef),
+  );
 
   const toggleBranchPopup = useCallback(
     (open: boolean) => {
-      if (artifactDef) {
-        dispatch(
-          gitArtifactActions.toggleBranchPopup({
-            artifactDef,
-            open,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.toggleBranchPopup({
+          ...artifactDef,
+          open,
+        }),
+      );
     },
     [artifactDef, dispatch],
   );
 
   return {
-    branches: branchesState?.value ?? null,
+    branches: branchesState?.value,
     isFetchBranchesLoading: branchesState?.loading ?? false,
     fetchBranchesError: branchesState?.error ?? null,
     fetchBranches,
@@ -121,7 +119,7 @@ export default function useBranches() {
     checkoutBranch,
     checkoutDestBranch,
     currentBranch: currentBranch ?? null,
-    isBranchPopupOpen: isBranchPopupOpen ?? false,
+    isBranchPopupOpen,
     toggleBranchPopup,
   };
 }
