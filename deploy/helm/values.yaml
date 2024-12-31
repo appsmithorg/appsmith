@@ -7,13 +7,13 @@ redis:
     nodeSelector: {}
     disableCommands: []
     affinity: {}
-    tolerations: []    
+    tolerations: []
   replica:
     replicaCount: 1
     nodeSelector: {}
     disableCommands: []
     affinity: {}
-    tolerations:[] 
+    tolerations: []
   image:
     registry: docker.io
     repository: redis
@@ -31,7 +31,7 @@ mongodb:
   replicaSetName: rs0
   nodeSelector: {}
   affinity: {}
-  tolerations:[]
+  tolerations: []
   image:
     registry: docker.io
     repository: bitnami/mongodb
@@ -39,11 +39,11 @@ mongodb:
   arbiter:
     nodeSelector: {}
     affinity: {}
-    tolerations:[]
+    tolerations: []
   hidden:
     nodeSelector: {}
     affinity: {}
-    tolerations:[]
+    tolerations: []
   image:
     registry: docker.io
     repository: bitnami/mongodb
@@ -61,6 +61,14 @@ postgresql:
     registry: docker.io
     repository: bitnami/postgresql
     tag: 14.12.0
+  primary:
+    affinity: {}
+    nodeSelector: {}
+    tolerations: []
+  readReplicas:
+    affinity: {}
+    nodeSelector: {}
+    tolerations: []
 
 ## external secrets parameters
 externalSecrets:

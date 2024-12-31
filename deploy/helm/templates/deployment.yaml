@@ -74,9 +74,9 @@ spec:
       {{- if ((.Values.initContainer.mongodb).image) }}
         image: {{ .Values.initContainer.mongodb.image }}
       {{- else }}
-        image:  "docker.io/bitnami/mongodb:5.0.21-debian-11-r5"
+        image:  "docker.io/bitnami/mongodb:6.0.13"
       {{- end }}
-        command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+        command: ['sh', '-c', "until mongosh --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
       {{- end }}
       {{- if .Values.postgresql.enabled }}
       - name: psql-init-container
