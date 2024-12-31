@@ -25,9 +25,12 @@ import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import type { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import { setupPageAction, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import ImportedApplicationSuccessModal from "./gitSync/ImportSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -39,40 +42,16 @@ import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
+import GitSettingsModal from "./gitSync/GitSettingsModal";
+import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
+import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import type { Page } from "entities/Page";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import GeneratePageModal from "./GeneratePage";
-import { GitModals as NewGitModals } from "git";
-import GitSyncModal from "./gitSync/GitSyncModal";
-import GitSettingsModal from "./gitSync/GitSettingsModal";
-import DisconnectGitModal from "./gitSync/DisconnectGitModal";
-import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
-import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
-import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
-import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
-import { useGitModEnabled } from "./gitSync/hooks/modHooks";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
-
-function GitModals() {
-  const isGitModEnabled = useGitModEnabled();
-
-  return isGitModEnabled ? (
-    <NewGitModals />
-  ) : (
-    <>
-      <GitSyncModal />
-      <GitSettingsModal />
-      <DisableCDModal />
-      <ReconfigureCDKeyModal />
-      <DisconnectGitModal />
-      <DisableAutocommitModal />
-      <RepoLimitExceededErrorModal />
-    </>
-  );
-}
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -216,20 +195,24 @@ class Editor extends Component<Props> {
               {`${this.props.currentApplicationName} | Editor | Appsmith`}
             </title>
           </Helmet>
-          <GitApplicationContextProvider>
-            <GlobalHotKeys>
-              <IDE />
-              <GitModals />
-              <TemplatesModal />
-              <ImportedApplicationSuccessModal />
-              <ReconnectDatasourceModal />
-              <SignpostingOverlay />
-              <PartialExportModal />
-              <PartialImportModal />
-              <AppCURLImportModal />
-              <GeneratePageModal />
-            </GlobalHotKeys>
-          </GitApplicationContextProvider>
+          <GlobalHotKeys>
+            <IDE />
+            <GitSyncModal />
+            <GitSettingsModal />
+            <DisableCDModal />
+            <ReconfigureCDKeyModal />
+            <DisconnectGitModal />
+            <DisableAutocommitModal />
+            <RepoLimitExceededErrorModal />
+            <TemplatesModal />
+            <ImportedApplicationSuccessModal />
+            <ReconnectDatasourceModal />
+            <SignpostingOverlay />
+            <PartialExportModal />
+            <PartialImportModal />
+            <AppCURLImportModal />
+            <GeneratePageModal />
+          </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />
       </ThemeProvider>

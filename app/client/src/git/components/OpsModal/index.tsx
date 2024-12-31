@@ -1,15 +1,14 @@
 import React from "react";
 import OpsModalView from "./OpsModalView";
+import useProtectedBranches from "git/hooks/useProtectedBranches";
 import useMetadata from "git/hooks/useMetadata";
 import useStatus from "git/hooks/useStatus";
 import useOps from "git/hooks/useOps";
-import useProtectedMode from "git/hooks/useProtectedMode";
-import { GitOpsTab } from "git/constants/enums";
 
 export default function OpsModal() {
-  const { isOpsModalOpen, opsModalTab, toggleOpsModal } = useOps();
+  const { opsModalOpen, opsModalTab, toggleOpsModal } = useOps();
   const { fetchStatus } = useStatus();
-  const isProtectedMode = useProtectedMode();
+  const { isProtectedMode } = useProtectedBranches();
 
   const { metadata } = useMetadata();
 
@@ -18,9 +17,9 @@ export default function OpsModal() {
   return (
     <OpsModalView
       fetchStatus={fetchStatus}
-      isOpsModalOpen={isOpsModalOpen}
+      isOpsModalOpen={opsModalOpen}
       isProtectedMode={isProtectedMode}
-      opsModalTab={opsModalTab ?? GitOpsTab.Deploy}
+      opsModalTab={opsModalTab}
       repoName={repoName}
       toggleOpsModal={toggleOpsModal}
     />

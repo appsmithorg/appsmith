@@ -5,13 +5,18 @@ metadata:
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
-  {{- if or .Values.service.annotations .Values.commonAnnotations }}
+  {{- if or .Values.service.annotations .Values.commonAnnotations .Values.metrics.enabled }}
   annotations:
     {{- if .Values.service.annotations }}
     {{- include "tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.commonAnnotations }}
     {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.metrics.enabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"
     {{- end }}
   {{- end }}
 spec:

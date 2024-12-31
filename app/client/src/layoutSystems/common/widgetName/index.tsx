@@ -8,6 +8,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  combinedPreviewModeSelector,
   getIsAutoLayout,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -30,7 +31,6 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -78,7 +78,7 @@ interface WidgetNameComponentProps {
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

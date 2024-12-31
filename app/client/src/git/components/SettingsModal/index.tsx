@@ -2,7 +2,6 @@ import React from "react";
 import SettingsModalView from "./SettingsModalView";
 import useGitPermissions from "git/hooks/useGitPermissions";
 import useSettings from "git/hooks/useSettings";
-import { GitSettingsTab } from "git/constants/enums";
 
 function SettingsModal() {
   const { isSettingsModalOpen, settingsModalTab, toggleSettingsModal } =
@@ -22,7 +21,7 @@ function SettingsModal() {
       isManageDefaultBranchPermitted={isManageDefaultBranchPermitted}
       isManageProtectedBranchesPermitted={isManageProtectedBranchesPermitted}
       isSettingsModalOpen={isSettingsModalOpen}
-      settingsModalTab={settingsModalTab ?? GitSettingsTab.General}
+      settingsModalTab={settingsModalTab}
       toggleSettingsModal={toggleSettingsModal}
     />
   );

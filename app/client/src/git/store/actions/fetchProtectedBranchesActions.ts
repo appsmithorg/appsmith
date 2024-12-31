@@ -1,8 +1,8 @@
 import type { GitAsyncSuccessPayload, GitAsyncErrorPayload } from "../types";
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 
-export const fetchProtectedBranchesInitAction = createArtifactAction(
+export const fetchProtectedBranchesInitAction = createSingleArtifactAction(
   (state) => {
     state.apiResponses.protectedBranches.loading = true;
     state.apiResponses.protectedBranches.error = null;
@@ -11,7 +11,7 @@ export const fetchProtectedBranchesInitAction = createArtifactAction(
   },
 );
 
-export const fetchProtectedBranchesSuccessAction = createArtifactAction<
+export const fetchProtectedBranchesSuccessAction = createSingleArtifactAction<
   GitAsyncSuccessPayload<FetchProtectedBranchesResponseData>
 >((state, action) => {
   state.apiResponses.protectedBranches.loading = false;
@@ -21,7 +21,7 @@ export const fetchProtectedBranchesSuccessAction = createArtifactAction<
 });
 
 export const fetchProtectedBranchesErrorAction =
-  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.protectedBranches.loading = false;

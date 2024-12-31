@@ -4,10 +4,10 @@ import {
   selectDisconnectArtifactName,
   selectDisconnectBaseArtifactId,
   selectDisconnectState,
-} from "git/store/selectors/gitArtifactSelectors";
+} from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function useDisconnect() {
   const { artifact, artifactDef } = useGitContext();
@@ -15,38 +15,30 @@ export default function useDisconnect() {
 
   const dispatch = useDispatch();
 
-  const disconnectState = useArtifactSelector(selectDisconnectState);
-
-  const disconnect = useCallback(() => {
-    if (artifactDef) {
-      dispatch(
-        gitArtifactActions.disconnectInit({
-          artifactDef,
-        }),
-      );
-    }
-  }, [artifactDef, dispatch]);
-
-  const disconnectBaseArtifactId = useArtifactSelector(
-    selectDisconnectBaseArtifactId,
+  const disconnectState = useSelector((state: GitRootState) =>
+    selectDisconnectState(state, artifactDef),
   );
 
-  const disconnectArtifactName = useArtifactSelector(
-    selectDisconnectArtifactName,
+  const disconnect = useCallback(() => {
+    dispatch(gitArtifactActions.disconnectInit(artifactDef));
+  }, [artifactDef, dispatch]);
+
+  const disconnectBaseArtifactId = useSelector((state: GitRootState) =>
+    selectDisconnectBaseArtifactId(state, artifactDef),
+  );
+
+  const disconnectArtifactName = useSelector((state: GitRootState) =>
+    selectDisconnectArtifactName(state, artifactDef),
   );
 
   const openDisconnectModal = useCallback(() => {
-    if (artifactDef) {
-      dispatch(
-        gitArtifactActions.openDisconnectModal({ artifactDef, artifactName }),
-      );
-    }
+    dispatch(
+      gitArtifactActions.openDisconnectModal({ ...artifactDef, artifactName }),
+    );
   }, [artifactDef, artifactName, dispatch]);
 
   const closeDisconnectModal = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.closeDisconnectModal({ artifactDef }));
-    }
+    dispatch(gitArtifactActions.closeDisconnectModal(artifactDef));
   }, [artifactDef, dispatch]);
 
   return {

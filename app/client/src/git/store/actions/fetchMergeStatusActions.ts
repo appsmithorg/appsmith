@@ -1,5 +1,5 @@
 import type { GitAsyncSuccessPayload, GitAsyncErrorPayload } from "../types";
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type {
   FetchMergeStatusRequestParams,
   FetchMergeStatusResponseData,
@@ -11,14 +11,14 @@ export interface FetchMergeStatusInitPayload
 }
 
 export const fetchMergeStatusInitAction =
-  createArtifactAction<FetchMergeStatusInitPayload>((state) => {
+  createSingleArtifactAction<FetchMergeStatusInitPayload>((state) => {
     state.apiResponses.mergeStatus.loading = true;
     state.apiResponses.mergeStatus.error = null;
 
     return state;
   });
 
-export const fetchMergeStatusSuccessAction = createArtifactAction<
+export const fetchMergeStatusSuccessAction = createSingleArtifactAction<
   GitAsyncSuccessPayload<FetchMergeStatusResponseData>
 >((state, action) => {
   state.apiResponses.mergeStatus.loading = false;
@@ -28,7 +28,7 @@ export const fetchMergeStatusSuccessAction = createArtifactAction<
 });
 
 export const fetchMergeStatusErrorAction =
-  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.mergeStatus.loading = false;
@@ -37,7 +37,7 @@ export const fetchMergeStatusErrorAction =
     return state;
   });
 
-export const clearMergeStatusAction = createArtifactAction((state) => {
+export const clearMergeStatusAction = createSingleArtifactAction((state) => {
   state.apiResponses.mergeStatus.loading = false;
   state.apiResponses.mergeStatus.error = null;
   state.apiResponses.mergeStatus.value = null;

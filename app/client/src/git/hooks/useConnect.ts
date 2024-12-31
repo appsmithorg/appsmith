@@ -4,53 +4,82 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectConnectModalOpen,
   selectConnectState,
-  selectConnectSuccessModalOpen,
-} from "git/store/selectors/gitArtifactSelectors";
+  selectFetchSSHKeysState,
+  selectGenerateSSHKeyState,
+  selectGitImportState,
+} from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useSelector } from "react-redux";
 
 export default function useConnect() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const connectState = useArtifactSelector(selectConnectState);
+  const connectState = useSelector((state: GitRootState) =>
+    selectConnectState(state, artifactDef),
+  );
 
   const connect = useCallback(
     (params: ConnectRequestParams) => {
-      if (artifactDef) {
-        dispatch(gitArtifactActions.connectInit({ artifactDef, ...params }));
-      }
+      dispatch(gitArtifactActions.connectInit({ ...artifactDef, ...params }));
     },
     [artifactDef, dispatch],
   );
 
-  const isConnectModalOpen = useArtifactSelector(selectConnectModalOpen);
+  const gitImportState = useSelector((state: GitRootState) =>
+    selectGitImportState(state, artifactDef),
+  );
+
+  const gitImport = useCallback(
+    (params) => {
+      dispatch(gitArtifactActions.gitImportInit({ ...artifactDef, ...params }));
+    },
+    [artifactDef, dispatch],
+  );
+
+  const fetchSSHKeyState = useSelector((state: GitRootState) =>
+    selectFetchSSHKeysState(state, artifactDef),
+  );
+
+  const fetchSSHKey = useCallback(() => {
+    dispatch(gitArtifactActions.fetchSSHKeyInit(artifactDef));
+  }, [artifactDef, dispatch]);
+
+  const resetFetchSSHKey = useCallback(() => {
+    dispatch(gitArtifactActions.resetFetchSSHKey(artifactDef));
+  }, [artifactDef, dispatch]);
+
+  const generateSSHKeyState = useSelector((state: GitRootState) =>
+    selectGenerateSSHKeyState(state, artifactDef),
+  );
+
+  const generateSSHKey = useCallback(
+    (keyType: string, isImport: boolean = false) => {
+      dispatch(
+        gitArtifactActions.generateSSHKeyInit({
+          ...artifactDef,
+          keyType,
+          isImport,
+        }),
+      );
+    },
+    [artifactDef, dispatch],
+  );
+
+  const resetGenerateSSHKey = useCallback(() => {
+    dispatch(gitArtifactActions.resetGenerateSSHKey(artifactDef));
+  }, [artifactDef, dispatch]);
+
+  const isConnectModalOpen = useSelector((state: GitRootState) =>
+    selectConnectModalOpen(state, artifactDef),
+  );
 
   const toggleConnectModal = useCallback(
     (open: boolean) => {
-      if (artifactDef) {
-        dispatch(gitArtifactActions.toggleConnectModal({ artifactDef, open }));
-      }
-    },
-    [artifactDef, dispatch],
-  );
-
-  const isConnectSuccessModalOpen = useArtifactSelector(
-    selectConnectSuccessModalOpen,
-  );
-
-  const toggleConnectSuccessModal = useCallback(
-    (open: boolean) => {
-      if (artifactDef) {
-        dispatch(
-          gitArtifactActions.toggleConnectSuccessModal({
-            artifactDef,
-            open,
-          }),
-        );
-      }
+      dispatch(gitArtifactActions.toggleConnectModal({ ...artifactDef, open }));
     },
     [artifactDef, dispatch],
   );
@@ -59,9 +88,19 @@ export default function useConnect() {
     isConnectLoading: connectState?.loading ?? false,
     connectError: connectState?.error ?? null,
     connect,
-    isConnectModalOpen: isConnectModalOpen ?? false,
+    isGitImportLoading: gitImportState?.loading ?? false,
+    gitImportError: gitImportState?.error ?? null,
+    gitImport,
+    sshKey: fetchSSHKeyState?.value ?? null,
+    isFetchSSHKeyLoading: fetchSSHKeyState?.loading ?? false,
+    fetchSSHKeyError: fetchSSHKeyState?.error ?? null,
+    fetchSSHKey,
+    resetFetchSSHKey,
+    isGenerateSSHKeyLoading: generateSSHKeyState?.loading ?? false,
+    generateSSHKeyError: generateSSHKeyState?.error ?? null,
+    generateSSHKey,
+    resetGenerateSSHKey,
+    isConnectModalOpen,
     toggleConnectModal,
-    isConnectSuccessModalOpen: isConnectSuccessModalOpen ?? false,
-    toggleConnectSuccessModal,
   };
 }

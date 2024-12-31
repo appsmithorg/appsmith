@@ -2,55 +2,55 @@ import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectFetchProtectedBranchesState,
+  selectProtectedMode,
   selectUpdateProtectedBranchesState,
-} from "git/store/selectors/gitArtifactSelectors";
+} from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useDispatch, useSelector } from "react-redux";
 
 function useProtectedBranches() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const fetchProtectedBranchesState = useArtifactSelector(
-    selectFetchProtectedBranchesState,
+  const fetchProtectedBranchesState = useSelector((state: GitRootState) =>
+    selectFetchProtectedBranchesState(state, artifactDef),
   );
 
   const fetchProtectedBranches = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
-    }
+    dispatch(gitArtifactActions.fetchProtectedBranchesInit(artifactDef));
   }, [dispatch, artifactDef]);
 
-  const updateProtectedBranchesState = useArtifactSelector(
-    selectUpdateProtectedBranchesState,
+  const updateProtectedBranchesState = useSelector((state: GitRootState) =>
+    selectUpdateProtectedBranchesState(state, artifactDef),
   );
 
   const updateProtectedBranches = useCallback(
     (branches: string[]) => {
-      if (artifactDef) {
-        dispatch(
-          gitArtifactActions.updateProtectedBranchesInit({
-            artifactDef,
-            branchNames: branches,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.updateProtectedBranchesInit({
+          ...artifactDef,
+          branchNames: branches,
+        }),
+      );
     },
     [dispatch, artifactDef],
   );
 
+  const isProtectedMode = useSelector((state: GitRootState) =>
+    selectProtectedMode(state, artifactDef),
+  );
+
   return {
-    protectedBranches: fetchProtectedBranchesState?.value ?? null,
-    isFetchProtectedBranchesLoading:
-      fetchProtectedBranchesState?.loading ?? false,
-    fetchProtectedBranchesError: fetchProtectedBranchesState?.error ?? null,
+    protectedBranches: fetchProtectedBranchesState.value,
+    isFetchProtectedBranchesLoading: fetchProtectedBranchesState.loading,
+    fetchProtectedBranchesError: fetchProtectedBranchesState.error,
     fetchProtectedBranches,
-    isUpdateProtectedBranchesLoading:
-      updateProtectedBranchesState?.loading ?? false,
-    updateProtectedBranchesError: updateProtectedBranchesState?.error ?? null,
+    isUpdateProtectedBranchesLoading: updateProtectedBranchesState.loading,
+    updateProtectedBranchesError: updateProtectedBranchesState.error,
     updateProtectedBranches,
+    isProtectedMode,
   };
 }
 

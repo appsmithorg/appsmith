@@ -11,17 +11,18 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* fetchStatusSaga(
   action: GitArtifactPayloadAction<FetchStatusInitPayload>,
 ) {
-  const { artifactDef, artifactId } = action.payload;
+  const { artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   let response: FetchStatusResponse | undefined;
 
   try {
-    response = yield call(fetchStatusRequest, artifactId);
+    response = yield call(fetchStatusRequest, baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchStatusSuccess({
-          artifactDef,
+          ...basePayload,
           responseData: response.data,
         }),
       );
@@ -32,7 +33,7 @@ export default function* fetchStatusSaga(
 
       yield put(
         gitArtifactActions.fetchStatusError({
-          artifactDef,
+          ...basePayload,
           error,
         }),
       );

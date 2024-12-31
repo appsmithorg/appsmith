@@ -1,20 +1,20 @@
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitArtifactErrorPayloadAction } from "../types";
 
-export const disconnectInitAction = createArtifactAction((state) => {
+export const disconnectInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.disconnect.loading = true;
   state.apiResponses.disconnect.error = null;
 
   return state;
 });
 
-export const disconnectSuccessAction = createArtifactAction((state) => {
+export const disconnectSuccessAction = createSingleArtifactAction((state) => {
   state.apiResponses.disconnect.loading = false;
 
   return state;
 });
 
-export const disconnectErrorAction = createArtifactAction(
+export const disconnectErrorAction = createSingleArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 

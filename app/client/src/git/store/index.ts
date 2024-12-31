@@ -1,8 +1,8 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { gitArtifactReducer } from "./gitArtifactSlice";
-import { gitGlobalReducer } from "./gitGlobalSlice";
+import { gitConfigReducer } from "./gitConfigSlice";
 
 export const gitReducer = combineReducers({
   artifacts: gitArtifactReducer,
-  global: gitGlobalReducer,
+  config: gitConfigReducer,
 });
