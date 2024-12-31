@@ -331,7 +331,7 @@ public class PartialImportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        savedPage.setBranchName("master");
+        savedPage.setRefName("master");
         savedPage = applicationPageService.createPage(savedPage).block();
 
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");

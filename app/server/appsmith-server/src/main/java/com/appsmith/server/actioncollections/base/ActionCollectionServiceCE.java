@@ -1,7 +1,6 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
@@ -26,13 +25,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> saveAll(List<ActionCollection> collections);
 
-    Mono<ActionCollection> findByBaseIdAndBranchName(String id, String branchName);
-
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode);
-
-    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
-            MultiValueMap<String, String> params, Boolean viewMode, String branchName);
 
     Mono<ActionCollectionDTO> populateActionCollectionByViewMode(
             ActionCollectionDTO actionCollectionDTO1, Boolean viewMode);
@@ -70,13 +64,7 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollection> archiveById(String id);
 
-    Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission);
-
     Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
-
-    Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
-            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
 

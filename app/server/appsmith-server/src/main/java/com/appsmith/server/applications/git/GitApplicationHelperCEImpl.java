@@ -260,7 +260,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                 .flatMap(page -> newPageService.findById(page.getId(), null))
                 .map(newPage -> {
                     newPage.setBaseId(newPage.getId());
-                    newPage.setBranchName(null);
+                    newPage.setRefType(null);
+                    newPage.setRefName(null);
                     return newPage;
                 })
                 .collectList()
@@ -272,7 +273,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                     .findByPageId(newPage.getId(), Optional.empty())
                     .map(newAction -> {
                         newAction.setBaseId(newAction.getId());
-                        newAction.setBranchName(null);
+                        newAction.setRefType(null);
+                        newAction.setRefName(null);
                         return newAction;
                     })
                     .collectList()
@@ -284,7 +286,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                     .findByPageId(newPage.getId())
                     .map(actionCollection -> {
                         actionCollection.setBaseId(actionCollection.getId());
-                        actionCollection.setBranchName(null);
+                        actionCollection.setRefType(null);
+                        actionCollection.setRefName(null);
                         return actionCollection;
                     })
                     .collectList()

@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -166,7 +167,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<PageDTO> pageMono = applicationMono.map(application -> {
             generateAndSetPagePolicies(application, page);
             if (application.getGitArtifactMetadata() != null) {
-                page.setBranchName(application.getGitArtifactMetadata().getBranchName());
+                page.setRefType(application.getGitArtifactMetadata().getRefType());
+                page.setRefName(application.getGitArtifactMetadata().getRefName());
             }
             return page;
         });
@@ -309,11 +311,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
-            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
+            String defaultPageId, String refName, boolean viewMode, boolean migrateDsl) {
         ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission(), null)
+                .findByRefTypeAndRefNameAndBasePageId(
+                        RefType.BRANCH, refName, defaultPageId, pagePermission.getReadPermission(), null)
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
                         .tap(Micrometer.observation(observationRegistry)));
@@ -576,7 +579,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
                 .flatMap(page -> {
                     ClonePageMetaDTO clonePageMetaDTO = new ClonePageMetaDTO();
-                    clonePageMetaDTO.setBranchName(page.getBranchName());
+                    clonePageMetaDTO.setRefType(page.getRefType());
+                    clonePageMetaDTO.setRefName(page.getRefName());
                     return applicationService
                             .saveLastEditInformation(page.getApplicationId())
                             .then(clonePageGivenApplicationId(
@@ -651,7 +655,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 page.setApplicationId(applicationId);
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    page.setBranchName(gitData.getBranchName());
+                                    page.setRefName(gitData.getBranchName());
                                 }
                                 return newPageService.createDefault(page);
                             });
@@ -1278,7 +1282,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return applicationRepository
                             .setPages(application.getId(), pages)
                             .flatMap(ignored -> sendPageOrderAnalyticsEvent(
-                                    application, branchedPageId, order, branchedPage.getBranchName()))
+                                    application, branchedPageId, order, branchedPage.getRefName()))
                             .then(newPageService.findApplicationPagesByBranchedApplicationIdAndViewMode(
                                     application.getId(), Boolean.FALSE, false));
                 });

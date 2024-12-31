@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
@@ -1720,8 +1721,8 @@ public class ApplicationServiceCETest {
                 .collectList();
 
         Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
-                .flatMap(applicationPage -> newPageService.findByBranchNameAndBasePageId(
-                        branchName, applicationPage.getDefaultPageId(), READ_PAGES, null))
+                .flatMap(applicationPage -> newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        RefType.BRANCH, branchName, applicationPage.getDefaultPageId(), READ_PAGES, null))
                 .collectList();
 
         StepVerifier.create(Mono.zip(clonedNewPageListMono, srcNewPageListMono))
@@ -4466,7 +4467,7 @@ public class ApplicationServiceCETest {
 
         // Step 7: Call the consolidated API to force cache update
         consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(basePageId1Ref.get(), null, null, ApplicationMode.PUBLISHED)
+                .getConsolidatedInfoForPageLoad(basePageId1Ref.get(), null, null, null, ApplicationMode.PUBLISHED)
                 .block();
 
         // Step 8: Verify basePageId1 is now cached after the consolidated API call
@@ -4483,7 +4484,7 @@ public class ApplicationServiceCETest {
 
         // Step 10: Call the consolidated API to force cache update for basePageId2
         consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(basePageId2Ref.get(), null, null, ApplicationMode.PUBLISHED)
+                .getConsolidatedInfoForPageLoad(basePageId2Ref.get(), null, null, null, ApplicationMode.PUBLISHED)
                 .block();
 
         // Step 11: Verify basePageId2 is now cached after the consolidated API call

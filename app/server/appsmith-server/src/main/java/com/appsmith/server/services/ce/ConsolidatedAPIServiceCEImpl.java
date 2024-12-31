@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -138,7 +139,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String basePageId, String baseApplicationId, String branchName, ApplicationMode mode) {
+            String basePageId, String baseApplicationId, RefType refType, String refName, ApplicationMode mode) {
 
         /* if either of pageId or defaultApplicationId are provided then application mode must also be provided */
         if (mode == null && (!isBlank(basePageId) || !isBlank(baseApplicationId))) {
@@ -149,7 +150,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
         List<Mono<?>> fetches =
-                getAllFetchableMonos(consolidatedAPIResponseDTO, basePageId, baseApplicationId, branchName, mode);
+                getAllFetchableMonos(consolidatedAPIResponseDTO, basePageId, baseApplicationId, refType, refName, mode);
 
         return Mono.when(fetches).thenReturn(consolidatedAPIResponseDTO);
     }
@@ -158,7 +159,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO,
             String basePageId,
             String baseApplicationId,
-            String branchName,
+            RefType refType,
+            String refName,
             ApplicationMode mode) {
         final List<Mono<?>> fetches = new ArrayList<>();
 
@@ -222,7 +224,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Mono<String> baseApplicationIdMono = getBaseApplicationIdMono(basePageId, baseApplicationId, mode, isViewMode);
 
         Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono =
-                getApplicationAndPageTupleMono(basePageId, branchName, mode, baseApplicationIdMono, isViewMode);
+                getApplicationAndPageTupleMono(basePageId, refType, refName, mode, baseApplicationIdMono, isViewMode);
 
         Mono<NewPage> branchedPageMonoCached =
                 applicationAndPageTupleMono.map(Tuple2::getT2).cache();
@@ -499,7 +501,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
     protected Mono<Tuple2<Application, NewPage>> getApplicationAndPageTupleMono(
             String basePageId,
-            String branchName,
+            RefType refType,
+            String refName,
             ApplicationMode mode,
             Mono<String> baseApplicationIdMono,
             boolean isViewMode) {
@@ -509,13 +512,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     Mono<NewPage> branchedPageMonoCached;
 
                     branchedPageMonoCached = newPageService
-                            .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                            .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(refType, refName, basePageId, mode)
                             .cache();
 
                     if (StringUtils.hasText(cachedBaseApplicationId)) {
                         // Handle non-empty baseApplicationId
                         applicationMono = applicationService.findByBaseIdBranchNameAndApplicationMode(
-                                cachedBaseApplicationId, branchName, mode);
+                                cachedBaseApplicationId, refName, mode);
                     } else {
                         // Handle empty or null baseApplicationId
                         applicationMono = branchedPageMonoCached.flatMap(branchedPage ->
@@ -538,7 +541,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                         }));
                     }
 
-                    if (StringUtils.hasText(branchName)) {
+                    if (StringUtils.hasText(refName)) {
 
                         // If in case the application is a non git connected application and the branch name url param
                         // is present, then we must default to the app without any branches.
@@ -548,16 +551,16 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                             // called errors out on empty returns.
 
                             log.info(
-                                    "application or page has for base pageId {} and branchName {} has not been found.",
+                                    "application or page has for base pageId {} and refName {} has not been found.",
                                     basePageId,
-                                    branchName);
+                                    refName);
                             if (error instanceof AppsmithException) {
                                 Mono<NewPage> basePageMono =
-                                        newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
-                                                null, basePageId, mode);
+                                        newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                                                null, null, basePageId, mode);
 
                                 return basePageMono.flatMap(basePage -> {
-                                    if (StringUtils.hasText(basePage.getBranchName())) {
+                                    if (StringUtils.hasText(basePage.getRefName())) {
                                         // If the branch name is present then the application is git connected
                                         // the error should be thrown.
                                         // TODO: verify if branch name could be residue from old git connection
@@ -571,7 +574,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                             .zipWith(basePageMono)
                                             .map(tuple2 -> {
                                                 log.info(
-                                                        "The branchName url param should not be associated with application {} as this is not a git connected application",
+                                                        "The refName url param should not be associated with application {} as this is not a git connected application",
                                                         tuple2.getT1().getId());
                                                 return tuple2;
                                             });
@@ -619,8 +622,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
                         return applicationService
                                 .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
-                                .zipWith(newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
-                                        defaultBranchName, basePageId, mode));
+                                .zipWith(newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                                        RefType.BRANCH, defaultBranchName, basePageId, mode));
                     });
                 })
                 .cache();

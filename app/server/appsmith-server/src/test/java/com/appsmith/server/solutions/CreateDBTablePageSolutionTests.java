@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -366,8 +367,12 @@ public class CreateDBTablePageSolutionTests {
                 .createPage(newPage)
                 .flatMap(savedPage ->
                         solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId))
-                .flatMap(crudPageResponseDTO -> newPageService.findByBranchNameAndBasePageId(
-                        gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), READ_PAGES, null));
+                .flatMap(crudPageResponseDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        RefType.BRANCH,
+                        gitData.getBranchName(),
+                        crudPageResponseDTO.getPage().getId(),
+                        READ_PAGES,
+                        null));
 
         StepVerifier.create(resultMono.zipWhen(newPage1 -> getActions(newPage1.getId())))
                 .assertNext(tuple -> {

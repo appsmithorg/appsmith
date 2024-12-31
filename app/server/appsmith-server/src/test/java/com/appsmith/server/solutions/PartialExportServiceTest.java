@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DBAuth;
@@ -289,7 +290,7 @@ public class PartialExportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        savedPage.setBranchName("master");
+        savedPage.setRefName("master");
         savedPage = applicationPageService.createPage(savedPage).block();
 
         // Create Action
@@ -349,7 +350,7 @@ public class PartialExportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        savedPage.setBranchName("master");
+        savedPage.setRefName("master");
         savedPage = applicationPageService.createPage(savedPage).block();
 
         // Create Action
@@ -362,7 +363,8 @@ public class PartialExportServiceTest {
         actionConfiguration.setTimeoutInMillisecond("6000");
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasourceMap.get("DS1"));
-        action.setBranchName("master");
+        action.setRefType(RefType.BRANCH);
+        action.setRefName("master");
 
         ActionDTO savedAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();

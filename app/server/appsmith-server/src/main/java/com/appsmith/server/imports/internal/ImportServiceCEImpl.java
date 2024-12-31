@@ -443,6 +443,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 artifactContextString,
                 branchedArtifactId,
                 null,
+                null,
                 new ArrayList<>(),
                 appendToArtifact,
                 false,

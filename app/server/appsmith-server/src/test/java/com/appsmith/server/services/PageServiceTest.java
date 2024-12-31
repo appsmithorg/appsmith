@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -862,8 +863,8 @@ public class PageServiceTest {
 
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePage(page.getId())
-                .flatMap(pageDTO ->
-                        newPageService.findByBranchNameAndBasePageId(branchName, pageDTO.getId(), MANAGE_PAGES, null))
+                .flatMap(pageDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        RefType.BRANCH, branchName, pageDTO.getId(), MANAGE_PAGES, null))
                 .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(

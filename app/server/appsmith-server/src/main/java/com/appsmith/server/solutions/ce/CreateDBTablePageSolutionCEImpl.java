@@ -396,7 +396,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .filter(newAction -> StringUtils.equalsIgnoreCase(
                                     newAction.getUnpublishedAction().getPageId(),
                                     plugin.getGenerateCRUDPageComponent()))
-                            .peek(newAction -> newAction.setBranchName(page.getBranchName()))
+                            .peek(newAction -> {
+                                newAction.setRefType(page.getRefType());
+                                newAction.setRefName(page.getRefName());
+                            })
                             .collect(Collectors.toList());
 
                     List<ActionConfiguration> templateUnpublishedActionConfigList = templateActionList.stream()
@@ -523,7 +526,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             page.setApplicationId(applicationId);
                             page.setName(pageName);
                             if (branchedApplication.getGitArtifactMetadata() != null) {
-                                page.setBranchName(branchedApplication
+                                page.setRefName(branchedApplication
                                         .getGitArtifactMetadata()
                                         .getBranchName());
                             }
@@ -610,7 +613,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             actionDTO.setDatasource(datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage));
             actionDTO.setPageId(pageId);
             actionDTO.setName(templateAction.getUnpublishedAction().getName());
-            actionDTO.setBranchName(templateAction.getBranchName());
+            actionDTO.setRefType(templateAction.getRefType());
+            actionDTO.setRefName(templateAction.getRefName());
 
             // Indicates that source of action creation is generate-crud-page
             actionDTO.setSource(ActionCreationSourceTypeEnum.GENERATE_PAGE);

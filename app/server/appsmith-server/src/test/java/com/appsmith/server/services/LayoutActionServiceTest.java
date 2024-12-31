@@ -1103,7 +1103,8 @@ class LayoutActionServiceTest {
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
-        newAction1.setBranchName(createdAction1.getBranchName());
+        newAction1.setRefType(createdAction1.getRefType());
+        newAction1.setRefName(createdAction1.getRefName());
         newAction1.setBaseId(createdAction1.getBaseId());
         newAction1.setPluginId(installed_plugin.getId());
         newAction1.setPluginType(installed_plugin.getType());
@@ -1114,7 +1115,8 @@ class LayoutActionServiceTest {
         createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
-        newAction2.setBranchName(createdAction2.getBranchName());
+        newAction2.setRefType(createdAction2.getRefType());
+        newAction2.setRefName(createdAction2.getRefName());
         newAction2.setBaseId(createdAction2.getBaseId());
         newAction2.setPluginId(installed_plugin.getId());
         newAction2.setPluginType(installed_plugin.getType());
@@ -1188,7 +1190,8 @@ class LayoutActionServiceTest {
         createdAction1.setUserSetOnLoad(true);
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
-        newAction1.setBranchName(createdAction1.getBranchName());
+        newAction1.setRefType(createdAction1.getRefType());
+        newAction1.setRefName(createdAction1.getRefName());
         newAction1.setBaseId(createdAction1.getBaseId());
         newAction1.setPluginId(installed_plugin.getId());
         newAction1.setPluginType(installed_plugin.getType());

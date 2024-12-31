@@ -288,7 +288,7 @@ public class AuthenticationServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("Test-Page-oauth2-git-redirection");
-        testPage.setBranchName(branchName);
+        testPage.setRefName(branchName);
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());

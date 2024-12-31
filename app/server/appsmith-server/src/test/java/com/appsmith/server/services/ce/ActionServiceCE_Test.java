@@ -307,15 +307,12 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<NewAction> actionMono = layoutActionService
-                .createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndBaseActionId(
-                        branchName, createdAction.getId(), false, READ_ACTIONS));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action);
 
         StepVerifier.create(actionMono)
-                .assertNext(newAction -> {
-                    assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(gitConnectedPage.getId());
-                    assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO.getPageId()).isEqualTo(gitConnectedPage.getId());
+                    assertThat(actionDTO.getBaseId()).isEqualTo(actionDTO.getId());
                 })
                 .verifyComplete();
     }

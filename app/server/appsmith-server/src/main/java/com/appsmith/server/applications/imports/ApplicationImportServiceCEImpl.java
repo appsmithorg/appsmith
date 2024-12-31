@@ -462,7 +462,7 @@ public class ApplicationImportServiceCEImpl
         return importApplicationMono
                 .doOnNext(application -> {
                     if (application.getGitArtifactMetadata() != null) {
-                        importingMetaDTO.setBranchName(
+                        importingMetaDTO.setRefName(
                                 application.getGitArtifactMetadata().getBranchName());
                     }
                 })

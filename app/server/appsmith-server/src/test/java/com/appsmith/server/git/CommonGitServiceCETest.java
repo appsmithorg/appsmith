@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -1224,7 +1225,8 @@ public class CommonGitServiceCETest {
                     action.setDatasource(datasource);
 
                     action.setBaseId("branchedActionId");
-                    action.setBranchName("testBranch");
+                    action.setRefType(RefType.BRANCH);
+                    action.setRefName("testBranch");
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;

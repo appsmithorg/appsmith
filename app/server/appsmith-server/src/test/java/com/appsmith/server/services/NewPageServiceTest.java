@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
@@ -426,7 +427,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key2", List.of("val1", "val2"));
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
-                            .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.BRANCH, null)
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
@@ -462,7 +463,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key2", List.of("val1", "val2"));
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
-                            .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.BRANCH, null)
                             .flatMap(page -> applicationPageService.publish(application.getId(), false))
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
@@ -499,7 +500,7 @@ public class NewPageServiceTest {
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO -> newPageService
-                        .updateDependencyMap(pageDTO.getId(), null, null)
+                        .updateDependencyMap(pageDTO.getId(), null, RefType.BRANCH, null)
                         .then(newPageService.findById(pageDTO.getId(), null)));
 
         StepVerifier.create(newPageMono)

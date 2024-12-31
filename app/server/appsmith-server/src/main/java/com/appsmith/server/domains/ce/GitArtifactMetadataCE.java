@@ -130,16 +130,21 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
         this.defaultArtifactId = defaultApplicationId;
     }
 
+    public RefType getRefType() {
+        return refType == null ? RefType.BRANCH : refType;
+    }
+
     /**
      * this returns the branchName instead of reference name
      * @return returns the ref name.
      */
     public String getRefName() {
-        return this.getBranchName();
+        return this.refName == null ? this.branchName : this.refName;
     }
 
     public void setRefName(String refName) {
         this.branchName = refName;
+        this.refName = refName;
     }
 
     public static class Fields {}
