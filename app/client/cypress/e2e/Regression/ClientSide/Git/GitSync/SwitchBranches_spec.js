@@ -127,7 +127,7 @@ describe(
 
     // rename entities
     it("3. makes branch specific resource updates", function () {
-      cy.switchGitBranch(childBranchKey);
+      gitSync.SwitchGitBranch(childBranchKey);
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
       entityExplorer.RenameEntityFromExplorer(
         "ParentPage1",
@@ -142,11 +142,12 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
-      cy.switchGitBranch(parentBranchKey);
-
-      PageList.assertAbsence("ParentPageRenamed");
-      PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      PageLeftPane.assertAbsence("ParentApiRenamed");
+      gitSync.SwitchGitBranch(parentBranchKey);
+      cy.wait("@gitCheckoutAPI").then(() => {
+        PageList.assertAbsence("ParentPageRenamed");
+        PageLeftPane.switchSegment(PagePaneSegment.Queries);
+        PageLeftPane.assertAbsence("ParentApiRenamed");
+      });
     });
 
     it("4. enables switching branch from the URL", () => {
