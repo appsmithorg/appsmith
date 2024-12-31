@@ -28,7 +28,7 @@ describe("GenerateSSH Component", () => {
     render(<GenerateSSH {...defaultProps} />);
     expect(screen.getByText("Generate SSH key")).toBeInTheDocument();
     expect(
-      screen.getByTestId("git-connect-remote-url-input"),
+      screen.getByTestId("t--git-connect-remote-input"),
     ).toBeInTheDocument();
   });
 
@@ -65,7 +65,7 @@ describe("GenerateSSH Component", () => {
     const onChange = jest.fn();
 
     render(<GenerateSSH {...defaultProps} onChange={onChange} />);
-    const input = screen.getByTestId("git-connect-remote-url-input");
+    const input = screen.getByTestId("t--git-connect-remote-input");
 
     fireEvent.change(input, {
       target: { value: "git@example.com:user/repo.git" },
@@ -79,7 +79,7 @@ describe("GenerateSSH Component", () => {
     (isValidGitRemoteUrl as jest.Mock).mockReturnValue(false);
 
     render(<GenerateSSH {...defaultProps} />);
-    const input = screen.getByTestId("git-connect-remote-url-input");
+    const input = screen.getByTestId("t--git-connect-remote-input");
 
     fireEvent.change(input, { target: { value: "invalid-url" } });
     fireEvent.blur(input); // Trigger validation
@@ -95,7 +95,7 @@ describe("GenerateSSH Component", () => {
     (isValidGitRemoteUrl as jest.Mock).mockReturnValue(true);
 
     render(<GenerateSSH {...defaultProps} />);
-    const input = screen.getByTestId("git-connect-remote-url-input");
+    const input = screen.getByTestId("t--git-connect-remote-input");
 
     fireEvent.change(input, {
       target: { value: "git@example.com:user/repo.git" },
