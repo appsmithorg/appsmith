@@ -8,7 +8,6 @@ import com.appsmith.server.helpers.RedisUtils;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
@@ -110,7 +109,7 @@ public class GitRedisUtils {
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    @NotNull private String generateRedisKey(ArtifactType artifactType, String artifactId) {
+    private String generateRedisKey(ArtifactType artifactType, String artifactId) {
         return artifactType.lowerCaseName() + "-" + artifactId;
     }
 }
