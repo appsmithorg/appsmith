@@ -34,6 +34,7 @@ public class SerializationUtils {
         objectMapper
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                 .registerModules(JAVA_TIME_MODULE, HTTP_METHOD_MODULE)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
