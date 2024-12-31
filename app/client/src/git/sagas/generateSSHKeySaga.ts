@@ -7,6 +7,7 @@ import type {
 } from "git/requests/generateSSHKeyRequest.types";
 import type { GenerateSSHKeyInitPayload } from "git/store/actions/generateSSHKeyActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
 import { call, put } from "redux-saga/effects";
@@ -44,8 +45,7 @@ export function* generateSSHKeySaga(
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
-            artifactDef,
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );

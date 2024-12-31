@@ -31,7 +31,7 @@ const DOCS_LINK_PROPS = [
   {
     children: "Learn more",
     to: DOCS_URL,
-    className: "t--disconnect-learn-more",
+    "data-testid": "t--git-disconnect-learn-more",
   },
 ];
 const MODAL_WIDTH = 640;
@@ -99,7 +99,7 @@ function DisconnectModalView({
 
   return (
     <Modal onOpenChange={onModalOpenValueChange} open={isDisconnectModalOpen}>
-      <StyledModalContent data-testid="t--disconnect-git-modal">
+      <StyledModalContent data-testid="t--git-disconnect-modal">
         <ModalHeader>
           {createMessage(GIT_REVOKE_ACCESS, disconnectArtifactName)}
         </ModalHeader>
@@ -112,7 +112,7 @@ function DisconnectModalView({
               )}
             </Text>
             <Input
-              className="t--git-app-name-input"
+              data-testid="t--git-disconnect-modal-input"
               label={createMessage(APPLICATION_NAME)}
               onBlur={inputOnBlur}
               onChange={inputOnChange}
@@ -126,7 +126,7 @@ function DisconnectModalView({
         </ModalBody>
         <ModalFooter>
           <Button
-            className="t--git-revoke-back-button"
+            data-testid="t--git-disconnect-modal-back-btn"
             kind="secondary"
             onClick={handleClickOnBack}
             size="md"
@@ -134,7 +134,7 @@ function DisconnectModalView({
             {createMessage(GO_BACK)}
           </Button>
           <Button
-            className="t--git-revoke-button"
+            data-testid="t--git-disconnect-modal-revoke-btn"
             isDisabled={shouldDisableRevokeButton}
             isLoading={isDisconnectLoading}
             kind="primary"

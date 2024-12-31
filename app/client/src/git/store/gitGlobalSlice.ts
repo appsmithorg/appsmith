@@ -22,6 +22,7 @@ import {
   fetchGlobalSSHKeySuccessAction,
   resetGlobalSSHKeyAction,
 } from "./actions/fetchGlobalSSHKeyActions";
+import { toggleRepoLimitErrorModalAction } from "./actions/repoLimitErrorModalActions";
 
 export const gitGlobalSlice = createSlice({
   name: "git/config",
@@ -41,6 +42,7 @@ export const gitGlobalSlice = createSlice({
     gitImportSuccess: gitImportSuccessAction,
     gitImportError: gitImportErrorAction,
     toggleImportModal: toggleImportModalAction,
+    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });
 

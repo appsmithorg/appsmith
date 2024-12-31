@@ -60,7 +60,7 @@ export default function ConflictErrorView({
       </StyledCallout>
       <Row>
         <StyledButton
-          data-testid="t--git-repo-button"
+          data-testid="t--git-conflict-error-open-repo"
           kind="secondary"
           onClick={handleClickOnOpenRepo}
         >

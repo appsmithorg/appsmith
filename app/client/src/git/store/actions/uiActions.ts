@@ -1,6 +1,6 @@
 import type { GitOpsTab, GitSettingsTab } from "git/constants/enums";
 import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitGlobalReduxState } from "../types";
+import type { GitArtifactDef, GitGlobalReduxState } from "../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 // connect modal
@@ -47,20 +47,24 @@ export const toggleImportModalAction = (
 
 // disconnect modal
 export interface OpenDisconnectModalPayload {
-  artifactName: string;
+  targetArtifactDef: GitArtifactDef;
+  targetArtifactName: string;
 }
 
 export const openDisconnectModalAction =
   createArtifactAction<OpenDisconnectModalPayload>((state, action) => {
     state.ui.disconnectBaseArtifactId =
-      action.payload.artifactDef.baseArtifactId;
-    state.ui.disconnectArtifactName = action.payload.artifactName;
+      action.payload.targetArtifactDef.baseArtifactId;
+    state.ui.disconnectArtifactType =
+      action.payload.targetArtifactDef.artifactType;
+    state.ui.disconnectArtifactName = action.payload.targetArtifactName;
 
     return state;
   });
 
 export const closeDisconnectModalAction = createArtifactAction((state) => {
   state.ui.disconnectBaseArtifactId = null;
+  state.ui.disconnectArtifactType = null;
   state.ui.disconnectArtifactName = null;
 
   return state;
@@ -130,19 +134,6 @@ export const toggleBranchPopupAction = createArtifactAction<BranchPopupPayload>(
 );
 
 // error modals
-interface ToggleRepoLimitModalPayload {
-  open: boolean;
-}
-
-export const toggleRepoLimitErrorModalAction =
-  createArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
-    const { open } = action.payload;
-
-    state.ui.repoLimitErrorModalOpen = open;
-
-    return state;
-  });
-
 interface ToggleConflictErrorModalPayload {
   open: boolean;
 }

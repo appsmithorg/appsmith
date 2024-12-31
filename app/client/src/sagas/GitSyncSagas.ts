@@ -402,9 +402,11 @@ function* switchBranch(action: ReduxAction<string>) {
       (page) => page.baseId === entityInfo.params.basePageId,
     );
 
-    yield put(setShowBranchPopupAction(false));
-    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
     const defaultPage = response.data.pages.find((page) => page.isDefault);
+
+    if (existingPage) {
+      history.push(destinationHref);
+    }
 
     if (!existingPage && defaultPage) {
       history.push(
@@ -413,9 +415,6 @@ function* switchBranch(action: ReduxAction<string>) {
 
       return;
     }
-
-    // Page exists, so we will try to go to the destination
-    history.push(destinationHref);
 
     let shouldGoToHomePage = false;
 
@@ -452,6 +451,9 @@ function* switchBranch(action: ReduxAction<string>) {
         }),
       );
     }
+
+    yield put(setShowBranchPopupAction(false));
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
   } catch (e) {
     // non api error
     yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR });

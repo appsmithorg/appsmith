@@ -42,10 +42,10 @@ describe(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
         "GitSyncTest",
       );
-      _.gitSync.OpenGitSyncModal();
+      _.gitSync.OpenConnectModal();
       cy.get("body").type(`{${modifierKey}}{enter}`);
       cy.get("@postExecute").should("not.exist");
-      _.gitSync.CloseGitSyncModal();
+      _.gitSync.CloseConnectModal();
       cy.get("body").type(`{${modifierKey}}{enter}`);
       _.assertHelper.AssertNetworkStatus("@postExecute");
     });
@@ -60,7 +60,9 @@ describe(
         _.dataSources.CreatePlugIn("PostgreSQL");
         _.dataSources.FillPostgresDSForm();
         _.dataSources.SaveDSFromDialog(false);
-        _.agHelper.AssertElementVisibility(_.gitSync._branchButton);
+        _.agHelper.AssertElementVisibility(
+          _.gitSync.locators.quickActionsBranchBtn,
+        );
         cy.get("@gitRepoName").then((repName) => {
           repoName = repName;
         });
@@ -106,18 +108,20 @@ describe(
         _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
         AppSidebar.navigate(AppSidebarButton.Editor);
         _.agHelper.GetNClick(_.locators._publishButton);
-        _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
-        _.agHelper.GetNClick(_.gitSync._discardChanges);
-        _.agHelper.WaitUntilEleAppear(_.gitSync._discardCallout);
+        _.agHelper.WaitUntilEleAppear(_.gitSync.locators.status);
+        _.agHelper.GetNClick(_.gitSync.locators.opsDiscardBtn);
+        _.agHelper.WaitUntilEleAppear(
+          _.gitSync.locators.opsDiscardWarningCallout,
+        );
         _.agHelper.AssertContains(
           Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
           "exist",
-          _.gitSync._discardCallout,
+          _.gitSync.locators.opsDiscardWarningCallout,
         );
         _.agHelper.AssertContains(
           Cypress.env("MESSAGES").DISCARD_MESSAGE(),
           "exist",
-          _.gitSync._discardCallout,
+          _.gitSync.locators.opsDiscardWarningCallout,
         );
         _.agHelper.GetNClick(_.locators._dialogCloseButton);
       });
@@ -147,18 +151,18 @@ describe(
       _.gitSync.CreateGitBranch(tempBranch1, true);
       _.gitSync.CreateGitBranch(tempBranch2, true);
       _.gitSync.CreateGitBranch(tempBranch3, true);
-      _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
-      _.agHelper.GetNClick(_.gitSync._bottomBarMergeButton);
+      _.agHelper.AssertElementExist(_.gitSync.locators.quickActionsPullBtn);
+      _.agHelper.GetNClick(_.gitSync.locators.quickActionsMergeBtn);
       _.agHelper.AssertElementEnabledDisabled(
-        _.gitSync._mergeBranchDropdownDestination,
+        _.gitSync.locators.opsMergeBranchSelect,
         0,
         false,
       );
       _.agHelper.Sleep(6000); // adding wait for branch list to load
-      _.agHelper.GetNClick(_.gitSync._mergeBranchDropdownDestination);
+      _.agHelper.GetNClick(_.gitSync.locators.opsMergeBranchSelect);
       // to verify scroll works and clicks on last branch in list
-      _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
-      _.gitSync.CloseGitSyncModal();
+      _.agHelper.GetNClick(".rc-select-item-option-content", 5);
+      _.gitSync.CloseOpsModal();
     });
 
     it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {

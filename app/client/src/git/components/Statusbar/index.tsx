@@ -106,7 +106,7 @@ export default function Statusbar({
   );
 
   return (
-    <StatusbarWrapper data-testid="t--git-statusbar">
+    <StatusbarWrapper>
       <ADSStatusBar
         active={false}
         message={message}

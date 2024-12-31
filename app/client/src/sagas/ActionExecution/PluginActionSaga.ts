@@ -45,7 +45,6 @@ import {
   getJSCollectionFromAllEntities,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
@@ -172,6 +171,10 @@ import {
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
 import type { Span } from "instrumentation/types";
+import {
+  selectGitConnectModalOpen,
+  selectGitOpsModalOpen,
+} from "selectors/gitModSelectors";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -698,10 +701,13 @@ function* runActionShortcutSaga() {
   if (!baseMatch) return;
 
   // get gitSyncModal status
-  const isGitSyncModalOpen: boolean = yield select(getIsGitSyncModalOpen);
+  const isGitOpsModalOpen: boolean = yield select(selectGitOpsModalOpen);
+  const isGitConnectModalOpen: boolean = yield select(
+    selectGitConnectModalOpen,
+  );
 
   // if git sync modal is open, prevent action from being executed via shortcut keys.
-  if (isGitSyncModalOpen) return;
+  if (isGitOpsModalOpen || isGitConnectModalOpen) return;
 
   const { path } = baseMatch;
   // TODO: Fix this the next time the file is edited

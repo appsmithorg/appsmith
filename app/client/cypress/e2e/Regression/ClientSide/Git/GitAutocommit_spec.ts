@@ -56,7 +56,7 @@ describe(
           expect(
             interception?.response?.body?.data?.autoCommitResponse,
           ).to.equal("PUBLISHED");
-          agHelper.WaitUntilEleAppear(gitSync._autocommitStatusbar);
+          agHelper.WaitUntilEleAppear(gitSync.locators.autocommitLoader);
         });
         cy.wait("@gitAutocommitProgressApi").then((interceptions) => {
           expect(interceptions?.response?.statusCode).to.equal(200);

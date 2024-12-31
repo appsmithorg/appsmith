@@ -1,5 +1,5 @@
-import React from "react";
-import { connect } from "react-redux";
+import React, { useCallback } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
@@ -36,8 +36,6 @@ import {
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "ee/constants/messages";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -46,7 +44,38 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setPreviewModeInitAction } from "actions/editorActions";
-import { selectGitApplicationProtectedMode } from "selectors/gitModSelectors";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import {
+  selectGitApplicationProtectedMode,
+  selectGitModEnabled,
+} from "selectors/gitModSelectors";
+import { GitHotKeys as GitHotKeysNew } from "git";
+
+function GitHotKeys() {
+  const isGitModEnabled = useSelector(selectGitModEnabled);
+  const dispatch = useDispatch();
+
+  const showCommitModal = useCallback(() => {
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.DEPLOY,
+      }),
+    );
+  }, [dispatch]);
+
+  return isGitModEnabled ? (
+    <GitHotKeysNew />
+  ) : (
+    <Hotkey
+      combo="ctrl + shift + g"
+      global
+      label="Show git commit modal"
+      onKeyDown={showCommitModal}
+    />
+  );
+}
 
 interface Props {
   copySelectedWidget: () => void;
@@ -72,7 +101,6 @@ interface Props {
   isProtectedMode: boolean;
   setPreviewModeInitAction: (shouldSet: boolean) => void;
   isSignpostingEnabled: boolean;
-  showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
   toggleDebugger: () => void;
@@ -355,14 +383,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
           }}
         />
-        <Hotkey
-          combo="ctrl + shift + g"
-          global
-          label="Show git commit modal"
-          onKeyDown={() => {
-            this.props.showCommitModal();
-          }}
-        />
+        <GitHotKeys />
       </Hotkeys>
     );
   }
@@ -411,13 +432,6 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
-    showCommitModal: () =>
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: GitSyncModalTab.DEPLOY,
-        }),
-      ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
     setPreviewModeInitAction: (shouldSet: boolean) =>
       dispatch(setPreviewModeInitAction(shouldSet)),

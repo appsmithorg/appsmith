@@ -5,7 +5,6 @@ export default {
   publishButton: ".t--application-publish-btn",
   shareButton: ".t--application-share-btn",
   deployPopupOptionTrigger: ".t--deploy-popup-option-trigger",
-  connectToGitBtn: ".t--connect-to-git-btn",
   currentDeployedPreviewBtn: ".t--current-deployed-preview-btn",
   publishCrossButton: "span[icon='small-cross']",
   homePageID: "//div[@id='root']",

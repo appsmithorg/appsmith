@@ -19,3 +19,6 @@ export const selectGitImportState = (state: GitRootState) =>
 
 export const selectFetchGlobalSSHKeyState = (state: GitRootState) =>
   selectGitGlobal(state).globalSSHKey;
+
+export const selectRepoLimitErrorModalOpen = (state: GitRootState) =>
+  selectGitGlobal(state).repoLimitErrorModalOpen;

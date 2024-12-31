@@ -95,7 +95,7 @@ function GenerateSSH({ error, onChange = noop, value = {} }: GenerateSSHProps) {
         <WellText renderAs="p">{createMessage(COPY_SSH_URL_MESSAGE)}</WellText>
         <FieldContainer>
           <Input
-            data-testid="git-connect-remote-url-input"
+            data-testid="t--git-connect-remote-input"
             errorMessage={isInvalid ? createMessage(PASTE_SSH_URL_INFO) : ""}
             isRequired
             label={createMessage(REMOTE_URL_INPUT_LABEL)}

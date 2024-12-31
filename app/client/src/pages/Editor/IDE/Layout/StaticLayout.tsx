@@ -10,11 +10,11 @@ import ProtectedCallout from "../ProtectedCallout";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import styled from "styled-components";
 import { Areas } from "./constants";
-import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import {
-  GitProtectedBranchCallout as GitProtectedBranchCalloutNew,
+  useGitModEnabled,
   useGitProtectedMode,
-} from "git";
+} from "pages/Editor/gitSync/hooks/modHooks";
+import { GitProtectedBranchCallout as GitProtectedBranchCalloutNew } from "git";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();

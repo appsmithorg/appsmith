@@ -45,7 +45,7 @@ export default function StatusChangesView({
   }
 
   return (
-    <div>
+    <div data-testid="t--git-status">
       <Text
         color={"var(--ads-v2-color-fg-emphasis)"}
         data-testid={"t--git-deploy-change-reason-text"}

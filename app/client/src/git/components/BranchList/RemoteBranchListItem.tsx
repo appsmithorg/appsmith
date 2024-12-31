@@ -48,7 +48,7 @@ export default function RemoteBranchListItem({
   return (
     <BranchListItemContainer
       className={className}
-      data-testid="t--branch-list-item"
+      data-testid="t--git-branch-item"
       isActive={false}
       isDefault={false}
       isSelected={false}

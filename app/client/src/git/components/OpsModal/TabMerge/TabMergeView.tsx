@@ -73,11 +73,13 @@ interface TabMergeViewProps {
   isFetchMergeStatusLoading: boolean;
   isFetchStatusLoading: boolean;
   isMergeLoading: boolean;
+  isMergeSuccess: boolean;
   isStatusClean: boolean;
   merge: (sourceBranch: string, destinationBranch: string) => void;
   mergeError: GitApiError | null;
   mergeStatus: FetchMergeStatusResponseData | null;
   protectedBranches: FetchProtectedBranchesResponseData | null;
+  resetMergeState: () => void;
 }
 
 export default function TabMergeView({
@@ -90,14 +92,14 @@ export default function TabMergeView({
   isFetchMergeStatusLoading = false,
   isFetchStatusLoading = false,
   isMergeLoading = false,
+  isMergeSuccess = false,
   isStatusClean = false,
   merge = noop,
   mergeError = null,
   mergeStatus = null,
   protectedBranches = null,
+  resetMergeState = noop,
 }: TabMergeViewProps) {
-  const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] =
-    useState(false);
   const [selectedBranchOption, setSelectedBranchOption] =
     useState<BranchOption>();
 
@@ -185,11 +187,6 @@ export default function TabMergeView({
     [currentBranch],
   );
 
-  // ! case how to do this
-  //   const handleMergeSuccess = () => {
-  //     setShowMergeSuccessIndicator(true);
-  //   };
-
   useEffect(
     function fetchBranchesOnMountffect() {
       fetchBranches();
@@ -211,10 +208,18 @@ export default function TabMergeView({
       // when user selects a branch to merge
       if (currentBranch && selectedBranchOption?.value) {
         fetchMergeStatus(currentBranch, selectedBranchOption?.value);
-        setShowMergeSuccessIndicator(false);
       }
     },
     [currentBranch, selectedBranchOption?.value, fetchMergeStatus],
+  );
+
+  useEffect(
+    function resetMergeStateEffect() {
+      return () => {
+        resetMergeState();
+      };
+    },
+    [resetMergeState],
   );
 
   const handleMergeBtnClick = useCallback(() => {
@@ -244,7 +249,7 @@ export default function TabMergeView({
           </MergeSelectLabel>
           <SelectContainer>
             <Select
-              data-testid="t--merge-branch-dropdown-destination"
+              data-testid="t--git-ops-merge-branch-select"
               dropdownClassName={"merge-dropdown"}
               dropdownMatchSelectWidth
               getPopupContainer={handleGetPopupContainer}
@@ -290,13 +295,13 @@ export default function TabMergeView({
               <Option>{currentBranchDropdownOptions[0].label}</Option>
             </Select>
           </SelectContainer>
-          <div className="mb-4">
+          <div className="mb-4" data-testid="t--git-ops-merge-status">
             <MergeStatus message={message} status={status} />
           </div>
           {isConflicting ? <ConflictError /> : null}
-          {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
+          {isMergeSuccess ? <MergeSuccessIndicator /> : null}
           {isMergeLoading ? (
-            <StatusbarWrapper>
+            <StatusbarWrapper data-testid="t--git-ops-merge-loader">
               <Statusbar
                 completed={!isMergeLoading}
                 message={createMessage(IS_MERGING)}
@@ -307,10 +312,9 @@ export default function TabMergeView({
         </Container>
       </ModalBody>
       <StyledModalFooter>
-        {!showMergeSuccessIndicator && showMergeButton ? (
+        {!isMergeSuccess && showMergeButton ? (
           <Button
-            className="t--git-merge-button"
-            data-testid="t--git-merge-button"
+            data-testid="t--git-ops-merge-button"
             isDisabled={mergeBtnDisabled}
             isLoading={isMergeLoading}
             onClick={handleMergeBtnClick}

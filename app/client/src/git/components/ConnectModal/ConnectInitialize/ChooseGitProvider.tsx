@@ -126,25 +126,25 @@ function ChooseGitProvider({
                 value={value?.gitProvider}
               >
                 <Radio
-                  data-testid="t--git-provider-radio-github"
+                  data-testid="t--git-connect-provider-radio-github"
                   value="github"
                 >
                   Github
                 </Radio>
                 <Radio
-                  data-testid="t--git-provider-radio-gitlab"
+                  data-testid="t--git-connect-provider-radio-gitlab"
                   value="gitlab"
                 >
                   Gitlab
                 </Radio>
                 <Radio
-                  data-testid="t--git-provider-radio-bitbucket"
+                  data-testid="t--git-connect-provider-radio-bitbucket"
                   value="bitbucket"
                 >
                   Bitbucket
                 </Radio>
                 <Radio
-                  data-testid="t--git-provider-radio-others"
+                  data-testid="t--git-connect-provider-radio-others"
                   value="others"
                 >
                   Others
@@ -165,10 +165,13 @@ function ChooseGitProvider({
                   orientation="horizontal"
                   value={value?.gitEmptyRepoExists}
                 >
-                  <Radio data-testid="t--existing-empty-repo-yes" value="yes">
+                  <Radio
+                    data-testid="t--git-connect-empty-repo-yes"
+                    value="yes"
+                  >
                     Yes
                   </Radio>
-                  <Radio data-testid="t--existing-empty-repo-no" value="no">
+                  <Radio data-testid="t--git-connect-empty-repo-no" value="no">
                     No
                   </Radio>
                 </RadioGroup>
@@ -209,7 +212,7 @@ function ChooseGitProvider({
       ) : null}
       {isImport && (
         <Checkbox
-          data-testid="t--existing-repo-checkbox"
+          data-testid="t--git-import-existing-repo-checkbox"
           isSelected={value?.gitExistingRepoExists}
           onChange={onExistingRepoOptionChange}
         >

@@ -39,16 +39,15 @@ describe(
         }).as("gitProtectApi");
         cy.get("@gitRepoName").then((repName) => {
           repoName = repName;
-          _.gitSync.OpenGitSettingsModal();
-          _.agHelper.GetNClick(_.gitSync._settingsTabBranch);
-          _.agHelper.GetNClick(_.gitSync._protectedBranchesSelect);
+          _.gitSync.OpenSettingsModal("BRANCH");
+          _.agHelper.GetNClick(_.gitSync.locators.branchProtectionSelect);
           _.agHelper.GetNClick(
-            `${_.gitSync._protectedBranchesSelect} .rc-select-item`,
+            `${_.gitSync.locators.branchProtectionSelect} .rc-select-item`,
             0,
           );
-          _.agHelper.GetNClick(_.gitSync._branchProtectionUpdateBtn);
+          _.agHelper.GetNClick(_.gitSync.locators.branchProtectionUpdateBtn);
           cy.wait("@gitProtectApi").then((res1) => {
-            _.agHelper.GetNClick(_.gitSync._closeGitSettingsModal);
+            _.gitSync.CloseGitSettingsModal();
             expect(res1.response).to.have.property("statusCode", 200);
             _.agHelper.AssertElementAbsence(AppSidebar.locators.sidebar);
             _.agHelper.AssertElementVisibility(
@@ -60,7 +59,7 @@ describe(
               false,
             );
             _.agHelper.AssertElementEnabledDisabled(
-              _.gitSync._bottomBarCommit,
+              _.gitSync.locators.quickActionsCommitBtn,
               0,
               true,
             );

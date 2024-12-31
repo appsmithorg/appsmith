@@ -307,7 +307,7 @@ function TabDeployView({
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
               <Input
                 autoFocus
-                className="t--commit-comment-input"
+                data-testid="t--git-ops-commit-input"
                 isDisabled={commitInputDisabled}
                 label={inputLabel}
                 onChange={setCommitMessage}
@@ -367,7 +367,7 @@ function TabDeployView({
       <StyledModalFooter key="footer">
         {showPullButton && (
           <Button
-            className="t--pull-button"
+            data-testid="t--git-ops-pull-btn"
             isLoading={isPullLoading}
             onClick={triggerPull}
             size="md"
@@ -378,7 +378,8 @@ function TabDeployView({
 
         {showDiscardChangesButton && (
           <Button
-            className="t--discard-button discard-changes-link"
+            className="discard-changes-link"
+            data-testid="t--git-ops-discard-btn"
             isDisabled={!showDiscardChangesButton}
             isLoading={isPullLoading || isFetchStatusLoading || isCommitLoading}
             kind="error"
@@ -397,7 +398,7 @@ function TabDeployView({
             placement="top"
           >
             <Button
-              className="t--commit-button"
+              data-testid="t--git-ops-commit-btn"
               isDisabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
               onClick={triggerCommit}
