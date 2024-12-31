@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { GitArtifactReduxState } from "./types";
+import type { GitArtifactRootReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
 import {
   connectErrorAction,
@@ -53,7 +53,7 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleBranchListPopupAction,
+  toggleBranchPopupAction,
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
@@ -62,6 +62,7 @@ import {
   openDisconnectModalAction,
   closeDisconnectModalAction,
   toggleAutocommitDisableModalAction,
+  toggleConnectSuccessModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -119,8 +120,20 @@ import {
   disconnectInitAction,
   disconnectSuccessAction,
 } from "./actions/disconnectActions";
+import {
+  fetchSSHKeyErrorAction,
+  fetchSSHKeyInitAction,
+  fetchSSHKeySuccessAction,
+  resetFetchSSHKeyAction,
+} from "./actions/fetchSSHKeyActions";
+import {
+  generateSSHKeyErrorAction,
+  generateSSHKeyInitAction,
+  generateSSHKeySuccessAction,
+  resetGenerateSSHKeyAction,
+} from "./actions/generateSSHKeyActions";
 
-const initialState: GitArtifactReduxState = {};
+const initialState: GitArtifactRootReduxState = {};
 
 export const gitArtifactSlice = createSlice({
   name: "git/artifact",
@@ -139,10 +152,19 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    fetchSSHKeyInit: fetchSSHKeyInitAction,
+    fetchSSHKeySuccess: fetchSSHKeySuccessAction,
+    fetchSSHKeyError: fetchSSHKeyErrorAction,
+    resetFetchSSHKey: resetFetchSSHKeyAction,
+    generateSSHKeyInit: generateSSHKeyInitAction,
+    generateSSHKeySuccess: generateSSHKeySuccessAction,
+    generateSSHKeyError: generateSSHKeyErrorAction,
+    resetGenerateSSHKey: resetGenerateSSHKeyAction,
     disconnectInit: disconnectInitAction,
     disconnectSuccess: disconnectSuccessAction,
     disconnectError: disconnectErrorAction,
     toggleConnectModal: toggleConnectModalAction,
+    toggleConnectSuccessModal: toggleConnectSuccessModalAction,
     openDisconnectModal: openDisconnectModalAction,
     closeDisconnectModal: closeDisconnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
@@ -185,7 +207,7 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleBranchListPopup: toggleBranchListPopupAction,
+    toggleBranchPopup: toggleBranchPopupAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,

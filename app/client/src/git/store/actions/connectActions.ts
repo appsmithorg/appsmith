@@ -1,12 +1,13 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
-import type { ConnectRequestParams } from "git/requests/connectRequest.types";
+import { createArtifactAction } from "../helpers/createArtifactAction";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
+import type {
+  ConnectRequestParams,
+  ConnectResponseData,
+} from "git/requests/connectRequest.types";
 
-export interface ConnectInitPayload extends ConnectRequestParams {
-  branchedPageId?: string;
-}
+export interface ConnectInitPayload extends ConnectRequestParams {}
 
-export const connectInitAction = createSingleArtifactAction<ConnectInitPayload>(
+export const connectInitAction = createArtifactAction<ConnectInitPayload>(
   (state) => {
     state.apiResponses.connect.loading = true;
     state.apiResponses.connect.error = null;
@@ -15,18 +16,24 @@ export const connectInitAction = createSingleArtifactAction<ConnectInitPayload>(
   },
 );
 
-export const connectSuccessAction = createSingleArtifactAction((state) => {
-  state.apiResponses.connect.loading = false;
+export interface ConnectSuccessPayload
+  extends GitAsyncSuccessPayload<ConnectResponseData> {}
 
-  return state;
-});
+export const connectSuccessAction = createArtifactAction<ConnectSuccessPayload>(
+  (state) => {
+    state.apiResponses.connect.loading = false;
 
-export const connectErrorAction =
-  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
+    return state;
+  },
+);
+
+export const connectErrorAction = createArtifactAction<GitAsyncErrorPayload>(
+  (state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.connect.loading = false;
     state.apiResponses.connect.error = error;
 
     return state;
-  });
+  },
+);

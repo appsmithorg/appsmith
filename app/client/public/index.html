@@ -39,7 +39,6 @@
           return result;
         };
         const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-        const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
         const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
       </script>
@@ -63,21 +62,6 @@
           }
         })()
           %>
-    </script>
-    <script>
-      if (CLOUD_HOSTING && ZIPY_KEY) {
-        const script = document.createElement("script");
-        script.crossOrigin = "anonymous";
-        script.defer = true;
-        script.src = "https://cdn.zipy.ai/sdk/v1.0/zipy.min.umd.js";
-        script.onload = () => {
-          window.zipy && window.zipy.init(ZIPY_KEY);
-        };
-        const head = document.getElementsByTagName("head")[0];
-        head && head.appendChild(script);
-      }
-
-
     </script>
 
     <!-- Start of Reo Javascript -->
@@ -229,20 +213,9 @@
           ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
         observability: {
-          deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}') || "self-hosted",
-          serviceInstanceId: parseConfig('{{env "HOSTNAME"}}') || "appsmith-0",
-        },
-        newRelic:{
-          enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),
-          accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),
-          applicationId: parseConfig('{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}'),
-          browserAgentlicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}'),
-          browserAgentEndpoint: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT"}}'),
-          otlpLicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"}}'),
-          //OTLP following the naming convention of Sdk initialisation
-          otlpServiceName: parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}'),
-          otlpEndpoint:parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT"}}'),
-
+          deploymentName: parseConfig('{{env "APPSMITH_DEPLOYMENT_NAME"}}'),
+          serviceInstanceId: parseConfig('{{env "APPSMITH_HOSTNAME"}}'),
+          tracingUrl: parseConfig('{{env "APPSMITH_FRONTEND_TRACING_URL"}}'),
         },
         fusioncharts: {
           licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),

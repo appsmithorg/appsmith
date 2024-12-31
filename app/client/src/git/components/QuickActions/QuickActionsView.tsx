@@ -16,6 +16,7 @@ import QuickActionButton from "./QuickActionButton";
 import AutocommitStatusbar from "../Statusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
+import BranchButton from "./BranchButton";
 
 const Container = styled.div`
   height: 100%;
@@ -24,17 +25,20 @@ const Container = styled.div`
 `;
 
 interface QuickActionsViewProps {
+  currentBranch: string | null;
   discard: () => void;
   isAutocommitEnabled: boolean;
   isAutocommitPolling: boolean;
+  isBranchPopupOpen: boolean;
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
-  isGitConnected: boolean;
+  isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
   isStatusClean: boolean;
+  isTriggerAutocommitLoading: boolean;
   pull: () => void;
   statusBehindCount: number;
   statusChangeCount: number;
@@ -44,23 +48,28 @@ interface QuickActionsViewProps {
     open: boolean,
     tab: keyof typeof GitSettingsTab,
   ) => void;
+  toggleBranchPopup: (open: boolean) => void;
 }
 
 function QuickActionsView({
+  currentBranch = null,
   discard = noop,
   isAutocommitEnabled = false,
   isAutocommitPolling = false,
+  isBranchPopupOpen = false,
+  isConnected = false,
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
-  isGitConnected = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
   isStatusClean = false,
+  isTriggerAutocommitLoading = false,
   pull = noop,
   statusBehindCount = 0,
   statusChangeCount = 0,
+  toggleBranchPopup = noop,
   toggleConnectModal = noop,
   toggleOpsModal = noop,
   toggleSettingsModal = noop,
@@ -95,8 +104,6 @@ function QuickActionsView({
       if (isProtectedMode) {
         discard();
       } else {
-        // ! case: why is triggeredFromBottomBar this needed?
-        // pull({ triggeredFromBottomBar: true });
         pull();
       }
     }
@@ -124,9 +131,18 @@ function QuickActionsView({
     toggleConnectModal(true);
   }, [toggleConnectModal]);
 
-  return isGitConnected ? (
+  return isConnected ? (
     <Container>
-      {/* <BranchButton /> */}
+      <BranchButton
+        currentBranch={currentBranch}
+        isAutocommitPolling={isAutocommitPolling}
+        isBranchPopupOpen={isBranchPopupOpen}
+        isProtectedMode={isProtectedMode}
+        isStatusClean={isStatusClean}
+        isTriggerAutocommitLoading={isTriggerAutocommitLoading}
+        toggleBranchPopup={toggleBranchPopup}
+      />
+
       {isAutocommitEnabled && isAutocommitPolling ? (
         <AutocommitStatusbar completed={!isAutocommitPolling} />
       ) : (

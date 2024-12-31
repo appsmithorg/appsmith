@@ -21,17 +21,15 @@ import {
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
-import {
-  waitForSegmentInit,
-  waitForFetchUserSuccess,
-} from "ee/sagas/userSagas";
+import { waitForFetchUserSuccess } from "ee/sagas/userSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
+
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
     super(mode);
@@ -144,14 +142,6 @@ export default class AppViewerEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
-
-    const waitForSegmentSpan = startNestedSpan(
-      "AppViewerEngine.waitForSegmentInit",
-      rootSpan,
-    );
-
-    yield call(waitForSegmentInit, true);
-    endSpan(waitForSegmentSpan);
 
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 

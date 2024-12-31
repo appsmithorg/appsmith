@@ -21,30 +21,34 @@ jest.mock("./../Statusbar", () => () => (
 
 describe("QuickActionsView Component", () => {
   const defaultProps = {
+    currentBranch: "main",
     discard: jest.fn(),
     isAutocommitEnabled: false,
     isAutocommitPolling: false,
+    isBranchPopupOpen: false,
     isConnectPermitted: true,
     isDiscardLoading: false,
     isFetchStatusLoading: false,
-    isGitConnected: false,
+    isConnected: false,
     isProtectedMode: false,
     isPullFailing: false,
     isPullLoading: false,
     isStatusClean: true,
+    isTriggerAutocommitLoading: false,
     pull: jest.fn(),
     statusBehindCount: 0,
     statusChangeCount: 0,
     toggleConnectModal: jest.fn(),
     toggleOpsModal: jest.fn(),
     toggleSettingsModal: jest.fn(),
+    toggleBranchPopup: jest.fn(),
   };
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should render ConnectButton when isGitConnected is false", () => {
+  it("should render ConnectButton when isConnected is false", () => {
     render(
       <ThemeProvider theme={theme}>
         <QuickActionsView {...defaultProps} />
@@ -53,10 +57,10 @@ describe("QuickActionsView Component", () => {
     expect(screen.getByTestId("connect-button")).toBeInTheDocument();
   });
 
-  it("should render QuickActionButtons when isGitConnected is true", () => {
+  it("should render QuickActionButtons when isConnected is true", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
     };
 
     const { container } = render(
@@ -82,7 +86,7 @@ describe("QuickActionsView Component", () => {
   it("should render Statusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       isAutocommitEnabled: true,
       isAutocommitPolling: true,
     };
@@ -102,7 +106,7 @@ describe("QuickActionsView Component", () => {
   it("should call onCommitClick when commit button is clicked", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
     };
 
     const { container } = render(
@@ -127,7 +131,7 @@ describe("QuickActionsView Component", () => {
   it("should call onPullClick when pull button is clicked", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       isDiscardLoading: false,
       isPullLoading: false,
       isFetchStatusLoading: false,
@@ -155,7 +159,7 @@ describe("QuickActionsView Component", () => {
   it("should call onMerge when merge button is clicked", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
     };
 
     const { container } = render(
@@ -180,7 +184,7 @@ describe("QuickActionsView Component", () => {
   it("should call onSettingsClick when settings button is clicked", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
     };
 
     const { container } = render(
@@ -205,7 +209,7 @@ describe("QuickActionsView Component", () => {
   it("should disable commit button when isProtectedMode is true", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       isProtectedMode: true,
     };
 
@@ -224,7 +228,7 @@ describe("QuickActionsView Component", () => {
   it("should show loading state on pull button when showPullLoadingState is true", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       isPullLoading: true,
     };
 
@@ -246,7 +250,7 @@ describe("QuickActionsView Component", () => {
   it("should display changesToCommit count on commit button", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       statusChangeCount: 5,
     };
 
@@ -263,7 +267,7 @@ describe("QuickActionsView Component", () => {
   it("should not display count on commit button when isProtectedMode is true", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       isProtectedMode: true,
       statusChangeCount: 5,
     };
@@ -288,7 +292,7 @@ describe("QuickActionsView Component", () => {
 
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
     };
 
     const { container } = render(
@@ -306,7 +310,7 @@ describe("QuickActionsView Component", () => {
   it("should show behindCount on pull button", () => {
     const props = {
       ...defaultProps,
-      isGitConnected: true,
+      isConnected: true,
       statusBehindCount: 3,
       statusIsClean: true,
     };

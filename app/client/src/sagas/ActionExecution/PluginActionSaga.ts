@@ -9,7 +9,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
-import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -104,7 +103,6 @@ import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "ee/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
-import { evalWorker } from "utils/workerInstances";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -152,14 +150,12 @@ import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
 } from "ee/selectors/environmentSelectors";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import {
   getActionExecutionAnalytics,
   getActionProperties,
@@ -175,6 +171,7 @@ import {
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
+import type { Span } from "instrumentation/types";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1094,7 +1091,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 
 function* executePageLoadAction(
   pageAction: PageAction,
-  span?: OtlpSpan,
+  span?: Span,
   actionExecutionContext?: ActionExecutionContext,
 ) {
   const currentEnvDetails: { id: string; name: string } = yield select(
@@ -1334,7 +1331,7 @@ function* executePluginActionSaga(
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
-  parentSpan?: OtlpSpan,
+  parentSpan?: Span,
 ) {
   const actionId = pluginAction.id;
   const baseActionId = pluginAction.baseId;
@@ -1656,22 +1653,6 @@ function* softRefreshActionsSaga() {
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
-function* handleUpdateActionData(
-  action: ReduxAction<updateActionDataPayloadType>,
-) {
-  const { actionDataPayload, parentSpan } = action.payload;
-
-  yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
-    actionDataPayload,
-  );
-
-  if (parentSpan) {
-    endSpan(parentSpan);
-  }
-}
-
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1685,6 +1666,5 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

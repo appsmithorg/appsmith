@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
+import { ExplorerContainer } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
@@ -26,15 +26,11 @@ const EditorPaneExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);
 
   return (
-    <Flex
+    <ExplorerContainer
       borderRight={
-        ideViewMode === EditorViewMode.SplitScreen
-          ? ""
-          : "1px solid var(--ads-v2-color-border)"
+        ideViewMode === EditorViewMode.SplitScreen ? "NONE" : "STANDARD"
       }
-      className="relative ide-editor-left-pane__content"
-      flexDirection="column"
-      overflow="hidden"
+      className="ide-editor-left-pane__content"
       width={
         ideViewMode === EditorViewMode.FullScreen
           ? DEFAULT_EXPLORER_PANE_WIDTH
@@ -61,7 +57,7 @@ const EditorPaneExplorer = () => {
           ]}
         />
       </Switch>
-    </Flex>
+    </ExplorerContainer>
   );
 };
 

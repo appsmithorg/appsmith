@@ -36,6 +36,7 @@ export class JSEditor {
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
+  public listOfJsObjects = "[data-testid='t--tabs-container']>div>span";
 
   public toolbar = new PluginEditorToolbar(
     this.runButtonLocator,
@@ -89,6 +90,9 @@ export class JSEditor {
     "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
     text +
     "']";
+  _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
+  _jsPageActions = ".entity-context-menu";
+  _moreActions = '[data-testid="t--more-action-trigger"]';
   //#endregion
 
   //#region constants
@@ -227,6 +231,13 @@ export class JSEditor {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    PageLeftPane.assertPresence(renameVal);
+  }
+
+  public RenameJSObjectFromContextMenu(renameVal: string) {
+    cy.get(this.contextMenuTriggerLocator).click();
+    cy.contains("Rename").should("be.visible").click();
+    cy.get(this._jsObjTxt).clear().type(renameVal, { force: true }).blur();
     PageLeftPane.assertPresence(renameVal);
   }
 

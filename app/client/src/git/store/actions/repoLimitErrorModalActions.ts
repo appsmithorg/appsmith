@@ -1,16 +1,14 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 
 interface ToggleRepoLimitModalActionPayload {
   open: boolean;
 }
 
 export const toggleRepoLimitErrorModalAction =
-  createSingleArtifactAction<ToggleRepoLimitModalActionPayload>(
-    (state, action) => {
-      const { open } = action.payload;
+  createArtifactAction<ToggleRepoLimitModalActionPayload>((state, action) => {
+    const { open } = action.payload;
 
-      state.ui.repoLimitErrorModal.open = open;
+    state.ui.repoLimitErrorModalOpen = open;
 
-      return state;
-    },
-  );
+    return state;
+  });

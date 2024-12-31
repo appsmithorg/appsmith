@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import type { ControllerProps } from "react-hook-form";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 
 export interface UseUnmountFieldValidationProps {
   fieldName: ControllerProps["name"];

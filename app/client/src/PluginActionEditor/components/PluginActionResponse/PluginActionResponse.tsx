@@ -9,20 +9,15 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constant
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { usePluginActionResponseTabs } from "./hooks";
 import { usePluginActionContext } from "../../PluginActionContext";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import useShowSchema from "./hooks/useShowSchema";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
-import { PluginType } from "entities/Action";
 import { hasFailed } from "./utils";
+import { useDefaultTab } from "ee/PluginActionEditor/components/PluginActionResponse/hooks/useDefaultTab";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
-  const { actionResponse, plugin } = usePluginActionContext();
+  const { actionResponse } = usePluginActionContext();
 
   const tabs = usePluginActionResponseTabs();
-  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
-
-  const showSchema = useShowSchema(plugin?.id || "") && pluginRequireDatasource;
 
   // TODO combine API and Query Debugger state
   const { open, responseTabHeight, selectedTab } = useSelector(
@@ -75,26 +70,7 @@ function PluginActionResponse() {
     [executionFailed, dispatch],
   );
 
-  useEffect(
-    function openDefaultTabWhenNoTabIsSelected() {
-      if (showSchema && !selectedTab) {
-        dispatch(
-          setPluginActionEditorDebuggerState({
-            open: true,
-            selectedTab: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
-          }),
-        );
-      } else if (plugin.type === PluginType.API && !selectedTab) {
-        dispatch(
-          setPluginActionEditorDebuggerState({
-            open: true,
-            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-          }),
-        );
-      }
-    },
-    [showSchema, selectedTab, dispatch, plugin.type],
-  );
+  useDefaultTab();
 
   const toggleHide = useCallback(
     () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),
