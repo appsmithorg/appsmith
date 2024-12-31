@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Flex, List, SearchInput, Text } from "@appsmith/ads";
-import { useStateInspectorItems } from "./hooks";
-import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
-import { useSelector } from "react-redux";
 import ReactJson from "react-json-view";
-import { getJSCollections } from "ee/selectors/entitiesSelector";
-import { filterInternalProperties } from "utils/FilterInternalProperties";
-import * as Styled from "./styles";
+import {
+  Flex,
+  List,
+  type ListItemProps,
+  SearchInput,
+  Text,
+} from "@appsmith/ads";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
+import { useStateInspectorItems } from "./hooks";
+import * as Styled from "./styles";
 
 export const reactJsonProps = {
   name: null,
@@ -24,25 +26,13 @@ export const reactJsonProps = {
 };
 
 export const StateInspector = () => {
-  const [selectedItem, items] = useStateInspectorItems();
+  const [selectedItem, items, selectedItemCode] = useStateInspectorItems();
   const [searchTerm, setSearchTerm] = useState("");
-  const dataTree = useSelector(getDataTree);
-  const configTree = useSelector(getConfigTree);
-  const jsActions = useSelector(getJSCollections);
 
-  let filteredData: unknown = "";
-
-  if (selectedItem.title in dataTree) {
-    filteredData = filterInternalProperties(
-      selectedItem.title,
-      dataTree[selectedItem.title],
-      jsActions,
-      dataTree,
-      configTree,
-    );
-  }
-
-  const filteredItemGroups = filterEntityGroupsBySearchTerm(searchTerm, items);
+  const filteredItemGroups = filterEntityGroupsBySearchTerm<
+    { group: string },
+    ListItemProps
+  >(searchTerm, items);
 
   return (
     <Flex h="calc(100% - 40px)" overflow="hidden" w="100%">
@@ -84,25 +74,27 @@ export const StateInspector = () => {
           ))}
         </Flex>
       </Flex>
-      <Flex
-        className="mp-mask"
-        flex="1"
-        flexDirection="column"
-        overflowY="hidden"
-      >
-        <Styled.SelectedItem
-          alignItems="center"
-          flexDirection="row"
-          gap="spaces-2"
-          p="spaces-3"
+      {selectedItem ? (
+        <Flex
+          className="mp-mask"
+          flex="1"
+          flexDirection="column"
+          overflowY="hidden"
         >
-          {selectedItem.icon}
-          <Text kind="body-m">{selectedItem.title}</Text>
-        </Styled.SelectedItem>
-        <Flex overflowY="auto" px="spaces-3">
-          <ReactJson src={filteredData} {...reactJsonProps} />
+          <Styled.SelectedItem
+            alignItems="center"
+            flexDirection="row"
+            gap="spaces-2"
+            p="spaces-3"
+          >
+            {selectedItem.icon}
+            <Text kind="body-m">{selectedItem.title}</Text>
+          </Styled.SelectedItem>
+          <Flex overflowY="auto" px="spaces-3">
+            <ReactJson src={selectedItemCode} {...reactJsonProps} />
+          </Flex>
         </Flex>
-      </Flex>
+      ) : null}
     </Flex>
   );
 };
