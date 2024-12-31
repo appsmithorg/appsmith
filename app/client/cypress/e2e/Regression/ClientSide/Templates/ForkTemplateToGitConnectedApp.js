@@ -14,7 +14,7 @@ import {
 
 describe(
   "Fork a template to the current app",
-  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap", "@tag.Git"] },
   () => {
     before(() => {
       _.homePage.NavigateToHome();
