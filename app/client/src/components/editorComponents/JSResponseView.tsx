@@ -248,14 +248,6 @@ function JSResponseView(props: Props) {
     return jsTabs;
   }, [JSResponseTab, errorCount, ideType, ideViewMode]);
 
-  if (ideViewMode === EditorViewMode.FullScreen) {
-    tabs.push({
-      key: DEBUGGER_TAB_KEYS.STATE_TAB,
-      title: createMessage(DEBUGGER_STATE),
-      panelComponent: <StateInspector />,
-    });
-  }
-
   // get the selected tab from the store.
   const { open, responseTabHeight, selectedTab } = useSelector(
     getJsPaneDebuggerState,

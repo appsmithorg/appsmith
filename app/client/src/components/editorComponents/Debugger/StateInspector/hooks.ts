@@ -1,13 +1,15 @@
 import type { ListItemProps } from "@appsmith/ads";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
   getUISegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { useState } from "react";
 import type { GenericEntityItem } from "ee/entities/IDE/constants";
 import { GlobeIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerActions";
+import { getDebuggerStateInspectorSelectedItem } from "selectors/debuggerSelectors";
+import { useEffect } from "react";
 
 export const useStateInspectorItems: () => [
   GenericEntityItem,
@@ -16,10 +18,17 @@ export const useStateInspectorItems: () => [
     items: ListItemProps[];
   }[],
 ] = () => {
-  const [selectedItem, setSelectedItem] = useState<GenericEntityItem>({
-    key: "appsmith",
-    title: "appsmith",
-  });
+  const dispatch = useDispatch();
+
+  const setSelectedItem = (item: GenericEntityItem) => {
+    dispatch(setDebuggerStateInspectorSelectedItem(item));
+  };
+
+  const selectedItem = useSelector(getDebuggerStateInspectorSelectedItem) || {
+    key: "",
+    title: "",
+  };
+
   const queries = useSelector(getQuerySegmentItems);
 
   const queryItems: ListItemProps[] = queries.map((query) => ({
@@ -60,17 +69,22 @@ export const useStateInspectorItems: () => [
     size: "md",
   }));
 
+  const globalItem = {
+    key: "appsmith",
+    title: "appsmith",
+    icon: GlobeIcon(),
+  };
+
   const groups: { group: string; items: ListItemProps[] }[] = [
     {
       group: "Globals",
       items: [
         {
-          id: "appsmith",
-          startIcon: GlobeIcon(),
-          title: "appsmith",
-          isSelected: selectedItem.key === "appsmith",
-          onClick: () =>
-            setSelectedItem({ key: "appsmith", title: "appsmith" }),
+          id: globalItem.key,
+          startIcon: globalItem.icon,
+          title: globalItem.title,
+          isSelected: selectedItem.key === globalItem.key,
+          onClick: () => setSelectedItem(globalItem),
           description: "",
           descriptionType: "inline",
           size: "md",
@@ -99,6 +113,22 @@ export const useStateInspectorItems: () => [
       items: queryItems,
     });
   }
+
+  useEffect(() => {
+    if (selectedItem.key === "") {
+      const firstItem = groups[0].items[0];
+
+      if (firstItem.id) {
+        setSelectedItem({
+          key: firstItem.id,
+          title: firstItem.title,
+          icon: firstItem.startIcon,
+        });
+      } else {
+        setSelectedItem(globalItem);
+      }
+    }
+  }, [groups, selectedItem, setSelectedItem]);
 
   return [selectedItem, groups];
 };
