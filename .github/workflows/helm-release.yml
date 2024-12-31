@@ -69,6 +69,6 @@ jobs:
           helm dep build
           helm package .
           aws s3 cp s3://${{ secrets.HELM_S3_BUCKET }}/index.yaml .
-          helm repo index . --url https://${{ secrets.HELM_S3_BUCKET_URL }} --merge index.yaml
+          helm repo index . --url https://${{ secrets.HELM_S3_BUCKET }} --merge index.yaml
           aws s3 cp appsmith-${{ steps.chart-version.outputs.version }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
           aws s3 cp index.yaml s3://${{ secrets.HELM_S3_BUCKET }}
