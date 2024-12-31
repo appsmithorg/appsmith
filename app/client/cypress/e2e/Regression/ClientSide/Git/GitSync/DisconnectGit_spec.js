@@ -76,9 +76,7 @@ describe(
       cy.get(_.gitSync.locators.disconnectModalInput).type(
         `{selectAll}${workspaceName}`,
       );
-      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should(
-        "be.enabled",
-      );
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.enabled");
 
       // disconnecting validation
       cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
