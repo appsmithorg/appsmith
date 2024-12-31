@@ -714,7 +714,6 @@ function* redirectAuthorizationCodeSaga(
   const { contextId, contextType, datasourceId, pluginType } =
     actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
-  // ! git mod - not sure how to handle this, there is no definition for the artifact used here
   const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {

@@ -17,7 +17,10 @@ import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/resizer/F
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import {
   getParentToOpenSelector,
   isWidgetFocused,
@@ -66,7 +69,6 @@ import {
   getAltBlockWidgetSelection,
   getWidgetSelectionBlock,
 } from "selectors/ui";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -81,7 +83,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isAutoLayout = useSelector(getIsAutoLayout);
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
   const isAltWidgetSelectionBlock = useSelector(getAltBlockWidgetSelection);
   const isAppSettingsPaneWithNavigationTabOpen: boolean = useSelector(

@@ -7,25 +7,24 @@ import { put, take } from "redux-saga/effects";
 export default function* initGitForEditorSaga(
   action: GitArtifactPayloadAction<InitGitForEditorPayload>,
 ) {
-  const { artifact, artifactDef } = action.payload;
-  const artifactId = artifact?.id;
+  const { artifact, artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
 
-  yield put(gitArtifactActions.mount({ artifactDef }));
+  yield put(gitArtifactActions.mount(basePayload));
 
-  if (artifactId && artifactDef.artifactType === GitArtifactType.Application) {
-    if (!!artifact?.gitApplicationMetadata?.remoteUrl) {
-      yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
+  if (artifactType === GitArtifactType.Application) {
+    if (!!artifact.gitApplicationMetadata?.remoteUrl) {
+      yield put(gitArtifactActions.fetchMetadataInit(basePayload));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);
       yield put(
-        gitArtifactActions.triggerAutocommitInit({ artifactDef, artifactId }),
+        gitArtifactActions.triggerAutocommitInit({
+          ...basePayload,
+          artifactId: artifact.id,
+        }),
       );
-      yield put(
-        gitArtifactActions.fetchBranchesInit({ artifactDef, artifactId }),
-      );
-      yield put(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
-      yield put(
-        gitArtifactActions.fetchStatusInit({ artifactDef, artifactId }),
-      );
+      yield put(gitArtifactActions.fetchBranchesInit(basePayload));
+      yield put(gitArtifactActions.fetchProtectedBranchesInit(basePayload));
+      yield put(gitArtifactActions.fetchStatusInit(basePayload));
     }
   }
 }

@@ -1,6 +1,5 @@
 import ConflictErrorModal from "git/components/ConflictErrorModal";
 import ConnectModal from "git/components/ConnectModal";
-import ConnectSuccessModal from "git/components/ConnectSuccessModal";
 import DisableAutocommitModal from "git/components/DisableAutocommitModal";
 import DisconnectModal from "git/components/DisconnectModal";
 import OpsModal from "git/components/OpsModal";
@@ -11,7 +10,6 @@ function GitModals() {
   return (
     <>
       <ConnectModal />
-      <ConnectSuccessModal />
       <OpsModal />
       <SettingsModal />
       <DisconnectModal />

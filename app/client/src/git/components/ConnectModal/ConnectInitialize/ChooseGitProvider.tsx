@@ -34,7 +34,9 @@ import {
 } from "ee/constants/messages";
 import log from "loglevel";
 import type { ConnectFormDataState } from "./types";
+import history from "utils/history";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -51,17 +53,21 @@ export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
 interface ChooseGitProviderProps {
   artifactType: string;
+  isCreateArtifactPermitted: boolean;
   isImport?: boolean;
   onChange: (args: Partial<ConnectFormDataState>) => void;
-  onOpenImport: (() => void) | null;
+  setImportWorkspaceId: () => void;
+  toggleConnectModal: (open: boolean) => void;
   value: Partial<ConnectFormDataState>;
 }
 
 function ChooseGitProvider({
   artifactType,
+  isCreateArtifactPermitted,
   isImport = false,
   onChange = noop,
-  onOpenImport = null,
+  setImportWorkspaceId = noop,
+  toggleConnectModal = noop,
   value = {},
 }: ChooseGitProviderProps) {
   const isMobile = useIsMobileDevice();
@@ -91,19 +97,19 @@ function ChooseGitProvider({
     [onChange],
   );
 
-  // const handleClickOnImport = useCallback(() => {
-  //   toggleConnectModal(false);
-  //   history.push("/applications");
-  //   setImportWorkspaceId();
-  //   toggleConnectModal(true);
-  //   AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
-  // }, [setImportWorkspaceId, toggleConnectModal]);
+  const handleClickOnImport = useCallback(() => {
+    toggleConnectModal(false);
+    history.push("/applications");
+    setImportWorkspaceId();
+    toggleConnectModal(true);
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
+  }, [setImportWorkspaceId, toggleConnectModal]);
 
   const importCalloutLinks = useMemo(() => {
-    return !isMobile && onOpenImport && typeof onOpenImport === "function"
-      ? [{ children: "Import via git", onClick: onOpenImport }]
+    return !isMobile && isCreateArtifactPermitted
+      ? [{ children: "Import via git", onClick: handleClickOnImport }]
       : [];
-  }, [onOpenImport, isMobile]);
+  }, [handleClickOnImport, isCreateArtifactPermitted, isMobile]);
 
   return (
     <>
@@ -202,7 +208,7 @@ function ChooseGitProvider({
             )}
         </WellInnerContainer>
       </WellContainer>
-      {!isImport && onOpenImport && value?.gitEmptyRepoExists === "no" ? (
+      {!isImport && value?.gitEmptyRepoExists === "no" ? (
         <Callout kind="info" links={importCalloutLinks}>
           {createMessage(IMPORT_ARTIFACT_IF_NOT_EMPTY, artifactType)}
         </Callout>

@@ -25,7 +25,8 @@ import { captureException } from "@sentry/react";
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
 ) {
-  const { artifactDef, artifactId, branchName } = action.payload;
+  const { artifactType, baseArtifactId, branchName } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   let response: CheckoutBranchResponse | undefined;
 
   try {
@@ -33,12 +34,12 @@ export default function* checkoutBranchSaga(
       branchName,
     };
 
-    response = yield call(checkoutBranchRequest, artifactId, params);
+    response = yield call(checkoutBranchRequest, baseArtifactId, params);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
+      if (artifactType === GitArtifactType.Application) {
+        yield put(gitArtifactActions.checkoutBranchSuccess(basePayload));
         const trimmedBranch = branchName.replace(/^origin\//, "");
         const destinationHref = addBranchParam(trimmedBranch);
 
@@ -48,7 +49,7 @@ export default function* checkoutBranchSaga(
 
         yield put(
           gitArtifactActions.toggleBranchPopup({
-            artifactDef,
+            ...basePayload,
             open: false,
           }),
         );
@@ -117,7 +118,7 @@ export default function* checkoutBranchSaga(
 
       yield put(
         gitArtifactActions.checkoutBranchError({
-          artifactDef,
+          ...basePayload,
           error,
         }),
       );

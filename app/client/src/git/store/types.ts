@@ -17,7 +17,6 @@ import type {
   GitArtifactAPIResponsesReduxState as GitArtifactAPIResponsesReduxStateExtended,
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
-import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -34,10 +33,11 @@ export interface GitAsyncStateWithoutValue {
   loading: boolean;
   error: GitApiError | null;
 }
-export interface GitArtifactAPIResponsesReduxState
+export interface GitSingleArtifactAPIResponsesReduxState
   extends GitArtifactAPIResponsesReduxStateExtended {
   metadata: GitAsyncState<FetchMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
+  gitImport: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
   pull: GitAsyncStateWithoutValue;
@@ -60,10 +60,9 @@ export interface GitArtifactAPIResponsesReduxState
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
-export interface GitArtifactUIReduxState
+export interface GitSingleArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
   connectModalOpen: boolean;
-  connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
   disconnectArtifactName: string | null;
   branchPopupOpen: boolean;
@@ -77,51 +76,30 @@ export interface GitArtifactUIReduxState
   conflictErrorModalOpen: boolean;
   repoLimitErrorModalOpen: boolean;
 }
-
-export interface GitArtifactDef {
-  artifactType: keyof typeof GitArtifactType;
-  baseArtifactId: string;
+export interface GitSingleArtifactReduxState {
+  ui: GitSingleArtifactUIReduxState;
+  apiResponses: GitSingleArtifactAPIResponsesReduxState;
 }
+
 export interface GitArtifactReduxState {
-  ui: GitArtifactUIReduxState;
-  apiResponses: GitArtifactAPIResponsesReduxState;
+  [key: string]: Record<string, GitSingleArtifactReduxState>;
 }
 
-export interface GitGlobalReduxState {
+export interface GitConfigReduxState {
   globalProfile: GitAsyncState<FetchGlobalProfileResponseData>;
   updateGlobalProfile: GitAsyncStateWithoutValue;
-  gitImport: GitAsyncStateWithoutValue;
-  globalSSHKey: GitAsyncState<FetchGlobalSSHKeyResponseData>;
-  // ui
-  isImportModalOpen: boolean;
-}
-
-export type GitArtifactRootReduxState = Record<
-  string,
-  Record<string, GitArtifactReduxState>
->;
-
-export interface GitReduxState {
-  artifacts: GitArtifactRootReduxState;
-  global: GitGlobalReduxState;
 }
 
 export interface GitRootState {
-  // will have to remove this later, once metadata is fixed
-  ui: {
-    applications: {
-      currentApplication?: {
-        gitApplicationMetadata?: {
-          branchName: string;
-        };
-      };
-    };
+  git: {
+    artifacts: GitArtifactReduxState;
+    config: GitConfigReduxState;
   };
-  git: GitReduxState;
 }
 
 export interface GitArtifactBasePayload {
-  artifactDef: GitArtifactDef;
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
 }
 
 export interface GitAsyncErrorPayload {

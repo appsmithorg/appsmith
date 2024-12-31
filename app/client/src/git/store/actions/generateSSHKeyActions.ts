@@ -2,21 +2,21 @@ import type {
   GenerateSSHKeyRequestParams,
   GenerateSSHKeyResponseData,
 } from "git/requests/generateSSHKeyRequest.types";
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 
 export interface GenerateSSHKeyInitPayload
   extends GenerateSSHKeyRequestParams {}
 
 export const generateSSHKeyInitAction =
-  createArtifactAction<GenerateSSHKeyInitPayload>((state) => {
+  createSingleArtifactAction<GenerateSSHKeyInitPayload>((state) => {
     state.apiResponses.generateSSHKey.loading = true;
     state.apiResponses.generateSSHKey.error = null;
 
     return state;
   });
 
-export const generateSSHKeySuccessAction = createArtifactAction<
+export const generateSSHKeySuccessAction = createSingleArtifactAction<
   GitAsyncSuccessPayload<GenerateSSHKeyResponseData>
 >((state, action) => {
   state.apiResponses.generateSSHKey.loading = false;
@@ -27,7 +27,7 @@ export const generateSSHKeySuccessAction = createArtifactAction<
 });
 
 export const generateSSHKeyErrorAction =
-  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.generateSSHKey.loading = false;
@@ -36,7 +36,7 @@ export const generateSSHKeyErrorAction =
     return state;
   });
 
-export const resetGenerateSSHKeyAction = createArtifactAction((state) => {
+export const resetGenerateSSHKeyAction = createSingleArtifactAction((state) => {
   state.apiResponses.generateSSHKey.loading = false;
   state.apiResponses.generateSSHKey.error = null;
 

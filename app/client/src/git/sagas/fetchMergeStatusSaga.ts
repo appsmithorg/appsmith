@@ -14,7 +14,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* fetchMergeStatusSaga(
   action: GitArtifactPayloadAction<FetchMergeStatusInitPayload>,
 ) {
-  const { artifactDef, artifactId } = action.payload;
+  const { artifactId, artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   let response: FetchMergeStatusResponse | undefined;
 
   try {
@@ -29,7 +30,7 @@ export default function* fetchMergeStatusSaga(
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchMergeStatusSuccess({
-          artifactDef,
+          ...basePayload,
           responseData: response.data,
         }),
       );
@@ -39,7 +40,10 @@ export default function* fetchMergeStatusSaga(
       const { error } = response.responseMeta;
 
       yield put(
-        gitArtifactActions.fetchMergeStatusError({ artifactDef, error }),
+        gitArtifactActions.fetchMergeStatusError({
+          ...basePayload,
+          error,
+        }),
       );
     } else {
       log.error(e);

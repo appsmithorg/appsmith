@@ -1,19 +1,14 @@
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import React, { useMemo } from "react";
+import type { StatusTreeStruct } from "./StatusTree";
 import StatusTree from "./StatusTree";
-import { Callout, Text } from "@appsmith/ads";
+import { Text } from "@appsmith/ads";
 import { createMessage } from "@appsmith/ads-old";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   FETCH_GIT_STATUS,
 } from "ee/constants/messages";
-import StatusLoader from "./StatusLoader";
-import type { StatusTreeStruct } from "./types";
-import styled from "styled-components";
-
-const CalloutContainer = styled.div`
-  margin-top: 16px;
-`;
+import StatusLoader from "pages/Editor/gitSync/components/StatusLoader";
 
 const noopStatusTransformer = () => null;
 
@@ -54,11 +49,6 @@ export default function StatusChangesView({
         {createMessage(CHANGES_SINCE_LAST_DEPLOYMENT)}
       </Text>
       <StatusTree tree={statusTree} />
-      {status.migrationMessage ? (
-        <CalloutContainer>
-          <Callout kind="info">{status.migrationMessage}</Callout>
-        </CalloutContainer>
-      ) : null}
     </div>
   );
 }

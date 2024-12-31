@@ -1,11 +1,6 @@
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import { objectKeys } from "@appsmith/utils";
-import {
-  createMessage,
-  NOT_PUSHED_YET,
-  TRY_TO_PULL,
-} from "ee/constants/messages";
-import type { StatusTreeStruct } from "git/components/StatusChanges/types";
+import type { StatusTreeStruct } from "git/components/StatusChanges/StatusTree";
 
 const ICON_LOOKUP = {
   query: "query",
@@ -13,29 +8,19 @@ const ICON_LOOKUP = {
   page: "page-line",
   datasource: "database-2-line",
   jsLib: "package",
-  settings: "settings-v3",
-  theme: "sip-line",
-  remote: "git-commit",
-  package: "package",
-  module: "package",
-  moduleInstance: "package",
 };
 
 interface TreeNodeDef {
   subject: string;
   verb: string;
   type: keyof typeof ICON_LOOKUP;
-  extra?: string;
 }
 
 function createTreeNode(nodeDef: TreeNodeDef) {
-  let message = `${nodeDef.subject} ${nodeDef.verb}`;
-
-  if (nodeDef.extra) {
-    message += ` ${nodeDef.extra}`;
-  }
-
-  return { icon: ICON_LOOKUP[nodeDef.type], message };
+  return {
+    icon: ICON_LOOKUP[nodeDef.type],
+    message: `${nodeDef.subject} ${nodeDef.verb}`,
+  };
 }
 
 function determineVerbForDefs(defs: TreeNodeDef[]) {
@@ -60,11 +45,7 @@ function createTreeNodeGroup(nodeDefs: TreeNodeDef[], subject: string) {
   return {
     icon: ICON_LOOKUP[nodeDefs[0].type],
     message: `${nodeDefs.length} ${subject} ${determineVerbForDefs(nodeDefs)}`,
-    children: nodeDefs
-      .sort((a, b) =>
-        a.subject.localeCompare(b.subject, undefined, { sensitivity: "base" }),
-      )
-      .map(createTreeNode),
+    children: nodeDefs.map(createTreeNode),
   };
 }
 
@@ -144,10 +125,6 @@ function statusPageTransformer(status: FetchStatusResponseData) {
     tree.push({ ...createTreeNode(pageDef), children });
   });
 
-  tree.sort((a, b) =>
-    a.message.localeCompare(b.message, undefined, { sensitivity: "base" }),
-  );
-
   objectKeys(pageDefLookup).forEach((page) => {
     if (!pageEntityDefLookup[page]) {
       tree.push(createTreeNode(pageDefLookup[page]));
@@ -209,121 +186,13 @@ function statusJsLibTransformer(status: FetchStatusResponseData) {
   return tree;
 }
 
-function statusRemoteCountTransformer(status: FetchStatusResponseData) {
-  const { aheadCount, behindCount } = status;
-  const tree = [] as StatusTreeStruct[];
-
-  if (behindCount > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${behindCount} commit${behindCount > 1 ? "s" : ""}`,
-        verb: "behind",
-        type: "remote",
-        extra: createMessage(TRY_TO_PULL),
-      }),
-    );
-  }
-
-  if (aheadCount > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${aheadCount} commit${aheadCount > 1 ? "s" : ""}`,
-        verb: "ahead",
-        type: "remote",
-        extra: createMessage(NOT_PUSHED_YET),
-      }),
-    );
-  }
-
-  return tree;
-}
-
-function statusSettingsTransformer(status: FetchStatusResponseData) {
-  const { modified } = status;
-  const tree = [] as StatusTreeStruct[];
-
-  if (modified.includes("application.json")) {
-    tree.push(
-      createTreeNode({
-        subject: "Application settings",
-        verb: "modified",
-        type: "settings",
-      }),
-    );
-  }
-
-  return tree;
-}
-
-function statusThemeTransformer(status: FetchStatusResponseData) {
-  const { modified } = status;
-  const tree = [] as StatusTreeStruct[];
-
-  if (modified.includes("theme.json")) {
-    tree.push(
-      createTreeNode({
-        subject: "Theme",
-        verb: "modified",
-        type: "theme",
-      }),
-    );
-  }
-
-  return tree;
-}
-
-function statusPackagesTransformer(status: FetchStatusResponseData) {
-  const {
-    modifiedModuleInstances = 0,
-    modifiedModules = 0,
-    modifiedPackages = 0,
-  } = status;
-  const tree = [] as StatusTreeStruct[];
-
-  if (modifiedPackages > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${modifiedPackages} package${modifiedPackages > 1 ? "s" : ""}`,
-        verb: "modified",
-        type: "package",
-      }),
-    );
-  }
-
-  if (modifiedModules > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${modifiedModules} module${modifiedModules > 1 ? "s" : ""}`,
-        verb: "modified",
-        type: "module",
-      }),
-    );
-  }
-
-  if (modifiedModuleInstances > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${modifiedModuleInstances} module instance${modifiedModuleInstances > 1 ? "s" : ""}`,
-        verb: "modified",
-        type: "moduleInstance",
-      }),
-    );
-  }
-
-  return tree;
-}
-
 export default function applicationStatusTransformer(
   status: FetchStatusResponseData,
 ) {
   const tree = [
-    ...statusRemoteCountTransformer(status),
     ...statusPageTransformer(status),
     ...statusDatasourceTransformer(status),
     ...statusJsLibTransformer(status),
-    ...statusSettingsTransformer(status),
-    ...statusThemeTransformer(status),
-    ...statusPackagesTransformer(status),
   ] as StatusTreeStruct[];
 
   return tree;

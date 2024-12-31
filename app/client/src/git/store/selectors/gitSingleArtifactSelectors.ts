@@ -1,4 +1,10 @@
-import type { GitArtifactDef, GitRootState } from "../types";
+import type { GitArtifactType } from "git/constants/enums";
+import type { GitRootState } from "../types";
+
+export interface GitArtifactDef {
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
+}
 
 export const selectGitArtifact = (
   state: GitRootState,
@@ -15,7 +21,7 @@ export const selectMetadataState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.metadata;
 
-export const selectConnected = (
+export const selectGitConnected = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => !!selectMetadataState(state, artifactDef)?.value;
@@ -25,6 +31,11 @@ export const selectConnectState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.connect;
+
+export const selectGitImportState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.gitImport;
 
 export const selectFetchSSHKeysState = (
   state: GitRootState,
@@ -40,11 +51,6 @@ export const selectConnectModalOpen = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.ui.connectModalOpen;
-
-export const selectConnectSuccessModalOpen = (
-  state: GitRootState,
-  artifactDef: GitArtifactDef,
-) => selectGitArtifact(state, artifactDef)?.ui.connectSuccessModalOpen;
 
 export const selectDisconnectState = (
   state: GitRootState,
@@ -111,14 +117,11 @@ export const selectConflictErrorModalOpen = (
 
 export const selectCurrentBranch = (
   state: GitRootState,
-  // need this to preserve interface
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   artifactDef: GitArtifactDef,
 ) => {
-  return (
-    state?.ui?.applications?.currentApplication?.gitApplicationMetadata
-      ?.branchName ?? null
-  );
+  const gitMetadataState = selectMetadataState(state, artifactDef).value;
+
+  return gitMetadataState?.branchName;
 };
 
 export const selectFetchBranchesState = (
@@ -217,8 +220,10 @@ export const selectProtectedMode = (
   artifactDef: GitArtifactDef,
 ) => {
   const currentBranch = selectCurrentBranch(state, artifactDef);
-  const protectedBranches =
-    selectFetchProtectedBranchesState(state, artifactDef)?.value ?? [];
+  const protectedBranches = selectFetchProtectedBranchesState(
+    state,
+    artifactDef,
+  ).value;
 
   return protectedBranches?.includes(currentBranch ?? "") ?? false;
 };

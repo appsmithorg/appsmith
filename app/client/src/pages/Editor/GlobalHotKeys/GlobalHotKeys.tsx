@@ -45,8 +45,8 @@ import { toast } from "@appsmith/ads";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
-import { selectGitApplicationProtectedMode } from "selectors/gitModSelectors";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -372,17 +372,15 @@ class GlobalHotKeys extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    selectedWidget: getLastSelectedWidget(state),
-    selectedWidgets: getSelectedWidgets(state),
-    isDebuggerOpen: showDebuggerFlag(state),
-    appMode: getAppMode(state),
-    isPreviewMode: previewModeSelector(state),
-    isProtectedMode: selectGitApplicationProtectedMode(state),
-    isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
-  };
-};
+const mapStateToProps = (state: AppState) => ({
+  selectedWidget: getLastSelectedWidget(state),
+  selectedWidgets: getSelectedWidgets(state),
+  isDebuggerOpen: showDebuggerFlag(state),
+  appMode: getAppMode(state),
+  isPreviewMode: previewModeSelector(state),
+  isProtectedMode: protectedModeSelector(state),
+  isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
+});
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
