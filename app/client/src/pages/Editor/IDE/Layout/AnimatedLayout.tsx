@@ -9,11 +9,11 @@ import MainPane from "../MainPane";
 import RightPane from "../RightPane";
 import { Areas } from "./constants";
 import ProtectedCallout from "../ProtectedCallout";
-import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import {
-  GitProtectedBranchCallout as GitProtectedBranchCalloutNew,
+  useGitModEnabled,
   useGitProtectedMode,
-} from "git";
+} from "pages/Editor/gitSync/hooks/modHooks";
+import { GitProtectedBranchCallout as GitProtectedBranchCalloutNew } from "git";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();
