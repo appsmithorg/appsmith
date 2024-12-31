@@ -108,19 +108,19 @@ spec:
           startupProbe:
             # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
             httpGet:
-              port: http
+              port: {{ dig "startupProbe" "port" "80" $probes }}
               path: {{ dig "startupProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "startupProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "startupProbe" "periodSeconds" 60 $probes }}
           livenessProbe:
             httpGet:
-              port: http
+              port: {{ dig "livenessProbe" "port" "80" $probes }}
               path: {{ dig "livenessProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "livenessProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "livenessProbe" "periodSeconds" 60 $probes }}
           readinessProbe:
             httpGet:
-              port: http
+              port: {{ dig "readinessProbe" "port" "80" $probes }}
               path: {{ dig "readinessProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "readinessProbe" "failureThreshold" 3 $probes }}
             periodSeconds: {{ dig "readinessProbe" "periodSeconds" 60 $probes }}
