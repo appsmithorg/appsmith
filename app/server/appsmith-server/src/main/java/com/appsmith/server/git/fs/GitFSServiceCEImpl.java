@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
@@ -294,14 +295,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<List<String>> listReferences(
-            ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
-            Boolean checkRemoteReferences,
-            RefType refType) {
-        if (RefType.BRANCH.equals(refType)) {
-            listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
+        if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
+            return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
-        // TODO: include ref type for tags in fsGit Handler
+        // TODO: Add logic for other reference types (e.g., tags)
         return Mono.just(List.of());
     }
 
@@ -619,13 +618,13 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
-        Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
+        Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
+                repoSuffix, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), false, refName, isFetchAll);
+
+        // TODO : check if we require to checkout the reference
         Mono<Boolean> checkoutBranchMono = fsGitHandler.checkoutToBranch(repoSuffix, refName);
 
-        Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
-                repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, isFetchAll);
-
-        return checkoutBranchMono.then(Mono.defer(() -> fetchRemoteMono));
+        return fetchRemoteMono.flatMap(remoteFetched -> checkoutBranchMono.thenReturn(remoteFetched));
     }
 
     @Override
@@ -718,5 +717,46 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         // Tags and branch checkout with the same mechanism.
         return fsGitHandler.checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName());
+    }
+
+    @Override
+    public Mono<MergeStatusDTO> pullArtifact(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseMetadata) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        String branchName = jsonTransformationDTO.getRefName();
+
+        // git checkout and pull origin branchName
+        try {
+            return fsGitHandler
+                    .checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName())
+                    .then(fsGitHandler.pullApplication(
+                            repoSuffix,
+                            baseMetadata.getRemoteUrl(),
+                            branchName,
+                            baseMetadata.getGitAuth().getPrivateKey(),
+                            baseMetadata.getGitAuth().getPublicKey()))
+                    .onErrorResume(error -> {
+                        if (error.getMessage().contains("conflict")) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
+                        } else if (error.getMessage().contains("Nothing to fetch")) {
+                            MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                            mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
+                            mergeStatus.setMergeAble(true);
+                            return Mono.just(mergeStatus);
+                        }
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
+                    });
+        } catch (IOException e) {
+            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+        }
     }
 }
