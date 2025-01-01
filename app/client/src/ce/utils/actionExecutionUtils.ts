@@ -9,6 +9,7 @@ import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors"
 import type { Plugin } from "api/PluginApi";
 import { get, isNil } from "lodash";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { objectKeys } from "@appsmith/utils";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
@@ -20,7 +21,7 @@ export const getActionProperties = (
 ) => {
   const actionProperties: Record<string, unknown> = {};
 
-  Object.keys(keyConfig).forEach((key) => {
+  objectKeys(keyConfig).forEach((key) => {
     const value = get(action, key);
 
     if (!isNil(value)) {
@@ -69,7 +70,7 @@ export function getActionExecutionAnalytics(
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
     actionId: action?.id,
-    inputParams: Object.keys(params).length,
+    inputParams: objectKeys(params).length,
     source: ActionExecutionContext.EVALUATION_ACTION_TRIGGER, // Used in analytic events to understand who triggered action execution
   };
 
