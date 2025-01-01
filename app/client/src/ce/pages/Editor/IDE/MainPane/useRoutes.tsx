@@ -34,12 +34,12 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import type { RouteProps } from "react-router";
 import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { lazy, Suspense } from "react";
 import React from "react";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "widgets/Skeleton";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 const FirstTimeUserOnboardingChecklist = lazy(async () =>
   retryPromise(
@@ -67,7 +67,7 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   return [
     {

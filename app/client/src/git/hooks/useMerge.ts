@@ -3,10 +3,10 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectMergeState,
   selectMergeStatusState,
-} from "git/store/selectors/gitArtifactSelectors";
+} from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function useMerge() {
   const { artifact, artifactDef } = useGitContext();
@@ -14,46 +14,44 @@ export default function useMerge() {
   const dispatch = useDispatch();
 
   // merge
-  const mergeState = useArtifactSelector(selectMergeState);
+  const mergeState = useSelector((state: GitRootState) =>
+    selectMergeState(state, artifactDef),
+  );
 
   const merge = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.mergeInit({ artifactDef }));
-    }
+    dispatch(gitArtifactActions.mergeInit(artifactDef));
   }, [artifactDef, dispatch]);
 
   // merge status
-  const mergeStatusState = useArtifactSelector(selectMergeStatusState);
+  const mergeStatusState = useSelector((state: GitRootState) =>
+    selectMergeStatusState(state, artifactDef),
+  );
 
   const fetchMergeStatus = useCallback(
     (sourceBranch: string, destinationBranch: string) => {
-      if (artifactDef) {
-        dispatch(
-          gitArtifactActions.fetchMergeStatusInit({
-            artifactDef,
-            artifactId: artifactId ?? "",
-            sourceBranch,
-            destinationBranch,
-          }),
-        );
-      }
+      dispatch(
+        gitArtifactActions.fetchMergeStatusInit({
+          ...artifactDef,
+          artifactId: artifactId ?? "",
+          sourceBranch,
+          destinationBranch,
+        }),
+      );
     },
     [artifactId, artifactDef, dispatch],
   );
 
   const clearMergeStatus = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.clearMergeStatus({ artifactDef }));
-    }
+    dispatch(gitArtifactActions.clearMergeStatus(artifactDef));
   }, [artifactDef, dispatch]);
 
   return {
     isMergeLoading: mergeState?.loading ?? false,
-    mergeError: mergeState?.error ?? null,
+    mergeError: mergeState?.error,
     merge,
-    mergeStatus: mergeStatusState?.value ?? null,
+    mergeStatus: mergeStatusState?.value,
     isFetchMergeStatusLoading: mergeStatusState?.loading ?? false,
-    fetchMergeStatusError: mergeStatusState?.error ?? null,
+    fetchMergeStatusError: mergeStatusState?.error,
     fetchMergeStatus,
     clearMergeStatus,
   };

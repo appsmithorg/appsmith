@@ -71,31 +71,41 @@ interface StyledModalFooterProps {
   loading?: boolean;
 }
 
-export interface ConnectInitializeProps {
+interface ConnectModalViewProps {
   artifactType: string;
-  error: GitApiError | null;
+  connect: (params: ConnectRequestParams) => void;
+  connectError: GitApiError | null;
+  fetchSSHKey: () => void;
+  generateSSHKey: (keyType: string) => void;
+  gitImport: (params: GitImportRequestParams) => void;
+  isConnectLoading: boolean;
+  isCreateArtifactPermitted: boolean;
+  isFetchSSHKeyLoading: boolean;
+  isGenerateSSHKeyLoading: boolean;
+  isGitImportLoading: boolean;
   isImport: boolean;
-  isSSHKeyLoading: boolean;
-  isSubmitLoading: boolean;
-  onFetchSSHKey: () => void;
-  onGenerateSSHKey: (keyType: string) => void;
-  onOpenImport: (() => void) | null;
-  onSubmit: (params: ConnectRequestParams | GitImportRequestParams) => void;
+  setImportWorkspaceId: () => void;
   sshPublicKey: string | null;
+  toggleConnectModal: (open: boolean) => void;
 }
 
 function ConnectInitialize({
   artifactType,
-  error = null,
+  connect = noop,
+  connectError = null,
+  fetchSSHKey = noop,
+  generateSSHKey = noop,
+  gitImport = noop,
+  isConnectLoading = false,
+  isCreateArtifactPermitted = false,
+  isFetchSSHKeyLoading = false,
+  isGenerateSSHKeyLoading = false,
+  isGitImportLoading = false,
   isImport = false,
-  isSSHKeyLoading = false,
-  isSubmitLoading = false,
-  onFetchSSHKey = noop,
-  onGenerateSSHKey = noop,
-  onOpenImport = null,
-  onSubmit = noop,
+  setImportWorkspaceId = noop,
   sshPublicKey = null,
-}: ConnectInitializeProps) {
+  toggleConnectModal = noop,
+}: ConnectModalViewProps) {
   const nextStepText = {
     [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
     [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: createMessage(GENERATE_SSH_KEY_STEP),
@@ -117,8 +127,8 @@ function ConnectInitialize({
     GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
   );
 
-  // const isSubmitLoading =
-  //   (!isImport && isConnectLoading) || (isImport && isGitImportLoading);
+  const isLoading =
+    (!isImport && isConnectLoading) || (isImport && isGitImportLoading);
 
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
 
@@ -171,40 +181,43 @@ function ConnectInitialize({
           };
 
           if (formData.remoteUrl) {
-            onSubmit({
-              remoteUrl: formData.remoteUrl,
-              gitProfile,
-            });
-            // if (!isImport) {
-            //   AnalyticsUtil.logEvent(
-            //     "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK",
-            //     { repoUrl: formData?.remoteUrl, connectFlow: "v2" },
-            //   );
-            //   connect({
-            //     remoteUrl: formData.remoteUrl,
-            //     gitProfile,
-            //   });
-            // } else {
-            //   gitImport({
-            //     remoteUrl: formData.remoteUrl,
-            //     gitProfile,
-            //   });
-            // }
+            if (!isImport) {
+              AnalyticsUtil.logEvent(
+                "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK",
+                { repoUrl: formData?.remoteUrl, connectFlow: "v2" },
+              );
+              connect({
+                remoteUrl: formData.remoteUrl,
+                gitProfile,
+              });
+            } else {
+              gitImport({
+                remoteUrl: formData.remoteUrl,
+                gitProfile,
+              });
+            }
           }
 
           break;
         }
       }
     }
-  }, [activeStep, currentIndex, formData.remoteUrl, onSubmit]);
+  }, [
+    activeStep,
+    connect,
+    currentIndex,
+    formData.remoteUrl,
+    gitImport,
+    isImport,
+  ]);
 
   useEffect(
     function changeStepOnErrorEffect() {
-      if (error?.code === GitErrorCodes.REPO_NOT_EMPTY) {
+      if (connectError?.code === GitErrorCodes.REPO_NOT_EMPTY) {
         setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
       }
     },
-    [error?.code],
+    [connectError?.code],
   );
 
   return (
@@ -223,38 +236,45 @@ function ConnectInitialize({
         {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
           <ChooseGitProvider
             artifactType={artifactType}
+            isCreateArtifactPermitted={isCreateArtifactPermitted}
             isImport={isImport}
             onChange={handleChange}
-            onOpenImport={onOpenImport}
+            setImportWorkspaceId={setImportWorkspaceId}
+            toggleConnectModal={toggleConnectModal}
             value={formData}
           />
         )}
         {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
-          <GenerateSSH error={error} onChange={handleChange} value={formData} />
+          <GenerateSSH
+            connectError={connectError}
+            onChange={handleChange}
+            value={formData}
+          />
         )}
         {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
           <AddDeployKey
-            error={error}
-            isSSHKeyLoading={isSSHKeyLoading}
-            isSubmitLoading={isSubmitLoading}
+            connectError={connectError}
+            fetchSSHKey={fetchSSHKey}
+            generateSSHKey={generateSSHKey}
+            isFetchSSHKeyLoading={isFetchSSHKeyLoading}
+            isGenerateSSHKeyLoading={isGenerateSSHKeyLoading}
+            isLoading={isLoading}
             onChange={handleChange}
-            onFetchSSHKey={onFetchSSHKey}
-            onGenerateSSHKey={onGenerateSSHKey}
             sshPublicKey={sshPublicKey}
             value={formData}
           />
         )}
       </StyledModalBody>
-      <StyledModalFooter loading={isSubmitLoading}>
-        {isSubmitLoading && (
+      <StyledModalFooter loading={isLoading}>
+        {isLoading && (
           <Statusbar
-            completed={!isSubmitLoading}
+            completed={!isLoading}
             message={createMessage(
               isImport ? GIT_IMPORT_WAITING : GIT_CONNECT_WAITING,
             )}
           />
         )}
-        {!isSubmitLoading && (
+        {!isLoading && (
           <Button
             data-testid="t--git-connect-next-button"
             endIcon={
@@ -269,10 +289,10 @@ function ConnectInitialize({
         )}
         {possibleSteps.includes(activeStep) &&
           currentIndex > 0 &&
-          !isSubmitLoading && (
+          !isLoading && (
             <Button
               data-testid="t--git-connect-prev-button"
-              isDisabled={isSubmitLoading}
+              isDisabled={isLoading}
               kind="secondary"
               onClick={handlePreviousStep}
               size="md"

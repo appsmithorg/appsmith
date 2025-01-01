@@ -1,78 +1,67 @@
-import React, { useCallback } from "react";
+import React from "react";
 import ConnectModalView from "./ConnectModalView";
 import { useGitContext } from "../GitContextProvider";
 import useConnect from "git/hooks/useConnect";
-import { GitArtifactType } from "git/constants/enums";
-import type { ConnectRequestParams } from "git/requests/connectRequest.types";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import useSSHKey from "git/hooks/useSSHKey";
-import useImport from "git/hooks/useImport";
-import history from "utils/history";
+import useMetadata from "git/hooks/useMetadata";
+import useSettings from "git/hooks/useSettings";
 
-function ConnectModal() {
+interface ConnectModalProps {
+  isImport?: boolean;
+}
+
+function ConnectModal({ isImport = false }: ConnectModalProps) {
   const { artifactDef, isCreateArtifactPermitted, setImportWorkspaceId } =
     useGitContext();
   const {
     connect,
     connectError,
-    isConnectLoading,
-    isConnectModalOpen,
-    toggleConnectModal,
-  } = useConnect();
-  const { toggleImportModal } = useImport();
-  const {
     fetchSSHKey,
     generateSSHKey,
+    gitImport,
+    isConnectLoading,
+    isConnectModalOpen,
     isFetchSSHKeyLoading,
     isGenerateSSHKeyLoading,
+    isGitImportLoading,
     resetFetchSSHKey,
     resetGenerateSSHKey,
     sshKey,
-  } = useSSHKey();
+    toggleConnectModal,
+  } = useConnect();
+  const { isGitConnected, metadata } = useMetadata();
+  const { toggleSettingsModal } = useSettings();
 
-  const artifactType = artifactDef?.artifactType ?? GitArtifactType.Application;
+  const { artifactType } = artifactDef;
   const sshPublicKey = sshKey?.publicKey ?? null;
-  const isSSHKeyLoading = isFetchSSHKeyLoading || isGenerateSSHKeyLoading;
-
-  const onSubmit = useCallback(
-    (params: ConnectRequestParams) => {
-      AnalyticsUtil.logEvent("GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK", {
-        repoUrl: params?.remoteUrl,
-        connectFlow: "v2",
-      });
-      connect(params);
-    },
-    [connect],
-  );
-
-  const onOpenImport = useCallback(() => {
-    toggleConnectModal(false);
-    history.push("/applications");
-    setImportWorkspaceId();
-    toggleImportModal(true);
-    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
-  }, [setImportWorkspaceId, toggleConnectModal, toggleImportModal]);
-
-  const resetSSHKey = useCallback(() => {
-    resetFetchSSHKey();
-    resetGenerateSSHKey();
-  }, [resetFetchSSHKey, resetGenerateSSHKey]);
+  const remoteUrl = metadata?.remoteUrl ?? null;
+  const repoName = metadata?.repoName ?? null;
+  const defaultBranch = metadata?.defaultBranchName ?? null;
 
   return (
     <ConnectModalView
       artifactType={artifactType}
-      error={connectError}
-      isImport={false}
-      isModalOpen={isConnectModalOpen}
-      isSSHKeyLoading={isSSHKeyLoading}
-      isSubmitLoading={isConnectLoading}
-      onFetchSSHKey={fetchSSHKey}
-      onGenerateSSHKey={generateSSHKey}
-      onOpenImport={isCreateArtifactPermitted ? onOpenImport : null}
-      onSubmit={onSubmit}
-      resetSSHKey={resetSSHKey}
+      connect={connect}
+      connectError={connectError}
+      defaultBranch={defaultBranch}
+      fetchSSHKey={fetchSSHKey}
+      generateSSHKey={generateSSHKey}
+      gitImport={gitImport}
+      isConnectLoading={isConnectLoading}
+      isConnectModalOpen={isConnectModalOpen}
+      isCreateArtifactPermitted={isCreateArtifactPermitted}
+      isFetchSSHKeyLoading={isFetchSSHKeyLoading}
+      isGenerateSSHKeyLoading={isGenerateSSHKeyLoading}
+      isGitConnected={isGitConnected}
+      isGitImportLoading={isGitImportLoading}
+      isImport={isImport}
+      remoteUrl={remoteUrl}
+      repoName={repoName}
+      resetFetchSSHKey={resetFetchSSHKey}
+      resetGenerateSSHKey={resetGenerateSSHKey}
+      setImportWorkspaceId={setImportWorkspaceId}
       sshPublicKey={sshPublicKey}
-      toggleModalOpen={toggleConnectModal}
+      toggleConnectModal={toggleConnectModal}
+      toggleSettingsModal={toggleSettingsModal}
     />
   );
 }

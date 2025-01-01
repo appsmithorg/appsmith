@@ -2,7 +2,7 @@ import type { AppState } from "ee/reducers";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused } from "selectors/widgetSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
@@ -12,7 +12,7 @@ export const useAnvilWidgetHover = (
 ) => {
   // Retrieve state from the Redux store
   const isFocused = useSelector(isWidgetFocused(widgetId));
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { positionObserver } from ".";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
@@ -13,7 +13,7 @@ export function useObserveDetachedWidget(widgetId: string) {
   // We don't need the observer in preview mode or the published app
   // This is because the positions need to be observed only to enable
   // editor features
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const appMode = useSelector(getAppMode);
 
   if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
@@ -54,7 +54,7 @@ export function usePositionObserver(
   },
   ref: RefObject<HTMLDivElement>,
 ) {
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const appMode = useSelector(getAppMode);
 
   useEffect(() => {

@@ -2,12 +2,14 @@ import React, { createContext, useCallback, useContext, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
+import type { StatusTreeStruct } from "../StatusChanges/StatusTree";
 import { useDispatch } from "react-redux";
-import type { GitArtifactDef } from "git/store/types";
-import type { StatusTreeStruct } from "../StatusChanges/types";
 
 export interface GitContextValue {
-  artifactDef: GitArtifactDef | null;
+  artifactDef: {
+    artifactType: keyof typeof GitArtifactType;
+    baseArtifactId: string;
+  };
   artifact: ApplicationPayload | null;
   statusTransformer: (
     status: FetchStatusResponseData,
@@ -25,8 +27,8 @@ export const useGitContext = () => {
 };
 
 interface GitContextProviderProps {
-  artifactType: keyof typeof GitArtifactType | null;
-  baseArtifactId: string | null;
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
   artifact: ApplicationPayload | null;
   isCreateArtifactPermitted: boolean;
   setWorkspaceIdForImport: (params: {
@@ -48,13 +50,10 @@ export default function GitContextProvider({
   setWorkspaceIdForImport,
   statusTransformer,
 }: GitContextProviderProps) {
-  const artifactDef = useMemo(() => {
-    if (artifactType && baseArtifactId) {
-      return { artifactType, baseArtifactId };
-    }
-
-    return null;
-  }, [artifactType, baseArtifactId]);
+  const artifactDef = useMemo(
+    () => ({ artifactType, baseArtifactId }),
+    [artifactType, baseArtifactId],
+  );
 
   const dispatch = useDispatch();
 

@@ -41,13 +41,17 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
-  error: GitApiError | null;
+  connectError: GitApiError | null;
 }
 
 const CONNECTING_TO_GIT_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
-function GenerateSSH({ error, onChange = noop, value = {} }: GenerateSSHProps) {
+function GenerateSSH({
+  connectError,
+  onChange = noop,
+  value = {},
+}: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
     isTouched &&
@@ -65,7 +69,7 @@ function GenerateSSH({ error, onChange = noop, value = {} }: GenerateSSHProps) {
   return (
     <>
       {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
-      {error && error?.code === "AE-GIT-4033" && (
+      {connectError && connectError?.code === "AE-GIT-4033" && (
         <ErrorCallout kind="error">
           <Text kind="heading-xs" renderAs="h3">
             {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}

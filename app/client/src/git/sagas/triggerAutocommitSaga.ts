@@ -1,5 +1,8 @@
 import { triggerAutocommitSuccessAction } from "actions/gitSyncActions";
-import { AutocommitStatusState } from "git/constants/enums";
+import {
+  AutocommitStatusState,
+  type GitArtifactType,
+} from "git/constants/enums";
 import fetchAutocommitProgressRequest from "git/requests/fetchAutocommitProgressRequest";
 import type {
   FetchAutocommitProgressResponse,
@@ -12,8 +15,8 @@ import type {
 } from "git/requests/triggerAutocommitRequest.types";
 import type { TriggerAutocommitInitPayload } from "git/store/actions/triggerAutocommitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectAutocommitEnabled } from "git/store/selectors/gitArtifactSelectors";
-import type { GitArtifactDef, GitArtifactPayloadAction } from "git/store/types";
+import { selectAutocommitEnabled } from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitArtifactPayloadAction } from "git/store/types";
 import {
   call,
   cancel,
@@ -36,7 +39,8 @@ const AUTOCOMMIT_WHITELISTED_STATES = [
 ];
 
 interface PollAutocommitProgressParams {
-  artifactDef: GitArtifactDef;
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
   artifactId: string;
 }
 
@@ -53,7 +57,8 @@ function isAutocommitHappening(
 }
 
 function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
-  const { artifactDef, artifactId } = params;
+  const { artifactId, artifactType, baseArtifactId } = params;
+  const basePayload = { artifactType, baseArtifactId };
   let triggerResponse: TriggerAutocommitResponse | undefined;
 
   try {
@@ -61,14 +66,14 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
     const isValidResponse: boolean = yield validateResponse(triggerResponse);
 
     if (triggerResponse && isValidResponse) {
-      yield put(gitArtifactActions.triggerAutocommitSuccess({ artifactDef }));
+      yield put(gitArtifactActions.triggerAutocommitSuccess(basePayload));
     }
   } catch (e) {
     if (triggerResponse && triggerResponse.responseMeta.error) {
       const { error } = triggerResponse.responseMeta;
 
       yield put(
-        gitArtifactActions.triggerAutocommitError({ artifactDef, error }),
+        gitArtifactActions.triggerAutocommitError({ ...basePayload, error }),
       );
     } else {
       log.error(e);
@@ -80,47 +85,39 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
 
   try {
     if (isAutocommitHappening(triggerResponse?.data)) {
-      yield put(
-        gitArtifactActions.pollAutocommitProgressStart({ artifactDef }),
-      );
+      yield put(gitArtifactActions.pollAutocommitProgressStart(basePayload));
 
       while (true) {
-        yield put(
-          gitArtifactActions.fetchAutocommitProgressInit({ artifactDef }),
-        );
+        yield put(gitArtifactActions.fetchAutocommitProgressInit(basePayload));
         progressResponse = yield call(
           fetchAutocommitProgressRequest,
-          artifactDef.baseArtifactId,
+          baseArtifactId,
         );
         const isValidResponse: boolean =
           yield validateResponse(progressResponse);
 
         if (isValidResponse && !isAutocommitHappening(progressResponse?.data)) {
-          yield put(
-            gitArtifactActions.pollAutocommitProgressStop({ artifactDef }),
-          );
+          yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
         }
 
         if (!isValidResponse) {
-          yield put(
-            gitArtifactActions.pollAutocommitProgressStop({ artifactDef }),
-          );
+          yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
         }
 
         yield delay(AUTOCOMMIT_POLL_DELAY);
       }
     } else {
-      yield put(gitArtifactActions.pollAutocommitProgressStop({ artifactDef }));
+      yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
     }
   } catch (e) {
-    yield put(gitArtifactActions.pollAutocommitProgressStop({ artifactDef }));
+    yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
 
     if (progressResponse && progressResponse.responseMeta.error) {
       const { error } = progressResponse.responseMeta;
 
       yield put(
         gitArtifactActions.fetchAutocommitProgressError({
-          artifactDef,
+          ...basePayload,
           error,
         }),
       );
@@ -134,14 +131,15 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
 export default function* triggerAutocommitSaga(
   action: GitArtifactPayloadAction<TriggerAutocommitInitPayload>,
 ) {
-  const { artifactDef, artifactId } = action.payload;
+  const { artifactId, artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
   const isAutocommitEnabled: boolean = yield select(
     selectAutocommitEnabled,
-    artifactDef,
+    basePayload,
   );
 
   if (isAutocommitEnabled) {
-    const params = { artifactDef, artifactId };
+    const params = { artifactType, baseArtifactId, artifactId };
     const pollTask: Task = yield fork(pollAutocommitProgressSaga, params);
 
     yield take(gitArtifactActions.pollAutocommitProgressStop.type);

@@ -1,13 +1,14 @@
-import React, { useCallback } from "react";
+import React from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
 import { Icon } from "@appsmith/ads";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
-import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import type { AppState } from "ee/reducers";
 
 const StyledHelpBar = styled.button`
   padding: 0 var(--ads-v2-spaces-3);
@@ -41,18 +42,12 @@ const StyledHelpBar = styled.button`
   }
 `;
 
-function HelpBar() {
-  const isProtectedMode = useGitProtectedMode();
+interface Props {
+  toggleShowModal: () => void;
+  isProtectedMode: boolean;
+}
 
-  const dispatch = useDispatch();
-
-  const toggleShowModal = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
-    dispatch(
-      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
-    );
-  }, [dispatch]);
-
+function HelpBar({ isProtectedMode, toggleShowModal }: Props) {
   return (
     <StyledHelpBar
       className="t--global-search-modal-trigger"
@@ -68,4 +63,19 @@ function HelpBar() {
   );
 }
 
-export default HelpBar;
+const mapStateToProps = (state: AppState) => ({
+  isProtectedMode: protectedModeSelector(state),
+});
+
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapDispatchToProps = (dispatch: any) => ({
+  toggleShowModal: () => {
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
+    dispatch(
+      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+    );
+  },
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(HelpBar);

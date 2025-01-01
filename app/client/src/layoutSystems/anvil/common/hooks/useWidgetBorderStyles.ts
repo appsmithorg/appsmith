@@ -7,8 +7,8 @@ import {
   getWidgetsDistributingSpace,
 } from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   /** Selectors */
@@ -32,7 +32,7 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   const widgetsEffectedBySpaceDistribution = useSelector(
     getWidgetsDistributingSpace,
   );
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   /** EO selectors */
 

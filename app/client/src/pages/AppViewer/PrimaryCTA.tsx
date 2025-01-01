@@ -25,8 +25,8 @@ import { Icon, Tooltip } from "@appsmith/ads";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ function PrimaryCTA(props: Props) {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useGitProtectedMode();
+  const isProtectedMode = useSelector(protectedModeSelector);
   const dispatch = useDispatch();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);

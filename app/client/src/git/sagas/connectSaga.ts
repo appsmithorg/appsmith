@@ -8,7 +8,7 @@ import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import type { GitArtifactPayloadAction } from "../store/types";
 import type { ConnectInitPayload } from "../store/actions/connectActions";
 
-import { call, put, select } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 
 // Internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -17,12 +17,12 @@ import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
 ) {
-  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = action.payload;
+  const basePayload = { artifactType, baseArtifactId };
 
   let response: ConnectResponse | undefined;
 
@@ -32,48 +32,32 @@ export default function* connectSaga(
       gitProfile: action.payload.gitProfile,
     };
 
-    response = yield call(connectRequest, artifactDef.baseArtifactId, params);
+    response = yield call(connectRequest, baseArtifactId, params);
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
-      yield put(
-        gitArtifactActions.connectSuccess({
-          artifactDef,
-          responseData: response.data,
-        }),
-      );
+      yield put(gitArtifactActions.connectSuccess(basePayload));
 
       // needs to happen only when artifactType is application
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        const pageId: string = yield select(getCurrentPageId);
+      if (artifactType === GitArtifactType.Application) {
+        const { branchedPageId } = action.payload;
 
-        yield put(fetchPageAction(pageId));
-
-        const branch = response.data?.gitApplicationMetadata?.branchName;
-
-        if (branch) {
-          const newUrl = addBranchParam(branch);
-
-          history.replace(newUrl);
+        if (branchedPageId) {
+          yield put(fetchPageAction(branchedPageId));
         }
 
+        const branch = response.data.gitApplicationMetadata.branchName;
+        const newUrl = addBranchParam(branch);
+
+        history.replace(newUrl);
         // ! case for updating lastDeployedAt in application manually?
       }
 
       yield put(
         gitArtifactActions.initGitForEditor({
-          artifactDef,
+          ...basePayload,
           artifact: response.data,
-        }),
-      );
-      yield put(
-        gitArtifactActions.toggleConnectModal({ artifactDef, open: false }),
-      );
-      yield put(
-        gitArtifactActions.toggleConnectSuccessModal({
-          artifactDef,
-          open: true,
         }),
       );
     }
@@ -84,13 +68,13 @@ export default function* connectSaga(
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
           gitArtifactActions.toggleRepoLimitErrorModal({
-            artifactDef,
+            ...basePayload,
             open: true,
           }),
         );
       }
 
-      yield put(gitArtifactActions.connectError({ artifactDef, error }));
+      yield put(gitArtifactActions.connectError({ ...basePayload, error }));
     } else {
       log.error(e);
       captureException(e);

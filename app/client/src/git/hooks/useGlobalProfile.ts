@@ -1,9 +1,9 @@
 import type { UpdateGlobalProfileRequestParams } from "git/requests/updateGlobalProfileRequest.types";
-import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { gitConfigActions } from "git/store/gitConfigSlice";
 import {
   selectFetchGlobalProfileState,
   selectUpdateGlobalProfileState,
-} from "git/store/selectors/gitGlobalSelectors";
+} from "git/store/selectors/gitConfigSelectors";
 
 import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
@@ -16,7 +16,7 @@ export default function useGlobalProfile() {
   );
 
   const fetchGlobalProfile = useCallback(() => {
-    dispatch(gitGlobalActions.fetchGlobalProfileInit());
+    dispatch(gitConfigActions.fetchGlobalProfileInit());
   }, [dispatch]);
 
   const updateGlobalProfileState = useSelector((state: GitRootState) =>
@@ -25,7 +25,7 @@ export default function useGlobalProfile() {
 
   const updateGlobalProfile = useCallback(
     (params: UpdateGlobalProfileRequestParams) => {
-      dispatch(gitGlobalActions.updateGlobalProfileInit(params));
+      dispatch(gitConfigActions.updateGlobalProfileInit(params));
     },
     [dispatch],
   );
