@@ -49,6 +49,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -739,9 +740,9 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
-        when(mockNewPageRepository.findPageByRefTypeAndRefNameAndBasePageId(
-                        any(), anyString(), anyString(), any(), any()))
-                .thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.empty())
+                .when(mockNewPageRepository)
+                .findPageByRefTypeAndRefNameAndBasePageId(any(), anyString(), anyString(), any(), any());
         doReturn(Mono.empty())
                 .when(spyApplicationRepository)
                 .getApplicationByGitBranchAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
