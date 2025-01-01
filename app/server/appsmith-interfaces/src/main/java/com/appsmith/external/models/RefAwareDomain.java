@@ -25,7 +25,14 @@ public abstract class RefAwareDomain extends GitSyncedDomain {
     String refName;
 
     public RefType getRefType() {
-        return refType == null ? RefType.BRANCH : refType;
+        if (refType == null) {
+            if (this.getRefName() != null) {
+                return RefType.branch;
+            } else {
+                return null;
+            }
+        }
+        return refType;
     }
 
     public String getRefName() {
@@ -34,7 +41,7 @@ public abstract class RefAwareDomain extends GitSyncedDomain {
 
     public void setRefName(String refName) {
         this.refName = refName;
-        if (refType == null || refType == RefType.BRANCH) {
+        if (this.getRefType() == RefType.branch) {
             this.branchName = refName;
         }
     }

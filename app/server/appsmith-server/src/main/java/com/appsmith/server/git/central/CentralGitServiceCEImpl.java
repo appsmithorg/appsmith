@@ -236,7 +236,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonMorphDTO.setBaseArtifactId(artifact.getId());
                     jsonMorphDTO.setArtifactType(artifactType);
                     jsonMorphDTO.setRepoName(gitArtifactMetadata.getRepoName());
-                    jsonMorphDTO.setRefType(RefType.BRANCH);
+                    jsonMorphDTO.setRefType(RefType.branch);
                     jsonMorphDTO.setRefName(defaultBranch);
 
                     Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono = gitHandlingService
@@ -694,7 +694,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     protected Mono<Boolean> isValidationForRefCreationComplete(
             Artifact baseArtifact, Artifact parentArtifact, GitType gitType, RefType refType) {
-        if (RefType.BRANCH.equals(refType)) {
+        if (RefType.branch.equals(refType)) {
             return Mono.just(TRUE);
         }
 
@@ -1282,7 +1282,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .flatMap(artifactExchangeJson -> {
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
                     jsonTransformationDTO.setBaseArtifactId(baseArtifact.getId());
                     jsonTransformationDTO.setRepoName(
@@ -1298,7 +1298,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(updatedBranchedArtifact -> {
                     GitArtifactMetadata gitArtifactMetadata = updatedBranchedArtifact.getGitArtifactMetadata();
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(updatedBranchedArtifact.getWorkspaceId());
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
@@ -1391,7 +1391,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
@@ -1410,7 +1410,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
@@ -1519,7 +1519,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .flatMap(artifactExchangeJson -> {
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
                     jsonTransformationDTO.setBaseArtifactId(baseArtifact.getId());
                     jsonTransformationDTO.setRepoName(
@@ -1533,7 +1533,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     if (compareRemote) {
                         fetchRemoteMono = Mono.defer(
-                                () -> fetchRemoteChanges(baseArtifact, branchedArtifact, FALSE, gitType, RefType.BRANCH)
+                                () -> fetchRemoteChanges(baseArtifact, branchedArtifact, FALSE, gitType, RefType.branch)
                                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
                     } else {
@@ -1696,7 +1696,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
         jsonTransformationDTO.setRepoName(repoName);
-        jsonTransformationDTO.setRefType(RefType.BRANCH);
+        jsonTransformationDTO.setRefType(RefType.branch);
         jsonTransformationDTO.setRefName(branchName);
         jsonTransformationDTO.setWorkspaceId(workspaceId);
         jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
@@ -1976,7 +1976,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
         jsonTransformationDTO.setArtifactType(branchedArtifact.getArtifactType());
         // Because this operation is only valid for branches
-        jsonTransformationDTO.setRefType(RefType.BRANCH);
+        jsonTransformationDTO.setRefType(RefType.branch);
         jsonTransformationDTO.setWorkspaceId(branchedArtifact.getWorkspaceId());
         jsonTransformationDTO.setBaseArtifactId(branchedGitData.getDefaultArtifactId());
         jsonTransformationDTO.setRefName(branchedGitData.getRefName());

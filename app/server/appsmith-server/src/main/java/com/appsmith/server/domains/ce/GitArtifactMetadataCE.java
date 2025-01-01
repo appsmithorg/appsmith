@@ -25,13 +25,9 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String branchName;
 
-    // TODO: make this public view and remove transient annotation once implmentation completes
-    @Transient
     @JsonView(Views.Internal.class)
     String refName;
 
-    // TODO: make this public view and remove transient annotation once implementation completes
-    @Transient
     @JsonView(Views.Internal.class)
     RefType refType;
 
@@ -131,7 +127,7 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     }
 
     public RefType getRefType() {
-        return refType == null ? RefType.BRANCH : refType;
+        return refType == null ? RefType.branch : refType;
     }
 
     /**

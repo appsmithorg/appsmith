@@ -460,12 +460,6 @@ public class ApplicationImportServiceCEImpl
             }
         }
         return importApplicationMono
-                .doOnNext(application -> {
-                    if (application.getGitArtifactMetadata() != null) {
-                        importingMetaDTO.setRefName(
-                                application.getGitArtifactMetadata().getBranchName());
-                    }
-                })
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());

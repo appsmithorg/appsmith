@@ -168,7 +168,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     trueEnvironmentId,
                                     redirectUri,
                                     workspaceId,
-                                    refType.lowerCaseName(),
+                                    refType.name(),
                                     refName)
                             : String.join(",", basePageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components

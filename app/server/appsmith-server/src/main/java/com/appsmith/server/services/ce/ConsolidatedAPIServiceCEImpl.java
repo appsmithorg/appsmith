@@ -623,7 +623,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         return applicationService
                                 .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
                                 .zipWith(newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
-                                        RefType.BRANCH, defaultBranchName, basePageId, mode));
+                                        RefType.branch, defaultBranchName, basePageId, mode));
                     });
                 })
                 .cache();

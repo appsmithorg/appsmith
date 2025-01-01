@@ -427,7 +427,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key2", List.of("val1", "val2"));
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
-                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.BRANCH, null)
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.branch, null)
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
@@ -463,7 +463,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key2", List.of("val1", "val2"));
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
-                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.BRANCH, null)
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, RefType.branch, null)
                             .flatMap(page -> applicationPageService.publish(application.getId(), false))
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
@@ -500,7 +500,7 @@ public class NewPageServiceTest {
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO -> newPageService
-                        .updateDependencyMap(pageDTO.getId(), null, RefType.BRANCH, null)
+                        .updateDependencyMap(pageDTO.getId(), null, RefType.branch, null)
                         .then(newPageService.findById(pageDTO.getId(), null)));
 
         StepVerifier.create(newPageMono)

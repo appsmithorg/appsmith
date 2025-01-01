@@ -337,7 +337,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
             Artifact artifact, RefType refType, Boolean isPublishedManually) {
         // TODO: create publish for ref type creation.
         Application application = (Application) artifact;
-        if (RefType.TAG.equals(refType)) {
+        if (RefType.tag.equals(refType)) {
             return Mono.just(application);
         }
 

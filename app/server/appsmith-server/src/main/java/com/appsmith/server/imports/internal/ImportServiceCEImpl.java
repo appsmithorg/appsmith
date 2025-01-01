@@ -9,6 +9,7 @@ import com.appsmith.server.constants.ImportExportConstants;
 import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -494,6 +495,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     .then(Mono.defer(() -> Mono.when(branchedArtifactIdsMono, artifactSpecificImportableEntities)))
                     .then(Mono.defer(() -> artifactBasedImportService.updateAndSaveArtifactInContext(
                             importedDoc.getArtifact(), importingMetaDTO, mappedImportableResourcesDTO, currUserMono)))
+                    .doOnNext(artifact -> {
+                        GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
+                        if (gitArtifactMetadata != null) {
+                            importingMetaDTO.setRefType(gitArtifactMetadata.getRefType());
+                            importingMetaDTO.setRefName(gitArtifactMetadata.getRefName());
+                        }
+                    })
                     .cache();
 
             final Mono<? extends Artifact> importMono = importableArtifactMono

@@ -368,7 +368,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage ->
                         solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId))
                 .flatMap(crudPageResponseDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
-                        RefType.BRANCH,
+                        RefType.branch,
                         gitData.getBranchName(),
                         crudPageResponseDTO.getPage().getId(),
                         READ_PAGES,

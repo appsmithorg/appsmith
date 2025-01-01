@@ -296,7 +296,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<List<String>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
-        if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
+        if (RefType.branch.equals(artifactJsonTransformationDTO.getRefType())) {
             return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 

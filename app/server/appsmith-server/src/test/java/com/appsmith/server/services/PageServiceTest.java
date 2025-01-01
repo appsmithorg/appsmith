@@ -864,7 +864,7 @@ public class PageServiceTest {
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePage(page.getId())
                 .flatMap(pageDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
-                        RefType.BRANCH, branchName, pageDTO.getId(), MANAGE_PAGES, null))
+                        RefType.branch, branchName, pageDTO.getId(), MANAGE_PAGES, null))
                 .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(

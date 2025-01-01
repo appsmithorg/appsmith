@@ -363,7 +363,7 @@ public class PartialExportServiceTest {
         actionConfiguration.setTimeoutInMillisecond("6000");
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasourceMap.get("DS1"));
-        action.setRefType(RefType.BRANCH);
+        action.setRefType(RefType.branch);
         action.setRefName("master");
 
         ActionDTO savedAction =

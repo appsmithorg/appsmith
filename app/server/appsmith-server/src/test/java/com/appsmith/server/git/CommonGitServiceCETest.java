@@ -1225,7 +1225,7 @@ public class CommonGitServiceCETest {
                     action.setDatasource(datasource);
 
                     action.setBaseId("branchedActionId");
-                    action.setRefType(RefType.BRANCH);
+                    action.setRefType(RefType.branch);
                     action.setRefName("testBranch");
 
                     ObjectMapper objectMapper = new ObjectMapper();
