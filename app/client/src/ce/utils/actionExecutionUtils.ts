@@ -101,14 +101,15 @@ export function isBrowserExecutionAllowed(..._args: any[]) {
 // Function to extract the test payload from the collection data
 export const getTestPayloadFromCollectionData = (
   collectionData: JSCollectionData | undefined,
+  defaultValue = "",
 ): string => {
-  if (!collectionData) return "";
+  if (!collectionData) return defaultValue;
 
   const activeJSActionId = collectionData?.activeJSActionId;
   const testPayload: Record<string, unknown> | undefined = collectionData?.data
     ?.testPayload as Record<string, unknown>;
 
-  if (!activeJSActionId || !testPayload) return "";
+  if (!activeJSActionId || !testPayload) return defaultValue;
 
-  return (testPayload[activeJSActionId] as string) || "";
+  return testPayload[activeJSActionId] as string;
 };
