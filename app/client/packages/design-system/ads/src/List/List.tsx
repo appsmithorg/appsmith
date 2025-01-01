@@ -108,6 +108,12 @@ function ListItem(props: ListItemProps) {
     }
   };
 
+  const handleDoubleClick = () => {
+    if (!props.isDisabled && props.onDoubleClick) {
+      props.onDoubleClick();
+    }
+  };
+
   return (
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
@@ -115,13 +121,12 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      onClick={handleOnClick}
+      onKeyDown={listItemHandleKeyDown}
       size={size}
-      tabIndex={props.isDisabled ? -1 : 0}
+      // tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper
-        onClick={handleOnClick}
-        onKeyDown={listItemHandleKeyDown}
-      >
+      <ContentTextWrapper onDoubleClick={handleDoubleClick}>
         {startIcon}
         {props.customTitleComponent ? (
           props.customTitleComponent

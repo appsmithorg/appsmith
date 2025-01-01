@@ -1,28 +1,32 @@
-import React, { useMemo, useState } from "react";
-import { ListItem } from "../../../List";
+import React, { useMemo } from "react";
+import { ListItem, Tooltip } from "../../..";
+
 import type { EntityItemProps } from "./EntityItem.types";
-import { ContentTextWrapper } from "../../../List/List.styles";
-// import { usePrevious } from "@mantine/hooks";
-import { useEventCallback } from "usehooks-ts";
-import { normaliseName } from "./utils";
 import { EntityEditableName } from "./EntityItem.styled";
+import { useNameEditor } from "./useNameEditor";
 
 export const EntityItem = (props: EntityItemProps) => {
-  // const previousName = usePrevious(props.name);
-  const [editableName, setEditableName] = useState(props.name);
+  const { canEdit, isEditing, onEditComplete, onNameSave, validateName } =
+    props.nameEditorConfig;
 
-  const handleTitleChange = useEventCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = normaliseName(e.target.value);
-
-      setEditableName(value);
-      props.nameEditorConfig?.validateName(value);
-    },
+  const [
+    inputRef,
+    editableName,
+    validationError,
+    handleKeyUp,
+    handleTitleChange,
+  ] = useNameEditor(
+    canEdit ? isEditing : false,
+    props.name,
+    onEditComplete,
+    validateName,
+    onNameSave,
   );
 
   const inputProps = useMemo(
     () => ({
       onChange: handleTitleChange,
+      onKeyUp: handleKeyUp,
       style: {
         paddingTop: 0,
         paddingBottom: 0,
@@ -30,20 +34,28 @@ export const EntityItem = (props: EntityItemProps) => {
         top: 0,
       },
     }),
-    [handleTitleChange],
+    [handleKeyUp, handleTitleChange],
   );
 
   const customTitle = useMemo(() => {
-    if (!props.nameEditorConfig) {
-      return <ContentTextWrapper>{props.name}</ContentTextWrapper>;
-    } else {
-      return (
-        <EntityEditableName inputProps={inputProps} isEditable kind="body-m">
+    return (
+      <Tooltip
+        content={validationError}
+        placement="bottomLeft"
+        showArrow={false}
+        visible={Boolean(validationError)}
+      >
+        <EntityEditableName
+          inputProps={inputProps}
+          inputRef={inputRef}
+          isEditable={isEditing}
+          kind="body-m"
+        >
           {editableName}
         </EntityEditableName>
-      );
-    }
-  }, [editableName, inputProps, props.name, props.nameEditorConfig]);
+      </Tooltip>
+    );
+  }, [editableName, inputProps, inputRef, isEditing, validationError]);
 
   return <ListItem {...props} customTitleComponent={customTitle} />;
 };

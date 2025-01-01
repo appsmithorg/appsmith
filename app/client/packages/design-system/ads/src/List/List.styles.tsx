@@ -49,6 +49,8 @@ export const InlineDescriptionWrapper = styled.div`
 export const RightControlWrapper = styled.div`
   height: 100%;
   line-height: normal;
+  display: flex;
+  align-items: center;
 `;
 
 export const ContentTextWrapper = styled.div`
