@@ -1,7 +1,5 @@
 import type { GitOpsTab, GitSettingsTab } from "git/constants/enums";
-import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitGlobalReduxState } from "../types";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 // connect modal
 export interface ToggleConnectModalPayload {
@@ -9,7 +7,7 @@ export interface ToggleConnectModalPayload {
 }
 
 export const toggleConnectModalAction =
-  createArtifactAction<ToggleConnectModalPayload>((state, action) => {
+  createSingleArtifactAction<ToggleConnectModalPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.connectModalOpen = open;
@@ -17,54 +15,27 @@ export const toggleConnectModalAction =
     return state;
   });
 
-export interface ToggleConnectSuccessModalPayload {
-  open: boolean;
-}
-
-export const toggleConnectSuccessModalAction =
-  createArtifactAction<ToggleConnectSuccessModalPayload>((state, action) => {
-    const { open } = action.payload;
-
-    state.ui.connectSuccessModalOpen = open;
-
-    return state;
-  });
-
-export interface ToggleImportModalPayload {
-  open: boolean;
-}
-
-export const toggleImportModalAction = (
-  state: GitGlobalReduxState,
-  action: PayloadAction<ToggleImportModalPayload>,
-) => {
-  const { open } = action.payload;
-
-  state.isImportModalOpen = open;
-
-  return state;
-};
-
 // disconnect modal
 export interface OpenDisconnectModalPayload {
   artifactName: string;
 }
 
 export const openDisconnectModalAction =
-  createArtifactAction<OpenDisconnectModalPayload>((state, action) => {
-    state.ui.disconnectBaseArtifactId =
-      action.payload.artifactDef.baseArtifactId;
+  createSingleArtifactAction<OpenDisconnectModalPayload>((state, action) => {
+    state.ui.disconnectBaseArtifactId = action.payload.baseArtifactId;
     state.ui.disconnectArtifactName = action.payload.artifactName;
 
     return state;
   });
 
-export const closeDisconnectModalAction = createArtifactAction((state) => {
-  state.ui.disconnectBaseArtifactId = null;
-  state.ui.disconnectArtifactName = null;
+export const closeDisconnectModalAction = createSingleArtifactAction(
+  (state) => {
+    state.ui.disconnectBaseArtifactId = null;
+    state.ui.disconnectArtifactName = null;
 
-  return state;
-});
+    return state;
+  },
+);
 
 // ops modal
 
@@ -73,16 +44,15 @@ export interface ToggleOpsModalPayload {
   tab: keyof typeof GitOpsTab;
 }
 
-export const toggleOpsModalAction = createArtifactAction<ToggleOpsModalPayload>(
-  (state, action) => {
+export const toggleOpsModalAction =
+  createSingleArtifactAction<ToggleOpsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
     state.ui.opsModalOpen = open;
     state.ui.opsModalTab = tab;
 
     return state;
-  },
-);
+  });
 
 // settings modal
 export interface ToggleSettingsModalPayload {
@@ -91,7 +61,7 @@ export interface ToggleSettingsModalPayload {
 }
 
 export const toggleSettingsModalAction =
-  createArtifactAction<ToggleSettingsModalPayload>((state, action) => {
+  createSingleArtifactAction<ToggleSettingsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
     state.ui.settingsModalOpen = open;
@@ -106,28 +76,29 @@ interface ToggleAutocommitDisableModalPayload {
 }
 
 export const toggleAutocommitDisableModalAction =
-  createArtifactAction<ToggleAutocommitDisableModalPayload>((state, action) => {
-    const { open } = action.payload;
+  createSingleArtifactAction<ToggleAutocommitDisableModalPayload>(
+    (state, action) => {
+      const { open } = action.payload;
 
-    state.ui.autocommitDisableModalOpen = open;
+      state.ui.autocommitDisableModalOpen = open;
 
-    return state;
-  });
+      return state;
+    },
+  );
 
 // branch popup
 interface BranchPopupPayload {
   open: boolean;
 }
 
-export const toggleBranchPopupAction = createArtifactAction<BranchPopupPayload>(
-  (state, action) => {
+export const toggleBranchPopupAction =
+  createSingleArtifactAction<BranchPopupPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.branchPopupOpen = open;
 
     return state;
-  },
-);
+  });
 
 // error modals
 interface ToggleRepoLimitModalPayload {
@@ -135,7 +106,7 @@ interface ToggleRepoLimitModalPayload {
 }
 
 export const toggleRepoLimitErrorModalAction =
-  createArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
+  createSingleArtifactAction<ToggleRepoLimitModalPayload>((state, action) => {
     const { open } = action.payload;
 
     state.ui.repoLimitErrorModalOpen = open;
@@ -148,10 +119,12 @@ interface ToggleConflictErrorModalPayload {
 }
 
 export const toggleConflictErrorModalAction =
-  createArtifactAction<ToggleConflictErrorModalPayload>((state, action) => {
-    const { open } = action.payload;
+  createSingleArtifactAction<ToggleConflictErrorModalPayload>(
+    (state, action) => {
+      const { open } = action.payload;
 
-    state.ui.conflictErrorModalOpen = open;
+      state.ui.conflictErrorModalOpen = open;
 
-    return state;
-  });
+      return state;
+    },
+  );

@@ -1,12 +1,12 @@
 import { call, put } from "redux-saga/effects";
 import fetchGlobalProfileRequest from "../requests/fetchGlobalProfileRequest";
 import type { FetchGlobalProfileResponse } from "../requests/fetchGlobalProfileRequest.types";
+import { gitConfigActions } from "../store/gitConfigSlice";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
-import { gitGlobalActions } from "git/store/gitGlobalSlice";
 
 export default function* fetchGlobalProfileSaga() {
   let response: FetchGlobalProfileResponse | undefined;
@@ -18,7 +18,7 @@ export default function* fetchGlobalProfileSaga() {
 
     if (response && isValidResponse) {
       yield put(
-        gitGlobalActions.fetchGlobalProfileSuccess({
+        gitConfigActions.fetchGlobalProfileSuccess({
           responseData: response.data,
         }),
       );
@@ -28,7 +28,7 @@ export default function* fetchGlobalProfileSaga() {
       const { error } = response.responseMeta;
 
       yield put(
-        gitGlobalActions.fetchGlobalProfileError({
+        gitConfigActions.fetchGlobalProfileError({
           error,
         }),
       );

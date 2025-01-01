@@ -23,7 +23,8 @@ const defaultProps = {
   isImport: false,
   canCreateNewArtifact: true,
   toggleConnectModal: jest.fn(),
-  onOpenImport: jest.fn(),
+  isCreateArtifactPermitted: true,
+  setImportWorkspaceId: jest.fn(),
 };
 
 describe("ChooseGitProvider Component", () => {
@@ -168,19 +169,19 @@ describe("ChooseGitProvider Component", () => {
   });
 
   it("clicking on 'Import via git' link calls onImportFromCalloutLinkClick", () => {
-    const onOpenImport = jest.fn();
+    const mockSetImportWorkspaceId = jest.fn();
 
     render(
       <Router>
         <ChooseGitProvider
           {...defaultProps}
-          onOpenImport={onOpenImport}
+          setImportWorkspaceId={mockSetImportWorkspaceId}
           value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
         />
       </Router>,
     );
     fireEvent.click(screen.getByText("Import via git"));
-    expect(onOpenImport).toHaveBeenCalledTimes(1);
+    expect(mockSetImportWorkspaceId).toHaveBeenCalledTimes(1);
   });
 
   it("when isImport = true, shows a checkbox for existing repo", () => {
@@ -213,11 +214,11 @@ describe("ChooseGitProvider Component", () => {
   });
 
   it("respects canCreateNewArtifact and device conditions for links", () => {
-    // If onOpenImport is null, "Import via git" should not appear even if conditions are met
+    // If canCreateNewArtifact is false, "Import via git" should not appear even if conditions are met
     render(
       <ChooseGitProvider
         {...defaultProps}
-        onOpenImport={null}
+        isCreateArtifactPermitted={false}
         value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
       />,
     );

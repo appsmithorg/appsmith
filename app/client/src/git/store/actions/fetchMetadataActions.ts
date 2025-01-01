@@ -1,15 +1,15 @@
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
 
-export const fetchMetadataInitAction = createArtifactAction((state) => {
+export const fetchMetadataInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.metadata.loading = true;
   state.apiResponses.metadata.error = null;
 
   return state;
 });
 
-export const fetchMetadataSuccessAction = createArtifactAction<
+export const fetchMetadataSuccessAction = createSingleArtifactAction<
   GitAsyncSuccessPayload<FetchMetadataResponseData>
 >((state, action) => {
   state.apiResponses.metadata.loading = false;
@@ -19,7 +19,7 @@ export const fetchMetadataSuccessAction = createArtifactAction<
 });
 
 export const fetchMetadataErrorAction =
-  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.metadata.loading = false;

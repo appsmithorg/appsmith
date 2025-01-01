@@ -1,33 +1,31 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectStatusState } from "git/store/selectors/gitArtifactSelectors";
+import { selectStatusState } from "git/store/selectors/gitSingleArtifactSelectors";
+import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import useArtifactSelector from "./useArtifactSelector";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function useStatus() {
-  const { artifact, artifactDef } = useGitContext();
-  const artifactId = artifact?.id;
+  const { artifactDef } = useGitContext();
   const dispatch = useDispatch();
 
-  const statusState = useArtifactSelector(selectStatusState);
+  const statusState = useSelector((state: GitRootState) =>
+    selectStatusState(state, artifactDef),
+  );
 
   const fetchStatus = useCallback(() => {
-    if (artifactDef && artifactId) {
-      dispatch(
-        gitArtifactActions.fetchStatusInit({
-          artifactId,
-          artifactDef,
-          compareRemote: true,
-        }),
-      );
-    }
-  }, [artifactDef, artifactId, dispatch]);
+    dispatch(
+      gitArtifactActions.fetchStatusInit({
+        ...artifactDef,
+        compareRemote: true,
+      }),
+    );
+  }, [artifactDef, dispatch]);
 
   return {
-    status: statusState?.value ?? null,
+    status: statusState?.value,
     isFetchStatusLoading: statusState?.loading ?? false,
-    fetchStatusError: statusState?.error ?? null,
+    fetchStatusError: statusState?.error,
     fetchStatus,
   };
 }

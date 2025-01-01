@@ -25,6 +25,7 @@ import {
   getMetaWidget,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
+  combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -49,7 +50,6 @@ import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -69,7 +69,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     } = props;
 
     const span = startRootSpan("withWidgetProps", { widgetType: type });
-    const isPreviewMode = useSelector(selectCombinedPreviewMode);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),

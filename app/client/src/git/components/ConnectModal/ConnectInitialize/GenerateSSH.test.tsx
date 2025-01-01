@@ -16,7 +16,7 @@ const defaultProps = {
     gitProvider: "github" as GitProvider,
     remoteUrl: "",
   },
-  error: null,
+  connectError: null,
 };
 
 describe("GenerateSSH Component", () => {
@@ -38,7 +38,7 @@ describe("GenerateSSH Component", () => {
       code: "AE-GIT-4033",
     };
 
-    render(<GenerateSSH {...defaultProps} error={errorData} />);
+    render(<GenerateSSH {...defaultProps} connectError={errorData} />);
     expect(
       screen.getByText("The repo you added isn't empty"),
     ).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe("GenerateSSH Component", () => {
       code: "SOME_OTHER_ERROR",
     };
 
-    render(<GenerateSSH {...defaultProps} error={errorData} />);
+    render(<GenerateSSH {...defaultProps} connectError={errorData} />);
     expect(
       screen.queryByText("The repo you added isn't empty"),
     ).not.toBeInTheDocument();
