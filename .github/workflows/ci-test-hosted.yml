@@ -182,6 +182,12 @@ jobs:
             echo "COMMIT_INFO_MESSAGE=Manual workflow run for Hosted tests" >> $GITHUB_ENV
           fi
 
+      - name: Monitor Resource Usage
+        run: |
+          echo "Monitoring system metrics during Cypress tests..."
+          nohup bash -c 'while true; do echo "==== CPU & RAM Usage ===="; top -b -n 1 | head -n 10; echo "==== Disk Usage ===="; df -h; sleep 10; done' > resource_usage.log &
+          echo $! > resource_monitor_pid    
+
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
         env:
@@ -251,6 +257,17 @@ jobs:
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
           env: "NODE_ENV=development"
+
+      - name: Stop Monitoring
+        run: |
+          kill $(cat resource_monitor_pid) || true
+          echo "Resource monitoring stopped."
+  
+      - name: Upload Resource Usage Log
+        uses: actions/upload-artifact@v3
+        with:
+          name: resource-usage-log
+          path: resource_usage.log    
 
       - name: Rename reports
         if: failure()
