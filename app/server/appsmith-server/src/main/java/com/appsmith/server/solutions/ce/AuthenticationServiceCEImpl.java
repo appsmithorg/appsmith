@@ -358,7 +358,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
         final String workspaceId = splitState[4];
-        final String branchName = splitState.length == 6 ? splitState[5] : null;
+        final String refName = splitState.length == 7 ? splitState[6] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
@@ -378,7 +378,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             + responseStatus
                             + "&view_mode=true"
                             + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
-                            + (StringUtils.hasText(branchName) ? "&branch=" + branchName : "");
+                            + (StringUtils.hasText(refName) ? "&branch=" + refName : "");
                 })
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="

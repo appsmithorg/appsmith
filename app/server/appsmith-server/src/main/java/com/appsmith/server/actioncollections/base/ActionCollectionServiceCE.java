@@ -1,6 +1,7 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
@@ -65,6 +66,9 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollection> archiveById(String id);
 
     Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
+
+    Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
 

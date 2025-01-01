@@ -520,7 +520,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         copyNestedNonNullProperties(actionToImport, existingAction);
         // Update ref name
         existingAction.setRefType(importingMetaDTO.getRefType());
-        existingAction.setBranchName(importingMetaDTO.getRefName());
+        existingAction.setRefName(importingMetaDTO.getRefName());
         // Recover the deleted state present in DB from imported action
         existingAction
                 .getUnpublishedAction()

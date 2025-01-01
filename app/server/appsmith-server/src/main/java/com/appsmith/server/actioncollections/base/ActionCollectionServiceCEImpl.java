@@ -1,6 +1,7 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -457,6 +458,17 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     public Mono<ActionCollection> create(ActionCollection collection) {
         setGitSyncIdInActionCollection(collection);
         return super.create(collection);
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
+        if (viewMode) {
+            return repository.findAllPublishedActionCollectionsByContextIdAndContextType(
+                    contextId, contextType, permission);
+        }
+        return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                contextId, contextType, permission);
     }
 
     protected Mono<ActionDTO> createJsAction(ActionCollection actionCollection, ActionDTO action) {

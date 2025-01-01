@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -355,6 +356,7 @@ public class AuthenticationServiceTest {
                                             defaultEnvironmentId,
                                             "https://mock.origin.com",
                                             workspaceId,
+                                            RefType.branch.name(),
                                             branchName)
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));

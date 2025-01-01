@@ -22,7 +22,7 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @ToString
 @FieldNameConstants
 public class ActionCollectionCE extends RefAwareDomain {
-    // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and
+    // Default resources from RefAwareDomain will be used to store branchName, defaultApplicationId and
     // defaultActionCollectionId
     @JsonView(Views.Public.class)
     String applicationId;
