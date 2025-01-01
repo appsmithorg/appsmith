@@ -208,7 +208,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 gitArtifactMetadata.setGitAuth(gitAuth);
                                 gitArtifactMetadata.setDefaultArtifactId(artifact.getId());
                                 gitArtifactMetadata.setDefaultBranchName(defaultBranch);
-                                gitArtifactMetadata.setBranchName(defaultBranch);
+                                gitArtifactMetadata.setRefName(defaultBranch);
                                 gitArtifactMetadata.setRepoName(repoName);
                                 gitArtifactMetadata.setIsRepoPrivate(isRepoPrivate);
                                 gitArtifactMetadata.setLastCommittedAt(Instant.now());
@@ -487,7 +487,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         final String repoName = baseGitMetadata.getRepoName();
         final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
-        final String baseBranchName = baseGitMetadata.getBranchName();
+        final String baseRefName = baseGitMetadata.getRefName();
         final String workspaceId = baseArtifact.getWorkspaceId();
         final String finalRemoteRefName = gitRefDTO.getRefName().replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
 
@@ -500,7 +500,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
 
         Mono<? extends Artifact> artifactMono;
-        if (baseBranchName.equals(finalRemoteRefName)) {
+        if (baseRefName.equals(finalRemoteRefName)) {
             /*
              in this case, user deleted the initial default branch and now wants to check out to that branch.
              as we didn't delete the application object but only the branch from git repo,
@@ -1006,7 +1006,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                                 GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
                                 gitArtifactMetadata.setDefaultArtifactId(artifactId);
-                                gitArtifactMetadata.setBranchName(defaultBranch);
+                                gitArtifactMetadata.setRefName(defaultBranch);
                                 gitArtifactMetadata.setDefaultBranchName(defaultBranch);
                                 gitArtifactMetadata.setRepoName(repoName);
                                 gitArtifactMetadata.setIsRepoPrivate(isRepoPrivate);
@@ -1204,7 +1204,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
         }
 
-        final String branchName = branchedGitMetadata.getBranchName();
+        final String branchName = branchedGitMetadata.getRefName();
         if (!hasText(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
@@ -1264,7 +1264,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .flatMap(artifact -> {
                     String errorEntity = "";
-                    if (!StringUtils.hasText(branchedGitMetadata.getBranchName())) {
+                    if (!StringUtils.hasText(branchedGitMetadata.getRefName())) {
                         errorEntity = "branch name";
                     } else if (!StringUtils.hasText(branchedGitMetadata.getDefaultArtifactId())) {
                         errorEntity = "default artifact";
@@ -1289,7 +1289,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedArtifact.getGitArtifactMetadata().getRepoName());
                     jsonTransformationDTO.setArtifactType(artifactExchangeJson.getArtifactJsonType());
                     jsonTransformationDTO.setRefName(
-                            branchedArtifact.getGitArtifactMetadata().getBranchName());
+                            branchedArtifact.getGitArtifactMetadata().getRefName());
 
                     return gitHandlingService
                             .prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson)
@@ -1303,7 +1303,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
                     jsonTransformationDTO.setArtifactType(branchedArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
 
                     return gitHandlingService
                             .commitArtifact(updatedBranchedArtifact, commitDTO, jsonTransformationDTO)
@@ -1349,7 +1349,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     log.error(
                             "An error occurred while committing changes to artifact with base id: {} and branch: {}",
                             branchedGitMetadata.getDefaultArtifactId(),
-                            branchedGitMetadata.getBranchName());
+                            branchedGitMetadata.getRefName());
 
                     return gitRedisUtils
                             .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
@@ -1396,7 +1396,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
                     jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
 
                     // Remove the git contents from file system
                     return Mono.zip(gitHandlingService.listBranches(jsonTransformationDTO), Mono.just(baseArtifact));
@@ -1415,7 +1415,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
                     jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
                     jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
 
                     // Remove the parent application branch name from the list
                     Mono<Boolean> removeRepoMono = gitHandlingService.removeRepository(jsonTransformationDTO);
@@ -1502,7 +1502,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
         branchedGitMetadata.setGitAuth(baseGitMetadata.getGitAuth());
 
-        final String finalBranchName = branchedGitMetadata.getBranchName();
+        final String finalBranchName = branchedGitMetadata.getRefName();
 
         if (!StringUtils.hasText(finalBranchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
@@ -1648,7 +1648,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     log.error(
                             "An error occurred while trying to pull the artifact with base id: {} and branchName: {}",
                             branchedGitMetadata.getDefaultArtifactId(),
-                            branchedGitMetadata.getBranchName());
+                            branchedGitMetadata.getRefName());
 
                     return gitRedisUtils
                             .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
@@ -1692,7 +1692,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         final String workspaceId = branchedArtifact.getWorkspaceId();
         final String baseArtifactId = branchedGitMetadata.getDefaultArtifactId();
         final String repoName = branchedGitMetadata.getRepoName();
-        final String branchName = branchedGitMetadata.getBranchName();
+        final String branchName = branchedGitMetadata.getRefName();
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
         jsonTransformationDTO.setRepoName(repoName);
@@ -2001,7 +2001,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         branchedArtifact.getWorkspaceId(),
                         branchedArtifact.getId(),
                         artifactExchangeJson,
-                        branchedGitData.getBranchName()))
+                        branchedGitData.getRefName()))
                 // Update the last deployed status after the rebase
                 .flatMap(importedArtifact -> gitArtifactHelper.publishArtifact(importedArtifact, true))
                 .flatMap(publishedArtifact -> {

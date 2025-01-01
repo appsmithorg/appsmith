@@ -120,7 +120,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName) {
         GitArtifactMetadata sourceBranchGitData = sourceArtifact.getGitArtifactMetadata();
-        sourceBranchGitData.setBranchName(branchName);
+        sourceBranchGitData.setRefName(branchName);
         sourceBranchGitData.setIsRepoPrivate(null);
         // Save new artifact in DB and update from the parent branch application
         sourceBranchGitData.setGitAuth(null);

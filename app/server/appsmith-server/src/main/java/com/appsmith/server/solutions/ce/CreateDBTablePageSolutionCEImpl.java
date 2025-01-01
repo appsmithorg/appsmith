@@ -528,7 +528,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             if (branchedApplication.getGitArtifactMetadata() != null) {
                                 page.setRefName(branchedApplication
                                         .getGitArtifactMetadata()
-                                        .getBranchName());
+                                        .getRefName());
                             }
                             return applicationPageService.createPage(page);
                         }))

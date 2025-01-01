@@ -655,7 +655,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 page.setApplicationId(applicationId);
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    page.setRefName(gitData.getBranchName());
+                                    page.setRefName(gitData.getRefName());
                                 }
                                 return newPageService.createDefault(page);
                             });
@@ -742,7 +742,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (application.getGitApplicationMetadata() == null
                             || application
                                     .getGitApplicationMetadata()
-                                    .getBranchName()
+                                    .getRefName()
                                     .equals(application
                                             .getGitApplicationMetadata()
                                             .getDefaultBranchName())) {

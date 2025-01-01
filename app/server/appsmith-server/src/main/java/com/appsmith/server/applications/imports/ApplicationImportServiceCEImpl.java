@@ -648,14 +648,13 @@ public class ApplicationImportServiceCEImpl
 
         return applicationService.findById(branchedArtifactId).flatMap(application -> {
             String baseArtifactId = application.getBaseId();
-            String branchName = null;
+            String refName = null;
 
             if (application.getGitArtifactMetadata() != null) {
-                branchName = application.getGitArtifactMetadata().getBranchName();
+                refName = application.getGitArtifactMetadata().getRefName();
             }
 
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, baseArtifactId, refName);
         });
     }
 }

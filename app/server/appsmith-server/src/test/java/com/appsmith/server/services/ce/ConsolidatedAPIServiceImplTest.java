@@ -1109,7 +1109,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Application mockApplicationBaseBranch = new Application();
         GitArtifactMetadata baseMetadata = new GitArtifactMetadata();
-        baseMetadata.setBranchName("master");
+        baseMetadata.setRefName("master");
         baseMetadata.setDefaultBranchName("newDefaultBranch");
         baseMetadata.setDefaultApplicationId("mockBaseId");
         mockApplicationBaseBranch.setGitArtifactMetadata(baseMetadata);
@@ -1125,7 +1125,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Application mockDefaultApplication = new Application();
         GitArtifactMetadata defaultMetadata = new GitArtifactMetadata();
-        defaultMetadata.setBranchName("newDefaultBranch");
+        defaultMetadata.setRefName("newDefaultBranch");
         defaultMetadata.setDefaultApplicationId("mockBaseId");
         mockDefaultApplication.setGitArtifactMetadata(defaultMetadata);
         mockDefaultApplication.setId("defaultApplicationId");
@@ -1463,7 +1463,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         // base metadata
         GitArtifactMetadata baseMetadata = new GitArtifactMetadata();
-        baseMetadata.setBranchName(BASE_BRANCH);
+        baseMetadata.setRefName(BASE_BRANCH);
         baseMetadata.setDefaultBranchName(DEFAULT_BRANCH);
         baseMetadata.setDefaultApplicationId(DEFAULT_APPLICATION_ID);
 
@@ -1487,7 +1487,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         // default metadata
         GitArtifactMetadata defaultMetadata = new GitArtifactMetadata();
-        defaultMetadata.setBranchName(DEFAULT_BRANCH);
+        defaultMetadata.setRefName(DEFAULT_BRANCH);
         defaultMetadata.setDefaultBranchName(DEFAULT_BRANCH);
         defaultMetadata.setDefaultApplicationId(DEFAULT_APPLICATION_ID);
 

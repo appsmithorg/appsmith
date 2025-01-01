@@ -268,7 +268,7 @@ public class GitUtilsTest {
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
-        metadata.setBranchName("main");
+        metadata.setRefName("main");
         metadata.setDefaultBranchName("main");
         defaultBranchApplication.setGitApplicationMetadata(metadata);
 
@@ -282,7 +282,7 @@ public class GitUtilsTest {
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
-        metadata.setBranchName("feature-branch");
+        metadata.setRefName("feature-branch");
         metadata.setDefaultBranchName("main");
         nonDefaultBranchApplication.setGitApplicationMetadata(metadata);
 
@@ -313,7 +313,7 @@ public class GitUtilsTest {
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
-        metadata.setBranchName(null);
+        metadata.setRefName(null);
         metadata.setDefaultBranchName("main");
         nullBranchNameApplication.setGitApplicationMetadata(metadata);
 
@@ -327,7 +327,7 @@ public class GitUtilsTest {
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
-        metadata.setBranchName("main");
+        metadata.setRefName("main");
         metadata.setDefaultBranchName(null);
         nullDefaultBranchNameApplication.setGitApplicationMetadata(metadata);
 

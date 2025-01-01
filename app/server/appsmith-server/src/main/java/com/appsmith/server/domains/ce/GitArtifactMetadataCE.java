@@ -21,15 +21,16 @@ import java.util.Map;
 @Data
 @FieldNameConstants
 public class GitArtifactMetadataCE implements AppsmithDomain {
+
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
 
     @JsonView(Views.Internal.class)
-    String refName;
+    RefType refType;
 
     @JsonView(Views.Internal.class)
-    RefType refType;
+    String refName;
 
     // Git default branch corresponding to the remote git repo to which the application is connected to
     @JsonView(Views.Public.class)

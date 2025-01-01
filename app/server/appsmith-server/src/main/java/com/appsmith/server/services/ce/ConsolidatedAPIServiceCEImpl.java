@@ -595,7 +595,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         boolean isDefaultBranchNameAbsent =
                                 isNotAGitApp || !StringUtils.hasText(gitMetadata.getDefaultBranchName());
                         boolean isBranchDefault = !isDefaultBranchNameAbsent
-                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getBranchName());
+                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getRefName());
 
                         // This last check is specially for view mode, when a queried page which is not present
                         // in default branch, and cacheable repository refers to the base application

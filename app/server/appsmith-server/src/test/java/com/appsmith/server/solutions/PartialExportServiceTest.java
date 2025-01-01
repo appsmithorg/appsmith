@@ -221,7 +221,7 @@ public class PartialExportServiceTest {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 

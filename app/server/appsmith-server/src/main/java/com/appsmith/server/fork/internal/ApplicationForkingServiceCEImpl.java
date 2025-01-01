@@ -506,7 +506,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     if ((application.getGitApplicationMetadata() == null)
                             || application
                                     .getGitApplicationMetadata()
-                                    .getBranchName()
+                                    .getRefName()
                                     .equals(application
                                             .getGitApplicationMetadata()
                                             .getDefaultBranchName())) {

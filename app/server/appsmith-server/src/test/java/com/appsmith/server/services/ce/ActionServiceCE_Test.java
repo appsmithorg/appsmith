@@ -250,7 +250,7 @@ public class ActionServiceCE_Test {
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("actionServiceTest");
+        gitData.setRefName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
@@ -258,12 +258,12 @@ public class ActionServiceCE_Test {
                     application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
                     return applicationService.save(application2).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
+                                    application1.getId(), gitData.getRefName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
-                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getRefName()))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
@@ -271,7 +271,7 @@ public class ActionServiceCE_Test {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitApplicationMetadata().getRefName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");
