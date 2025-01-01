@@ -251,7 +251,6 @@ jobs:
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
           env: "NODE_ENV=development"
-          headed: false
 
       - name: Rename reports
         if: failure()
