@@ -91,7 +91,7 @@ function ListItem(props: ListItemProps) {
   } = props;
   const isBlockDescription = descriptionType === "block";
 
-  const listItemhandleKeyDown = (e: React.KeyboardEvent) => {
+  const listItemHandleKeyDown = (e: React.KeyboardEvent) => {
     if (!props.isDisabled && props.onClick) {
       switch (e.key) {
         case "Enter":
@@ -120,7 +120,7 @@ function ListItem(props: ListItemProps) {
     >
       <ContentTextWrapper
         onClick={handleOnClick}
-        onKeyDown={listItemhandleKeyDown}
+        onKeyDown={listItemHandleKeyDown}
       >
         {startIcon}
         {props.customTitleComponent ? (

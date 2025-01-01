@@ -60,6 +60,7 @@ export const ContentTextWrapper = styled.div`
   overflow: hidden;
   flex: 1;
   min-width: 0;
+  flex-shrink: 0;
 
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
@@ -115,7 +116,6 @@ export const StyledListItem = styled.div<{
   padding-left: var(--ads-v2-spaces-3);
 
   ${({ size }) => Sizes[size]}
-
   &[data-isblockdescription="true"] {
     height: 54px;
   }
@@ -128,6 +128,7 @@ export const StyledListItem = styled.div<{
     ${RightControlWrapper} {
       display: none;
     }
+
     &:hover ${RightControlWrapper} {
       display: block;
     }
@@ -138,6 +139,7 @@ export const StyledListItem = styled.div<{
   }
 
   /* disabled style */
+
   &[data-disabled="true"] {
     cursor: not-allowed;
     opacity: var(--ads-v2-opacity-disabled);
@@ -153,6 +155,7 @@ export const StyledListItem = styled.div<{
   }
 
   /* Focus styles */
+
   &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
