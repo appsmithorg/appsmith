@@ -259,11 +259,13 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Stop Monitoring
+        if: always()
         run: |
           kill $(cat resource_monitor_pid) || true
           echo "Resource monitoring stopped."
   
       - name: Upload Resource Usage Log
+        if: always()  
         uses: actions/upload-artifact@v3
         with:
           name: resource-usage-log
