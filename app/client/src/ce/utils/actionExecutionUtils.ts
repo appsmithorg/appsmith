@@ -100,8 +100,9 @@ export function isBrowserExecutionAllowed(..._args: any[]) {
 
 /**
  * Function to extract the test payload from the collection data
- * @param collectionData from the js Object
- * @param defaultValue to be returned if no information is found
+ * @param [collectionData] from the js Object
+ * @param [defaultValue=""] to be returned if no information is found,
+ * returns an empty string by default
  * @returns stored value from the collectionData
  * */
 export const getTestPayloadFromCollectionData = (
