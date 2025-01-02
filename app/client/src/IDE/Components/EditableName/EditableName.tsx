@@ -2,8 +2,7 @@ import React, { useMemo } from "react";
 import { Spinner, Text as ADSText, Tooltip } from "@appsmith/ads";
 import { useValidateEntityName } from "./useValidateEntityName";
 import styled from "styled-components";
-// This import is temporary and will be removed once the component is moved to the design-system
-import { useEditableText } from "@appsmith/ads/src/Templates/EntityExplorer/Editable";
+import { useEditableText } from "@appsmith/ads";
 
 interface EditableTextProps {
   name: string;
