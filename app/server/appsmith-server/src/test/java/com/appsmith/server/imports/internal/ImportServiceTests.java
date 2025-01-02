@@ -2732,7 +2732,7 @@ public class ImportServiceTests {
                     ApplicationJson latestApplicationJson = tuple.getT2();
 
                     assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
-                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(2);
 
                     assertThat(latestApplicationJson.getServerSchemaVersion())
                             .isEqualTo(jsonSchemaVersions.getServerVersion());
