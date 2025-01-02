@@ -48,7 +48,7 @@ export const EntityItem = (props: EntityItemProps) => {
         visible={Boolean(validationError)}
       >
         <EntityEditableName
-          data-isediting={isEditing}
+          data-isediting={inEditMode}
           inputProps={inputProps}
           inputRef={inputRef}
           isEditable={inEditMode}
