@@ -1,3 +1,4 @@
+import { SCHEDULE_CALL_URL } from "constants/PremiumDatasourcesConstants";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isRelevantEmail } from "utils/formhelpers";
@@ -58,6 +59,15 @@ export const handleSubmitEvent = (
       email,
     },
   );
+
+  const scheduleACallUrl =
+    !isBusinessOrEnterprise && validRelevantEmail
+      ? `${SCHEDULE_CALL_URL}?email=${email}`
+      : "";
+
+  if (scheduleACallUrl) {
+    window.open(scheduleACallUrl, "_blank");
+  }
 };
 
 export const getContactFormModalTitle = (

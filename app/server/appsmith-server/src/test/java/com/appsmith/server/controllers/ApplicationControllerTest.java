@@ -1,28 +1,14 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.extensions.AfterAllCleanUpExtension;
-import com.appsmith.server.fork.internal.ApplicationForkingService;
-import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.imports.internal.partial.PartialImportService;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.solutions.UserReleaseNotes;
-import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -54,50 +40,9 @@ import static org.mockito.ArgumentMatchers.any;
 @EnableAutoConfiguration(exclude = ReactiveMultipartAutoConfiguration.class)
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class ApplicationControllerTest {
-    @MockBean
-    ApplicationService applicationService;
-
-    @MockBean
-    ApplicationPageService applicationPageService;
-
-    @MockBean
-    UserReleaseNotes applicationFetcher;
-
-    @MockBean
-    ApplicationForkingService applicationForkingService;
 
     @MockBean
     ImportService importService;
-
-    @MockBean
-    ExportService exportService;
-
-    @MockBean
-    ApplicationSnapshotService applicationSnapshotService;
-
-    @MockBean
-    ThemeService themeService;
-
-    @MockBean
-    UserDataService userDataService;
-
-    @MockBean
-    AnalyticsService analyticsService;
-
-    @MockBean
-    CommonGitFileUtils commonGitFileUtils;
-
-    @MockBean
-    SessionUserService sessionUserService;
-
-    @MockBean
-    PartialExportService partialExportService;
-
-    @MockBean
-    PartialImportService partialImportService;
-
-    @MockBean
-    ProjectProperties projectProperties;
 
     @Autowired
     private WebTestClient webTestClient;

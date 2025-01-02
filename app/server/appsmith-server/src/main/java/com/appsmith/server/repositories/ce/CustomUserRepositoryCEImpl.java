@@ -43,7 +43,8 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .isEmpty());
     }
 
-    protected Set<String> getSystemGeneratedUserEmails() {
+    @Override
+    public Set<String> getSystemGeneratedUserEmails() {
         Set<String> systemGeneratedEmails = new HashSet<>();
         systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
         return systemGeneratedEmails;

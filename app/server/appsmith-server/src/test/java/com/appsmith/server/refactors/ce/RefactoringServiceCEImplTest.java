@@ -71,7 +71,7 @@ class RefactoringServiceCEImplTest {
     @MockBean
     private UpdateLayoutService updateLayoutService;
 
-    @MockBean
+    @SpyBean
     private ApplicationService applicationService;
 
     @MockBean
@@ -166,7 +166,7 @@ class RefactoringServiceCEImplTest {
         Application application = new Application();
         application.setId("testAppId");
         application.setEvaluationVersion(EVALUATION_VERSION);
-        Mockito.when(applicationService.findById(Mockito.anyString())).thenReturn(Mono.just(application));
+        Mockito.doReturn(Mono.just(application)).when(applicationService).findById(Mockito.anyString());
 
         Mockito.when(newActionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Flux.empty());
@@ -292,7 +292,7 @@ class RefactoringServiceCEImplTest {
         Application application = new Application();
         application.setId("testAppId");
         application.setEvaluationVersion(EVALUATION_VERSION);
-        Mockito.when(applicationService.findById(Mockito.anyString())).thenReturn(Mono.just(application));
+        Mockito.doReturn(Mono.just(application)).when(applicationService).findById(Mockito.anyString());
 
         NewAction newAction = new NewAction();
         ActionDTO actionDTO = new ActionDTO();

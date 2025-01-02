@@ -25,6 +25,7 @@ public class GitContext implements TestTemplateInvocationContext, ParameterResol
         ExtensionContext.Store contextStore = extensionContext.getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
         contextStore.put(ArtifactExchangeJson.class, artifactExchangeJsonType);
         contextStore.put("filePath", fileName);
+        contextStore.put("artifactType", artifactType);
         this.fileName = fileName;
         this.artifactExchangeJsonType = artifactExchangeJsonType;
     }

@@ -295,7 +295,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
               </DatasourceCard>
             );
           })}
-          {this.props.children}
         </DatasourceCardsContainer>
       </DatasourceHomePage>
     );

@@ -212,6 +212,8 @@ public class GitBranchesIT {
 
         assertThat(autoCommitResponseDTO).isNotNull();
         AutoCommitResponseDTO.AutoCommitResponse autoCommitProgress = autoCommitResponseDTO.getAutoCommitResponse();
+        // This check requires RTS to be running on your local since client side changes come in from there
+        // Please make sure to run RTS before triggering this test
         assertThat(autoCommitProgress).isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED);
 
         // Wait for auto-commit to complete

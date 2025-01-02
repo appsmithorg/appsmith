@@ -5,16 +5,14 @@ import type { ListItemProps, ListProps } from "./List.types";
 import {
   ContentTextWrapper,
   DescriptionWrapper,
-  EndIconWrapper,
   InlineDescriptionWrapper,
+  RightControlWrapper,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
-  Wrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
-import { Button } from "../Button";
 import { Tooltip } from "../Tooltip";
 import {
   ListClassName,
@@ -23,7 +21,6 @@ import {
   ListItemIDescClassName,
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
-  ListItemWrapperClassName,
 } from "./List.constants";
 
 function List({ className, items, ...rest }: ListProps) {
@@ -85,8 +82,9 @@ function ListItem(props: ListItemProps) {
   const {
     description,
     descriptionType = "inline",
-    endIcon,
     hasError,
+    rightControl,
+    rightControlVisibility = "always",
     size = "md",
     startIcon,
     title,
@@ -104,27 +102,6 @@ function ListItem(props: ListItemProps) {
     }
   };
 
-  const endIconhandleKeyDown = (e: React.KeyboardEvent) => {
-    e.stopPropagation();
-
-    if (!props.isDisabled && props.onEndIconClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onEndIconClick();
-          break;
-      }
-    }
-  };
-
-  const endIconOnClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!props.isDisabled && props.onEndIconClick) {
-      props.onEndIconClick();
-    }
-  };
-
   const handleOnClick = () => {
     if (!props.isDisabled && props.onClick) {
       props.onClick();
@@ -132,20 +109,23 @@ function ListItem(props: ListItemProps) {
   };
 
   return (
-    <Wrapper className={clsx(ListItemWrapperClassName, props.wrapperClassName)}>
-      <StyledListItem
-        className={clsx(ListItemClassName, props.className)}
-        data-disabled={props.isDisabled || false}
-        data-selected={props.isSelected}
-        endIcon={props.endIcon}
-        isBlockDescription={isBlockDescription}
+    <StyledListItem
+      className={clsx(ListItemClassName, props.className)}
+      data-disabled={props.isDisabled || false}
+      data-isblockdescription={isBlockDescription}
+      data-rightcontrolvisibility={rightControlVisibility}
+      data-selected={props.isSelected}
+      size={size}
+      tabIndex={props.isDisabled ? -1 : 0}
+    >
+      <ContentTextWrapper
         onClick={handleOnClick}
         onKeyDown={listItemhandleKeyDown}
-        size={size}
-        tabIndex={props.isDisabled ? -1 : 0}
       >
-        <ContentTextWrapper>
-          {startIcon}
+        {startIcon}
+        {props.customTitleComponent ? (
+          props.customTitleComponent
+        ) : (
           <InlineDescriptionWrapper>
             <DescriptionWrapper>
               <TextWithTooltip
@@ -175,22 +155,12 @@ function ListItem(props: ListItemProps) {
               </TextWithTooltip>
             )}
           </InlineDescriptionWrapper>
-        </ContentTextWrapper>
-      </StyledListItem>
-      {endIcon && (
-        <EndIconWrapper>
-          <Button
-            isDisabled={props.isDisabled}
-            isIconButton
-            kind="tertiary"
-            onClick={endIconOnClick}
-            onKeyDown={endIconhandleKeyDown}
-            size={"sm"}
-            startIcon={endIcon}
-          />
-        </EndIconWrapper>
+        )}
+      </ContentTextWrapper>
+      {rightControl && (
+        <RightControlWrapper>{rightControl}</RightControlWrapper>
       )}
-    </Wrapper>
+    </StyledListItem>
   );
 }
 

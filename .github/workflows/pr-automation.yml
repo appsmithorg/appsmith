@@ -71,6 +71,7 @@ jobs:
         shell: bash
     outputs:
       tags: ${{ steps.parseTags.outputs.tags }}
+      its: ${{ steps.parseTags.outputs.its }}
       spec: ${{ steps.parseTags.outputs.spec }}
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
@@ -129,6 +130,7 @@ jobs:
     uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit
     with:
+      its: ${{ needs.parse-tags.outputs.its}}
       tags: ${{ needs.parse-tags.outputs.tags}}
       spec: ${{ needs.parse-tags.outputs.spec}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}

@@ -6,8 +6,4 @@ import com.appsmith.server.repositories.BaseRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface DatasourceStorageRepositoryCE extends BaseRepository<DatasourceStorage, String> {
-    List<DatasourceStorage> findByDatasourceId(String datasourceId);
-
-    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
-}
+public interface DatasourceStorageRepositoryCE extends BaseRepository<DatasourceStorage, String> { }

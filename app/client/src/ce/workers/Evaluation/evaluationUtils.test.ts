@@ -13,7 +13,7 @@ import type {
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,

@@ -61,6 +61,8 @@ const ListJSObjects = () => {
       px="spaces-3"
       py="spaces-3"
     >
+      {(!itemGroups || itemGroups.length === 0) && <BlankState />}
+
       {itemGroups && itemGroups.length > 0 ? (
         <SearchAndAdd
           onAdd={openAddJS}
@@ -119,8 +121,6 @@ const ListJSObjects = () => {
           ) : null}
         </Flex>
       </FilesContextProvider>
-
-      {(!itemGroups || itemGroups.length === 0) && <BlankState />}
     </JSContainer>
   );
 };
