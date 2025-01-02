@@ -41,8 +41,6 @@ const Group: React.FC<GroupProps> = ({ group }) => {
     if (hasMoreItems) {
       items.push({
         title: "Load more...",
-        description: "",
-        descriptionType: "inline",
         onClick: handleLoadMore,
         className: "ds-load-more",
       });

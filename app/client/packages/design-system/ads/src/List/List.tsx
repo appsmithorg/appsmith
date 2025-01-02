@@ -91,21 +91,14 @@ function ListItem(props: ListItemProps) {
   } = props;
   const isBlockDescription = descriptionType === "block";
 
-  const listItemhandleKeyDown = (e: React.KeyboardEvent) => {
-    if (!props.isDisabled && props.onClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onClick();
-          break;
-      }
-    }
-  };
-
   const handleOnClick = () => {
     if (!props.isDisabled && props.onClick) {
       props.onClick();
     }
+  };
+
+  const handleRightControlClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   return (
@@ -115,13 +108,11 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      onClick={handleOnClick}
       size={size}
       tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper
-        onClick={handleOnClick}
-        onKeyDown={listItemhandleKeyDown}
-      >
+      <ContentTextWrapper>
         {startIcon}
         {props.customTitleComponent ? (
           props.customTitleComponent
@@ -158,7 +149,9 @@ function ListItem(props: ListItemProps) {
         )}
       </ContentTextWrapper>
       {rightControl && (
-        <RightControlWrapper>{rightControl}</RightControlWrapper>
+        <RightControlWrapper onClick={handleRightControlClick}>
+          {rightControl}
+        </RightControlWrapper>
       )}
     </StyledListItem>
   );
