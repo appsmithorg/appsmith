@@ -33,10 +33,14 @@ import { StyledDivider } from "./IntegrationStyledComponents";
 import CreateNewDatasourceHeader from "./CreateNewDatasourceHeader";
 import EmptySearchedPlugins from "./EmptySearchedPlugins";
 
-const NewIntegrationsContainer = styled.div`
+const NewIntegrationsContainer = styled.div<{ isOnboardingScreen?: boolean }>`
   ${thinScrollbar};
   overflow: auto;
   flex: 1;
+  ${(props) =>
+    props.isOnboardingScreen
+      ? "padding: var(--ads-v2-spaces-5) var(--ads-spaces-11);"
+      : "padding: var(--ads-spaces-8);"}
   & > div {
     margin-bottom: var(--ads-spaces-7);
   }
@@ -96,7 +100,10 @@ class CreateNewDatasourceTab extends React.Component<
 
     return (
       <>
-        <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
+        <NewIntegrationsContainer
+          id="new-integrations-wrapper"
+          isOnboardingScreen={!!isOnboardingScreen}
+        >
           <CreateNewDatasourceHeader />
           <StyledDivider />
           {dataSources.length === 0 && <AddDatasourceSecurely />}

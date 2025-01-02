@@ -2335,9 +2335,6 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
-export const START_WITH_DATA_CONNECT_HEADING = () => "Connect your datasource";
-export const START_WITH_DATA_CONNECT_SUBHEADING = () =>
-  "Select an option to establish a connection. Your data's security is our priority.";
 export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";

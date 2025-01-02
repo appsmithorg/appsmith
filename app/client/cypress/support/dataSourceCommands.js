@@ -323,9 +323,8 @@ Cypress.Commands.add("datasourceImageStyle", (tag) => {
 Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "display", "flex")
-    .and("have.css", "align-items", "center")
-    .and("have.css", "gap", "13px")
-    .and("have.css", "padding-left", "13.5px");
+    .and("have.css", "align-items", "flex-start")
+    .and("have.css", "gap", "normal");
 });
 
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
@@ -340,9 +339,9 @@ Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceNameStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "color", backgroundColorBlack)
-    .and("have.css", "font-size", "16px")
-    .and("have.css", "font-weight", "400")
-    .and("have.css", "line-height", "24px");
+    .and("have.css", "font-size", "14px")
+    .and("have.css", "font-weight", "500")
+    .and("have.css", "line-height", "20px");
 });
 
 Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {

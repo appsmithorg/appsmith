@@ -203,7 +203,7 @@ export class DataSources {
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
-    ".t--datasource-name:contains('" + dsName + "')";
+    ".t--plugin-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
   _dsTabSchema = "[data-testid='t--tab-DATASOURCE_TAB']";
