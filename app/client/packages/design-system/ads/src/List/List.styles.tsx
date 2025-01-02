@@ -31,11 +31,28 @@ export const TooltipTextWrapper = styled.div`
   min-width: 0;
 `;
 
-export const DescriptionWrapper = styled.div`
-  flex-direction: column;
-  min-width: 0;
-  gap: var(--ads-v2-spaces-2);
+export const RightControlWrapper = styled.div`
+  height: 100%;
+  line-height: normal;
   display: flex;
+  align-items: center;
+
+  button {
+    margin-left: -4px;
+  }
+`;
+
+export const TopContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+  min-width: 0;
+  height: 24px;
+`;
+
+export const BottomContentWrapper = styled.div`
+  padding-left: var(--ads-v2-spaces-7);
+  padding-bottom: var(--ads-v2-spaces-2);
 `;
 
 export const InlineDescriptionWrapper = styled.div`
@@ -46,23 +63,15 @@ export const InlineDescriptionWrapper = styled.div`
   min-width: 0;
 `;
 
-export const RightControlWrapper = styled.div`
-  height: 100%;
-  line-height: normal;
-  display: flex;
-  align-items: center;
-`;
-
 export const ContentTextWrapper = styled.div`
   display: flex;
+  height: 100%;
   width: 100%;
-  align-items: center;
   box-sizing: border-box;
-  gap: var(--ads-v2-spaces-3);
-  overflow: hidden;
+  gap: var(--ads-v2-spaces-1);
   flex: 1;
-  min-width: 0;
   flex-shrink: 0;
+  flex-direction: column;
 
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
@@ -118,13 +127,6 @@ export const StyledListItem = styled.div<{
   padding-left: var(--ads-v2-spaces-3);
 
   ${({ size }) => Sizes[size]}
-  &[data-isblockdescription="true"] {
-    height: 54px;
-  }
-
-  &[data-isblockdescription="false"] {
-    height: 32px;
-  }
 
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {

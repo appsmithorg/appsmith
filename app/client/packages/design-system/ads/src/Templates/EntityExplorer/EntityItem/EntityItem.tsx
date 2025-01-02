@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { ListItem, Tooltip } from "../../..";
 
 import type { EntityItemProps } from "./EntityItem.types";
-import { EntityEditableName } from "./EntityItem.styled";
+import { EntityEditableName } from "./EntityItem.styles";
 import { useEditableText } from "../Editable";
 
 export const EntityItem = (props: EntityItemProps) => {
@@ -46,6 +46,7 @@ export const EntityItem = (props: EntityItemProps) => {
         visible={Boolean(validationError)}
       >
         <EntityEditableName
+          data-isediting={isEditing}
           inputProps={inputProps}
           inputRef={inputRef}
           isEditable={isEditing}
