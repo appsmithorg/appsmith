@@ -272,6 +272,7 @@ public class ImportServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
