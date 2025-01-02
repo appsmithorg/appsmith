@@ -305,6 +305,27 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
+    public Mono<String> getDefaultBranchFromRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseGitData) {
+        if (isGitAuthInvalid(baseGitData.getGitAuth())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        String publicKey = baseGitData.getGitAuth().getPublicKey();
+        String privateKey = baseGitData.getGitAuth().getPrivateKey();
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffixPath = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.getRemoteDefaultBranch(repoSuffixPath, baseGitData.getRemoteUrl(), privateKey, publicKey);
+    }
+
+    @Override
     public Mono<Boolean> validateEmptyRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
@@ -675,6 +696,19 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
+    public Mono<String> checkoutRemoteReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.checkoutRemoteBranch(repoSuffix, jsonTransformationDTO.getRefName());
+    }
+
+    @Override
     public Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
@@ -706,7 +740,6 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<Boolean> checkoutArtifact(ArtifactJsonTransformationDTO jsonTransformationDTO) {
-
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 
