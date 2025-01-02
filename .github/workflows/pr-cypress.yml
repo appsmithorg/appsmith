@@ -3,6 +3,10 @@ name: Cypress test suite
 on:
   workflow_call:
     inputs:
+      its:
+        required: false
+        type: string
+        default: "false"
       tags:
         required: true
         type: string
@@ -45,6 +49,15 @@ jobs:
     with:
       pr: ${{ github.event.number }}
 
+  server-it:
+    needs: [ server-build, rts-build ]
+    if: success() && inputs.its == 'true'
+    uses: ./.github/workflows/server-integration-tests.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
+
   build-docker-image:
     needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
@@ -69,7 +82,7 @@ jobs:
       matrix: ${{ inputs.matrix }}
 
   ci-test-result:
-    needs: [ci-test]
+    needs: [ci-test, server-it]
     # Only run if the ci-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest

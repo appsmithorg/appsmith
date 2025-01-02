@@ -89,7 +89,7 @@ export class HomePage {
   private _workspaceImport = "[data-testid=t--workspace-import-app]";
   public _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
-  private _forkModal = ".fork-modal";
+  public _forkModal = ".fork-modal";
   public _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
@@ -129,7 +129,6 @@ export class HomePage {
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
   private _membersTab = "[data-testid=t--tab-members]";
-
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
   public SwitchToAppsTab() {

@@ -21,6 +21,7 @@ module.exports = function ({core, context, github}) {
   }
 
   core.setOutput("tags", parseResult.tags ?? "");
+  core.setOutput("its", parseResult.its ?? "");
   core.setOutput("spec", parseResult.spec ?? "");
 }
 
@@ -28,18 +29,29 @@ function parseTags(body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
-  const strictMatch = body.match(/^\/ok-to-test tags="(.+?)"/m)?.[1];
-  if (strictMatch) {
-    if (strictMatch === "@tag.All") {
-      return { tags: strictMatch };
-    }
-    const parts = strictMatch.split(/\s*,\s*/);
-    for (const part of parts) {
-      if (!allTags.includes(part)) {
-        throw new Error("Unknown tag: " + part);
+  const okToTestPattern = body.match(/^(\/ok-to-test) tags="(.+?)"( it=true)?/m);
+
+  if (okToTestPattern?.[1]) {
+    var response = {};
+    const tagsMatch = okToTestPattern?.[2];
+    if (tagsMatch) {
+      if (tagsMatch === "@tag.All") {
+        response = { tags: tagsMatch };
+      } else {
+        const parts = tagsMatch.split(/\s*,\s*/);
+        for (const part of parts) {
+          if (!allTags.includes(part)) {
+            throw new Error("Unknown tag: " + part);
+          }
+        }
+        response = { tags: tagsMatch };
       }
     }
-    return { tags: strictMatch };
+    const itsMatch = okToTestPattern?.[3];
+    if (itsMatch) {
+      response = { ...response, its: 'true' };
+    }
+    return response;
   }
 
   // "/test" code-fence matcher.
