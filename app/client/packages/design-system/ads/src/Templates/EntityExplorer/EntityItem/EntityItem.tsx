@@ -3,7 +3,7 @@ import { ListItem, Tooltip } from "../../..";
 
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styled";
-import { useNameEditor } from "./useNameEditor";
+import { useEditableText } from "../Editable";
 
 export const EntityItem = (props: EntityItemProps) => {
   const { canEdit, isEditing, onEditComplete, onNameSave, validateName } =
@@ -15,9 +15,9 @@ export const EntityItem = (props: EntityItemProps) => {
     validationError,
     handleKeyUp,
     handleTitleChange,
-  ] = useNameEditor(
+  ] = useEditableText(
     canEdit ? isEditing : false,
-    props.name,
+    props.title,
     onEditComplete,
     validateName,
     onNameSave,

@@ -3,9 +3,8 @@ import type { ListItemProps } from "../../../List";
 export interface EntityItemProps
   extends Omit<
     ListItemProps,
-    "title" | "customTitleComponent" | "description" | "descriptionType"
+    "customTitleComponent" | "description" | "descriptionType"
   > {
-  name: string;
   /** Control the name editing behaviour */
   nameEditorConfig: {
     // Set editable based on user permissions
