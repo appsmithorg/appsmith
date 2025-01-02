@@ -11,7 +11,7 @@ import { usePrevious } from "@mantine/hooks";
 import { useEventCallback, useEventListener } from "usehooks-ts";
 import { normaliseName } from "./utils";
 
-export function useNameEditor(
+export function useEditableText(
   isEditing: boolean,
   name: string,
   exitEditing: () => void,
