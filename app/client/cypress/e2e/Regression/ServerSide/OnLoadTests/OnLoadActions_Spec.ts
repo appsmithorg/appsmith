@@ -43,7 +43,8 @@ describe(
       });
     });
 
-    it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
       agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
@@ -142,7 +143,8 @@ describe(
       agHelper.AssertElementAbsence(locators._errorTab);
     });
 
-    it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
       EditorNavigation.SelectEntityByName("Genderize", EntityType.Api);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Genderize",
