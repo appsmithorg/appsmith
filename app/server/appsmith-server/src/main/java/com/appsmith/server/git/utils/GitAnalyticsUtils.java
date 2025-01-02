@@ -73,7 +73,7 @@ public class GitAnalyticsUtils {
             Boolean isMergeable) {
 
         String branchName = artifact.getGitArtifactMetadata() != null
-                ? artifact.getGitArtifactMetadata().getBranchName()
+                ? artifact.getGitArtifactMetadata().getRefName()
                 : null;
         return addAnalyticsForGitOperation(
                 event, artifact, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
@@ -141,7 +141,7 @@ public class GitAnalyticsUtils {
                 "appId",
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
-                gitArtifactMetadata.getBranchName(),
+                gitArtifactMetadata.getRefName(),
                 "organizationId",
                 artifact.getWorkspaceId(),
                 "repoUrl",

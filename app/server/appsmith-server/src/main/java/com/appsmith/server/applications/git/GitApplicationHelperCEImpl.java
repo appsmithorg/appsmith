@@ -120,7 +120,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName) {
         GitArtifactMetadata sourceBranchGitData = sourceArtifact.getGitArtifactMetadata();
-        sourceBranchGitData.setBranchName(branchName);
+        sourceBranchGitData.setRefName(branchName);
         sourceBranchGitData.setIsRepoPrivate(null);
         // Save new artifact in DB and update from the parent branch application
         sourceBranchGitData.setGitAuth(null);
@@ -260,7 +260,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                 .flatMap(page -> newPageService.findById(page.getId(), null))
                 .map(newPage -> {
                     newPage.setBaseId(newPage.getId());
-                    newPage.setBranchName(null);
+                    newPage.setRefType(null);
+                    newPage.setRefName(null);
                     return newPage;
                 })
                 .collectList()
@@ -272,7 +273,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                     .findByPageId(newPage.getId(), Optional.empty())
                     .map(newAction -> {
                         newAction.setBaseId(newAction.getId());
-                        newAction.setBranchName(null);
+                        newAction.setRefType(null);
+                        newAction.setRefName(null);
                         return newAction;
                     })
                     .collectList()
@@ -284,7 +286,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                     .findByPageId(newPage.getId())
                     .map(actionCollection -> {
                         actionCollection.setBaseId(actionCollection.getId());
-                        actionCollection.setBranchName(null);
+                        actionCollection.setRefType(null);
+                        actionCollection.setRefName(null);
                         return actionCollection;
                     })
                     .collectList()
@@ -334,7 +337,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
             Artifact artifact, RefType refType, Boolean isPublishedManually) {
         // TODO: create publish for ref type creation.
         Application application = (Application) artifact;
-        if (RefType.TAG.equals(refType)) {
+        if (RefType.tag.equals(refType)) {
             return Mono.just(application);
         }
 
