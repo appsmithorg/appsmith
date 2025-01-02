@@ -189,7 +189,7 @@ jobs:
           echo $! > resource_monitor_pid    
 
       - name: Run the cypress test
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v6.7.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -251,6 +251,7 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
+          DEBUG: 'cypress:*'
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
