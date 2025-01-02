@@ -11,6 +11,7 @@ describe(
   "Abort Action Execution",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/38165
     it("1. Bug #14006, #16093 - Cancel request button should abort API action execution", function () {
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl + "00",
