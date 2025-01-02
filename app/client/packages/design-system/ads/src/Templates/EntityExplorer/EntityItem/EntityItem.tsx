@@ -17,7 +17,7 @@ export const EntityItem = (props: EntityItemProps) => {
     handleTitleChange,
   ] = useNameEditor(
     canEdit ? isEditing : false,
-    props.name,
+    props.title,
     onEditComplete,
     validateName,
     onNameSave,

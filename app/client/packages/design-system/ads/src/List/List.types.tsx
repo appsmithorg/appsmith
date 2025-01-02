@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export type ListSizes = Extract<Sizes, "md" | "lg">;
 
-interface BaseListItemProps {
+export interface ListItemProps {
   /** The icon to display before the list item title. */
   startIcon?: ReactNode;
   /** The control to display at the end. */
@@ -22,6 +22,8 @@ interface BaseListItemProps {
   size?: ListSizes;
   /** Whether to show the list item in error state */
   hasError?: boolean;
+  /** The title/label of the list item */
+  title: string;
   /** Description text to be shown alongside the title */
   description?: string;
   /** `inline` type will show the description beside the title. `block` type will show the description
@@ -32,23 +34,9 @@ interface BaseListItemProps {
   className?: string;
   /** id for the list item */
   id?: string;
-}
-
-interface ListItemWithTitle extends BaseListItemProps {
-  /** The title/label of the list item */
-  title: string;
-  customTitleComponent?: never;
-}
-
-interface ListItemWithCustomTitleComponent extends BaseListItemProps {
-  title?: never;
   /** customTitleComponent for the list item to use input component for name editing */
-  customTitleComponent: ReactNode | ReactNode[];
+  customTitleComponent?: ReactNode | ReactNode[];
 }
-
-export type ListItemProps =
-  | ListItemWithTitle
-  | ListItemWithCustomTitleComponent;
 
 export interface ListProps {
   items: ListItemProps[];

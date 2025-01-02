@@ -15,7 +15,7 @@ const meta: Meta<typeof EntityItem> = {
 export default meta;
 
 const Template = (props: EntityItemProps) => {
-  const { hasError, isDisabled, isSelected, name, nameEditorConfig } = props;
+  const { hasError, isDisabled, isSelected, nameEditorConfig, title } = props;
   const [isEditing, setIsEditing] = React.useState(false);
 
   const onEditComplete = () => {
@@ -41,7 +41,7 @@ const Template = (props: EntityItemProps) => {
             }}
             {...{
               startIcon,
-              name,
+              title,
               hasError,
               isSelected,
               isDisabled,
@@ -65,7 +65,7 @@ const Template = (props: EntityItemProps) => {
 export const InEditingMode = Template.bind({}) as StoryObj;
 
 InEditingMode.args = {
-  name: "EntityName",
+  title: "EntityName",
   nameEditorConfig: {
     canEdit: true,
     validateName: () => null,
@@ -75,7 +75,7 @@ InEditingMode.args = {
 export const RenamingError = Template.bind({}) as StoryObj;
 
 RenamingError.args = {
-  name: "EntityName",
+  title: "EntityName",
   nameEditorConfig: {
     canEdit: true,
     validateName: () => "This is a sample error",
@@ -85,7 +85,7 @@ RenamingError.args = {
 export const SelectedState = Template.bind({}) as StoryObj;
 
 SelectedState.args = {
-  name: "EntityName",
+  title: "EntityName",
   isSelected: true,
   nameEditorConfig: {
     canEdit: true,
@@ -96,7 +96,7 @@ SelectedState.args = {
 export const DisabledState = Template.bind({}) as StoryObj;
 
 DisabledState.args = {
-  name: "EntityName",
+  title: "EntityName",
   isDisabled: true,
   nameEditorConfig: {
     canEdit: true,
