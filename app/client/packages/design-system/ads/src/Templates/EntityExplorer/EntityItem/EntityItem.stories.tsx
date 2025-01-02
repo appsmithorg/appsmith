@@ -72,6 +72,16 @@ InEditingMode.args = {
   },
 };
 
+export const NoPermissionToEdit = Template.bind({}) as StoryObj;
+
+NoPermissionToEdit.args = {
+  title: "EntityName",
+  nameEditorConfig: {
+    canEdit: false,
+    validateName: () => null,
+  },
+};
+
 export const RenamingError = Template.bind({}) as StoryObj;
 
 RenamingError.args = {
