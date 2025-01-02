@@ -4,6 +4,7 @@ import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.CreatorContextType;
@@ -172,7 +173,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView({Views.Internal.class})
-    private String branchName;
+    private RefType refType;
+
+    @Transient
+    @JsonView({Views.Internal.class})
+    private String refName;
 
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**

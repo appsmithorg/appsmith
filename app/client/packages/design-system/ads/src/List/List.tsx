@@ -91,17 +91,6 @@ function ListItem(props: ListItemProps) {
   } = props;
   const isBlockDescription = descriptionType === "block";
 
-  const listItemHandleKeyDown = (e: React.KeyboardEvent) => {
-    if (!props.isDisabled && props.onClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onClick();
-          break;
-      }
-    }
-  };
-
   const handleOnClick = () => {
     if (!props.isDisabled && props.onClick) {
       props.onClick();
@@ -114,6 +103,10 @@ function ListItem(props: ListItemProps) {
     }
   };
 
+  const handleRightControlClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
@@ -121,14 +114,11 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      onClick={handleOnClick}
       size={size}
       // tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper
-        onClick={handleOnClick}
-        onDoubleClick={handleDoubleClick}
-        onKeyDown={listItemHandleKeyDown}
-      >
+      <ContentTextWrapper onDoubleClick={handleDoubleClick}>
         {startIcon}
         {props.customTitleComponent ? (
           props.customTitleComponent
@@ -165,7 +155,9 @@ function ListItem(props: ListItemProps) {
         )}
       </ContentTextWrapper>
       {rightControl && (
-        <RightControlWrapper>{rightControl}</RightControlWrapper>
+        <RightControlWrapper onClick={handleRightControlClick}>
+          {rightControl}
+        </RightControlWrapper>
       )}
     </StyledListItem>
   );
