@@ -2157,7 +2157,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         return gitRedisUtils
-                .acquireGitLock(metadata.getDefaultArtifactId(), GitConstants.GitCommandConstants.SYNC_BRANCH, TRUE)
+                .acquireGitLock(
+                        jsonTransformationDTO.getArtifactType(),
+                        metadata.getDefaultArtifactId(),
+                        GitConstants.GitCommandConstants.SYNC_BRANCH,
+                        TRUE)
                 .then(gitHandlingService
                         .getDefaultBranchFromRepository(jsonTransformationDTO, metadata)
                         .flatMap(defaultBranchNameInRemote -> {
@@ -2180,7 +2184,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     .thenReturn(defaultBranchNameInRemote);
                         })
                         .flatMap(branchName -> gitRedisUtils
-                                .releaseFileLock(metadata.getDefaultArtifactId(), TRUE)
+                                .releaseFileLock(
+                                        jsonTransformationDTO.getArtifactType(), metadata.getDefaultArtifactId(), TRUE)
                                 .thenReturn(branchName)));
     }
 
@@ -2325,6 +2330,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             boolean pruneBranches,
             GitType gitType) {
 
+        ArtifactType artifactType = baseArtifact.getArtifactType();
         GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
@@ -2337,7 +2343,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
 
         return gitRedisUtils
-                .acquireGitLock(baseGitData.getDefaultArtifactId(), GitConstants.GitCommandConstants.LIST_BRANCH, TRUE)
+                .acquireGitLock(
+                        artifactType,
+                        baseGitData.getDefaultArtifactId(),
+                        GitConstants.GitCommandConstants.LIST_BRANCH,
+                        TRUE)
                 .flatMap(ignoredLock -> {
                     Mono<List<String>> listBranchesMono =
                             Mono.defer(() -> gitHandlingService.listReferences(jsonTransformationDTO, false));
@@ -2351,12 +2361,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .onErrorResume(error -> {
                     return gitRedisUtils
-                            .releaseFileLock(baseGitData.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, baseGitData.getDefaultArtifactId(), TRUE)
                             .then(Mono.error(error));
                 })
                 .flatMap(branches -> {
                     return gitRedisUtils
-                            .releaseFileLock(baseGitData.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, baseGitData.getDefaultArtifactId(), TRUE)
                             .thenReturn(branches.stream()
                                     .map(branchName -> {
                                         GitBranchDTO gitBranchDTO = new GitBranchDTO();
