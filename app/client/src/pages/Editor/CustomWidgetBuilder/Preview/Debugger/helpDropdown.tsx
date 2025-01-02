@@ -36,14 +36,10 @@ export default function HelpDropdown(props: DebuggerLog) {
               onClick: () => {
                 window.open(CUSTOM_WIDGET_DOC_URL, "_blank");
               },
-              description: "",
-              descriptionType: "inline",
             },
             // {
             //   startIcon: <Icon name="wand" size="md" />,
             //   title: "Troubleshoot with AI",
-            //   description: "",
-            //   descriptionType: "inline",
             //   onClick: noop,
             // },
             {
@@ -61,14 +57,10 @@ export default function HelpDropdown(props: DebuggerLog) {
                     "_blank",
                   );
               },
-              description: "",
-              descriptionType: "inline",
             },
             // {
             //   startIcon: <Icon name="support" size="md" />,
             //   title: "Appsmith Support",
-            //   description: "",
-            //   descriptionType: "inline",
             //   onClick: noop,
             // },
           ]}

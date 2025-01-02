@@ -265,7 +265,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<List<String>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
-        if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
+        if (RefType.branch.equals(artifactJsonTransformationDTO.getRefType())) {
             return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
@@ -442,7 +442,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
 
                     if (gitData == null
-                            || !StringUtils.hasText(gitData.getBranchName())
+                            || !StringUtils.hasText(gitData.getRefName())
                             || !StringUtils.hasText(gitData.getDefaultArtifactId())
                             || !StringUtils.hasText(gitData.getGitAuth().getPrivateKey())) {
 
@@ -457,14 +457,14 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     return fsGitHandler
                             .checkoutToBranch(
                                     baseRepoSuffix,
-                                    artifact.getGitArtifactMetadata().getBranchName())
+                                    artifact.getGitArtifactMetadata().getRefName())
                             .then(Mono.defer(() -> fsGitHandler
                                     .pushApplication(
                                             baseRepoSuffix,
                                             gitData.getRemoteUrl(),
                                             gitAuth.getPublicKey(),
                                             gitAuth.getPrivateKey(),
-                                            gitData.getBranchName())
+                                            gitData.getRefName())
                                     .zipWith(Mono.just(artifact))))
                             .onErrorResume(error -> gitAnalyticsUtils
                                     .addAnalyticsForGitOperation(
@@ -544,12 +544,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     artifact.getWorkspaceId(), gitMetadata.getDefaultArtifactId(), gitMetadata.getRepoName());
 
             return fsGitHandler
-                    .resetHard(path, gitMetadata.getBranchName())
+                    .resetHard(path, gitMetadata.getRefName())
                     .then(Mono.error(new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
                             "push",
                             "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
-                                    + gitMetadata.getBranchName())));
+                                    + gitMetadata.getRefName())));
         }
         return Mono.just(pushResult);
     }

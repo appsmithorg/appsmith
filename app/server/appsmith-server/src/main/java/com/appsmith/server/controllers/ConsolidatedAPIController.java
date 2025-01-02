@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,22 +49,30 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForEditMode(
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String baseApplicationId,
             @RequestParam(name = "defaultPageId", required = false) String basePageId,
+            @RequestHeader(required = false, defaultValue = "branch") RefType refType,
+            @RequestHeader(required = false) String refName,
             @RequestHeader(required = false) String branchName) {
+
+        if (!StringUtils.hasLength(refName)) {
+            refName = branchName;
+        }
         log.debug(
-                "Going to fetch consolidatedAPI response for baseApplicationId: {}, basePageId: {}, branchName: {}, "
+                "Going to fetch consolidatedAPI response for baseApplicationId: {}, basePageId: {}, {}: {}, "
                         + "mode: {}",
                 baseApplicationId,
                 basePageId,
-                branchName,
+                refType,
+                refName,
                 ApplicationMode.EDIT);
 
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(basePageId, baseApplicationId, branchName, ApplicationMode.EDIT)
+                .getConsolidatedInfoForPageLoad(basePageId, baseApplicationId, refType, refName, ApplicationMode.EDIT)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
                 .tag("pageId", Objects.toString(basePageId))
                 .tag("applicationId", Objects.toString(baseApplicationId))
-                .tag("branchName", Objects.toString(branchName))
+                .tag("refType", Objects.toString(refType))
+                .tag("refName", Objects.toString(refName))
                 .name(CONSOLIDATED_API_ROOT_EDIT)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -72,22 +82,31 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(required = false, defaultValue = "branch") RefType refType,
+            @RequestHeader(required = false) String refName,
+            @RequestHeader(required = false) String branchName) {
+
+        if (!StringUtils.hasLength(refName)) {
+            refName = branchName;
+        }
         log.debug(
-                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
+                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, {}: {}, "
                         + "mode: {}",
                 applicationId,
                 defaultPageId,
-                branchName,
+                refType,
+                refName,
                 ApplicationMode.PUBLISHED);
 
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
+                .getConsolidatedInfoForPageLoad(
+                        defaultPageId, applicationId, refType, refName, ApplicationMode.PUBLISHED)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
                 .tag("pageId", Objects.toString(defaultPageId))
                 .tag("applicationId", Objects.toString(applicationId))
-                .tag("branchName", Objects.toString(branchName))
+                .tag("refType", Objects.toString(refType))
+                .tag("refName", Objects.toString(refName))
                 .name(CONSOLIDATED_API_ROOT_VIEW)
                 .tap(Micrometer.observation(observationRegistry));
     }

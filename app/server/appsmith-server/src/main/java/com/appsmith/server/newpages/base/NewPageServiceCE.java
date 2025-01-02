@@ -1,5 +1,6 @@
 package com.appsmith.server.newpages.base;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -69,13 +70,17 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Mono<NewPage> findByBranchNameAndBasePageId(
-            String branchName, String defaultPageId, AclPermission permission, List<String> projectedFieldNames);
+    Mono<NewPage> findByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
+            String defaultPageId,
+            AclPermission permission,
+            List<String> projectedFieldNames);
 
-    Mono<NewPage> findByBranchNameAndBasePageIdAndApplicationMode(
-            String branchName, String basePageId, ApplicationMode mode);
+    Mono<NewPage> findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+            RefType refType, String refName, String basePageId, ApplicationMode mode);
 
-    Mono<String> findBranchedPageId(String branchName, String basePageId, AclPermission permission);
+    Mono<String> findRefPageId(RefType refType, String refName, String basePageId, AclPermission permission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 
@@ -86,7 +91,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
 
-    Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
+    Mono<String> updateDependencyMap(
+            String pageId, Map<String, List<String>> dependencyMap, RefType refType, String refName);
 
     Flux<PageDTO> findByApplicationIdAndApplicationMode(
             String applicationId, AclPermission permission, ApplicationMode applicationMode);
