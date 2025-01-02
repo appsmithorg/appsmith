@@ -2204,7 +2204,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         GitRefDTO gitRefDTO = new GitRefDTO();
         gitRefDTO.setRefName(newDefaultBranchName);
-        gitRefDTO.setRefType(RefType.BRANCH);
+        gitRefDTO.setRefType(RefType.branch);
         gitRefDTO.setDefault(true);
 
         // potentially problem in the flow,
@@ -2232,7 +2232,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return Mono.error(error);
                             });
                 })
-                .thenMany(gitArtifactHelper.getAllArtifactByBaseId(baseArtifactId, artifactEditPermission))
+                .thenMany(Flux.defer(
+                        () -> gitArtifactHelper.getAllArtifactByBaseId(baseArtifactId, artifactEditPermission)))
                 .flatMap(artifact -> {
                     artifact.getGitArtifactMetadata().setDefaultBranchName(newDefaultBranchName);
                     // clear the branch protection rules as the default branch name has been changed

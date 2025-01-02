@@ -84,23 +84,23 @@ public class GitApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{sourceApplicationId}/create-ref")
+    @PostMapping("/{referencedApplicationId}/create-ref")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<? extends Artifact>> createReference(
-            @PathVariable String sourceApplicationId,
+            @PathVariable String referencedApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String srcBranch,
             @RequestBody GitRefDTO gitRefDTO) {
         log.info(
-                "Going to create a reference from sourceApplicationId {}, srcBranch {}",
-                sourceApplicationId,
+                "Going to create a reference from referencedApplicationId {}, srcBranch {}",
+                referencedApplicationId,
                 srcBranch);
         return centralGitService
-                .createReference(sourceApplicationId, gitRefDTO, ArtifactType.APPLICATION, GIT_TYPE)
+                .createReference(referencedApplicationId, gitRefDTO, ArtifactType.APPLICATION, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{referencedApplicationId}/checkout-ref")
+    @PostMapping("/{referencedApplicationId}/checkout-ref")
     public Mono<ResponseDTO<? extends Artifact>> checkoutReference(
             @PathVariable String referencedApplicationId, @RequestBody GitRefDTO gitRefDTO) {
         return centralGitService
@@ -141,11 +141,10 @@ public class GitApplicationControllerCE {
     @GetMapping("/{referencedApplicationId}/fetch/remote")
     public Mono<ResponseDTO<String>> fetchRemoteChanges(
             @PathVariable String referencedApplicationId,
-            @RequestHeader(required = false, defaultValue = "branch") String refTypeString) {
+            @RequestHeader(required = false, defaultValue = "branch") RefType refType) {
         log.info("Going to compare with remote for default referencedApplicationId {}", referencedApplicationId);
-        // TODO: check if we require refType fetching remote
         return centralGitService
-                .fetchRemoteChanges(referencedApplicationId, true, ARTIFACT_TYPE, GIT_TYPE, RefType.BRANCH)
+                .fetchRemoteChanges(referencedApplicationId, true, ARTIFACT_TYPE, GIT_TYPE, refType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -213,7 +212,7 @@ public class GitApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{branchedApplicationId}/branch")
+    @GetMapping("/{branchedApplicationId}/branches")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(
             @PathVariable String branchedApplicationId,
             @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
