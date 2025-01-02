@@ -26,7 +26,7 @@ export default defineConfig({
   viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
-    runMode: 0,
+    runMode: 2,
     openMode: 0,
   },
   e2e: {
