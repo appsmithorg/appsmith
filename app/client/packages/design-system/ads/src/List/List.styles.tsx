@@ -48,6 +48,7 @@ export const TopContentWrapper = styled.div`
   gap: var(--ads-v2-spaces-3);
   min-width: 0;
   height: 24px;
+  width: 100%;
 `;
 
 export const BottomContentWrapper = styled.div`
@@ -61,44 +62,6 @@ export const InlineDescriptionWrapper = styled.div`
   align-items: center;
   flex: 1;
   min-width: 0;
-`;
-
-export const ContentTextWrapper = styled.div`
-  display: flex;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  gap: var(--ads-v2-spaces-1);
-  flex: 1;
-  flex-shrink: 0;
-  flex-direction: column;
-
-  & .${ListItemTextOverflowClassName} {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  & .${ListItemTitleClassName} {
-    font-size: var(--listitem-title-font-size);
-    line-height: 16px;
-  }
-
-  & .${ListItemBDescClassName} {
-    -webkit-line-clamp: 1;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    text-overflow: initial;
-    white-space: initial;
-    font-size: var(--listitem-bdescription-font-size);
-    line-height: normal;
-  }
-
-  & .${ListItemIDescClassName} {
-    font-size: var(--listitem-idescription-font-size);
-    line-height: 16px;
-    padding-right: var(--ads-v2-spaces-2);
-  }
 `;
 
 export const StyledList = styled.div`
@@ -118,13 +81,16 @@ export const StyledListItem = styled.div<{
 
   display: flex;
   width: 100%;
-  align-items: center;
   cursor: pointer;
   box-sizing: border-box;
   position: relative;
   border-radius: var(--ads-v2-border-radius);
   padding: var(--ads-v2-spaces-2);
   padding-left: var(--ads-v2-spaces-3);
+  gap: var(--ads-v2-spaces-1);
+  flex: 1;
+  flex-shrink: 0;
+  flex-direction: column;
 
   ${({ size }) => Sizes[size]}
 
@@ -164,5 +130,33 @@ export const StyledListItem = styled.div<{
     outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
     outline-offset: var(--ads-v2-offset-outline);
+  }
+
+  & .${ListItemTextOverflowClassName} {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  & .${ListItemTitleClassName} {
+    font-size: var(--listitem-title-font-size);
+    line-height: 16px;
+  }
+
+  & .${ListItemBDescClassName} {
+    -webkit-line-clamp: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    text-overflow: initial;
+    white-space: initial;
+    font-size: var(--listitem-bdescription-font-size);
+    line-height: normal;
+  }
+
+  & .${ListItemIDescClassName} {
+    font-size: var(--listitem-idescription-font-size);
+    line-height: 16px;
+    padding-right: var(--ads-v2-spaces-2);
   }
 `;

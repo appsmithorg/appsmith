@@ -5,11 +5,11 @@ export const EntityEditableName = styled(Text)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  flex: 1;
 
   &[data-isediting="true"] {
     height: 32px;
     line-height: 32px;
-    flex: 1;
     min-width: 3ch;
     text-overflow: unset;
   }

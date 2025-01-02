@@ -4,7 +4,6 @@ import clsx from "classnames";
 import type { ListItemProps, ListProps } from "./List.types";
 import {
   BottomContentWrapper,
-  ContentTextWrapper,
   InlineDescriptionWrapper,
   RightControlWrapper,
   StyledList,
@@ -116,52 +115,51 @@ function ListItem(props: ListItemProps) {
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
       onClick={handleOnClick}
+      onDoubleClick={handleDoubleClick}
       size={size}
       // tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper onDoubleClick={handleDoubleClick}>
-        <TopContentWrapper>
-          {startIcon}
-          {props.customTitleComponent ? (
-            props.customTitleComponent
-          ) : (
-            <InlineDescriptionWrapper>
-              <TextWithTooltip
-                className={ListItemTitleClassName}
-                color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
-              >
-                {title}
-              </TextWithTooltip>
-              {isInlineDescription && (
-                <TextWithTooltip
-                  className={ListItemIDescClassName}
-                  color="var(--ads-v2-color-fg-muted)"
-                  kind="body-s"
-                >
-                  {description}
-                </TextWithTooltip>
-              )}
-            </InlineDescriptionWrapper>
-          )}
-          {rightControl && (
-            <RightControlWrapper onClick={handleRightControlClick}>
-              {rightControl}
-            </RightControlWrapper>
-          )}
-        </TopContentWrapper>
-        {isBlockDescription && (
-          <BottomContentWrapper>
+      <TopContentWrapper>
+        {startIcon}
+        {props.customTitleComponent ? (
+          props.customTitleComponent
+        ) : (
+          <InlineDescriptionWrapper>
             <TextWithTooltip
-              className={ListItemBDescClassName}
-              color="var(--ads-v2-color-fg-muted)"
-              isMultiline
-              kind="body-s"
+              className={ListItemTitleClassName}
+              color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
             >
-              {description}
+              {title}
             </TextWithTooltip>
-          </BottomContentWrapper>
+            {isInlineDescription && (
+              <TextWithTooltip
+                className={ListItemIDescClassName}
+                color="var(--ads-v2-color-fg-muted)"
+                kind="body-s"
+              >
+                {description}
+              </TextWithTooltip>
+            )}
+          </InlineDescriptionWrapper>
         )}
-      </ContentTextWrapper>
+        {rightControl && (
+          <RightControlWrapper onClick={handleRightControlClick}>
+            {rightControl}
+          </RightControlWrapper>
+        )}
+      </TopContentWrapper>
+      {isBlockDescription && (
+        <BottomContentWrapper>
+          <TextWithTooltip
+            className={ListItemBDescClassName}
+            color="var(--ads-v2-color-fg-muted)"
+            isMultiline
+            kind="body-s"
+          >
+            {description}
+          </TextWithTooltip>
+        </BottomContentWrapper>
+      )}
     </StyledListItem>
   );
 }
