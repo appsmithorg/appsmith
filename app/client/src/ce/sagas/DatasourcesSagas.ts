@@ -1,14 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, fork, put, select, take } from "redux-saga/effects";
 import {
   change,
   getFormInitialValues,
@@ -26,7 +17,6 @@ import type {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxFormActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
@@ -97,10 +87,10 @@ import {
   DATASOURCE_REST_API_FORM,
 } from "ee/constants/forms";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
-import { setIdeEditorViewMode } from "../actions/ideActions";
+import { setIdeEditorViewMode } from "../../actions/ideActions";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { createActionRequestSaga } from "./ActionSagas";
-import { validateResponse } from "./ErrorSagas";
+import { createActionRequestSaga } from "../../sagas/ActionSagas";
+import { validateResponse } from "../../sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
@@ -176,21 +166,21 @@ import {
 } from "ee/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import FocusRetention from "./FocusRetentionSaga";
-import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import FocusRetention from "../../sagas/FocusRetentionSaga";
+import { identifyEntityFromPath } from "../../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import {
   getFromServerWhenNoPrefetchedResult,
   getInitialActionPayload,
   getInitialDatasourcePayload,
-} from "./helper";
-import { executeGoogleApi } from "./loadGoogleApi";
+} from "../../sagas/helper";
+import { executeGoogleApi } from "../../sagas/loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
-import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
+import { openGeneratePageModalWithSelectedDS } from "../../utils/GeneratePageUtils";
 
-function* fetchDatasourcesSaga(
+export function* fetchDatasourcesSaga(
   action: ReduxAction<
     | { workspaceId?: string; datasources?: ApiResponse<Datasource[]> }
     | undefined
@@ -224,7 +214,7 @@ function* fetchDatasourcesSaga(
   }
 }
 
-function* handleFetchDatasourceStructureOnLoad() {
+export function* handleFetchDatasourceStructureOnLoad() {
   try {
     // we fork to prevent the call from blocking
     yield fork(fetchDatasourceStructureOnLoad);
@@ -257,7 +247,7 @@ function* fetchDatasourceStructureOnLoad() {
   } catch (error) {}
 }
 
-function* fetchMockDatasourcesSaga(action?: {
+export function* fetchMockDatasourcesSaga(action?: {
   payload?: { mockDatasources?: ApiResponse };
 }) {
   const mockDatasources = action?.payload?.mockDatasources;
@@ -527,7 +517,7 @@ const getConnectionMethod = (
   }
 };
 
-function* updateDatasourceSaga(
+export function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<
     Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
     unknown,
@@ -703,7 +693,7 @@ function* updateDatasourceSaga(
   }
 }
 
-function* redirectAuthorizationCodeSaga(
+export function* redirectAuthorizationCodeSaga(
   actionPayload: ReduxAction<{
     contextId: string;
     contextType: ActionParentEntityTypeInterface;
@@ -756,7 +746,7 @@ function* redirectAuthorizationCodeSaga(
   }
 }
 
-function* getOAuthAccessTokenSaga(
+export function* getOAuthAccessTokenSaga(
   actionPayload: ReduxAction<{ datasourceId: string }>,
 ) {
   const { datasourceId } = actionPayload.payload;
@@ -853,7 +843,7 @@ function* getOAuthAccessTokenSaga(
   }
 }
 
-function* updateDatasourceNameSaga(
+export function* updateDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
@@ -888,13 +878,13 @@ function* updateDatasourceNameSaga(
   }
 }
 
-function* handleDatasourceNameChangeFailureSaga(
+export function* handleDatasourceNameChangeFailureSaga(
   action: ReduxAction<{ oldName: string }>,
 ) {
   yield put(change(DATASOURCE_DB_FORM, "name", action.payload.oldName));
 }
 
-function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+export function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   let workspaceId: string = yield select(getCurrentWorkspaceId);
 
   // test button within the import modal
@@ -1052,7 +1042,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 }
 
-function* createTempDatasourceFromFormSaga(
+export function* createTempDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig | Datasource>,
 ) {
   yield call(checkAndGetPluginFormConfigsSaga, actionPayload.payload.pluginId);
@@ -1168,7 +1158,11 @@ export function* createOrUpdateDataSourceWithAction(
 }
 
 export function* createDatasourceFromFormSaga(
-  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+  actionPayload: ReduxActionWithCallbacks<
+    Datasource | CreateDatasourceConfig,
+    unknown,
+    unknown
+  >,
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -1322,7 +1316,7 @@ export function* createDatasourceFromFormSaga(
   }
 }
 
-function* changeDatasourceSaga(
+export function* changeDatasourceSaga(
   actionPayload: ReduxAction<{
     datasource: Datasource;
     shouldNotRedirect?: boolean;
@@ -1381,7 +1375,7 @@ function* changeDatasourceSaga(
   );
 }
 
-function* switchDatasourceSaga(
+export function* switchDatasourceSaga(
   action: ReduxAction<{
     datasourceId: string;
     shouldNotRedirect: boolean;
@@ -1395,7 +1389,7 @@ function* switchDatasourceSaga(
   }
 }
 
-function* formValueChangeSaga(
+export function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { field, form } = actionPayload.meta;
@@ -1434,7 +1428,7 @@ function* updateDraftsSaga(form: string) {
   }
 }
 
-function* storeAsDatasourceSaga() {
+export function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   // const applicationId: string = yield select(getCurrentApplicationId);
   const application: ApplicationPayload = yield select(getCurrentApplication);
@@ -1508,7 +1502,9 @@ function* storeAsDatasourceSaga() {
   yield put(changeDatasource({ datasource: createdDatasource }));
 }
 
-function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
+export function* updateDatasourceSuccessSaga(
+  action: UpdateDatasourceSuccessAction,
+) {
   const state: AppState = yield select();
   const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
@@ -1548,7 +1544,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   });
 }
 
-function* fetchDatasourceStructureSaga(
+export function* fetchDatasourceStructureSaga(
   action: ReduxAction<{
     id: string;
     ignoreCache: boolean;
@@ -1667,7 +1663,7 @@ function* fetchDatasourceStructureSaga(
   }
 }
 
-function* addAndFetchDatasourceStructureSaga(
+export function* addAndFetchDatasourceStructureSaga(
   action: ReduxAction<MockDatasource>,
 ) {
   const plugin: Plugin = yield select((state: AppState) =>
@@ -1697,7 +1693,7 @@ function* addAndFetchDatasourceStructureSaga(
   }
 }
 
-function* refreshDatasourceStructure(
+export function* refreshDatasourceStructure(
   action: ReduxAction<{
     id: string;
     schemaRefreshContext: DatasourceStructureContext;
@@ -1795,7 +1791,7 @@ function* refreshDatasourceStructure(
   });
 }
 
-function* executeDatasourceQuerySaga(
+export function* executeDatasourceQuerySaga(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action: executeDatasourceQueryReduxAction<any>,
@@ -1849,7 +1845,7 @@ function* executeDatasourceQuerySaga(
   }
 }
 
-function* initializeFormWithDefaults(
+export function* initializeFormWithDefaults(
   action: ReduxAction<{ pluginType: string }>,
 ) {
   const formName =
@@ -1887,7 +1883,7 @@ function* initializeFormWithDefaults(
   }
 }
 
-function* filePickerActionCallbackSaga(
+export function* filePickerActionCallbackSaga(
   actionPayload: ReduxAction<{
     action: FilePickerActionStatus;
     datasourceId: string;
@@ -1974,7 +1970,7 @@ function* filePickerActionCallbackSaga(
   }
 }
 
-function* fetchGsheetSpreadhsheets(
+export function* fetchGsheetSpreadhsheets(
   action: ReduxAction<{
     datasourceId: string;
     pluginId: string;
@@ -2074,7 +2070,7 @@ function* fetchGsheetSpreadhsheets(
   }
 }
 
-function* fetchGsheetSheets(
+export function* fetchGsheetSheets(
   action: ReduxAction<{
     datasourceId: string;
     pluginId: string;
@@ -2122,7 +2118,7 @@ function* fetchGsheetSheets(
   }
 }
 
-function* fetchGsheetColumns(
+export function* fetchGsheetColumns(
   action: ReduxAction<{
     datasourceId: string;
     pluginId: string;
@@ -2174,7 +2170,7 @@ function* fetchGsheetColumns(
   }
 }
 
-function* loadFilePickerSaga() {
+export function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
@@ -2198,7 +2194,7 @@ function* loadFilePickerSaga() {
   }
 }
 
-function* updateDatasourceAuthStateSaga(
+export function* updateDatasourceAuthStateSaga(
   actionPayload: ReduxAction<{
     authStatus: AuthenticationStatus;
     datasource: Datasource;
@@ -2249,7 +2245,7 @@ function* updateDatasourceAuthStateSaga(
   }
 }
 
-function* datasourceDiscardActionSaga(
+export function* datasourceDiscardActionSaga(
   actionPayload: ReduxAction<{
     pluginId: string;
   }>,
@@ -2269,7 +2265,7 @@ function* datasourceDiscardActionSaga(
   });
 }
 
-function* setDatasourceViewModeSaga(
+export function* setDatasourceViewModeSaga(
   action: ReduxAction<{ datasourceId: string; viewMode: boolean }>,
 ) {
   //Set the view mode flag in store
@@ -2279,104 +2275,4 @@ function* setDatasourceViewModeSaga(
     type: ReduxActionTypes.RESET_DATASOURCE_BANNER_MESSAGE,
     payload: action.payload.datasourceId,
   });
-}
-
-export function* watchDatasourcesSagas() {
-  yield all([
-    takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
-    takeEvery(
-      ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
-      fetchMockDatasourcesSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-      addMockDbToDatasources,
-    ),
-    takeEvery(
-      ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
-      createDatasourceFromFormSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS,
-      createTempDatasourceFromFormSaga,
-    ),
-    takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
-    takeEvery(
-      ReduxActionTypes.UPDATE_DATASOURCE_NAME,
-      updateDatasourceNameSaga,
-    ),
-    takeEvery(
-      ReduxActionErrorTypes.UPDATE_DATASOURCE_NAME_ERROR,
-      handleDatasourceNameChangeFailureSaga,
-    ),
-    takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
-    takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
-    takeEvery(ReduxActionTypes.CHANGE_DATASOURCE, changeDatasourceSaga),
-    takeLatest(ReduxActionTypes.SWITCH_DATASOURCE, switchDatasourceSaga),
-    takeEvery(ReduxActionTypes.STORE_AS_DATASOURCE_INIT, storeAsDatasourceSaga),
-    takeEvery(
-      ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-      updateDatasourceSuccessSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
-      redirectAuthorizationCodeSaga,
-    ),
-    takeEvery(ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN, getOAuthAccessTokenSaga),
-    takeEvery(
-      ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
-      fetchDatasourceStructureSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
-      refreshDatasourceStructure,
-    ),
-    takeEvery(
-      ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
-      executeDatasourceQuerySaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
-      initializeFormWithDefaults,
-    ),
-    // Intercepting the redux-form change actionType to update drafts and track change history
-    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
-    takeEvery(
-      ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
-      filePickerActionCallbackSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
-      fetchGsheetSpreadhsheets,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
-    takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
-    takeEvery(ReduxActionTypes.LOAD_FILE_PICKER_ACTION, loadFilePickerSaga),
-    takeEvery(
-      ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
-      updateDatasourceAuthStateSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
-      datasourceDiscardActionSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
-      addAndFetchDatasourceStructureSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      handleFetchDatasourceStructureOnLoad,
-    ),
-    takeEvery(
-      ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
-      handleFetchDatasourceStructureOnLoad,
-    ),
-    takeEvery(
-      ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
-      setDatasourceViewModeSaga,
-    ),
-  ]);
 }

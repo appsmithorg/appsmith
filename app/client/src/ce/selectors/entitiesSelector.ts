@@ -119,7 +119,8 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
 
       if (
         plugin.type === PluginType.SAAS ||
-        plugin.type === PluginType.REMOTE
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.EXTERNAL_SAAS
       ) {
         return PluginCategory.SAAS;
       }
