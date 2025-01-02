@@ -406,13 +406,16 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
         final String finalRefName = gitRefDTO.getRefName().replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         Mono<Boolean> acquireFileLock = gitRedisUtils.acquireGitLock(
-                baseArtifactId, GitConstants.GitCommandConstants.CHECKOUT_BRANCH, addFileLock);
+                baseArtifact.getArtifactType(),
+                baseArtifactId,
+                GitConstants.GitCommandConstants.CHECKOUT_BRANCH,
+                addFileLock);
 
         Mono<? extends Artifact> checkedOutArtifactMono;
         // If the user is trying to check out remote reference, create a new reference if it does not exist already
@@ -457,12 +460,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         return acquireFileLock
                 .then(checkedOutArtifactMono)
                 .flatMap(checkedOutArtifact -> gitRedisUtils
-                        .releaseFileLock(baseArtifactId, addFileLock)
+                        .releaseFileLock(artifactType, baseArtifactId, addFileLock)
                         .thenReturn(checkedOutArtifact))
                 .onErrorResume(error -> {
                     log.error("An error occurred while checking out the reference. error {}", error.getMessage());
                     return gitRedisUtils
-                            .releaseFileLock(baseArtifactId, addFileLock)
+                            .releaseFileLock(artifactType, baseArtifactId, addFileLock)
                             .then(Mono.error(error));
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
@@ -593,9 +596,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
         GitAuth baseGitAuth = baseGitMetadata.getGitAuth();
         GitArtifactMetadata sourceGitMetadata = sourceArtifact.getGitArtifactMetadata();
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
@@ -616,7 +619,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         }
 
         Mono<Boolean> acquireGitLockMono = gitRedisUtils.acquireGitLock(
-                baseGitMetadata.getDefaultArtifactId(), GitConstants.GitCommandConstants.CREATE_BRANCH, FALSE);
+                artifactType,
+                baseGitMetadata.getDefaultArtifactId(),
+                GitConstants.GitCommandConstants.CREATE_BRANCH,
+                FALSE);
         Mono<String> fetchRemoteMono = gitHandlingService.fetchRemoteChanges(jsonTransformationDTO, baseGitAuth, TRUE);
 
         Mono<? extends Artifact> createBranchMono = acquireGitLockMono
@@ -687,7 +693,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .flatMap(newImportedArtifact -> gitRedisUtils
                         .releaseFileLock(
-                                newImportedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)
+                                artifactType,
+                                newImportedArtifact.getGitArtifactMetadata().getDefaultArtifactId(),
+                                TRUE)
                         .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_CREATE_BRANCH,
                                 newImportedArtifact,
@@ -695,7 +703,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .onErrorResume(error -> {
                     log.error("An error occurred while creating reference. error {}", error.getMessage());
                     return gitRedisUtils
-                            .releaseFileLock(baseGitMetadata.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, baseGitMetadata.getDefaultArtifactId(), TRUE)
                             .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout")));
                 })
                 .name(GitSpan.OPS_CREATE_BRANCH)
@@ -759,10 +767,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
         GitArtifactMetadata referenceArtifactMetadata = referenceArtifact.getGitArtifactMetadata();
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
 
         // TODO: write a migration to shift everything to refName in gitMetadata
         final String finalRefName = referenceArtifactMetadata.getRefName();
@@ -778,7 +786,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(isBranchProtected -> {
                     if (!TRUE.equals(isBranchProtected)) {
                         return gitRedisUtils.acquireGitLock(
-                                baseArtifactId, GitConstants.GitCommandConstants.DELETE, TRUE);
+                                artifactType, baseArtifactId, GitConstants.GitCommandConstants.DELETE, TRUE);
                     }
 
                     return Mono.error(new AppsmithException(
@@ -798,7 +806,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     return gitHandlingService
                             .deleteGitReference(jsonTransformationDTO)
                             .flatMap(isReferenceDeleted -> gitRedisUtils
-                                    .releaseFileLock(baseArtifactId, TRUE)
+                                    .releaseFileLock(artifactType, baseArtifactId, TRUE)
                                     .thenReturn(isReferenceDeleted))
                             .flatMap(isReferenceDeleted -> {
                                 if (FALSE.equals(isReferenceDeleted)) {
@@ -841,7 +849,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             referenceArtifactMetadata.getRefName(),
                             baseArtifactId);
 
-                    return gitRedisUtils.releaseFileLock(baseArtifactId, TRUE).then(Mono.error(error));
+                    return gitRedisUtils
+                            .releaseFileLock(artifactType, baseArtifactId, TRUE)
+                            .then(Mono.error(error));
                 })
                 .name(GitSpan.OPS_DELETE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
@@ -1202,8 +1212,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         boolean isSystemGenerated = commitDTO.getMessage().contains(DEFAULT_COMMIT_MESSAGE);
 
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        ArtifactType artifactType = baseArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
@@ -1226,6 +1236,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(isBranchProtected -> {
                     if (!TRUE.equals(isBranchProtected)) {
                         return gitRedisUtils.acquireGitLock(
+                                artifactType,
                                 baseGitMetadata.getDefaultArtifactId(),
                                 GitConstants.GitCommandConstants.COMMIT,
                                 isFileLock);
@@ -1321,7 +1332,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .commitArtifact(updatedBranchedArtifact, commitDTO, jsonTransformationDTO)
                             .onErrorResume(error -> {
                                 return gitRedisUtils
-                                        .releaseFileLock(baseArtifact.getId(), TRUE)
+                                        .releaseFileLock(artifactType, baseArtifact.getId(), TRUE)
                                         .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                                 AnalyticsEvents.GIT_COMMIT,
                                                 updatedBranchedArtifact,
@@ -1340,7 +1351,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     String status = tuple.getT1();
                     Artifact artifactFromBranch = tuple.getT2();
                     Mono<Boolean> releaseFileLockMono = gitRedisUtils.releaseFileLock(
-                            artifactFromBranch.getGitArtifactMetadata().getDefaultArtifactId(), isFileLock);
+                            artifactType,
+                            artifactFromBranch.getGitArtifactMetadata().getDefaultArtifactId(),
+                            isFileLock);
 
                     Mono<? extends Artifact> updatedArtifactMono =
                             gitArtifactHelper.updateArtifactWithSchemaVersions(artifactFromBranch);
@@ -1364,7 +1377,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedGitMetadata.getBranchName());
 
                     return gitRedisUtils
-                            .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
                             .then(Mono.error(error));
                 });
 
@@ -1526,7 +1539,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<GitStatusDTO> statusMono = exportedArtifactJsonMono
                 .flatMap(artifactExchangeJson -> {
                     return gitRedisUtils
-                            .acquireGitLock(baseArtifactId, GitConstants.GitCommandConstants.STATUS, isFileLock)
+                            .acquireGitLock(
+                                    artifactType, baseArtifactId, GitConstants.GitCommandConstants.STATUS, isFileLock)
                             .thenReturn(artifactExchangeJson);
                 })
                 .flatMap(artifactExchangeJson -> {
@@ -1557,7 +1571,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 .getStatus(jsonTransformationDTO)
                                 .flatMap(gitStatusDTO -> {
                                     return gitRedisUtils
-                                            .releaseFileLock(baseArtifactId, isFileLock)
+                                            .releaseFileLock(artifactType, baseArtifactId, isFileLock)
                                             .thenReturn(gitStatusDTO);
                                 });
                     });
@@ -1633,15 +1647,20 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
         Mono<GitStatusDTO> statusMono = getStatus(baseArtifact, branchedArtifact, false, true, gitType);
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
         Mono<GitPullDTO> pullDTOMono = gitRedisUtils
-                .acquireGitLock(branchedGitMetadata.getDefaultArtifactId(), GitConstants.GitCommandConstants.PULL, TRUE)
+                .acquireGitLock(
+                        artifactType,
+                        branchedGitMetadata.getDefaultArtifactId(),
+                        GitConstants.GitCommandConstants.PULL,
+                        TRUE)
                 .then(Mono.defer(() -> statusMono))
                 .flatMap(status -> {
                     // Check if the repo is clean
                     if (!CollectionUtils.isEmpty(status.getModified())) {
                         return gitRedisUtils
-                                .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                                .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
                                 .then(
                                         Mono.error(
                                                 new AppsmithException(
@@ -1653,7 +1672,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     return pullAndRehydrateArtifact(baseArtifact, branchedArtifact, gitType)
                             // Release file lock after the pull operation
                             .flatMap(gitPullDTO -> gitRedisUtils
-                                    .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                                    .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
                                     .then(Mono.just(gitPullDTO)));
                 })
                 .onErrorResume(error -> {
@@ -1663,7 +1682,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedGitMetadata.getBranchName());
 
                     return gitRedisUtils
-                            .releaseFileLock(branchedGitMetadata.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
                             .then(Mono.error(error));
                 })
                 .name(GitSpan.OPS_PULL)
@@ -1776,6 +1795,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         GitArtifactMetadata baseArtifactGitData = baseArtifact.getGitArtifactMetadata();
         GitArtifactMetadata refArtifactGitData = refArtifact.getGitArtifactMetadata();
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
         String baseArtifactId = baseArtifactGitData.getDefaultArtifactId();
 
@@ -1785,8 +1805,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         }
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache(); // will be used to send analytics event
-        Mono<Boolean> acquireGitLockMono =
-                gitRedisUtils.acquireGitLock(baseArtifactId, GitConstants.GitCommandConstants.FETCH_REMOTE, isFileLock);
+        Mono<Boolean> acquireGitLockMono = gitRedisUtils.acquireGitLock(
+                artifactType, baseArtifactId, GitConstants.GitCommandConstants.FETCH_REMOTE, isFileLock);
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
         jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
@@ -1804,7 +1824,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         jsonTransformationDTO, baseArtifactGitData.getGitAuth(), FALSE)))
                 .flatMap(fetchedRemoteStatusString -> {
                     return gitRedisUtils
-                            .releaseFileLock(baseArtifactId, isFileLock)
+                            .releaseFileLock(artifactType, baseArtifactId, isFileLock)
                             .thenReturn(fetchedRemoteStatusString);
                 })
                 .onErrorResume(throwable -> {
@@ -1976,8 +1996,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     protected Mono<? extends Artifact> discardChanges(Artifact branchedArtifact, GitType gitType) {
 
-        GitArtifactHelper<?> gitArtifactHelper =
-                gitArtifactHelperResolver.getArtifactHelper(branchedArtifact.getArtifactType());
+        ArtifactType artifactType = branchedArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
@@ -1995,13 +2015,17 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setRepoName(branchedGitData.getRepoName());
 
         Mono<? extends Artifact> recreatedArtifactFromLastCommit = gitRedisUtils
-                .acquireGitLock(branchedGitData.getDefaultArtifactId(), GitConstants.GitCommandConstants.DISCARD, TRUE)
+                .acquireGitLock(
+                        artifactType,
+                        branchedGitData.getDefaultArtifactId(),
+                        GitConstants.GitCommandConstants.DISCARD,
+                        TRUE)
                 .then(gitHandlingService
                         .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
                         .onErrorResume(throwable -> {
                             log.error("Git recreate ArtifactJsonFailed : {}", throwable.getMessage());
                             return gitRedisUtils
-                                    .releaseFileLock(branchedGitData.getDefaultArtifactId(), TRUE)
+                                    .releaseFileLock(artifactType, branchedGitData.getDefaultArtifactId(), TRUE)
                                     .then(
                                             Mono.error(
                                                     new AppsmithException(
@@ -2019,7 +2043,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(publishedArtifact -> {
                     return gitRedisUtils
                             .releaseFileLock(
-                                    publishedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)
+                                    artifactType,
+                                    publishedArtifact.getGitArtifactMetadata().getDefaultArtifactId(),
+                                    TRUE)
                             .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null));
                 })
@@ -2029,7 +2055,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedGitData.getDefaultArtifactId(),
                             error.getMessage());
                     return gitRedisUtils
-                            .releaseFileLock(branchedGitData.getDefaultArtifactId(), TRUE)
+                            .releaseFileLock(artifactType, branchedGitData.getDefaultArtifactId(), TRUE)
                             .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout")));
                 })
                 .name(GitSpan.OPS_DISCARD_CHANGES)
