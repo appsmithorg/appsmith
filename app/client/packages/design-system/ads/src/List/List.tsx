@@ -115,12 +115,13 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
-      onClick={handleOnClick}
-      onKeyDown={listItemhandleKeyDown}
       size={size}
       tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper>
+      <ContentTextWrapper
+        onClick={handleOnClick}
+        onKeyDown={listItemhandleKeyDown}
+      >
         {startIcon}
         {props.customTitleComponent ? (
           props.customTitleComponent
