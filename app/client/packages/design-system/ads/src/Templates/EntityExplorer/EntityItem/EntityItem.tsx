@@ -9,6 +9,8 @@ export const EntityItem = (props: EntityItemProps) => {
   const { canEdit, isEditing, onEditComplete, onNameSave, validateName } =
     props.nameEditorConfig;
 
+  const inEditMode = canEdit ? isEditing : false;
+
   const [
     inputRef,
     editableName,
@@ -16,7 +18,7 @@ export const EntityItem = (props: EntityItemProps) => {
     handleKeyUp,
     handleTitleChange,
   ] = useEditableText(
-    canEdit ? isEditing : false,
+    inEditMode,
     props.title,
     onEditComplete,
     validateName,
@@ -48,14 +50,14 @@ export const EntityItem = (props: EntityItemProps) => {
         <EntityEditableName
           inputProps={inputProps}
           inputRef={inputRef}
-          isEditable={isEditing}
+          isEditable={inEditMode}
           kind="body-m"
         >
           {editableName}
         </EntityEditableName>
       </Tooltip>
     );
-  }, [editableName, inputProps, inputRef, isEditing, validationError]);
+  }, [editableName, inputProps, inputRef, inEditMode, validationError]);
 
   return <ListItem {...props} customTitleComponent={customTitle} />;
 };
