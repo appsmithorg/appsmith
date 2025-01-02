@@ -347,7 +347,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
-                    actionDTO.setBranchName(newPage.getBranchName());
+                    actionDTO.setRefType(newPage.getRefType());
+                    actionDTO.setRefName(newPage.getRefName());
                     AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
                     CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
                     createActionMetaDTO.setIsJsAction(isJsAction);

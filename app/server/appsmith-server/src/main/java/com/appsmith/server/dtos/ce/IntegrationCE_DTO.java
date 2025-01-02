@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.CreatorContextType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +39,9 @@ public class IntegrationCE_DTO {
 
     String redirectionDomain;
 
-    String branch;
+    RefType refType;
+
+    String refName;
 
     String importForGit;
 

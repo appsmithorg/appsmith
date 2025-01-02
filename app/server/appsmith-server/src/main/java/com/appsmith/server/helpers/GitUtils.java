@@ -136,7 +136,7 @@ public class GitUtils {
 
     public static String getDefaultBranchName(GitArtifactMetadata gitArtifactMetadata) {
         return StringUtils.isEmptyOrNull(gitArtifactMetadata.getDefaultBranchName())
-                ? gitArtifactMetadata.getBranchName()
+                ? gitArtifactMetadata.getRefName()
                 : gitArtifactMetadata.getDefaultBranchName();
     }
 
@@ -149,8 +149,8 @@ public class GitUtils {
     public static boolean isDefaultBranchedApplication(Application application) {
         GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return isApplicationConnectedToGit(application)
-                && !StringUtils.isEmptyOrNull(metadata.getBranchName())
-                && metadata.getBranchName().equals(metadata.getDefaultBranchName());
+                && !StringUtils.isEmptyOrNull(metadata.getRefName())
+                && metadata.getRefName().equals(metadata.getDefaultBranchName());
     }
 
     /**
