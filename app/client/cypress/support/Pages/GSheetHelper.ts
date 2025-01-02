@@ -90,11 +90,14 @@ export class GsheetHelper {
           : "Update row object(s)";
     }
 
-    this.agHelper.EnterValue(rowData, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: inputField,
-    });
+    // this.agHelper.EnterValue(rowData, {
+    //   propFieldName: "",
+    //   directInput: false,
+    //   inputFieldName: inputField,
+    // });
+
+    this.agHelper.Paste(this.locator._inputFieldByName(inputField), rowData);
+
     if (executeQuery) this.dataSources.RunQuery();
   }
 
