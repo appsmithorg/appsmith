@@ -198,7 +198,7 @@ public class GitDiscardTests {
 
         Mockito.doReturn(Mono.just(Paths.get("path")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
         Mockito.doReturn(Mono.just(artifactExchangeJson))
                 .when(gitHandlingService)
                 .recreateArtifactJsonFromLastCommit(Mockito.any());
@@ -243,7 +243,7 @@ public class GitDiscardTests {
 
         Mockito.doReturn(Mono.just(Paths.get("path")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
         Mockito.doReturn(Mono.just(artifactExchangeJson))
                 .when(gitHandlingService)
                 .recreateArtifactJsonFromLastCommit(Mockito.any());

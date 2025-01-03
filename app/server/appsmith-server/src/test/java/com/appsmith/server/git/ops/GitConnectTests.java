@@ -289,7 +289,7 @@ public class GitConnectTests {
                         Mockito.anyString());
         Mockito.doReturn(Mono.just(Paths.get("")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
         Mockito.doReturn(Mono.just(true)).when(commonGitFileUtils).checkIfDirectoryIsEmpty(any(Path.class));
         Mockito.doReturn(Mono.just(Paths.get("textPath")))
                 .when(commonGitFileUtils)
