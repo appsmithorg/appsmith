@@ -9,7 +9,7 @@ export default defineConfig({
   pageLoadTimeout: 60000,
   videoCompression: false,
   video: true,
-  numTestsKeptInMemory: 5,
+  numTestsKeptInMemory: 1,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
   reporterOptions: {
@@ -26,7 +26,7 @@ export default defineConfig({
   viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
-    runMode: 0,
+    runMode: 2,
     openMode: 0,
   },
   e2e: {

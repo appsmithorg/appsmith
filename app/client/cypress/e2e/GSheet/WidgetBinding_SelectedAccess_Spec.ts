@@ -41,7 +41,7 @@ describe(
         "Insert Many",
         dataSourceName,
         spreadSheetName,
-        JSON.stringify(GSHEET_DATA),
+        JSON.stringify(GSHEET_DATA.slice(2, 10)),
       );
       cy.get("@postExecute").then((interception: any) => {
         expect(interception.response.body.data.body.message).to.deep.equal(

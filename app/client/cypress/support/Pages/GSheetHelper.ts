@@ -88,13 +88,13 @@ export class GsheetHelper {
         operation == "Update One"
           ? "Update row object"
           : "Update row object(s)";
-    }
-
+    }    
     this.agHelper.EnterValue(rowData, {
       propFieldName: "",
       directInput: false,
       inputFieldName: inputField,
     });
+
     if (executeQuery) this.dataSources.RunQuery();
   }
 
