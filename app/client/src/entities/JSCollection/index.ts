@@ -1,4 +1,4 @@
-import type { BaseAction } from "../Action";
+import type { BaseAction } from "../../entities/Action";
 import type { PluginType } from "entities/Action";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
