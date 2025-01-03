@@ -16,8 +16,10 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
@@ -29,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -57,9 +58,11 @@ import static com.appsmith.external.constants.spans.ce.PageSpanCE.PREPARE_APPLIC
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
-public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageServiceCE {
+public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPageRepositoryCake, NewPage, String>
+        implements NewPageServiceCE {
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
@@ -70,14 +73,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Autowired
     public NewPageServiceCEImpl(
             Validator validator,
-            NewPageRepository repository,
+            NewPageRepository repositoryDirect,
+            NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
             UserDataService userDataService,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ObservationRegistry observationRegistry) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.applicationPermission = applicationPermission;
@@ -87,7 +91,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> getPageByViewMode(NewPage newPage, Boolean viewMode) {
-
         PageDTO page = null;
         if (Boolean.TRUE.equals(viewMode)) {
             if (newPage.getPublishedPage() != null) {
@@ -139,7 +142,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
-
         return findById(page.getId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
@@ -177,7 +179,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(obj -> repository.setUserPermissionsInObject(obj.getT1(), obj.getT2()))
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
@@ -197,7 +200,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
-        String id = new ObjectId().toString();
+        String id = UUID.randomUUID().toString();
         layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
@@ -210,7 +213,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> deleteAll() {
-        return repository.deleteAll();
+        return repository.deleteAll(); // */
     }
 
     @Override
@@ -416,7 +419,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
         return repository
-                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, view, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -434,7 +437,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
-                .flatMap(repository::archive)
+                .flatMap((NewPage entity) -> repository.archive(entity))
                 .collectList();
     }
 
@@ -453,7 +456,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 })
                 .flatMap(savedPage -> applicationService
                         .saveLastEditInformation(savedPage.getApplicationId())
-                        .then(getPageByViewMode(savedPage, false)));
+                        .then(getPageByViewMode(savedPage, false))); // */
     }
 
     @Override
@@ -462,7 +465,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + UUID.randomUUID());
         }
-        return repository.save(page);
+        return repository.save(page); // */
     }
 
     @Override
@@ -558,8 +561,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<String> findRefPageId(RefType refType, String refName, String basePageId, AclPermission permission) {
         if (!StringUtils.hasText(refName)) {
             if (!StringUtils.hasText(basePageId)) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, basePageId));
+                return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, basePageId));
             }
             return Mono.just(basePageId);
         }
@@ -575,13 +577,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         if (!StringUtils.hasLength(branchedPageId)) {
             return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, branchedPageId));
         }
-        getPageMono = repository
-                .queryBuilder()
-                .byId(branchedPageId)
-                .fields(FieldName.APPLICATION_ID)
-                .permission(pagePermission.getReadPermission())
-                .one();
-
+        getPageMono = ReactiveContextUtils.getCurrentUser().flatMap(user -> {
+            return asMono(() -> repositoryDirect
+                    .queryBuilder()
+                    .byId(branchedPageId)
+                    .fields(FieldName.APPLICATION_ID)
+                    .permission(pagePermission.getReadPermission(), user)
+                    .one());
+        });
         return getPageMono
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, branchedPageId)))
@@ -610,8 +613,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     .flatMap(rootApplicationId -> findApplicationPagesByBranchedApplicationIdAndViewMode(
                             rootApplicationId, isViewMode, true));
         } else {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
+            return Mono.error(
+                    new AppsmithException(INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
     }
 

@@ -50,7 +50,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -114,7 +114,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected final GitHandlingServiceResolver gitHandlingServiceResolver;
 
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
-    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final GitDeployKeysRepositoryCake gitDeployKeysRepository;
 
     private final DatasourceService datasourceService;
     private final DatasourcePermission datasourcePermission;

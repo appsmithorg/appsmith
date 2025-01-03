@@ -1,13 +1,15 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 public class UsagePulse extends BaseDomain {
 
     private String email;

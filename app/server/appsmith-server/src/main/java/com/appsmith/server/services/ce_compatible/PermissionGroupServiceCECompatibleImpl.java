@@ -1,8 +1,9 @@
 package com.appsmith.server.services.ce_compatible;
 
-import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -17,16 +18,18 @@ public class PermissionGroupServiceCECompatibleImpl extends PermissionGroupServi
         implements PermissionGroupServiceCECompatible {
     public PermissionGroupServiceCECompatibleImpl(
             Validator validator,
-            PermissionGroupRepository repository,
+            PermissionGroupRepository repositoryDirect,
+            PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             TenantService tenantService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             PolicySolution policySolution,
-            ConfigRepository configRepository,
+            ConfigRepositoryCake configRepository,
             PermissionGroupPermission permissionGroupPermission) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 sessionUserService,

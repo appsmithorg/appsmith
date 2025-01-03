@@ -7,28 +7,24 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
     @Override
-    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
+    public Optional<User> findByEmail(String email, AclPermission permission, User currentUser) {
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
-        return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
-    }
-
-    @Override
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
         return queryBuilder()
-                .criteria(Bridge.equal(User.Fields.email, email).equal(User.Fields.tenantId, tenantId))
+                .criteria(emailCriteria)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -39,13 +35,12 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
-    public Mono<Boolean> isUsersEmpty() {
-        return queryBuilder()
+    public Optional<Boolean> isUsersEmpty() {
+        return Optional.of(queryBuilder()
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .limit(1)
                 .all(IdOnly.class)
-                .count()
-                .map(count -> count == 0);
+                .isEmpty());
     }
 
     @Override
@@ -56,10 +51,10 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<Integer> updateById(String id, UpdateDefinition updateObj) {
+    public Optional<Integer> updateById(String id, BridgeUpdate updateObj) {
         if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
-        return queryBuilder().byId(id).updateFirst(updateObj);
+        return Optional.of(queryBuilder().byId(id).updateFirst(updateObj));
     }
 }

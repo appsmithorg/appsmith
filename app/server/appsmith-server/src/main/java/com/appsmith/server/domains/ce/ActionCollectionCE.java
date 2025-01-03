@@ -1,15 +1,20 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Type;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
 
@@ -30,13 +35,18 @@ public class ActionCollectionCE extends RefAwareDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
     ActionCollectionDTO unpublishedCollection;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     ActionCollectionDTO publishedCollection;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     CreatorContextType contextType;
 
     @Override

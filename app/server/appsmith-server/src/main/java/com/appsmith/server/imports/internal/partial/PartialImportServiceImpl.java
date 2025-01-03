@@ -21,7 +21,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.DryOperationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationTemplateService;
@@ -36,7 +36,6 @@ import com.appsmith.server.widgets.refactors.WidgetRefactorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -53,8 +52,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             PagePermission pagePermission,
             ActionPermission actionPermission,
             SessionUserService sessionUserService,
-            TransactionalOperator transactionalOperator,
-            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
@@ -84,7 +82,6 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 pagePermission,
                 actionPermission,
                 sessionUserService,
-                transactionalOperator,
                 permissionGroupRepository,
                 pluginImportableService,
                 newPageImportableService,

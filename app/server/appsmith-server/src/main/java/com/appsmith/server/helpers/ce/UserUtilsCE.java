@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
@@ -10,8 +9,8 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import io.micrometer.observation.ObservationRegistry;
 import net.minidev.json.JSONObject;
@@ -37,16 +36,16 @@ import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
 
 public class UserUtilsCE {
 
-    private final ConfigRepository configRepository;
+    private final ConfigRepositoryCake configRepository;
 
-    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
 
     private final PermissionGroupPermission permissionGroupPermission;
     private final ObservationRegistry observationRegistry;
 
     public UserUtilsCE(
-            ConfigRepository configRepository,
-            PermissionGroupRepository permissionGroupRepository,
+            ConfigRepositoryCake configRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             PermissionGroupPermission permissionGroupPermission,
             ObservationRegistry observationRegistry) {
@@ -58,7 +57,7 @@ public class UserUtilsCE {
 
     public Mono<Boolean> isSuperUser(User user) {
         return configRepository
-                .findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                .findByNameAsUser(INSTANCE_CONFIG, user, MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE))
                 .name(CHECK_SUPER_USER_SPAN)
@@ -67,7 +66,7 @@ public class UserUtilsCE {
 
     public Mono<Boolean> isCurrentUserSuperUser() {
         return configRepository
-                .findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                .findByName(INSTANCE_CONFIG, MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
@@ -88,8 +87,7 @@ public class UserUtilsCE {
                     // Make Super User is called before the first administrator is created.
                     return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
                 })
-                .then(Mono.just(users))
-                .flatMapMany(Flux::fromIterable)
+                .thenMany(Flux.fromIterable(users))
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                         user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));

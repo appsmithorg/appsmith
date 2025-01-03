@@ -3,12 +3,14 @@ package com.appsmith.external.models;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 @Setter
 @Getter
+@MappedSuperclass
 @FieldNameConstants
 public abstract class RefAwareDomain extends GitSyncedDomain {
 
