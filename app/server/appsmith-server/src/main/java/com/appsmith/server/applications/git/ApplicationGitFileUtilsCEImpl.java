@@ -85,7 +85,7 @@ import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwanted
 @Slf4j
 @Component
 @Import({FileUtilsImpl.class})
-public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
+public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ArtifactExchangeJson> {
 
     private final Gson gson;
     private final ObjectMapper objectMapper;

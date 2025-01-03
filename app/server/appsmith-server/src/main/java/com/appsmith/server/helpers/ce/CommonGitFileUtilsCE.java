@@ -9,7 +9,6 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
@@ -85,7 +84,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Import({FileUtilsImpl.class})
 public class CommonGitFileUtilsCE {
 
-    protected final ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils;
+    protected final ArtifactGitFileUtils<ArtifactExchangeJson> applicationGitFileUtils;
     private final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
@@ -102,7 +101,7 @@ public class CommonGitFileUtilsCE {
     protected final ObjectMapper objectMapper;
 
     public CommonGitFileUtilsCE(
-            ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils,
+            ArtifactGitFileUtils<ArtifactExchangeJson> applicationGitFileUtils,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,

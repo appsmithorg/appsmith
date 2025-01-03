@@ -9,9 +9,9 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Path;
 import java.util.Map;
 
-public interface ArtifactGitFileUtilsCE<T extends ArtifactGitReference> {
+public interface ArtifactGitFileUtilsCE<T extends ArtifactExchangeJson> {
 
-    T createArtifactReferenceObject();
+    ArtifactGitReference createArtifactReferenceObject();
 
     ArtifactExchangeJson createArtifactExchangeJsonObject();
 
