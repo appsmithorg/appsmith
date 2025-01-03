@@ -84,14 +84,10 @@ export const WithHeaderDropdown = () => {
                 {
                   title: "Page1",
                   onClick: noop,
-                  description: "",
-                  descriptionType: "inline",
                 },
                 {
                   title: "Page2",
                   onClick: noop,
-                  description: "",
-                  descriptionType: "inline",
                 },
               ]}
             />

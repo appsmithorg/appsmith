@@ -15,7 +15,7 @@ import java.util.List;
 public class ExportingMetaDTO {
     String artifactType;
     String artifactId;
-    String branchName;
+    String refName;
     Boolean isGitSync;
     Boolean exportWithConfiguration;
 

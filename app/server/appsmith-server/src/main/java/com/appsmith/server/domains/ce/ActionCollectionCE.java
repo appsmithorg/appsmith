@@ -1,8 +1,8 @@
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.helpers.CustomJsonType;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,9 +26,8 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @Setter
 @ToString
 @FieldNameConstants
-@MappedSuperclass
-public class ActionCollectionCE extends BranchAwareDomain {
-    // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and
+public class ActionCollectionCE extends RefAwareDomain {
+    // Default resources from RefAwareDomain will be used to store branchName, defaultApplicationId and
     // defaultActionCollectionId
     @JsonView(Views.Public.class)
     String applicationId;
@@ -64,7 +62,7 @@ public class ActionCollectionCE extends BranchAwareDomain {
         super.sanitiseToExportDBObject();
     }
 
-    public static class Fields extends BranchAwareDomain.Fields {
+    public static class Fields extends RefAwareDomain.Fields {
         public static final String publishedCollection_name =
                 dotted(publishedCollection, ActionCollectionDTO.Fields.name);
         public static final String unpublishedCollection_name =

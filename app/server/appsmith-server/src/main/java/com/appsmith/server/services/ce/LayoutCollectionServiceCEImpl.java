@@ -158,7 +158,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         return newPageService
                 .findById(collectionDTO.getPageId(), pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
-                    actionCollection.setBranchName(branchedPage.getBranchName());
+                    actionCollection.setRefType(branchedPage.getRefType());
+                    actionCollection.setRefName(branchedPage.getRefName());
                     actionCollectionService.generateAndSetPolicies(branchedPage, actionCollection);
                     actionCollection.setUnpublishedCollection(collectionDTO);
 
@@ -343,7 +344,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         actionCollectionDTO.getName() + "." + actionDTO.getName());
                                 actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
-                                actionDTO.setBranchName(branchedActionCollection.getBranchName());
+                                actionDTO.setRefType(branchedActionCollection.getRefType());
+                                actionDTO.setRefName(branchedActionCollection.getRefName());
 
                                 // actionCollectionService is a new action, we need to create one
                                 if (duplicateNames.contains(actionDTO.getName())) {
@@ -381,9 +383,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
                             log.debug(
-                                    "Failed to delete action with id {}, branch {} for collection: {}",
+                                    "Failed to delete action with id {}, {} {} for collection: {}",
                                     x.getBaseId(),
-                                    x.getBranchName(),
+                                    x.getRefType(),
+                                    x.getRefName(),
                                     actionCollectionDTO.getName());
                             log.error(throwable.getMessage());
                             return Mono.empty();

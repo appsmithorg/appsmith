@@ -91,21 +91,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Optional<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission, User currentUser) {
-        final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
-                        ActionCollection.Fields.baseId, baseCollectionId)
-                .equal(ActionCollection.Fields.branchName, branchName);
-
-        return queryBuilder().criteria(bq).permission(permission, currentUser).one();
-    }
-
-    @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser) {
-        BridgeQuery<ActionCollection> pageIdCriteria =
-                Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder()
-                .criteria(pageIdCriteria)
+                .criteria(Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
                 .permission(permission, currentUser)
                 .all();
     }

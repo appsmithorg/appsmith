@@ -460,12 +460,6 @@ public class ApplicationImportServiceCEImpl
             }
         }
         return importApplicationMono
-                .doOnNext(application -> {
-                    if (application.getGitArtifactMetadata() != null) {
-                        importingMetaDTO.setBranchName(
-                                application.getGitArtifactMetadata().getBranchName());
-                    }
-                })
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
@@ -654,14 +648,13 @@ public class ApplicationImportServiceCEImpl
 
         return applicationService.findById(branchedArtifactId).flatMap(application -> {
             String baseArtifactId = application.getBaseId();
-            String branchName = null;
+            String refName = null;
 
             if (application.getGitArtifactMetadata() != null) {
-                branchName = application.getGitArtifactMetadata().getBranchName();
+                refName = application.getGitArtifactMetadata().getRefName();
             }
 
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, baseArtifactId, refName);
         });
     }
 }

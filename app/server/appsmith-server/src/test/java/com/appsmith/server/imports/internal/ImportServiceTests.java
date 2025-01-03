@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.dtos.ModifiedResources;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -333,6 +334,7 @@ public class ImportServiceTests {
                 .findByApplicationId(application.getId(), READ_PAGES, false)
                 .flatMap(page -> newActionService.getUnpublishedActions(
                         new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))),
+                        RefType.branch,
                         ""));
     }
 
@@ -1367,7 +1369,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application savedApplication = applicationPageService
@@ -1400,7 +1402,7 @@ public class ImportServiceTests {
                         .exportByArtifactId(savedApplication.getId(), VERSION_CONTROL, APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
-                                workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
+                                workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .cache();
 
@@ -1419,7 +1421,7 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
 
                     final String branchName =
-                            application.getGitApplicationMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getRefName();
                     pageList.forEach(page -> {
                         assertThat(page.getBranchName()).isEqualTo(branchName);
                     });
@@ -1583,7 +1585,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1657,7 +1659,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1755,7 +1757,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -3277,7 +3279,7 @@ public class ImportServiceTests {
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -3295,7 +3297,7 @@ public class ImportServiceTests {
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 
@@ -3335,7 +3337,7 @@ public class ImportServiceTests {
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -3353,7 +3355,7 @@ public class ImportServiceTests {
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 
@@ -3843,7 +3845,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -3934,7 +3936,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -3955,7 +3957,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 
@@ -4044,7 +4046,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -4066,7 +4068,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 
@@ -4155,7 +4157,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -4177,7 +4179,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 

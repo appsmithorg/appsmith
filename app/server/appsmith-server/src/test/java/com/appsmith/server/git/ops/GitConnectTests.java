@@ -332,7 +332,7 @@ public class GitConnectTests {
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                 })
                 .verifyComplete();
     }
@@ -361,7 +361,7 @@ public class GitConnectTests {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         gitArtifactMetadata.setRemoteUrl("git@github.com:test/testRepo.git");
-        gitArtifactMetadata.setBranchName("defaultBranchNameFromRemote");
+        gitArtifactMetadata.setRefName("defaultBranchNameFromRemote");
         gitArtifactMetadata.setRepoName("testRepo");
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         testApplication.setName("localGitProfile");

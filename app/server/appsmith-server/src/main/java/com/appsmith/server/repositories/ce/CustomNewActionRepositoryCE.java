@@ -4,7 +4,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 
@@ -52,9 +51,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser);
 
     Optional<Long> countByDatasourceId(String datasourceId);
-
-    Optional<NewAction> findByBranchNameAndBaseActionId(
-            String branchName, String baseActionId, Boolean viewMode, AclPermission permission, User currentUser);
 
     List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
 

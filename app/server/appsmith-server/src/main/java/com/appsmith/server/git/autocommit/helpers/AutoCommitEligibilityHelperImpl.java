@@ -36,7 +36,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
     public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
 
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
+        String refName = gitMetadata.getRefName();
 
         Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(workspaceId, gitMetadata, FALSE, APPLICATION)
@@ -44,7 +44,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                     log.info(
                             "server schema for application id : {}  and branch name : {} is : {}",
                             defaultApplicationId,
-                            branchName,
+                            refName,
                             serverSchemaVersion);
                     return jsonSchemaVersions.getServerVersion() > serverSchemaVersion ? TRUE : FALSE;
                 })
@@ -53,9 +53,9 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
 
         return Mono.defer(() -> isServerMigrationRequiredMonoCached).onErrorResume(error -> {
             log.debug(
-                    "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
+                    "error while retrieving the metadata for defaultApplicationId : {}, refName : {} error : {}",
                     defaultApplicationId,
-                    branchName,
+                    refName,
                     error.getMessage());
             return Mono.just(FALSE);
         });
@@ -93,7 +93,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
     public Mono<Boolean> isClientMigrationRequiredFSOps(
             String workspaceId, GitArtifactMetadata gitMetadata, PageDTO pageDTO) {
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
+        String refName = gitMetadata.getRefName();
 
         Mono<Integer> latestDslVersionMono = dslMigrationUtils.getLatestDslVersion();
 
@@ -111,10 +111,10 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
 
         return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
             log.debug(
-                    "error while fetching the dsl version for page : {}, defaultApplicationId : {}, branchName : {} error : {}",
+                    "error while fetching the dsl version for page : {}, defaultApplicationId : {}, refName : {} error : {}",
                     pageDTO.getName(),
                     defaultApplicationId,
-                    branchName,
+                    refName,
                     error.getMessage());
             return Mono.just(FALSE);
         });

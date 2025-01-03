@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.MappedSuperclass;
@@ -11,13 +12,41 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 @MappedSuperclass
 @FieldNameConstants
-public abstract class BranchAwareDomain extends GitSyncedDomain {
+public abstract class RefAwareDomain extends GitSyncedDomain {
 
     @JsonView(Views.Public.class)
     String baseId;
 
     @JsonView(Views.Internal.class)
     String branchName;
+
+    @JsonView(Views.Internal.class)
+    RefType refType;
+
+    @JsonView(Views.Internal.class)
+    String refName;
+
+    public RefType getRefType() {
+        if (refType == null) {
+            if (this.getRefName() != null) {
+                return RefType.branch;
+            } else {
+                return null;
+            }
+        }
+        return refType;
+    }
+
+    public String getRefName() {
+        return refName == null ? branchName : refName;
+    }
+
+    public void setRefName(String refName) {
+        this.refName = refName;
+        if (this.getRefType() == RefType.branch) {
+            this.branchName = refName;
+        }
+    }
 
     @JsonView(Views.Internal.class)
     public String getBaseIdOrFallback() {

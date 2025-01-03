@@ -25,9 +25,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     List<ActionCollection> findByPageId(String pageId);
 
-    Optional<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission, User currentUser);
-
     List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
 
     List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);

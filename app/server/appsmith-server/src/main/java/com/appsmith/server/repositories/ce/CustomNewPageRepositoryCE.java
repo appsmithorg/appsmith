@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -34,8 +35,9 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Optional<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Optional<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName,
+    Optional<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
             String basePageId,
             AclPermission permission,
             User currentUser,

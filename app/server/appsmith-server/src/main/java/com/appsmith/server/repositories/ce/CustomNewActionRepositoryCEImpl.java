@@ -5,7 +5,6 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -272,21 +271,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 Bridge.equal(NewAction.Fields.publishedAction_datasource_id, datasourceId));
 
         return queryBuilder().criteria(q).count();
-    }
-
-    @Override
-    public Optional<NewAction> findByBranchNameAndBaseActionId(
-            String branchName, String baseActionId, Boolean viewMode, AclPermission permission, User currentUser) {
-        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.baseId, baseActionId)
-                .equal(NewAction.Fields.branchName, branchName);
-
-        if (Boolean.FALSE.equals(viewMode)) {
-            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-            // would exist. To handle this, only fetch non-deleted actions
-            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
-        }
-
-        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     @Override

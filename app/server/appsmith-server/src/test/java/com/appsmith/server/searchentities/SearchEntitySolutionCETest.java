@@ -253,7 +253,7 @@ class SearchEntitySolutionCETest {
         application.setName(searchString + "_application");
         application.setWorkspaceId(workspace.getId());
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
-        gitArtifactMetadata.setBranchName(branchName);
+        gitArtifactMetadata.setRefName(branchName);
         gitArtifactMetadata.setDefaultBranchName(defaultBranchName);
         gitArtifactMetadata.setRemoteUrl("git@test.com:user/testRepo.git");
         application.setGitApplicationMetadata(gitArtifactMetadata);

@@ -264,6 +264,7 @@ def generate_cake_class(domain):
     package com.appsmith.server.repositories.cakes;
 
     import com.appsmith.external.models.*;
+    import com.appsmith.external.git.constants.ce.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.User;
     import com.appsmith.server.domains.*;

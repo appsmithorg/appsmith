@@ -175,6 +175,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     FieldName.APPLICATION,
                                     branchedApplicationId,
                                     null,
+                                    null,
                                     new ArrayList<>(),
                                     false,
                                     true,
@@ -198,7 +199,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             return newPageService
                                     .findById(branchedPageId, AclPermission.MANAGE_PAGES)
                                     .flatMap(page -> {
-                                        importingMetaDTO.setBranchName(page.getBranchName());
+                                        importingMetaDTO.setRefType(page.getRefType());
+                                        importingMetaDTO.setRefName(page.getRefName());
                                         Layout layout = page.getUnpublishedPage()
                                                 .getLayouts()
                                                 .get(0);

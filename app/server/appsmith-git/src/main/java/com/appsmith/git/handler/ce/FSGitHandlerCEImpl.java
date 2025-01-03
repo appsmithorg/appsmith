@@ -379,7 +379,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             refName,
                                             repoSuffix);
 
-                                    if (RefType.TAG.equals(refType)) {
+                                    if (RefType.tag.equals(refType)) {
                                         return createTag(git, gitRefDTO);
                                     }
 

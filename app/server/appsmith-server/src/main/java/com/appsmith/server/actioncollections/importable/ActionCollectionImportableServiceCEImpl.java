@@ -346,7 +346,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         populateDomainMappedReferences(mappedImportableResourcesDTO, existingActionCollection);
 
         // Update branchName
-        existingActionCollection.setBranchName(importingMetaDTO.getBranchName());
+        existingActionCollection.setRefType(importingMetaDTO.getRefType());
+        existingActionCollection.setRefName(importingMetaDTO.getRefName());
         // Recover the deleted state present in DB from imported actionCollection
         existingActionCollection
                 .getUnpublishedCollection()

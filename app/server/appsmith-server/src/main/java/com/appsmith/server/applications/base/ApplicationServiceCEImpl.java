@@ -317,10 +317,10 @@ public class ApplicationServiceCEImpl
             Mono<String> applicationIdMono;
             GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
-                    && !StringUtils.isEmpty(gitData.getBranchName())
+                    && !StringUtils.isEmpty(gitData.getRefName())
                     && !StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                 applicationIdMono = this.findByBranchNameAndBaseApplicationId(
-                                gitData.getBranchName(),
+                                gitData.getRefName(),
                                 gitData.getDefaultArtifactId(),
                                 applicationPermission.getEditPermission())
                         .map(Application::getId);

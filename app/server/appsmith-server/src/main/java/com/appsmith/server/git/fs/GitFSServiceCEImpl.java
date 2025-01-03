@@ -263,12 +263,33 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<List<String>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
-        if (RefType.BRANCH.equals(artifactJsonTransformationDTO.getRefType())) {
+        if (RefType.branch.equals(artifactJsonTransformationDTO.getRefType())) {
             return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
         // TODO: Add logic for other reference types (e.g., tags)
         return Mono.just(List.of());
+    }
+
+    @Override
+    public Mono<String> getDefaultBranchFromRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseGitData) {
+        if (isGitAuthInvalid(baseGitData.getGitAuth())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        String publicKey = baseGitData.getGitAuth().getPublicKey();
+        String privateKey = baseGitData.getGitAuth().getPrivateKey();
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffixPath = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.getRemoteDefaultBranch(repoSuffixPath, baseGitData.getRemoteUrl(), privateKey, publicKey);
     }
 
     @Override
@@ -440,7 +461,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
 
                     if (gitData == null
-                            || !StringUtils.hasText(gitData.getBranchName())
+                            || !StringUtils.hasText(gitData.getRefName())
                             || !StringUtils.hasText(gitData.getDefaultArtifactId())
                             || !StringUtils.hasText(gitData.getGitAuth().getPrivateKey())) {
 
@@ -455,14 +476,14 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     return fsGitHandler
                             .checkoutToBranch(
                                     baseRepoSuffix,
-                                    artifact.getGitArtifactMetadata().getBranchName())
+                                    artifact.getGitArtifactMetadata().getRefName())
                             .then(Mono.defer(() -> fsGitHandler
                                     .pushApplication(
                                             baseRepoSuffix,
                                             gitData.getRemoteUrl(),
                                             gitAuth.getPublicKey(),
                                             gitAuth.getPrivateKey(),
-                                            gitData.getBranchName())
+                                            gitData.getRefName())
                                     .zipWith(Mono.just(artifact))))
                             .onErrorResume(error -> gitAnalyticsUtils
                                     .addAnalyticsForGitOperation(
@@ -542,12 +563,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     artifact.getWorkspaceId(), gitMetadata.getDefaultArtifactId(), gitMetadata.getRepoName());
 
             return fsGitHandler
-                    .resetHard(path, gitMetadata.getBranchName())
+                    .resetHard(path, gitMetadata.getRefName())
                     .then(Mono.error(new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
                             "push",
                             "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
-                                    + gitMetadata.getBranchName())));
+                                    + gitMetadata.getRefName())));
         }
         return Mono.just(pushResult);
     }
@@ -628,6 +649,19 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
+    public Mono<String> checkoutRemoteReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.checkoutRemoteBranch(repoSuffix, jsonTransformationDTO.getRefName());
+    }
+
+    @Override
     public Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
         ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -659,7 +693,6 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<Boolean> checkoutArtifact(ArtifactJsonTransformationDTO jsonTransformationDTO) {
-
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 

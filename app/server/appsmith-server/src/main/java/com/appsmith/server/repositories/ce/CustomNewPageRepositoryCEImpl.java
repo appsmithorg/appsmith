@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -9,7 +10,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
-import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,6 +144,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
+                NewPage.Fields.refType,
+                NewPage.Fields.refName,
                 NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
@@ -182,8 +184,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName,
+    public Optional<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
             String basePageId,
             AclPermission permission,
             User currentUser,
@@ -193,11 +196,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.baseId, basePageId);
 
-        if (branchName != null) {
+        if (refName != null) {
             // branchCriteria
-            q.equal(NewPage.Fields.branchName, branchName);
+            BridgeQuery<NewPage> refQuery = Bridge.or(
+                    Bridge.equal(NewPage.Fields.branchName, refName),
+                    Bridge.and(
+                            Bridge.equal(NewPage.Fields.refName, refName),
+                            Bridge.equal(NewPage.Fields.refType, refType)));
+            q.and(refQuery);
         } else {
-            q.isNull(NewPage.Fields.branchName);
+            q.and(Bridge.and(Bridge.isNull(NewPage.Fields.branchName), Bridge.isNull(NewPage.Fields.refName)));
         }
 
         return queryBuilder()
@@ -207,20 +215,6 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .one()
         /*.name(FETCH_PAGE_FROM_DB)
         .tap(Micrometer.observation(observationRegistry))*/ ;
-    }
-
-    public Optional<String> findBranchedPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
-        final BridgeQuery<NewPage> q =
-                // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.baseId, defaultPageId);
-        q.equal(NewPage.Fields.branchName, branchName);
-
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission, currentUser)
-                .one(IdOnly.class)
-                .map(IdOnly::id);
     }
 
     @Override

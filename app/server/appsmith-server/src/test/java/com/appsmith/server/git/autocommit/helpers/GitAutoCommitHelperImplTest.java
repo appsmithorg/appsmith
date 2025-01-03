@@ -290,7 +290,7 @@ public class GitAutoCommitHelperImplTest {
         GitArtifactMetadata metaData = new GitArtifactMetadata();
         metaData.setRepoName("test-repo-name");
         metaData.setDefaultApplicationId(defaultApplicationId);
-        metaData.setBranchName(branchName);
+        metaData.setRefName(branchName);
 
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPrivateKey("private-key");
@@ -336,7 +336,7 @@ public class GitAutoCommitHelperImplTest {
         GitArtifactMetadata metaData = new GitArtifactMetadata();
         metaData.setRepoName("test-repo-name");
         metaData.setDefaultApplicationId(defaultApplicationId);
-        metaData.setBranchName(branchName);
+        metaData.setRefName(branchName);
 
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPrivateKey("private-key");

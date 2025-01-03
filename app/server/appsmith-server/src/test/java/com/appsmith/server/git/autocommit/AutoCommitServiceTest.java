@@ -141,7 +141,7 @@ public class AutoCommitServiceTest {
 
         application.setPages(List.of(applicationPage));
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
-        gitArtifactMetadata.setBranchName(BRANCH_NAME);
+        gitArtifactMetadata.setRefName(BRANCH_NAME);
         gitArtifactMetadata.setDefaultBranchName(DEFAULT_BRANCH_NAME);
         gitArtifactMetadata.setRepoName(REPO_NAME);
         gitArtifactMetadata.setDefaultApplicationId(DEFAULT_APP_ID);
@@ -647,7 +647,7 @@ public class AutoCommitServiceTest {
                         .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED))
                 .verifyComplete();
 
-        testApplication.getGitApplicationMetadata().setBranchName("another-branch-name");
+        testApplication.getGitApplicationMetadata().setRefName("another-branch-name");
 
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));
