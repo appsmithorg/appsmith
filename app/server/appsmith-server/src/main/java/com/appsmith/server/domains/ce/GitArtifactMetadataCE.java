@@ -131,6 +131,10 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
         return refType == null ? RefType.branch : refType;
     }
 
+    public void setRefType(RefType refType) {
+        this.refType = refType == null ? RefType.branch : refType;
+    }
+
     /**
      * this returns the branchName instead of reference name
      * @return returns the ref name.
