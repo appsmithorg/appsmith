@@ -62,7 +62,7 @@
   "basicUsername": "input[name='authentication.username']",
   "basicPassword": "input[name='authentication.password']",
   "mockUserDatabase": "div[id='mock-database'] span:contains('Users')",
-  "mockUserDatasources": ".t--datasource-name:contains('Users')",
+  "mockUserDatasources": ".t--plugin-name:contains('Users')",
   "mongoUriDropdown": "//p[text()='Use mongo connection string URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
   "mongoUriInput": "//p[text()='Connection string URI']/following-sibling::div//input",

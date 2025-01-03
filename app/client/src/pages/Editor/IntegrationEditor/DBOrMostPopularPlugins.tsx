@@ -1,5 +1,4 @@
-import React, { type ReactNode } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, type ReactNode } from "react";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import {
@@ -21,18 +20,34 @@ import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
+import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
+import { API_ACTION } from "./APIOrSaasPlugins";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@appsmith/ads";
-import PlusLogo from "assets/images/Plus-logo.svg";
 import {
   createMessage,
   CREATE_NEW_DATASOURCE_REST_API,
+  CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
+  CREATE_NEW_DATASOURCE_DATABASE_HEADER,
 } from "ee/constants/messages";
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import history from "utils/history";
+import {
+  DatasourceContainer,
+  DatasourceSection,
+  DatasourceSectionHeading,
+  StyledDivider,
+} from "./IntegrationStyledComponents";
+import DatasourceItem from "./DatasourceItem";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import scrollIntoView from "scroll-into-view-if-needed";
+import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { Datasource } from "entities/Datasource";
+import type { AnyAction, Dispatch } from "redux";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -54,71 +69,7 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
   return "";
 };
 
-const DatasourceHomePage = styled.div`
-  .textBtn {
-    justify-content: center;
-    text-align: center;
-    color: var(--ads-v2-color-fg);
-    font-weight: 400;
-    text-decoration: none !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 16px;
-    line-height: 24px;
-    letter-spacing: -0.24px;
-    margin: 0;
-  }
-`;
-
-const DatasourceCardsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-  text-align: center;
-  min-width: 150px;
-  border-radius: 4px;
-  align-items: center;
-`;
-
-const DatasourceCard = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  border-radius: var(--ads-v2-border-radius);
-  &:hover {
-    background: var(--ads-v2-color-bg-subtle);
-    cursor: pointer;
-  }
-
-  .dataSourceImage {
-    height: 34px;
-    width: auto;
-    margin: 0 auto;
-    max-width: 100%;
-  }
-
-  .cta {
-    display: none;
-    margin-right: 32px;
-  }
-
-  &:hover {
-    .cta {
-      display: flex;
-    }
-  }
-`;
-
-const DatasourceContentWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding-left: 13.5px;
-`;
-
-interface DatasourceHomeScreenProps {
+interface DBOrMostPopularPluginsProps {
   editorType: string;
   editorId: string;
   parentEntityId: string;
@@ -128,23 +79,14 @@ interface DatasourceHomeScreenProps {
   };
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showUnsupportedPluginDialog: (callback: any) => void;
-  isAirgappedInstance?: boolean;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
   children?: ReactNode;
 }
 
 interface ReduxDispatchProps {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initializeForm: (data: Record<string, any>) => void;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createDatasource: (data: any) => void;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createTempDatasource: (data: any) => void;
+  initializeForm: (data: Record<string, unknown>) => void;
+  createDatasource: (data: CreateDatasourceConfig & Datasource) => void;
+  createTempDatasource: typeof createTempDatasourceFromForm;
   createNewApiActionBasedOnEditorType: (
     editorType: string,
     editorId: string,
@@ -162,15 +104,35 @@ interface ReduxStateProps {
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }
 
-type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
+interface CreateDBOrMostPopularPluginsProps {
+  location: {
+    search: string;
+  };
+  showMostPopularPlugins?: boolean;
+  isCreating?: boolean;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
+  children?: ReactNode;
+  isOnboardingScreen?: boolean;
+  active?: boolean;
+  pageId: string;
+  addDivider?: boolean;
+}
 
-class DatasourceHomeScreen extends React.Component<Props> {
+type CreateDBOrMostPopularPluginsType = ReduxStateProps &
+  CreateDBOrMostPopularPluginsProps &
+  ReduxDispatchProps;
+
+type Props = DBOrMostPopularPluginsProps & CreateDBOrMostPopularPluginsType;
+
+class DBOrMostPopularPlugins extends React.Component<Props> {
   goToCreateDatasource = (
     pluginId: string,
     pluginName: string,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params?: any,
+    params?: {
+      skipValidPluginCheck?: boolean;
+      packageName?: string;
+      type?: PluginType;
+    },
   ) => {
     const {
       currentApplication,
@@ -215,6 +177,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     this.props.createTempDatasource({
       pluginId,
+      type: params!.type!,
     });
   };
 
@@ -244,101 +207,140 @@ class DatasourceHomeScreen extends React.Component<Props> {
     } = this.props;
 
     return (
-      <DatasourceHomePage>
-        <DatasourceCardsContainer data-testid="database-datasource-card-container">
-          {plugins.map((plugin, idx) => {
-            return plugin.type === PluginType.API ? (
-              !!showMostPopularPlugins ? (
-                <ApiCard
-                  className="t--createBlankApiCard create-new-api"
-                  key={`${plugin.id}_${idx}`}
-                  onClick={() => this.handleOnClick()}
-                >
-                  <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
-                    <img
-                      alt="New"
-                      className="curlImage t--plusImage content-icon"
-                      src={PlusLogo}
-                    />
-                    <p className="textBtn">
-                      {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
-                    </p>
-                  </CardContentWrapper>
-                  {/*@ts-expect-error Fix this the next time the file is edited*/}
-                  {isCreating && <Spinner className="cta" size={25} />}
-                </ApiCard>
-              ) : null
-            ) : (
-              <DatasourceCard
-                data-testid="database-datasource-card"
+      <DatasourceContainer data-testid="database-datasource-card-container">
+        {plugins.map((plugin, idx) => {
+          return plugin.type === PluginType.API ? (
+            !!showMostPopularPlugins ? (
+              <DatasourceItem
+                className="t--createBlankApiCard create-new-api"
+                dataCardWrapperTestId="newapi-datasource-content-wrapper"
+                handleOnClick={this.handleOnClick}
+                icon={getAssetUrl(`${ASSETS_CDN_URL}/plus.png`)}
                 key={`${plugin.id}_${idx}`}
-                onClick={() => {
-                  AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                    appName: currentApplication?.name,
-                    pluginName: plugin.name,
-                    pluginPackageName: plugin.packageName,
-                  });
-                  this.goToCreateDatasource(plugin.id, plugin.name, {
-                    packageName: plugin.packageName,
-                  });
-                }}
-              >
-                <DatasourceContentWrapper data-testid="database-datasource-content-wrapper">
-                  <img
-                    alt="Datasource"
-                    className="dataSourceImage"
-                    data-testid="database-datasource-image"
-                    src={getAssetUrl(pluginImages[plugin.id])}
-                  />
-                  <p className="t--plugin-name textBtn">{plugin.name}</p>
-                </DatasourceContentWrapper>
-              </DatasourceCard>
-            );
-          })}
-        </DatasourceCardsContainer>
-      </DatasourceHomePage>
+                name={createMessage(CREATE_NEW_DATASOURCE_REST_API)}
+              />
+            ) : null
+          ) : (
+            <DatasourceItem
+              dataCardImageTestId="database-datasource-image"
+              dataCardTestId="database-datasource-card"
+              dataCardWrapperTestId="database-datasource-content-wrapper"
+              handleOnClick={() => {
+                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                  appName: currentApplication?.name,
+                  pluginName: plugin.name,
+                  pluginPackageName: plugin.packageName,
+                });
+                this.goToCreateDatasource(plugin.id, plugin.name, {
+                  packageName: plugin.packageName,
+                  type: plugin.type,
+                });
+              }}
+              icon={getAssetUrl(pluginImages[plugin.id])}
+              key={`${plugin.id}_${idx}`}
+              name={plugin.name}
+              rightSibling={
+                isCreating && <Spinner className="cta" size={"sm"} />
+              }
+            />
+          );
+        })}
+      </DatasourceContainer>
     );
   }
 }
 
+function CreateDBOrMostPopularPlugins(props: CreateDBOrMostPopularPluginsType) {
+  const editorType = useEditorType(location.pathname);
+  const { editorId, parentEntityId, parentEntityType } =
+    useParentEntityInfo(editorType);
+  const newDatasourceRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (props.active && newDatasourceRef.current) {
+      scrollIntoView(newDatasourceRef.current, {
+        behavior: "smooth",
+        scrollMode: "always",
+        block: "start",
+        boundary: document.getElementById("new-integrations-wrapper"),
+      });
+    }
+  }, [props.active]);
+
+  if (props.plugins.length === 0) return null;
+
+  return (
+    <>
+      {props.addDivider && <StyledDivider />}
+      <DatasourceSection id="new-datasources" ref={newDatasourceRef}>
+        <DatasourceSectionHeading kind="heading-m">
+          {props.showMostPopularPlugins
+            ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
+            : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
+        </DatasourceSectionHeading>
+        <DBOrMostPopularPlugins
+          {...props}
+          editorId={editorId}
+          editorType={editorType}
+          isCreating={props.isCreating}
+          location={location}
+          parentEntityId={
+            parentEntityId || (props.isOnboardingScreen && props.pageId) || ""
+          }
+          parentEntityType={parentEntityType}
+        />
+      </DatasourceSection>
+    </>
+  );
+}
+
 const mapStateToProps = (
   state: AppState,
-  props: { showMostPopularPlugins?: boolean; isAirgappedInstance?: boolean },
+  props: {
+    active?: boolean;
+    pageId: string;
+    showMostPopularPlugins?: boolean;
+    isOnboardingScreen?: boolean;
+    isCreating?: boolean;
+  },
 ) => {
   const { datasources } = state.entities;
   const mostPopularPlugins = getMostPopularPlugins(state);
-  const filteredMostPopularPlugins: Plugin[] = !!props?.isAirgappedInstance
+  const isAirgappedInstance = isAirgapped();
+  const searchedPlugin = (
+    pluginSearchSelector(state, "search") || ""
+  ).toLocaleLowerCase();
+  const filteredMostPopularPlugins: Plugin[] = !!isAirgappedInstance
     ? mostPopularPlugins.filter(
         (plugin: Plugin) =>
           plugin?.packageName !== PluginPackageName.GOOGLE_SHEETS,
       )
     : mostPopularPlugins;
 
+  let plugins = !!props?.showMostPopularPlugins
+    ? filteredMostPopularPlugins
+    : getDBPlugins(state);
+
+  plugins = plugins.filter((plugin) =>
+    plugin.name.toLocaleLowerCase().includes(searchedPlugin),
+  );
+
   return {
     pluginImages: getPluginImages(state),
-    plugins: !!props?.showMostPopularPlugins
-      ? filteredMostPopularPlugins
-      : getDBPlugins(state),
+    plugins,
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
     generateCRUDSupportedPlugin: getGenerateCRUDEnabledPluginMap(state),
   };
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initializeForm: (data: Record<string, any>) =>
+    initializeForm: (data: Record<string, unknown>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createTempDatasource: (data: any) =>
+    createDatasource: (data: CreateDatasourceConfig & Datasource) =>
+      dispatch(createDatasourceFromForm(data)),
+    createTempDatasource: (data: { pluginId: string; type: PluginType }) =>
       dispatch(createTempDatasourceFromForm(data)),
     createNewApiActionBasedOnEditorType: (
       editorType: string,
@@ -362,4 +364,4 @@ const mapDispatchToProps = (dispatch: any) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(DatasourceHomeScreen);
+)(CreateDBOrMostPopularPlugins);
