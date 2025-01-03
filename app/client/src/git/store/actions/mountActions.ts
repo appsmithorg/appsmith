@@ -1,26 +1,31 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { GitArtifactBasePayload, GitArtifactReduxState } from "../types";
-import { gitSingleArtifactInitialState } from "../helpers/gitSingleArtifactInitialState";
+import type {
+  GitArtifactBasePayload,
+  GitArtifactRootReduxState,
+} from "../types";
+import { gitArtifactInitialState } from "../helpers/initialState";
 
 // ! This might be removed later
 
 export const mountAction = (
-  state: GitArtifactReduxState,
+  state: GitArtifactRootReduxState,
   action: PayloadAction<GitArtifactBasePayload>,
 ) => {
-  const { artifactType, baseArtifactId } = action.payload;
+  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = artifactDef;
 
   state[artifactType] ??= {};
-  state[artifactType][baseArtifactId] ??= gitSingleArtifactInitialState;
+  state[artifactType][baseArtifactId] ??= gitArtifactInitialState;
 
   return state;
 };
 
 export const unmountAction = (
-  state: GitArtifactReduxState,
+  state: GitArtifactRootReduxState,
   action: PayloadAction<GitArtifactBasePayload>,
 ) => {
-  const { artifactType, baseArtifactId } = action.payload;
+  const { artifactDef } = action.payload;
+  const { artifactType, baseArtifactId } = artifactDef;
 
   delete state?.[artifactType]?.[baseArtifactId];
 

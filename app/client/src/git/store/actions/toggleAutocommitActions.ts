@@ -1,24 +1,20 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitArtifactErrorPayloadAction } from "../types";
 
-export const toggleAutocommitInitAction = createSingleArtifactAction(
-  (state) => {
-    state.apiResponses.toggleAutocommit.loading = true;
-    state.apiResponses.toggleAutocommit.error = null;
+export const toggleAutocommitInitAction = createArtifactAction((state) => {
+  state.apiResponses.toggleAutocommit.loading = true;
+  state.apiResponses.toggleAutocommit.error = null;
 
-    return state;
-  },
-);
+  return state;
+});
 
-export const toggleAutocommitSuccessAction = createSingleArtifactAction(
-  (state) => {
-    state.apiResponses.toggleAutocommit.loading = false;
+export const toggleAutocommitSuccessAction = createArtifactAction((state) => {
+  state.apiResponses.toggleAutocommit.loading = false;
 
-    return state;
-  },
-);
+  return state;
+});
 
-export const toggleAutocommitErrorAction = createSingleArtifactAction(
+export const toggleAutocommitErrorAction = createArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 

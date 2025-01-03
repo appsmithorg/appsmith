@@ -1,7 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
   Flex,
-  Tooltip,
   Divider,
   Modal,
   ModalContent,
@@ -11,7 +10,6 @@ import {
   TabsList,
   Tab,
   TabPanel,
-  Button,
   Link,
   IDEHeader,
   IDEHeaderTitle,
@@ -24,19 +22,15 @@ import {
   APPLICATION_INVITE,
   COMMUNITY_TEMPLATES,
   createMessage,
-  DEPLOY_BUTTON_TOOLTIP,
-  DEPLOY_MENU_OPTION,
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
   HEADER_TITLES,
-  PACKAGE_UPGRADING_ACTION_STATUS,
 } from "ee/constants/messages";
 import EditorName from "pages/Editor/EditorName";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPageSaving,
-  getIsPublishingApplication,
   getPageById,
   getPageSavingError,
 } from "selectors/editorSelectors";
@@ -46,10 +40,7 @@ import {
   getIsErroredSavingAppName,
   getIsSavingAppName,
 } from "ee/selectors/applicationSelectors";
-import {
-  publishApplication,
-  updateApplication,
-} from "ee/actions/applicationActions";
+import { updateApplication } from "ee/actions/applicationActions";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Omnibar } from "pages/Editor/commons/Omnibar";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
@@ -62,13 +53,6 @@ import DeployLinkButtonDialog from "components/designSystems/appsmith/header/Dep
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAppsmithConfigs } from "ee/configs";
-import {
-  getIsGitConnected,
-  protectedModeSelector,
-} from "selectors/gitSyncSelectors";
-import { showConnectGitModal } from "actions/gitSyncActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { NavigationSetting } from "constants/AppConstants";
 import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -80,18 +64,13 @@ import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
-import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
+import DeployButton from "./DeployButton";
+import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
   margin-left: 8px;
   margin-right: 8px;
-`;
-
-// This wrapper maintains pointer events for tooltips when the child button is disabled.
-// Without this, disabled buttons won't trigger tooltips because they have pointer-events: none
-const StyledTooltipTarget = styled.span`
-  display: inline-block;
 `;
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -137,19 +116,11 @@ const Header = () => {
   const currentApplication = useSelector(getCurrentApplication);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const isProtectedMode = useSelector(protectedModeSelector);
-  const isPackageUpgrading = useSelector(getIsPackageUpgrading);
-  const isPublishing = useSelector(getIsPublishingApplication);
-  const isGitConnected = useSelector(getIsGitConnected);
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
   const appState = useCurrentAppState();
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
-  const isDeployDisabled = isPackageUpgrading || isProtectedMode;
-  const deployTooltipText = isPackageUpgrading
-    ? createMessage(PACKAGE_UPGRADING_ACTION_STATUS, "deploy this app")
-    : createMessage(DEPLOY_BUTTON_TOOLTIP);
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -179,56 +150,8 @@ const Header = () => {
     dispatch(updateApplication(id, data));
   };
 
-  const handlePublish = useCallback(() => {
-    if (applicationId) {
-      dispatch(publishApplication(applicationId));
-
-      const appName = currentApplication ? currentApplication.name : "";
-      const pageCount = currentApplication?.pages?.length;
-      const navigationSettingsWithPrefix: Record<
-        string,
-        NavigationSetting[keyof NavigationSetting]
-      > = {};
-
-      if (currentApplication?.applicationDetail?.navigationSetting) {
-        const settingKeys = Object.keys(
-          currentApplication.applicationDetail.navigationSetting,
-        ) as Array<keyof NavigationSetting>;
-
-        settingKeys.map((key: keyof NavigationSetting) => {
-          if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {
-            const value: NavigationSetting[keyof NavigationSetting] =
-              currentApplication.applicationDetail.navigationSetting[key];
-
-            navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
-          }
-        });
-      }
-
-      AnalyticsUtil.logEvent("PUBLISH_APP", {
-        appId: applicationId,
-        appName,
-        pageCount,
-        ...navigationSettingsWithPrefix,
-        isPublic: !!currentApplication?.isPublic,
-        templateTitle: currentApplication?.forkedFromTemplateTitle,
-      });
-    }
-  }, [applicationId, currentApplication, dispatch]);
-
-  const handleClickDeploy = useCallback(() => {
-    if (isGitConnected) {
-      dispatch(showConnectGitModal());
-      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
-        source: "Deploy button",
-      });
-    } else {
-      handlePublish();
-    }
-  }, [dispatch, handlePublish, isGitConnected]);
-
   return (
-    <>
+    <GitApplicationContextProvider>
       <IDEHeader>
         <IDEHeader.Left logo={<AppsmithLink />}>
           <HeaderTitleComponent appState={appState} />
@@ -338,30 +261,13 @@ const Header = () => {
             showModal={showPublishCommunityTemplateModal}
           />
           <div className="flex items-center">
-            <Tooltip content={deployTooltipText} placement="bottomRight">
-              <StyledTooltipTarget>
-                <Button
-                  className="t--application-publish-btn"
-                  data-guided-tour-iid="deploy"
-                  id={"application-publish-btn"}
-                  isDisabled={isDeployDisabled}
-                  isLoading={isPublishing}
-                  kind="tertiary"
-                  onClick={handleClickDeploy}
-                  size="md"
-                  startIcon={"rocket"}
-                >
-                  {DEPLOY_MENU_OPTION()}
-                </Button>
-              </StyledTooltipTarget>
-            </Tooltip>
-
+            <DeployButton />
             <DeployLinkButtonDialog link={deployLink} trigger="" />
           </div>
         </IDEHeader.Right>
       </IDEHeader>
       <Omnibar />
-    </>
+    </GitApplicationContextProvider>
   );
 };
 

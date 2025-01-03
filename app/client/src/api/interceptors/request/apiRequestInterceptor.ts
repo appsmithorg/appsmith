@@ -30,6 +30,7 @@ const blockAirgappedRoutes = (config: InternalAxiosRequestConfig) => {
 
 const addGitBranchHeader = (config: InternalAxiosRequestConfig) => {
   const state = store.getState();
+  // ! git mod - not sure how to replace this, we could directly read state if required
   const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
 
   return _addGitBranchHeader(config, { branch });

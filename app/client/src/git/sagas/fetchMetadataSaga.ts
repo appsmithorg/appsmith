@@ -8,18 +8,17 @@ import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
 export default function* fetchMetadataSaga(action: GitArtifactPayloadAction) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: FetchMetadataResponse | undefined;
 
   try {
-    response = yield call(fetchMetadataRequest, baseArtifactId);
+    response = yield call(fetchMetadataRequest, artifactDef.baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchMetadataSuccess({
-          ...basePayload,
+          artifactDef,
           responseData: response.data,
         }),
       );
@@ -30,7 +29,7 @@ export default function* fetchMetadataSaga(action: GitArtifactPayloadAction) {
 
       yield put(
         gitArtifactActions.fetchMetadataError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

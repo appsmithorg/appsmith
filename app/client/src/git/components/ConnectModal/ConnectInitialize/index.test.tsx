@@ -21,19 +21,15 @@ jest.mock("@appsmith/ads", () => ({
 
 const defaultProps = {
   artifactType: "Application",
-  connect: jest.fn(),
-  connectError: null,
-  fetchSSHKey: jest.fn(),
-  generateSSHKey: jest.fn(),
-  gitImport: jest.fn(),
-  isConnectLoading: false,
-  isFetchSSHKeyLoading: false,
-  isGenerateSSHKeyLoading: false,
-  isGitImportLoading: false,
+  error: null,
+  onFetchSSHKey: jest.fn(),
+  onGenerateSSHKey: jest.fn(),
+  isSubmitLoading: false,
+  isSSHKeyLoading: false,
   isImport: false,
+  onSubmit: jest.fn(),
+  onOpenImport: null,
   sshPublicKey: "ssh-rsa AAAAB3...",
-  isCreateArtifactPermitted: true,
-  setImportWorkspaceId: jest.fn(),
   toggleConnectModal: jest.fn(),
 };
 
@@ -126,7 +122,7 @@ describe("ConnectModal Component", () => {
     completeAddDeployKeyStep();
 
     await waitFor(() => {
-      expect(defaultProps.connect).toHaveBeenCalledWith(
+      expect(defaultProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           remoteUrl: "git@example.com:user/repo.git",
           gitProfile: {
@@ -139,14 +135,14 @@ describe("ConnectModal Component", () => {
     });
   });
 
-  it("calls gitImport on completing AddDeployKey step in import mode", async () => {
+  it("calls onSubmit on completing AddDeployKey step in import mode", async () => {
     render(<ConnectInitialize {...defaultProps} isImport />);
     completeChooseProviderStep(true);
     completeGenerateSSHKeyStep();
     completeAddDeployKeyStep();
 
     await waitFor(() => {
-      expect(defaultProps.gitImport).toHaveBeenCalledWith(
+      expect(defaultProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           remoteUrl: "git@example.com:user/repo.git",
           gitProfile: {
@@ -167,13 +163,11 @@ describe("ConnectModal Component", () => {
         message: "",
       };
 
-      rerender(
-        <ConnectInitialize {...defaultProps} connectError={connectError} />,
-      );
+      rerender(<ConnectInitialize {...defaultProps} error={connectError} />);
     });
 
     const { rerender } = render(
-      <ConnectInitialize {...defaultProps} connect={mockConnect} />,
+      <ConnectInitialize {...defaultProps} onSubmit={mockConnect} />,
     );
 
     completeChooseProviderStep();
@@ -216,7 +210,7 @@ describe("ConnectModal Component", () => {
   });
 
   it("renders loading state and removes buttons when connecting", () => {
-    render(<ConnectInitialize {...defaultProps} isConnectLoading />);
+    render(<ConnectInitialize {...defaultProps} isSubmitLoading />);
     expect(
       screen.getByText("Please wait while we connect to Git..."),
     ).toBeInTheDocument();

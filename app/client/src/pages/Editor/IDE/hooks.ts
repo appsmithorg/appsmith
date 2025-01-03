@@ -15,7 +15,6 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
@@ -27,6 +26,7 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
+import { useGitCurrentBranch } from "../gitSync/hooks/modHooks";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import { useBoolean } from "usehooks-ts";
@@ -102,7 +102,8 @@ export const useSegmentNavigation = (): {
 export const useGetPageFocusUrl = (basePageId: string): string => {
   const [focusPageUrl, setFocusPageUrl] = useState(builderURL({ basePageId }));
 
-  const branch = useSelector(getCurrentGitBranch);
+  const branch = useGitCurrentBranch();
+
   const editorStateFocusInfo = useSelector((appState) =>
     getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
   );

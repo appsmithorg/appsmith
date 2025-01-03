@@ -77,6 +77,8 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
+import type { GitArtifactRootReduxState, GitGlobalReduxState } from "git";
+import { gitReducer } from "git/store";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -86,6 +88,7 @@ export const reducerObject = {
   settings: SettingsReducer,
   tenant: tenantReducer,
   linting: lintErrorReducer,
+  git: gitReducer,
 };
 
 export interface AppState {
@@ -176,4 +179,8 @@ export interface AppState {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tenant: TenantReduxState<any>;
+  git: {
+    global: GitGlobalReduxState;
+    artifacts: GitArtifactRootReduxState;
+  };
 }

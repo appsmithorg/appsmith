@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import styled from "styled-components";
 import { useSelector } from "react-redux";
@@ -15,32 +15,47 @@ import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { viewerURL } from "ee/RouteBuilder";
-import { Link, Text } from "@appsmith/ads";
-import { importSvg } from "@appsmith/ads-old";
+import { Icon, Link, Text } from "@appsmith/ads";
 
-const CloudyIcon = importSvg(
-  async () => import("assets/icons/ads/cloudy-line.svg"),
-);
+const StyledIcon = styled(Icon)`
+  svg {
+    width: 30px;
+    height: 30px;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
   gap: ${(props) => props.theme.spaces[6]}px;
-
-  .cloud-icon {
-    stroke: var(--ads-v2-color-fg);
-  }
 `;
 
-export default function DeployPreview() {
-  // ! case: should reset after timer
-  const showSuccess = false;
+interface DeployPreviewProps {
+  isCommitSuccess: boolean;
+}
+
+export default function DeployPreview({ isCommitSuccess }: DeployPreviewProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(
+    function startTimerForCommitSuccessEffect() {
+      if (isCommitSuccess) {
+        setShowSuccess(true);
+        const timer = setTimeout(() => {
+          setShowSuccess(false);
+        }, 5000);
+
+        return () => clearTimeout(timer);
+      }
+    },
+    [isCommitSuccess],
+  );
 
   const basePageId = useSelector(getCurrentBasePageId);
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
-  const showDeployPreview = () => {
+  const showDeployPreview = useCallback(() => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
@@ -49,7 +64,7 @@ export default function DeployPreview() {
     });
 
     window.open(path, "_blank");
-  };
+  }, [basePageId]);
 
   const lastDeployedAtMsg = lastDeployedAt
     ? `${createMessage(LATEST_DP_SUBTITLE)} ${howMuchTimeBeforeText(
@@ -66,7 +81,7 @@ export default function DeployPreview() {
         {showSuccess ? (
           <SuccessTick height="30px" width="30px" />
         ) : (
-          <CloudyIcon className="cloud-icon" />
+          <StyledIcon color="var(--ads-v2-color-fg)" name="cloud-v2" />
         )}
       </div>
       <div>

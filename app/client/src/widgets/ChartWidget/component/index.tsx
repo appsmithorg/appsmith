@@ -28,7 +28,7 @@ import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
 import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
@@ -406,7 +406,7 @@ export const mapStateToProps = (
   state: AppState,
   ownProps: ChartComponentProps,
 ) => {
-  const isPreviewMode = combinedPreviewModeSelector(state);
+  const isPreviewMode = selectCombinedPreviewMode(state);
   const appMode = getAppMode(state);
 
   return {

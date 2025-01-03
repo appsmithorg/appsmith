@@ -9,7 +9,7 @@ import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "ee/configs";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -145,7 +145,7 @@ function IframeComponent(props: IframeComponentProps) {
   }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
 
   return (

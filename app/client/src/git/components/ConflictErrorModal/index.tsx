@@ -3,11 +3,11 @@ import ConflictErrorModalView from "./ConflictErrorModalView";
 import useOps from "git/hooks/useOps";
 
 export default function ConflictErrorModal() {
-  const { conflictErrorModalOpen, toggleConflictErrorModal } = useOps();
+  const { isConflictErrorModalOpen, toggleConflictErrorModal } = useOps();
 
   return (
     <ConflictErrorModalView
-      isConflictErrorModalOpen={conflictErrorModalOpen}
+      isConflictErrorModalOpen={isConflictErrorModalOpen}
       toggleConflictErrorModal={toggleConflictErrorModal}
     />
   );

@@ -4,39 +4,37 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectSettingsModalOpen,
   selectSettingsModalTab,
-} from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+} from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useSettings() {
   const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const settingsModalOpen = useSelector((state: GitRootState) =>
-    selectSettingsModalOpen(state, artifactDef),
-  );
+  const settingsModalOpen = useArtifactSelector(selectSettingsModalOpen);
 
-  const settingsModalTab = useSelector((state: GitRootState) =>
-    selectSettingsModalTab(state, artifactDef),
-  );
+  const settingsModalTab = useArtifactSelector(selectSettingsModalTab);
 
   const toggleSettingsModal = useCallback(
     (
       open: boolean,
       tab: keyof typeof GitSettingsTab = GitSettingsTab.General,
     ) => {
-      dispatch(
-        gitArtifactActions.toggleSettingsModal({ ...artifactDef, open, tab }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.toggleSettingsModal({ artifactDef, open, tab }),
+        );
+      }
     },
     [artifactDef, dispatch],
   );
 
   return {
     isSettingsModalOpen: settingsModalOpen ?? false,
-    settingsModalTab: settingsModalTab ?? GitSettingsTab.General,
+    settingsModalTab: settingsModalTab,
     toggleSettingsModal,
   };
 }

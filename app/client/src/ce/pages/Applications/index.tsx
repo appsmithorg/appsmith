@@ -122,7 +122,6 @@ import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Indices } from "constants/Layers";
 import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
-import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -133,6 +132,15 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
+import { GitImportModal as NewGitImportModal } from "git";
+
+function GitImportModal() {
+  const isGitModEnabled = useGitModEnabled();
+
+  return isGitModEnabled ? <NewGitImportModal /> : <OldGitSyncModal isImport />;
+}
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -955,7 +963,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <GitSyncModal isImport />
+      <GitImportModal />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );

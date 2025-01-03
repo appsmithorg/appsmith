@@ -1,19 +1,17 @@
 import React, { type ReactNode, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getIsAutoLayout,
-} from "selectors/editorSelectors";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
   const dispatch = useDispatch();
-  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCombinedPreviewMode = useSelector(selectCombinedPreviewMode);
 
   const handleWrapperClick = useCallback(
     (e) => {

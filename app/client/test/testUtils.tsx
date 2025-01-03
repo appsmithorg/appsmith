@@ -49,9 +49,12 @@ interface State {
 }
 const setupState = (state?: State) => {
   let reduxStore = store;
+
   window.history.pushState({}, "Appsmith", state?.url || "/");
+
   if (state && (state.initialState || state.featureFlags)) {
     reduxStore = testStore(state.initialState || {});
+
     if (state.featureFlags) {
       reduxStore.dispatch(
         fetchFeatureFlagsSuccess({
@@ -61,10 +64,12 @@ const setupState = (state?: State) => {
       );
     }
   }
+
   if (state && state.sagasToRun) {
     reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
     testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
   }
+
   const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
 
   return { reduxStore, defaultTheme };
@@ -76,6 +81,7 @@ const customRender = (
   options?: Omit<RenderOptions, "queries">,
 ) => {
   const { defaultTheme, reduxStore } = setupState(state);
+
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
@@ -92,6 +98,7 @@ const customRender = (
 const hookWrapper = (state: State) => {
   return ({ children }: { children: ReactElement }) => {
     const { defaultTheme, reduxStore } = setupState(state);
+
     return (
       <BrowserRouter>
         <Provider store={reduxStore}>

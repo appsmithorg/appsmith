@@ -7,12 +7,17 @@ import {
   Text,
 } from "@appsmith/ads";
 import clsx from "clsx";
+import styled from "styled-components";
+import type { StatusTreeStruct } from "./types";
 
-export interface StatusTreeStruct {
-  icon: string;
-  message: string;
-  children?: StatusTreeStruct[];
-}
+const StyledCollapsible = styled(Collapsible)`
+  gap: 0;
+`;
+
+const StyledCollapsibleHeader = styled(CollapsibleHeader)`
+  padding-top: 0;
+  padding-bottom: 0;
+`;
 
 interface StatusTreeNodeProps {
   icon: string;
@@ -43,29 +48,31 @@ interface SingleStatusTreeProps {
 function SingleStatusTree({ depth = 1, tree }: SingleStatusTreeProps) {
   if (!tree) return null;
 
+  const noEmphasis = depth > 1 && !tree.children;
+
   if (!tree.children) {
     return (
       <StatusTreeNode
         icon={tree.icon}
         message={tree.message}
-        noEmphasis={depth > 2}
+        noEmphasis={noEmphasis}
       />
     );
   }
 
   return (
-    <Collapsible className="!mt-0 !gap-0">
-      <CollapsibleHeader>
+    <StyledCollapsible className="space-y-2">
+      <StyledCollapsibleHeader arrowPosition="start">
         <StatusTreeNode icon={tree.icon} message={tree.message} />
-      </CollapsibleHeader>
+      </StyledCollapsibleHeader>
       <CollapsibleContent
-        className={clsx("ml-6", depth < 2 ? "space-y-2" : "space-y-1")}
+        className={clsx("ml-6", noEmphasis ? "space-y-1" : "space-y-2")}
       >
         {tree.children.map((child, index) => (
           <SingleStatusTree depth={depth + 1} key={index} tree={child} />
         ))}
       </CollapsibleContent>
-    </Collapsible>
+    </StyledCollapsible>
   );
 }
 

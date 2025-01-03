@@ -3,16 +3,14 @@ import type {
   GenerateSSHKeyRequestParams,
   GenerateSSHKeyResponse,
 } from "./generateSSHKeyRequest.types";
-import { APPLICATION_BASE_URL, GIT_BASE_URL } from "./constants";
+import { APPLICATION_BASE_URL } from "./constants";
 import Api from "api/Api";
 
 export default async function generateSSHKeyRequest(
   baseApplicationId: string,
   params: GenerateSSHKeyRequestParams,
 ): AxiosPromise<GenerateSSHKeyResponse> {
-  const url = params.isImport
-    ? `${GIT_BASE_URL}/import/keys?keyType=${params.keyType}`
-    : `${APPLICATION_BASE_URL}/ssh-keypair/${baseApplicationId}?keyType=${params.keyType}`;
+  const url = `${APPLICATION_BASE_URL}/ssh-keypair/${baseApplicationId}?keyType=${params.keyType}`;
 
-  return params.isImport ? Api.get(url) : Api.post(url);
+  return Api.post(url);
 }

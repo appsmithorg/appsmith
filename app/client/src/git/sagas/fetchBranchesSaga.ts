@@ -14,8 +14,7 @@ import { captureException } from "@sentry/react";
 export default function* fetchBranchesSaga(
   action: GitArtifactPayloadAction<FetchBranchesInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: FetchBranchesResponse | undefined;
 
   try {
@@ -23,13 +22,13 @@ export default function* fetchBranchesSaga(
       pruneBranches: action.payload.pruneBranches,
     };
 
-    response = yield call(fetchBranchesRequest, baseArtifactId, params);
+    response = yield call(fetchBranchesRequest, artifactId, params);
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchBranchesSuccess({
-          ...basePayload,
+          artifactDef,
           responseData: response.data,
         }),
       );
@@ -40,7 +39,7 @@ export default function* fetchBranchesSaga(
 
       yield put(
         gitArtifactActions.fetchBranchesError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

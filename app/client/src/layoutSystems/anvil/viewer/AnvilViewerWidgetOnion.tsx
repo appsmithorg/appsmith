@@ -5,7 +5,7 @@ import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetCompo
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 /**
  * AnvilViewerWidgetOnion
@@ -20,7 +20,7 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
  * @returns Enhanced Widget
  */
 export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const widgetSize: SizeConfig = useMemo(
     () => getWidgetSizeConfiguration(props.type, props, isPreviewMode),
     [isPreviewMode, props.type],

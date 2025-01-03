@@ -12,10 +12,7 @@ import ShareButton from "./components/ShareButton";
 import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "ee/RouteBuilder";
-import {
-  combinedPreviewModeSelector,
-  getCurrentBasePageId,
-} from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
@@ -36,6 +33,7 @@ import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -81,7 +79,7 @@ export function Sidebar(props: SidebarProps) {
   const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

@@ -4,7 +4,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { AnvilEditorFlexComponent } from "./AnvilEditorFlexComponent";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
@@ -25,7 +25,7 @@ import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const { widgetSize, WidgetWrapper } = useMemo(() => {
     return {
       widgetSize: getWidgetSizeConfiguration(props.type, props, isPreviewMode),

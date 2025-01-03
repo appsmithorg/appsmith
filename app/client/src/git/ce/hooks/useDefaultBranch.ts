@@ -1,17 +1,11 @@
-import { useGitContext } from "git/components/GitContextProvider";
-import { selectDefaultBranch } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
-import { useSelector } from "react-redux";
+import useArtifactSelector from "git/hooks/useArtifactSelector";
+import { selectDefaultBranch } from "git/store/selectors/gitArtifactSelectors";
 
 function useDefaultBranch() {
-  const { artifactDef } = useGitContext();
-
-  const defaultBranch = useSelector((state: GitRootState) =>
-    selectDefaultBranch(state, artifactDef),
-  );
+  const defaultBranch = useArtifactSelector(selectDefaultBranch);
 
   return {
-    defaultBranch,
+    defaultBranch: defaultBranch ?? null,
   };
 }
 

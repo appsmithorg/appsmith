@@ -2,7 +2,7 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
@@ -113,7 +113,7 @@ export const SectionSpaceDistributor = (
   props: SectionSpaceDistributorProps,
 ) => {
   const { zones } = props;
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const isDragging = useSelector(
     (state) => state.ui.widgetDragResize.isDragging,

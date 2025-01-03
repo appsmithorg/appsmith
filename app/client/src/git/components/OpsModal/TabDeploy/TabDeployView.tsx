@@ -108,6 +108,7 @@ function TabDeployView({
   statusBehindCount = 0,
   statusIsClean = false,
 }: TabDeployViewProps) {
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const hasChangesToCommit = !statusIsClean;
   const commitInputRef = useRef<HTMLInputElement>(null);
   const [commitMessage, setCommitMessage] = useState(
@@ -157,6 +158,10 @@ function TabDeployView({
     ((pullRequired && !isConflicting) ||
       (statusBehindCount > 0 && statusIsClean));
 
+  const isCommitSuccess = useMemo(() => {
+    return hasSubmitted && !isCommitLoading;
+  }, [isCommitLoading, hasSubmitted]);
+
   useEffect(
     function focusCommitInputEffect() {
       if (!commitInputDisabled && commitInputRef.current) {
@@ -200,6 +205,7 @@ function TabDeployView({
     });
 
     if (currentBranch) {
+      setHasSubmitted(true);
       commit(commitMessage.trim());
     }
   }, [commit, commitMessage, currentBranch]);
@@ -353,7 +359,9 @@ function TabDeployView({
             />
           )}
 
-          {!pullRequired && !isConflicting && <DeployPreview />}
+          {!pullRequired && !isConflicting && (
+            <DeployPreview isCommitSuccess={isCommitSuccess} />
+          )}
         </div>
       </ModalBody>
       <StyledModalFooter key="footer">

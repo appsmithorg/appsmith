@@ -3,19 +3,21 @@ import type {
   FetchStatusResponseData,
 } from "git/requests/fetchStatusRequest.types";
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 
-export interface FetchStatusInitPayload extends FetchStatusRequestParams {}
+export interface FetchStatusInitPayload extends FetchStatusRequestParams {
+  artifactId: string;
+}
 
 export const fetchStatusInitAction =
-  createSingleArtifactAction<FetchStatusInitPayload>((state) => {
+  createArtifactAction<FetchStatusInitPayload>((state) => {
     state.apiResponses.status.loading = true;
     state.apiResponses.status.error = null;
 
     return state;
   });
 
-export const fetchStatusSuccessAction = createSingleArtifactAction<
+export const fetchStatusSuccessAction = createArtifactAction<
   GitAsyncSuccessPayload<FetchStatusResponseData>
 >((state, action) => {
   state.apiResponses.status.loading = false;
@@ -25,7 +27,7 @@ export const fetchStatusSuccessAction = createSingleArtifactAction<
 });
 
 export const fetchStatusErrorAction =
-  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.status.loading = false;
