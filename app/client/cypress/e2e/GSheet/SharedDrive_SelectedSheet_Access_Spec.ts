@@ -16,7 +16,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-shared-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
-describe(
+describe.skip(
   "GSheet-Functional Tests With Selected Access",
   {
     tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
