@@ -350,3 +350,4 @@ export class CommonLocators {
   _entityTestId = (entity: string) =>
     `[data-testid="t--entity-item-${entity}"]`;
 }
+
