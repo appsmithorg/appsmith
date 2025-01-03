@@ -120,7 +120,7 @@ public class GitDiscardTests {
                 .initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString());
         Mockito.doReturn(Mono.just(Paths.get("path")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
 
         Application testApplication = new Application();
         testApplication.setName(name);

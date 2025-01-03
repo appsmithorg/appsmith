@@ -87,7 +87,7 @@ public class GitCommitTests {
 
         Mockito.doReturn(Mono.just(Paths.get("")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
         Mockito.doReturn(Mono.error(new EmptyCommitException("nothing to commit")))
                 .when(fsGitHandler)
                 .commitArtifact(
@@ -136,7 +136,7 @@ public class GitCommitTests {
                 .initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString());
         Mockito.doReturn(Mono.just(Paths.get("path")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
 
         Application testApplication = new Application();
         testApplication.setName(name);
@@ -225,7 +225,7 @@ public class GitCommitTests {
 
         Mockito.doReturn(Mono.error(new RepositoryNotFoundException(AppsmithError.REPOSITORY_NOT_FOUND.getMessage())))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
 
         StepVerifier.create(commitMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
