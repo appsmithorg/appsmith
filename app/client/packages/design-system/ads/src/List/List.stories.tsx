@@ -210,6 +210,7 @@ export const ListItemBlockDescStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemBlockDescStory.storyName = "List item block description";
 ListItemBlockDescStory.argTypes = ListItemArgTypes;
 ListItemBlockDescStory.args = {
+  startIcon: <Icon name="file-list-2-line" size={"md"} />,
   title: "Action item 1",
   description: "block",
   descriptionType: "block",
@@ -219,7 +220,8 @@ export const ListItemOverflowStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemOverflowStory.storyName = "List item title overflow";
 ListItemOverflowStory.argTypes = ListItemArgTypes;
 ListItemOverflowStory.args = {
-  title: "Action item 1 Action item 1 Action item 1 Action item 1",
+  title:
+    "Action item 1 Action item 1 Action item 1 Action item 1 Action item 1",
 };
 
 export const ListItemRightControlStory = ListItemTemplate.bind({}) as StoryObj;

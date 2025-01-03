@@ -8,10 +8,12 @@ export interface ListItemProps {
   startIcon?: ReactNode;
   /** The control to display at the end. */
   rightControl?: ReactNode;
-  /**  */
+  /** Control the visibility trigger of right control */
   rightControlVisibility?: "hover" | "always";
   /** callback for when the list item is clicked */
   onClick: () => void;
+  /** callback for when the list item is double-clicked */
+  onDoubleClick?: () => void;
   /** Whether the list item is disabled. */
   isDisabled?: boolean;
   /** Whether the list item is selected. */

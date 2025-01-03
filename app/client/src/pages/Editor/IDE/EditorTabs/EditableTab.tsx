@@ -57,7 +57,7 @@ export function EditableTab(props: EditableTabProps) {
       dispatch(saveEntityName({ params: { id, name }, segment, entity }));
       exitEditMode();
     },
-    [entity, exitEditMode, id, segment],
+    [dispatch, entity, exitEditMode, id, segment],
   );
 
   return (
