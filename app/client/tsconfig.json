@@ -30,7 +30,6 @@
     "importHelpers": true,
     "typeRoots": ["./typings", "./node_modules/@types"],
     "sourceMap": true,
-    "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
     "verbatimModuleSyntax": true
   },
