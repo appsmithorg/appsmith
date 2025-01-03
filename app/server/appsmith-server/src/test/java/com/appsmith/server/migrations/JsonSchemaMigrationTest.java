@@ -39,7 +39,7 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         ArtifactExchangeJson artifactExchangeJson = jsonSchemaMigration
-                .migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null)
+                .migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null, null)
                 .block();
         assertThat(artifactExchangeJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
@@ -55,7 +55,7 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
+                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null, null);
         StepVerifier.create(applicationJsonMono)
                 .assertNext(appJson -> {
                     assertThat(appJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());

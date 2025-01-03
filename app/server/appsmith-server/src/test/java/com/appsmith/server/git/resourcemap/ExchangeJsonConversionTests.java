@@ -104,7 +104,7 @@ public class ExchangeJsonConversionTests {
         ArtifactExchangeJson artifactExchangeJson =
                 objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS).readValue(artifactJson, exchangeJsonType);
 
-        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson, null, null);
+        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson, null, null, null);
     }
 
     @TestTemplate

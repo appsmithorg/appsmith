@@ -68,7 +68,7 @@ public class GitApplicationControllerCE {
             @RequestBody GitConnectDTO gitConnectDTO,
             @RequestHeader("Origin") String originHeader) {
         return centralGitService
-                .connectArtifactToGit(applicationId, gitConnectDTO, originHeader, ARTIFACT_TYPE, GIT_TYPE)
+                .connectArtifactToGit(applicationId, ARTIFACT_TYPE, gitConnectDTO, originHeader, GIT_TYPE)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -95,7 +95,7 @@ public class GitApplicationControllerCE {
                 referencedApplicationId,
                 srcBranch);
         return centralGitService
-                .createReference(referencedApplicationId, gitRefDTO, ArtifactType.APPLICATION, GIT_TYPE)
+                .createReference(referencedApplicationId, ArtifactType.APPLICATION, gitRefDTO, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
@@ -104,7 +104,7 @@ public class GitApplicationControllerCE {
     public Mono<ResponseDTO<? extends Artifact>> checkoutReference(
             @PathVariable String referencedApplicationId, @RequestBody GitRefDTO gitRefDTO) {
         return centralGitService
-                .checkoutReference(referencedApplicationId, gitRefDTO, true, ARTIFACT_TYPE, GIT_TYPE)
+                .checkoutReference(referencedApplicationId, ARTIFACT_TYPE, gitRefDTO, true, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -133,7 +133,7 @@ public class GitApplicationControllerCE {
             @RequestParam(required = false, defaultValue = "true") Boolean compareRemote) {
         log.info("Going to get status for branchedApplicationId {}", branchedApplicationId);
         return centralGitService
-                .getStatus(branchedApplicationId, compareRemote, ARTIFACT_TYPE, GIT_TYPE)
+                .getStatus(branchedApplicationId, ARTIFACT_TYPE, compareRemote, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -144,7 +144,7 @@ public class GitApplicationControllerCE {
             @RequestHeader(required = false, defaultValue = "branch") RefType refType) {
         log.info("Going to compare with remote for default referencedApplicationId {}", referencedApplicationId);
         return centralGitService
-                .fetchRemoteChanges(referencedApplicationId, true, ARTIFACT_TYPE, GIT_TYPE, refType)
+                .fetchRemoteChanges(referencedApplicationId, ARTIFACT_TYPE, true, GIT_TYPE, refType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -154,7 +154,7 @@ public class GitApplicationControllerCE {
             @PathVariable String baseArtifactId, @RequestBody GitRefDTO gitRefDTO) {
         log.info("Going to delete ref {} for baseApplicationId {}", gitRefDTO.getRefName(), baseArtifactId);
         return centralGitService
-                .deleteGitReference(baseArtifactId, gitRefDTO, ARTIFACT_TYPE, GIT_TYPE)
+                .deleteGitReference(baseArtifactId, ARTIFACT_TYPE, gitRefDTO, GIT_TYPE)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -173,7 +173,7 @@ public class GitApplicationControllerCE {
             @PathVariable String baseArtifactId,
             @RequestBody @Valid BranchProtectionRequestDTO branchProtectionRequestDTO) {
         return centralGitService
-                .updateProtectedBranches(baseArtifactId, branchProtectionRequestDTO.getBranchNames(), ARTIFACT_TYPE)
+                .updateProtectedBranches(baseArtifactId, ARTIFACT_TYPE, branchProtectionRequestDTO.getBranchNames())
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
@@ -199,7 +199,7 @@ public class GitApplicationControllerCE {
             @PathVariable String baseApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return centralGitService
-                .getAutoCommitProgress(baseApplicationId, branchName, ARTIFACT_TYPE)
+                .getAutoCommitProgress(baseApplicationId, ARTIFACT_TYPE, branchName)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
@@ -219,7 +219,7 @@ public class GitApplicationControllerCE {
         log.debug("Going to get branch list for application {}", branchedApplicationId);
         return centralGitService
                 .listBranchForArtifact(
-                        branchedApplicationId, BooleanUtils.isTrue(pruneBranches), ARTIFACT_TYPE, GIT_TYPE)
+                        branchedApplicationId, ARTIFACT_TYPE, BooleanUtils.isTrue(pruneBranches), GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

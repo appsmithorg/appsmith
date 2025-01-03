@@ -209,12 +209,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> reconstructArtifactJsonFromGitRepository(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
-        return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-                artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getBaseArtifactId(),
-                artifactJsonTransformationDTO.getRepoName(),
-                artifactJsonTransformationDTO.getRefName(),
-                artifactJsonTransformationDTO.getArtifactType());
+        return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+                artifactJsonTransformationDTO);
     }
 
     @Override
@@ -367,7 +363,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         return commonGitFileUtils
-                .saveArtifactToLocalRepoWithAnalytics(repoSuffix, artifactExchangeJson, branchName)
+                .saveArtifactToLocalRepoNew(repoSuffix, artifactExchangeJson, branchName)
                 .map(ignore -> Boolean.TRUE)
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
@@ -376,6 +372,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     } else if (e instanceof AppsmithException) {
                         return Mono.error(e);
                     }
+
                     return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 });
     }
@@ -617,8 +614,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         return fsGitHandler.rebaseBranch(repoSuffix, refName).flatMap(rebaseStatus -> {
-            return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-                    workspaceId, baseArtifactId, repoName, refName, artifactType);
+            return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO);
         });
     }
 
