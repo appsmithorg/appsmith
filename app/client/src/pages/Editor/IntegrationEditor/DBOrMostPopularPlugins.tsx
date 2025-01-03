@@ -323,8 +323,8 @@ const mapStateToProps = (
     ? filteredMostPopularPlugins
     : getDBPlugins(state);
 
-  plugins = plugins.filter((i) =>
-    i.name.toLocaleLowerCase().includes(searchedPlugin || ""),
+  plugins = plugins.filter((plugin) =>
+    plugin.name.toLocaleLowerCase().includes(searchedPlugin || ""),
   );
 
   return {

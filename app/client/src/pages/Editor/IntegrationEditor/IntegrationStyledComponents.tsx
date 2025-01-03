@@ -28,19 +28,16 @@ export const DatasourceContainer = styled.div`
 export const DatasourceCard = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--ads-v2-spaces-4);
+  padding: var(--ads-v2-spaces-4);
   cursor: pointer;
-  &:hover {
-    background-color: var(--ads-v2-color-bg-subtle);
-  }
-
   .cta {
     display: none;
-    margin-right: 32px;
+    margin-right: var(--ads-v2-spaces-9);
   }
 
   &:hover {
+    background-color: var(--ads-v2-color-bg-subtle);
     .cta {
       display: flex;
     }

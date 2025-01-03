@@ -4,7 +4,10 @@ import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import {
+  selectFeatureFlagCheck,
+  selectFeatureFlags,
+} from "ee/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
@@ -32,6 +35,7 @@ import RequestNewIntegration from "./RequestNewIntegration";
 import { StyledDivider } from "./IntegrationStyledComponents";
 import CreateNewDatasourceHeader from "./CreateNewDatasourceHeader";
 import EmptySearchedPlugins from "./EmptySearchedPlugins";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const NewIntegrationsContainer = styled.div<{ isOnboardingScreen?: boolean }>`
   ${thinScrollbar};
@@ -187,8 +191,6 @@ const mapStateToProps = (state: AppState) => {
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
   const featureFlags = selectFeatureFlags(state);
-  const isPremiumDatasourcesViewEnabled =
-    !!featureFlags?.ab_premium_datasources_view_enabled;
   const isFeatureEnabled = isGACEnabled(featureFlags);
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
@@ -196,8 +198,15 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
-  const isRequestNewIntegrationEnabled =
-    !!featureFlags?.ab_request_new_integration_enabled;
+  const isRequestNewIntegrationEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_request_new_integration_enabled,
+  );
+
+  const isPremiumDatasourcesViewEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_premium_datasources_view_enabled,
+  );
 
   return {
     dataSources: getDatasources(state),

@@ -49,20 +49,14 @@ interface CreateAPIOrSaasPluginsProps {
     search: string;
   };
   isCreating?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showUnsupportedPluginDialog: (callback: any) => void;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
   isOnboardingScreen?: boolean;
   active?: boolean;
   pageId: string;
   showSaasAPIs?: boolean; // If this is true, only SaaS APIs will be shown
   plugins: Plugin[];
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createDatasourceFromForm: (data: any) => void;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createTempDatasourceFromForm: (data: any) => void;
+  createDatasourceFromForm: typeof createDatasourceFromForm;
+  createTempDatasourceFromForm: typeof createTempDatasourceFromForm;
   createNewApiActionBasedOnEditorType: (
     editorType: string,
     editorId: string,
@@ -85,7 +79,7 @@ export const API_ACTION = {
   AUTH_API: "AUTH_API",
 };
 
-function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
+function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
   const { authApiPlugin, isCreating, isOnboardingScreen, pageId, plugins } =
     props;
   const editorType = useEditorType(location.pathname);
@@ -106,6 +100,7 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
       });
       props.createTempDatasourceFromForm({
         pluginId: authApiPlugin.id,
+        type: authApiPlugin.type,
       });
     }
   }, [authApiPlugin, props.createTempDatasourceFromForm]);
@@ -128,9 +123,14 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleOnClick = (actionType: string, params?: any) => {
+  const handleOnClick = (
+    actionType: string,
+    params?: {
+      skipValidPluginCheck?: boolean;
+      pluginId?: string;
+      type?: PluginType;
+    },
+  ) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
       queryParams.isGeneratePageMode,
@@ -139,10 +139,10 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
-      !generateCRUDSupportedPlugin[params?.pluginId]
+      (!params?.pluginId || !generateCRUDSupportedPlugin[params.pluginId])
     ) {
       // show modal informing user that this will break the generate flow.
-      props?.showUnsupportedPluginDialog(() =>
+      props.showUnsupportedPluginDialog(() =>
         handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
       );
 
@@ -155,10 +155,13 @@ function NewApiScreen(props: CreateAPIOrSaasPluginsProps) {
         handleCreateNew(actionType);
         break;
       case API_ACTION.CREATE_DATASOURCE_FORM: {
-        props.createTempDatasourceFromForm({
-          pluginId: params.pluginId,
-          type: params.type,
-        });
+        if (params) {
+          props.createTempDatasourceFromForm({
+            pluginId: params.pluginId!,
+            type: params.type!,
+          });
+        }
+
         break;
       }
       case API_ACTION.AUTH_API: {
@@ -260,7 +263,7 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
             ? createMessage(CREATE_NEW_SAAS_SECTION_HEADER)
             : createMessage(CREATE_NEW_API_SECTION_HEADER)}
         </DatasourceSectionHeading>
-        <NewApiScreen {...props} />
+        <APIOrSaasPlugins {...props} />
       </DatasourceSection>
     </>
   );

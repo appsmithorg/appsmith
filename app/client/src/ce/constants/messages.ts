@@ -2619,3 +2619,6 @@ export const PREMIUM_DATASOURCES = {
     "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
   NOTIFY_ME: () => "Notify me",
 };
+
+export const DATASOURCE_SECURE_TEXT = () =>
+  `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;

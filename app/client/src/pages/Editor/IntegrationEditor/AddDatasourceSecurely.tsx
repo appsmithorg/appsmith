@@ -8,6 +8,7 @@ import {
   StyledCloseButton,
 } from "@appsmith/ads/src/Callout/Callout.styles";
 import { CalloutCloseClassName } from "@appsmith/ads/src/Callout/Callout.constants";
+import { createMessage, DATASOURCE_SECURE_TEXT } from "ee/constants/messages";
 
 const Wrapper = styled(StyledCallout)<{ isClosed: boolean }>`
   align-items: center;
@@ -27,8 +28,7 @@ function AddDatasourceSecurely() {
         src={getAssetUrl(`${ASSETS_CDN_URL}/secure-lock.png`)}
       />
       <Text color="var(--ads-v2-color-gray-600)" kind="body-m">
-        When connecting datasources, your passwords are AES-256 encrypted and we
-        never store any of your data.
+        {createMessage(DATASOURCE_SECURE_TEXT)}
       </Text>
       <StyledCloseButton
         aria-label="Close"
