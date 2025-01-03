@@ -39,7 +39,6 @@ export const StateInspector = () => {
       <Flex
         borderRight="1px solid var(--ads-v2-color-border)"
         flexDirection="column"
-        gap="spaces-3"
         h="100%"
         overflowY="hidden"
         w="400px"
@@ -55,7 +54,8 @@ export const StateInspector = () => {
           flexDirection="column"
           gap="spaces-3"
           overflowY="auto"
-          p="spaces-3"
+          pl="spaces-3"
+          pr="spaces-3"
         >
           {filteredItemGroups.map((item) => (
             <Styled.Group
@@ -63,12 +63,12 @@ export const StateInspector = () => {
               gap="spaces-2"
               key={item.group}
             >
-              <Text
+              <Styled.GroupName
                 className="overflow-hidden overflow-ellipsis whitespace-nowrap flex-shrink-0"
                 kind="body-s"
               >
                 {item.group}
-              </Text>
+              </Styled.GroupName>
               <List items={item.items} />
             </Styled.Group>
           ))}

@@ -16,8 +16,6 @@ export const enhanceItemForListItem = (
         title: item.title,
         icon: item.startIcon,
       }),
-    description: "",
-    descriptionType: "inline",
     size: "md",
   };
 };

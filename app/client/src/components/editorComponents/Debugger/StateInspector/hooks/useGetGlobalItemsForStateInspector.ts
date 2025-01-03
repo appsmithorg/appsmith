@@ -11,8 +11,8 @@ export const useGetGlobalItemsForStateInspector: GetGroupHookType = () => {
   const appsmithItems = [
     {
       id: appsmithObj.key,
-      startIcon: appsmithObj.icon,
       title: appsmithObj.title,
+      startIcon: appsmithObj.icon,
     },
   ];
 
