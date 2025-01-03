@@ -137,8 +137,8 @@ const GitPullRequest = importRemixIcon(
 const GitRepository = importRemixIcon(
   async () => import("remixicon-react/GitRepositoryLineIcon"),
 );
-const GlobalLineIcon = importRemixIcon(
-  async () => import("remixicon-react/GlobalLineIcon"),
+const GlobalLineIcon = importSvg(
+  async () => import("../__assets__/icons/ads/globe-simple.svg"),
 );
 const GuideIcon = importRemixIcon(
   async () => import("remixicon-react/GuideFillIcon"),
