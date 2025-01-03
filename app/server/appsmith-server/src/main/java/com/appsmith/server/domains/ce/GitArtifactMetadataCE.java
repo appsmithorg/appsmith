@@ -21,19 +21,16 @@ import java.util.Map;
 @Data
 @FieldNameConstants
 public class GitArtifactMetadataCE implements AppsmithDomain {
+
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
 
-    // TODO: make this public view and remove transient annotation once implmentation completes
-    @Transient
-    @JsonView(Views.Internal.class)
-    String refName;
-
-    // TODO: make this public view and remove transient annotation once implementation completes
-    @Transient
     @JsonView(Views.Internal.class)
     RefType refType;
+
+    @JsonView(Views.Internal.class)
+    String refName;
 
     // Git default branch corresponding to the remote git repo to which the application is connected to
     @JsonView(Views.Public.class)
@@ -130,16 +127,21 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
         this.defaultArtifactId = defaultApplicationId;
     }
 
+    public RefType getRefType() {
+        return refType == null ? RefType.branch : refType;
+    }
+
     /**
      * this returns the branchName instead of reference name
      * @return returns the ref name.
      */
     public String getRefName() {
-        return this.getBranchName();
+        return this.refName == null ? this.branchName : this.refName;
     }
 
     public void setRefName(String refName) {
         this.branchName = refName;
+        this.refName = refName;
     }
 
     public static class Fields {}

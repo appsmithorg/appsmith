@@ -135,7 +135,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                     // from here
                     exportingMetaDTO.setArtifactType(artifactContextConstantMap.get(ARTIFACT_CONTEXT));
                     exportingMetaDTO.setArtifactId(transactionArtifact.getId());
-                    exportingMetaDTO.setBranchName(null);
+                    exportingMetaDTO.setRefName(null);
                     exportingMetaDTO.setIsGitSync(isGitSync);
                     exportingMetaDTO.setExportWithConfiguration(exportWithConfiguration);
 

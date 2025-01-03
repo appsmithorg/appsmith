@@ -276,21 +276,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<NewAction> findByBranchNameAndBaseActionId(
-            String branchName, String baseActionId, Boolean viewMode, AclPermission permission) {
-        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.baseId, baseActionId)
-                .equal(NewAction.Fields.branchName, branchName);
-
-        if (Boolean.FALSE.equals(viewMode)) {
-            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-            // would exist. To handle this, only fetch non-deleted actions
-            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
-        }
-
-        return queryBuilder().criteria(q).permission(permission).one();
-    }
-
-    @Override
     public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
                 .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))

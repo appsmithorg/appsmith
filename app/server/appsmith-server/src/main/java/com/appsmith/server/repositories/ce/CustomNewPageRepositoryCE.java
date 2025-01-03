@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -32,8 +33,12 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Mono<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames);
+    Mono<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
+            String basePageId,
+            AclPermission permission,
+            List<String> projectedFieldNames);
 
     Flux<NewPage> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
 

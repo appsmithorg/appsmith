@@ -189,7 +189,7 @@ public class GitBranchesIT {
 
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(artifactMetadata.getBranchName());
+            assertThat(branch).isEqualTo(artifactMetadata.getRefName());
 
             // Assert only single system generated commit exists on FS
             Iterable<RevCommit> commits = git.log().call();
@@ -212,6 +212,8 @@ public class GitBranchesIT {
 
         assertThat(autoCommitResponseDTO).isNotNull();
         AutoCommitResponseDTO.AutoCommitResponse autoCommitProgress = autoCommitResponseDTO.getAutoCommitResponse();
+        // This check requires RTS to be running on your local since client side changes come in from there
+        // Please make sure to run RTS before triggering this test
         assertThat(autoCommitProgress).isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED);
 
         // Wait for auto-commit to complete
@@ -229,7 +231,7 @@ public class GitBranchesIT {
         // Now there should be two commits in the git log response
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(artifactMetadata.getBranchName());
+            assertThat(branch).isEqualTo(artifactMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
@@ -246,7 +248,7 @@ public class GitBranchesIT {
         }
 
         // Assert that the initialized branch is set as default
-        assertThat(artifactMetadata.getBranchName()).isEqualTo(artifactMetadata.getDefaultBranchName());
+        assertThat(artifactMetadata.getRefName()).isEqualTo(artifactMetadata.getDefaultBranchName());
 
         // Assert that the branch is not protected by default
         assertThat(artifactMetadata.getBranchProtectionRules()).isNullOrEmpty();
@@ -274,7 +276,7 @@ public class GitBranchesIT {
         // Check that the previous attempt didn't actually go through
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(artifactMetadata.getBranchName());
+            assertThat(branch).isEqualTo(artifactMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             assertThat(commits.iterator().next().getId()).isEqualTo(topOfCommits);
@@ -305,7 +307,7 @@ public class GitBranchesIT {
 
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(artifactMetadata.getBranchName());
+            assertThat(branch).isEqualTo(artifactMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
@@ -356,11 +358,11 @@ public class GitBranchesIT {
 
         String fooArtifactId = fooArtifact.getId();
         GitArtifactMetadata fooMetadata = fooArtifact.getGitArtifactMetadata();
-        assertThat(fooMetadata.getBranchName()).isEqualTo("foo");
+        assertThat(fooMetadata.getRefName()).isEqualTo("foo");
 
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(fooMetadata.getBranchName());
+            assertThat(branch).isEqualTo(fooMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
@@ -387,11 +389,11 @@ public class GitBranchesIT {
 
         String barArtifactId = barArtifact.getId();
         GitArtifactMetadata barMetadata = barArtifact.getGitArtifactMetadata();
-        assertThat(barMetadata.getBranchName()).isEqualTo("bar");
+        assertThat(barMetadata.getRefName()).isEqualTo("bar");
 
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(barMetadata.getBranchName());
+            assertThat(branch).isEqualTo(barMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
@@ -415,12 +417,12 @@ public class GitBranchesIT {
             .collectList()
             .block();
         assertThat(branchList).containsExactlyInAnyOrder(
-            artifactMetadata.getBranchName(),
-            "origin/" + artifactMetadata.getBranchName(),
-            fooMetadata.getBranchName(),
-            "origin/" + fooMetadata.getBranchName(),
-            barMetadata.getBranchName(),
-            "origin/" + barMetadata.getBranchName());
+            artifactMetadata.getRefName(),
+            "origin/" + artifactMetadata.getRefName(),
+            fooMetadata.getRefName(),
+            "origin/" + fooMetadata.getRefName(),
+            barMetadata.getRefName(),
+            "origin/" + barMetadata.getRefName());
 
         Mono<? extends Artifact> deleteBranchAttemptMono = commonGitService.deleteBranch(artifactId, "foo", artifactType);
         StepVerifier
@@ -443,11 +445,11 @@ public class GitBranchesIT {
             .collectList()
             .block();
         assertThat(branchList2).containsExactlyInAnyOrder(
-            artifactMetadata.getBranchName(),
-            "origin/" + artifactMetadata.getBranchName(),
-            "origin/" + fooMetadata.getBranchName(),
-            barMetadata.getBranchName(),
-            "origin/" + barMetadata.getBranchName());
+            artifactMetadata.getRefName(),
+            "origin/" + artifactMetadata.getRefName(),
+            "origin/" + fooMetadata.getRefName(),
+            barMetadata.getRefName(),
+            "origin/" + barMetadata.getRefName());
 
         Artifact checkedOutFooArtifact = commonGitService.checkoutBranch(artifactId, "origin/foo", true, artifactType).block();
 
@@ -458,17 +460,17 @@ public class GitBranchesIT {
             .collectList()
             .block();
         assertThat(branchList3).containsExactlyInAnyOrder(
-            artifactMetadata.getBranchName(),
-            "origin/" + artifactMetadata.getBranchName(),
-            fooMetadata.getBranchName(),
-            "origin/" + fooMetadata.getBranchName(),
-            barMetadata.getBranchName(),
-            "origin/" + barMetadata.getBranchName());
+            artifactMetadata.getRefName(),
+            "origin/" + artifactMetadata.getRefName(),
+            fooMetadata.getRefName(),
+            "origin/" + fooMetadata.getRefName(),
+            barMetadata.getRefName(),
+            "origin/" + barMetadata.getRefName());
 
         // Verify latest commit on foo should be same as changes made on foo previously
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
-            assertThat(branch).isEqualTo(fooMetadata.getBranchName());
+            assertThat(branch).isEqualTo(fooMetadata.getRefName());
 
             Iterable<RevCommit> commits = git.log().call();
             Iterator<RevCommit> commitIterator = commits.iterator();
@@ -576,7 +578,7 @@ public class GitBranchesIT {
     }
 
     private AutoCommitResponseDTO.AutoCommitResponse getAutocommitProgress(String artifactId, Artifact artifact, GitArtifactMetadata artifactMetadata) {
-        AutoCommitResponseDTO autoCommitProgress = commonGitService.getAutoCommitProgress(artifactId, artifactMetadata.getBranchName(), artifact.getArtifactType()).block();
+        AutoCommitResponseDTO autoCommitProgress = commonGitService.getAutoCommitProgress(artifactId, artifactMetadata.getRefName(), artifact.getArtifactType()).block();
 
         assertThat(autoCommitProgress).isNotNull();
         return autoCommitProgress.getAutoCommitResponse();

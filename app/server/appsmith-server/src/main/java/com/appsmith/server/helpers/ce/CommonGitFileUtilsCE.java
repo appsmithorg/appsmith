@@ -696,7 +696,7 @@ public class CommonGitFileUtilsCE {
             ArtifactType artifactType) {
 
         String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
-        String branchName = gitArtifactMetadata.getBranchName();
+        String refName = gitArtifactMetadata.getRefName();
         String repoName = gitArtifactMetadata.getRepoName();
 
         if (!hasText(workspaceId)) {
@@ -707,7 +707,7 @@ public class CommonGitFileUtilsCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
         }
 
-        if (!hasText(branchName)) {
+        if (!hasText(refName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
@@ -716,7 +716,7 @@ public class CommonGitFileUtilsCE {
         }
 
         Mono<Integer> serverSchemaNumberMono = reconstructMetadataFromRepo(
-                        workspaceId, defaultArtifactId, repoName, branchName, isResetToLastCommitRequired, artifactType)
+                        workspaceId, defaultArtifactId, repoName, refName, isResetToLastCommitRequired, artifactType)
                 .map(metadataMap -> {
                     return metadataMap.getOrDefault(
                             CommonConstants.SERVER_SCHEMA_VERSION, jsonSchemaVersions.getServerVersion());
@@ -743,7 +743,7 @@ public class CommonGitFileUtilsCE {
             ArtifactType artifactType) {
 
         String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
-        String branchName = gitArtifactMetadata.getBranchName();
+        String refName = gitArtifactMetadata.getRefName();
         String repoName = gitArtifactMetadata.getRepoName();
 
         if (!hasText(workspaceId)) {
@@ -754,7 +754,7 @@ public class CommonGitFileUtilsCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
         }
 
-        if (!hasText(branchName)) {
+        if (!hasText(refName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
@@ -770,7 +770,7 @@ public class CommonGitFileUtilsCE {
         Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, defaultArtifactId, repoName);
 
         Mono<JSONObject> jsonObjectMono = fileUtils
-                .reconstructPageFromGitRepo(pageDTO.getName(), branchName, baseRepoSuffix, isResetToLastCommitRequired)
+                .reconstructPageFromGitRepo(pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired)
                 .onErrorResume(error -> Mono.error(
                         new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
                 .map(pageJson -> {

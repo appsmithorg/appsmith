@@ -100,8 +100,8 @@ class CustomNewPageRepositoryTest {
 
     @Test
     void findPageWithoutBranchName() {
-        StepVerifier.create(newPageRepository.findPageByBranchNameAndBasePageId(
-                        null, "pageId", AclPermission.PAGE_CREATE_PAGE_ACTIONS, null))
+        StepVerifier.create(newPageRepository.findPageByRefTypeAndRefNameAndBasePageId(
+                        null, null, "pageId", AclPermission.PAGE_CREATE_PAGE_ACTIONS, null))
                 .verifyComplete();
     }
 }
