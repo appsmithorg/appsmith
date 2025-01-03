@@ -2,9 +2,9 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.operations.FileOperations;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class CommonGitFileUtils extends CommonGitFileUtilsCE {
 
     public CommonGitFileUtils(
-            ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils,
+            ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,

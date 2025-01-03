@@ -9,7 +9,6 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
@@ -85,7 +84,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Import({FileUtilsImpl.class})
 public class CommonGitFileUtilsCE {
 
-    protected final ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils;
+    protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
     private final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
@@ -102,7 +101,7 @@ public class CommonGitFileUtilsCE {
     protected final ObjectMapper objectMapper;
 
     public CommonGitFileUtilsCE(
-            ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils,
+            ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
@@ -122,7 +121,7 @@ public class CommonGitFileUtilsCE {
         this.objectMapper = objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS);
     }
 
-    private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
+    protected ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
             return applicationGitFileUtils;
         }
