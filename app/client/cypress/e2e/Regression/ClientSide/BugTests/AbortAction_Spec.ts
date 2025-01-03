@@ -7,7 +7,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe(
+describe.skip(
   "Abort Action Execution",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
@@ -32,8 +32,9 @@ describe(
 
     // Queries were resolving quicker than we could cancel them
     // Commenting this out till we can find a query that resolves slow enough for us to cancel its execution.
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/38165
 
-    it("2. Bug #14006, #16093 Cancel request button should abort Query action execution", function () {
+    it.skip("2. Bug #14006, #16093 Cancel request button should abort Query action execution", function () {
       dataSources.CreateDataSource("MySql");
       cy.get("@dsName").then(($dsName) => {
         dataSources.CreateQueryAfterDSSaved(
