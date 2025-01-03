@@ -18,7 +18,7 @@ import {
 } from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet-selected";
+const dataSourceName = "gsheet-shared-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe.skip(
