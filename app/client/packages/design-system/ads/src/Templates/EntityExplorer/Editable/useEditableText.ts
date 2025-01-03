@@ -124,7 +124,7 @@ export function useEditableText(
         }, 200);
       }
     },
-    [isEditing],
+    [isEditing, inputRef],
   );
 
   return [
