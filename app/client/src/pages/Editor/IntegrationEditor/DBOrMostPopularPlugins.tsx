@@ -203,7 +203,6 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
 
   render() {
     const {
-      addDivider,
       currentApplication,
       isCreating,
       pluginImages,
@@ -212,47 +211,44 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
     } = this.props;
 
     return (
-      <>
-        {addDivider && <StyledDivider />}
-        <DatasourceContainer data-testid="database-datasource-card-container">
-          {plugins.map((plugin, idx) => {
-            return plugin.type === PluginType.API ? (
-              !!showMostPopularPlugins ? (
-                <DatasourceItem
-                  className="t--createBlankApiCard create-new-api"
-                  dataCardWrapperTestId="newapi-datasource-content-wrapper"
-                  handleOnClick={this.handleOnClick}
-                  icon={getAssetUrl(`${ASSETS_CDN_URL}/plus.png`)}
-                  key={`${plugin.id}_${idx}`}
-                  name={createMessage(CREATE_NEW_DATASOURCE_REST_API)}
-                />
-              ) : null
-            ) : (
+      <DatasourceContainer data-testid="database-datasource-card-container">
+        {plugins.map((plugin, idx) => {
+          return plugin.type === PluginType.API ? (
+            !!showMostPopularPlugins ? (
               <DatasourceItem
-                dataCardImageTestId="database-datasource-image"
-                dataCardTestId="database-datasource-card"
-                dataCardWrapperTestId="database-datasource-content-wrapper"
-                handleOnClick={() => {
-                  AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                    appName: currentApplication?.name,
-                    pluginName: plugin.name,
-                    pluginPackageName: plugin.packageName,
-                  });
-                  this.goToCreateDatasource(plugin.id, plugin.name, {
-                    packageName: plugin.packageName,
-                  });
-                }}
-                icon={getAssetUrl(pluginImages[plugin.id])}
+                className="t--createBlankApiCard create-new-api"
+                dataCardWrapperTestId="newapi-datasource-content-wrapper"
+                handleOnClick={this.handleOnClick}
+                icon={getAssetUrl(`${ASSETS_CDN_URL}/plus.png`)}
                 key={`${plugin.id}_${idx}`}
-                name={plugin.name}
-                rightSibling={
-                  isCreating && <Spinner className="cta" size={"sm"} />
-                }
+                name={createMessage(CREATE_NEW_DATASOURCE_REST_API)}
               />
-            );
-          })}
-        </DatasourceContainer>
-      </>
+            ) : null
+          ) : (
+            <DatasourceItem
+              dataCardImageTestId="database-datasource-image"
+              dataCardTestId="database-datasource-card"
+              dataCardWrapperTestId="database-datasource-content-wrapper"
+              handleOnClick={() => {
+                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                  appName: currentApplication?.name,
+                  pluginName: plugin.name,
+                  pluginPackageName: plugin.packageName,
+                });
+                this.goToCreateDatasource(plugin.id, plugin.name, {
+                  packageName: plugin.packageName,
+                });
+              }}
+              icon={getAssetUrl(pluginImages[plugin.id])}
+              key={`${plugin.id}_${idx}`}
+              name={plugin.name}
+              rightSibling={
+                isCreating && <Spinner className="cta" size={"sm"} />
+              }
+            />
+          );
+        })}
+      </DatasourceContainer>
     );
   }
 }
@@ -277,24 +273,27 @@ function CreateDBOrMostPopularPlugins(props: CreateDBOrMostPopularPluginsType) {
   if (props.plugins.length === 0) return null;
 
   return (
-    <DatasourceSection id="new-datasources" ref={newDatasourceRef}>
-      <DatasourceSectionHeading kind="heading-m">
-        {props.showMostPopularPlugins
-          ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
-          : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
-      </DatasourceSectionHeading>
-      <DBOrMostPopularPlugins
-        {...props}
-        editorId={editorId}
-        editorType={editorType}
-        isCreating={props.isCreating}
-        location={location}
-        parentEntityId={
-          parentEntityId || (props.isOnboardingScreen && props.pageId) || ""
-        }
-        parentEntityType={parentEntityType}
-      />
-    </DatasourceSection>
+    <>
+      {props.addDivider && <StyledDivider />}
+      <DatasourceSection id="new-datasources" ref={newDatasourceRef}>
+        <DatasourceSectionHeading kind="heading-m">
+          {props.showMostPopularPlugins
+            ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
+            : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
+        </DatasourceSectionHeading>
+        <DBOrMostPopularPlugins
+          {...props}
+          editorId={editorId}
+          editorType={editorType}
+          isCreating={props.isCreating}
+          location={location}
+          parentEntityId={
+            parentEntityId || (props.isOnboardingScreen && props.pageId) || ""
+          }
+          parentEntityType={parentEntityType}
+        />
+      </DatasourceSection>
+    </>
   );
 }
 
