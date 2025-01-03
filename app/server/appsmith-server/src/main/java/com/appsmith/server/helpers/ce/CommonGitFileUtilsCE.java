@@ -84,7 +84,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Import({FileUtilsImpl.class})
 public class CommonGitFileUtilsCE {
 
-    protected final ArtifactGitFileUtils<ArtifactExchangeJson> applicationGitFileUtils;
+    protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
     private final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
@@ -101,7 +101,7 @@ public class CommonGitFileUtilsCE {
     protected final ObjectMapper objectMapper;
 
     public CommonGitFileUtilsCE(
-            ArtifactGitFileUtils<ArtifactExchangeJson> applicationGitFileUtils,
+            ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
@@ -121,7 +121,7 @@ public class CommonGitFileUtilsCE {
         this.objectMapper = objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS);
     }
 
-    private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
+    protected ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
             return applicationGitFileUtils;
         }
