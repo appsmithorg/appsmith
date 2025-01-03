@@ -1,19 +1,19 @@
 import type { UpdateProtectedBranchesRequestParams } from "git/requests/updateProtectedBranchesRequest.types";
-import { createArtifactAction } from "../helpers/createArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitArtifactErrorPayloadAction } from "../types";
 
 export interface UpdateProtectedBranchesInitPayload
   extends UpdateProtectedBranchesRequestParams {}
 
 export const updateProtectedBranchesInitAction =
-  createArtifactAction<UpdateProtectedBranchesInitPayload>((state) => {
+  createSingleArtifactAction<UpdateProtectedBranchesInitPayload>((state) => {
     state.apiResponses.updateProtectedBranches.loading = true;
     state.apiResponses.updateProtectedBranches.error = null;
 
     return state;
   });
 
-export const updateProtectedBranchesSuccessAction = createArtifactAction(
+export const updateProtectedBranchesSuccessAction = createSingleArtifactAction(
   (state) => {
     state.apiResponses.updateProtectedBranches.loading = false;
 
@@ -21,7 +21,7 @@ export const updateProtectedBranchesSuccessAction = createArtifactAction(
   },
 );
 
-export const updateProtectedBranchesErrorAction = createArtifactAction(
+export const updateProtectedBranchesErrorAction = createSingleArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 

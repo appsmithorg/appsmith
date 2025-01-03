@@ -7,7 +7,7 @@ import {
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 /**
@@ -20,7 +20,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 export const useNavigationPreviewHeight = () => {
   const [navigationHeight, setNavigationHeight] = useState(0);
   const navigationPreviewRef = useRef(null);
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const currentApplicationDetails = useSelector(getCurrentApplication);
 
@@ -54,7 +54,7 @@ type DivRef = React.Ref<HTMLDivElement>;
  */
 export const WidgetEditorNavigation = forwardRef(
   (props, navigationPreviewRef: DivRef) => {
-    const isPreviewMode = useSelector(selectCombinedPreviewMode);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
     const isNavigationSelectedInSettings = useSelector(
       getIsAppSettingsPaneWithNavigationTabOpen,
     );

@@ -2,11 +2,11 @@ import type { FetchGlobalProfileResponseData } from "git/requests/fetchGlobalPro
 import type {
   GitAsyncSuccessPayload,
   GitAsyncErrorPayload,
-  GitGlobalReduxState,
+  GitConfigReduxState,
 } from "../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-export const fetchGlobalProfileInitAction = (state: GitGlobalReduxState) => {
+export const fetchGlobalProfileInitAction = (state: GitConfigReduxState) => {
   state.globalProfile.loading = true;
   state.globalProfile.error = null;
 
@@ -14,7 +14,7 @@ export const fetchGlobalProfileInitAction = (state: GitGlobalReduxState) => {
 };
 
 export const fetchGlobalProfileSuccessAction = (
-  state: GitGlobalReduxState,
+  state: GitConfigReduxState,
   action: PayloadAction<GitAsyncSuccessPayload<FetchGlobalProfileResponseData>>,
 ) => {
   state.globalProfile.loading = false;
@@ -24,7 +24,7 @@ export const fetchGlobalProfileSuccessAction = (
 };
 
 export const fetchGlobalProfileErrorAction = (
-  state: GitGlobalReduxState,
+  state: GitConfigReduxState,
   action: PayloadAction<GitAsyncErrorPayload>,
 ) => {
   const { error } = action.payload;

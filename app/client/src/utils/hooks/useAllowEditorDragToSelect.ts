@@ -1,11 +1,13 @@
 import type { AppState } from "ee/reducers";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  snipingModeSelector,
+  combinedPreviewModeSelector,
+} from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getWidgetSelectionBlock } from "../../selectors/ui";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing
@@ -40,7 +42,7 @@ export const useAllowEditorDragToSelect = () => {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(selectCombinedPreviewMode);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

@@ -17,10 +17,10 @@ import history from "utils/history";
 import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
-import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -114,13 +114,12 @@ export default abstract class AppEngine {
     }
 
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    const currentBranch: string | undefined = yield select(
-      selectGitApplicationCurrentBranch,
-    );
+    const currentGitBranch: ReturnType<typeof getCurrentGitBranch> =
+      yield select(getCurrentGitBranch);
 
     yield put(
       updateAppStore(
-        getPersistentAppStore(application.id, branch || currentBranch),
+        getPersistentAppStore(application.id, branch || currentGitBranch),
       ),
     );
     const defaultPageId: string = yield select(getDefaultPageId);

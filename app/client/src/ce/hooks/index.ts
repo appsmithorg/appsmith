@@ -18,7 +18,9 @@ export const editorType: EditorType = {
   [BUILDER_BASE_PATH_DEPRECATED]: EditorNames.APPLICATION,
 };
 
-export const useEditorType = (path: string) => {
+// Utility function to get editor type based on path
+// to be used in non react functions
+export const getEditorType = (path: string) => {
   const basePath = matchPath(path, {
     path: [BUILDER_VIEWER_PATH_PREFIX, BUILDER_BASE_PATH_DEPRECATED],
   });
@@ -26,6 +28,11 @@ export const useEditorType = (path: string) => {
   return basePath
     ? editorType[basePath.path]
     : editorType[BUILDER_VIEWER_PATH_PREFIX];
+};
+
+// custom hook to get editor type based on path
+export const useEditorType = (path: string) => {
+  return getEditorType(path);
 };
 
 export function useOutsideClick<T extends HTMLElement>(

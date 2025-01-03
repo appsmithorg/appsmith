@@ -19,7 +19,7 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Color } from "constants/Colors";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
@@ -311,7 +311,7 @@ export const mapStateToProps = (
   state: AppState,
   ownProps: CustomComponentProps,
 ) => {
-  const isPreviewMode = selectCombinedPreviewMode(state);
+  const isPreviewMode = combinedPreviewModeSelector(state);
 
   return {
     needsOverlay:

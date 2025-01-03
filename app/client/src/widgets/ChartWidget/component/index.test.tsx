@@ -22,11 +22,6 @@ import { APP_MODE } from "entities/App";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any;
 
-jest.mock("selectors/gitModSelectors", () => ({
-  ...jest.requireActual("selectors/gitModSelectors"),
-  selectCombinedPreviewMode: jest.fn(() => false),
-}));
-
 describe("Chart Widget", () => {
   const seriesData1: ChartData = {
     seriesName: "series1",
