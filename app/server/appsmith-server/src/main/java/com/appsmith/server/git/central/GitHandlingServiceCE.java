@@ -50,6 +50,9 @@ public interface GitHandlingServiceCE {
     Mono<List<String>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences);
 
+    Mono<String> getDefaultBranchFromRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata gitArtifactMetadata);
+
     Mono<Boolean> validateEmptyRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
     Mono<Boolean> initialiseReadMe(
@@ -76,6 +79,8 @@ public interface GitHandlingServiceCE {
     Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
     Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO, GitRefDTO gitRefDTO);
+
+    Mono<String> checkoutRemoteReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
     Mono<Boolean> deleteGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 

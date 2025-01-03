@@ -361,11 +361,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                                         actionsInCurrentArtifact,
                                                         newAction);
 
-                                updateExistingAction(
-                                        existingAction,
-                                        newAction,
-                                        importingMetaDTO.getBranchName(),
-                                        importingMetaDTO.getPermissionProvider());
+                                updateExistingAction(existingAction, newAction, importingMetaDTO);
 
                                 // Add it to actions list that'll be updated in bulk
                                 existingNewActionList.add(existingAction);
@@ -510,10 +506,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     private void updateExistingAction(
-            NewAction existingAction,
-            NewAction actionToImport,
-            String branchName,
-            ImportArtifactPermissionProvider permissionProvider) {
+            NewAction existingAction, NewAction actionToImport, ImportingMetaDTO importingMetaDTO) {
+        ImportArtifactPermissionProvider permissionProvider = importingMetaDTO.getPermissionProvider();
         // Since the resource is already present in DB, just update resource
         if (!permissionProvider.hasEditPermission(existingAction)) {
             log.error("User does not have permission to edit action with id: {}", existingAction.getId());
@@ -524,8 +518,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         updateImportableActionFromExistingAction(existingAction, actionToImport);
 
         copyNestedNonNullProperties(actionToImport, existingAction);
-        // Update branchName
-        existingAction.setBranchName(branchName);
+        // Update ref name
+        existingAction.setRefType(importingMetaDTO.getRefType());
+        existingAction.setRefName(importingMetaDTO.getRefName());
         // Recover the deleted state present in DB from imported action
         existingAction
                 .getUnpublishedAction()

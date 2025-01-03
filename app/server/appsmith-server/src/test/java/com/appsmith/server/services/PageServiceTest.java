@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -174,7 +175,7 @@ public class PageServiceTest {
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName(uniquePrefix + "_pageServiceTest");
+        gitData.setRefName(uniquePrefix + "_pageServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         return applicationPageService
                 .createApplication(newApp, workspaceId)
@@ -182,12 +183,12 @@ public class PageServiceTest {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
+                                    application1.getId(), gitData.getRefName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
-                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getRefName()))
                 .map(artifactExchangeJson -> (Application) artifactExchangeJson)
                 .block();
     }
@@ -790,7 +791,7 @@ public class PageServiceTest {
         gitConnectedApplication = setupGitConnectedTestApplication("clonePage");
         final String pageId = gitConnectedApplication.getPages().get(0).getId();
         final String branchName =
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+                gitConnectedApplication.getGitApplicationMetadata().getRefName();
 
         final PageDTO page =
                 newPageService.findPageById(pageId, READ_PAGES, false).block();
@@ -862,8 +863,8 @@ public class PageServiceTest {
 
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePage(page.getId())
-                .flatMap(pageDTO ->
-                        newPageService.findByBranchNameAndBasePageId(branchName, pageDTO.getId(), MANAGE_PAGES, null))
+                .flatMap(pageDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        RefType.branch, branchName, pageDTO.getId(), MANAGE_PAGES, null))
                 .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(
@@ -1150,7 +1151,7 @@ public class PageServiceTest {
 
         gitConnectedApplication = setupGitConnectedTestApplication("reorderPage");
         final String branchName =
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+                gitConnectedApplication.getGitApplicationMetadata().getRefName();
         final ApplicationPage[] pageIds = new ApplicationPage[4];
 
         PageDTO testPage1 = new PageDTO();
