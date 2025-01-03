@@ -94,6 +94,7 @@ export interface TableProps {
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
+  enableClientSideSearch?: boolean;
   selectedRowIndices: number[];
   disableDrag: () => void;
   enableDrag: () => void;
@@ -427,6 +428,7 @@ export function Table(props: TableProps) {
                   pageNo={props.pageNo}
                   pageOptions={pageOptions}
                   prevPageClick={props.prevPageClick}
+                  enableClientSideSearch={props.enableClientSideSearch}
                   searchKey={props.searchKey}
                   searchTableData={props.searchTableData}
                   serverSidePaginationEnabled={
