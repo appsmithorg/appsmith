@@ -423,6 +423,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
         jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
         jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
+        jsonTransformationDTO.setRefName(finalRefName);
         jsonTransformationDTO.setRefType(refType);
         jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
         jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
@@ -689,7 +690,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             })
                             // after the branch is created, we need to reset the older branch to the
                             // clean status, i.e. last commit
-                            .doOnSuccess(newImportedArtifact -> discardChanges(sourceArtifact, gitType));
+                            .flatMap(newImportedArtifact -> discardChanges(sourceArtifact, gitType));
                 })
                 .flatMap(newImportedArtifact -> gitRedisUtils
                         .releaseFileLock(

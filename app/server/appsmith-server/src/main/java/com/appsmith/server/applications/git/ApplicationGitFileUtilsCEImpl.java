@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -469,6 +470,15 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
                     applicationJson, baseArtifactId, branchName);
         });
+    }
+
+    @Override
+    public Mono<? extends ArtifactExchangeJson> performJsonMigration(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String refName = jsonTransformationDTO.getRefName();
+        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                artifactExchangeJson, baseArtifactId, refName);
     }
 
     protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {

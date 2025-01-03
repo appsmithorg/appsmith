@@ -44,6 +44,7 @@ public class JsonSchemaMigration {
      * @param branchName           The branch name of the artifact being imported,
      *                             if it's a Git-connected application; otherwise, null.
      */
+    // TODO: add refType support
     public Mono<? extends ArtifactExchangeJson> migrateArtifactExchangeJsonToLatestSchema(
             ArtifactExchangeJson artifactExchangeJson, String baseArtifactId, String branchName) {
 
