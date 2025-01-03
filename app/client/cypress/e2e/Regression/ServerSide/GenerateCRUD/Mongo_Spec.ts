@@ -75,25 +75,6 @@ describe(
       // agHelper.NavigateBacktoEditor();
     });
 
-    it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
-      GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(1, 0, "v2");
-      //Delete the test data
-      PageList.ShowList();
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "CoffeeCafe",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-      deployMode.DeployApp();
-      deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 200);
-    });
-
     //Update, delete, Add goes here
 
     function GenerateCRUDNValidateDeployPage(

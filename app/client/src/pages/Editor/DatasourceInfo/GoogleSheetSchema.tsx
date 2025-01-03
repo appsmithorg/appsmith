@@ -1,57 +1,38 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "@appsmith/ads-old";
 import { Button, SearchInput } from "@appsmith/ads";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
+import {
+  createMessage,
+  GSHEET_SEARCH_PLACEHOLDER,
+} from "ee/constants/messages";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isEmpty } from "lodash";
+import Table from "PluginActionEditor/components/PluginActionResponse/components/Table";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Entity from "../Explorer/Entity";
+import type { DropdownOptions } from "../GeneratePage/components/constants";
+import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
 import {
   useSheetData,
   useSheetsList,
   useSpreadSheets,
 } from "../GeneratePage/components/GeneratePageForm/hooks";
-import type { DropdownOptions } from "../GeneratePage/components/constants";
-import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
-import { isEmpty } from "lodash";
-import Table from "PluginActionEditor/components/PluginActionResponse/components/Table";
-import {
-  getCurrentApplicationId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  createMessage,
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  GSHEET_SEARCH_PLACEHOLDER,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
-import { getDatasource } from "ee/selectors/entitiesSelector";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import DatasourceField from "./DatasourceField";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
-  ButtonContainer,
-  DataWrapperContainer,
   DatasourceAttributesWrapper,
   DatasourceDataContainer,
   DatasourceListContainer,
   DatasourceStructureSearchContainer,
+  DataWrapperContainer,
   StructureContainer,
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import Entity from "../Explorer/Entity";
-import DatasourceField from "./DatasourceField";
-import { setEntityCollapsibleState } from "actions/editorContextActions";
-import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "ee/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasourceId: string;
@@ -81,14 +62,10 @@ function GoogleSheetSchema(props: Props) {
     setSelectedDatasourceIsInvalid,
   });
 
-  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
-
   const toggleOnUnmountRefObject = useRef<{
     selectedSheet?: string;
     selectedSpreadSheet?: string;
   }>({});
-
-  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
 
   const handleSearch = (value: string) => {
     setSearchString(value.toLowerCase());
@@ -115,7 +92,6 @@ function GoogleSheetSchema(props: Props) {
       setSheetData: setSlicedSheetData,
     });
 
-  const applicationId: string = useSelector(getCurrentApplicationId);
   const datasource = useSelector((state) =>
     getDatasource(state, props.datasourceId),
   );
@@ -325,55 +301,6 @@ function GoogleSheetSchema(props: Props) {
   const isLoading =
     isFetchingSpreadsheets || isFetchingSheetsList || isFetchingSheetData;
 
-  const onGsheetGeneratePage = () => {
-    const payload = {
-      applicationId: applicationId || "",
-      pageId: "",
-      columns: sheetData?.length > 0 ? Object.keys(sheetData[0]) : [],
-      searchColumn: "",
-      tableName: selectedSheet?.value || "",
-      datasourceId: props.datasourceId || "",
-      pluginSpecificParams: {
-        sheetName: selectedSheet?.value || "",
-        sheetUrl: selectedSpreadsheet?.value || "",
-        tableHeaderIndex: 1,
-      },
-    };
-
-    AnalyticsUtil.logEvent("GSHEET_GENERATE_PAGE_BUTTON_CLICKED", {
-      datasourceId: props.datasourceId,
-      pluginId: props.pluginId,
-    });
-
-    dispatch(generateTemplateToUpdatePage(payload));
-  };
-
-  const pagePermissions = useSelector(getPagePermissions);
-  const datasourcePermissions = datasource?.userPermissions || [];
-
-  const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
-  );
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
-
-  const editorType = useEditorType(history.location.pathname);
-
-  const canCreatePages = getHasCreatePagePermission(
-    isFeatureEnabled,
-    userAppPermissions,
-  );
-
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
-    isEnabled: isFeatureEnabled,
-    dsPermissions: datasourcePermissions,
-    pagePermissions,
-    editorType,
-  });
-
   const refreshSpreadSheetButton = (option: DropdownOption) => (
     <Button
       isIconButton
@@ -382,15 +309,6 @@ function GoogleSheetSchema(props: Props) {
       startIcon="refresh"
     />
   );
-
-  const showGeneratePageBtn =
-    !releaseDragDropBuildingBlocks &&
-    !isLoading &&
-    !isError &&
-    sheetData?.length &&
-    canCreateDatasourceActions &&
-    canCreatePages &&
-    !isAnvilEnabled;
 
   const filteredSpreadsheets = spreadsheetOptions.filter((option) =>
     (option.label || "").toLowerCase()?.includes(searchString),
@@ -512,20 +430,6 @@ function GoogleSheetSchema(props: Props) {
           </TableWrapper>
         </DatasourceDataContainer>
       </DataWrapperContainer>
-      {showGeneratePageBtn && (
-        <ButtonContainer>
-          <Button
-            className="t--datasource-generate-page"
-            isLoading={isGeneratePageLoading}
-            key="datasource-generate-page"
-            kind="primary"
-            onClick={onGsheetGeneratePage}
-            size="md"
-          >
-            {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
-          </Button>
-        </ButtonContainer>
-      )}
     </ViewModeSchemaContainer>
   );
 }

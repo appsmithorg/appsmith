@@ -109,30 +109,7 @@ describe(
       });
     });
 
-    it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-      dataSources.SelectTableFromPreviewSchemaList("employees");
-      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
-
-      GenerateCRUDNValidateDeployPage(
-        "1002",
-        "Murphy",
-        "Diane",
-        "employeeNumber",
-      );
-
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(0, 0, "v2");
-      //Delete the test data
-      PageList.ShowList();
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Employees",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-    });
-
-    it("4. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
+    it("3. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
       let tableCreateQuery = `CREATE TABLE productlines (
       productLine varchar(50) NOT NULL,
       textDescription varchar(4000) DEFAULT NULL,
@@ -173,54 +150,6 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-    });
-
-    it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-      dataSources.SelectTableFromPreviewSchemaList("productlines");
-      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
-      agHelper.AssertContains("Successfully generated a page");
-      assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-      assertHelper.AssertNetworkStatus("@getActions", 200);
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
-      agHelper.ClickButton("Got it");
-      assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-
-      //Validating loaded table
-      agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
-        expect($cellData).to.eq("Classic Cars");
-      });
-      table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Motorcycles");
-      });
-      table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Planes");
-      });
-      table.ReadTableRowColumnData(3, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Ships");
-      });
-      table.ReadTableRowColumnData(4, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Trains");
-      });
-      table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Trucks and Buses");
-      });
-      table.ReadTableRowColumnData(6, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Vintage Cars");
-      });
-      //Validating loaded JSON form
-      cy.xpath(locators._buttonByText("Update")).then((selector) => {
-        cy.wrap(selector)
-          .invoke("attr", "class")
-          .then((classes) => {
-            //cy.log("classes are:" + classes);
-            expect(classes).not.contain("bp3-disabled");
-          });
-      });
-
-      dataSources.AssertJSONFormHeader(0, 0, "productLine");
     });
 
     //Open Bug 14063 - hence skipping
@@ -265,18 +194,7 @@ describe(
     //   //To script aft bug fix!
     // });
 
-    it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(0, 0, "v2");
-      //Delete the test data
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Productlines",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-    });
-
-    it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
+    it("4. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
       let deleteTblQuery = "DROP TABLE productlines;";
       dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropProductlines");
       agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -286,7 +204,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
     });
 
-    it("10. Verify application does not break when user runs the query with wrong table name", function () {
+    it("5. Verify application does not break when user runs the query with wrong table name", function () {
       EditorNavigation.SelectEntityByName("DropProductlines", EntityType.Query);
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").then(({ response }) => {
