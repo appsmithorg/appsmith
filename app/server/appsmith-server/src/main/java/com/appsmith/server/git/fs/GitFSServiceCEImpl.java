@@ -47,7 +47,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -363,23 +362,19 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
-        try {
-            return commonGitFileUtils
-                    .saveArtifactToLocalRepoNew(repoSuffix, artifactExchangeJson, branchName)
-                    .map(ignore -> Boolean.TRUE)
-                    .onErrorResume(e -> {
-                        log.error("Error in commit flow: ", e);
-                        if (e instanceof RepositoryNotFoundException) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, baseArtifactId));
-                        } else if (e instanceof AppsmithException) {
-                            return Mono.error(e);
-                        }
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                    });
-        } catch (IOException | GitAPIException e) {
-            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-        }
+        return commonGitFileUtils
+                .saveArtifactToLocalRepoNew(repoSuffix, artifactExchangeJson, branchName)
+                .map(ignore -> Boolean.TRUE)
+                .onErrorResume(e -> {
+                    log.error("Error in commit flow: ", e);
+                    if (e instanceof RepositoryNotFoundException) {
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, baseArtifactId));
+                    } else if (e instanceof AppsmithException) {
+                        return Mono.error(e);
+                    }
+
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                });
     }
 
     @Override

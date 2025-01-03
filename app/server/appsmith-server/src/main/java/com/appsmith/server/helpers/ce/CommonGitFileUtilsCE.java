@@ -160,16 +160,19 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Path> saveArtifactToLocalRepoNew(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
+            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         // this should come from the specific files
         GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
 
         // Save application to git repo
-        return fileUtils
-                .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
-                .subscribeOn(Schedulers.boundedElastic());
+        try {
+            return fileUtils
+                    .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
+                    .subscribeOn(Schedulers.boundedElastic());
+        } catch (IOException | GitAPIException exception) {
+            return Mono.error(exception);
+        }
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
