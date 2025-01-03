@@ -5,6 +5,7 @@ export interface EntityItemProps
     ListItemProps,
     "customTitleComponent" | "description" | "descriptionType"
   > {
+  id: string;
   /** Control the name editing behaviour */
   nameEditorConfig: {
     // Set editable based on user permissions
