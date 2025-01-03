@@ -478,8 +478,9 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
         String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
         String refName = jsonTransformationDTO.getRefName();
+        RefType refType = jsonTransformationDTO.getRefType();
         return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
-                artifactExchangeJson, baseArtifactId, refName, null);
+                artifactExchangeJson, baseArtifactId, refName, refType);
     }
 
     protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
