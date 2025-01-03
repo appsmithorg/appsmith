@@ -16,8 +16,13 @@ import {
   StyledDivider,
 } from "./IntegrationStyledComponents";
 import DatasourceItem from "./DatasourceItem";
-import { createMessage, SAMPLE_DATASOURCES } from "ee/constants/messages";
+import {
+  createMessage,
+  SAMPLE_DATASOURCE_SUBHEADING,
+  SAMPLE_DATASOURCES,
+} from "ee/constants/messages";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
+import { Flex, Text } from "@appsmith/ads";
 
 interface MockDatasourceCardProps {
   datasource: MockDatasource;
@@ -94,12 +99,14 @@ export default function MockDataSources({
   preDivider,
 }: MockDataSourcesProps) {
   const workspaceId = useSelector(getCurrentWorkspaceId);
-  const searchedPlugin = useSelector((state) =>
+  let searchedPlugin = useSelector((state) =>
     pluginSearchSelector(state, "search"),
   );
 
+  searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
+
   const filteredDatasources = mockDatasources.filter((m) =>
-    m.name.toLocaleLowerCase().includes(searchedPlugin || ""),
+    m.name.toLocaleLowerCase().includes(searchedPlugin),
   );
 
   if (filteredDatasources.length === 0) return null;
@@ -108,9 +115,12 @@ export default function MockDataSources({
     <>
       {preDivider && <StyledDivider />}
       <DatasourceSection id="mock-database">
-        <DatasourceSectionHeading kind="heading-m">
-          {createMessage(SAMPLE_DATASOURCES)}
-        </DatasourceSectionHeading>
+        <Flex flexDirection="column">
+          <DatasourceSectionHeading kind="heading-m">
+            {createMessage(SAMPLE_DATASOURCES)}
+          </DatasourceSectionHeading>
+          <Text>{createMessage(SAMPLE_DATASOURCE_SUBHEADING)}</Text>
+        </Flex>
         <DatasourceContainer className="t--mock-datasource-list">
           {filteredDatasources.map((datasource: MockDatasource, idx) => {
             return (

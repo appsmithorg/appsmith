@@ -25,7 +25,6 @@ const HeaderText = styled(Flex)`
 
 const SearchContainer = styled(Flex)`
   flex-grow: 1;
-  max-width: 480px;
   input {
     height: 28px;
     font-size: var(--ads-v2-font-size-3);

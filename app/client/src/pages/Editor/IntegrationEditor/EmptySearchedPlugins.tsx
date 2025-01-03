@@ -24,8 +24,11 @@ export default function EmptySearchedPlugins({
 }: {
   isPremiumDatasourcesViewEnabled: boolean;
 }) {
-  const searchedPlugin =
-    useSelector((state) => pluginSearchSelector(state, "search")) || "";
+  let searchedPlugin = useSelector((state) =>
+    pluginSearchSelector(state, "search"),
+  );
+
+  searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
   const plugins = useSelector(getPlugins);
   let searchedItems = plugins.some((p) =>
     p.name.toLocaleLowerCase().includes(searchedPlugin),

@@ -273,7 +273,9 @@ const mapStateToProps = (
   state: AppState,
   props: { showSaasAPIs?: boolean; isPremiumDatasourcesViewEnabled: boolean },
 ) => {
-  const searchedPlugin = pluginSearchSelector(state, "search") || "";
+  const searchedPlugin = (
+    pluginSearchSelector(state, "search") || ""
+  ).toLocaleLowerCase();
 
   const allPlugins = getPlugins(state);
 

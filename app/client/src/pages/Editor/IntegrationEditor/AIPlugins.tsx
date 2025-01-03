@@ -84,7 +84,9 @@ function CreateAIPlugins(props: CreateAIPluginsProps) {
 }
 
 const mapStateToProps = (state: AppState) => {
-  const searchedPlugin = pluginSearchSelector(state, "search") || "";
+  const searchedPlugin = (
+    pluginSearchSelector(state, "search") || ""
+  ).toLocaleLowerCase();
 
   let plugins = getPlugins(state);
 

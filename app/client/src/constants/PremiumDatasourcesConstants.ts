@@ -13,7 +13,7 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   },
   {
     name: "Salesforce",
-    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-icon.png`),
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-image.png`),
   },
   {
     name: "Slack",

@@ -310,7 +310,9 @@ const mapStateToProps = (
   const { datasources } = state.entities;
   const mostPopularPlugins = getMostPopularPlugins(state);
   const isAirgappedInstance = isAirgapped();
-  const searchedPlugin = pluginSearchSelector(state, "search");
+  const searchedPlugin = (
+    pluginSearchSelector(state, "search") || ""
+  ).toLocaleLowerCase();
   const filteredMostPopularPlugins: Plugin[] = !!isAirgappedInstance
     ? mostPopularPlugins.filter(
         (plugin: Plugin) =>
@@ -323,7 +325,7 @@ const mapStateToProps = (
     : getDBPlugins(state);
 
   plugins = plugins.filter((plugin) =>
-    plugin.name.toLocaleLowerCase().includes(searchedPlugin || ""),
+    plugin.name.toLocaleLowerCase().includes(searchedPlugin),
   );
 
   return {
