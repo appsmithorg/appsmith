@@ -63,7 +63,7 @@ To build and run Appsmith in your local dev environment, see [Setup for local de
 ## Contributing
 We ❤️ our contributors. We're committed to fostering an open, welcoming, and safe environment in the community.
 
-📕 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/appsmithorg/appsmith/blob/release/CODE_OF_CONDUCT.md). Please read and follow it. <br>
+📕 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/appsmithorg/appsmith/blob/release/CODE_OF_CONDUCT.md). Please read and follow it carefully. <br>
 🤝 If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).<br>
 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).<br>
 
