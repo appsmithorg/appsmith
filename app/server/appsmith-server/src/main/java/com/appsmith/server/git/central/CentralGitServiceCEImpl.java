@@ -364,9 +364,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<? extends Artifact> checkoutReference(
             String referenceArtifactId,
+            ArtifactType artifactType,
             GitRefDTO gitRefDTO,
             boolean addFileLock,
-            ArtifactType artifactType,
             GitType gitType) {
 
         if (gitRefDTO == null || !hasText(gitRefDTO.getRefName())) {
@@ -475,7 +475,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     protected Mono<? extends Artifact> checkoutRemoteReference(
-            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType) {
+            String baseArtifactId, ArtifactType artifactType, GitRefDTO gitRefDTO, GitType gitType) {
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
@@ -560,7 +560,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<? extends Artifact> createReference(
-            String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType) {
+            String referencedArtifactId, ArtifactType artifactType, GitRefDTO refDTO, GitType gitType) {
 
         /*
         1. Check if the src artifact is available and user have sufficient permissions
@@ -730,7 +730,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<? extends Artifact> deleteGitReference(
-            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType) {
+            String baseArtifactId, ArtifactType artifactType, GitRefDTO gitRefDTO, GitType gitType) {
 
         String refName = gitRefDTO.getRefName();
         RefType refType = gitRefDTO.getRefType();
@@ -868,19 +868,19 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
      * Each artifact is equal to a repo in the git(and each branch creates a new artifact with default artifact as parent)
      *
      * @param baseArtifactId : artifactId of the artifact which is getting connected to git
-     * @param gitConnectDTO artifactId - this is used to link the local git repo to an artifact
-     *                      remoteUrl - used for connecting to remote repo etc
-     * @param originHeader
      * @param artifactType
+     * @param gitConnectDTO  artifactId - this is used to link the local git repo to an artifact
+     *                       remoteUrl - used for connecting to remote repo etc
+     * @param originHeader
      * @param gitType
      * @return an artifact with git metadata
      */
     @Override
     public Mono<? extends Artifact> connectArtifactToGit(
             String baseArtifactId,
+            ArtifactType artifactType,
             GitConnectDTO gitConnectDTO,
             String originHeader,
-            ArtifactType artifactType,
             GitType gitType) {
         /*
          *  Connecting the artifact for the first time
@@ -1474,31 +1474,31 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     private Mono<GitStatusDTO> getStatusAfterComparingWithRemote(
-            String baseArtifactId, boolean isFileLock, ArtifactType artifactType, GitType gitType) {
-        return getStatus(baseArtifactId, isFileLock, true, artifactType, gitType);
+            String baseArtifactId, ArtifactType artifactType, boolean isFileLock, GitType gitType) {
+        return getStatus(baseArtifactId, artifactType, isFileLock, true, gitType);
     }
 
     @Override
     public Mono<GitStatusDTO> getStatus(
-            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType) {
-        return getStatus(branchedArtifactId, true, compareRemote, artifactType, gitType);
+            String branchedArtifactId, ArtifactType artifactType, boolean compareRemote, GitType gitType) {
+        return getStatus(branchedArtifactId, artifactType, true, compareRemote, gitType);
     }
 
     /**
      * Get the status of the artifact for given branched id
      *
      * @param branchedArtifactId branched id of the artifact
+     * @param artifactType       Type of artifact in context
      * @param isFileLock         if the locking is required, since the status API is used in the other flows of git
      *                           Only for the direct hits from the client the locking will be added
-     * @param artifactType       Type of artifact in context
      * @param gitType            Type of the service
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
     private Mono<GitStatusDTO> getStatus(
             String branchedArtifactId,
+            ArtifactType artifactType,
             boolean isFileLock,
             boolean compareRemote,
-            ArtifactType artifactType,
             GitType gitType) {
 
         Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifacts =
@@ -1868,14 +1868,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
      * 1. Checkout (if required) to the branch to make sure we are comparing the right branch
      * 2. Run a git fetch command to fetch the latest changes from the remote
      *
-     * @param refArtifactId      id of the reference
-     * @param isFileLock         whether to add file lock or not
+     * @param refArtifactId id of the reference
      * @param artifactType
+     * @param isFileLock    whether to add file lock or not
      * @return Mono of {@link BranchTrackingStatus}
      */
     @Override
     public Mono<String> fetchRemoteChanges(
-            String refArtifactId, boolean isFileLock, ArtifactType artifactType, GitType gitType, RefType refType) {
+            String refArtifactId, ArtifactType artifactType, boolean isFileLock, GitType gitType, RefType refType) {
         GitArtifactHelper<?> artifactGitHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
 
@@ -2067,15 +2067,15 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     public Mono<List<GitBranchDTO>> listBranchForArtifact(
-            String branchedArtifactId, Boolean pruneBranches, ArtifactType artifactType, GitType gitType) {
-        return getBranchList(branchedArtifactId, pruneBranches, true, artifactType, gitType);
+            String branchedArtifactId, ArtifactType artifactType, Boolean pruneBranches, GitType gitType) {
+        return getBranchList(branchedArtifactId, artifactType, pruneBranches, true, gitType);
     }
 
     protected Mono<List<GitBranchDTO>> getBranchList(
             String branchedArtifactId,
+            ArtifactType artifactType,
             Boolean pruneBranches,
             boolean syncDefaultBranchWithRemote,
-            ArtifactType artifactType,
             GitType gitType) {
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -2177,9 +2177,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             // default branch has been changed in remote
                             return updateDefaultBranchName(
                                             metadata.getDefaultArtifactId(),
+                                            artifactType,
                                             defaultBranchNameInRemote,
                                             jsonTransformationDTO,
-                                            artifactType,
                                             gitType)
                                     .then()
                                     .thenReturn(defaultBranchNameInRemote);
@@ -2192,9 +2192,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     private Flux<? extends Artifact> updateDefaultBranchName(
             String baseArtifactId,
+            ArtifactType artifactType,
             String newDefaultBranchName,
             ArtifactJsonTransformationDTO jsonTransformationDTO,
-            ArtifactType artifactType,
             GitType gitType) {
         // Get the artifact from DB by new defaultBranchName
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -2392,7 +2392,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<List<String>> updateProtectedBranches(
-            String baseArtifactId, List<String> branchNames, ArtifactType artifactType) {
+            String baseArtifactId, ArtifactType artifactType, List<String> branchNames) {
 
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission artifactManageProtectedBranchPermission =
@@ -2509,7 +2509,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<AutoCommitResponseDTO> getAutoCommitProgress(
-            String artifactId, String branchName, ArtifactType artifactType) {
+            String artifactId, ArtifactType artifactType, String branchName) {
         return gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName);
     }
 

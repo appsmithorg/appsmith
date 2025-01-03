@@ -1,6 +1,7 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.external.git.models.GitResourceType;
@@ -468,7 +469,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+                    applicationJson, baseArtifactId, branchName, RefType.branch);
         });
     }
 
@@ -478,7 +479,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
         String refName = jsonTransformationDTO.getRefName();
         return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
-                artifactExchangeJson, baseArtifactId, refName);
+                artifactExchangeJson, baseArtifactId, refName, null);
     }
 
     protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {

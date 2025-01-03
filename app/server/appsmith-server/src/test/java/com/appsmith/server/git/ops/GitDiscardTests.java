@@ -151,7 +151,7 @@ public class GitDiscardTests {
         gitConnectDTO.setGitProfile(gitProfile);
         return centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact)
                 .block();
     }
@@ -167,7 +167,7 @@ public class GitDiscardTests {
         ArtifactExchangeJson artifactExchangeJson =
                 objectMapper.copy().disable(MapperFeature.USE_ANNOTATIONS).readValue(artifactJson, exchangeJsonType);
 
-        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson, null, null);
+        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson, null, null, null);
     }
 
     @Test

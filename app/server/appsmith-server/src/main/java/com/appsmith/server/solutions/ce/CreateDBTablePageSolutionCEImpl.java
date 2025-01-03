@@ -251,7 +251,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null));
+                        jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null, null));
 
         return datasourceStorageMono
                 .zipWhen(datasourceStorage -> Mono.zip(

@@ -167,7 +167,7 @@ public class GitCommitTests {
         gitConnectDTO.setGitProfile(gitProfile);
         return centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact)
                 .block();
     }
