@@ -45,6 +45,9 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { Datasource } from "entities/Datasource";
+import type { AnyAction, Dispatch } from "redux";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -76,22 +79,14 @@ interface DBOrMostPopularPluginsProps {
   };
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showUnsupportedPluginDialog: (callback: any) => void;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
   children?: ReactNode;
 }
 
 interface ReduxDispatchProps {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initializeForm: (data: Record<string, any>) => void;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createDatasource: (data: any) => void;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createTempDatasource: (data: any) => void;
+  initializeForm: (data: Record<string, unknown>) => void;
+  createDatasource: (data: CreateDatasourceConfig & Datasource) => void;
+  createTempDatasource: typeof createTempDatasourceFromForm;
   createNewApiActionBasedOnEditorType: (
     editorType: string,
     editorId: string,
@@ -115,9 +110,7 @@ interface CreateDBOrMostPopularPluginsProps {
   };
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showUnsupportedPluginDialog: (callback: any) => void;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
   children?: ReactNode;
   isOnboardingScreen?: boolean;
   active?: boolean;
@@ -135,9 +128,11 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
   goToCreateDatasource = (
     pluginId: string,
     pluginName: string,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params?: any,
+    params?: {
+      skipValidPluginCheck?: boolean;
+      packageName?: string;
+      type?: PluginType;
+    },
   ) => {
     const {
       currentApplication,
@@ -182,6 +177,7 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
 
     this.props.createTempDatasource({
       pluginId,
+      type: params!.type!,
     });
   };
 
@@ -237,6 +233,7 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
                 });
                 this.goToCreateDatasource(plugin.id, plugin.name, {
                   packageName: plugin.packageName,
+                  type: plugin.type,
                 });
               }}
               icon={getAssetUrl(pluginImages[plugin.id])}
@@ -337,20 +334,13 @@ const mapStateToProps = (
   };
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initializeForm: (data: Record<string, any>) =>
+    initializeForm: (data: Record<string, unknown>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createTempDatasource: (data: any) =>
+    createDatasource: (data: CreateDatasourceConfig & Datasource) =>
+      dispatch(createDatasourceFromForm(data)),
+    createTempDatasource: (data: { pluginId: string; type: PluginType }) =>
       dispatch(createTempDatasourceFromForm(data)),
     createNewApiActionBasedOnEditorType: (
       editorType: string,

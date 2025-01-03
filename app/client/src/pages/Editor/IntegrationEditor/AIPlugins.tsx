@@ -23,14 +23,10 @@ import { getPlugins } from "ee/selectors/entitiesSelector";
 interface CreateAIPluginsProps {
   pageId: string;
   isCreating?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showUnsupportedPluginDialog: (callback: any) => void;
+  showUnsupportedPluginDialog: (callback: () => void) => void;
 
   plugins: Plugin[];
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createTempDatasourceFromForm: (data: any) => void;
+  createTempDatasourceFromForm: typeof createTempDatasourceFromForm;
 }
 
 function AIDataSources(props: CreateAIPluginsProps) {
@@ -97,9 +93,9 @@ const mapStateToProps = (state: AppState) => {
       return a.name.localeCompare(b.name);
     })
     .filter(
-      (p) =>
-        p.type === PluginType.AI &&
-        p.name.toLocaleLowerCase().includes(searchedPlugin),
+      (plugin) =>
+        plugin.type === PluginType.AI &&
+        plugin.name.toLocaleLowerCase().includes(searchedPlugin),
     );
 
   return {
