@@ -95,10 +95,10 @@ import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
 import {
-  executeJSUpdates,
   type actionDataPayload,
   type updateActionDataPayloadType,
 } from "actions/pluginActionActions";
+import { executeJSUpdates } from "actions/jsPaneActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
@@ -545,6 +545,7 @@ interface BUFFERED_ACTION {
   hasBufferedAction: boolean;
   actionDataPayloadConsolidated: actionDataPayload[];
 }
+
 export function evalQueueBuffer() {
   let canTake = false;
   let hasDebouncedHandleUpdate = false;
