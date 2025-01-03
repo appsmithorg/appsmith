@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Flex } from "../../..";
 
 export const CollapseSpacer = styled.div`
-  width: 12px;
+  width: 17px;
 `;
 
 export const PaddingOverrider = styled.div`
@@ -54,6 +54,26 @@ export const EntityItemWrapper = styled(Flex)`
 
   &[data-depth="5"] {
     padding-left: 54px;
+  }
+
+  &[data-depth="6"] {
+    padding-left: 64px;
+  }
+
+  &[data-depth="7"] {
+    padding-left: 74px;
+  }
+
+  &[data-depth="8"] {
+    padding-left: 84px;
+  }
+
+  &[data-depth="9"] {
+    padding-left: 94px;
+  }
+
+  &[data-depth="10"] {
+    padding-left: 104px;
   }
 
   &[data-selected="true"] {

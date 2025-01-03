@@ -51,6 +51,15 @@ const Tree: EntityListTreeProps["items"] = [
             onClick,
             nameEditorConfig,
           },
+          {
+            startIcon: <Icon name="apps-line" />,
+            id: "1.1.2",
+            isDisabled: true,
+            title: "Grandchild 2",
+            isExpanded: false,
+            onClick,
+            nameEditorConfig,
+          },
         ],
       },
       {

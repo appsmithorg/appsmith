@@ -32,7 +32,8 @@ export function EntityListTree(props: EntityListTreeProps) {
         <Flex flex="1" flexDirection="column" key={item.id}>
           <EntityItemWrapper
             alignItems="center"
-            data-depth={childrenDepth}
+            data-depth={currentDepth}
+            data-disabled={item.isDisabled || false}
             data-selected={item.isSelected}
             flexDirection="row"
           >
