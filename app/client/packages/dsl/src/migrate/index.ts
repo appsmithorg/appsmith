@@ -91,9 +91,10 @@ import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-
 import { migrateChartwidgetCustomEchartConfig } from "./migrations/087-migrate-chart-widget-customechartdata";
 import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custom-widget-dynamic-height";
 import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "./migrations/089-migrage-table-widget-v2-currentRow-binding";
+import { migrateTableWidgetV2ValidationTryCatch } from "./migrations/090-migrate-table-widget-v2-validation-try-catch";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 90;
+export const LATEST_DSL_VERSION = 91;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -613,6 +614,11 @@ const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 89) {
     currentDSL = migrateTableWidgetV2CurrentRowInValidationsBinding(currentDSL);
+    currentDSL.version = 90;
+  }
+
+  if (currentDSL.version === 90) {
+    currentDSL = migrateTableWidgetV2ValidationTryCatch(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
