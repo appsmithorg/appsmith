@@ -273,6 +273,7 @@ public class ImportServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -2733,7 +2734,7 @@ public class ImportServiceTests {
                     ApplicationJson latestApplicationJson = tuple.getT2();
 
                     assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
-                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(2);
 
                     assertThat(latestApplicationJson.getServerSchemaVersion())
                             .isEqualTo(jsonSchemaVersions.getServerVersion());

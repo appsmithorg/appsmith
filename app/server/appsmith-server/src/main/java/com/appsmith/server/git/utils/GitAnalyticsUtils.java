@@ -187,4 +187,33 @@ public class GitAnalyticsUtils {
 
         return Flux.merge(eventSenderMonos).then();
     }
+
+    /**
+     * Generic method to send analytics for git operations.
+     *
+     * @param analyticsEvents Name of the event
+     * @param artifact        Application object
+     * @param extraProps      Extra properties that need to be passed along with default ones.
+     * @return A void mono
+     */
+    public Mono<Void> sendGitAnalyticsEvent(
+            AnalyticsEvents analyticsEvents, Artifact artifact, Map<String, Object> extraProps) {
+        GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+
+        // TODO: analytics generalisation
+        analyticsProps.put("appId", gitData.getDefaultArtifactId());
+        analyticsProps.put("orgId", artifact.getWorkspaceId());
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        if (extraProps != null) {
+            analyticsProps.putAll(extraProps);
+        }
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user ->
+                        analyticsService.sendEvent(analyticsEvents.getEventName(), user.getUsername(), analyticsProps));
+    }
 }
