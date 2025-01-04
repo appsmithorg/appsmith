@@ -9,7 +9,9 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
+import com.appsmith.server.git.dtos.FetchRemoteDTO;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -70,8 +72,15 @@ public interface GitHandlingServiceCE {
     Mono<Tuple2<? extends Artifact, String>> commitArtifact(
             Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 
-    Mono<String> fetchRemoteChanges(
+    Mono<String> fetchRemoteReferences(
             ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth, Boolean isFetchAll);
+
+    Mono<String> fetchRemoteReferences(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, FetchRemoteDTO fetchRemoteDTO, GitAuth gitAuth);
+
+    Mono<String> mergeBranches(ArtifactJsonTransformationDTO jsonTransformationDTO, GitMergeDTO gitMergeDTO);
+
+    Mono<MergeStatusDTO> isBranchMergable(ArtifactJsonTransformationDTO JsonTransformationDTO, GitMergeDTO gitMergeDTO);
 
     Mono<? extends ArtifactExchangeJson> recreateArtifactJsonFromLastCommit(
             ArtifactJsonTransformationDTO jsonTransformationDTO);

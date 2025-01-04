@@ -135,6 +135,8 @@ public interface FSGitHandler {
     Mono<GitStatusDTO> getStatus(Path repoPath, String branchName);
 
     /**
+     * This method merges source branch into destination branch for a git repository which is present on the partial
+     * path provided. <B> This assumes that the branch on which the merge will happen is already checked out </B>
      * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
      * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
      * @param destinationBranch Merge operation is performed on this branch
@@ -158,7 +160,7 @@ public interface FSGitHandler {
             boolean isFetchAll);
 
     Mono<String> fetchRemote(
-            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... branchNames);
+            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... refNames);
 
     /**
      *

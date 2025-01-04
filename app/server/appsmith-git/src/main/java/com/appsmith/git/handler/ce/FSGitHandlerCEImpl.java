@@ -33,7 +33,6 @@ import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -846,15 +845,14 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         git -> Mono.fromCallable(() -> {
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                                             repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
-                                    log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch
-                                            + " on " + destinationBranch);
-                                    try {
-                                        // checkout the branch on which the merge command is run
-                                        git.checkout()
-                                                .setName(destinationBranch)
-                                                .setCreateBranch(false)
-                                                .call();
 
+                                    log.info(
+                                            "{}: Merge branch {} on {}",
+                                            Thread.currentThread().getName(),
+                                            sourceBranch,
+                                            destinationBranch);
+
+                                    try {
                                         MergeResult mergeResult = git.merge()
                                                 .include(git.getRepository().findRef(sourceBranch))
                                                 .setStrategy(MergeStrategy.RECURSIVE)
@@ -934,7 +932,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     @Override
     public Mono<String> fetchRemote(
-            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... branchNames) {
+            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... refNames) {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
         Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
@@ -946,9 +944,9 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     String fetchMessages;
 
                                     List<RefSpec> refSpecs = new ArrayList<>();
-                                    for (String branchName : branchNames) {
+                                    for (String refName : refNames) {
                                         RefSpec ref = new RefSpec(
-                                                "refs/heads/" + branchName + ":refs/remotes/origin/" + branchName);
+                                                "refs/heads/" + refName + ":refs/remotes/origin/" + refName);
                                         refSpecs.add(ref);
                                     }
 
@@ -980,29 +978,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(
-                                            Thread.currentThread().getName()
-                                                    + ": Check mergeability for repo {} with src: {}, dest: {}",
+                                    log.info(
+                                            "{}: Check mergeability for repo {} with src: {}, dest: {}",
+                                            Thread.currentThread().getName(),
                                             repoSuffix,
                                             sourceBranch,
                                             destinationBranch);
-
-                                    // checkout the branch on which the merge command is run
-                                    try {
-                                        git.checkout()
-                                                .setName(destinationBranch)
-                                                .setCreateBranch(false)
-                                                .call();
-                                    } catch (GitAPIException e) {
-                                        if (e instanceof CheckoutConflictException) {
-                                            MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                                            mergeStatus.setMergeAble(false);
-                                            mergeStatus.setConflictingFiles(
-                                                    ((CheckoutConflictException) e).getConflictingPaths());
-                                            processStopwatch.stopAndLogTimeInMillis();
-                                            return mergeStatus;
-                                        }
-                                    }
 
                                     MergeResult mergeResult = git.merge()
                                             .include(git.getRepository().findRef(sourceBranch))
@@ -1051,6 +1032,20 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 });
                                     } catch (GitAPIException | IOException e) {
                                         log.error("Error for hard resetting to latest commit {0}", e);
+                                        return Mono.error(e);
+                                    }
+                                })
+                                .onErrorResume(error -> {
+                                    try {
+                                        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+                                        mergeStatusDTO.setMergeAble(false);
+                                        mergeStatusDTO.setMessage(error.getMessage());
+                                        mergeStatusDTO.setReferenceDoc(
+                                                ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
+                                        return resetToLastCommit(repoSuffix, destinationBranch)
+                                                .thenReturn(mergeStatusDTO);
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error while hard resetting to latest commit {0}", e);
                                         return Mono.error(e);
                                     }
                                 })
