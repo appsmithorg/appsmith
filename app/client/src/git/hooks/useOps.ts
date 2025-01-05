@@ -5,10 +5,10 @@ import {
   selectConflictErrorModalOpen,
   selectOpsModalOpen,
   selectOpsModalTab,
-} from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+} from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useOps() {
   const { artifactDef } = useGitContext();
@@ -16,42 +16,40 @@ export default function useOps() {
   const dispatch = useDispatch();
 
   // ops modal
-  const opsModalOpen = useSelector((state: GitRootState) =>
-    selectOpsModalOpen(state, artifactDef),
-  );
+  const opsModalOpen = useArtifactSelector(selectOpsModalOpen);
 
-  const opsModalTab = useSelector((state: GitRootState) =>
-    selectOpsModalTab(state, artifactDef),
-  );
+  const opsModalTab = useArtifactSelector(selectOpsModalTab);
 
   const toggleOpsModal = useCallback(
     (open: boolean, tab: keyof typeof GitOpsTab = GitOpsTab.Deploy) => {
-      dispatch(
-        gitArtifactActions.toggleOpsModal({ ...artifactDef, open, tab }),
-      );
+      if (artifactDef) {
+        dispatch(gitArtifactActions.toggleOpsModal({ artifactDef, open, tab }));
+      }
     },
     [artifactDef, dispatch],
   );
 
   // conflict error modal
-  const conflictErrorModalOpen = useSelector((state: GitRootState) =>
-    selectConflictErrorModalOpen(state, artifactDef),
+  const conflictErrorModalOpen = useArtifactSelector(
+    selectConflictErrorModalOpen,
   );
 
   const toggleConflictErrorModal = useCallback(
     (open: boolean) => {
-      dispatch(
-        gitArtifactActions.toggleConflictErrorModal({ ...artifactDef, open }),
-      );
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.toggleConflictErrorModal({ artifactDef, open }),
+        );
+      }
     },
     [artifactDef, dispatch],
   );
 
   return {
     opsModalTab,
-    opsModalOpen,
+    isOpsModalOpen: opsModalOpen ?? false,
     toggleOpsModal,
-    conflictErrorModalOpen,
+    isConflictErrorModalOpen: conflictErrorModalOpen ?? false,
     toggleConflictErrorModal,
   };
 }

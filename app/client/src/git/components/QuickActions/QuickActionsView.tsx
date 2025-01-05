@@ -33,7 +33,7 @@ interface QuickActionsViewProps {
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
-  isGitConnected: boolean;
+  isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
@@ -57,10 +57,10 @@ function QuickActionsView({
   isAutocommitEnabled = false,
   isAutocommitPolling = false,
   isBranchPopupOpen = false,
+  isConnected = false,
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
-  isGitConnected = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
@@ -131,7 +131,7 @@ function QuickActionsView({
     toggleConnectModal(true);
   }, [toggleConnectModal]);
 
-  return isGitConnected ? (
+  return isConnected ? (
     <Container>
       <BranchButton
         currentBranch={currentBranch}

@@ -25,6 +25,8 @@ import {
 import produce from "immer";
 import { isEmpty } from "lodash";
 import type { ApplicationPayload } from "entities/Application";
+import { gitConnectSuccess, type GitConnectSuccessPayload } from "git";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
@@ -742,6 +744,20 @@ export const handlers = {
     return {
       ...state,
       isSavingNavigationSetting: false,
+    };
+  },
+  // git
+  [gitConnectSuccess.type]: (
+    state: ApplicationsReduxState,
+    action: PayloadAction<GitConnectSuccessPayload>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        gitApplicationMetadata:
+          action.payload.responseData.gitApplicationMetadata,
+      },
     };
   },
 };
