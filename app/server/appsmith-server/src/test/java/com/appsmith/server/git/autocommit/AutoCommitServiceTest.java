@@ -2,6 +2,7 @@ package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -255,7 +256,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -544,7 +545,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -618,7 +619,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);

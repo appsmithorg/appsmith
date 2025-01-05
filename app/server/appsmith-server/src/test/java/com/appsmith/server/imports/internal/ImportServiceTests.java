@@ -365,8 +365,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
+                .flatMap(applicationJson -> jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                        applicationJson, null, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -2726,7 +2726,8 @@ public class ImportServiceTests {
                 .flatMap(applicationJson -> {
                     ApplicationJson applicationJson1 = new ApplicationJson();
                     AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson1, null, null);
+                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                            applicationJson1, null, null, null);
                 })
                 .map(applicationJson -> (ApplicationJson) applicationJson);
 
