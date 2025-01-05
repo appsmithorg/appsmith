@@ -54,7 +54,7 @@ import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUt
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { Module } from "ee/constants/ModuleConstants";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+// import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
@@ -167,47 +167,48 @@ export const getDatasourceStructureById = (
   return state.entities.datasources.structure[id];
 };
 
+// ! git mod - the following function is not getting used
 /**
  * Selector to indicate if the widget name should be shown/drawn on canvas
  */
-export const getShouldShowWidgetName = createSelector(
-  (state: AppState) => state.ui.widgetDragResize.isResizing,
-  (state: AppState) => state.ui.widgetDragResize.isDragging,
-  (state: AppState) => state.ui.editor.isPreviewMode,
-  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  getAnvilSpaceDistributionStatus,
-  // cannot import other selectors, breaks the app
-  (state) => {
-    const gitMetaData =
-      state.ui.applications.currentApplication?.gitApplicationMetadata;
-    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
-    const currentBranch = gitMetaData?.branchName;
-    const { protectedBranches = [] } = state.ui.gitSync;
+// export const getShouldShowWidgetName = createSelector(
+//   (state: AppState) => state.ui.widgetDragResize.isResizing,
+//   (state: AppState) => state.ui.widgetDragResize.isDragging,
+//   (state: AppState) => state.ui.editor.isPreviewMode,
+//   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+//   getAnvilSpaceDistributionStatus,
+//   // cannot import other selectors, breaks the app
+//   (state) => {
+//     const gitMetaData =
+//       state.ui.applications.currentApplication?.gitApplicationMetadata;
+//     const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+//     const currentBranch = gitMetaData?.branchName;
+//     const { protectedBranches = [] } = state.ui.gitSync;
 
-    if (!isGitConnected || !currentBranch) {
-      return false;
-    } else {
-      return protectedBranches.includes(currentBranch);
-    }
-  },
-  (
-    isResizing,
-    isDragging,
-    isPreviewMode,
-    isAutoCanvasResizing,
-    isDistributingSpace,
-    isProtectedMode,
-  ) => {
-    return (
-      !isResizing &&
-      !isDragging &&
-      !isPreviewMode &&
-      !isAutoCanvasResizing &&
-      !isDistributingSpace &&
-      !isProtectedMode
-    );
-  },
-);
+//     if (!isGitConnected || !currentBranch) {
+//       return false;
+//     } else {
+//       return protectedBranches.includes(currentBranch);
+//     }
+//   },
+//   (
+//     isResizing,
+//     isDragging,
+//     isPreviewMode,
+//     isAutoCanvasResizing,
+//     isDistributingSpace,
+//     isProtectedMode,
+//   ) => {
+//     return (
+//       !isResizing &&
+//       !isDragging &&
+//       !isPreviewMode &&
+//       !isAutoCanvasResizing &&
+//       !isDistributingSpace &&
+//       !isProtectedMode
+//     );
+//   },
+// );
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
