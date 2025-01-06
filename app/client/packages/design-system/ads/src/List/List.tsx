@@ -88,7 +88,7 @@ function ListItem(props: ListItemProps) {
     e.stopPropagation();
 
     if (!props.isDisabled && props.onClick) {
-      props.onClick();
+      props.onClick(e);
     }
   });
 
