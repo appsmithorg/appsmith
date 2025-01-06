@@ -60,7 +60,7 @@ const ListWidgets = (props: {
   );
 
   const isNewWidgetTreeEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_new_entity_item_enabled,
+    FEATURE_FLAG.release_ads_entity_item_enabled,
   );
 
   return (
