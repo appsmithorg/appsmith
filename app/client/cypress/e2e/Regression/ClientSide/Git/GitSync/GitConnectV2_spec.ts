@@ -14,6 +14,7 @@ describe(
   {
     tags: [
       "@tag.Git",
+      "@tag.GitTest",
       "@tag.Sanity",
       "@tag.AccessControl",
       "@tag.Workflows",
