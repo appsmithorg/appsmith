@@ -42,7 +42,7 @@ import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
   PREMIUM_INTEGRATIONS,
   type PremiumIntegration,
-} from "constants/PremiumDatasourcesConstants";
+} from "./PremiumDatasources/Constants";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {

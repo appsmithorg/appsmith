@@ -11,7 +11,7 @@ import {
 import { useSelector } from "react-redux";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import { getPlugins } from "ee/selectors/entitiesSelector";
-import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
+import { PREMIUM_INTEGRATIONS } from "./PremiumDatasources/Constants";
 import styled from "styled-components";
 
 const EmptyImage = styled.img`

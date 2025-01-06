@@ -1,5 +1,5 @@
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
+import { ASSETS_CDN_URL } from "../../../../constants/ThirdPartyConstants";
 
 export interface PremiumIntegration {
   name: string;

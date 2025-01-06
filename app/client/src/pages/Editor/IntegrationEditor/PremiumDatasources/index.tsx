@@ -3,14 +3,11 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
-import {
-  getTagText,
-  handlePremiumDatasourceClick,
-} from "utils/PremiumDatasourcesHelpers";
+import { getTagText, handlePremiumDatasourceClick } from "./Helpers";
 import { isFreePlan } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import DatasourceItem from "../DatasourceItem";
-import type { PremiumIntegration } from "constants/PremiumDatasourcesConstants";
+import type { PremiumIntegration } from "./Constants";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
