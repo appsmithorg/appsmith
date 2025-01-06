@@ -143,11 +143,9 @@ describe(
       entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
       gitSync.SwitchGitBranch(parentBranchKey);
-      cy.wait("@gitCheckoutAPI").then(() => {
-        PageList.assertAbsence("ParentPageRenamed");
-        PageLeftPane.switchSegment(PagePaneSegment.Queries);
-        PageLeftPane.assertAbsence("ParentApiRenamed");
-      });
+      PageList.assertAbsence("ParentPageRenamed");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      PageLeftPane.assertAbsence("ParentApiRenamed");
     });
 
     it("4. enables switching branch from the URL", () => {
