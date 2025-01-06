@@ -200,7 +200,6 @@ describe(
 
     it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
       deployMode.NavigateBacktoEditor();
-      featureFlagIntercept({ release_git_modularisation_enabled: true });
       gitSync.CreateNConnectToGit(repoName);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;

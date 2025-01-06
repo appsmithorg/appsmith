@@ -114,7 +114,6 @@ describe(
     });
 
     it("6. Connect app to git, verify data binding in edit and deploy mode", () => {
-      featureFlagIntercept({ release_git_modularisation_enabled: true });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       gitSync.CreateNConnectToGit(repoName);
       cy.get("@gitRepoName").then((repName) => {
