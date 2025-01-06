@@ -1,6 +1,6 @@
 import type { EntityItemProps } from "../EntityItem/EntityItem.types";
 
-interface EntityListTreeItem extends EntityItemProps {
+export interface EntityListTreeItem extends EntityItemProps {
   children?: EntityListTreeItem[];
   isExpanded: boolean;
 }
