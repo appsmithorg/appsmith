@@ -1,13 +1,9 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Button, Flex } from "@appsmith/ads";
-import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { useSelector } from "react-redux";
 
 import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
-import {
-  getCurrentBasePageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -16,6 +12,8 @@ import { EmptyState } from "@appsmith/ads";
 import history from "utils/history";
 import { builderURL } from "ee/RouteBuilder";
 import styled from "styled-components";
+import { WidgetEntityListTree } from "pages/Editor/Explorer/Widgets/WidgetEntityListTree";
+import { WidgetEntityList } from "pages/Editor/Explorer/Widgets/WidgetEntityList";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {
@@ -27,7 +25,6 @@ const ListWidgets = (props: {
   setFocusSearchInput: (focusSearchInput: boolean) => void;
 }) => {
   const { setFocusSearchInput } = props;
-  const basePageId = useSelector(getCurrentBasePageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -36,10 +33,6 @@ const ListWidgets = (props: {
     isFeatureEnabled,
     pagePermissions,
   );
-
-  const widgetsInStep = useMemo(() => {
-    return widgets?.children?.map((child) => child.widgetId) || [];
-  }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
     setFocusSearchInput(true);
@@ -64,6 +57,10 @@ const ListWidgets = (props: {
       onClick: canManagePages ? addButtonClickHandler : undefined,
     }),
     [addButtonClickHandler, canManagePages],
+  );
+
+  const isNewWidgetTreeEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_new_entity_item_enabled,
   );
 
   return (
@@ -105,19 +102,11 @@ const ListWidgets = (props: {
           overflowY="auto"
           px="spaces-3"
         >
-          {widgets?.children?.map((child) => (
-            <WidgetEntity
-              basePageId={basePageId}
-              childWidgets={child.children}
-              key={child.widgetId}
-              searchKeyword=""
-              step={1}
-              widgetId={child.widgetId}
-              widgetName={child.widgetName}
-              widgetType={child.type}
-              widgetsInStep={widgetsInStep}
-            />
-          ))}
+          {isNewWidgetTreeEnabled ? (
+            <WidgetEntityListTree />
+          ) : (
+            <WidgetEntityList />
+          )}
         </Flex>
       ) : null}
     </ListContainer>
