@@ -5,3 +5,5 @@ export * from "./SearchAndAdd";
 export { EmptyState } from "./EmptyState";
 export { NoSearchResults } from "./NoSearchResults";
 export * from "./ExplorerContainer";
+export * from "./EntityItem";
+export { useEditableText } from "./Editable";

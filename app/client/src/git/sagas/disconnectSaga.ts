@@ -12,26 +12,30 @@ import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 
 export default function* disconnectSaga(action: GitArtifactPayloadAction) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const artifactDef = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: DisconnectResponse | undefined;
 
   try {
-    response = yield call(disconnectRequest, baseArtifactId);
+    response = yield call(disconnectRequest, artifactDef.baseArtifactId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.disconnectSuccess(artifactDef));
+      yield put(gitArtifactActions.disconnectSuccess({ artifactDef }));
       const url = new URL(window.location.href);
 
       url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
-      history.push(url.toString().slice(url.origin.length));
-      yield put(gitArtifactActions.closeDisconnectModal(artifactDef));
-      // !case: why?
-      //   yield put(importAppViaGitStatusReset());
+      history.replace(url.toString().slice(url.origin.length));
+      yield put(gitArtifactActions.unmount({ artifactDef }));
+      yield put(
+        gitArtifactActions.initGitForEditor({
+          artifactDef,
+          artifact: response.data,
+        }),
+      );
+      yield put(gitArtifactActions.closeDisconnectModal({ artifactDef }));
       yield put(
         gitArtifactActions.toggleOpsModal({
-          ...artifactDef,
+          artifactDef,
           open: false,
           tab: GitOpsTab.Deploy,
         }),
@@ -52,7 +56,7 @@ export default function* disconnectSaga(action: GitArtifactPayloadAction) {
     if (response && response.responseMeta.error) {
       const { error } = response.responseMeta;
 
-      yield put(gitArtifactActions.disconnectError({ ...artifactDef, error }));
+      yield put(gitArtifactActions.disconnectError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.imports;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -643,18 +644,21 @@ public class ApplicationImportServiceCEImpl
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         if (!hasText(branchedArtifactId)) {
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null, null);
         }
 
         return applicationService.findById(branchedArtifactId).flatMap(application -> {
             String baseArtifactId = application.getBaseId();
             String refName = null;
+            RefType refType = null;
 
             if (application.getGitArtifactMetadata() != null) {
                 refName = application.getGitArtifactMetadata().getRefName();
+                refType = application.getGitArtifactMetadata().getRefType();
             }
 
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, baseArtifactId, refName);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
+                    applicationJson, baseArtifactId, refName, refType);
         });
     }
 }
