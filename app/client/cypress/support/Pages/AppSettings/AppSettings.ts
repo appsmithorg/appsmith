@@ -61,7 +61,6 @@ export class AppSettings {
     _getActivePage: (pageName: string) =>
       `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
     _importBtn: "[data-testid='t--app-setting-import-btn']",
-    _listItemTitle = ".ads-v2-listitem__title",
   };
 
   public errorMessageSelector = (fieldId: string) => {
