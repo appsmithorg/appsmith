@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
@@ -6,18 +7,17 @@ import {
 import { shallowEqual, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { isNameValid, removeSpecialChars } from "utils/helpers";
-import { useCallback } from "react";
+import { isNameValid } from "utils/helpers";
 
-interface UseNameEditorProps {
+interface UseValidateEntityNameProps {
   entityName: string;
   nameErrorMessage?: (name: string) => string;
 }
 
 /**
- * Provides a unified way to validate and save entity names.
+ * Provides a unified way to validate entity names.
  */
-export function useNameEditor(props: UseNameEditorProps) {
+export function useValidateEntityName(props: UseValidateEntityNameProps) {
   const { entityName, nameErrorMessage = ACTION_NAME_CONFLICT_ERROR } = props;
 
   const usedEntityNames = useSelector(
@@ -25,7 +25,7 @@ export function useNameEditor(props: UseNameEditorProps) {
     shallowEqual,
   );
 
-  const validateName = useCallback(
+  return useCallback(
     (name: string): string | null => {
       if (!name || name.trim().length === 0) {
         return createMessage(ACTION_INVALID_NAME_ERROR);
@@ -37,9 +37,4 @@ export function useNameEditor(props: UseNameEditorProps) {
     },
     [entityName, nameErrorMessage, usedEntityNames],
   );
-
-  return {
-    validateName,
-    normalizeName: removeSpecialChars,
-  };
 }
