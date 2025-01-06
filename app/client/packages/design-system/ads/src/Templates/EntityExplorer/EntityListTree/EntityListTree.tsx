@@ -14,6 +14,8 @@ export function EntityListTree(props: EntityListTreeProps) {
 
   const handleOnExpandClick = useCallback(
     (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+      // Stop the event from bubbling up to the parent to avoid selection of the item
+      event.stopPropagation();
       const id = event.currentTarget.getAttribute("data-itemid");
 
       if (id) {
@@ -47,6 +49,7 @@ export function EntityListTree(props: EntityListTreeProps) {
                   name={
                     item.isExpanded ? "arrow-down-s-line" : "arrow-right-s-line"
                   }
+                  size="md"
                 />
               </CollapseWrapper>
             ) : (

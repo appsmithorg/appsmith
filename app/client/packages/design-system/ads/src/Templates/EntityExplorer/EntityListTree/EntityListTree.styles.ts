@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import { Flex } from "../../..";
 
+/**
+ * This is used to add a spacing when collapse icon is not present
+ **/
 export const CollapseSpacer = styled.div`
   width: 17px;
 `;
@@ -9,6 +12,9 @@ export const PaddingOverrider = styled.div`
   width: 100%;
 
   & > div {
+    /* Override the padding of the entity item since collapsible icon can be on the left
+     * By default the padding on the left is 8px, so we need to reduce it to 4px
+     **/
     padding-left: 4px;
   }
 `;
@@ -28,53 +34,11 @@ export const CollapseWrapper = styled.div`
   }
 `;
 
-export const EntityItemWrapper = styled(Flex)`
+export const EntityItemWrapper = styled(Flex)<{ "data-depth": number }>`
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
 
-  &[data-depth="0"] {
-    padding-left: 4px;
-  }
-
-  &[data-depth="1"] {
-    padding-left: 14px;
-  }
-
-  &[data-depth="2"] {
-    padding-left: 24px;
-  }
-
-  &[data-depth="3"] {
-    padding-left: 34px;
-  }
-
-  &[data-depth="4"] {
-    padding-left: 44px;
-  }
-
-  &[data-depth="5"] {
-    padding-left: 54px;
-  }
-
-  &[data-depth="6"] {
-    padding-left: 64px;
-  }
-
-  &[data-depth="7"] {
-    padding-left: 74px;
-  }
-
-  &[data-depth="8"] {
-    padding-left: 84px;
-  }
-
-  &[data-depth="9"] {
-    padding-left: 94px;
-  }
-
-  &[data-depth="10"] {
-    padding-left: 104px;
-  }
+  padding-left: ${(props) => 4 + props["data-depth"] * 10}px;
 
   &[data-selected="true"] {
     background-color: var(--ads-v2-colors-content-surface-active-bg);
