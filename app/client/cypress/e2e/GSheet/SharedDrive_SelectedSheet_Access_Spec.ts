@@ -10,9 +10,10 @@ import {
   table,
   appSettings,
 } from "../../support/Objects/ObjectsCore";
+import BottomTabs from "../../support/Pages/IDE/BottomTabs";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet-selected";
+const dataSourceName = "gsheet-shared-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe.skip(
@@ -115,6 +116,7 @@ describe.skip(
         spreadSheetName,
       );
       dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
       dataSources.AssertQueryTableResponse(2, "₹, $, €, ¥, £"); // Asserting different symbols
@@ -124,6 +126,7 @@ describe.skip(
       gsheetHelper.SelectMultiDropDownValue("Columns", "product_name");
       dataSources.RunQuery();
       dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].product_name);
 
       //Remove column filter and add Sort By Ascending and verify
@@ -134,6 +137,7 @@ describe.skip(
         inputFieldName: "Sort By",
       });
       dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         0,
         "5afbaf65680c9f378af5b3a3ae22427e",
@@ -150,6 +154,7 @@ describe.skip(
       dataSources.EnterSortByValues("price", "Descending");
       dataSources.RunQuery();
       dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         1,
         "ホーンビー ゲージ ウェスタン エクスプレス デジタル トレイン セット (eLink および TTS ロコ トレイン セット付き)",
@@ -170,6 +175,7 @@ describe.skip(
       );
       dataSources.RunQuery();
       dataSources.runQueryAndVerifyResponseViews({ count: 8 });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         0,
         "87bbb472ef9d90dcef140a551665c929",
@@ -188,6 +194,7 @@ describe.skip(
       });
       dataSources.RunQuery();
       dataSources.runQueryAndVerifyResponseViews({ count: 4 });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",
@@ -238,6 +245,7 @@ describe.skip(
         true,
       );
       dataSources.runQueryAndVerifyResponseViews({ count: 10 });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",
@@ -273,6 +281,7 @@ describe.skip(
       ); // Converting the field to dropdown
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
       dataSources.runQueryAndVerifyResponseViews({ count: 10 });
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",
