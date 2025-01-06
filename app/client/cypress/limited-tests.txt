@@ -1,5 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ServerSide/ApiTests/API_Bug_Upload_File_GreaterThan_20MB_spec.ts
+cypress/e2e/Regression/ClientSide/VisualTests/JSEditorIndent_spec.js
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 
