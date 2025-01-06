@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   gap: var(--inner-spacing-1);
-  height: var(--sizing-3);
+  min-height: var(--sizing-3);
   margin-block-end: var(--inner-spacing-3);
 }
 

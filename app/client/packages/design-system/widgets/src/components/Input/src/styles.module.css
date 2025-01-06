@@ -27,6 +27,7 @@
   padding-block: var(--inner-spacing-1);
   padding-inline: var(--inner-spacing-2);
   box-sizing: content-box;
+  cursor: inherit;
 }
 
 .inputGroup:has([data-input-prefix]) .input {
@@ -143,8 +144,9 @@
  * DISABLED
  * ----------------------------------------------------------------------------
  */
-.inputGroup:has(> .input[data-disabled]),
-.inputGroup:has(> .input:has(~ input[data-disabled])) {
+.inputGroup:has(
+    :is(.input[data-disabled], .input:has(~ input[data-disabled]))
+  ) {
   cursor: not-allowed;
   box-shadow: none;
 }
