@@ -428,9 +428,7 @@ export class GitSync {
   public ClearBranchProtection() {
     this.OpenSettingsModal("BRANCH");
     this.agHelper.GetNClick(this.locators.branchProtectionSelect);
-    const selectedOptionsEl = this.agHelper.GetElement(
-      ".rc-select-dropdown .rc-select-item-option-active",
-    );
+    const selectedOptionsEl = this.agHelper.GetElement(this.commonLocators._dropdownActiveOption);
     selectedOptionsEl.each((el) => {
       el.trigger("click");
     });
@@ -457,7 +455,7 @@ export class GitSync {
     this.agHelper.GetNClick(this.locators.opsMergeBranchSelectMenu, 0, true);
     this.agHelper.AssertContains(destinationBranch);
     this.agHelper.GetNClickByContains(
-      ".rc-select-item-option-content",
+      this.commonLocators._dropdownOption,
       destinationBranch,
     );
     this.AssertAbsenceOfCheckingMergeability();
