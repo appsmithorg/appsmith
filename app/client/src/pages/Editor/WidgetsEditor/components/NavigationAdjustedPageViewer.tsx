@@ -4,7 +4,7 @@ import { EditorState } from "ee/entities/IDE/constants";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { PageViewWrapper } from "pages/AppViewer/AppPage";
 import classNames from "classnames";
 import { APP_MODE } from "entities/App";
@@ -27,7 +27,7 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 export const NavigationAdjustedPageViewer = (props: {
   children: ReactNode;
 }) => {
-  const isPreview = useSelector(combinedPreviewModeSelector);
+  const isPreview = useSelector(selectCombinedPreviewMode);
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);

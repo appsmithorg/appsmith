@@ -17,8 +17,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
 
   let response: CommitResponse | undefined;
 
@@ -28,20 +27,21 @@ export default function* commitSaga(
       doPush: action.payload.doPush,
     };
 
-    response = yield call(commitRequest, baseArtifactId, params);
+    response = yield call(commitRequest, artifactId, params);
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.commitSuccess(basePayload));
+      yield put(gitArtifactActions.commitSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.fetchStatusInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           compareRemote: true,
         }),
       );
 
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef.artifactType === GitArtifactType.Application) {
         // ! case for updating lastDeployedAt in application manually?
       }
     }
@@ -52,13 +52,13 @@ export default function* commitSaga(
       if (error.code === GitErrorCodes.REPO_LIMIT_REACHED) {
         yield put(
           gitArtifactActions.toggleRepoLimitErrorModal({
-            ...basePayload,
+            artifactDef,
             open: true,
           }),
         );
       }
 
-      yield put(gitArtifactActions.commitError({ ...basePayload, error }));
+      yield put(gitArtifactActions.commitError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

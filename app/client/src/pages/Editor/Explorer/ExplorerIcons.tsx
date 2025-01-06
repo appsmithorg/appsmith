@@ -12,6 +12,9 @@ import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { importSvg } from "@appsmith/ads-old";
+import WidgetFactory from "WidgetProvider/factory";
+import WidgetTypeIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import type { WidgetType } from "constants/WidgetConstants";
 
 const ApiIcon = importSvg(
   async () => import("assets/icons/menu/api-colored.svg"),
@@ -225,6 +228,7 @@ const EntityIconWrapper = styled.div<{
   justify-content: center;
   text-align: center;
   border-radius: var(--ads-v2-border-radius);
+
   svg,
   img {
     height: 100% !important;
@@ -356,4 +360,14 @@ export function DefaultModuleIcon() {
       <Icon name="module" size="sm" />
     </EntityIcon>
   );
+}
+
+export function WidgetIconByType(widgetType: WidgetType) {
+  const { IconCmp } = WidgetFactory.getWidgetMethods(widgetType);
+
+  return IconCmp ? <IconCmp /> : <WidgetTypeIcon type={widgetType} />;
+}
+
+export function GlobeIcon() {
+  return <Icon name="global-line" size="md" />;
 }

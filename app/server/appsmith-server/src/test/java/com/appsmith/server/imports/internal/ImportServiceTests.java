@@ -273,6 +273,7 @@ public class ImportServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -360,8 +361,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
+                .flatMap(applicationJson -> jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                        applicationJson, null, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -2723,7 +2724,8 @@ public class ImportServiceTests {
                 .flatMap(applicationJson -> {
                     ApplicationJson applicationJson1 = new ApplicationJson();
                     AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson1, null, null);
+                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                            applicationJson1, null, null, null);
                 })
                 .map(applicationJson -> (ApplicationJson) applicationJson);
 
@@ -2733,7 +2735,7 @@ public class ImportServiceTests {
                     ApplicationJson latestApplicationJson = tuple.getT2();
 
                     assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
-                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(2);
 
                     assertThat(latestApplicationJson.getServerSchemaVersion())
                             .isEqualTo(jsonSchemaVersions.getServerVersion());
