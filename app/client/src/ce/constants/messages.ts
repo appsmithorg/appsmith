@@ -564,6 +564,7 @@ export const DEBUGGER_ERRORS = () => "Linter";
 export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
+export const DEBUGGER_STATE = () => "State";
 
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";

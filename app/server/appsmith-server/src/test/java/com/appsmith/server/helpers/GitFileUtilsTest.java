@@ -84,8 +84,8 @@ public class GitFileUtilsTest {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
+                .flatMap(applicationJson -> jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                        applicationJson, null, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 

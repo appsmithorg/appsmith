@@ -129,6 +129,8 @@ export interface EntityItem {
   userPermissions?: string[];
 }
 
+export interface GenericEntityItem extends Omit<EntityItem, "type"> {}
+
 export type UseRoutes = Array<{
   key: string;
   // TODO: Fix this the next time the file is edited

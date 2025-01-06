@@ -1,6 +1,7 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.external.git.models.GitResourceType;
@@ -29,6 +30,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -85,7 +87,7 @@ import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwanted
 @Slf4j
 @Component
 @Import({FileUtilsImpl.class})
-public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
+public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationJson> {
 
     private final Gson gson;
     private final ObjectMapper objectMapper;
@@ -467,8 +469,18 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+                    applicationJson, baseArtifactId, branchName, RefType.branch);
         });
+    }
+
+    @Override
+    public Mono<? extends ArtifactExchangeJson> performJsonMigration(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String refName = jsonTransformationDTO.getRefName();
+        RefType refType = jsonTransformationDTO.getRefType();
+        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                artifactExchangeJson, baseArtifactId, refName, refType);
     }
 
     protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {

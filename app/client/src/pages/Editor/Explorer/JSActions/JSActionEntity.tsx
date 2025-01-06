@@ -7,7 +7,6 @@ import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
-import type { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
@@ -26,7 +25,6 @@ interface ExplorerJSCollectionEntityProps {
   searchKeyword?: string;
   baseCollectionId: string;
   isActive: boolean;
-  type: PluginType;
   parentEntityId: string;
   parentEntityType: ActionParentEntityTypeInterface;
 }

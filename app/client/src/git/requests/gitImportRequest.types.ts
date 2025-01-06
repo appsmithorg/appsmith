@@ -1,4 +1,6 @@
 import type { ApiResponse } from "api/types";
+import type { ApplicationResponsePayload } from "ee/api/ApplicationApi";
+import type { Datasource } from "entities/Datasource";
 
 export interface GitImportRequestParams {
   remoteUrl: string;
@@ -10,19 +12,9 @@ export interface GitImportRequestParams {
 }
 
 export interface GitImportResponseData {
-  id: string;
-  baseId: string;
-  gitApplicationMetadata: {
-    branchName: string;
-    browserSupportedRemoteUrl: string;
-    defaultApplicationId: string;
-    defaultArtifactId: string;
-    defaultBranchName: string;
-    isRepoPrivate: boolean;
-    lastCommitedAt: string;
-    remoteUrl: string;
-    repoName: string;
-  };
+  application: ApplicationResponsePayload;
+  isPartialImport: boolean;
+  unconfiguredDatasourceList?: Datasource[];
 }
 
 export type GitImportResponse = ApiResponse<GitImportResponseData>;

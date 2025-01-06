@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -41,22 +42,23 @@ public class JsonSchemaMigration {
      * @param artifactExchangeJson The artifact to be imported.
      * @param baseArtifactId       The base application ID to which it's being imported,
      *                             if it's a Git-connected artifact; otherwise, null.
-     * @param branchName           The branch name of the artifact being imported,
+     * @param refName              The ref name of the artifact being imported,
      *                             if it's a Git-connected application; otherwise, null.
+     * @param refType              Type of the reference i.e. branch, tag.
      */
     public Mono<? extends ArtifactExchangeJson> migrateArtifactExchangeJsonToLatestSchema(
-            ArtifactExchangeJson artifactExchangeJson, String baseArtifactId, String branchName) {
+            ArtifactExchangeJson artifactExchangeJson, String baseArtifactId, String refName, RefType refType) {
 
         if (ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
             return migrateApplicationJsonToLatestSchema(
-                    (ApplicationJson) artifactExchangeJson, baseArtifactId, branchName);
+                    (ApplicationJson) artifactExchangeJson, baseArtifactId, refName, refType);
         }
 
         return Mono.fromCallable(() -> artifactExchangeJson);
     }
 
     public Mono<ApplicationJson> migrateApplicationJsonToLatestSchema(
-            ApplicationJson applicationJson, String baseApplicationId, String branchName) {
+            ApplicationJson applicationJson, String baseApplicationId, String refName, RefType refType) {
         return Mono.fromCallable(() -> {
                     setSchemaVersions(applicationJson);
                     return applicationJson;
@@ -66,7 +68,7 @@ public class JsonSchemaMigration {
                         return Mono.empty();
                     }
 
-                    return migrateServerSchema(applicationJson, baseApplicationId, branchName);
+                    return migrateServerSchema(applicationJson, baseApplicationId, refName);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
     }

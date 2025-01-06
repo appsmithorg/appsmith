@@ -8,8 +8,8 @@ import ImportModal from "pages/common/ImportModal";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { useGitConnected } from "pages/Editor/gitSync/hooks/modHooks";
 
 const SettingWrapper = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ const SettingWrapper = styled.div`
 export function ImportAppSettings() {
   const appId = useSelector(getCurrentApplicationId);
   const workspace = useSelector(getCurrentAppWorkspace);
-  const isGitConnected = useSelector(getIsGitConnected);
+  const isGitConnected = useGitConnected();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   function handleClose() {
