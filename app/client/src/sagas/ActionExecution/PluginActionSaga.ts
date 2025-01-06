@@ -5,7 +5,6 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
@@ -19,10 +18,7 @@ import {
   updateAction,
   updateActionData,
 } from "actions/pluginActionActions";
-import {
-  handleExecuteJSFunctionSaga,
-  makeUpdateJSCollection,
-} from "sagas/JSPaneSagas";
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
 import type { ApplicationPayload } from "entities/Application";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
@@ -1671,6 +1667,5 @@ export function* watchPluginActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

@@ -72,7 +72,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
         exportingMetaDTO.setArtifactType(FieldName.APPLICATION);
         exportingMetaDTO.setArtifactId(branchedApplicationId);
-        exportingMetaDTO.setBranchName(null);
+        exportingMetaDTO.setRefName(null);
         exportingMetaDTO.setIsGitSync(false);
         exportingMetaDTO.setExportWithConfiguration(false);
 

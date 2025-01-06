@@ -1,8 +1,10 @@
 {{- $nameSpace := include "appsmith.namespace" . -}}
-{{- $name := include "appsmith.fullname" . -}}
 {{- $mongoUser := .Values.mongodb.auth.rootUser -}}
 {{- $mongoPassword := .Values.mongodb.auth.rootPassword -}}
 {{- $mongoServicename := .Values.mongodb.service.nameOverride -}}
+{{- $postgresqlUser := .Values.postgresql.auth.username -}}
+{{- $postgresqlPassword := .Values.postgresql.auth.password -}}
+{{- $postgresqlDatabase := .Values.postgresql.auth.database -}}
 {{- $releaseName := .Release.Name -}}
 apiVersion: v1
 kind: ConfigMap
@@ -18,11 +20,28 @@ data:
   {{- end }}
 
   {{- range $key, $value := .Values.applicationConfig }}
+  {{- if and (eq "APPSMITH_KEYCLOAK_DB_DRIVER" $key) ( not $value) }}
+  {{ $key }}: {{ $.Values.postgresql.enabled | ternary "postgresql" "h2" | quote }}
+  {{- end }}
+
+  {{- if and (eq "APPSMITH_KEYCLOAK_DB_URL" $key) ( not $value) }}
+  {{ $key }}: {{ $.Values.postgresql.enabled | ternary (printf "%s-postgresql.%s.svc.cluster.local:5432/%s" $releaseName $nameSpace $postgresqlDatabase) "${jboss.server.data.dir}" | quote }}
+  {{- end }}
+
+  {{- if and (eq "APPSMITH_KEYCLOAK_DB_USERNAME" $key) ( not $value) }}
+  {{ $key }}: {{ $.Values.postgresql.enabled | ternary $postgresqlUser "sa" | quote }}
+  {{- end }}
+
+  {{- if and (eq "APPSMITH_KEYCLOAK_DB_PASSWORD" $key) ( not $value) }}
+  {{ $key }}: {{ $.Values.postgresql.enabled | ternary $postgresqlPassword "sa" | quote }}
+  {{- end }}
+
   {{- if and (eq "APPSMITH_REDIS_URL" $key) ( not $value) }}
   {{- if $.Values.redis.enabled }}
   {{ $key }}: redis://{{ $releaseName }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
   {{- end }}
   {{- end }}
+
   {{- if $value }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}

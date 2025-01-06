@@ -1,7 +1,17 @@
-import { getScriptType } from "workers/Evaluation/evaluate";
+import {
+  EvaluationScriptType,
+  getScriptType,
+} from "workers/Evaluation/evaluate";
 import { CustomLintErrorCode, LINTER_TYPE } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 import { Severity } from "entities/AppsmithConsole";
+
+// Define all the custom eslint rules you want to test here
+jest.mock("ee/utils/lintRulesHelpers", () => ({
+  getLintRulesBasedOnContext: jest.fn(() => ({
+    "customRules/no-floating-promises": "error",
+  })),
+}));
 
 const webworkerTelemetry = {};
 
@@ -598,3 +608,72 @@ describe.each(linterTypes)(
     });
   },
 );
+
+describe("Custom lint checks", () => {
+  // This is done since all custom lint rules need eslint as linter type
+  const getLinterTypeFn = () => LINTER_TYPE.ESLINT;
+
+  // Test for 'no floating promises lint rule'
+  it("1. should show error for unhandled promises", () => {
+    const data = {
+      ARGUMENTS: undefined,
+      Query1: {
+        actionId: "671b2fcc-e574",
+        isLoading: false,
+        responseMeta: {
+          isExecutionSuccess: false,
+        },
+        config: {
+          timeoutInMillisecond: 10000,
+          paginationType: "NONE",
+          encodeParamsToggle: true,
+          body: "SELECT * FROM <<your_table_name>> LIMIT 10;\n\n-- Please enter a valid table name and hit RUN\n",
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+        },
+        ENTITY_TYPE: "ACTION",
+        datasourceUrl: "",
+        name: "Query1",
+        run: async function () {},
+        clear: async function () {},
+      },
+      JSObject1: {
+        body: "export default {\n\tasync handledAsync() {\n\t\tawait Query1.run(); \n\t},\n\tasync unhandledAsync() {\n\t\tQuery1.run();\n\t}\n}",
+        ENTITY_TYPE: "JSACTION",
+        actionId: "d24fc04a-910b",
+        handledAsync: "async function () {\n  await Query1.run();\n}",
+        "handledAsync.data": {},
+        unhandledAsync: "async function () {\n  Query1.run();\n}",
+        "unhandledAsync.data": {},
+      },
+      THIS_CONTEXT: {},
+    };
+
+    const originalBinding = "async unhandledAsync() {\n\t\tQuery1.run();\n\t}";
+    const script =
+      "\n  function $$closedFn () {\n    const $$result = {async unhandledAsync() {\n\t\tQuery1.run();\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n  ";
+    const options = { isJsObject: true };
+
+    const lintErrors = getLintingErrors({
+      getLinterTypeFn,
+      data,
+      originalBinding,
+      script,
+      scriptType: EvaluationScriptType.EXPRESSION,
+      options,
+      webworkerTelemetry,
+    });
+
+    expect(Array.isArray(lintErrors)).toBe(true);
+    expect(lintErrors.length).toEqual(1);
+    //expect(lintErrors[0].code).toEqual(
+    //  CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+    //);
+    expect(lintErrors[0].errorMessage.message).toContain(
+      "Unhandled Promise detected.",
+    );
+  });
+});

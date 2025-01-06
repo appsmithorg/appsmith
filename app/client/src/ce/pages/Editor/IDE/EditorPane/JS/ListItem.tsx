@@ -24,7 +24,6 @@ export const JSListItem = (props: JSListItemProps) => {
         parentEntityType={parentEntityType}
         searchKeyword={""}
         step={1}
-        type={item.type}
       />
     </Flex>
   );

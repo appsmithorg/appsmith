@@ -23,7 +23,10 @@ import {
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  MAIN_CONTAINER_WIDGET_NAME,
+} from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
@@ -59,10 +62,15 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
+import {
+  EditorEntityTab,
+  type EntityItem,
+  type GenericEntityItem,
+} from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
   JsFileIconV2,
+  WidgetIconByType,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
@@ -979,6 +987,18 @@ export const getAllPageWidgets = createSelector(
     }, []);
   },
 );
+
+export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
+  const items: GenericEntityItem[] = Object.values(widgets)
+    .filter((widget) => widget.widgetName !== MAIN_CONTAINER_WIDGET_NAME)
+    .map((widget) => ({
+      icon: WidgetIconByType(widget.type),
+      title: widget.widgetName,
+      key: widget.widgetId,
+    }));
+
+  return items;
+});
 
 export const getPageList = createSelector(
   (state: AppState) => state.entities.pageList.pages,

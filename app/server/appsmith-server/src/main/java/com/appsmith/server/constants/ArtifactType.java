@@ -7,5 +7,9 @@ package com.appsmith.server.constants;
 public enum ArtifactType {
     APPLICATION,
     PACKAGE,
-    WORKFLOW
+    WORKFLOW;
+
+    public String lowerCaseName() {
+        return this.name().toLowerCase();
+    }
 }

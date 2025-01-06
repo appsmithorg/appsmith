@@ -1,0 +1,28 @@
+{{- if .Values.keda.enabled -}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "appsmith.fullname" . }}
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "appsmith.fullname" . }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
+  {{- with .Values.keda.fallback }}
+  fallback:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  triggers:
+  {{- range $v := .Values.keda.triggers }}
+  - type: {{ $v.type }}
+    metadata:
+      {{- toYaml $v.metadata | nindent 6 }}
+  {{- end }}
+{{- end -}}
