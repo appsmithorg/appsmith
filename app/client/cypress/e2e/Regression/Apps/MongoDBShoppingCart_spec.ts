@@ -1,4 +1,5 @@
 const appPage = require("../../../locators/PgAdminlocators.json");
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   assertHelper,
@@ -13,7 +14,7 @@ import {
 describe(
   "Shopping cart App",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl", "@tag.GitTest"],
   },
   function () {
     let datasourceName: string, repoName: any;
@@ -199,6 +200,7 @@ describe(
 
     it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
       deployMode.NavigateBacktoEditor();
+      featureFlagIntercept({ release_git_modularisation_enabled: true });
       gitSync.CreateNConnectToGit(repoName);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
