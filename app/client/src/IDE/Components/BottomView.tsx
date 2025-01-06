@@ -28,6 +28,7 @@ const Container = styled.div<{ displayMode: ViewDisplayMode }>`
 
 const ViewWrapper = styled.div`
   height: 100%;
+
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 var(--ads-v2-spaces-8);
@@ -39,6 +40,7 @@ const ViewWrapper = styled.div`
     .ads-v2-tabs__list {
       padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
       padding-left: var(--ads-v2-spaces-3);
+      user-select: none;
     }
   }
 

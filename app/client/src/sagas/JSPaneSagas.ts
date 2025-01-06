@@ -928,5 +928,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
       handleCreateNewJSFromActionCreator,
     ),
+    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

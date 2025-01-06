@@ -5,6 +5,7 @@ import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -34,4 +35,7 @@ public interface ArtifactGitFileUtilsCE<T extends ArtifactExchangeJson> {
     Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName, @NonNull String... args);
 
     void setArtifactDependentPropertiesInJson(GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<? extends ArtifactExchangeJson> performJsonMigration(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 }

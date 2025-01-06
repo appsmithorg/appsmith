@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.helpers.ArtifactGitFileUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -158,16 +159,19 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Path> saveArtifactToLocalRepoNew(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
+            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         // this should come from the specific files
         GitResourceMap gitResourceMap = createGitResourceMap(artifactExchangeJson);
 
         // Save application to git repo
-        return fileUtils
-                .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
-                .subscribeOn(Schedulers.boundedElastic());
+        try {
+            return fileUtils
+                    .saveArtifactToGitRepo(baseRepoSuffix, gitResourceMap, branchName)
+                    .subscribeOn(Schedulers.boundedElastic());
+        } catch (IOException | GitAPIException exception) {
+            return Mono.error(exception);
+        }
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
@@ -550,6 +554,96 @@ public class CommonGitFileUtilsCE {
         });
 
         artifactGitReference.setDatasources(resourceMap);
+    }
+
+    public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+            ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        if (!isJsonTransformationDTOValid(jsonTransformationDTO)) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION, "ArtifactJSONTransformationDTO is invalid"));
+        }
+
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+
+        ArtifactGitFileUtils<?> artifactGitFileUtils =
+                getArtifactBasedFileHelper(jsonTransformationDTO.getArtifactType());
+        Map<String, String> constantsMap = artifactGitFileUtils.getConstantsMap();
+
+        return Mono.zip(
+                        constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO),
+                        sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    final Map<String, Object> data = Map.of(
+                            constantsMap.get(FieldName.ID),
+                            baseArtifactId,
+                            FieldName.WORKSPACE_ID,
+                            workspaceId,
+                            FieldName.FLOW_NAME,
+                            AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
+                                    tuple.getT2().getUsername(),
+                                    data)
+                            .thenReturn(tuple.getT1());
+                });
+    }
+
+    /**
+     * Method to reconstruct the application from the local git repo
+     * @param jsonTransformationDTO : DTO which carries the parameter for transformation
+     * @return an instance of an object which extends artifact exchange json.
+     * i.e. Application Json, Package Json
+     */
+    public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
+
+        // Type is not required as checkout happens in similar fashion
+        String refName = jsonTransformationDTO.getRefName();
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        Path repoSuffixPath = artifactGitFileUtils.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        Mono<GitResourceMap> gitResourceMapMono = fileUtils.constructGitResourceMapFromGitRepo(repoSuffixPath, refName);
+
+        return gitResourceMapMono.flatMap(gitResourceMap -> {
+            ArtifactExchangeJson artifactExchangeJson = createArtifactExchangeJson(gitResourceMap, artifactType);
+            copyMetadataToArtifactExchangeJson(gitResourceMap, artifactExchangeJson);
+            return artifactGitFileUtils.performJsonMigration(jsonTransformationDTO, artifactExchangeJson);
+        });
+    }
+
+    /**
+     * This method copies the metadata from git resource map to artifactExchangeJson
+     * @param gitResourceMap : git resource map generated from file system
+     * @param artifactExchangeJson : artifact json constructed from git resource map
+     */
+    protected void copyMetadataToArtifactExchangeJson(
+            GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson) {
+        GitResourceIdentity metadataIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, METADATA + JSON_EXTENSION, "");
+        Object metadata = gitResourceMap.getGitResourceMap().get(metadataIdentity);
+
+        Gson gson = new Gson();
+        JsonObject metadataJsonObject = gson.toJsonTree(metadata, Object.class).getAsJsonObject();
+
+        Integer serverSchemaVersion = getServerSchemaVersion(metadataJsonObject);
+        Integer clientSchemaVersion = getClientSchemaVersion(metadataJsonObject);
+
+        artifactExchangeJson.setServerSchemaVersion(serverSchemaVersion);
+        artifactExchangeJson.setClientSchemaVersion(clientSchemaVersion);
+    }
+
+    public boolean isJsonTransformationDTOValid(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        return jsonTransformationDTO.getArtifactType() != null
+                && hasText(jsonTransformationDTO.getWorkspaceId())
+                && hasText(jsonTransformationDTO.getBaseArtifactId())
+                && hasText(jsonTransformationDTO.getRefName());
     }
 
     /**
