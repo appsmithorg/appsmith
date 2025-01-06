@@ -428,7 +428,9 @@ export class GitSync {
   public ClearBranchProtection() {
     this.OpenSettingsModal("BRANCH");
     this.agHelper.GetNClick(this.locators.branchProtectionSelect);
-    const selectedOptionsEl = this.agHelper.GetElement(this.commonLocators._dropdownActiveOption);
+    const selectedOptionsEl = this.agHelper.GetElement(
+      this.commonLocators._dropdownActiveOption,
+    );
     selectedOptionsEl.each((el) => {
       el.trigger("click");
     });
