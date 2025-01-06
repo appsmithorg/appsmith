@@ -6,7 +6,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { JSUpdate } from "utils/JSPaneUtils";
 import type {
   Action,
   ActionViewMode,
@@ -343,13 +342,6 @@ export const executePageLoadActions = (
   };
 };
 
-export const executeJSUpdates = (
-  payload: Record<string, JSUpdate>,
-): ReduxAction<unknown> => ({
-  type: ReduxActionTypes.EXECUTE_JS_UPDATES,
-  payload,
-});
-
 export const setActionsToExecuteOnPageLoad = (
   actions: Array<{
     executeOnLoad: boolean;
@@ -399,6 +391,7 @@ export interface updateActionDataPayloadType {
   actionDataPayload: actionDataPayload;
   parentSpan?: Span;
 }
+
 export const updateActionData = (
   payload: actionDataPayload,
   parentSpan?: Span,

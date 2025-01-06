@@ -25,9 +25,9 @@ public interface CentralGitServiceCE {
 
     Mono<? extends Artifact> connectArtifactToGit(
             String baseArtifactId,
+            ArtifactType artifactType,
             GitConnectDTO gitConnectDTO,
             String originHeader,
-            ArtifactType artifactType,
             GitType gitType);
 
     Mono<String> commitArtifact(
@@ -36,44 +36,44 @@ public interface CentralGitServiceCE {
     Mono<? extends Artifact> detachRemote(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 
     Mono<List<GitBranchDTO>> listBranchForArtifact(
-            String branchedArtifactId, Boolean pruneBranches, ArtifactType artifactType, GitType gitType);
+            String branchedArtifactId, ArtifactType artifactType, Boolean pruneBranches, GitType gitType);
 
     Mono<String> fetchRemoteChanges(
             String referenceArtifactId,
-            boolean isFileLock,
             ArtifactType artifactType,
+            boolean isFileLock,
             GitType gitType,
             RefType refType);
 
     Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 
     Mono<GitStatusDTO> getStatus(
-            String branchedArtifactId, boolean compareRemote, ArtifactType artifactType, GitType gitType);
+            String branchedArtifactId, ArtifactType artifactType, boolean compareRemote, GitType gitType);
 
     Mono<GitPullDTO> pullArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 
     Mono<? extends Artifact> checkoutReference(
             String referenceArtifactId,
+            ArtifactType artifactType,
             GitRefDTO gitRefDTO,
             boolean addFileLock,
-            ArtifactType artifactType,
             GitType gitType);
 
     Mono<? extends Artifact> createReference(
-            String referencedArtifactId, GitRefDTO refDTO, ArtifactType artifactType, GitType gitType);
+            String referencedArtifactId, ArtifactType artifactType, GitRefDTO refDTO, GitType gitType);
 
     Mono<? extends Artifact> deleteGitReference(
-            String baseArtifactId, GitRefDTO gitRefDTO, ArtifactType artifactType, GitType gitType);
+            String baseArtifactId, ArtifactType artifactType, GitRefDTO gitRefDTO, GitType gitType);
 
     Mono<List<String>> updateProtectedBranches(
-            String baseArtifactId, List<String> branchNames, ArtifactType artifactType);
+            String baseArtifactId, ArtifactType artifactType, List<String> branchNames);
 
     Mono<List<String>> getProtectedBranches(String baseArtifactId, ArtifactType artifactType);
 
     Mono<Boolean> toggleAutoCommitEnabled(String baseArtifactId, ArtifactType artifactType);
 
     Mono<AutoCommitResponseDTO> getAutoCommitProgress(
-            String baseArtifactId, String branchName, ArtifactType artifactType);
+            String baseArtifactId, ArtifactType artifactType, String branchName);
 
     Mono<GitAuth> generateSSHKey(String keyType);
 
