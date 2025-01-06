@@ -10,19 +10,21 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* fetchProtectedBranchesSaga(
   action: GitArtifactPayloadAction,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: FetchProtectedBranchesResponse | undefined;
 
   try {
-    response = yield call(fetchProtectedBranchesRequest, baseArtifactId);
+    response = yield call(
+      fetchProtectedBranchesRequest,
+      artifactDef.baseArtifactId,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchProtectedBranchesSuccess({
-          ...basePayload,
+          artifactDef,
           responseData: response.data,
         }),
       );
@@ -33,7 +35,7 @@ export default function* fetchProtectedBranchesSaga(
 
       yield put(
         gitArtifactActions.fetchProtectedBranchesError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

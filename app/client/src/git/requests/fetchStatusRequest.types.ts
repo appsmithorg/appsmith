@@ -24,6 +24,7 @@ export interface FetchStatusResponseData {
   modifiedDatasources: number;
   modifiedJSLibs: number;
   modifiedJSObjects: number;
+  modifiedPackages: number;
   modifiedModuleInstances: number;
   modifiedModules: number;
   modifiedPages: number;

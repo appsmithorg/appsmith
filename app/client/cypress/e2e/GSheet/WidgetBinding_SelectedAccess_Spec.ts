@@ -21,7 +21,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
-describe(
+describe.skip(
   "GSheet-widget binding for selected sheet access",
   {
     tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],

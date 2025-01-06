@@ -52,6 +52,7 @@ import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
+import gitSagas from "git/sagas";
 
 export const sagas = [
   initSagas,
@@ -106,4 +107,5 @@ export const sagas = [
   ternSagas,
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
+  gitSagas,
 ];

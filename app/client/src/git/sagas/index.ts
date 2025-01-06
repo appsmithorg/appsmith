@@ -8,7 +8,6 @@ import {
 import type { TakeableChannel } from "redux-saga";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { objectKeys } from "@appsmith/utils";
-import { gitConfigActions } from "../store/gitConfigSlice";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import connectSaga from "./connectSaga";
 import commitSaga from "./commitSaga";
@@ -37,6 +36,9 @@ import {
   blockingActionSagas as blockingActionSagasExtended,
   nonBlockingActionSagas as nonBlockingActionSagasExtended,
 } from "git/ee/sagas";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { fetchGlobalSSHKeySaga } from "./fetchGlobalSSHKeySaga";
+import gitImportSaga from "./gitImportSaga";
 
 const blockingActionSagas: Record<
   string,
@@ -49,6 +51,9 @@ const blockingActionSagas: Record<
   // connect
   [gitArtifactActions.connectInit.type]: connectSaga,
   [gitArtifactActions.disconnectInit.type]: disconnectSaga,
+
+  // import
+  [gitGlobalActions.gitImportInit.type]: gitImportSaga,
 
   // ops
   [gitArtifactActions.commitInit.type]: commitSaga,
@@ -65,8 +70,8 @@ const blockingActionSagas: Record<
   // user profiles
   [gitArtifactActions.fetchLocalProfileInit.type]: fetchLocalProfileSaga,
   [gitArtifactActions.updateLocalProfileInit.type]: updateLocalProfileSaga,
-  [gitConfigActions.fetchGlobalProfileInit.type]: fetchGlobalProfileSaga,
-  [gitConfigActions.updateGlobalProfileInit.type]: updateGlobalProfileSaga,
+  [gitGlobalActions.fetchGlobalProfileInit.type]: fetchGlobalProfileSaga,
+  [gitGlobalActions.updateGlobalProfileInit.type]: updateGlobalProfileSaga,
 
   // protected branches
   [gitArtifactActions.fetchProtectedBranchesInit.type]:
@@ -93,6 +98,7 @@ const nonBlockingActionSagas: Record<
   // ssh key
   [gitArtifactActions.fetchSSHKeyInit.type]: fetchSSHKeySaga,
   [gitArtifactActions.generateSSHKeyInit.type]: generateSSHKeySaga,
+  [gitGlobalActions.fetchGlobalSSHKeyInit.type]: fetchGlobalSSHKeySaga,
 
   // EE
   ...nonBlockingActionSagasExtended,
