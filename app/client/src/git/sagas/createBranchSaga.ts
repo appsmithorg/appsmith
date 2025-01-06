@@ -16,8 +16,8 @@ import log from "loglevel";
 export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
+  const basePayload = { artifactDef };
   let response: CreateBranchResponse | undefined;
 
   try {
@@ -25,27 +25,29 @@ export default function* createBranchSaga(
       branchName: action.payload.branchName,
     };
 
-    response = yield call(createBranchRequest, baseArtifactId, params);
+    response = yield call(createBranchRequest, artifactId, params);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(gitArtifactActions.createBranchSuccess(basePayload));
       yield put(
         gitArtifactActions.toggleBranchPopup({
-          ...basePayload,
+          artifactDef,
           open: false,
         }),
       );
       yield put(
         gitArtifactActions.fetchBranchesInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           pruneBranches: true,
         }),
       );
 
       yield put(
         gitArtifactActions.checkoutBranchInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           branchName: action.payload.branchName,
         }),
       );
@@ -56,7 +58,7 @@ export default function* createBranchSaga(
 
       yield put(
         gitArtifactActions.createBranchError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

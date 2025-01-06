@@ -1,20 +1,20 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitArtifactErrorPayloadAction } from "../types";
 
-export const mergeInitAction = createSingleArtifactAction((state) => {
+export const mergeInitAction = createArtifactAction((state) => {
   state.apiResponses.merge.loading = true;
   state.apiResponses.merge.error = null;
 
   return state;
 });
 
-export const mergeSuccessAction = createSingleArtifactAction((state) => {
+export const mergeSuccessAction = createArtifactAction((state) => {
   state.apiResponses.merge.loading = false;
 
   return state;
 });
 
-export const mergeErrorAction = createSingleArtifactAction(
+export const mergeErrorAction = createArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 

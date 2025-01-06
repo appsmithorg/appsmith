@@ -75,7 +75,6 @@ import {
 import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
-  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
@@ -128,7 +127,6 @@ import { getPageList } from "ee/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
@@ -150,6 +148,10 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
 import { ConsolidatedPageLoadApi } from "api";
+import {
+  selectCombinedPreviewMode,
+  selectGitApplicationCurrentBranch,
+} from "selectors/gitModSelectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -172,7 +174,9 @@ export function* refreshTheApp() {
     const currentPageId: string = yield select(getCurrentPageId);
     const defaultBasePageId: string = yield select(getDefaultBasePageId);
     const pagesList: Page[] = yield select(getPageList);
-    const gitBranch: string = yield select(getCurrentGitBranch);
+    const gitBranch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
 
     const isCurrentPageIdInList =
       pagesList.filter((page) => page.pageId === currentPageId).length > 0;
@@ -637,7 +641,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
-    const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+    const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
@@ -1401,7 +1405,7 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+  const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
 
   if (action.payload) {
     // we animate out elements and then move to the canvas

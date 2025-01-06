@@ -114,3 +114,14 @@ DisabledState.args = {
     validateName: () => null,
   },
 };
+
+export const LoadingState = Template.bind({}) as StoryObj;
+
+LoadingState.args = {
+  title: "EntityName",
+  nameEditorConfig: {
+    isLoading: true,
+    canEdit: true,
+    validateName: () => null,
+  },
+};

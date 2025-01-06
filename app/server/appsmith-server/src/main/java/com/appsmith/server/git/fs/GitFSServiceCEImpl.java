@@ -209,12 +209,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> reconstructArtifactJsonFromGitRepository(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
-        return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-                artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getBaseArtifactId(),
-                artifactJsonTransformationDTO.getRepoName(),
-                artifactJsonTransformationDTO.getRefName(),
-                artifactJsonTransformationDTO.getArtifactType());
+        return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
+                artifactJsonTransformationDTO);
     }
 
     @Override
@@ -271,6 +267,27 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         // TODO: Add logic for other reference types (e.g., tags)
         return Mono.just(List.of());
+    }
+
+    @Override
+    public Mono<String> getDefaultBranchFromRepository(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseGitData) {
+        if (isGitAuthInvalid(baseGitData.getGitAuth())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        String publicKey = baseGitData.getGitAuth().getPublicKey();
+        String privateKey = baseGitData.getGitAuth().getPrivateKey();
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffixPath = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.getRemoteDefaultBranch(repoSuffixPath, baseGitData.getRemoteUrl(), privateKey, publicKey);
     }
 
     @Override
@@ -346,7 +363,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         return commonGitFileUtils
-                .saveArtifactToLocalRepoWithAnalytics(repoSuffix, artifactExchangeJson, branchName)
+                .saveArtifactToLocalRepoNew(repoSuffix, artifactExchangeJson, branchName)
                 .map(ignore -> Boolean.TRUE)
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
@@ -355,6 +372,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     } else if (e instanceof AppsmithException) {
                         return Mono.error(e);
                     }
+
                     return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 });
     }
@@ -596,8 +614,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         return fsGitHandler.rebaseBranch(repoSuffix, refName).flatMap(rebaseStatus -> {
-            return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-                    workspaceId, baseArtifactId, repoName, refName, artifactType);
+            return commonGitFileUtils.constructArtifactExchangeJsonFromGitRepository(jsonTransformationDTO);
         });
     }
 
@@ -627,6 +644,19 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 jsonTransformationDTO.getRepoName());
 
         return fsGitHandler.createAndCheckoutReference(repoSuffix, gitRefDTO);
+    }
+
+    @Override
+    public Mono<String> checkoutRemoteReference(ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                jsonTransformationDTO.getWorkspaceId(),
+                jsonTransformationDTO.getBaseArtifactId(),
+                jsonTransformationDTO.getRepoName());
+
+        return fsGitHandler.checkoutRemoteBranch(repoSuffix, jsonTransformationDTO.getRefName());
     }
 
     @Override
@@ -661,7 +691,6 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<Boolean> checkoutArtifact(ArtifactJsonTransformationDTO jsonTransformationDTO) {
-
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 

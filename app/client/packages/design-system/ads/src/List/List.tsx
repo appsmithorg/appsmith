@@ -116,8 +116,8 @@ function ListItem(props: ListItemProps) {
       data-selected={props.isSelected}
       onClick={handleOnClick}
       onDoubleClick={handleDoubleClick}
+      role="listitem"
       size={size}
-      // tabIndex={props.isDisabled ? -1 : 0}
     >
       <TopContentWrapper>
         {startIcon}
