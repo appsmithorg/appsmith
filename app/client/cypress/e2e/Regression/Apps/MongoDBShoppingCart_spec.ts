@@ -14,7 +14,7 @@ import {
 describe(
   "Shopping cart App",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl", "@tag.GitTest"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
   },
   function () {
     let datasourceName: string, repoName: any;
