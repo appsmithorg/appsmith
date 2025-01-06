@@ -117,7 +117,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",
-      parsedText: "",
+      text: "",
       dialCode: undefined,
     });
   }
@@ -126,7 +126,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     return merge(super.getDefaultPropertiesMap(), {
       dialCode: "defaultDialCode",
       rawText: "defaultText",
-      parsedText: "defaultText",
+      text: "defaultText",
     });
   }
 
@@ -160,7 +160,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
         this.props.updateWidgetMetaProperty("rawText", this.props.rawText);
-        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+        this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);
@@ -176,24 +176,22 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     if (prevProps.allowFormatting !== this.props.allowFormatting) {
       const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
-      this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+      this.props.updateWidgetMetaProperty("text", formattedValue);
     }
 
     // When the default text changes
     if (
-      prevProps.parsedText !== this.props.parsedText &&
-      this.props.parsedText === this.props.defaultText
+      prevProps.text !== this.props.text &&
+      this.props.text === this.props.defaultText
     ) {
-      const formattedValue = this.getFormattedPhoneNumber(
-        this.props.parsedText,
-      );
+      const formattedValue = this.getFormattedPhoneNumber(this.props.text);
 
       if (formattedValue) {
         this.props.updateWidgetMetaProperty(
           "rawText",
           parseIncompletePhoneNumber(formattedValue),
         );
-        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+        this.props.updateWidgetMetaProperty("text", formattedValue);
       }
     }
 
@@ -214,7 +212,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     if (this.props.rawText && this.props.allowFormatting) {
       const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
-      this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+      this.props.updateWidgetMetaProperty("text", formattedValue);
     }
   };
 
@@ -222,7 +220,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     let formattedValue;
 
     // Don't format, as value is typed, when user is deleting
-    if (value && value.length > this.props.parsedText?.length) {
+    if (value && value.length > this.props.text?.length) {
       formattedValue = this.getFormattedPhoneNumber(value);
     } else {
       formattedValue = value;
@@ -232,7 +230,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
       "rawText",
       parseIncompletePhoneNumber(formattedValue),
     );
-    this.props.updateWidgetMetaProperty("parsedText", formattedValue, {
+    this.props.updateWidgetMetaProperty("text", formattedValue, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -300,7 +298,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   };
 
   getWidgetView() {
-    const rawText = this.props.parsedText ?? "";
+    const rawText = this.props.text ?? "";
 
     const validation = validateInput(this.props);
 

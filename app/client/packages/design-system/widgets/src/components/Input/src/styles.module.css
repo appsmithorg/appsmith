@@ -64,8 +64,16 @@
   margin-inline-start: var(--inner-spacing-2);
 }
 
+.inputGroup:has([data-size="small"]) [data-input-prefix] {
+  margin-inline-start: 0;
+}
+
 .inputGroup [data-input-suffix] {
   margin-inline-end: var(--inner-spacing-2);
+}
+
+.inputGroup:has([data-size="small"]) [data-input-suffix] {
+  margin-inline-end: 0;
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) button {
@@ -85,7 +93,7 @@
  * HOVERED
  * ----------------------------------------------------------------------------
  */
-.inputGroup[data-hovered]:has(
+.inputGroup:is([data-hovered], :has([data-hovered])):has(
     > .input:not(
         :is(
             [data-focused],
@@ -112,6 +120,9 @@
 
 .inputGroup input[data-readonly] {
   padding-inline: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
 }
 
 /** Reason for doing this is because for readonly inputs, we want focus state to be wider than the component width */
