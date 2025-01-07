@@ -5,32 +5,15 @@ import { ListBoxItem, Select } from "@appsmith/wds";
 import type { CalendarState } from "@react-stately/calendar";
 
 import styles from "./styles.module.css";
+import { useValidMonths } from "../utils/calendar";
 
 export function CalendarMonthDropdown({ state }: { state: CalendarState }) {
-  const months = [];
   const formatter = useDateFormatter({
     month: "long",
     timeZone: state.timeZone,
   });
 
-  const numMonths = state.focusedDate.calendar.getMonthsInYear(
-    state.focusedDate,
-  );
-
-  for (let i = 1; i <= numMonths; i++) {
-    const date = state.focusedDate.set({ month: i });
-
-    // Skip months outside valid range
-    if (state.minValue && date.compare(state.minValue) < 0) {
-      continue;
-    }
-
-    if (state.maxValue && date.compare(state.maxValue) > 0) {
-      continue;
-    }
-
-    months.push(formatter.format(date.toDate(state.timeZone)));
-  }
+  const months = useValidMonths(state, formatter);
 
   const onChange = (value: Key | null) => {
     const date = state.focusedDate.set({ month: Number(value) });
