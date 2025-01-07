@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.server.git.templates.contexts.AutoCommitExpectations;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
