@@ -64,7 +64,7 @@
   margin-inline-start: var(--inner-spacing-2);
 }
 
-.inputGroup:has([data-size="small"]) [data-input-prefix] {
+.inputGroup:has(.input[data-size="small"]) [data-input-prefix] {
   margin-inline-start: 0;
 }
 
@@ -72,7 +72,7 @@
   margin-inline-end: var(--inner-spacing-2);
 }
 
-.inputGroup:has([data-size="small"]) [data-input-suffix] {
+.inputGroup:has(.input[data-size="small"]) [data-input-suffix] {
   margin-inline-end: 0;
 }
 

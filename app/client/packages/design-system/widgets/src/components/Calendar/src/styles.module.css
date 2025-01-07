@@ -70,7 +70,10 @@
 }
 
 .monthYearDropdown {
-  display: grid;
+  display: flex;
   gap: var(--inner-spacing-1);
-  grid-template-columns: 1fr 1fr;
+}
+
+.monthDropdown button {
+  width: 14ch;
 }
