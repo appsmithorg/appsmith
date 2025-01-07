@@ -164,8 +164,8 @@ function ConnectSuccessModalView({
       onOpenChange={toggleConnectSuccessModal}
       open={isConnectSuccessModalOpen}
     >
-      <StyledModalContent data-testid="t--git-connect-modal">
-        <ModalBody data-testid="t--git-success-modal-body">
+      <StyledModalContent data-testid="t--git-con-success-modal">
+        <ModalBody>
           <ConnectionSuccessTitle />
           <ConnectSuccessContent
             defaultBranch={defaultBranch}
@@ -174,7 +174,7 @@ function ConnectSuccessModalView({
         </ModalBody>
         <ModalFooter>
           <Button
-            data-testid="t--git-success-modal-open-settings-cta"
+            data-testid="t--git-con-success-open-settings"
             kind="secondary"
             onClick={handleOpenSettings}
             size="md"
@@ -182,7 +182,7 @@ function ConnectSuccessModalView({
             {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
           </Button>
           <Button
-            data-testid="t--git-success-modal-start-using-git-cta"
+            data-testid="t--git-con-success-start-using"
             onClick={handleStartGit}
             size="md"
           >
