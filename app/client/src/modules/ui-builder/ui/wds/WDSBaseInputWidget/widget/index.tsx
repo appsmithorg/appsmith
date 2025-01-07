@@ -56,7 +56,7 @@ class WDSBaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       rawText: undefined,
-      parsedText: undefined,
+      text: undefined,
       isFocused: false,
       isDirty: false,
     };
