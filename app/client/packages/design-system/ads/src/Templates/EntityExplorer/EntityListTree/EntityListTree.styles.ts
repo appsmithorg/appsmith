@@ -38,7 +38,13 @@ export const EntityItemWrapper = styled(Flex)<{ "data-depth": number }>`
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
 
-  padding-left: ${(props) => 4 + props["data-depth"] * 10}px;
+  padding-left: ${(props) => {
+    if (props["data-depth"] === 0) {
+      return 0;
+    }
+
+    return 4 + props["data-depth"] * 10;
+  }}px;
 
   &[data-selected="true"] {
     background-color: var(--ads-v2-colors-content-surface-active-bg);
