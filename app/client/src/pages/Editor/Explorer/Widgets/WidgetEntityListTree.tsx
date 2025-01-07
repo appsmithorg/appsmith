@@ -52,7 +52,7 @@ export const WidgetEntityListTree = () => {
   const pageId = useSelector((state) =>
     convertToPageIdSelector(state, basePageId),
   );
-  const [expandedWidgets, setExapndedWidgets] =
+  const [expandedWidgets, setExpandedWidgets] =
     useState<string[]>(widgetsToExpand);
 
   const { navigateToWidget } = useNavigateToWidget();
@@ -151,11 +151,11 @@ export const WidgetEntityListTree = () => {
   const handleWidgetExpand = useCallback(
     (id: string) => {
       if (expandedWidgets.includes(id)) {
-        setExapndedWidgets(
+        setExpandedWidgets(
           [...expandedWidgets].filter((widgetId) => widgetId !== id),
         );
       } else {
-        setExapndedWidgets([...expandedWidgets, id]);
+        setExpandedWidgets([...expandedWidgets, id]);
       }
     },
     [expandedWidgets],
