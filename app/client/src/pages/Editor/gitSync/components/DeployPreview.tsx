@@ -58,7 +58,6 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
     : "";
 
   return lastDeployedAt ? (
-    // ! case: can use flex?
     <Container className="t--git-deploy-preview">
       <div>
         {props.showSuccess ? (

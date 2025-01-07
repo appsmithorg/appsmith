@@ -5,7 +5,7 @@ import { ISDCodeOptions } from "constants/ISDCodes_v2";
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateInput(props: any) {
-  const value = props.parsedText ?? "";
+  const value = props.text ?? "";
   const isInvalid = "isValid" in props && !props.isValid && !!props.isDirty;
 
   // TODO: Fix this the next time the file is edited

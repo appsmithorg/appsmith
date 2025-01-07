@@ -7,6 +7,7 @@ export class CommonLocators {
   _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
+  _link = ".ads-v2-link";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".editor-tab.active > .ads-v2-text";
@@ -350,4 +351,6 @@ export class CommonLocators {
   _entityTestId = (entity: string) =>
     `[data-testid="t--entity-item-${entity}"]`;
   _listItemTitle = ".ads-v2-listitem__title";
+  _dropdownOption = ".rc-select-item-option-content";
+  _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
 }

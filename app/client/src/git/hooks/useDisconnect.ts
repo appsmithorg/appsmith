@@ -1,52 +1,67 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
+  selectDisconnectArtifactDef,
   selectDisconnectArtifactName,
-  selectDisconnectBaseArtifactId,
   selectDisconnectState,
-} from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+} from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
+import type { GitArtifactDef } from "git/store/types";
 
 export default function useDisconnect() {
-  const { artifact, artifactDef } = useGitContext();
-  const artifactName = artifact?.name ?? "";
+  const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
-  const disconnectState = useSelector((state: GitRootState) =>
-    selectDisconnectState(state, artifactDef),
-  );
+  const disconnectState = useArtifactSelector(selectDisconnectState);
 
   const disconnect = useCallback(() => {
-    dispatch(gitArtifactActions.disconnectInit(artifactDef));
+    if (artifactDef) {
+      dispatch(
+        gitArtifactActions.disconnectInit({
+          artifactDef,
+        }),
+      );
+    }
   }, [artifactDef, dispatch]);
 
-  const disconnectBaseArtifactId = useSelector((state: GitRootState) =>
-    selectDisconnectBaseArtifactId(state, artifactDef),
+  const disconnectArtifactDef = useArtifactSelector(
+    selectDisconnectArtifactDef,
   );
 
-  const disconnectArtifactName = useSelector((state: GitRootState) =>
-    selectDisconnectArtifactName(state, artifactDef),
+  const disconnectArtifactName = useArtifactSelector(
+    selectDisconnectArtifactName,
   );
 
-  const openDisconnectModal = useCallback(() => {
-    dispatch(
-      gitArtifactActions.openDisconnectModal({ ...artifactDef, artifactName }),
-    );
-  }, [artifactDef, artifactName, dispatch]);
+  const openDisconnectModal = useCallback(
+    (targetArtifactDef: GitArtifactDef, targetArtifactName: string) => {
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.openDisconnectModal({
+            artifactDef,
+            targetArtifactDef,
+            targetArtifactName,
+          }),
+        );
+      }
+    },
+    [artifactDef, dispatch],
+  );
 
   const closeDisconnectModal = useCallback(() => {
-    dispatch(gitArtifactActions.closeDisconnectModal(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.closeDisconnectModal({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {
     isDisconnectLoading: disconnectState?.loading ?? false,
     disconnectError: disconnectState?.error ?? null,
     disconnect,
-    isDisconnectModalOpen: !!disconnectBaseArtifactId,
-    disconnectBaseArtifactId,
+    isDisconnectModalOpen: !!disconnectArtifactDef,
+    disconnectArtifactDef,
     disconnectArtifactName,
     openDisconnectModal,
     closeDisconnectModal,

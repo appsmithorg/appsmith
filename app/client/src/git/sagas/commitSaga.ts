@@ -1,4 +1,4 @@
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { captureException } from "@sentry/react";
 import log from "loglevel";
 import type { CommitInitPayload } from "../store/actions/commitActions";
@@ -13,12 +13,15 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import type { ApplicationPayload } from "entities/Application";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
 
   let response: CommitResponse | undefined;
 
@@ -28,21 +31,32 @@ export default function* commitSaga(
       doPush: action.payload.doPush,
     };
 
-    response = yield call(commitRequest, baseArtifactId, params);
+    response = yield call(commitRequest, artifactId, params);
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.commitSuccess(basePayload));
+      yield put(gitArtifactActions.commitSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.fetchStatusInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           compareRemote: true,
         }),
       );
 
-      if (artifactType === GitArtifactType.Application) {
-        // ! case for updating lastDeployedAt in application manually?
+      if (artifactDef.artifactType === GitArtifactType.Application) {
+        const currentApplication: ApplicationPayload = yield select(
+          getCurrentApplication,
+        );
+
+        if (currentApplication) {
+          currentApplication.lastDeployedAt = new Date().toISOString();
+          yield put({
+            type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+            payload: currentApplication,
+          });
+        }
       }
     }
   } catch (e) {
@@ -51,14 +65,13 @@ export default function* commitSaga(
 
       if (error.code === GitErrorCodes.REPO_LIMIT_REACHED) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
-            ...basePayload,
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );
       }
 
-      yield put(gitArtifactActions.commitError({ ...basePayload, error }));
+      yield put(gitArtifactActions.commitError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

@@ -5,54 +5,63 @@ import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
 import disconnectRequest from "git/requests/disconnectRequest";
 import type { DisconnectResponse } from "git/requests/disconnectRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "git/store/types";
+import { selectDisconnectArtifactDef } from "git/store/selectors/gitArtifactSelectors";
+import type { GitArtifactDef, GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 
 export default function* disconnectSaga(action: GitArtifactPayloadAction) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const artifactDef = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
+  const disconnectArtifactDef: GitArtifactDef = yield select(
+    selectDisconnectArtifactDef,
+    artifactDef,
+  );
   let response: DisconnectResponse | undefined;
 
   try {
-    response = yield call(disconnectRequest, baseArtifactId);
+    response = yield call(
+      disconnectRequest,
+      disconnectArtifactDef.baseArtifactId,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.disconnectSuccess(artifactDef));
-      const url = new URL(window.location.href);
+      yield put(gitArtifactActions.disconnectSuccess({ artifactDef }));
 
-      url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
-      history.push(url.toString().slice(url.origin.length));
-      yield put(gitArtifactActions.closeDisconnectModal(artifactDef));
-      // !case: why?
-      //   yield put(importAppViaGitStatusReset());
-      yield put(
-        gitArtifactActions.toggleOpsModal({
-          ...artifactDef,
-          open: false,
-          tab: GitOpsTab.Deploy,
-        }),
-      );
-      yield put(fetchAllApplicationsOfWorkspace());
+      if (artifactDef.baseArtifactId === disconnectArtifactDef.baseArtifactId) {
+        const url = new URL(window.location.href);
 
-      // ! case: why?
-      //   if (applicationId !== application?.id) {
-      //     yield put(
-      //       setIsGitSyncModalOpen({
-      //         isOpen: true,
-      //         tab: GitSyncModalTab.GIT_CONNECTION,
-      //       }),
-      //     );
-      //   }
+        url.searchParams.delete(GIT_BRANCH_QUERY_KEY);
+        history.replace(url.toString().slice(url.origin.length));
+        yield put(gitArtifactActions.unmount({ artifactDef }));
+        yield put(
+          gitArtifactActions.initGitForEditor({
+            artifactDef,
+            artifact: response.data,
+          }),
+        );
+        yield put(gitArtifactActions.closeDisconnectModal({ artifactDef }));
+        yield put(
+          gitArtifactActions.toggleOpsModal({
+            artifactDef,
+            open: false,
+            tab: GitOpsTab.Deploy,
+          }),
+        );
+        yield put(fetchAllApplicationsOfWorkspace());
+      } else {
+        yield put(
+          gitArtifactActions.toggleConnectModal({ artifactDef, open: true }),
+        );
+      }
     }
   } catch (e) {
     if (response && response.responseMeta.error) {
       const { error } = response.responseMeta;
 
-      yield put(gitArtifactActions.disconnectError({ ...artifactDef, error }));
+      yield put(gitArtifactActions.disconnectError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

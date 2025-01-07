@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { Icon, Spinner, textInputStyles } from "@appsmith/wds";
 import { getTypographyClassName } from "@appsmith/wds-theming";
-import { Button, Group, SelectValue } from "react-aria-components";
+import { Button, SelectValue } from "react-aria-components";
 
 import styles from "./styles.module.css";
 import type { SelectProps } from "./types";
@@ -19,9 +19,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
   const { isDisabled, isInvalid, isLoading, placeholder, size } = props;
 
   return (
-    <Group
-      className={clsx(textInputStyles.inputGroup, styles.selectInputGroup)}
-    >
+    <div className={clsx(textInputStyles.inputGroup, styles.selectInputGroup)}>
       <Button
         className={clsx(textInputStyles.input, styles.selectTriggerButton)}
         data-invalid={Boolean(isInvalid) ? "" : undefined}
@@ -44,6 +42,6 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
           )}
         </span>
       </Button>
-    </Group>
+    </div>
   );
 };

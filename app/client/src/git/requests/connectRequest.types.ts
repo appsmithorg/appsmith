@@ -1,4 +1,5 @@
 import type { ApiResponse } from "api/types";
+import type { ApplicationPayload } from "entities/Application";
 
 export interface ConnectRequestParams {
   remoteUrl: string;
@@ -9,20 +10,6 @@ export interface ConnectRequestParams {
   };
 }
 
-export interface ConnectResponseData {
-  id: string;
-  baseId: string;
-  gitApplicationMetadata: {
-    branchName: string;
-    browserSupportedRemoteUrl: string;
-    defaultApplicationId: string;
-    defaultArtifactId: string;
-    defaultBranchName: string;
-    isRepoPrivate: boolean;
-    lastCommitedAt: string;
-    remoteUrl: string;
-    repoName: string;
-  };
-}
+export interface ConnectResponseData extends ApplicationPayload {}
 
 export type ConnectResponse = ApiResponse<ConnectResponseData>;

@@ -1,237 +1,138 @@
-/* eslint-disable react-perf/jsx-no-new-object-as-prop */
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { GIT_DEMO_GIF } from "./constants";
+import { BrowserRouter } from "react-router-dom";
+import ChooseGitProvider from "./ChooseGitProvider";
 import "@testing-library/jest-dom";
-import ChooseGitProvider, { type GitProvider } from "./ChooseGitProvider";
-import { BrowserRouter as Router } from "react-router-dom";
 
+// Mock the useDeviceDetect hook
 jest.mock("utils/hooks/useDeviceDetect", () => ({
-  useIsMobileDevice: jest.fn(() => false),
+  useIsMobileDevice: () => false,
 }));
 
-const defaultProps = {
-  artifactId: "123",
-  artifactType: "application",
-  onChange: jest.fn(),
-  onImportFromCalloutLinkClick: jest.fn(),
-  value: {
-    gitProvider: undefined as GitProvider | undefined,
-    gitEmptyRepoExists: "",
-    gitExistingRepoExists: false,
-  },
-  isImport: false,
-  canCreateNewArtifact: true,
-  toggleConnectModal: jest.fn(),
-  isCreateArtifactPermitted: true,
-  setImportWorkspaceId: jest.fn(),
+// Helper function to wrap component with Router
+const renderWithRouter = (component: React.ReactElement) => {
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
-describe("ChooseGitProvider Component", () => {
+describe("ChooseGitProvider", () => {
+  const defaultProps = {
+    artifactType: "application",
+    onChange: jest.fn(),
+    onOpenImport: jest.fn(),
+    value: {},
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders the component and initial fields", () => {
-    render(<ChooseGitProvider {...defaultProps} />);
-    expect(screen.getByText("Choose a Git provider")).toBeInTheDocument();
-    expect(
-      screen.getByText("i. To begin with, choose your Git service provider"),
-    ).toBeInTheDocument();
+  it("renders git provider options", () => {
+    renderWithRouter(<ChooseGitProvider {...defaultProps} />);
 
-    // Provider radios
-    expect(
-      screen.getByTestId("t--git-provider-radio-github"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("t--git-provider-radio-gitlab"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("t--git-provider-radio-bitbucket"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("t--git-provider-radio-others"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Github")).toBeInTheDocument();
+    expect(screen.getByText("Gitlab")).toBeInTheDocument();
+    expect(screen.getByText("Bitbucket")).toBeInTheDocument();
+    expect(screen.getByText("Others")).toBeInTheDocument();
   });
 
-  it("allows selecting a git provider and updates state via onChange", () => {
-    const onChange = jest.fn();
+  it("calls onChange with selected git provider", () => {
+    renderWithRouter(<ChooseGitProvider {...defaultProps} />);
 
-    render(<ChooseGitProvider {...defaultProps} onChange={onChange} />);
-
-    const githubRadio = screen.getByTestId("t--git-provider-radio-github");
+    const githubRadio = screen.getByTestId(
+      "t--git-connect-provider-radio-github",
+    );
 
     fireEvent.click(githubRadio);
-    expect(onChange).toHaveBeenCalledWith({ gitProvider: "github" });
+
+    expect(defaultProps.onChange).toHaveBeenCalledWith({
+      gitProvider: "github",
+    });
   });
 
-  it("disables the second question (empty repo) if no git provider selected", () => {
-    render(<ChooseGitProvider {...defaultProps} />);
-    // The empty repo radios should be disabled initially
-    const yesRadio = screen.getByTestId(
-      "t--existing-empty-repo-yes",
-    ) as HTMLInputElement;
-    const noRadio = screen.getByTestId(
-      "t--existing-empty-repo-no",
-    ) as HTMLInputElement;
+  it("shows empty repo options when not in import mode", () => {
+    renderWithRouter(<ChooseGitProvider {...defaultProps} />);
 
-    expect(yesRadio).toBeDisabled();
-    expect(noRadio).toBeDisabled();
-  });
-
-  it("enables empty repo question after provider is selected", () => {
-    const onChange = jest.fn();
-
-    render(
-      <ChooseGitProvider
-        {...defaultProps}
-        onChange={onChange}
-        value={{ gitProvider: "github" }}
-      />,
-    );
-
-    const yesRadio = screen.getByTestId(
-      "t--existing-empty-repo-yes",
-    ) as HTMLInputElement;
-    const noRadio = screen.getByTestId(
-      "t--existing-empty-repo-no",
-    ) as HTMLInputElement;
-
-    expect(yesRadio).not.toBeDisabled();
-    expect(noRadio).not.toBeDisabled();
-  });
-
-  it("calls onChange when empty repo question changes", () => {
-    const onChange = jest.fn();
-
-    render(
-      <ChooseGitProvider
-        {...defaultProps}
-        onChange={onChange}
-        value={{ gitProvider: "github" }}
-      />,
-    );
-    fireEvent.click(screen.getByTestId("t--existing-empty-repo-no"));
-    expect(onChange).toHaveBeenCalledWith({ gitEmptyRepoExists: "no" });
-  });
-
-  it("displays the collapsible instructions if gitEmptyRepoExists = no and provider != others", () => {
-    render(
-      <Router>
-        <ChooseGitProvider
-          {...defaultProps}
-          value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
-        />
-      </Router>,
-    );
-    expect(
-      screen.getByText("How to create a new repository?"),
-    ).toBeInTheDocument();
-
-    // Check if DemoImage is rendered
-    const img = screen.getByAltText("Create an empty repo in github");
-
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", GIT_DEMO_GIF.create_repo.github);
-  });
-
-  it("displays a warning callout if gitEmptyRepoExists = no and provider = others", () => {
-    render(
-      <Router>
-        <ChooseGitProvider
-          {...defaultProps}
-          value={{ gitProvider: "others", gitEmptyRepoExists: "no" }}
-        />
-      </Router>,
-    );
     expect(
       screen.getByText(
-        "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.",
+        /Do you have an existing empty repository to connect to Git/i,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("t--git-connect-empty-repo-yes"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("t--git-connect-empty-repo-no"),
     ).toBeInTheDocument();
   });
 
-  it("shows the import callout if gitEmptyRepoExists = no and not in import mode", () => {
-    render(
-      <Router>
-        <ChooseGitProvider
-          {...defaultProps}
-          value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
-        />
-      </Router>,
+  it("calls onChange with empty repo selection", () => {
+    renderWithRouter(
+      <ChooseGitProvider {...defaultProps} value={{ gitProvider: "github" }} />,
     );
-    expect(
-      screen.getByText(
-        "If you already have an application connected to Git, you can import it to the workspace.",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Import via git")).toBeInTheDocument();
+
+    const noRadio = screen.getByTestId("t--git-connect-empty-repo-no");
+
+    fireEvent.click(noRadio);
+
+    expect(defaultProps.onChange).toHaveBeenCalledWith({
+      gitEmptyRepoExists: "no",
+    });
   });
 
-  it("clicking on 'Import via git' link calls onImportFromCalloutLinkClick", () => {
-    const mockSetImportWorkspaceId = jest.fn();
+  it("shows import checkbox when in import mode", () => {
+    renderWithRouter(<ChooseGitProvider {...defaultProps} isImport />);
 
-    render(
-      <Router>
-        <ChooseGitProvider
-          {...defaultProps}
-          setImportWorkspaceId={mockSetImportWorkspaceId}
-          value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
-        />
-      </Router>,
+    const importCheckbox = screen.getByTestId(
+      "t--git-import-existing-repo-checkbox",
     );
-    fireEvent.click(screen.getByText("Import via git"));
-    expect(mockSetImportWorkspaceId).toHaveBeenCalledTimes(1);
+
+    expect(importCheckbox).toBeInTheDocument();
+
+    fireEvent.click(importCheckbox);
+    expect(defaultProps.onChange).toHaveBeenCalledWith({
+      gitExistingRepoExists: true,
+    });
   });
 
-  it("when isImport = true, shows a checkbox for existing repo", () => {
-    render(<ChooseGitProvider {...defaultProps} isImport />);
-    expect(screen.getByTestId("t--existing-repo-checkbox")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "I have an existing appsmith application connected to Git",
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("toggles existing repo checkbox and calls onChange", () => {
-    const onChange = jest.fn();
-
-    render(
-      <ChooseGitProvider {...defaultProps} isImport onChange={onChange} />,
-    );
-    const checkbox = screen.getByTestId("t--existing-repo-checkbox");
-
-    fireEvent.click(checkbox);
-    expect(onChange).toHaveBeenCalledWith({ gitExistingRepoExists: true });
-  });
-
-  it("does not show second question if isImport = true", () => {
-    render(<ChooseGitProvider {...defaultProps} isImport />);
-    expect(
-      screen.queryByText("ii. Does an empty repository exist?"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("respects canCreateNewArtifact and device conditions for links", () => {
-    // If canCreateNewArtifact is false, "Import via git" should not appear even if conditions are met
-    render(
+  it("shows demo gif when non-empty repo is selected for supported providers", () => {
+    renderWithRouter(
       <ChooseGitProvider
         {...defaultProps}
-        isCreateArtifactPermitted={false}
         value={{ gitProvider: "github", gitEmptyRepoExists: "no" }}
       />,
     );
-    // This should be null because we have no permission to create new artifact
-    expect(screen.queryByText("Import via git")).not.toBeInTheDocument();
+
+    expect(
+      screen.getByText(/How to create a new repository/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByAltText("Create an empty repo in github"),
+    ).toBeInTheDocument();
   });
 
-  it("if provider is not chosen and user tries to select empty repo option, it remains disabled", () => {
-    render(<ChooseGitProvider {...defaultProps} />);
-    const yesRadio = screen.getByTestId("t--existing-empty-repo-yes");
+  it("shows warning for non-empty repo with 'others' provider", () => {
+    renderWithRouter(
+      <ChooseGitProvider
+        {...defaultProps}
+        value={{ gitProvider: "others", gitEmptyRepoExists: "no" }}
+      />,
+    );
 
-    fireEvent.click(yesRadio);
-    // onChange should not be called because it's disabled
-    expect(defaultProps.onChange).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        /You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows import callout when repo is not empty and onOpenImport is provided", () => {
+    renderWithRouter(
+      <ChooseGitProvider
+        {...defaultProps}
+        value={{ gitEmptyRepoExists: "no" }}
+      />,
+    );
+
+    expect(screen.getByText(/Import via git/i)).toBeInTheDocument();
   });
 });
