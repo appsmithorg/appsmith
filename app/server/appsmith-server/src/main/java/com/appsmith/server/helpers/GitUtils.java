@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -189,5 +190,13 @@ public class GitUtils {
     public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
         return gitArtifactMetadata.getAutoCommitConfig() == null
                 || gitArtifactMetadata.getAutoCommitConfig().getEnabled();
+    }
+
+    // Helper method to reset baseId, refType, and refName for entities
+    public static <T extends RefAwareDomain> T resetEntityReferences(T entity) {
+        entity.setBaseId(entity.getId());
+        entity.setRefType(null);
+        entity.setRefName(null);
+        return entity;
     }
 }
