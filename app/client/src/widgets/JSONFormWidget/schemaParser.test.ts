@@ -26,6 +26,7 @@ import {
   FieldType,
   ROOT_SCHEMA_KEY,
 } from "./constants";
+import { LabelPosition } from "components/constants";
 
 const widgetName = "JSONForm1";
 const BASE_PATH = `schema.${ROOT_SCHEMA_KEY}`;
@@ -211,6 +212,7 @@ describe("#parse", () => {
                 dataType: DataType.BOOLEAN,
                 defaultValue: undefined,
                 fieldType: FieldType.SWITCH,
+                labelPosition: LabelPosition.Left,
                 sourceData: true,
                 identifier: "boolean",
                 position: 3,
@@ -1093,6 +1095,7 @@ describe("#getSchemaItemFor", () => {
       dataType: DataType.STRING,
       defaultValue: undefined,
       fieldType: FieldType.SWITCH,
+      labelPosition: LabelPosition.Left,
       sourceData: "John",
       isCustomField: true,
       accessor: "firstName",
