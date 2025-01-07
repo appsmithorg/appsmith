@@ -20,4 +20,18 @@ public class AutoCommitExpectations {
     private boolean enabled;
     private String expectedBranchName;
     private boolean shouldTriggerAutoCommit;
+    
+    /**
+     * Expected author identity for auto-commits.
+     * This can be used to validate that auto-commits are properly attributed
+     * to the system rather than a specific user.
+     */
+    private String expectedCommitAuthor;
+    
+    /**
+     * Expected timestamp pattern for auto-commits.
+     * Can be used to validate that commits occur within expected timeframes
+     * relative to the triggering action.
+     */
+    private String expectedTimestampPattern;
 }
