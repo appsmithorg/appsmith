@@ -12,6 +12,8 @@ import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { toast } from "@appsmith/ads";
+import { createMessage, DELETE_BRANCH_SUCCESS } from "ee/constants/messages";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
@@ -32,6 +34,12 @@ export default function* deleteBranchSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      toast.show(
+        createMessage(DELETE_BRANCH_SUCCESS, action.payload.branchName),
+        {
+          kind: "success",
+        },
+      );
       yield put(gitArtifactActions.deleteBranchSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.fetchBranchesInit({
