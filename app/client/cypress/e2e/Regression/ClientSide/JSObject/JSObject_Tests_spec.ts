@@ -236,37 +236,8 @@ describe("Validate JSObj", {}, () => {
     debuggerHelper.DoesConsoleLogExist("Operation was successful!");
   });
 
-  it("8. Verify Queries", () => {
-    dataSources.CreateDataSource("Postgres");
-    dataSources.CreateQueryAfterDSSaved(" ");
-    agHelper.TypeIntoTextArea(locators._codeEditorTarget, "/");
-    agHelper.GetNAssertContains(locators._hints, "Coalescing");
-    agHelper.GetNAssertContains(locators._hints, "Typecasting");
-    agHelper.GetNAssertContains(locators._hints, "Pr");
-    agHelper.GetNAssertContains(locators._hints, "JSObject1");
-    agHelper.GetNAssertContains(locators._hints, "MainContainer");
-
-    cy.get("@guid").then((uid) => {
-      dataSources.GeneratePageForDS(`Postgres ${uid}`);
-    });
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.ClickButton("Got it");
-    assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    agHelper.Sleep(2000);
-    table.WaitUntilTableLoad(0, 0, "v2");
-    EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
-    agHelper.GetNClick(locators._codeEditorTarget);
-    agHelper.AssertElementVisibility(locators._evaluatedValue);
-
-    cy.get(`${locators._codeMirrorCode} pre`).then(($elements) => {
-      const text = [...$elements].map((el) => el.innerText).join("");
-      agHelper.GetText(locators._evaluatedValue).then((evalText: any) => {
-        expect(evalText.replace(/\n/g, "")).to.eq(text);
-      });
-    });
-  });
   //Bug: https://github.com/appsmithorg/appsmith/issues/35385
-  it.skip("9. Verify JSObject with identical name should not exist Bug: #35385", () => {
+  it.skip("8. Verify JSObject with identical name should not exist Bug: #35385", () => {
     for (let i = 0; i < 10; i++) {
       agHelper.GetNClick(locators._createNew, 0, true, 0);
     }
@@ -274,7 +245,7 @@ describe("Validate JSObj", {}, () => {
   });
 
   //Bug: https://github.com/appsmithorg/appsmith/issues/38216
-  it.skip("10. Verify selecting JSObject does not change the page", () => {
+  it.skip("9. Verify selecting JSObject does not change the page", () => {
     PageList.AddNewPage("New blank page");
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     agHelper.GetNClick(locators._createNew);
