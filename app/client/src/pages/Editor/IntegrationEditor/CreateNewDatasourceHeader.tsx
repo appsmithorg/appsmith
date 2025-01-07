@@ -25,6 +25,7 @@ const HeaderText = styled(Flex)`
 
 const SearchContainer = styled(Flex)`
   flex-grow: 1;
+  max-width: 480px;
   input {
     height: 28px;
     font-size: var(--ads-v2-font-size-3);
@@ -38,7 +39,7 @@ interface HeaderProps {
 const CreateNewDatasourceHeader = () => {
   return (
     <Flex alignItems="flex-end" gap="spaces-5">
-      <HeaderText flexDirection="column">
+      <HeaderText flexDirection="column" flexGrow="1">
         <Text kind="heading-l">
           {createMessage(CONNECT_A_DATASOURCE_HEADING)}
         </Text>
@@ -51,7 +52,6 @@ const CreateNewDatasourceHeader = () => {
           placeholder={createMessage(SEARCH_FOR_DATASOURCES)}
           size="md"
           startIcon="search-line"
-          style={{ maxWidth: "480px" }}
           type="search"
         />
       </SearchContainer>

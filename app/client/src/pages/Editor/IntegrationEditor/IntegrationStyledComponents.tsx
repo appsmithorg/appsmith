@@ -13,7 +13,7 @@ export const DatasourceSection = styled.div`
 `;
 
 export const DatasourceSectionHeading = styled(Text)`
-  font-size: var(--ads-v2-font-size-6);
+  font-size: var(--ads-v2-font-size-10);
 `;
 
 export const DatasourceContainer = styled.div`
@@ -45,7 +45,7 @@ export const DatasourceCard = styled.div`
 `;
 
 export const DatasourceImage = styled.img`
-  height: 24px;
+  height: 34px;
   width: auto;
   max-width: 100%;
   flex-shrink: 0;
@@ -58,7 +58,7 @@ export const DatasourceNameWrapper = styled.div`
 `;
 
 export const DatasourceName = styled(Text)`
-  font-size: var(--ads-v2-font-size-4);
+  font-size: var(--ads-v2-font-size-6);
   font-weight: var(--ads-v2-font-weight-bold);
   line-height: var(--ads-v2-line-height-4);
   color: var(--ads-v2-color-fg);
