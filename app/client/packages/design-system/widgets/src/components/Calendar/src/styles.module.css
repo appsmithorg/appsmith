@@ -68,3 +68,12 @@
     0 0 0 calc(var(--box-shadow-offset) + var(--border-width-2))
       var(--color-bd-focus);
 }
+
+.monthYearDropdown {
+  display: flex;
+  gap: var(--inner-spacing-1);
+}
+
+.monthDropdown button {
+  width: 14ch;
+}

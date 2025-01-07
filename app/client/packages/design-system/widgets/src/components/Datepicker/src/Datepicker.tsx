@@ -79,7 +79,6 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
               isLoading={isLoading}
               size={size}
             />
-            <FieldError>{errorMessage}</FieldError>
             <Popover
               UNSTABLE_portalContainer={root}
               className={clsx(datePickerStyles.popover, popoverClassName)}
@@ -103,6 +102,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
                 )}
               </Dialog>
             </Popover>
+            <FieldError>{errorMessage}</FieldError>
           </>
         );
       }}
