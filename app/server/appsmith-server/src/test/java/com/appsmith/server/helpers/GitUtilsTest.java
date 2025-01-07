@@ -11,8 +11,8 @@ import reactor.test.StepVerifier;
 
 import java.util.UUID;
 
-import static com.appsmith.server.helpers.GitUtils.isApplicationConnectedToGit;
-import static com.appsmith.server.helpers.GitUtils.isDefaultBranchedApplication;
+import static com.appsmith.server.helpers.GitUtils.isArtifactConnectedToGit;
+import static com.appsmith.server.helpers.GitUtils.isDefaultBranchedArtifact;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -216,7 +216,7 @@ public class GitUtilsTest {
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
         connectedApplication.setGitApplicationMetadata(gitMetadata);
 
-        assertTrue(isApplicationConnectedToGit(connectedApplication));
+        assertTrue(isArtifactConnectedToGit(connectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class GitUtilsTest {
         // Create a mock Application with null Git metadata
         Application notConnectedApplication = new Application();
 
-        assertFalse(isApplicationConnectedToGit(notConnectedApplication));
+        assertFalse(isArtifactConnectedToGit(notConnectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -235,7 +235,7 @@ public class GitUtilsTest {
         gitMetadata.setRemoteUrl("https://git.example.com/repo.git");
         notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
-        assertFalse(isApplicationConnectedToGit(notConnectedApplication));
+        assertFalse(isArtifactConnectedToGit(notConnectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -246,7 +246,7 @@ public class GitUtilsTest {
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
         notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
-        assertFalse(isApplicationConnectedToGit(notConnectedApplication));
+        assertFalse(isArtifactConnectedToGit(notConnectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -258,7 +258,7 @@ public class GitUtilsTest {
         gitMetadata.setRemoteUrl("");
         notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
-        assertFalse(isApplicationConnectedToGit(notConnectedApplication));
+        assertFalse(isArtifactConnectedToGit(notConnectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -272,7 +272,7 @@ public class GitUtilsTest {
         metadata.setDefaultBranchName("main");
         defaultBranchApplication.setGitApplicationMetadata(metadata);
 
-        assertTrue(isDefaultBranchedApplication(defaultBranchApplication));
+        assertTrue(isDefaultBranchedArtifact(defaultBranchApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -286,7 +286,7 @@ public class GitUtilsTest {
         metadata.setDefaultBranchName("main");
         nonDefaultBranchApplication.setGitApplicationMetadata(metadata);
 
-        assertFalse(isDefaultBranchedApplication(nonDefaultBranchApplication));
+        assertFalse(isDefaultBranchedArtifact(nonDefaultBranchApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -294,7 +294,7 @@ public class GitUtilsTest {
         // Create a mock Application without connected Git metadata
         Application notConnectedApplication = new Application();
 
-        assertFalse(isDefaultBranchedApplication(notConnectedApplication));
+        assertFalse(isDefaultBranchedArtifact(notConnectedApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -303,7 +303,7 @@ public class GitUtilsTest {
         Application nullMetadataApplication = new Application();
         nullMetadataApplication.setGitApplicationMetadata(null);
 
-        assertFalse(isDefaultBranchedApplication(nullMetadataApplication));
+        assertFalse(isDefaultBranchedArtifact(nullMetadataApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -317,7 +317,7 @@ public class GitUtilsTest {
         metadata.setDefaultBranchName("main");
         nullBranchNameApplication.setGitApplicationMetadata(metadata);
 
-        assertFalse(isDefaultBranchedApplication(nullBranchNameApplication));
+        assertFalse(isDefaultBranchedArtifact(nullBranchNameApplication.getGitArtifactMetadata()));
     }
 
     @Test
@@ -331,7 +331,7 @@ public class GitUtilsTest {
         metadata.setDefaultBranchName(null);
         nullDefaultBranchNameApplication.setGitApplicationMetadata(metadata);
 
-        assertFalse(isDefaultBranchedApplication(nullDefaultBranchNameApplication));
+        assertFalse(isDefaultBranchedArtifact(nullDefaultBranchNameApplication.getGitArtifactMetadata()));
     }
 
     @Test

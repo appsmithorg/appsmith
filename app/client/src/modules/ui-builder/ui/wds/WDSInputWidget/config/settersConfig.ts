@@ -19,7 +19,7 @@ export const settersConfig = {
     setValue: {
       path: "defaultText",
       type: "string",
-      accessor: "parsedText",
+      accessor: "text",
     },
   },
 };

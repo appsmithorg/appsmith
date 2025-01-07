@@ -18,6 +18,10 @@ import { addBranchParam } from "constants/routes";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -58,7 +62,17 @@ export default function* connectSaga(
           history.replace(newUrl);
         }
 
-        // ! case for updating lastDeployedAt in application manually?
+        const currentApplication: ApplicationPayload = yield select(
+          getCurrentApplication,
+        );
+
+        if (currentApplication) {
+          currentApplication.lastDeployedAt = new Date().toISOString();
+          yield put({
+            type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+            payload: currentApplication,
+          });
+        }
       }
 
       yield put(
@@ -83,8 +97,13 @@ export default function* connectSaga(
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
+          gitArtifactActions.toggleConnectModal({
             artifactDef,
+            open: false,
+          }),
+        );
+        yield put(
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );

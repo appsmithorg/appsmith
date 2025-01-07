@@ -3,6 +3,7 @@ package com.appsmith.server.actioncollections.base;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -81,4 +82,6 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<Void> bulkValidateAndUpdateActionCollectionInRepository(List<ActionCollection> actionCollectionList);
 
     Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO);
+
+    Flux<ActionCollection> findByArtifactIdAndArtifactType(String artifactId, ArtifactType artifactType);
 }
