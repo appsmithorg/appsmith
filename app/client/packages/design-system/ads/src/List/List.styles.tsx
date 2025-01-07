@@ -71,7 +71,6 @@ export const StyledList = styled.div`
   padding: var(--ads-v2-spaces-1);
   display: flex;
   flex-direction: column;
-  gap: var(--ads-v2-spaces-2);
 `;
 
 export const StyledListItem = styled.div<{

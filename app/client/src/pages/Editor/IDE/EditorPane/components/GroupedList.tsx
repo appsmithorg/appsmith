@@ -1,12 +1,9 @@
 import React from "react";
-import type { FlexProps } from "@appsmith/ads";
-import { Flex } from "@appsmith/ads";
+import { Flex, Group, type GroupProps, type FlexProps } from "@appsmith/ads";
 import styled from "styled-components";
-import type { GroupedListProps } from "./types";
-import { Group } from "./Group";
 
 interface Props {
-  groups: GroupedListProps[];
+  groups: GroupProps[];
   flexProps?: FlexProps;
 }
 
