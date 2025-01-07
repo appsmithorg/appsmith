@@ -89,8 +89,8 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
                          * OR
                          * - Applications that, when connected, revert with default branch only.
                          */
-                        return !GitUtils.isApplicationConnectedToGit(application)
-                                || GitUtils.isDefaultBranchedApplication(application);
+                        return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
+                                || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
                     })
                     .collectList();
         }

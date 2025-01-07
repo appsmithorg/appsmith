@@ -520,7 +520,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return applicationMono
                 .flatMapMany(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
-                    if (GitUtils.isApplicationConnectedToGit(application)) {
+                    if (GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())) {
                         return applicationService.findAllApplicationsByBaseApplicationId(
                                 gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
                     }

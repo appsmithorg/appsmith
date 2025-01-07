@@ -6,6 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
@@ -124,9 +125,7 @@ public class ActionCollectionServiceCEImpl
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
-        collections.forEach(collection -> {
-            setGitSyncIdInActionCollection(collection);
-        });
+        collections.forEach(this::setGitSyncIdInActionCollection);
         return repository.saveAll(collections);
     }
 
@@ -617,5 +616,10 @@ public class ActionCollectionServiceCEImpl
     public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
         // Do nothing as this is already taken care for JS objects in the context of page
         return Mono.empty().then();
+    }
+
+    @Override
+    public Flux<ActionCollection> findByArtifactIdAndArtifactType(String artifactId, ArtifactType artifactType) {
+        return repository.findByApplicationId(artifactId);
     }
 }
