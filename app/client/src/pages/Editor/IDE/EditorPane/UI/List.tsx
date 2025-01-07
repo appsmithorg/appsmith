@@ -11,15 +11,8 @@ import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EmptyState } from "@appsmith/ads";
 import history from "utils/history";
 import { builderURL } from "ee/RouteBuilder";
-import styled from "styled-components";
 import { WidgetEntityListTree } from "pages/Editor/Explorer/Widgets/WidgetEntityListTree";
-import { WidgetEntityList } from "pages/Editor/Explorer/Widgets/WidgetEntityList";
-
-const ListContainer = styled(Flex)`
-  & .t--entity-item {
-    height: 32px;
-  }
-`;
+import { OldWidgetEntityList } from "pages/Editor/Explorer/Widgets/OldWidgetEntityList";
 
 const ListWidgets = (props: {
   setFocusSearchInput: (focusSearchInput: boolean) => void;
@@ -64,12 +57,7 @@ const ListWidgets = (props: {
   );
 
   return (
-    <ListContainer
-      flexDirection="column"
-      gap="spaces-3"
-      overflow="hidden"
-      py="spaces-3"
-    >
+    <Flex flexDirection="column" gap="spaces-3" overflow="hidden" py="spaces-3">
       {!widgetsExist ? (
         /* If no widgets exist, show the blank state */
         <EmptyState
@@ -105,11 +93,11 @@ const ListWidgets = (props: {
           {isNewWidgetTreeEnabled ? (
             <WidgetEntityListTree />
           ) : (
-            <WidgetEntityList />
+            <OldWidgetEntityList />
           )}
         </Flex>
       ) : null}
-    </ListContainer>
+    </Flex>
   );
 };
 

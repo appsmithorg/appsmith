@@ -1,10 +1,18 @@
 import React, { useMemo } from "react";
-import WidgetEntity from "./WidgetEntity";
+import styled from "styled-components";
+import { Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
+import WidgetEntity from "./WidgetEntity";
 
-export const WidgetEntityList = () => {
+const ListContainer = styled(Flex)`
+  & .t--entity-item {
+    height: 32px;
+  }
+`;
+
+export const OldWidgetEntityList = () => {
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const widgetsInStep = useMemo(() => {
@@ -16,7 +24,7 @@ export const WidgetEntityList = () => {
   if (!widgets.children) return null;
 
   return (
-    <>
+    <ListContainer>
       {widgets.children.map((child) => (
         <WidgetEntity
           basePageId={basePageId}
@@ -30,6 +38,6 @@ export const WidgetEntityList = () => {
           widgetsInStep={widgetsInStep}
         />
       ))}
-    </>
+    </ListContainer>
   );
 };
