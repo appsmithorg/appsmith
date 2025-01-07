@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.constants.CommonConstants;
@@ -310,6 +311,10 @@ public class CommonGitFileUtilsCE {
         setActionCollectionsInResourceMap(artifactExchangeJson, resourceMap);
     }
 
+    protected String getContextDirectoryByType(CreatorContextType contextType) {
+        return PAGE_DIRECTORY;
+    }
+
     protected void setNewActionsInResourceMap(
             ArtifactExchangeJson artifactExchangeJson, Map<GitResourceIdentity, Object> resourceMap) {
         if (artifactExchangeJson.getActionList() == null) {
@@ -325,7 +330,7 @@ public class CommonGitFileUtilsCE {
                     removeUnwantedFieldFromAction(newAction);
                     ActionDTO action = newAction.getUnpublishedAction();
                     final String actionFileName = action.getValidName().replace(".", "-");
-                    final String filePathPrefix = PAGE_DIRECTORY
+                    final String filePathPrefix = getContextDirectoryByType(action.getContextType())
                             + DELIMITER_PATH
                             + action.calculateContextId()
                             + DELIMITER_PATH
@@ -383,7 +388,7 @@ public class CommonGitFileUtilsCE {
                 .forEach(actionCollection -> {
                     removeUnwantedFieldFromActionCollection(actionCollection);
                     ActionCollectionDTO collection = actionCollection.getUnpublishedCollection();
-                    final String filePathPrefix = PAGE_DIRECTORY
+                    final String filePathPrefix = getContextDirectoryByType(collection.getContextType())
                             + DELIMITER_PATH
                             + collection.calculateContextId()
                             + DELIMITER_PATH
