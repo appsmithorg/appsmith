@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.git.templates.contexts.AutoCommitExpectations;
 import com.appsmith.server.git.templates.contexts.GitContext;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl;
+import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
