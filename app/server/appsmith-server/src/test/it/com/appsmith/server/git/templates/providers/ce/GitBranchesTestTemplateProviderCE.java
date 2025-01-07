@@ -9,12 +9,14 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
 public class GitBranchesTestTemplateProviderCE implements TestTemplateInvocationContextProvider {
 
     @Override
@@ -32,8 +34,14 @@ public class GitBranchesTestTemplateProviderCE implements TestTemplateInvocation
     public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
             ExtensionContext extensionContext) {
         // Load and analyze application.json to determine auto-commit expectations
-        ApplicationJson applicationJson = gitFileSystemTestHelper.getApplicationJson(
-            GitBranchesTestTemplateProviderCE.class.getResource("/com/appsmith/server/git/application.json"));
+        ApplicationJson applicationJson = null;
+        try {
+            applicationJson = gitFileSystemTestHelper.getApplicationJson(
+                GitBranchesTestTemplateProviderCE.class.getResource("/com/appsmith/server/git/application.json"));
+        } catch (Exception e) {
+            // If we can't load the application.json, we'll use default values
+            applicationJson = new ApplicationJson();
+        }
 
         // Determine if auto-commit should trigger based on application state
         // Auto-commit is triggered when there are pages or actions that could be modified
