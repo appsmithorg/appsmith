@@ -110,6 +110,7 @@ function ListItem(props: ListItemProps) {
       data-disabled={props.isDisabled || false}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      id={props.id}
       onClick={handleOnClick}
       onDoubleClick={handleDoubleClick}
       role="listitem"
