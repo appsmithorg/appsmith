@@ -282,7 +282,9 @@ const mapStateToProps = (
   let plugins = allPlugins.filter((p) =>
     !props.showSaasAPIs
       ? p.packageName === PluginPackageName.GRAPHQL
-      : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+      : p.type === PluginType.SAAS ||
+        p.type === PluginType.REMOTE ||
+        p.type === PluginType.EXTERNAL_SAAS,
   );
 
   plugins = plugins.filter((p) =>
