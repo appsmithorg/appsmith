@@ -256,7 +256,7 @@ function ConnectInitialize({
         )}
         {!isSubmitLoading && (
           <Button
-            data-testid="t--git-connect-next-button"
+            data-testid="t--git-connect-next"
             endIcon={
               currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
             }

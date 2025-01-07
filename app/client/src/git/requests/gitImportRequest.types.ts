@@ -14,7 +14,7 @@ export interface GitImportRequestParams {
 export interface GitImportResponseData {
   application: ApplicationResponsePayload;
   isPartialImport: boolean;
-  unconfiguredDatasourceList?: Datasource[];
+  unConfiguredDatasourceList?: Datasource[];
 }
 
 export type GitImportResponse = ApiResponse<GitImportResponseData>;

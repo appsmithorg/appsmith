@@ -332,7 +332,7 @@ function AddDeployKey({
         )}
       </WellContainer>
       <Checkbox
-        data-testid="t--added-deploy-key-checkbox"
+        data-testid="t--git-connect-deploy-key-checkbox"
         isSelected={value?.isAddedDeployKey}
         onChange={handleAddedKeyCheck}
       >

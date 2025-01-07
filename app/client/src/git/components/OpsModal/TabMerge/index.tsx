@@ -11,9 +11,11 @@ export default function TabMerge() {
     fetchMergeStatus,
     isFetchMergeStatusLoading,
     isMergeLoading,
+    isMergeSuccess,
     merge,
     mergeError,
     mergeStatus,
+    resetMergeState,
   } = useMerge();
   const { isFetchStatusLoading, status } = useStatus();
   const { branches, currentBranch, fetchBranches, isFetchBranchesLoading } =
@@ -33,11 +35,13 @@ export default function TabMerge() {
       isFetchMergeStatusLoading={isFetchMergeStatusLoading}
       isFetchStatusLoading={isFetchStatusLoading}
       isMergeLoading={isMergeLoading}
+      isMergeSuccess={isMergeSuccess}
       isStatusClean={isStatusClean}
       merge={merge}
       mergeError={mergeError}
       mergeStatus={mergeStatus}
       protectedBranches={protectedBranches}
+      resetMergeState={resetMergeState}
     />
   );
 }
