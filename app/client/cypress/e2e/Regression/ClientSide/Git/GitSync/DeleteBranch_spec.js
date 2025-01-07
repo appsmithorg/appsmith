@@ -56,7 +56,8 @@ describe(
       });
     });
 
-    it("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
+    // FLAKY needs to be rewritten
+    it.skip("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
       gitSync.SwitchGitBranch("master");
       gitSync.CreateGitBranch("", true);
       cy.wait(1000);

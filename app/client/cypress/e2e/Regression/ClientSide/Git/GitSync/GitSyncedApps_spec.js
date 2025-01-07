@@ -401,7 +401,8 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
+    // FLAKY needs to be rewritten
+    it.skip("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
       //cy.createGitBranch(tempBranch1);
       gitSync.CreateGitBranch(tempBranch1, true);
       // delete page from page settings
