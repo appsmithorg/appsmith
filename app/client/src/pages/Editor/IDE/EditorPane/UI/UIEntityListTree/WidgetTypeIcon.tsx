@@ -1,12 +1,13 @@
 import React from "react";
-import type { WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 
-interface WidgetTypeIconProps {
-  type: WidgetType;
-}
-
-export const WidgetTypeIcon: React.FC<WidgetTypeIconProps> = ({ type }) => {
+export const WidgetTypeIcon = (type: string) => {
   const { IconCmp } = WidgetFactory.getWidgetMethods(type);
-  return IconCmp ? <IconCmp /> : null;
+
+  if (IconCmp) {
+    return <IconCmp />;
+  }
+
+  return <WidgetIcon type={type} />;
 };

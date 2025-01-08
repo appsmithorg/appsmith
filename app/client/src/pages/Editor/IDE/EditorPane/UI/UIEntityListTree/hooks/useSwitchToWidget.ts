@@ -1,19 +1,42 @@
-import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { useCallback, type MouseEvent } from "react";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { builderURL } from "ee/RouteBuilder";
+import { NavigationMethod } from "utils/history";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+import { useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getSelectedWidgets } from "selectors/ui";
 
-export const useSwitchToWidget = () => {
-  const dispatch = useDispatch();
+export function useSwitchToWidget() {
+  const { navigateToWidget } = useNavigateToWidget();
+  const basePageId = useSelector(getCurrentBasePageId) as string;
+  const selectedWidgets = useSelector(getSelectedWidgets);
 
-  const switchToWidget = useCallback(
-    (widgetId: string) => {
-      dispatch({
-        type: ReduxActionTypes.SELECT_WIDGET,
-        payload: { widgetId },
+  return useCallback(
+    (e: MouseEvent, widget: CanvasStructure) => {
+      const isMultiSelect = e.metaKey || e.ctrlKey;
+      const isShiftSelect = e.shiftKey;
+
+      AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+        type: "WIDGETS",
+        fromUrl: location.pathname,
+        toUrl: `${builderURL({
+          basePageId,
+          hash: widget.widgetId,
+        })}`,
+        name: widget.widgetName,
       });
+      navigateToWidget(
+        widget.widgetId,
+        widget.type,
+        basePageId,
+        NavigationMethod.EntityExplorer,
+        selectedWidgets.includes(widget.widgetId),
+        isMultiSelect,
+        isShiftSelect,
+      );
     },
-    [dispatch],
+    [basePageId, navigateToWidget, selectedWidgets],
   );
-
-  return switchToWidget;
-};
+}
