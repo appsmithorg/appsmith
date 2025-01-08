@@ -51,6 +51,9 @@ if (isTracingEnabled()) {
     trackResources: true,
     trackWebVitalsAttribution: true,
     internalLoggerLevel,
+    sessionTracking: {
+      enabled: false,
+    },
   });
 
   const tracerProvider = new WebTracerProvider({
