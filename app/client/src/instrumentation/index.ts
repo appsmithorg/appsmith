@@ -53,7 +53,9 @@ if (isTracingEnabled()) {
     internalLoggerLevel,
     sessionTracking: {
       generateSessionId: () => {
-        return "session-id";
+        // Disabling session tracing will not send any instrumentation data to the grafana backend
+        // Instead, hardcoding the session id to a constant value to indirecly disable session tracing
+        return "SESSION_ID";
       },
     },
   });
