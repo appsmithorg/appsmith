@@ -1,5 +1,5 @@
 import type { Sizes } from "../__config__/types";
-import { type MouseEvent, type ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 export type ListSizes = Extract<Sizes, "md" | "lg">;
 

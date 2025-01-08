@@ -1,5 +1,3 @@
-import homePage from "../../../../../locators/HomePage";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -44,7 +42,7 @@ describe(
           const message = interception.response.body.responseMeta.error.message;
           expect(status).to.be.gte(400);
           expect(message).to.contain(failureMessage);
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
+          _.gitSync.CloseConnectModal();
         });
       });
     });

@@ -57,7 +57,6 @@ import {
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
-  toggleRepoLimitErrorModalAction,
   toggleConflictErrorModalAction,
   openDisconnectModalAction,
   closeDisconnectModalAction,
@@ -85,6 +84,7 @@ import {
   mergeErrorAction,
   mergeInitAction,
   mergeSuccessAction,
+  resetMergeStateAction,
 } from "./actions/mergeActions";
 import {
   pollAutocommitProgressStopAction,
@@ -167,7 +167,6 @@ export const gitArtifactSlice = createSlice({
     toggleConnectSuccessModal: toggleConnectSuccessModalAction,
     openDisconnectModal: openDisconnectModalAction,
     closeDisconnectModal: closeDisconnectModalAction,
-    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
     commitInit: commitInitAction,
@@ -188,6 +187,7 @@ export const gitArtifactSlice = createSlice({
     mergeInit: mergeInitAction,
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
+    resetMergeState: resetMergeStateAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,

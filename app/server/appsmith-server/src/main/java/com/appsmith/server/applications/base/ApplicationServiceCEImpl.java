@@ -209,8 +209,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                              * - Applications that are not connected to Git.
                              * - Applications that, when connected, revert with default branch only.
                              */
-                            return !GitUtils.isApplicationConnectedToGit(application)
-                                    || GitUtils.isDefaultBranchedApplication(application);
+                            return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
+                                    || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
                         })));
     }
 
@@ -900,7 +900,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(applicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return this.getById(applicationId).map(GitUtils::isApplicationConnectedToGit);
+        return this.getById(applicationId)
+                .map(application -> GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata()));
     }
 
     @Override

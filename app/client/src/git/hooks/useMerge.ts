@@ -3,6 +3,7 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectMergeState,
   selectMergeStatusState,
+  selectMergeSuccess,
 } from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
@@ -16,22 +17,32 @@ export default function useMerge() {
   // merge
   const mergeState = useArtifactSelector(selectMergeState);
 
-  const merge = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.mergeInit({ artifactDef }));
-    }
-  }, [artifactDef, dispatch]);
+  const merge = useCallback(
+    (sourceBranch, destinationBranch) => {
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.mergeInit({
+            artifactDef,
+            artifactId,
+            sourceBranch,
+            destinationBranch,
+          }),
+        );
+      }
+    },
+    [artifactDef, artifactId, dispatch],
+  );
 
   // merge status
   const mergeStatusState = useArtifactSelector(selectMergeStatusState);
 
   const fetchMergeStatus = useCallback(
     (sourceBranch: string, destinationBranch: string) => {
-      if (artifactDef) {
+      if (artifactDef && artifactId) {
         dispatch(
           gitArtifactActions.fetchMergeStatusInit({
             artifactDef,
-            artifactId: artifactId ?? "",
+            artifactId,
             sourceBranch,
             destinationBranch,
           }),
@@ -47,6 +58,14 @@ export default function useMerge() {
     }
   }, [artifactDef, dispatch]);
 
+  const isMergeSuccess = useArtifactSelector(selectMergeSuccess);
+
+  const resetMergeState = useCallback(() => {
+    if (artifactDef) {
+      dispatch(gitArtifactActions.resetMergeState({ artifactDef }));
+    }
+  }, [artifactDef, dispatch]);
+
   return {
     isMergeLoading: mergeState?.loading ?? false,
     mergeError: mergeState?.error ?? null,
@@ -56,5 +75,7 @@ export default function useMerge() {
     fetchMergeStatusError: mergeStatusState?.error ?? null,
     fetchMergeStatus,
     clearMergeStatus,
+    isMergeSuccess: isMergeSuccess ?? false,
+    resetMergeState,
   };
 }

@@ -18,7 +18,7 @@ import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { Action, PluginPackageName } from "../entities/Action";
-import { createOrUpdateDataSourceWithAction } from "./DatasourcesSagas";
+import { createOrUpdateDataSourceWithAction } from "../ee/sagas/DatasourcesSagas";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
