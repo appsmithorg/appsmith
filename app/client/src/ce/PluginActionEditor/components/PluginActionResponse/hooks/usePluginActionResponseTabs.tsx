@@ -115,6 +115,7 @@ function usePluginActionResponseTabs() {
       PluginType.REMOTE,
       PluginType.SAAS,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(plugin.type)
   ) {
     if (showSchema) {

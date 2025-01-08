@@ -204,8 +204,8 @@ export function Header({
         >
           <Tooltip content={createMessage(SYNC_BRANCHES)} placement="top">
             <Button
-              className="t--sync-branches"
               color={get(theme, "colors.gitSyncModal.closeIcon")}
+              data-testid="t--git-branch-sync"
               isIconButton
               kind="tertiary"
               onClick={onClickRefresh}
@@ -216,8 +216,8 @@ export function Header({
         </span>
       </div>
       <Button
-        className="t--close-branch-list"
         color={get(theme, "colors.gitSyncModal.closeIcon")}
+        data-testid="t--git-branch-close"
         isIconButton
         kind="tertiary"
         onClick={onClickClose}
@@ -365,7 +365,7 @@ export default function BranchListView({
           onClickRefresh={handleClickOnRefresh}
         />
         <Space size={3} />
-        <div style={{ width: 300 }}>
+        <div data-testid="t--git-branch-search-input" style={{ width: 300 }}>
           {isLoading && (
             <div style={{ width: "100%", height: textInputHeight }}>
               <Skeleton />
@@ -374,7 +374,6 @@ export default function BranchListView({
           {!isLoading && (
             <SearchInput
               autoFocus
-              className="branch-search t--branch-search-input"
               // @ts-expect-error Needs to be fixed in ads
               fill
               onChange={changeSearchText}

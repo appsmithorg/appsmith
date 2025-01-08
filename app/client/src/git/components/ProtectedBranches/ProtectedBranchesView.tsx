@@ -169,7 +169,7 @@ function ProtectedBranchesView({
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
-          data-testid="t--git-protected-branches-select"
+          data-testid="t--git-branch-protection-select"
           dropdownMatchSelectWidth
           getPopupContainer={handleGetPopupContainer}
           isMultiSelect
@@ -190,7 +190,7 @@ function ProtectedBranchesView({
           ))}
         </StyledSelect>
         <Button
-          data-testid="t--git-protected-branches-update-btn"
+          data-testid="t--git-branch-protection-update-btn"
           isDisabled={isUpdateDisabled}
           isLoading={isUpdateProtectedBranchesLoading}
           kind="secondary"

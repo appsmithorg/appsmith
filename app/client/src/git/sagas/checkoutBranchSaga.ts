@@ -38,7 +38,6 @@ export default function* checkoutBranchSaga(
 
     if (response && isValidResponse) {
       if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
         const trimmedBranch = branchName.replace(/^origin\//, "");
         const destinationHref = addBranchParam(trimmedBranch);
 
@@ -47,11 +46,10 @@ export default function* checkoutBranchSaga(
         );
 
         yield put(
-          gitArtifactActions.toggleBranchPopup({
-            artifactDef,
-            open: false,
-          }),
+          gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
         );
+        yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
+
         // Check if page exists in the branch. If not, instead of 404, take them to
         // the app home page
         const existingPage = response.data.pages.find(

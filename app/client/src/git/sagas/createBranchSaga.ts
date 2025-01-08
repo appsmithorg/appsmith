@@ -17,7 +17,6 @@ export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,
 ) {
   const { artifactDef, artifactId } = action.payload;
-  const basePayload = { artifactDef };
   let response: CreateBranchResponse | undefined;
 
   try {
@@ -29,26 +28,25 @@ export default function* createBranchSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.createBranchSuccess(basePayload));
-      yield put(
-        gitArtifactActions.toggleBranchPopup({
-          artifactDef,
-          open: false,
-        }),
-      );
-      yield put(
-        gitArtifactActions.fetchBranchesInit({
-          artifactDef,
-          artifactId,
-          pruneBranches: true,
-        }),
-      );
-
+      // yield put(
+      //   gitArtifactActions.fetchBranchesInit({
+      //     artifactDef,
+      //     artifactId,
+      //     pruneBranches: true,
+      //   }),
+      // );
       yield put(
         gitArtifactActions.checkoutBranchInit({
           artifactDef,
           artifactId,
           branchName: action.payload.branchName,
+        }),
+      );
+      yield put(gitArtifactActions.createBranchSuccess({ artifactDef }));
+      yield put(
+        gitArtifactActions.toggleBranchPopup({
+          artifactDef,
+          open: false,
         }),
       );
     }

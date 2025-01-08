@@ -1,17 +1,17 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
+  selectDisconnectArtifactDef,
   selectDisconnectArtifactName,
-  selectDisconnectBaseArtifactId,
   selectDisconnectState,
 } from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import useArtifactSelector from "./useArtifactSelector";
+import type { GitArtifactDef } from "git/store/types";
 
 export default function useDisconnect() {
-  const { artifact, artifactDef } = useGitContext();
-  const artifactName = artifact?.name ?? "";
+  const { artifactDef } = useGitContext();
 
   const dispatch = useDispatch();
 
@@ -27,21 +27,28 @@ export default function useDisconnect() {
     }
   }, [artifactDef, dispatch]);
 
-  const disconnectBaseArtifactId = useArtifactSelector(
-    selectDisconnectBaseArtifactId,
+  const disconnectArtifactDef = useArtifactSelector(
+    selectDisconnectArtifactDef,
   );
 
   const disconnectArtifactName = useArtifactSelector(
     selectDisconnectArtifactName,
   );
 
-  const openDisconnectModal = useCallback(() => {
-    if (artifactDef) {
-      dispatch(
-        gitArtifactActions.openDisconnectModal({ artifactDef, artifactName }),
-      );
-    }
-  }, [artifactDef, artifactName, dispatch]);
+  const openDisconnectModal = useCallback(
+    (targetArtifactDef: GitArtifactDef, targetArtifactName: string) => {
+      if (artifactDef) {
+        dispatch(
+          gitArtifactActions.openDisconnectModal({
+            artifactDef,
+            targetArtifactDef,
+            targetArtifactName,
+          }),
+        );
+      }
+    },
+    [artifactDef, dispatch],
+  );
 
   const closeDisconnectModal = useCallback(() => {
     if (artifactDef) {
@@ -53,8 +60,8 @@ export default function useDisconnect() {
     isDisconnectLoading: disconnectState?.loading ?? false,
     disconnectError: disconnectState?.error ?? null,
     disconnect,
-    isDisconnectModalOpen: !!disconnectBaseArtifactId,
-    disconnectBaseArtifactId,
+    isDisconnectModalOpen: !!disconnectArtifactDef,
+    disconnectArtifactDef,
     disconnectArtifactName,
     openDisconnectModal,
     closeDisconnectModal,
