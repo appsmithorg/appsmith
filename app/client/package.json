@@ -229,7 +229,6 @@
     "tinymce": "6.8.3",
     "toposort": "^2.0.2",
     "tslib": "^2.3.1",
-    "typescript": "5.2.2",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
     "usehooks-ts": "^3.1.0",
@@ -361,6 +360,7 @@
     "ts-jest": "^29.1.0",
     "ts-jest-mock-import-meta": "^0.12.0",
     "ts-node": "^10.9.1",
+    "typescript": "5.2.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "resolutions": {
