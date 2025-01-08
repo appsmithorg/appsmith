@@ -74,8 +74,6 @@ export function useEditableText(
   ]);
 
   const handleKeyUp = useEventCallback((e: KeyboardEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-
     if (e.key === "Enter") {
       attemptSave();
     } else if (e.key === "Escape") {
