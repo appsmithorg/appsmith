@@ -135,93 +135,83 @@ const DEPLOY_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
 export interface AddDeployKeyProps {
-  connectError: GitApiError | null;
-  fetchSSHKey: () => void;
-  generateSSHKey: (keyType: string, isImport?: boolean) => void;
-  isFetchSSHKeyLoading: boolean;
-  isGenerateSSHKeyLoading: boolean;
-  isImport?: boolean;
-  isLoading: boolean;
+  error: GitApiError | null;
+  isSubmitLoading: boolean;
+  isSSHKeyLoading: boolean;
   onChange: (args: Partial<ConnectFormDataState>) => void;
+  onFetchSSHKey?: () => void;
+  onGenerateSSHKey: (keyType: string) => void;
   sshPublicKey: string | null;
   value: Partial<ConnectFormDataState> | null;
 }
 
 function AddDeployKey({
-  connectError = null,
-  fetchSSHKey = noop,
-  generateSSHKey = noop,
-  isFetchSSHKeyLoading = false,
-  isGenerateSSHKeyLoading = false,
-  isImport = false,
-  isLoading = false,
+  error = null,
+  isSSHKeyLoading = false,
+  isSubmitLoading = false,
   onChange = noop,
+  onFetchSSHKey = noop,
+  onGenerateSSHKey = noop,
   sshPublicKey = null,
   value = null,
 }: AddDeployKeyProps) {
   const [fetched, setFetched] = useState(false);
-  const [sshKeyType, setSshKeyType] = useState<string>();
+  const [keyType, setKeyType] = useState<string>();
 
   useEffect(
     function fetchKeyPairOnInitEffect() {
-      if (!isImport) {
-        if (!fetched) {
-          fetchSSHKey();
-          setFetched(true);
-          // doesn't support callback anymore
-          // fetchSSHKey({
-          //   onSuccessCallback: () => {
-          //     setFetched(true);
-          //   },
-          //   onErrorCallback: () => {
-          //     setFetched(true);
-          //   },
-          // });
-        }
-      } else {
-        if (!fetched) {
-          setFetched(true);
-        }
+      if (!fetched) {
+        onFetchSSHKey();
+        setFetched(true);
+        // doesn't support callback anymore
+        // fetchSSHKey({
+        //   onSuccessCallback: () => {
+        //     setFetched(true);
+        //   },
+        //   onErrorCallback: () => {
+        //     setFetched(true);
+        //   },
+        // });
       }
     },
-    [isImport, fetched, fetchSSHKey],
+    [fetched, onFetchSSHKey],
   );
 
   useEffect(
     function setSSHKeyTypeonInitEffect() {
-      if (fetched && !isFetchSSHKeyLoading) {
+      if (fetched && !isSSHKeyLoading) {
         if (sshPublicKey && sshPublicKey.includes("rsa")) {
-          setSshKeyType("RSA");
+          setKeyType("RSA");
         } else if (
           !sshPublicKey &&
           value?.remoteUrl &&
           value.remoteUrl.toString().toLocaleLowerCase().includes("azure")
         ) {
-          setSshKeyType("RSA");
+          setKeyType("RSA");
         } else {
-          setSshKeyType("ECDSA");
+          setKeyType("ECDSA");
         }
       }
     },
-    [fetched, sshPublicKey, isFetchSSHKeyLoading, value?.remoteUrl],
+    [fetched, sshPublicKey, value?.remoteUrl, isSSHKeyLoading],
   );
 
   useEffect(
     function generateSSHOnInitEffect() {
       if (
-        (sshKeyType && !sshPublicKey) ||
-        (sshKeyType && !sshPublicKey?.includes(sshKeyType.toLowerCase()))
+        (keyType && !sshPublicKey) ||
+        (keyType && !sshPublicKey?.includes(keyType.toLowerCase()))
       ) {
-        generateSSHKey(sshKeyType, isImport);
+        onGenerateSSHKey(keyType);
         // doesn't support callback anymore
-        // generateSSHKey(sshKeyType, {
+        // generateSSHKey(keyType, {
         //   onSuccessCallback: () => {
         //     toast.show("SSH Key generated successfully", { kind: "success" });
         //   },
         // });
       }
     },
-    [sshKeyType, sshPublicKey, generateSSHKey, isImport],
+    [keyType, sshPublicKey, onGenerateSSHKey],
   );
 
   const repositorySettingsUrl = getRepositorySettingsUrl(
@@ -229,7 +219,7 @@ function AddDeployKey({
     value?.remoteUrl,
   );
 
-  const loading = isFetchSSHKeyLoading || isGenerateSSHKeyLoading;
+  // const loading = isFetchSSHKeyLoading || isGenerateSSHKeyLoading;
 
   const onCopy = useCallback(() => {
     AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
@@ -244,19 +234,19 @@ function AddDeployKey({
 
   return (
     <>
-      {connectError &&
-        connectError.code !== "AE-GIT-4033" &&
-        connectError.code !== "AE-GIT-4032" && (
+      {error &&
+        error.code !== "AE-GIT-4033" &&
+        error.code !== "AE-GIT-4032" && (
           <ErrorCallout kind="error">
             <Text kind="heading-xs" renderAs="h3">
-              {connectError.errorType}
+              {error.errorType}
             </Text>
-            <Text renderAs="p">{connectError.message}</Text>
+            <Text renderAs="p">{error.message}</Text>
           </ErrorCallout>
         )}
 
       {/* hardcoding message because server doesn't support feature flag. Will change this later */}
-      {connectError && connectError.code === "AE-GIT-4032" && (
+      {error && error.code === "AE-GIT-4032" && (
         <ErrorCallout kind="error">
           <Text kind="heading-xs" renderAs="h3">
             {createMessage(ERROR_SSH_KEY_MISCONF_TITLE)}
@@ -301,20 +291,20 @@ function AddDeployKey({
           Now, give write access to it.
         </WellText>
         <FieldContainer>
-          <StyledSelect onChange={setSshKeyType} size="sm" value={sshKeyType}>
+          <StyledSelect onChange={setKeyType} size="sm" value={keyType}>
             <Option value="ECDSA">ECDSA 256</Option>
             <Option value="RSA">RSA 4096</Option>
           </StyledSelect>
-          {!loading ? (
+          {!isSSHKeyLoading ? (
             <DeployedKeyContainer>
               <StyledIcon
                 color="var(--ads-v2-color-fg)"
                 name="key-2-line"
                 size="md"
               />
-              <KeyType>{sshKeyType}</KeyType>
+              <KeyType>{keyType}</KeyType>
               <KeyText>{sshPublicKey}</KeyText>
-              {!isLoading && (
+              {!isSubmitLoading && (
                 <CopyButton
                   onCopy={onCopy}
                   tooltipMessage={createMessage(COPY_SSH_KEY)}
@@ -342,7 +332,7 @@ function AddDeployKey({
         )}
       </WellContainer>
       <Checkbox
-        data-testid="t--added-deploy-key-checkbox"
+        data-testid="t--git-connect-deploy-key-checkbox"
         isSelected={value?.isAddedDeployKey}
         onChange={handleAddedKeyCheck}
       >

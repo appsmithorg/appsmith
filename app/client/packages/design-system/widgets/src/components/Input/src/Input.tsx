@@ -3,7 +3,7 @@ import { mergeRefs } from "@react-aria/utils";
 import React, { forwardRef, useRef, useState } from "react";
 import { getTypographyClassName } from "@appsmith/wds-theming";
 import { IconButton, Spinner, type IconProps } from "@appsmith/wds";
-import { Group, Input as HeadlessInput } from "react-aria-components";
+import { Input as HeadlessInput } from "react-aria-components";
 
 import styles from "./styles.module.css";
 import type { InputProps } from "./types";
@@ -49,7 +49,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   })();
 
   return (
-    <Group className={styles.inputGroup}>
+    <div className={styles.inputGroup}>
       {Boolean(prefix) && (
         <span data-input-prefix onClick={() => localRef.current?.focus()}>
           {prefix}
@@ -74,7 +74,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
           {suffix}
         </span>
       )}
-    </Group>
+    </div>
   );
 }
 

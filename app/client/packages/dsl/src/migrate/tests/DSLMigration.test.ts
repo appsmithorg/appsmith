@@ -930,6 +930,10 @@ const migrations: Migration[] = [
     ],
     version: 89,
   },
+  {
+    functionLookup: [],
+    version: 90,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

@@ -1,6 +1,7 @@
 # This is a comment.
 # Each line is a file pattern followed by one or more owners.
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
 
 app/client/.husky @KelvinOm
 app/client/.yarn @KelvinOm
@@ -100,6 +101,8 @@ app/server/**/*Git*.java @appsmithorg/git-be-reviewers
 app/server/**/*Import*.java @appsmithorg/git-be-reviewers
 app/server/**/*Export*.java @appsmithorg/git-be-reviewers
 
+app/server/**/*Environment* @appsmithorg/git-be-reviewers
+
 app/client/src/pages/Editor/gitSync/ @appsmithorg/git-fe-reviewers
 app/client/packages/dsl/ @appsmithorg/git-fe-reviewers
 
@@ -135,14 +138,6 @@ app/client/src/sagas/DatasourcesSagas.ts @ayushpahwa
 app/client/src/sagas/QueryPaneSagas.ts @ayushpahwa
 app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @ayushpahwa
 
-
-# Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
-# Data Platform Pod
-app/server/**/*Action* @nidhi-nair @sondermanish
-app/server/**/*Datasource* @nidhi-nair @sondermanish
-app/server/**/*OAuth2* @nidhi-nair @sondermanish
-app/server/**/*Authentication* @nidhi-nair @sondermanish
-app/server/**/*Environment* @nidhi-nair @sondermanish
 
 # Team Managers pod
 app/client/src/pages/Settings/**/* @ankitakinger

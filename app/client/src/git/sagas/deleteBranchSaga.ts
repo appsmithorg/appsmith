@@ -12,12 +12,13 @@ import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { toast } from "@appsmith/ads";
+import { createMessage, DELETE_BRANCH_SUCCESS } from "ee/constants/messages";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: DeleteBranchResponse | undefined;
 
   try {
@@ -25,14 +26,25 @@ export default function* deleteBranchSaga(
       branchName: action.payload.branchName,
     };
 
-    response = yield call(deleteBranchRequest, baseArtifactId, params);
+    response = yield call(
+      deleteBranchRequest,
+      artifactDef.baseArtifactId,
+      params,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.deleteBranchSuccess(basePayload));
+      toast.show(
+        createMessage(DELETE_BRANCH_SUCCESS, action.payload.branchName),
+        {
+          kind: "success",
+        },
+      );
+      yield put(gitArtifactActions.deleteBranchSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.fetchBranchesInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           pruneBranches: true,
         }),
       );
@@ -41,12 +53,7 @@ export default function* deleteBranchSaga(
     if (response && response.responseMeta.error) {
       const { error } = response.responseMeta;
 
-      yield put(
-        gitArtifactActions.deleteBranchError({
-          ...basePayload,
-          error,
-        }),
-      );
+      yield put(gitArtifactActions.deleteBranchError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

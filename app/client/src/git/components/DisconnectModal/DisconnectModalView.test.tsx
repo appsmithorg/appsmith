@@ -24,13 +24,13 @@ describe("DisconnectModal", () => {
 
   it("should render the modal when isModalOpen is true", () => {
     render(<DisconnectModal {...defaultProps} />);
-    expect(screen.getByTestId("t--disconnect-git-modal")).toBeInTheDocument();
+    expect(screen.getByTestId("t--git-disconnect-modal")).toBeInTheDocument();
   });
 
   it("should not render the modal when isModalOpen is false", () => {
     render(<DisconnectModal {...defaultProps} isDisconnectModalOpen={false} />);
     expect(
-      screen.queryByTestId("t--disconnect-git-modal"),
+      screen.queryByTestId("t--git-disconnect-modal"),
     ).not.toBeInTheDocument();
   });
 
@@ -57,9 +57,9 @@ describe("DisconnectModal", () => {
   it("should enable Revoke button when appName matches disconnectAppName", () => {
     render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
-    const revokeButton = document.getElementsByClassName(
-      "t--git-revoke-button",
-    )[0];
+    const revokeButton = screen.getByTestId(
+      "t--git-disconnect-modal-revoke-btn",
+    );
 
     expect(revokeButton).toBeDisabled();
 
@@ -70,9 +70,9 @@ describe("DisconnectModal", () => {
   it("should disable Revoke button when appName does not match disconnectAppName", () => {
     render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
-    const revokeButton = document.getElementsByClassName(
-      "t--git-revoke-button",
-    )[0];
+    const revokeButton = screen.getByTestId(
+      "t--git-disconnect-modal-revoke-btn",
+    );
 
     fireEvent.change(input, { target: { value: "WrongAppName" } });
     expect(revokeButton).toBeDisabled();
@@ -80,9 +80,7 @@ describe("DisconnectModal", () => {
 
   it("should call onBackClick when Go Back button is clicked", () => {
     render(<DisconnectModal {...defaultProps} />);
-    const goBackButton = document.getElementsByClassName(
-      "t--git-revoke-back-button",
-    )[0];
+    const goBackButton = screen.getByTestId("t--git-disconnect-modal-back-btn");
 
     fireEvent.click(goBackButton);
     expect(defaultProps.closeDisconnectModal).toHaveBeenCalledTimes(1);
@@ -92,9 +90,9 @@ describe("DisconnectModal", () => {
   it("should call onDisconnect when Revoke button is clicked", () => {
     render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
-    const revokeButton = document.getElementsByClassName(
-      "t--git-revoke-button",
-    )[0];
+    const revokeButton = screen.getByTestId(
+      "t--git-disconnect-modal-revoke-btn",
+    );
 
     fireEvent.change(input, { target: { value: "TestApp" } });
     fireEvent.click(revokeButton);
@@ -105,9 +103,9 @@ describe("DisconnectModal", () => {
   it("should disable Revoke button when isRevoking is true", () => {
     const { rerender } = render(<DisconnectModal {...defaultProps} />);
     const input = screen.getByLabelText("Application name");
-    const revokeButton = document.getElementsByClassName(
-      "t--git-revoke-button",
-    )[0];
+    const revokeButton = screen.getByTestId(
+      "t--git-disconnect-modal-revoke-btn",
+    );
 
     fireEvent.change(input, { target: { value: "TestApp" } });
     expect(revokeButton).toBeEnabled();
@@ -154,9 +152,9 @@ describe("DisconnectModal", () => {
 
   it("should not call onDisconnect when Revoke button is clicked and appName does not match", () => {
     render(<DisconnectModal {...defaultProps} />);
-    const revokeButton = document.getElementsByClassName(
-      "t--git-revoke-button",
-    )[0];
+    const revokeButton = screen.getByTestId(
+      "t--git-disconnect-modal-revoke-btn",
+    );
 
     fireEvent.click(revokeButton);
     expect(defaultProps.disconnect).not.toHaveBeenCalled();
