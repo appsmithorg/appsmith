@@ -1,8 +1,8 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
+import type { ActiveField } from "./activeFieldEditorReducer.types";
 
-export type ActiveField = null | string;
 const initialState: ActiveField = null;
 
 const activeFieldReducer = createReducer(initialState, {

@@ -39,10 +39,6 @@ const importReducer = createReducer(initialState, {
   },
 });
 
-export interface ImportReduxState {
-  isCurlModalOpen: boolean;
-  isImportingCurl: boolean;
-  errorPayload: Record<string, unknown>;
-}
+import type { ImportReduxState } from "./importReducer.types";
 
 export default importReducer;

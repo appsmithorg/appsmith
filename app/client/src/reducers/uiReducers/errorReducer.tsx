@@ -64,14 +64,6 @@ const errorReducer = createReducer(initialState, {
   },
 });
 
-export interface ErrorReduxState {
-  safeCrash: boolean;
-  safeCrashCode?: ERROR_CODES;
-  currentError: {
-    sourceAction?: string;
-    message?: string;
-    stackTrace?: string;
-  };
-}
+import type { ErrorReduxState } from "./errorReducer.types";
 
 export default errorReducer;

@@ -62,9 +62,6 @@ const datasourceNameReducer = createReducer(initialState, {
   },
 });
 
-export interface DatasourceNameReduxState {
-  isSaving: Record<string, boolean>;
-  errors: Record<string, boolean>;
-}
+import type { DatasourceNameReduxState } from "./datasourceNameReducer.types";
 
 export default datasourceNameReducer;

@@ -1,27 +1,24 @@
 import { set } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
+import {
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import type {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,
   BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
-
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  WidgetReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+import type { EvalMetaUpdates } from "ce/workers/common/DataTreeEvaluator/types";
+import type { WidgetEntityConfig } from "ce/entities/DataTree/types";
 import produce from "immer";
-import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import {
   getMetaWidgetResetObj,
   getNextMetaStateWithUpdates,
   setMetaValuesOnResetFromEval,
 } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
-
-export type WidgetMetaState = Record<string, unknown>;
-export type MetaState = Record<string, WidgetMetaState>;
+import type { MetaState, WidgetMetaState, TableFilterPanePositionConfig } from "./index.types";
 
 export const initialState: MetaState = {};
 
@@ -166,14 +163,5 @@ export const metaReducer = createReducer(initialState, {
     return initialState;
   },
 });
-
-interface TableFilterPanePositionConfig {
-  widgetId: string;
-  isMoved: boolean;
-  position: {
-    left: number;
-    top: number;
-  };
-}
 
 export default metaReducer;

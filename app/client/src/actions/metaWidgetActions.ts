@@ -4,7 +4,7 @@ import type {
   DeleteMetaWidgetsPayload,
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
+} from "reducers/entityReducers/metaWidgetsReducer.types";
 
 export const modifyMetaWidgets = (payload: ModifyMetaWidgetPayload) => ({
   type: ReduxActionTypes.MODIFY_META_WIDGETS,

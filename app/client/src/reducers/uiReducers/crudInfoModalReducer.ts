@@ -2,6 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SetCrudInfoModalOpenPayload } from "actions/crudInfoModalActions";
+import type { CrudInfoModalReduxState, GenerateCRUDSuccessInfoData } from "./crudInfoModalReducer.types";
 
 const initialState: CrudInfoModalReduxState = {
   crudInfoModalOpen: false,
@@ -20,15 +21,5 @@ const crudInfoModalReducer = createReducer(initialState, {
     };
   },
 });
-
-export interface GenerateCRUDSuccessInfoData {
-  successImageUrl: string;
-  successMessage: string;
-}
-
-export interface CrudInfoModalReduxState {
-  crudInfoModalOpen: boolean;
-  generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
-}
 
 export default crudInfoModalReducer;

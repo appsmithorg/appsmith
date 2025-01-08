@@ -30,7 +30,7 @@ import {
 import "url-search-params-polyfill";
 import type { AppState } from "ee/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer.types";
 import _, { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
@@ -43,7 +43,7 @@ import {
 } from "ee/selectors/workflowSelectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import type { PageListReduxState } from "reducers/entityReducers/pageListReducer.types";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;

@@ -72,7 +72,7 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import type { Template } from "api/TemplatesApi";
+import type { Template } from "api/TemplatesApi.types";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";

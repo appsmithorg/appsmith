@@ -15,8 +15,8 @@ import {
 import type { AppState } from "ee/reducers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
+import { UIComponentTypes } from "api/PluginApi.types";
 import type { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,

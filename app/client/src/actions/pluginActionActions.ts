@@ -14,7 +14,7 @@ import type {
 import { ActionExecutionContext } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { ModalInfo } from "reducers/uiReducers/modalActionReducer.types";
 import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";

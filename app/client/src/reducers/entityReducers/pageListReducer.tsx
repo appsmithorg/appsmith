@@ -13,9 +13,13 @@ import type {
 } from "actions/pageActions";
 import type { UpdatePageResponse } from "api/PageApi";
 import { sortBy } from "lodash";
-import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
-import type { Page } from "entities/Page";
+import type {
+  PageListReduxState,
+  GeneratePageModalParams,
+  Page,
+  DSL,
+} from "./pageListReducer.types";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -312,38 +316,5 @@ export const pageListReducer = createReducer(initialState, {
     return { ...state, pages: sortedPages };
   },
 });
-
-export type SupportedLayouts =
-  | "DESKTOP"
-  | "TABLET_LARGE"
-  | "TABLET"
-  | "MOBILE"
-  | "FLUID";
-
-export interface AppLayoutConfig {
-  type: SupportedLayouts;
-}
-
-export interface GeneratePageModalParams {
-  datasourceId?: string;
-  new_page?: boolean;
-}
-
-export interface PageListReduxState {
-  pages: Page[];
-  baseApplicationId: string;
-  applicationId: string;
-  currentBasePageId: string;
-  currentPageId: string;
-  defaultBasePageId: string;
-  defaultPageId: string;
-  appLayout?: AppLayoutConfig;
-  isGeneratingTemplatePage?: boolean;
-  generatePage?: {
-    modalOpen: boolean;
-    params?: GeneratePageModalParams;
-  };
-  loading: Record<string, boolean>;
-}
 
 export default pageListReducer;

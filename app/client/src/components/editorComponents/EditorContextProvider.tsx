@@ -37,7 +37,7 @@ import type {
   ModifyMetaWidgetPayload,
   DeleteMetaWidgetsPayload,
   UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
+} from "reducers/entityReducers/metaWidgetsReducer.types";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 

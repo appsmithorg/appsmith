@@ -27,7 +27,4 @@ export const widgetReflowReducer = createReducer(initialState, {
   },
 });
 
-export interface widgetReflow {
-  isReflowing: boolean;
-  reflowingWidgets: ReflowedSpaceMap;
-}
+import type { widgetReflow } from "./reflowReducer.types";

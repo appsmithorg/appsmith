@@ -32,7 +32,7 @@ import type {
   FetchTemplateResponse,
   ImportTemplateResponse,
   TemplateFiltersResponse,
-} from "api/TemplatesApi";
+} from "api/TemplatesApi.types";
 import TemplatesAPI from "api/TemplatesApi";
 import { toast } from "@appsmith/ads";
 import { APP_MODE } from "entities/App";

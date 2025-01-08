@@ -1,6 +1,6 @@
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer.types";
 
 export const metaWidgetState: MetaWidgetsReduxState = {
   baowuczcgg: {

@@ -42,14 +42,6 @@ const appSettingsPaneReducer = createReducer(initialState, {
   },
 });
 
-export interface AppSettingsPaneContext {
-  type: AppSettingsTabs;
-  pageId?: string;
-}
-
-export interface AppSettingsPaneReduxState {
-  isOpen: boolean;
-  context?: AppSettingsPaneContext;
-}
+import type { AppSettingsPaneContext, AppSettingsPaneReduxState } from "./appSettingsPaneReducer.types";
 
 export default appSettingsPaneReducer;

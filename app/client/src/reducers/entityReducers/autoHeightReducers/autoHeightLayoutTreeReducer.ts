@@ -1,17 +1,9 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
+import type { AutoHeightLayoutTreePayload, AutoHeightLayoutTreeReduxState } from "./autoHeightLayoutTreeReducer.types";
 
-export interface AutoHeightLayoutTreePayload {
-  tree: Record<string, TreeNode>;
-  canvasLevelMap: Record<string, number>;
-}
-
-export interface AutoHeightLayoutTreeReduxState {
-  [widgetId: string]: TreeNode;
-}
 const initialState: AutoHeightLayoutTreeReduxState = {};
 
 const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {

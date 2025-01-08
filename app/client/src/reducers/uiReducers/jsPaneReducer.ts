@@ -6,28 +6,12 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
+import { JSEditorTab } from "./jsPaneReducer.types";
+import type { JSPaneReduxState, JSPaneDebuggerState } from "./jsPaneReducer.types";
 
-export enum JSEditorTab {
-  CODE = "CODE",
-  SETTINGS = "SETTINGS",
-}
 
-export interface JSPaneDebuggerState {
-  open: boolean;
-  responseTabHeight: number;
-  selectedTab?: string;
-}
 
-export interface JsPaneReduxState {
-  isCreating: boolean;
-  isSaving: Record<string, boolean>;
-  isDeleting: Record<string, boolean>;
-  isDirty: Record<string, boolean>;
-  selectedConfigTab: JSEditorTab;
-  debugger: JSPaneDebuggerState;
-}
-
-const initialState: JsPaneReduxState = {
+const initialState: JSPaneReduxState = {
   isCreating: false,
   isSaving: {},
   isDeleting: {},

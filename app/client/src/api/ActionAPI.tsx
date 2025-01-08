@@ -1,5 +1,5 @@
 import type React from "react";
-import type { HttpMethod } from "api/Api";
+import type { HttpMethod } from "api/Api.types";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";

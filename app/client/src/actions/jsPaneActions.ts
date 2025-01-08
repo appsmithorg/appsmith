@@ -8,10 +8,8 @@ import type {
   SetFunctionPropertyPayload,
 } from "ee/api/JSActionAPI";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
-import type {
-  JSEditorTab,
-  JSPaneDebuggerState,
-} from "reducers/uiReducers/jsPaneReducer";
+import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer.types";
+import type { JSPaneDebuggerState } from "reducers/uiReducers/jsPaneReducer.types";
 import type { JSUpdate } from "../utils/JSPaneUtils";
 
 export const createNewJSCollection = (

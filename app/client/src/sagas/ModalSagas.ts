@@ -33,7 +33,7 @@ import {
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "reducers/entityReducers/canvasWidgetsReducer.types";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import {
   closePropertyPane,

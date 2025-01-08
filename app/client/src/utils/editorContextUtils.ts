@@ -1,4 +1,4 @@
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
 import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,

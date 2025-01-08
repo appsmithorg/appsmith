@@ -31,8 +31,8 @@ import {
   newWebWorkerSpanData,
   profileAsyncFn,
 } from "instrumentation/generateWebWorkerTraces";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer.types";
 import type { Attributes } from "instrumentation/types";
 
 // TODO: Fix this the next time the file is edited

@@ -23,7 +23,7 @@ import { Component } from "react";
 import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
+} from "reducers/entityReducers/metaWidgetsReducer.types";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import AppsmithConsole from "utils/AppsmithConsole";

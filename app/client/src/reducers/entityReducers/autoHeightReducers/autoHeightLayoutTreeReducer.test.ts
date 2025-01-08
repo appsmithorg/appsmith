@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import reducer from "./autoHeightLayoutTreeReducer";
+import type { AutoHeightLayoutTreeReduxState } from "./autoHeightLayoutTreeReducer.types";
 
 describe("Canvas Levels Reducer", () => {
   it("should return the initial state", () => {

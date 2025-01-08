@@ -1,21 +1,10 @@
 import React from "react";
-
 import clsx from "classnames";
-
 import { Icon } from "@appsmith/ads";
 import { sanitizeString } from "utils/URLUtils";
-
 import * as Styled from "./styles";
 import { DATA_TEST_ID } from "./constants";
-
-export interface FileTabProps {
-  isActive: boolean;
-  title: string;
-  onClick: () => void;
-  onClose: (e: React.MouseEvent) => void;
-  children: React.ReactNode;
-  onDoubleClick?: () => void;
-}
+import type { FileTabProps } from "./FileTab.types";
 
 export const FileTab = ({
   children,

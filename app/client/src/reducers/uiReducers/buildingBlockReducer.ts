@@ -53,9 +53,6 @@ const buildingBlockReducer = createReducer(initialState, {
   },
 });
 
-export interface BuildingBlocksReduxState {
-  isDraggingBuildingBlocksToCanvas: boolean;
-  buildingBlockDragStartTimestamp?: number;
-}
+import type { BuildingBlocksReduxState } from "./buildingBlockReducer.types";
 
 export default buildingBlockReducer;

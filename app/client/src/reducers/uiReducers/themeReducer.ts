@@ -2,7 +2,8 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { dark, light, theme } from "constants/DefaultTheme";
-import { ThemeMode } from "selectors/themeSelectors";
+import type { ThemeState, HeaderMetaState } from "./themeReducer.types";
+import { ThemeMode } from "./themeReducer.types";
 
 const initialState: ThemeState = {
   mode: ThemeMode.LIGHT,
@@ -16,18 +17,6 @@ const initialState: ThemeState = {
   hideHeaderShadow: false,
   showHeaderSeparator: false,
 };
-
-export type ThemeState = HeaderMetaState & {
-  mode: ThemeMode;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  theme: any;
-};
-
-export interface HeaderMetaState {
-  hideHeaderShadow: boolean;
-  showHeaderSeparator: boolean;
-}
 
 const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_THEME]: (

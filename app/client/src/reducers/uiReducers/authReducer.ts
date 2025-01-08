@@ -28,9 +28,6 @@ const authReducer = createReducer(initialState, {
   }),
 });
 
-export interface AuthState {
-  isValidatingToken: boolean;
-  isTokenValid: boolean;
-}
+import type { AuthState } from "./authReducer.types";
 
 export default authReducer;

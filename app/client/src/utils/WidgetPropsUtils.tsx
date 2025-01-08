@@ -11,7 +11,7 @@ import {
 import { snapToGrid } from "./helpers";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetType } from "../WidgetProvider/factory";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";

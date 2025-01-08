@@ -2,6 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
+import type { TableFilterPaneReduxState } from "./tableFilterPaneReducer.types";
 
 const initialState: TableFilterPaneReduxState = {
   isVisible: false,
@@ -62,12 +63,5 @@ const tableFilterPaneReducer = createReducer(initialState, {
     };
   },
 });
-
-export interface TableFilterPaneReduxState {
-  isVisible: boolean;
-  widgetId?: string;
-  lastWidgetId?: string;
-  isVisibleBeforeAction?: boolean;
-}
 
 export default tableFilterPaneReducer;

@@ -2,10 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-
-export interface EvaluationDependencyState {
-  inverseDependencyMap: DependencyMap;
-}
+import type { EvaluationDependencyState } from "./dependencyReducer.types";
 
 const initialState: EvaluationDependencyState = {
   inverseDependencyMap: {},

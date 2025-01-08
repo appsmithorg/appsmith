@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
+import type { Template, TemplateFiltersResponse } from "api/TemplatesApi.types";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,

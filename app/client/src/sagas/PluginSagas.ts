@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
+import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi.types";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
@@ -16,7 +16,7 @@ import {
   getPlugins,
 } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
 import {
   fetchPluginFormConfigsSuccess,
   fetchPluginFormConfigSuccess,
