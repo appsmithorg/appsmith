@@ -5,21 +5,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import KanbanComponent from "../component";
 
+import type { KanbanColumn } from "../component";
+
 export interface KanbanBoardWidgetProps extends WidgetProps {
-  columns: Array<{
-    title: string;
-    tasks: Array<{
-      title: string;
-      description: string;
-      style?: Record<string, unknown>;
-    }>;
-    style?: Record<string, unknown>;
-  }>;
+  columns: KanbanColumn[];
   backgroundColor?: string;
   borderRadius?: string;
   boxShadow?: string;
-  onTaskMove?: (columns: KanbanBoardWidgetProps["columns"]) => void;
-  sanitizedColumns: KanbanBoardWidgetProps["columns"];
+  onTaskMove?: (columns: KanbanColumn[]) => void;
+  sanitizedColumns: KanbanColumn[];
   isValid: boolean;
 }
 
@@ -79,9 +73,92 @@ class KanbanBoardWidget extends BaseWidget<
             propertyName: "columns",
             label: "Columns",
             controlType: "ARRAY_FIELD",
+            helpText: "Configure kanban board columns and their tasks",
             placeholderText: '[{"title": "To Do", "tasks": []}]',
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                unique: true,
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "title",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "tasks",
+                        type: ValidationTypes.ARRAY,
+                        params: {
+                          default: [],
+                          children: {
+                            type: ValidationTypes.OBJECT,
+                            params: {
+                              allowedKeys: [
+                                {
+                                  name: "title",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    required: true,
+                                  },
+                                },
+                                {
+                                  name: "description",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    required: true,
+                                  },
+                                },
+                                {
+                                  name: "style",
+                                  type: ValidationTypes.OBJECT,
+                                  params: {
+                                    allowedKeys: [
+                                      {
+                                        name: "backgroundColor",
+                                        type: ValidationTypes.TEXT,
+                                      },
+                                      {
+                                        name: "textColor",
+                                        type: ValidationTypes.TEXT,
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        name: "style",
+                        type: ValidationTypes.OBJECT,
+                        params: {
+                          allowedKeys: [
+                            {
+                              name: "backgroundColor",
+                              type: ValidationTypes.TEXT,
+                            },
+                            {
+                              name: "textColor",
+                              type: ValidationTypes.TEXT,
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "title",

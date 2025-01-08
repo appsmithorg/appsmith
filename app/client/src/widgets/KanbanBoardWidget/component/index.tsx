@@ -9,20 +9,30 @@ import type {
 } from "react-beautiful-dnd";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
+export interface KanbanTask {
+  title: string;
+  description: string;
+  style?: {
+    backgroundColor?: string;
+    textColor?: string;
+  };
+}
+
+export interface KanbanColumn {
+  title: string;
+  tasks: KanbanTask[];
+  style?: {
+    backgroundColor?: string;
+    textColor?: string;
+  };
+}
+
 interface KanbanComponentProps {
-  columns: Array<{
-    title: string;
-    tasks: Array<{
-      title: string;
-      description: string;
-      style?: Record<string, unknown>;
-    }>;
-    style?: Record<string, unknown>;
-  }>;
+  columns: KanbanColumn[];
   backgroundColor?: string;
   borderRadius?: string;
   boxShadow?: string;
-  onTaskMove?: (columns: KanbanComponentProps["columns"]) => void;
+  onTaskMove?: (columns: KanbanColumn[]) => void;
 }
 
 const Container = styled.div<{
