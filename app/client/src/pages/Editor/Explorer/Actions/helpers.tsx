@@ -62,7 +62,8 @@ export const resolveActionURL = ({
     pluginType === PluginType.DB ||
     pluginType === PluginType.REMOTE ||
     pluginType === PluginType.AI ||
-    pluginType === PluginType.INTERNAL
+    pluginType === PluginType.INTERNAL ||
+    pluginType === PluginType.EXTERNAL_SAAS
   ) {
     return queryEditorIdURL({
       baseParentEntityId,
@@ -86,6 +87,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ],
     icon: dbQueryIcon,
     key: generateReactKey(),
