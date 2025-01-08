@@ -52,7 +52,9 @@ if (isTracingEnabled()) {
     trackWebVitalsAttribution: true,
     internalLoggerLevel,
     sessionTracking: {
-      enabled: false,
+      generateSessionId: () => {
+        return "session-id";
+      },
     },
   });
 
