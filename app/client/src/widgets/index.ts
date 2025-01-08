@@ -90,6 +90,7 @@ import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
 import { WDSCustomWidget } from "modules/ui-builder/ui/wds/WDSCustomWidget";
 import { EEWDSWidgets } from "ee/modules/ui-builder/ui/wds";
 import { WDSDatePickerWidget } from "modules/ui-builder/ui/wds/WDSDatePickerWidget";
+import KanbanBoardWidget from "./KanbanBoardWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -142,6 +143,7 @@ const LegacyWidgets = [
   CodeScannerWidget,
   ListWidgetV2,
   ExternalWidget,
+  KanbanBoardWidget,
 ];
 
 const DeprecatedWidgets = [
