@@ -10,7 +10,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { builderURL } from "ee/RouteBuilder";
-import { useNavigateToWidget } from "./useNavigateToWidget";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   getCurrentBasePageId,
   getPagePermissions,
@@ -25,9 +25,9 @@ import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { useValidateEntityName } from "IDE/Components/EditableName/useValidateEntityName";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import WidgetFactory from "WidgetProvider/factory";
-import WidgetIcon from "./WidgetIcon";
-import { EntityClassNames } from "../Entity";
-import WidgetContextMenu from "./WidgetContextMenu";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import WidgetContextMenu from "pages/Editor/Explorer/Widgets/WidgetContextMenu";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 const enhanceItemsTree = (
