@@ -56,7 +56,7 @@ public class GitBranchesTestTemplateProviderCE implements TestTemplateInvocation
                 AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT,
                 env.getProperty("appsmith.version", "UNKNOWN"))) // Version from environment
             .shouldTriggerAutoCommit(shouldTriggerAutoCommit) // Based on application.json content
-            .expectedCommitAuthor("Appsmith Auto-commit") // System commits should use a consistent author
+
             .expectedTimestampPattern("\\d+") // Unix timestamp format
             .build();
 

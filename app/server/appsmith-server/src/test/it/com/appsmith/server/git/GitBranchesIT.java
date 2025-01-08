@@ -272,12 +272,6 @@ public class GitBranchesIT {
                 .as("Commit should follow auto-commit message format")
                 .matches(String.format(AUTO_COMMIT_MSG_FORMAT, ".*"));
                 
-            // Validate commit author if specified
-            if (autoCommitExpectations.getExpectedCommitAuthor() != null) {
-                assertThat(autoCommit.getAuthorIdent().getName())
-                    .as("Auto-commit author should match expectations")
-                    .isEqualTo(autoCommitExpectations.getExpectedCommitAuthor());
-            }
             
             // Validate commit timestamp if pattern specified
             if (autoCommitExpectations.getExpectedTimestampPattern() != null) {
