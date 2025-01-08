@@ -32,7 +32,11 @@ class KanbanBoardWidget extends BaseWidget<
   static getConfig() {
     return {
       name: "Kanban Board",
-      iconSVG: "", // TODO: Add icon
+      iconSVG: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="20" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+  <line x1="10" y1="4" x2="10" y2="24" stroke="currentColor" stroke-width="2"/>
+  <line x1="18" y1="4" x2="18" y2="24" stroke="currentColor" stroke-width="2"/>
+</svg>`,
       needsMeta: true,
       isCanvas: false,
       defaults: {
