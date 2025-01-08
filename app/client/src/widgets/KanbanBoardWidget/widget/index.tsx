@@ -329,10 +329,10 @@ class KanbanBoardWidget extends BaseWidget<
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      sanitizedColumns: `{{ this.columns?.map((column) => ({
+      sanitizedColumns: `{{ Array.isArray(this.columns) ? this.columns.map((column) => ({
         ...column,
-        tasks: column.tasks || []
-      })) || [] }}`,
+        tasks: Array.isArray(column.tasks) ? column.tasks : []
+      })) : [] }}`,
       isValid: `{{ Array.isArray(this.columns) }}`,
     };
   }
