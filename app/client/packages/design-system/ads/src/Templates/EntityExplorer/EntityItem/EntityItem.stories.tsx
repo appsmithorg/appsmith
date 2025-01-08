@@ -36,7 +36,6 @@ const Template = (props: EntityItemProps) => {
       <ExplorerContainer borderRight="STANDARD" height="500px" width="255px">
         <Flex flexDirection="column" gap="spaces-2" p="spaces-3">
           <EntityItem
-            id="storyItem"
             onDoubleClick={() => {
               setIsEditing(true);
             }}
