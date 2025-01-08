@@ -398,6 +398,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(pluginType)
   )
     return;
