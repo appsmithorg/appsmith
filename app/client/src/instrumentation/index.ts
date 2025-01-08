@@ -51,6 +51,13 @@ if (isTracingEnabled()) {
     trackResources: true,
     trackWebVitalsAttribution: true,
     internalLoggerLevel,
+    sessionTracking: {
+      generateSessionId: () => {
+        // Disabling session tracing will not send any instrumentation data to the grafana backend
+        // Instead, hardcoding the session id to a constant value to indirecly disable session tracing
+        return "SESSION_ID";
+      },
+    },
   });
 
   const tracerProvider = new WebTracerProvider({
