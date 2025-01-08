@@ -4,7 +4,6 @@ import { ListItem, Spinner, Tooltip } from "../../..";
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styles";
 import { useEditableText } from "../Editable";
-import clx from "classnames";
 
 export const EntityItem = (props: EntityItemProps) => {
   const {
@@ -78,10 +77,7 @@ export const EntityItem = (props: EntityItemProps) => {
   return (
     <ListItem
       {...props}
-      className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
-      data-testid={`t--entity-item-${props.title}`}
-      id={"entity-" + props.id}
       startIcon={startIcon}
     />
   );
