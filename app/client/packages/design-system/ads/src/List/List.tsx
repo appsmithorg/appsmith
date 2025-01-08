@@ -11,6 +11,9 @@ import {
   TooltipTextWrapper,
   TopContentWrapper,
 } from "./List.styles";
+import type { TextProps } from "../Text";
+import { Text } from "../Text";
+import { Tooltip } from "../Tooltip";
 import {
   ListClassName,
   ListItemBDescClassName,
@@ -19,9 +22,6 @@ import {
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
-import type { TextProps } from "../Text";
-import { Text } from "../Text";
-import { Tooltip } from "../Tooltip";
 
 function List({ className, items, ...rest }: ListProps) {
   return (
