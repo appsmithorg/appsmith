@@ -79,7 +79,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
+            const message = `🚨 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
