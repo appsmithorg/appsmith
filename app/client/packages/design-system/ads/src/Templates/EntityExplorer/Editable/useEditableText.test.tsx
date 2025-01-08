@@ -82,6 +82,7 @@ describe("useEditableText", () => {
     act(() => {
       handleKeyUp({
         key: "Enter",
+        stopPropagation: jest.fn(),
       } as unknown as React.KeyboardEvent<HTMLInputElement>);
     });
 
@@ -113,6 +114,7 @@ describe("useEditableText", () => {
     act(() => {
       handleKeyUp({
         key: "Enter",
+        stopPropagation: jest.fn(),
       } as unknown as React.KeyboardEvent<HTMLInputElement>);
     });
 
@@ -134,7 +136,10 @@ describe("useEditableText", () => {
     const [, , , handleKeyUp] = result.current;
 
     act(() => {
-      handleKeyUp({ key: "Escape" } as React.KeyboardEvent<HTMLInputElement>);
+      handleKeyUp({
+        key: "Escape",
+        stopPropagation: jest.fn(),
+      } as unknown as React.KeyboardEvent<HTMLInputElement>);
     });
 
     expect(mockExitEditing).toHaveBeenCalled();
@@ -155,7 +160,10 @@ describe("useEditableText", () => {
     const [, , , handleKeyUp] = result.current;
 
     act(() => {
-      handleKeyUp({ key: "Enter" } as React.KeyboardEvent<HTMLInputElement>);
+      handleKeyUp({
+        key: "Enter",
+        stopPropagation: jest.fn(),
+      } as unknown as React.KeyboardEvent<HTMLInputElement>);
     });
 
     expect(mockExitEditing).toHaveBeenCalled();
