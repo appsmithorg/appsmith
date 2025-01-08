@@ -149,7 +149,7 @@ public class ApplicationSnapshotServiceTest {
         // this app will have default app id=testDefaultAppId and branch name=test branch name
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         gitArtifactMetadata.setDefaultApplicationId(testDefaultAppId);
-        gitArtifactMetadata.setBranchName(testBranchName);
+        gitArtifactMetadata.setRefName(testBranchName);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         Mono<Tuple2<ApplicationSnapshotResponseDTO, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)

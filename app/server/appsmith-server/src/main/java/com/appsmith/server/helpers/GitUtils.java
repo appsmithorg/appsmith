@@ -1,6 +1,6 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.domains.Application;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -136,33 +136,31 @@ public class GitUtils {
 
     public static String getDefaultBranchName(GitArtifactMetadata gitArtifactMetadata) {
         return StringUtils.isEmptyOrNull(gitArtifactMetadata.getDefaultBranchName())
-                ? gitArtifactMetadata.getBranchName()
+                ? gitArtifactMetadata.getRefName()
                 : gitArtifactMetadata.getDefaultBranchName();
     }
 
     /**
-     * This method checks if the application is connected to git and is the default branched.
+     * This method checks if the artifact is connected to git and is the default branched.
      *
-     * @param application   application to be checked
-     * @return              true if the application is default branched, false otherwise
+     * @param gitArtifactMetadata   gitArtifactMetadata to be checked
+     * @return              true if the artifact is default branched, false otherwise
      */
-    public static boolean isDefaultBranchedApplication(Application application) {
-        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
-        return isApplicationConnectedToGit(application)
-                && !StringUtils.isEmptyOrNull(metadata.getBranchName())
-                && metadata.getBranchName().equals(metadata.getDefaultBranchName());
+    public static boolean isDefaultBranchedArtifact(GitArtifactMetadata gitArtifactMetadata) {
+        return isArtifactConnectedToGit(gitArtifactMetadata)
+                && !StringUtils.isEmptyOrNull(gitArtifactMetadata.getRefName())
+                && gitArtifactMetadata.getRefName().equals(gitArtifactMetadata.getDefaultBranchName());
     }
 
     /**
-     * This method checks if the application is connected to Git or not.
-     * @param application   application to be checked
-     * @return              true if the application is connected to Git, false otherwise
+     * This method checks if the artifact is connected to Git or not.
+     * @param gitArtifactMetadata   gitArtifactMetadata to be checked
+     * @return              true if the artifact is connected to Git, false otherwise
      */
-    public static boolean isApplicationConnectedToGit(Application application) {
-        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
-        return metadata != null
-                && !StringUtils.isEmptyOrNull(metadata.getDefaultArtifactId())
-                && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
+    public static boolean isArtifactConnectedToGit(GitArtifactMetadata gitArtifactMetadata) {
+        return gitArtifactMetadata != null
+                && !StringUtils.isEmptyOrNull(gitArtifactMetadata.getDefaultArtifactId())
+                && !StringUtils.isEmptyOrNull(gitArtifactMetadata.getRemoteUrl());
     }
 
     public static boolean isMigrationRequired(JSONObject layoutDsl, Integer latestDslVersion) {
@@ -192,5 +190,13 @@ public class GitUtils {
     public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
         return gitArtifactMetadata.getAutoCommitConfig() == null
                 || gitArtifactMetadata.getAutoCommitConfig().getEnabled();
+    }
+
+    // Helper method to reset baseId, refType, and refName for entities
+    public static <T extends RefAwareDomain> T resetEntityReferences(T entity) {
+        entity.setBaseId(entity.getId());
+        entity.setRefType(null);
+        entity.setRefName(null);
+        return entity;
     }
 }

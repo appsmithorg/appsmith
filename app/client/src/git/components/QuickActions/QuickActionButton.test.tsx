@@ -26,7 +26,7 @@ describe("QuickActionButton", () => {
     icon: "plus",
     onClick: jest.fn(),
     tooltipText: "default action",
-    className: "t--test-btn",
+    testKey: "test",
   };
 
   afterEach(() => {
@@ -39,7 +39,9 @@ describe("QuickActionButton", () => {
         <QuickActionButton {...defaultProps} />
       </ThemeProvider>,
     );
-    const btn = container.getElementsByClassName("t--test-btn")[0];
+    const btn = container.querySelectorAll(
+      "[data-testid='t--git-quick-actions-test']",
+    )[0];
 
     expect(btn).toBeInTheDocument();
   });
@@ -50,7 +52,9 @@ describe("QuickActionButton", () => {
         <QuickActionButton {...defaultProps} />
       </ThemeProvider>,
     );
-    const btn = container.querySelectorAll(".t--test-btn button")[0];
+    const btn = container.querySelectorAll(
+      "[data-testid='t--git-quick-actions-test'] button",
+    )[0];
 
     fireEvent.click(btn);
     expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
@@ -62,7 +66,9 @@ describe("QuickActionButton", () => {
         <QuickActionButton {...defaultProps} disabled />
       </ThemeProvider>,
     );
-    const btn = container.getElementsByClassName("t--test-btn")[0];
+    const btn = container.querySelectorAll(
+      "[data-testid='t--git-quick-actions-test'] button",
+    )[0];
 
     fireEvent.click(btn);
     expect(defaultProps.onClick).not.toHaveBeenCalled();

@@ -41,17 +41,13 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
-  connectError: GitApiError | null;
+  error: GitApiError | null;
 }
 
 const CONNECTING_TO_GIT_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
-function GenerateSSH({
-  connectError,
-  onChange = noop,
-  value = {},
-}: GenerateSSHProps) {
+function GenerateSSH({ error, onChange = noop, value = {} }: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
     isTouched &&
@@ -69,7 +65,7 @@ function GenerateSSH({
   return (
     <>
       {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
-      {connectError && connectError?.code === "AE-GIT-4033" && (
+      {error && error?.code === "AE-GIT-4033" && (
         <ErrorCallout kind="error">
           <Text kind="heading-xs" renderAs="h3">
             {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}
@@ -99,7 +95,7 @@ function GenerateSSH({
         <WellText renderAs="p">{createMessage(COPY_SSH_URL_MESSAGE)}</WellText>
         <FieldContainer>
           <Input
-            data-testid="git-connect-remote-url-input"
+            data-testid="t--git-connect-remote-input"
             errorMessage={isInvalid ? createMessage(PASTE_SSH_URL_INFO) : ""}
             isRequired
             label={createMessage(REMOTE_URL_INPUT_LABEL)}

@@ -8,7 +8,7 @@ import log from "loglevel";
 import type { AppState } from "ee/reducers";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { RefObject } from "react";
 import { getAnvilSpaceDistributionStatus } from "../selectors";
@@ -87,7 +87,7 @@ function* readAndUpdateLayoutElementPositions() {
 
   // The positions are used only in the editor, so we should not be running this saga
   // in the viewer or the preview mode.
-  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+  const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
   const appMode: APP_MODE = yield select(getAppMode);
 
   if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
