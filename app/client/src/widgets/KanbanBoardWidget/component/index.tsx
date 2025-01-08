@@ -213,9 +213,12 @@ const KanbanComponent: React.FC<KanbanComponentProps> = React.memo(
                             style={React.useMemo(
                               () => ({
                                 ...provided.draggableProps.style,
-                                transform: snapshot.isDragging && provided.draggableProps.style
-                                  ? provided.draggableProps.style.transform ?? "none"
-                                  : "none",
+                                transform:
+                                  snapshot.isDragging &&
+                                  provided.draggableProps.style
+                                    ? provided.draggableProps.style.transform ??
+                                      "none"
+                                    : "none",
                                 backgroundColor: task.style?.backgroundColor,
                                 color: task.style?.textColor,
                               }),
