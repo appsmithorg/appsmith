@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  EntityGroupsList,
   Flex,
   SearchInput,
   NoSearchResults,
@@ -8,9 +9,7 @@ import {
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
-import GroupedList from "../components/GroupedList";
 import {
-  useAddQueryListItems,
   useGroupedAddQueryOperations,
   useQueryAdd,
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
@@ -21,16 +20,9 @@ import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
 const AddQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { getListItems } = useAddQueryListItems();
-  const groupedActionOperations = useGroupedAddQueryOperations();
+  const itemGroups = useGroupedAddQueryOperations();
   const { closeAddQuery } = useQueryAdd();
   const ideViewMode = useSelector(getIDEViewMode);
-
-  const itemGroups = groupedActionOperations.map((group) => ({
-    groupTitle: group.title,
-    className: group.className,
-    items: getListItems(group.operations),
-  }));
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
@@ -66,7 +58,7 @@ const AddQuery = () => {
         />
         <SearchInput autoFocus onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
-          <GroupedList groups={filteredItemGroups} />
+          <EntityGroupsList groups={filteredItemGroups} />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults

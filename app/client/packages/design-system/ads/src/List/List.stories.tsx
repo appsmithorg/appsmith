@@ -26,39 +26,43 @@ const ListTemplate = (args: ListProps) => {
   return <List {...args} />;
 };
 
+const items = [
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 1",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 2",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 3",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 4",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 5",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 6",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 7",
+  },
+];
+
 export const ListStory = ListTemplate.bind({}) as StoryObj;
 ListStory.storyName = "List";
 ListStory.args = {
-  items: [
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 1",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 2",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 3",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 4",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 5",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 6",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 7",
-    },
-  ],
+  children: items.map((item, index) => (
+    <ListItem key={index} {...item} onClick={() => alert("Clicked")} />
+  )),
 };
 
 const ListItemArgTypes = {

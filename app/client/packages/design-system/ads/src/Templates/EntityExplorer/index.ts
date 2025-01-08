@@ -7,4 +7,4 @@ export { NoSearchResults } from "./NoSearchResults";
 export * from "./ExplorerContainer";
 export * from "./EntityItem";
 export { useEditableText } from "./Editable";
-export * from "./Group";
+export * from "./EntityGroupsList";

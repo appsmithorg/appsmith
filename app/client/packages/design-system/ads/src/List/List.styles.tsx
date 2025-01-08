@@ -6,6 +6,8 @@ import {
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
+import { Flex } from "../Flex";
+import { Text } from "../Text";
 
 const Variables = css`
   --listitem-title-font-size: var(--ads-v2-font-size-4);
@@ -158,4 +160,23 @@ export const StyledListItem = styled.div<{
     line-height: 16px;
     padding-right: var(--ads-v2-spaces-2);
   }
+`;
+
+export const StyledGroup = styled(Flex)`
+  & .ads-v2-listitem .ads-v2-listitem__idesc {
+    opacity: 0;
+  }
+
+  & .ads-v2-listitem:hover .ads-v2-listitem__idesc {
+    opacity: 1;
+  }
+`;
+
+export const GroupedList = styled(StyledList)`
+  padding: 0;
+`;
+
+export const GroupTitle = styled(Text)`
+  padding: var(--ads-v2-spaces-1) 0;
+  color: var(--ads-v2-color-fg-muted);
 `;
