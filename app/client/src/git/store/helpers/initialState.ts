@@ -14,17 +14,18 @@ const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   connectModalOpen: false,
   connectSuccessModalOpen: false,
   disconnectBaseArtifactId: null,
+  disconnectArtifactType: null,
   disconnectArtifactName: null,
   branchPopupOpen: false,
   checkoutDestBranch: null,
   opsModalOpen: false,
   opsModalTab: GitOpsTab.Deploy,
+  mergeSuccess: false,
   settingsModalOpen: false,
   settingsModalTab: GitSettingsTab.General,
   autocommitDisableModalOpen: false,
   autocommitPolling: false,
   conflictErrorModalOpen: false,
-  repoLimitErrorModalOpen: false,
   // EE
   ...gitArtifactUIInitialStateExtended,
 };
@@ -154,4 +155,5 @@ export const gitGlobalInitialState: GitGlobalReduxState = {
     error: null,
   },
   isImportModalOpen: false,
+  repoLimitErrorModalOpen: false,
 };

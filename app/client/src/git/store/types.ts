@@ -18,6 +18,7 @@ import type {
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
 import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
+import type { ApplicationPayload } from "entities/Application";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -65,18 +66,21 @@ export interface GitArtifactUIReduxState
   connectModalOpen: boolean;
   connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
+  disconnectArtifactType: keyof typeof GitArtifactType | null;
   disconnectArtifactName: string | null;
   branchPopupOpen: boolean;
   checkoutDestBranch: string | null;
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
+  mergeSuccess: boolean;
   settingsModalOpen: boolean;
   settingsModalTab: keyof typeof GitSettingsTab;
   autocommitDisableModalOpen: boolean;
   autocommitPolling: boolean;
   conflictErrorModalOpen: boolean;
-  repoLimitErrorModalOpen: boolean;
 }
+
+export type GitArtifact = ApplicationPayload;
 
 export interface GitArtifactDef {
   artifactType: keyof typeof GitArtifactType;
@@ -94,6 +98,7 @@ export interface GitGlobalReduxState {
   globalSSHKey: GitAsyncState<FetchGlobalSSHKeyResponseData>;
   // ui
   isImportModalOpen: boolean;
+  repoLimitErrorModalOpen: boolean;
 }
 
 export type GitArtifactRootReduxState = Record<

@@ -1226,23 +1226,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<NewAction> save(NewAction action) {
         // gitSyncId will be used to sync resource across instances
         if (action.getGitSyncId() == null) {
-            action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString());
+            setGitSyncIdInNewAction(action);
         }
 
-        return sanitizeAction(action).flatMap(sanitizedAction -> repository.save(sanitizedAction));
+        return sanitizeAction(action).flatMap(repository::save);
     }
 
     @Override
     public Flux<NewAction> saveAll(List<NewAction> actions) {
-        actions.stream()
-                .filter(action -> action.getGitSyncId() == null)
-                .forEach(action -> action.setGitSyncId(
-                        action.getApplicationId() + "_" + Instant.now().toString()));
+        actions.stream().filter(action -> action.getGitSyncId() == null).forEach(this::setGitSyncIdInNewAction);
 
         return Flux.fromIterable(actions)
                 .flatMap(this::sanitizeAction)
                 .collectList()
-                .flatMapMany(actionList -> repository.saveAll(actionList));
+                .flatMapMany(repository::saveAll);
     }
 
     @Override

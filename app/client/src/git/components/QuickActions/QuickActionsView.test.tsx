@@ -63,24 +63,16 @@ describe("QuickActionsView Component", () => {
       isConnected: true,
     };
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <QuickActionsView {...props} />
       </ThemeProvider>,
     );
 
-    expect(
-      container.getElementsByClassName("t--bottom-bar-commit").length,
-    ).toBe(1);
-    expect(container.getElementsByClassName("t--bottom-bar-pull").length).toBe(
-      1,
-    );
-    expect(container.getElementsByClassName("t--bottom-bar-merge").length).toBe(
-      1,
-    );
-    expect(
-      container.getElementsByClassName("t--bottom-git-settings").length,
-    ).toBe(1);
+    expect(screen.getByTestId("t--git-quick-actions-commit")).toBeVisible();
+    expect(screen.getByTestId("t--git-quick-actions-pull")).toBeVisible();
+    expect(screen.getByTestId("t--git-quick-actions-merge")).toBeVisible();
+    expect(screen.getByTestId("t--git-quick-actions-settings")).toBeVisible();
   });
 
   it("should render Statusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
@@ -91,7 +83,7 @@ describe("QuickActionsView Component", () => {
       isAutocommitPolling: true,
     };
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <QuickActionsView {...props} />
       </ThemeProvider>,
@@ -99,8 +91,8 @@ describe("QuickActionsView Component", () => {
 
     expect(screen.getByTestId("autocommit-statusbar")).toBeInTheDocument();
     expect(
-      container.getElementsByClassName("t--bottom-bar-commit").length,
-    ).toBe(0);
+      screen.queryByTestId("t--git-quick-actions-commit"),
+    ).not.toBeInTheDocument();
   });
 
   it("should call onCommitClick when commit button is clicked", () => {
@@ -115,7 +107,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
-      ".t--bottom-bar-commit button",
+      "[data-testid='t--git-quick-actions-commit'] button",
     )[0];
 
     fireEvent.click(commitButton);
@@ -147,7 +139,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
-      ".t--bottom-bar-pull button",
+      "[data-testid='t--git-quick-actions-pull'] button",
     )[0];
 
     fireEvent.click(pullButton);
@@ -168,7 +160,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const mergeButton = container.querySelectorAll(
-      ".t--bottom-bar-merge button",
+      "[data-testid='t--git-quick-actions-merge'] button",
     )[0];
 
     fireEvent.click(mergeButton);
@@ -193,7 +185,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const settingsButton = container.querySelectorAll(
-      ".t--bottom-git-settings button",
+      "[data-testid='t--git-quick-actions-settings'] button",
     )[0];
 
     fireEvent.click(settingsButton);
@@ -219,7 +211,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
-      ".t--bottom-bar-commit button",
+      "[data-testid='t--git-quick-actions-commit'] button",
     )[0];
 
     expect(commitButton).toBeDisabled();
@@ -232,17 +224,13 @@ describe("QuickActionsView Component", () => {
       isPullLoading: true,
     };
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <QuickActionsView {...props} />
       </ThemeProvider>,
     );
 
-    const pullButton =
-      container.getElementsByClassName("t--bottom-bar-pull")[0];
-    const pullLoading = pullButton.getElementsByClassName(
-      "t--loader-quick-git-action",
-    )[0];
+    const pullLoading = screen.getByTestId("t--git-quick-actions-pull-spinner");
 
     expect(pullLoading).toBeInTheDocument();
   });
@@ -259,7 +247,9 @@ describe("QuickActionsView Component", () => {
         <QuickActionsView {...props} />
       </ThemeProvider>,
     );
-    const countElement = screen.getByTestId("t--bottom-bar-count");
+    const countElement = screen.getByTestId(
+      "t--git-quick-actions-commit-count",
+    );
 
     expect(countElement).toHaveTextContent("5");
   });
@@ -277,7 +267,9 @@ describe("QuickActionsView Component", () => {
         <QuickActionsView {...props} />
       </ThemeProvider>,
     );
-    expect(screen.queryByTestId("t--bottom-bar-count")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("t--git-quick-actions-commit-count"),
+    ).not.toBeInTheDocument();
   });
 
   it("should disable pull button when pullDisabled is true", () => {
@@ -301,7 +293,7 @@ describe("QuickActionsView Component", () => {
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
-      ".t--bottom-bar-pull button",
+      "[data-testid='t--git-quick-actions-pull'] button",
     )[0];
 
     expect(pullButton).toBeDisabled();
@@ -320,7 +312,7 @@ describe("QuickActionsView Component", () => {
         <QuickActionsView {...props} />
       </ThemeProvider>,
     );
-    const countElement = screen.getByTestId("t--bottom-bar-count");
+    const countElement = screen.getByTestId("t--git-quick-actions-pull-count");
 
     expect(countElement).toHaveTextContent("3");
   });

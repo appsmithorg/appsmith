@@ -68,9 +68,33 @@ public class JsonSchemaMigration {
                         return Mono.empty();
                     }
 
-                    return migrateServerSchema(applicationJson, baseApplicationId, refName);
+                    return migrateClientSchema(appJson, baseApplicationId, refName)
+                            .flatMap(clientJson -> migrateServerSchema(clientJson, baseApplicationId, refName));
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
+    }
+
+    private Mono<ApplicationJson> migrateClientSchema(
+            ApplicationJson applicationJson, String baseApplicationId, String branchName) {
+
+        Mono<ApplicationJson> migrateApplicationJsonMono = Mono.just(applicationJson);
+        if (jsonSchemaVersions.getClientVersion().equals(applicationJson.getClientSchemaVersion())) {
+            return migrateApplicationJsonMono;
+        }
+
+        // Run migration linearly
+        // Updating the schema version after each migration is not required as we are not exiting by breaking the switch
+        // cases, but this keeps the version number and the migration in sync
+        switch (applicationJson.getClientSchemaVersion()) {
+            case 0:
+                applicationJson.setClientSchemaVersion(1);
+            case 1:
+                applicationJson.setClientSchemaVersion(2);
+            default:
+        }
+
+        applicationJson.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        return migrateApplicationJsonMono;
     }
 
     /**

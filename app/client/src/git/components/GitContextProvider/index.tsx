@@ -1,19 +1,24 @@
-import React, { createContext, useCallback, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
-import { useDispatch } from "react-redux";
 import type { GitArtifactDef } from "git/store/types";
 import type { StatusTreeStruct } from "../StatusChanges/types";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { noop } from "lodash";
 
 export interface GitContextValue {
   artifactDef: GitArtifactDef | null;
   artifact: ApplicationPayload | null;
+  artifacts: ApplicationPayload[] | null;
+  fetchArtifacts: () => void;
+  workspace: Workspace | null;
+  setImportWorkspaceId: () => void;
+  importWorkspaceId: string | null;
+  isCreateArtifactPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
-  setImportWorkspaceId: () => void;
-  isCreateArtifactPermitted: boolean;
 }
 
 const gitContextInitialValue = {} as GitContextValue;
@@ -25,28 +30,46 @@ export const useGitContext = () => {
 };
 
 interface GitContextProviderProps {
+  // artifact
   artifactType: keyof typeof GitArtifactType | null;
   baseArtifactId: string | null;
   artifact: ApplicationPayload | null;
+  artifacts: ApplicationPayload[] | null;
+  fetchArtifacts: () => void;
+
+  // workspace
+  workspace: Workspace | null;
+
+  // import
+  setImportWorkspaceId: () => void;
+  importWorkspaceId: string | null;
+
+  // permissions
   isCreateArtifactPermitted: boolean;
-  setWorkspaceIdForImport: (params: {
-    workspaceId: string;
-    editorId: string;
-  }) => void;
+
+  // artifactspecific functions
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
+
+  // children
   children: React.ReactNode;
 }
 
+const NULL_NOOP = () => null;
+
 export default function GitContextProvider({
   artifact = null,
-  artifactType,
-  baseArtifactId,
+  artifacts = null,
+  artifactType = null,
+  baseArtifactId = null,
   children,
-  isCreateArtifactPermitted,
-  setWorkspaceIdForImport,
-  statusTransformer,
+  fetchArtifacts = noop,
+  importWorkspaceId = null,
+  isCreateArtifactPermitted = false,
+  setImportWorkspaceId = noop,
+  statusTransformer = NULL_NOOP,
+  workspace = null,
 }: GitContextProviderProps) {
   const artifactDef = useMemo(() => {
     if (artifactType && baseArtifactId) {
@@ -56,34 +79,28 @@ export default function GitContextProvider({
     return null;
   }, [artifactType, baseArtifactId]);
 
-  const dispatch = useDispatch();
-
-  const { id: artifactId, workspaceId } = artifact ?? {};
-  const setImportWorkspaceId = useCallback(() => {
-    if (workspaceId) {
-      dispatch(
-        setWorkspaceIdForImport({
-          workspaceId: workspaceId ?? "",
-          editorId: artifactId ?? "",
-        }),
-      );
-    }
-  }, [artifactId, dispatch, setWorkspaceIdForImport, workspaceId]);
-
   const contextValue: GitContextValue = useMemo(
     () => ({
       artifactDef,
       artifact,
-      statusTransformer,
-      isCreateArtifactPermitted,
+      artifacts,
+      fetchArtifacts,
+      workspace,
       setImportWorkspaceId,
+      importWorkspaceId,
+      isCreateArtifactPermitted,
+      statusTransformer,
     }),
     [
       artifactDef,
       artifact,
-      statusTransformer,
-      isCreateArtifactPermitted,
+      artifacts,
+      fetchArtifacts,
+      workspace,
       setImportWorkspaceId,
+      importWorkspaceId,
+      isCreateArtifactPermitted,
+      statusTransformer,
     ],
   );
 

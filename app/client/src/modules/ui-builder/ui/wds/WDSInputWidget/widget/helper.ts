@@ -69,11 +69,11 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     maxChars,
     maxNum,
     minNum,
-    parsedText,
     rawText,
+    text,
   } = props;
 
-  if (isDirty && isRequired && !isNil(parsedText) && parsedText.length === 0) {
+  if (isDirty && isRequired && !isNil(text) && text.length === 0) {
     return {
       validationStatus: "invalid",
       errorMessage: createMessage(FIELD_REQUIRED_ERROR),
@@ -81,7 +81,7 @@ export const validateInput = (props: InputWidgetProps): Validation => {
   }
 
   if (isInputTypeSingleLineOrMultiLine(inputType) && maxChars) {
-    if (parsedText && parsedText.toString().length > maxChars) {
+    if (text && text.toString().length > maxChars) {
       return {
         validationStatus: "invalid",
         errorMessage: createMessage(INPUT_TEXT_MAX_CHAR_ERROR, maxChars),
@@ -97,16 +97,16 @@ export const validateInput = (props: InputWidgetProps): Validation => {
       };
     }
 
-    if (rawText !== "" && isNumber(parsedText)) {
+    if (rawText !== "" && isNumber(text)) {
       // check the default text is neither greater than max nor less than min value.
-      if (!isNil(minNum) && minNum > parsedText) {
+      if (!isNil(minNum) && minNum > text) {
         return {
           validationStatus: "invalid",
           errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
         };
       }
 
-      if (!isNil(maxNum) && maxNum < parsedText) {
+      if (!isNil(maxNum) && maxNum < text) {
         return {
           validationStatus: "invalid",
           errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),

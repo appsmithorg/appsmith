@@ -3,7 +3,7 @@ import userSagas from "ee/sagas/userSagas";
 import workspaceSagas from "ee/sagas/WorkspaceSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
 import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
-import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
+import { watchDatasourcesSagas } from "ee/sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "ee/sagas/JSActionSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
 import applicationSagas from "ee/sagas/ApplicationSagas";
