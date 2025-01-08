@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { FlexProps } from "../../../Flex";
 
 export interface EntityGroupProps<T> {
@@ -8,7 +8,7 @@ export interface EntityGroupProps<T> {
   addConfig?: {
     icon: ReactNode;
     title: string;
-    onClick: () => void;
+    onClick: (e: MouseEvent) => void;
   };
   renderList?: (item: T) => React.ReactNode;
 }

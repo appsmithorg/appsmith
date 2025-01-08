@@ -1,4 +1,11 @@
-import { lazy, Suspense, useCallback, useMemo, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import React from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
@@ -100,7 +107,7 @@ export const useGroupedAddQueryOperations = () => {
     addConfig?: {
       icon: ReactNode;
       title: string;
-      onClick: () => void;
+      onClick: (e: MouseEvent) => void;
     };
   }[] = [];
 

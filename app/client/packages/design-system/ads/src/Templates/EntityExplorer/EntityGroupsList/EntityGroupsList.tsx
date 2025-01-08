@@ -12,7 +12,6 @@ const EntityGroupsList = <T,>(props: EntityGroupsListProps<T>) => {
 
   return (
     <GroupsListWrapper
-      flex="1"
       flexDirection="column"
       gap="spaces-4"
       overflowY="auto"
