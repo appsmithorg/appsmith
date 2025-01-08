@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "classnames";
 
 import type { ListItemProps, ListProps } from "./List.types";
@@ -22,6 +22,7 @@ import {
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
+import { useEventCallback } from "usehooks-ts";
 
 function List({ className, items, ...rest }: ListProps) {
   return (
@@ -34,39 +35,30 @@ function List({ className, items, ...rest }: ListProps) {
 }
 
 function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
-  const ref = React.useRef<HTMLDivElement>(null);
   const [disableTooltip, setDisableTooltip] = useState(true);
 
-  const isEllipsisActive = () => {
-    let active = false;
+  const handleShowFullText = useEventCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      let isInEllipsis = false;
+      const text_node = e.target;
 
-    if (ref.current) {
-      const text_node = ref.current.children[0];
-
-      if (props.isMultiline) {
-        active = text_node && text_node.clientHeight < text_node.scrollHeight;
-      } else {
-        active = text_node && text_node.clientWidth < text_node.scrollWidth;
+      if (text_node instanceof HTMLElement) {
+        if (props.isMultiline) {
+          isInEllipsis =
+            text_node && text_node.clientHeight < text_node.scrollHeight;
+        } else {
+          isInEllipsis =
+            text_node && text_node.clientWidth < text_node.scrollWidth;
+        }
       }
-    }
 
-    setDisableTooltip(!active);
-  };
-
-  useEffect(() => {
-    if (ref.current) {
-      isEllipsisActive();
-      ref.current.addEventListener("mouseover", isEllipsisActive);
-
-      return () => {
-        ref.current?.removeEventListener("mouseover", isEllipsisActive);
-      };
-    }
-  }, []);
+      setDisableTooltip(!isInEllipsis);
+    },
+  );
 
   return (
     <Tooltip content={props.children} isDisabled={disableTooltip}>
-      <TooltipTextWrapper ref={ref}>
+      <TooltipTextWrapper onMouseOver={handleShowFullText}>
         <Text
           {...props}
           className={clsx(ListItemTextOverflowClassName, props.className)}
@@ -92,21 +84,25 @@ function ListItem(props: ListItemProps) {
   const isBlockDescription = descriptionType === "block" && description;
   const isInlineDescription = descriptionType === "inline" && description;
 
-  const handleOnClick = () => {
-    if (!props.isDisabled && props.onClick) {
-      props.onClick();
-    }
-  };
+  const handleOnClick = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
 
-  const handleDoubleClick = () => {
+    if (!props.isDisabled && props.onClick) {
+      props.onClick(e);
+    }
+  });
+
+  const handleDoubleClick = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+
     if (!props.isDisabled && props.onDoubleClick) {
       props.onDoubleClick();
     }
-  };
+  });
 
-  const handleRightControlClick = (e: React.MouseEvent) => {
+  const handleRightControlClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-  };
+  });
 
   return (
     <StyledListItem
@@ -114,6 +110,7 @@ function ListItem(props: ListItemProps) {
       data-disabled={props.isDisabled || false}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      id={props.id}
       onClick={handleOnClick}
       onDoubleClick={handleDoubleClick}
       role="listitem"
