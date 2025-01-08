@@ -39,7 +39,10 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           npx dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
-          pr_count=$(cat pr_circular_deps.txt | wc -l)
+          # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
+          # wc -l: Count the number of lines in the file
+          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
+          pr_count=$(awk 'NF' pr_circular_deps.txt | wc -l | awk '{print $1 - 1}')
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
           cat pr_circular_deps.txt
 
@@ -54,7 +57,10 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
-          release_count=$(cat release_circular_deps.txt | wc -l)
+          # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
+          # wc -l: Count the number of lines in the file
+          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
+          release_count=$(awk 'NF' release_circular_deps.txt | wc -l | awk '{print $1 - 1}')
           echo "release_count=$release_count" >> $GITHUB_OUTPUT
           cat release_circular_deps.txt
 
