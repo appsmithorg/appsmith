@@ -292,42 +292,21 @@ module.exports = function (webpackEnv) {
             {
               loader: require.resolve('babel-loader'),
               options: {
-                babelrc: false,
-                configFile: false,
+                customize: require.resolve(
+                  'babel-preset-react-app/webpack-overrides'
+                ),
                 presets: [
-                  [require.resolve('@babel/preset-env'), {
-                    targets: {
-                      browsers: ['>0.2%', 'not dead', 'not ie <= 11', 'not op_mini all']
+                  [
+                    require.resolve('babel-preset-react-app'),
+                    {
+                      runtime: 'automatic',
                     },
-                    modules: false,
-                    useBuiltIns: 'usage',
-                    corejs: 3,
-                    loose: true
-                  }],
-                  [require.resolve('@babel/preset-typescript'), {
-                    isTSX: true,
-                    allExtensions: true,
-                    allowNamespaces: true,
-                    onlyRemoveTypeImports: true
-                  }],
-                  [require.resolve('@babel/preset-react'), {
-                    runtime: 'automatic',
-                    development: isEnvDevelopment,
-                  }],
+                  ],
                 ],
                 plugins: [
-                  [require.resolve('@babel/plugin-transform-runtime'), {
-                    corejs: false,
-                    helpers: true,
-                    regenerator: true,
-                    useESModules: true,
-                  }],
-                  [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
-                  [require.resolve('@babel/plugin-proposal-class-properties'), { loose: true }],
-                  [require.resolve('@babel/plugin-proposal-private-methods'), { loose: true }],
-                  [require.resolve('@babel/plugin-proposal-private-property-in-object'), { loose: true }],
-                  [require.resolve('@babel/plugin-proposal-object-rest-spread'), { loose: true }],
-                  isEnvDevelopment && shouldUseReactRefresh && require.resolve('react-refresh/babel'),
+                  isEnvDevelopment &&
+                    shouldUseReactRefresh &&
+                    require.resolve('react-refresh/babel'),
                 ].filter(Boolean),
                 cacheDirectory: true,
                 cacheCompression: false,

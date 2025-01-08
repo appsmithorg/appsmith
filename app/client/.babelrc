@@ -7,12 +7,10 @@
     }],
     ["@babel/preset-react", {
       "runtime": "automatic",
-      "development": true
+      "development": true,
+      "importSource": "@welldone-software/why-did-you-render"
     }],
-    ["@babel/preset-typescript", {
-      "isTSX": true,
-      "allExtensions": true
-    }]
+    "@babel/preset-typescript"
   ],
   "plugins": [
     ["module-resolver", {
@@ -38,6 +36,7 @@
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
     ["@babel/plugin-proposal-private-methods", { "loose": true }],
     ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+    ["@babel/plugin-proposal-object-rest-spread", { "loose": true }],
     "babel-plugin-styled-components"
   ]
 }

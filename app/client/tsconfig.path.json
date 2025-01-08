@@ -3,7 +3,15 @@
     "baseUrl": "./src",
     "paths": {
       "ee/*": ["ee/*"],
-      "test/*": ["../test/*"]
-    }
+      "test/*": ["../test/*"],
+      "workbox-*": [
+        "../node_modules/workbox-*"
+      ]
+    },
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types",
+      "./node_modules/workbox-core"
+    ]
   }
 }

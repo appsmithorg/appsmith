@@ -290,6 +290,7 @@
   ],
   "devDependencies": {
     "@appsmith/eslint-plugin": "workspace:^",
+    "@babel/preset-typescript": "^7.26.0",
     "@craco/craco": "^7.0.0",
     "@cypress/grep": "^4.0.1",
     "@faker-js/faker": "^7.4.0",

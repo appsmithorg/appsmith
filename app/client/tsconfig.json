@@ -28,34 +28,11 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types",
-      "./node_modules/workbox-core"
-    ],
-    "baseUrl": "./src",
-    "paths": {
-      "workbox-*": [
-        "../node_modules/workbox-*"
-      ],
-      "*": [
-        "*",
-        "../node_modules/*"
-      ]
-    },
+    "verbatimModuleSyntax": true,
     "sourceMap": true,
-    "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": false
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "./src/**/*",
-    "./packages",
-    "./node_modules/workbox-*/**/*"
-  ],
-  "exclude": [
-    "./packages/rts",
-    "**/node_modules",
-    "**/.*/",
-    "!**/node_modules/workbox-*"
+    "./src/**/*"
   ]
 }
