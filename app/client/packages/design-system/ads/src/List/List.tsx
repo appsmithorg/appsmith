@@ -3,13 +3,13 @@ import clsx from "classnames";
 
 import type { ListItemProps, ListProps } from "./List.types";
 import {
-  ContentTextWrapper,
-  DescriptionWrapper,
+  BottomContentWrapper,
   InlineDescriptionWrapper,
   RightControlWrapper,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
+  TopContentWrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
@@ -89,11 +89,18 @@ function ListItem(props: ListItemProps) {
     startIcon,
     title,
   } = props;
-  const isBlockDescription = descriptionType === "block";
+  const isBlockDescription = descriptionType === "block" && description;
+  const isInlineDescription = descriptionType === "inline" && description;
 
   const handleOnClick = () => {
     if (!props.isDisabled && props.onClick) {
       props.onClick();
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (!props.isDisabled && props.onDoubleClick) {
+      props.onDoubleClick();
     }
   };
 
@@ -105,38 +112,26 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
       data-disabled={props.isDisabled || false}
-      data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
       onClick={handleOnClick}
+      onDoubleClick={handleDoubleClick}
+      role="listitem"
       size={size}
-      tabIndex={props.isDisabled ? -1 : 0}
     >
-      <ContentTextWrapper>
+      <TopContentWrapper>
         {startIcon}
         {props.customTitleComponent ? (
           props.customTitleComponent
         ) : (
           <InlineDescriptionWrapper>
-            <DescriptionWrapper>
-              <TextWithTooltip
-                className={ListItemTitleClassName}
-                color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
-              >
-                {title}
-              </TextWithTooltip>
-              {isBlockDescription && description && (
-                <TextWithTooltip
-                  className={ListItemBDescClassName}
-                  color="var(--ads-v2-color-fg-muted)"
-                  isMultiline
-                  kind="body-s"
-                >
-                  {description}
-                </TextWithTooltip>
-              )}
-            </DescriptionWrapper>
-            {!isBlockDescription && description && (
+            <TextWithTooltip
+              className={ListItemTitleClassName}
+              color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
+            >
+              {title}
+            </TextWithTooltip>
+            {isInlineDescription && (
               <TextWithTooltip
                 className={ListItemIDescClassName}
                 color="var(--ads-v2-color-fg-muted)"
@@ -147,11 +142,23 @@ function ListItem(props: ListItemProps) {
             )}
           </InlineDescriptionWrapper>
         )}
-      </ContentTextWrapper>
-      {rightControl && (
-        <RightControlWrapper onClick={handleRightControlClick}>
-          {rightControl}
-        </RightControlWrapper>
+        {rightControl && (
+          <RightControlWrapper onClick={handleRightControlClick}>
+            {rightControl}
+          </RightControlWrapper>
+        )}
+      </TopContentWrapper>
+      {isBlockDescription && (
+        <BottomContentWrapper>
+          <TextWithTooltip
+            className={ListItemBDescClassName}
+            color="var(--ads-v2-color-fg-muted)"
+            isMultiline
+            kind="body-s"
+          >
+            {description}
+          </TextWithTooltip>
+        </BottomContentWrapper>
       )}
     </StyledListItem>
   );
