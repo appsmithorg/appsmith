@@ -18,8 +18,6 @@ export const apiRequestConfig = {
   withCredentials: true,
 };
 
-//
-
 const axiosInstance: AxiosInstance = axios.create();
 
 axiosInstance.defaults.transformResponse = [
