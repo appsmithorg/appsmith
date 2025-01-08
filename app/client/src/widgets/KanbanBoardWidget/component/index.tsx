@@ -174,11 +174,11 @@ const KanbanComponent: React.FC<KanbanComponentProps> = React.memo(
         <DragDropContext onDragEnd={onDragEnd}>
           {columns.map((column, columnIndex) => (
             <Column
-              backgroundColor={column.style?.backgroundColor as string}
+              backgroundColor={column.style?.backgroundColor ?? undefined}
               key={columnIndex}
-              textColor={column.style?.textColor as string}
+              textColor={column.style?.textColor ?? undefined}
             >
-              <ColumnTitle color={column.style?.textColor as string}>
+              <ColumnTitle color={column.style?.textColor ?? undefined}>
                 {column.title}
               </ColumnTitle>
               <Droppable droppableId={`column-${columnIndex}`}>
@@ -207,7 +207,7 @@ const KanbanComponent: React.FC<KanbanComponentProps> = React.memo(
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             backgroundColor={
-                              task.style?.backgroundColor as string
+                              task.style?.backgroundColor ?? undefined
                             }
                             data-testid="t--kanban-task"
                             style={React.useMemo(
@@ -216,7 +216,8 @@ const KanbanComponent: React.FC<KanbanComponentProps> = React.memo(
                                 transform: snapshot.isDragging
                                   ? provided.draggableProps.style?.transform
                                   : "none",
-                                ...(task.style as React.CSSProperties),
+                                backgroundColor: task.style?.backgroundColor,
+                                color: task.style?.textColor,
                               }),
                               [
                                 provided.draggableProps.style,
