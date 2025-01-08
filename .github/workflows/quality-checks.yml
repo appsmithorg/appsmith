@@ -102,6 +102,7 @@ jobs:
         client-prettier,
         client-unit-tests,
         client-lint,
+        client-check-cyclic-deps,
       ]
     if: always()
     runs-on: ubuntu-latest
