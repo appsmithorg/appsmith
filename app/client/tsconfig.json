@@ -24,15 +24,38 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": ["./typings", "./node_modules/@types"],
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types",
+      "./node_modules/workbox-core"
+    ],
+    "baseUrl": "./src",
+    "paths": {
+      "workbox-*": [
+        "../node_modules/workbox-*"
+      ],
+      "*": [
+        "*",
+        "../node_modules/*"
+      ]
+    },
     "sourceMap": true,
     "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": false
   },
-  "include": ["./src/**/*", "./packages"],
-  "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]
+  "include": [
+    "./src/**/*",
+    "./packages",
+    "./node_modules/workbox-*/**/*"
+  ],
+  "exclude": [
+    "./packages/rts",
+    "**/node_modules",
+    "**/.*/",
+    "!**/node_modules/workbox-*"
+  ]
 }

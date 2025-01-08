@@ -1,4 +1,19 @@
 {
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
+      }
+    }],
+    ["@babel/preset-react", {
+      "runtime": "automatic",
+      "development": true
+    }],
+    ["@babel/preset-typescript", {
+      "isTSX": true,
+      "allExtensions": true
+    }]
+  ],
   "plugins": [
     ["module-resolver", {
       "root": ["./src"],
@@ -10,11 +25,19 @@
         "components": "./src/components/",
         "selectors": "./src/selectors/",
         "reducers": "./src/reducers/",
-        "actions":"./src/actions/",
+        "actions": "./src/actions/",
         "api": "./src/api/",
         "assets": "./src/assets/",
-        "sagas": "./src/sagas/"
+        "sagas": "./src/sagas/",
+        "ee": "./src/ee/",
+        "workbox-*": "../node_modules/workbox-*"
       }
-    }, "babel-plugin-styled-components"]
+    }],
+    "@babel/plugin-transform-runtime",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    ["@babel/plugin-proposal-private-methods", { "loose": true }],
+    ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+    "babel-plugin-styled-components"
   ]
 }

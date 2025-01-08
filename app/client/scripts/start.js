@@ -4,21 +4,10 @@
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
-// Makes the script crash on unhandled rejections instead of silently
-// ignoring them. In the future, promise rejections that are not handled will
-// terminate the Node.js process with a non-zero exit code.
-process.on('unhandledRejection', err => {
-  throw err;
-});
-
-// Ensure environment variables are read.
-require('../config/env');
-
-const fs = require('fs');
 const chalk = require('react-dev-utils/chalk');
+const fs = require('fs');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
-const clearConsole = require('react-dev-utils/clearConsole');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const {
   choosePort,
@@ -32,14 +21,27 @@ const paths = require('../config/paths');
 const configFactory = require('../config/webpack.config');
 const createDevServerConfig = require('../config/webpackDevServer.config');
 const getClientEnvironment = require('../config/env');
+const react = require('react');
 
-// const reactPath = require.resolve('react', {paths: [paths.appPath]});
-// console.log({ reactPath });
-const react = require("react");
+console.log(chalk.cyan('Starting development server with the following environment:'));
+console.log(chalk.cyan('- BABEL_ENV:'), chalk.yellow(process.env.BABEL_ENV));
+console.log(chalk.cyan('- NODE_ENV:'), chalk.yellow(process.env.NODE_ENV));
+
+// Makes the script crash on unhandled rejections instead of silently
+// ignoring them. In the future, promise rejections that are not handled will
+// terminate the Node.js process with a non-zero exit code.
+process.on('unhandledRejection', err => {
+  console.error(chalk.red('Unhandled rejection:'), err);
+  throw err;
+});
+
+// Ensure environment variables are read.
+require('../config/env');
 
 const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 const useYarn = fs.existsSync(paths.yarnLockFile);
-const isInteractive = process.stdout.isTTY;
+// Set isInteractive to false to prevent console clearing
+const isInteractive = false;
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
@@ -67,35 +69,42 @@ if (process.env.HOST) {
   console.log();
 }
 
-// We require that you explicitly set browsers and do not fall back to
-// browserslist defaults.
-const { checkBrowsers } = require('react-dev-utils/browsersHelper');
-// checkBrowsers(paths.appPath, isInteractive)
-//   .then(() => {
-//     // We attempt to use the default port but if it is busy, we offer the user to
-//     // run on a different port. `choosePort()` Promise resolves to the next free port.
-//     return choosePort(HOST, DEFAULT_PORT);
-//   })
-//   .then(port => {
-  //  const port = choosePort(HOST, DEFAULT_PORT);
-   const port = 3000;
+console.log(chalk.cyan(`Attempting to start server on host ${chalk.yellow(HOST)} with default port ${chalk.yellow(DEFAULT_PORT)}`));
+
+choosePort(HOST, DEFAULT_PORT)
+  .then(port => {
     if (port == null) {
-      // We have not found a port.
+      console.log(chalk.red('No available port found.'));
       return;
     }
 
+    console.log(chalk.cyan(`Port ${chalk.yellow(port)} is available. Creating webpack configuration...`));
     const config = configFactory('development');
+    
+    console.log(chalk.cyan('Webpack configuration created with the following features:'));
+    console.log(chalk.cyan('- Entry point:'), chalk.yellow(config.entry));
+    console.log(chalk.cyan('- Output path:'), chalk.yellow(config.output.path));
+    console.log(chalk.cyan('- Dev tool:'), chalk.yellow(config.devtool));
+
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
     const appName = require(paths.appPackageJson).name;
 
     const useTypeScript = fs.existsSync(paths.appTsConfig);
+    console.log(chalk.cyan('TypeScript support:'), chalk.yellow(useTypeScript ? 'Enabled' : 'Disabled'));
+
     const urls = prepareUrls(
       protocol,
       HOST,
       port,
       paths.publicUrlOrPath.slice(0, -1)
     );
+
+    console.log(chalk.cyan('Server URLs prepared:'));
+    console.log(chalk.cyan('- Local:'), chalk.yellow(urls.localUrlForBrowser));
+    console.log(chalk.cyan('- Network:'), chalk.yellow(urls.lanUrlForConfig));
+
     // Create a webpack compiler that is configured with custom messages.
+    console.log(chalk.cyan('Creating webpack compiler...'));
     const compiler = createCompiler({
       appName,
       config,
@@ -104,26 +113,78 @@ const { checkBrowsers } = require('react-dev-utils/browsersHelper');
       useTypeScript,
       webpack,
     });
+
     // Load proxy config
+    console.log(chalk.cyan('Loading proxy configuration...'));
     const proxySetting = require(paths.appPackageJson).proxy;
     const proxyConfig = prepareProxy(
       proxySetting,
       paths.appPublic,
       paths.publicUrlOrPath
     );
-    // Serve webpack assets generated by the compiler over a web server.
-    const serverConfig = {
-      ...createDevServerConfig(proxyConfig, urls.lanUrlForConfig),
+
+    if (proxySetting) {
+      console.log(chalk.cyan('Proxy configuration detected:'), chalk.yellow(JSON.stringify(proxySetting, null, 2)));
+    }
+
+    // Create the WebpackDevServer configuration
+    console.log(chalk.cyan('Creating WebpackDevServer configuration...'));
+    const serverConfig = createDevServerConfig(proxyConfig, urls.lanUrlForConfig);
+
+    // Customize server configuration
+    console.log(chalk.cyan('Customizing server configuration...'));
+    const devServerConfig = {
+      ...serverConfig,
       host: HOST,
       port,
+      client: {
+        overlay: {
+          errors: true,
+          warnings: false,
+        },
+        logging: 'verbose', // Set client logging to verbose
+        webSocketURL: {
+          hostname: HOST,
+          pathname: '/ws',
+          port,
+          protocol: protocol === 'https' ? 'wss' : 'ws',
+        },
+      },
+      devMiddleware: {
+        publicPath: paths.publicUrlOrPath.slice(0, -1),
+        writeToDisk: false,
+      },
+      static: {
+        directory: paths.appPublic,
+        publicPath: paths.publicUrlOrPath.slice(0, -1),
+        watch: true,
+      },
+      historyApiFallback: {
+        disableDotRule: true,
+        index: paths.publicUrlOrPath,
+      },
+      hot: true,
+      compress: true,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': '*',
+        'Access-Control-Allow-Headers': '*',
+      },
     };
-    const devServer = new WebpackDevServer(serverConfig, compiler);
-    // Launch WebpackDevServer.
-    devServer.startCallback(() => {
-      if (isInteractive) {
-        clearConsole();
-      }
 
+    console.log(chalk.cyan('Server configuration created with:'));
+    console.log(chalk.cyan('- Host:'), chalk.yellow(devServerConfig.host));
+    console.log(chalk.cyan('- Port:'), chalk.yellow(devServerConfig.port));
+    console.log(chalk.cyan('- Public Path:'), chalk.yellow(devServerConfig.devMiddleware.publicPath));
+    console.log(chalk.cyan('- Hot Reload:'), chalk.yellow(devServerConfig.hot ? 'Enabled' : 'Disabled'));
+    console.log(chalk.cyan('- Compression:'), chalk.yellow(devServerConfig.compress ? 'Enabled' : 'Disabled'));
+
+    console.log(chalk.cyan('Creating WebpackDevServer instance...'));
+    const devServer = new WebpackDevServer(devServerConfig, compiler);
+
+    // Launch WebpackDevServer
+    console.log(chalk.cyan('Starting WebpackDevServer...'));
+    devServer.startCallback(() => {
       if (env.raw.FAST_REFRESH && semver.lt(react.version, '16.10.0')) {
         console.log(
           chalk.yellow(
@@ -132,12 +193,23 @@ const { checkBrowsers } = require('react-dev-utils/browsersHelper');
         );
       }
 
-      console.log(chalk.cyan('Starting the development server...\n'));
+      console.log(chalk.green('Development server started successfully!'));
+      console.log();
+      console.log(chalk.cyan('You can now view'), chalk.bold(appName), chalk.cyan('in the browser.'));
+      console.log();
+      console.log(chalk.cyan('  Local:            '), chalk.yellow(urls.localUrlForBrowser));
+      console.log(chalk.cyan('  On Your Network:  '), chalk.yellow(urls.lanUrlForConfig));
+      console.log();
+      console.log(chalk.cyan('Note that the development build is not optimized.'));
+      console.log(chalk.cyan('To create a production build, use'), chalk.yellow('yarn build'), chalk.cyan('.'));
+      console.log();
+
       openBrowser(urls.localUrlForBrowser);
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function (sig) {
       process.on(sig, function () {
+        console.log(chalk.yellow(`\nReceived ${sig}. Closing dev server...`));
         devServer.close();
         process.exit();
       });
@@ -146,14 +218,18 @@ const { checkBrowsers } = require('react-dev-utils/browsersHelper');
     if (process.env.CI !== 'true') {
       // Gracefully exit when stdin ends
       process.stdin.on('end', function () {
+        console.log(chalk.yellow('\nReceived end of stdin. Closing dev server...'));
         devServer.close();
         process.exit();
       });
     }
-  // })
-  // .catch(err => {
-  //   if (err && err.message) {
-  //     console.log(err.message);
-  //   }
-  //   process.exit(1);
-  // });
+  })
+  .catch(err => {
+    console.error(chalk.red('Failed to start development server:'));
+    if (err && err.message) {
+      console.error(chalk.red(err.message));
+    } else {
+      console.error(chalk.red(err));
+    }
+    process.exit(1);
+  });

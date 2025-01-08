@@ -363,6 +363,7 @@
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-babel-module": "^5.3.2",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-jest": "^27.4.2",
     "eslint-plugin-prettier": "^5.0.0",
@@ -402,7 +403,9 @@
     "redux-saga-test-plan": "^4.0.6",
     "ts-jest": "^29.1.0",
     "ts-jest-mock-import-meta": "^0.12.0",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.1",
+    "worker-loader": "^3.0.8",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "resolutions": {

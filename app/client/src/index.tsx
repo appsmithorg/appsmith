@@ -1,7 +1,7 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
 // Initialise eval worker instance
-import "utils/workerInstances";
+import "./utils/workerInstances";
 
 import React from "react";
 import "./wdyr";
@@ -11,23 +11,23 @@ import "./index.css";
 import "@appsmith/ads-old/src/themes/default/index.css";
 import "@appsmith/ads/src/__theme__/default/index.css";
 import { ThemeProvider } from "styled-components";
-import { appInitializer } from "utils/AppUtils";
+import { appInitializer } from "./utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
-import { LayersContext, Layers } from "constants/Layers";
-import AppRouter from "ee/AppRouter";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { LayersContext, Layers } from "./constants/Layers";
+import AppRouter from "./ee/AppRouter";
+import { getCurrentThemeDetails } from "./selectors/themeSelectors";
 import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+import type { AppState } from "./ee/reducers";
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
-import GlobalStyles from "globalStyles";
+import GlobalStyles from "./globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { FaroErrorBoundary } from "@grafana/faro-react";
-import { isTracingEnabled } from "instrumentation/utils";
+import { isTracingEnabled } from "./instrumentation/utils";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
