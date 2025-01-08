@@ -8,6 +8,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.configurations.EmailConfig;
@@ -19,6 +20,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
@@ -29,6 +31,7 @@ import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
 import com.appsmith.server.git.utils.GitProfileUtils;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
@@ -577,7 +580,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
      * @return : returns string for remote fetch
      */
     @Override
-    public Mono<String> fetchRemoteChanges(
+    public Mono<String> fetchRemoteReferences(
             ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth, Boolean isFetchAll) {
 
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
@@ -596,6 +599,57 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Mono<Boolean> checkoutBranchMono = fsGitHandler.checkoutToBranch(repoSuffix, refName);
 
         return fetchRemoteMono.flatMap(remoteFetched -> checkoutBranchMono.thenReturn(remoteFetched));
+    }
+
+    @Override
+    public Mono<String> fetchRemoteReferences(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, FetchRemoteDTO fetchRemoteDTO, GitAuth gitAuth) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        String publicKey = gitAuth.getPublicKey();
+        String privateKey = gitAuth.getPrivateKey();
+
+        if (CollectionUtils.isNullOrEmpty(fetchRemoteDTO.getRefNames())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+        }
+
+        return fsGitHandler.fetchRemote(repoSuffix, false, fetchRemoteDTO, publicKey, privateKey);
+    }
+
+    @Override
+    public Mono<String> mergeBranches(ArtifactJsonTransformationDTO jsonTransformationDTO, GitMergeDTO gitMergeDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        // At this point the assumption is that the repository has already checked out the destination branch
+        return fsGitHandler.mergeBranch(repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
+    }
+
+    @Override
+    public Mono<MergeStatusDTO> isBranchMergable(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitMergeDTO gitMergeDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        // At this point the assumption is that the repository has already checked out the destination branch
+        return fsGitHandler.isMergeBranch(
+                repoSuffix, gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch());
     }
 
     @Override
