@@ -85,3 +85,8 @@ jobs:
               issue_number: prNumber,
               body: message
             });
+
+      # Fail the workflow if cyclic dependencies are found
+      - name: Fail the workflow if cyclic dependencies are found
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
+        run: exit 1
