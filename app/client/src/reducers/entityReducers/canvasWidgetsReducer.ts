@@ -10,29 +10,19 @@ import {
   getCanvasWidgetHeightsToUpdate,
 } from "utils/WidgetSizeUtils";
 import { klona } from "klona";
-import type { UpdateCanvasPayload } from "actions/pageActions";
-import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
+import type { UpdateCanvasPayload } from "actions/types/pageActions.types";
+import type { SetWidgetDynamicPropertyPayload } from "actions/types/controlActions.types";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values
 For example:
 { "xyz123": [{ propertyPath: "bottomRow", propertyValue: 20 }] }
 */
-export type UpdateWidgetsPayload = Record<
-  string,
-  Array<{
-    propertyPath: string;
-    propertyValue: unknown;
-  }>
->;
+import type { UpdateWidgetsPayload, FlattenedWidgetProps, CanvasWidgetsReduxState } from "../types/canvasWidgets.types";
 
 export const initialState: CanvasWidgetsReduxState = {};
 
-export type FlattenedWidgetProps<orType = never> =
-  | (WidgetProps & {
-      children?: string[];
-    })
-  | orType;
+
 
 /**
  *
@@ -61,7 +51,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   ) => {
     const { widgets } = action.payload;
 
-    for (const [widgetId, widgetProps] of Object.entries(widgets)) {
+    for (const [widgetId, widgetProps] of Object.entries(widgets) as [string, WidgetProps][]) {
       if (widgetProps.type === "CANVAS_WIDGET") {
         const bottomRow = getCanvasBottomRow(widgetId, widgets);
 
@@ -168,8 +158,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   },
 });
 
-export interface CanvasWidgetsReduxState {
-  [widgetId: string]: FlattenedWidgetProps;
-}
+
 
 export default canvasWidgetsReducer;

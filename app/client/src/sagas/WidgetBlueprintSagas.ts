@@ -3,7 +3,7 @@ import {
   BlueprintOperationActionTypes,
   type WidgetBlueprint,
 } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "../reducers/types/canvasWidgets.types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call, select } from "redux-saga/effects";
@@ -59,28 +59,17 @@ export function* buildWidgetBlueprint(
   return widgetProps;
 }
 
-export interface UpdatePropertyArgs {
-  widgetId: string;
-  propertyName: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  propertyValue: any;
-}
-export type BlueprintOperationAddActionFn = (
-  widget: WidgetProps & { children?: WidgetProps[] },
-) => Generator;
-export type BlueprintOperationModifyPropsFn = (
-  widget: WidgetProps & { children?: WidgetProps[] },
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-  parent?: WidgetProps,
-  layoutSystemType?: LayoutSystemTypes,
-  addActionResult?: ActionData,
-) => UpdatePropertyArgs[] | undefined;
+import type {
+  UpdatePropertyArgs,
+  BlueprintOperationAddActionFn,
+  BlueprintOperationModifyPropsFn,
+  ChildOperationFnResponse,
+  BlueprintOperationActionPayload,
+} from "./types/WidgetBlueprintSagas.types";
 
-export interface ChildOperationFnResponse {
-  widgets: Record<string, FlattenedWidgetProps>;
-  message?: string;
-}
+
+
+
 
 export type BlueprintOperationChildOperationsFn = (
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -109,11 +98,7 @@ export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 export type BlueprintOperationActionType =
   keyof typeof BlueprintOperationActionTypes;
 
-export interface BlueprintOperationActionPayload {
-  pluginPackageName: PluginPackageName;
-  actionConfig: Action;
-  datasourceName?: string;
-}
+
 
 export interface BlueprintOperation {
   type: BlueprintOperationType;
