@@ -8,6 +8,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.configurations.EmailConfig;
@@ -27,7 +28,6 @@ import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.git.central.GitHandlingServiceCE;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
-import com.appsmith.server.git.dtos.FetchRemoteDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
 import com.appsmith.server.git.utils.GitProfileUtils;
@@ -63,7 +63,6 @@ import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -622,9 +621,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
         }
 
-        List<String> remoteValues = new ArrayList<>();
-        remoteValues.addAll(fetchRemoteDTO.getRefNames());
-        return fsGitHandler.fetchRemote(repoSuffix, publicKey, privateKey, false, remoteValues.toArray(new String[0]));
+        return fsGitHandler.fetchRemote(repoSuffix, false, fetchRemoteDTO, publicKey, privateKey);
     }
 
     @Override

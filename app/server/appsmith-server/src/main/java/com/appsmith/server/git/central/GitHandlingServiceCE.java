@@ -3,6 +3,7 @@ package com.appsmith.server.git.central;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -11,7 +12,6 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
-import com.appsmith.server.git.dtos.FetchRemoteDTO;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 

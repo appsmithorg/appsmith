@@ -5,6 +5,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
@@ -160,7 +161,7 @@ public interface FSGitHandler {
             boolean isFetchAll);
 
     Mono<String> fetchRemote(
-            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... refNames);
+            Path repoSuffix, boolean isRepoPath, FetchRemoteDTO fetchRemoteDTO, String publicKey, String privateKey);
 
     /**
      *

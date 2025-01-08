@@ -10,6 +10,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -41,6 +42,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -90,6 +92,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
             DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
+
+    private static final String BRANCH_REF_REMOTE_SRC = "refs/heads/";
+    private static final String BRANCH_REF_LOCAL_DST = "refs/remotes/origin/";
+    private static final String SRC_DST_DELIMITER = ":";
+    private static final String TAG_REF = "refs/tags/";
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
 
@@ -932,9 +939,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     @Override
     public Mono<String> fetchRemote(
-            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... refNames) {
-        Stopwatch processStopwatch =
-                StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
+            Path repoSuffix, boolean isRepoPath, FetchRemoteDTO fetchRemoteDTO, String publicKey, String privateKey) {
         Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
@@ -943,21 +948,35 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             new SshTransportConfigCallback(privateKey, publicKey);
                                     String fetchMessages;
 
+                                    List<String> refNames = fetchRemoteDTO.getRefNames();
+                                    RefType refType = fetchRemoteDTO.getRefType();
+
                                     List<RefSpec> refSpecs = new ArrayList<>();
-                                    for (String refName : refNames) {
-                                        RefSpec ref = new RefSpec(
-                                                "refs/heads/" + refName + ":refs/remotes/origin/" + refName);
-                                        refSpecs.add(ref);
+                                    if (RefType.tag.equals(refType)) {
+                                        for (String tagName : refNames) {
+                                            RefSpec refSpec = new RefSpec(TAG_REF + tagName + ":" + TAG_REF + tagName);
+                                            refSpecs.add(refSpec);
+                                        }
+                                    } else {
+                                        for (String refName : refNames) {
+                                            RefSpec ref = new RefSpec(BRANCH_REF_REMOTE_SRC
+                                                    + refName
+                                                    + SRC_DST_DELIMITER
+                                                    + BRANCH_REF_LOCAL_DST
+                                                    + refName);
+                                            refSpecs.add(ref);
+                                        }
                                     }
 
                                     fetchMessages = git.fetch()
                                             .setRefSpecs(refSpecs.toArray(new RefSpec[0]))
                                             .setRemoveDeletedRefs(true)
+                                            .setTagOpt(TagOpt.NO_TAGS) // no tags would mean that tags are fetched
+                                            // explicitly
                                             .setTransportConfigCallback(config)
                                             .call()
                                             .getMessages();
 
-                                    processStopwatch.stopAndLogTimeInMillis();
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
@@ -979,7 +998,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     log.info(
-                                            "{}: Check mergeability for repo {} with src: {}, dest: {}",
+                                            "{}: Check merge-ability for repo {} with source: {}, destination: {}",
                                             Thread.currentThread().getName(),
                                             repoSuffix,
                                             sourceBranch,
@@ -1036,12 +1055,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     }
                                 })
                                 .onErrorResume(error -> {
+                                    MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+                                    mergeStatusDTO.setMergeAble(false);
+                                    mergeStatusDTO.setMessage(error.getMessage());
+                                    mergeStatusDTO.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                     try {
-                                        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
-                                        mergeStatusDTO.setMergeAble(false);
-                                        mergeStatusDTO.setMessage(error.getMessage());
-                                        mergeStatusDTO.setReferenceDoc(
-                                                ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                         return resetToLastCommit(repoSuffix, destinationBranch)
                                                 .thenReturn(mergeStatusDTO);
                                     } catch (GitAPIException | IOException e) {

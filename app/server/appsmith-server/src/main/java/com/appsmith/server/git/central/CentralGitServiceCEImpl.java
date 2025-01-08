@@ -9,6 +9,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.dto.CommitDTO;
@@ -42,7 +43,6 @@ import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
-import com.appsmith.server.git.dtos.FetchRemoteDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
@@ -2670,9 +2670,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 GitHandlingService gitHandlingService =
                                         gitHandlingServiceResolver.getGitHandlingService(gitType);
 
-                                Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = gitHandlingService
-                                        .fetchRemoteReferences(
-                                                jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+                                Mono<String> fetchingRemoteMono = gitHandlingService.fetchRemoteReferences(
+                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth());
+
+                                Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = fetchingRemoteMono
                                         .flatMap(remoteSpecs -> {
                                             Mono<GitStatusDTO> sourceBranchStatusMono = Mono.defer(() -> getStatus(
                                                             baseArtifact, sourceArtifact, false, false, gitType)
@@ -2743,28 +2744,29 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             GitMergeDTO mergeDTO = new GitMergeDTO();
                                             mergeDTO.setSourceBranch(sourceBranch);
                                             mergeDTO.setDestinationBranch(destinationBranch);
-                                            return gitHandlingService
-                                                    .mergeBranches(jsonTransformationDTO, mergeDTO)
-                                                    .onErrorResume(error -> gitAnalyticsUtils
-                                                            .addAnalyticsForGitOperation(
-                                                                    AnalyticsEvents.GIT_MERGE,
-                                                                    baseArtifact,
-                                                                    error.getClass()
-                                                                            .getName(),
-                                                                    error.getMessage(),
-                                                                    baseGitMetadata.getIsRepoPrivate())
-                                                            .flatMap(artifact -> {
-                                                                if (error instanceof GitAPIException) {
-                                                                    return Mono.error(new AppsmithException(
-                                                                            AppsmithError.GIT_MERGE_CONFLICTS,
-                                                                            error.getMessage()));
-                                                                }
 
-                                                                return Mono.error(new AppsmithException(
-                                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                                        "merge",
-                                                                        error.getMessage()));
-                                                            }));
+                                            Mono<String> mergeBranchesMono =
+                                                    gitHandlingService.mergeBranches(jsonTransformationDTO, mergeDTO);
+
+                                            return mergeBranchesMono.onErrorResume(error -> gitAnalyticsUtils
+                                                    .addAnalyticsForGitOperation(
+                                                            AnalyticsEvents.GIT_MERGE,
+                                                            baseArtifact,
+                                                            error.getClass().getName(),
+                                                            error.getMessage(),
+                                                            baseGitMetadata.getIsRepoPrivate())
+                                                    .flatMap(artifact -> {
+                                                        if (error instanceof GitAPIException) {
+                                                            return Mono.error(new AppsmithException(
+                                                                    AppsmithError.GIT_MERGE_CONFLICTS,
+                                                                    error.getMessage()));
+                                                        }
+
+                                                        return Mono.error(new AppsmithException(
+                                                                AppsmithError.GIT_ACTION_FAILED,
+                                                                "merge",
+                                                                error.getMessage()));
+                                                    }));
                                         })
                                         .zipWhen(mergeStatus -> {
                                             ArtifactJsonTransformationDTO constructJsonDTO =
@@ -2772,9 +2774,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                             workspaceId, baseArtifactId, repoName);
                                             constructJsonDTO.setArtifactType(artifactType);
                                             constructJsonDTO.setRefName(destinationBranch);
-                                            return Mono.defer(
-                                                    () -> gitHandlingService.reconstructArtifactJsonFromGitRepository(
-                                                            constructJsonDTO));
+                                            return gitHandlingService.reconstructArtifactJsonFromGitRepository(
+                                                    constructJsonDTO);
                                         })
                                         .flatMap(tuple2 -> {
                                             ArtifactExchangeJson artifactExchangeJson = tuple2.getT2();
@@ -2885,9 +2886,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 GitHandlingService gitHandlingService =
                                         gitHandlingServiceResolver.getGitHandlingService(gitType);
 
-                                Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = gitHandlingService
-                                        .fetchRemoteReferences(
-                                                jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+                                Mono<String> fetchRemoteReferencesMono = gitHandlingService.fetchRemoteReferences(
+                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth());
+
+                                Mono<Tuple2<GitStatusDTO, GitStatusDTO>> statusTupleMono = fetchRemoteReferencesMono
                                         .flatMap(remoteSpecs -> {
                                             Mono<GitStatusDTO> sourceBranchStatusMono = Mono.defer(() -> getStatus(
                                                             baseArtifact, sourceArtifact, false, false, gitType)
@@ -2982,25 +2984,27 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     GitMergeDTO mergeDTO = new GitMergeDTO();
                                     mergeDTO.setSourceBranch(sourceBranch);
                                     mergeDTO.setDestinationBranch(destinationBranch);
-                                    return gitHandlingService
-                                            .isBranchMergable(jsonTransformationDTO, mergeDTO)
-                                            .onErrorResume(error -> {
-                                                MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                                                mergeStatus.setMergeAble(false);
-                                                mergeStatus.setStatus("Merge check failed!");
-                                                mergeStatus.setMessage(error.getMessage());
 
-                                                return gitAnalyticsUtils
-                                                        .addAnalyticsForGitOperation(
-                                                                AnalyticsEvents.GIT_MERGE_CHECK,
-                                                                baseArtifact,
-                                                                error.getClass().getName(),
-                                                                error.getMessage(),
-                                                                baseGitMetadata.getIsRepoPrivate(),
-                                                                false,
-                                                                false)
-                                                        .thenReturn(mergeStatus);
-                                            });
+                                    Mono<MergeStatusDTO> isBranchMergable =
+                                            gitHandlingService.isBranchMergable(jsonTransformationDTO, mergeDTO);
+
+                                    return isBranchMergable.onErrorResume(error -> {
+                                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                        mergeStatus.setMergeAble(false);
+                                        mergeStatus.setStatus("Merge check failed!");
+                                        mergeStatus.setMessage(error.getMessage());
+
+                                        return gitAnalyticsUtils
+                                                .addAnalyticsForGitOperation(
+                                                        AnalyticsEvents.GIT_MERGE_CHECK,
+                                                        baseArtifact,
+                                                        error.getClass().getName(),
+                                                        error.getMessage(),
+                                                        baseGitMetadata.getIsRepoPrivate(),
+                                                        false,
+                                                        false)
+                                                .thenReturn(mergeStatus);
+                                    });
                                 });
                             },
                             ignoreLock -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, TRUE));
