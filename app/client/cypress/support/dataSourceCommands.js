@@ -316,7 +316,7 @@ Cypress.Commands.add("datasourceCardStyle", (tag) => {
 
 Cypress.Commands.add("datasourceImageStyle", (tag) => {
   cy.get(tag)
-    .should("have.css", "height", "24px")
+    .should("have.css", "height", "34px")
     .and("have.css", "max-width", "100%");
 });
 
@@ -330,7 +330,7 @@ Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "background-color", backgroundColorGray2)
-    .and("have.css", "height", "24px")
+    .and("have.css", "height", "34px")
     .and("have.css", "border-radius", "0px")
     .and("have.css", "display", "block")
     .and("have.css", "align-items", "normal");
@@ -339,8 +339,8 @@ Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceNameStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "color", backgroundColorBlack)
-    .and("have.css", "font-size", "14px")
-    .and("have.css", "font-weight", "500")
+    .and("have.css", "font-size", "16px")
+    .and("have.css", "font-weight", "400")
     .and("have.css", "line-height", "20px");
 });
 

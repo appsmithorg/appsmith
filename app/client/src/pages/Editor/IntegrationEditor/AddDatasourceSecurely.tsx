@@ -11,7 +11,6 @@ const StyledCalloutWrapper = styled(Flex)<{ isClosed: boolean }>`
   background-color: var(--ads-v2-colors-response-info-surface-default-bg);
   padding: var(--ads-spaces-3);
   gap: var(--ads-spaces-3);
-  font-weight: var(--ads-v2-font-weight-bold);
   flex-grow: 1;
   align-items: center;
   .ads-v2-text {
@@ -33,7 +32,7 @@ function AddDatasourceSecurely() {
         alt={"datasource securely"}
         src={getAssetUrl(`${ASSETS_CDN_URL}/secure-lock.png`)}
       />
-      <Text color="var(--ads-v2-color-gray-600)" isBold kind="body-m">
+      <Text color="var(--ads-v2-color-gray-600)" kind="body-m">
         {createMessage(DATASOURCE_SECURE_TEXT)}
       </Text>
       <Button
