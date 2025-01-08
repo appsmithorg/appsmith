@@ -117,6 +117,7 @@ jobs:
            "${{ needs.client-build.result }}" == "failure" || \
            "${{ needs.client-prettier.result }}" == "failure" || \
            "${{ needs.client-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-check-cyclic-deps.result }}" == "failure" || \
            "${{ needs.client-lint.result }}" == "failure" ]]; then
             echo "Quality checks failed";
             exit 1;
