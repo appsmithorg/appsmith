@@ -4,7 +4,6 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -39,13 +38,12 @@ public class GitArtifactControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/import")
-    public Mono<ResponseDTO<? extends ArtifactImportDTO>> importApplicationFromGit(
+    public Mono<ResponseDTO<? extends ArtifactImportDTO>> importArtifactFromGit(
             @RequestParam String workspaceId, @RequestBody GitConnectDTO gitConnectDTO) {
 
         // TODO: remove artifact type from methods.
         return centralGitService
                 .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION, GIT_TYPE)
-                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
