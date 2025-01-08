@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.cakes;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -142,16 +143,17 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     }
 
     public Flux<T> saveAll(Iterable<T> entities) {
+        Stopwatch stopwatch = new Stopwatch(
+                " ------------------------- Save All of l1 to db time taken --------------------------------------");
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMap(em -> asMonoDirect(() -> {
                     for (T entity : entities) {
                         if (entity.getId() == null) {
                             entity.setId(generateId());
-                            em.persist(entity);
-                        } else {
-                            em.merge(entity);
                         }
+                        em.persist(entity);
                     }
+                    stopwatch.stopAndLogTimeInMillis();
                     return entities;
                 }))
                 .as(transactionalOperator::transactional)
@@ -169,6 +171,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // Wrappers for methods from CRUDRepository
     // ---------------------------------------------------
     public Mono<T> save(T entity) {
+        Stopwatch stopwatch = new Stopwatch(
+                " ------------------------- Save of l1 to db time taken --------------------------------------");
         final boolean isNew = entity.getId() == null;
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMap(em -> {
@@ -176,10 +180,9 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         try {
                             if (isNew) {
                                 entity.setId(generateId());
-                                em.persist(entity);
-                            } else {
-                                em.merge(entity);
                             }
+                            em.persist(entity);
+                            stopwatch.stopAndLogTimeInMillis();
                             return entity;
                         } catch (Exception e) {
                             // This should NEVER happen in live/production environments.

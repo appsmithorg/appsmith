@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
@@ -32,6 +34,7 @@ import java.util.Map;
 @Entity
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class Plugin extends BaseDomain {
 
     public enum ResponseType {

@@ -32,6 +32,7 @@ import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,6 +139,9 @@ public class WorkspaceServiceTest {
 
     @Autowired
     EnvironmentPermission environmentPermission;
+
+    @Autowired
+    private CustomTransactionalOperator transactionalOperator;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -1777,5 +1781,23 @@ public class WorkspaceServiceTest {
         Mono<List<User>> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
 
         StepVerifier.create(createdUsers).verifyErrorMessage("Please enter a valid parameter usernames.");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void transactionTest() {
+        Mono<String> res = Flux.range(1, 5)
+                .flatMap(i -> workspaceService.getAll())
+                .flatMap(workspace1 -> workspaceService.getById(workspace1.getId()))
+                .flatMap(workspace1 -> {
+                    workspace1.setName("New Name" + workspace1.getId());
+                    return workspaceService.update(workspace1.getId(), workspace1);
+                })
+                .then(Mono.just("Execution Completed!"))
+                .as(transactionalOperator::transactional);
+
+        StepVerifier.create(res)
+                .assertNext(r -> assertThat(r).isEqualTo("Execution Completed!"))
+                .verifyComplete();
     }
 }

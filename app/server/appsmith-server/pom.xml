@@ -388,6 +388,23 @@
             <version>2.14.2.Final</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.10.8</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+            <version>6.5.2.Final</version>
+            <!-- Match your Hibernate version -->
+        </dependency>
+
     </dependencies>
 
     <repositories>

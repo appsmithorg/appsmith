@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.JsonForDatabase;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -158,6 +159,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     public Optional<T> updateById(
             @NonNull String id, @NonNull T resource, AclPermission permission, User currentUser, EntityManager em) {
         // Set policies to null in the update object
+        Stopwatch stopwatch = new Stopwatch(
+                " ------------------------- Update of l1 to db time taken --------------------------------------");
         resource.setPolicies(null);
 
         final QueryAllParams<T> q =
@@ -188,11 +191,22 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 // In case the entity is not managed by the entity manager we are making an extra DB call
                 // TODO(Abhijeet): Detach the entity only if it is managed by the entity manager to avoid the extra DB
                 //  call
-                em.detach(q.one().orElse(null));
+                // Fetch the entity using the query
+                Stopwatch stopwatch1 = new Stopwatch(
+                        " ------------------------- Detach time taken --------------------------------------");
+                T entity = q.one().orElse(null);
+
+                // Check if the entity is managed by the custom entity manager (em)
+                if (em.contains(entity)) {
+                    // Detach the entity if it is managed
+                    em.detach(entity);
+                }
+                stopwatch1.stopAndLogTimeInMillis();
             }
         } catch (Exception e) {
             log.error("Exception during entity detach: ", e);
         }
+        stopwatch.stopAndLogTimeInMillis();
         return q.one();
     }
 
