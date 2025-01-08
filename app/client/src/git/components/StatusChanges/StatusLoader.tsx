@@ -15,7 +15,7 @@ const LoaderText = styled(Text)`
 
 function StatusLoader({ loaderMsg }: { loaderMsg: string }) {
   return (
-    <LoaderWrapper data-testid="t--git-merge-loader">
+    <LoaderWrapper>
       <Spinner size="md" />
       <LoaderText kind="body-m">{loaderMsg}</LoaderText>
     </LoaderWrapper>
