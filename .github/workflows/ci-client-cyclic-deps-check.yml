@@ -34,11 +34,22 @@ jobs:
           files: |
             app/client/src/**
 
+      - name: Use Node.js
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # Globally install the npm package
+      - name: Install dpdm globally
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm install -g dpdm@3.14
+
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          npx dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
+          dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
           # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
@@ -56,7 +67,7 @@ jobs:
         id: coun-cyclic-deps-in-release
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
+          dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
           # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
           # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
