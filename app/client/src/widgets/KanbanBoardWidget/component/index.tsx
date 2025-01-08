@@ -225,7 +225,7 @@ const KanbanComponent: React.FC<KanbanComponentProps> = React.memo(
                                 task.style,
                               ],
                             )}
-                            textColor={task.style?.textColor as string}
+                            textColor={task.style?.textColor ?? undefined}
                           >
                             <TaskTitle>{task.title}</TaskTitle>
                             <TaskDescription>
