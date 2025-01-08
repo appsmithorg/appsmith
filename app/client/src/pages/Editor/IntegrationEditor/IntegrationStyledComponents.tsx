@@ -31,6 +31,7 @@ export const DatasourceCard = styled.div`
   gap: var(--ads-v2-spaces-4);
   padding: var(--ads-v2-spaces-4);
   cursor: pointer;
+  border-radius: var(--ads-v2-border-radius);
   .cta {
     display: none;
     margin-right: var(--ads-v2-spaces-9);
@@ -59,7 +60,7 @@ export const DatasourceNameWrapper = styled.div`
 
 export const DatasourceName = styled(Text)`
   font-size: var(--ads-v2-font-size-6);
-  font-weight: var(--ads-v2-font-weight-bold);
+  font-weight: var(--ads-v2-font-weight-normal);
   line-height: var(--ads-v2-line-height-4);
   color: var(--ads-v2-color-fg);
 `;

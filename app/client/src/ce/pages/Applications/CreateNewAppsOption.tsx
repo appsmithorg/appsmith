@@ -53,7 +53,7 @@ const BackWrapper = styled.div<{ hidden?: boolean; isBannerVisible: boolean }>`
     top: ${props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)}px;
     `}
   background: inherit;
-  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-8);
+  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-8);
   z-index: 1;
   border-bottom: 1px solid var(--ads-v2-color-gray-300);
   margin-left: -4px;
