@@ -11,7 +11,7 @@ import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EmptyState } from "@appsmith/ads";
 import history from "utils/history";
 import { builderURL } from "ee/RouteBuilder";
-import { WidgetEntityListTree } from "./WidgetEntityListTree";
+import { UIEntityListTree } from "./UIEntityListTree";
 import { OldWidgetEntityList } from "pages/Editor/Explorer/Widgets/OldWidgetEntityList";
 
 const ListWidgets = (props: {
@@ -91,7 +91,7 @@ const ListWidgets = (props: {
           px="spaces-3"
         >
           {isNewWidgetTreeEnabled ? (
-            <WidgetEntityListTree />
+            <UIEntityListTree />
           ) : (
             <OldWidgetEntityList />
           )}
