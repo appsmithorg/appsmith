@@ -1,54 +1,31 @@
-import React, { useCallback, useState } from "react";
-import { EntityListTree, type EntityListTreeItem } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useMemo } from "react";
+import { EntityListTree } from "@appsmith/ads";
+import { useSelector } from "react-redux";
 import {
   getEditingEntityName,
   selectWidgetsForCurrentPage,
 } from "ee/selectors/entitiesSelector";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
-import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { updateWidgetName } from "actions/propertyPaneActions";
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { useValidateEntityName } from "IDE/Components/EditableName/useValidateEntityName";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { WidgetContextMenu } from "./WidgetContextMenu";
-import { useSwitchToWidget } from "./hooks/useSwitchToWidget";
-import { WidgetTypeIcon } from "./WidgetTypeIcon";
 
-const enhanceItemsTree = (
-  items: CanvasStructure[],
-  enhancer: (item: CanvasStructure) => EntityListTreeItem,
-) => {
-  return items.map((child): EntityListTreeItem => {
-    return {
-      ...enhancer(child),
-      children: child.children
-        ? enhanceItemsTree(child.children, enhancer)
-        : undefined,
-    };
-  });
-};
+import type { UIEntityListTreeProps } from "./UIEntityListTree.types";
+import { useWidgetTreeState } from "./hooks/useWidgetTreeState";
+import { useWidgetNameEditor } from "./hooks/useWidgetNameEditor";
+import { useWidgetTreeHandlers } from "./hooks/useWidgetTreeHandlers";
+import { enhanceWidgetTree } from "./utils/treeEnhancer";
+import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetTypeIcon } from "pages/Editor/IDE/EditorPane/UI/UIEntityListTree/WidgetTypeIcon";
+import { WidgetContextMenu } from "pages/Editor/IDE/EditorPane/UI/UIEntityListTree/WidgetContextMenu";
+import { useSwitchToWidget } from "pages/Editor/IDE/EditorPane/UI/UIEntityListTree/hooks";
 
-export const UIEntityListTree = () => {
+export const UIEntityListTree: React.FC<UIEntityListTreeProps> = ({ className }) => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);
-  const [expandedWidgets, setExpandedWidgets] =
-    useState<string[]>(widgetsToExpand);
-
-  const switchToWidget = useSwitchToWidget();
-
-  const handleOnClick = useCallback(
-    (e, widget) => switchToWidget(e, widget),
-    [switchToWidget],
-  );
-
   const updatingEntity = useSelector(getUpdatingEntity);
   const editingEntity = useSelector(getEditingEntityName);
 
@@ -58,67 +35,63 @@ export const UIEntityListTree = () => {
     isFeatureEnabled,
     pagePermissions,
   );
-  const dispatch = useDispatch();
 
-  const handleNameSave = useCallback(
-    (id: string, newName: string) => {
-      dispatch(updateWidgetName(id, newName));
-    },
-    [dispatch],
-  );
+  const { expandedWidgets, handleExpand } = useWidgetTreeState();
+  const switchToWidget = useSwitchToWidget();
+  const validateName = useValidateEntityName({ entityName: "" });
 
-  const enterEditMode = useCallback(
-    (id: string) => {
-      dispatch(initExplorerEntityNameEdit(id));
-    },
-    [dispatch],
-  );
+  const treeItems = useMemo(() => {
+    if (!widgets?.children) return [];
 
-  const exitEditMode = useCallback(() => {
-    dispatch({
-      type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+    return enhanceWidgetTree(widgets.children, {
+      selectedIds: selectedWidgets,
+      expandedIds: expandedWidgets,
+      getIcon: (type: string) => <WidgetTypeIcon type={type as WidgetType} />,
     });
-  }, [dispatch]);
+  }, [widgets?.children, selectedWidgets, expandedWidgets]);
 
-  const validateName = useValidateEntityName({});
-
-  const items = enhanceItemsTree(widgets?.children || [], (widget) => ({
-    id: widget.widgetId,
-    title: widget.widgetName,
-    startIcon: WidgetTypeIcon(widget.type),
-    isSelected: selectedWidgets.includes(widget.widgetId),
-    isExpanded: expandedWidgets.includes(widget.widgetId),
-    onClick: (e) => handleOnClick(e, widget),
-    onDoubleClick: () => enterEditMode(widget.widgetId),
-    rightControl: (
-      <WidgetContextMenu
-        canManagePages={canManagePages}
-        widgetId={widget.widgetId}
-      />
-    ),
-    rightControlVisibility: "hover",
-    nameEditorConfig: {
-      canEdit: canManagePages,
-      isLoading: updatingEntity === widget.widgetId,
-      isEditing: editingEntity === widget.widgetId,
-      onNameSave: (newName) => handleNameSave(widget.widgetId, newName),
-      onEditComplete: exitEditMode,
-      validateName: (newName) => validateName(newName, widget.widgetName),
+  const handleNameEditor = useCallback(
+    (widgetId: string) => {
+      const editor = useWidgetNameEditor(widgetId);
+      return {
+        canEdit: canManagePages,
+        isLoading: updatingEntity === widgetId,
+        isEditing: editingEntity === widgetId,
+        onNameSave: editor.handleNameSave,
+        onEditComplete: editor.exitEditMode,
+        validateName,
+      };
     },
-  }));
-
-  const handleWidgetExpand = useCallback(
-    (id: string) => {
-      if (expandedWidgets.includes(id)) {
-        setExpandedWidgets(
-          [...expandedWidgets].filter((widgetId) => widgetId !== id),
-        );
-      } else {
-        setExpandedWidgets([...expandedWidgets, id]);
-      }
-    },
-    [expandedWidgets],
+    [canManagePages, updatingEntity, editingEntity, validateName],
   );
 
-  return <EntityListTree items={items} onItemExpand={handleWidgetExpand} />;
+  const { handleClick, handleDoubleClick } = useWidgetTreeHandlers({
+    switchToWidget,
+    enterEditMode: useWidgetNameEditor("").enterEditMode,
+  });
+
+  const enhancedItems = useMemo(() => {
+    return treeItems.map((item) => ({
+      ...item,
+      onClick: (e: React.MouseEvent) =>
+        handleClick(e, item.id),
+      onDoubleClick: () => handleDoubleClick(item.id),
+      rightControl: (
+        <WidgetContextMenu
+          canManagePages={canManagePages}
+          widgetId={item.id}
+        />
+      ),
+      rightControlVisibility: "hover" as const,
+      nameEditorConfig: handleNameEditor(item.id),
+    }));
+  }, [treeItems, handleClick, handleDoubleClick, canManagePages, handleNameEditor]);
+
+  return (
+    <EntityListTree
+      className={className}
+      items={enhancedItems}
+      onItemExpand={handleExpand}
+    />
+  );
 };
