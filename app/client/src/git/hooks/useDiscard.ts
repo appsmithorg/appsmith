@@ -6,16 +6,17 @@ import { useDispatch } from "react-redux";
 import useArtifactSelector from "./useArtifactSelector";
 
 export default function useDiscard() {
-  const { artifactDef } = useGitContext();
+  const { artifact, artifactDef } = useGitContext();
+  const artifactId = artifact?.id;
   const dispatch = useDispatch();
 
   const discardState = useArtifactSelector(selectDiscardState);
 
   const discard = useCallback(() => {
-    if (artifactDef) {
-      dispatch(gitArtifactActions.discardInit({ artifactDef }));
+    if (artifactDef && artifactId) {
+      dispatch(gitArtifactActions.discardInit({ artifactDef, artifactId }));
     }
-  }, [artifactDef, dispatch]);
+  }, [artifactDef, artifactId, dispatch]);
 
   const clearDiscardError = useCallback(() => {
     if (artifactDef) {
