@@ -56,7 +56,6 @@ export default {
   minWidth: FILL_WIDGET_MIN_WIDTH,
   responsiveBehavior: ResponsiveBehavior.Fill,
   flexVerticalAlignment: FlexVerticalAlignment.Top,
-  isMetaWidget: true,
   dynamicBindingPathList: [
     {
       key: "currentItemsView",

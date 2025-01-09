@@ -301,7 +301,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         // this flag serves as a way to avoid any unintended changes to the child widget's height.
         if (
           widgetProps.bottomRow !== widgetProps.topRow &&
-          !widgetProps.isMetaWidget
+          !widgetProps.isMetaWidget &&
+          !(type === "LIST_WIDGET_V2" && widgetProps.hasMetaWidgets)
         ) {
           dispatch({
             type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
