@@ -16,6 +16,11 @@ import { sortBy } from "lodash";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
 import type { Page } from "entities/Page";
+import type { SupportedLayouts } from "./types";
+
+// exporting it as well so that existing imports are not affected
+// TODO: remove this once all imports are updated
+export type { SupportedLayouts };
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -312,13 +317,6 @@ export const pageListReducer = createReducer(initialState, {
     return { ...state, pages: sortedPages };
   },
 });
-
-export type SupportedLayouts =
-  | "DESKTOP"
-  | "TABLET_LARGE"
-  | "TABLET"
-  | "MOBILE"
-  | "FLUID";
 
 export interface AppLayoutConfig {
   type: SupportedLayouts;
