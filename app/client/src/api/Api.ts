@@ -8,7 +8,7 @@ import {
 import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
-
+//
 export const apiRequestConfig = {
   baseURL: "/api/",
   timeout: REQUEST_TIMEOUT_MS,
