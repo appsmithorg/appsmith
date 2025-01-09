@@ -79,7 +79,7 @@ jobs:
         id: compare-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          release_count=${{ steps.coun-cyclic-deps-in-release.outputs.release_count }}
+          release_count=${{ steps.count-cyclic-deps-in-release.outputs.release_count }}
           pr_count=${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}
           diff=$((pr_count - release_count))
 
