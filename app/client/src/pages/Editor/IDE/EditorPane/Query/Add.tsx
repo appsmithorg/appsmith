@@ -5,6 +5,7 @@ import {
   SearchInput,
   NoSearchResults,
   type FlexProps,
+  type ListItemProps,
 } from "@appsmith/ads";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
@@ -24,10 +25,10 @@ const AddQuery = () => {
   const { closeAddQuery } = useQueryAdd();
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const filteredItemGroups = filterEntityGroupsBySearchTerm(
-    searchTerm,
-    itemGroups,
-  );
+  const filteredItemGroups = filterEntityGroupsBySearchTerm<
+    { groupTitle: string; className: string },
+    ListItemProps
+  >(searchTerm, itemGroups);
 
   const extraPadding: FlexProps =
     ideViewMode === EditorViewMode.FullScreen

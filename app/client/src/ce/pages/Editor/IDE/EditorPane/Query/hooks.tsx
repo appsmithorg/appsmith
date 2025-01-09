@@ -1,11 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useMemo,
-  type MouseEvent,
-  type ReactNode,
-} from "react";
+import { lazy, Suspense, useCallback, useMemo } from "react";
 import React from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
@@ -35,14 +28,17 @@ import type { UseRoutes } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { type ListItemProps } from "@appsmith/ads";
+import {
+  type EntityGroupProps,
+  type ListItemProps,
+  type EntityItemProps,
+} from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { setListViewActiveState } from "actions/ideActions";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "widgets/Skeleton";
-import type { EntityItemProps } from "@appsmith/ads/src/Templates/EntityExplorer/EntityItem/EntityItem.types";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -100,16 +96,7 @@ export const useGroupedAddQueryOperations = () => {
   );
 
   const groups: GroupedAddOperations = [];
-  const groupedItems: {
-    groupTitle: string;
-    className: string;
-    items: ListItemProps[] | EntityItemProps[];
-    addConfig?: {
-      icon: ReactNode;
-      title: string;
-      onClick: (e: MouseEvent) => void;
-    };
-  }[] = [];
+  const groupedItems: EntityGroupProps<ListItemProps | EntityItemProps>[] = [];
 
   /** From existing Datasource **/
 
