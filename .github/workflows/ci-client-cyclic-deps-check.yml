@@ -64,7 +64,7 @@ jobs:
           ref: release
 
       - name: Count circular dependencies on release branch
-        id: coun-cyclic-deps-in-release
+        id: count-cyclic-deps-in-release
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
