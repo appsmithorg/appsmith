@@ -45,11 +45,28 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: npm install -g dpdm@3.14
 
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore PRs yarn cache
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
+
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          yarn install --immutable
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
@@ -64,11 +81,28 @@ jobs:
         with:
           ref: release
 
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore release yarn cache
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
+
       - name: Count circular dependencies on release branch
         id: count-cyclic-deps-in-release
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          yarn install --immutable
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
           # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
