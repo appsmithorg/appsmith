@@ -16,7 +16,6 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { getAppsmithConfigs } from "ee/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -113,6 +112,7 @@ function CustomComponent(props: CustomComponentProps) {
           ) {
             setHeight(e.detail.data.height);
           }
+
           break;
         case "CUSTOM_WIDGET_CONSOLE_EVENT":
           props.onConsole?.(e.detail.data.type, e.detail.data.args);
@@ -150,6 +150,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [props.model, isShadowRootReady]);
@@ -162,6 +163,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
 
       if (
@@ -188,6 +190,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [theme, isShadowRootReady]);
@@ -204,16 +207,19 @@ function CustomComponent(props: CustomComponentProps) {
 
       // Add CSS
       const styleEl = document.createElement("style");
+
       styleEl.textContent = props.srcDoc.css;
       shadowRoot.appendChild(styleEl);
 
       // Add HTML content
       const contentEl = document.createElement("div");
+
       contentEl.innerHTML = props.srcDoc.html;
       shadowRoot.appendChild(contentEl);
 
       // Add JavaScript initialization script
       const initScriptEl = document.createElement("script");
+
       initScriptEl.type = "module";
       initScriptEl.textContent = `
         // Create a scoped context for the custom widget
@@ -259,6 +265,7 @@ function CustomComponent(props: CustomComponentProps) {
 
       // Add user's JavaScript in a separate script to ensure API is initialized
       const userScriptEl = document.createElement("script");
+
       userScriptEl.type = "module";
       userScriptEl.textContent = props.srcDoc.js;
       shadowRoot.appendChild(userScriptEl);

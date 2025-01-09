@@ -96,8 +96,8 @@ describe("createChannelToParent", () => {
     const channel = createChannelToParent();
     const handler = jest.fn();
 
-    channel.onMessage("test", handler);
-    expect(channel.onMessageMap.get("test")[0]).toBe(handler);
+    channel?.onMessage("test", handler);
+    expect(channel?.onMessageMap.get("test")[0]).toBe(handler);
 
     window.triggerEvent("custom-widget-event", {
       type: "test",
@@ -128,8 +128,8 @@ describe("createChannelToParent", () => {
       }
     });
 
-    channel.postMessage("test1", { index: 1 });
-    channel.postMessage("test2", { index: 2 });
+    channel?.postMessage("test1", { index: 1 });
+    channel?.postMessage("test2", { index: 2 });
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 

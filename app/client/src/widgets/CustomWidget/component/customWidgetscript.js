@@ -1,4 +1,5 @@
 import { objectKeys } from "@appsmith/utils";
+import log from "loglevel";
 
 // Custom widget events definition
 export const EVENTS = {
@@ -39,18 +40,22 @@ export const createChannelToParent = () => {
 
   // Get the shadowRoot context
   const shadowRoot = document.currentScript?.getRootNode();
+
   if (!shadowRoot || !(shadowRoot instanceof ShadowRoot)) {
-    console.error("CustomWidget must be executed within a ShadowRoot context");
+    log.error("CustomWidget must be executed within a ShadowRoot context");
+
     return;
   }
 
   // Listen for custom events and dispatch to registered event handlers
   shadowRoot.addEventListener("custom-widget-event", (event) => {
     const customEvent = event;
+
     // Verify event originated from our shadowRoot
     if (event.target && !shadowRoot.contains(event.target)) return;
 
     const handlerList = onMessageMap.get(customEvent.detail.type);
+
     if (handlerList) {
       handlerList.forEach((fn) => fn(customEvent.detail));
     }
@@ -91,6 +96,7 @@ export const createChannelToParent = () => {
                 bubbles: true,
                 composed: true,
               });
+
               shadowRoot.dispatchEvent(event);
             });
           }
