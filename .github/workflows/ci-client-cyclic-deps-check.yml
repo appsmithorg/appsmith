@@ -79,9 +79,9 @@ jobs:
         id: compare-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          release_count=${{ steps.count-cyclic-deps-in-release.outputs.release_count }}
-          pr_count=${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}
-          diff=$((pr_count - release_count))
+          release_count="${{ steps.count-cyclic-deps-in-release.outputs.release_count }}"
+          pr_count="${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}"
+          diff="$((pr_count - release_count))"
 
           if [ "$diff" -gt 0 ]; then
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
