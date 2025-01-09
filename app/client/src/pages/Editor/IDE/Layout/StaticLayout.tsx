@@ -40,7 +40,6 @@ const GridContainer = styled.div`
 const LayoutContainer = styled.div<{ name: string }>`
   position: relative;
   grid-area: ${(props) => props.name};
-  overflow: auto;
 `;
 
 export const StaticLayout = React.memo(() => {
