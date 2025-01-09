@@ -58,7 +58,7 @@ const AddQuery = () => {
         />
         <SearchInput autoFocus onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
-          <EntityGroupsList groups={filteredItemGroups} />
+          <EntityGroupsList groups={filteredItemGroups} showDivider />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults

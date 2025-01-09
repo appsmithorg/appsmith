@@ -1,6 +1,5 @@
 import type { MouseEvent, ReactNode } from "react";
 import type { FlexProps } from "../../../Flex";
-
 export interface EntityGroupProps<T> {
   groupTitle: string;
   className: string;
@@ -16,4 +15,5 @@ export interface EntityGroupProps<T> {
 export interface EntityGroupsListProps<T> {
   groups: EntityGroupProps<T>[];
   flexProps?: FlexProps;
+  showDivider?: boolean;
 }

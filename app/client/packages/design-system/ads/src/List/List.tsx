@@ -29,7 +29,7 @@ import { useEventCallback } from "usehooks-ts";
 
 function List({ children, className, groupTitle, ...rest }: ListProps) {
   return groupTitle ? (
-    <StyledGroup className="groups-list-group" flexDirection="column">
+    <StyledGroup flexDirection="column">
       <GroupTitle kind="body-s">{groupTitle}</GroupTitle>
       <GroupedList className={className}>{children}</GroupedList>
     </StyledGroup>

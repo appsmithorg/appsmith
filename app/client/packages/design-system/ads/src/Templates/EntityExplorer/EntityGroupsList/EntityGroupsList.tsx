@@ -1,26 +1,29 @@
 import React, { useMemo } from "react";
-import { GroupsListWrapper, LoadMore } from "./EntityGroupsList.styles";
+import { LoadMore } from "./EntityGroupsList.styles";
 import type {
   EntityGroupProps,
   EntityGroupsListProps,
 } from "./EntityGroupsList.types";
 import { Flex } from "../../../Flex";
 import { List, ListItem, type ListItemProps } from "../../../List";
+import { Divider } from "../../../Divider";
 
 const EntityGroupsList = <T,>(props: EntityGroupsListProps<T>) => {
-  const { flexProps, groups } = props;
+  const { flexProps, groups, showDivider } = props;
 
   return (
-    <GroupsListWrapper
-      flexDirection="column"
-      gap="spaces-4"
-      overflowY="auto"
-      {...flexProps}
-    >
-      {groups.map((group) => (
-        <EntityGroup group={group} key={group.groupTitle} />
+    <Flex flexDirection="column" gap="spaces-4" overflowY="auto" {...flexProps}>
+      {groups.map((group, index) => (
+        <Flex flexDirection="column" gap="spaces-3" key={group.groupTitle}>
+          <EntityGroup group={group} />
+          {showDivider && index < groups.length - 1 && (
+            <Divider
+              style={{ borderColor: "var(--ads-v2-color-border-muted)" }}
+            />
+          )}
+        </Flex>
       ))}
-    </GroupsListWrapper>
+    </Flex>
   );
 };
 
@@ -44,10 +47,9 @@ const EntityGroup = <T,>({ group }: { group: EntityGroupProps<T> }) => {
 
   return (
     <Flex
-      borderBottom="1px solid var(--ads-v2-color-bg-border)"
+      className="entity-group"
       flexDirection={"column"}
       key={group.groupTitle}
-      pb="spaces-3"
     >
       <List className={group.className} groupTitle={group.groupTitle}>
         {updatedGroup.items.map((item: T) =>

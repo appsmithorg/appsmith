@@ -83,7 +83,7 @@ SingleGroupWithAddNLazyLoad.args = {
 const EntityGroupsListTempplate = <T,>(props: EntityGroupsListProps<T>) => {
   const { groups } = props;
 
-  return <EntityGroupsList groups={groups} />;
+  return <EntityGroupsList groups={groups} showDivider />;
 };
 
 export const MultipleGroupsWithAddNLazyLoad = EntityGroupsListTempplate.bind(
