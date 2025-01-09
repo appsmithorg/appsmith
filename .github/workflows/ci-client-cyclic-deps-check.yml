@@ -49,7 +49,7 @@ jobs:
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
           # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
@@ -67,7 +67,7 @@ jobs:
         id: coun-cyclic-deps-in-release
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
           # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
           # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
