@@ -1,11 +1,13 @@
 import type { ActionResponse, PaginationField } from "api/ActionAPI";
 import {
-  type AnyReduxAction,
-  type EvaluationReduxAction,
-  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type {
+  AnyReduxAction,
+  EvaluationReduxAction,
+  ReduxAction,
+} from "constants/ReduxActionTypes";
 import type {
   Action,
   ActionViewMode,

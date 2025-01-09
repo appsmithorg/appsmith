@@ -1,9 +1,11 @@
 import {
-  type EvaluationReduxAction,
-  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  EvaluationReduxAction,
+} from "constants/ReduxActionTypes";
 import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";

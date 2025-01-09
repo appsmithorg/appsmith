@@ -16,7 +16,7 @@ import type {
   ReduxAction,
   ReduxActionType,
   AnyReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getDataTree,

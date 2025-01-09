@@ -16,7 +16,7 @@ import {
 import { Tooltip } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import type { SaveActionNameParams } from "PluginActionEditor";
 
 export const searchHighlightSpanClassName = "token";
@@ -95,6 +95,7 @@ export interface EntityNameProps {
   nameTransformFn?: (input: string, limit?: number) => string;
   isBeta?: boolean;
 }
+
 export const EntityName = React.memo(
   forwardRef((props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;

@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { Log } from "entities/AppsmithConsole";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";

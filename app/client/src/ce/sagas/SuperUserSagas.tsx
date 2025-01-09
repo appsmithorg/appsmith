@@ -1,6 +1,6 @@
 import type { SendTestEmailPayload } from "ee/api/UserApi";
 import UserApi from "ee/api/UserApi";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

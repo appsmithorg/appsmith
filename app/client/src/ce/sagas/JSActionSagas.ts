@@ -1,7 +1,7 @@
 import type {
   EvaluationReduxAction,
   ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -144,6 +144,7 @@ export function* createJSCollectionSaga(
     });
   }
 }
+
 export function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {

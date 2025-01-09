@@ -13,7 +13,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
 
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

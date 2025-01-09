@@ -1,5 +1,5 @@
 import { all, call, takeEvery } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import EntityNavigationFactory from "pages/Editor/EntityNavigation/factory";
 import type { EntityInfo } from "pages/Editor/EntityNavigation/types";

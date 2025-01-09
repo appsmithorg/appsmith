@@ -1,5 +1,5 @@
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export type SetLintErrorsAction = ReduxAction<{ errors: LintErrorsStore }>;

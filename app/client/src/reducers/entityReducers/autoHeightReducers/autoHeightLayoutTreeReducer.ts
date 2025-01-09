@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
@@ -12,6 +12,7 @@ export interface AutoHeightLayoutTreePayload {
 export interface AutoHeightLayoutTreeReduxState {
   [widgetId: string]: TreeNode;
 }
+
 const initialState: AutoHeightLayoutTreeReduxState = {};
 
 const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {

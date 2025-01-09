@@ -1,5 +1,5 @@
 import type { APP_MODE } from "entities/App";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const initCurrentPage = () => {

@@ -15,7 +15,7 @@ import {
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -96,6 +96,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
   }
+
   componentDidMount() {
     // set replay data
     this.props.initializeReplayEntity(

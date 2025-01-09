@@ -1,7 +1,7 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

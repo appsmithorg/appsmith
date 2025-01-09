@@ -2,7 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ReduxActionErrorPayload,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import _ from "lodash";

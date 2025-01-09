@@ -21,10 +21,8 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "ee/constants/messages";
-import {
-  ReduxActionTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "constants/ReduxActionTypes";
 
 const mockStore = configureStore([]);
 

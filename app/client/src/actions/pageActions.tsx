@@ -3,7 +3,7 @@ import type {
   AnyReduxAction,
   EvaluationReduxAction,
   ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -655,6 +655,7 @@ export const fetchPageDSLs = (payload?: any) => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
   payload,
 });
+
 export interface SetupPageActionPayload {
   id: string;
   isFirstLoad?: boolean;

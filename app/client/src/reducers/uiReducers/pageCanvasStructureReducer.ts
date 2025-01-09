@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -18,6 +18,7 @@ export interface CanvasStructure {
 export interface DSL extends WidgetProps {
   children?: DSL[];
 }
+
 export interface PageCanvasStructureReduxState {
   [pageId: string]: CanvasStructure;
 }

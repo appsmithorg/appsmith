@@ -1,7 +1,7 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
@@ -349,6 +349,7 @@ export interface executeDatasourceQuerySuccessPayload<T> {
     isExecutionSuccess: boolean;
   };
 }
+
 type errorPayload = string;
 
 export interface executeDatasourceReduxActionPayload {

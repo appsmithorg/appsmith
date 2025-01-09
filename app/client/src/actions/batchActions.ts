@@ -1,7 +1,7 @@
 import type {
   EvaluationReduxAction,
   ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 // TODO: Fix this the next time the file is edited

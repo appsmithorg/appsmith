@@ -2,7 +2,7 @@ import { call, fork, put, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

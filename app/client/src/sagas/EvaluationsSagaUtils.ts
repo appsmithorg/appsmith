@@ -1,7 +1,7 @@
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import { AFFECTED_JS_OBJECTS_FNS } from "ee/sagas/InferAffectedJSObjects";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";

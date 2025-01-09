@@ -11,7 +11,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "constants/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

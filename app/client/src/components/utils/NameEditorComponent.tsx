@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import type { SaveActionNameParams } from "PluginActionEditor";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 
 export const NameWrapper = styled.div<{ enableFontStyling?: boolean }>`
   min-width: 50%;

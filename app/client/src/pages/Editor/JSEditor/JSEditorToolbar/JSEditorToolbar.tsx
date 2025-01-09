@@ -3,7 +3,7 @@ import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
 import { JSFunctionRun } from "./components/JSFunctionRun";
 import type { JSActionDropdownOption } from "./types";
 import type { SaveActionNameParams } from "PluginActionEditor";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "constants/ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

@@ -1,9 +1,7 @@
 import { get } from "lodash";
+import { type ReduxAction } from "constants/ReduxActionTypes";
 import {
-  type ReduxAction,
   toastMessageErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
@@ -183,6 +181,7 @@ export interface ErrorPayloadType {
   message?: string;
   crash?: boolean;
 }
+
 const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {
