@@ -1,7 +1,7 @@
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
+import { ASSETS_CDN_URL } from "../../../../constants/ThirdPartyConstants";
 
-interface PremiumIntegration {
+export interface PremiumIntegration {
   name: string;
   icon: string;
 }
@@ -13,7 +13,7 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   },
   {
     name: "Salesforce",
-    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-icon.png`),
+    icon: getAssetUrl(`${ASSETS_CDN_URL}/salesforce-image.png`),
   },
   {
     name: "Slack",

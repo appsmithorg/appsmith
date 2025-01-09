@@ -1,4 +1,4 @@
-import { SCHEDULE_CALL_URL } from "constants/PremiumDatasourcesConstants";
+import { SCHEDULE_CALL_URL } from "./Constants";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isRelevantEmail } from "utils/formhelpers";
