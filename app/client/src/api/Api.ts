@@ -20,6 +20,8 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
+//
+
 axiosInstance.defaults.transformResponse = [
   function (...args) {
     const transformResponseAr = axios.defaults.transformResponse;
