@@ -1,3 +1,5 @@
+import { objectKeys } from "@appsmith/utils";
+
 // Custom widget events definition
 export const EVENTS = {
   CUSTOM_WIDGET_READY: "CUSTOM_WIDGET_READY",
@@ -35,15 +37,25 @@ export const createChannelToParent = () => {
     };
   }
 
-  // Listen for custom events and dispatch to registered event handlers
-  document.addEventListener("custom-widget-event", (event) => {
-    const customEvent = event;
-    const handlerList = onMessageMap.get(customEvent.detail.type);
+  // Get the shadowRoot context
+  const shadowRoot = document.currentScript?.getRootNode();
+  if (!shadowRoot || !(shadowRoot instanceof ShadowRoot)) {
+    console.error("CustomWidget must be executed within a ShadowRoot context");
+    return;
+  }
 
+  // Listen for custom events and dispatch to registered event handlers
+  shadowRoot.addEventListener("custom-widget-event", (event) => {
+    const customEvent = event;
+    // Verify event originated from our shadowRoot
+    if (event.target && !shadowRoot.contains(event.target)) return;
+
+    const handlerList = onMessageMap.get(customEvent.detail.type);
     if (handlerList) {
       handlerList.forEach((fn) => fn(customEvent.detail));
     }
   });
+
   // Queue to hold postMessage requests
   const postMessageQueue = [];
   // Flag to indicate if the flush is scheduled
@@ -73,14 +85,13 @@ export const createChannelToParent = () => {
                 },
               );
 
-              // Send the message using CustomEvent
+              // Send the message using CustomEvent through shadowRoot
               const event = new CustomEvent("custom-widget-event", {
-                detail: Object.assign(Object.assign({}, message), { key }),
+                detail: { ...message, key },
                 bubbles: true,
                 composed: true,
               });
-
-              document.dispatchEvent(event);
+              shadowRoot.dispatchEvent(event);
             });
           }
 
@@ -261,10 +272,10 @@ export function main() {
             throw new Error("updateModel expects an object as parameter");
           }
 
-          appsmith.model = Object.assign(
-            Object.assign({}, appsmith.model),
-            obj,
-          );
+          appsmith.model = {
+            ...appsmith.model,
+            ...obj,
+          };
 
           // Send an update model message to the parent
           channel.postMessage(EVENTS.CUSTOM_WIDGET_UPDATE_MODEL, obj);
@@ -319,7 +330,7 @@ export const generateAppsmithCssVariables = (provider) => (source) => {
     window.document.head.appendChild(cssTokens);
   }
 
-  const cssTokensContent = Object.keys(source).reduce((acc, key) => {
+  const cssTokensContent = objectKeys(source).reduce((acc, key) => {
     if (typeof source[key] === "string" || typeof source[key] === "number") {
       return `
     ${acc}

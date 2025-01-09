@@ -16,6 +16,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { getAppsmithConfigs } from "ee/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -87,8 +88,14 @@ function CustomComponent(props: CustomComponentProps) {
 
   // Handle custom widget events
   useEffect(() => {
+    if (!shadowHostRef.current?.shadowRoot) return;
+
+    const shadowRoot = shadowHostRef.current.shadowRoot;
     const handleCustomEvent = (e: CustomEvent) => {
       if (!e.detail) return;
+
+      // Ensure event originated from our shadowRoot
+      if (e.target && !shadowRoot.contains(e.target as Node)) return;
 
       switch (e.detail.type) {
         case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
@@ -106,7 +113,6 @@ function CustomComponent(props: CustomComponentProps) {
           ) {
             setHeight(e.detail.data.height);
           }
-
           break;
         case "CUSTOM_WIDGET_CONSOLE_EVENT":
           props.onConsole?.(e.detail.data.type, e.detail.data.args);
@@ -114,22 +120,27 @@ function CustomComponent(props: CustomComponentProps) {
       }
     };
 
-    if (shadowHostRef.current?.shadowRoot) {
-      shadowHostRef.current.shadowRoot.addEventListener(
+    // Listen for events on the shadowRoot
+    shadowRoot.addEventListener(
+      "custom-widget-event",
+      handleCustomEvent as EventListener,
+    );
+
+    return () => {
+      shadowRoot.removeEventListener(
         "custom-widget-event",
         handleCustomEvent as EventListener,
       );
-    }
-
-    return () => {
-      if (shadowHostRef.current?.shadowRoot) {
-        shadowHostRef.current.shadowRoot.removeEventListener(
-          "custom-widget-event",
-          handleCustomEvent as EventListener,
-        );
-      }
     };
-  }, [props, props.dynamicHeight, props.layoutSystemType]);
+  }, [
+    props,
+    props.dynamicHeight,
+    props.layoutSystemType,
+    props.execute,
+    props.update,
+    props.onConsole,
+    props.renderMode,
+  ]);
 
   // Update model when it changes
   useEffect(() => {
@@ -139,7 +150,6 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
-
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [props.model, isShadowRootReady]);
@@ -152,7 +162,6 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
-
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
 
       if (
@@ -179,7 +188,6 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
-
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [theme, isShadowRootReady]);
@@ -196,62 +204,64 @@ function CustomComponent(props: CustomComponentProps) {
 
       // Add CSS
       const styleEl = document.createElement("style");
-
       styleEl.textContent = props.srcDoc.css;
       shadowRoot.appendChild(styleEl);
 
       // Add HTML content
       const contentEl = document.createElement("div");
-
       contentEl.innerHTML = props.srcDoc.html;
       shadowRoot.appendChild(contentEl);
 
-      // Add JavaScript
-      const scriptEl = document.createElement("script");
-
-      scriptEl.type = "module";
-      scriptEl.textContent = `
-        // Initialize custom widget API
-        window.customWidget = {
-          triggerEvent: (eventName, contextObj) => {
-            const event = new CustomEvent("custom-widget-event", {
-              detail: {
-                type: "CUSTOM_WIDGET_TRIGGER_EVENT",
-                data: { eventName, contextObj }
-              },
-              bubbles: true,
-              composed: true
-            });
-            document.dispatchEvent(event);
-          },
-          updateModel: (data) => {
-            const event = new CustomEvent("custom-widget-event", {
-              detail: {
-                type: "CUSTOM_WIDGET_UPDATE_MODEL",
-                data
-              },
-              bubbles: true,
-              composed: true
-            });
-            document.dispatchEvent(event);
-          },
-          updateHeight: (height) => {
-            const event = new CustomEvent("custom-widget-event", {
-              detail: {
-                type: "CUSTOM_WIDGET_UPDATE_HEIGHT",
-                data: { height }
-              },
-              bubbles: true,
-              composed: true
-            });
-            document.dispatchEvent(event);
-          }
+      // Add JavaScript initialization script
+      const initScriptEl = document.createElement("script");
+      initScriptEl.type = "module";
+      initScriptEl.textContent = `
+        // Create a scoped context for the custom widget
+        const createCustomWidgetContext = (shadowRoot) => {
+          return {
+            triggerEvent: (eventName, contextObj) => {
+              shadowRoot.dispatchEvent(new CustomEvent("custom-widget-event", {
+                detail: {
+                  type: "CUSTOM_WIDGET_TRIGGER_EVENT",
+                  data: { eventName, contextObj }
+                },
+                bubbles: true,
+                composed: true
+              }));
+            },
+            updateModel: (data) => {
+              shadowRoot.dispatchEvent(new CustomEvent("custom-widget-event", {
+                detail: {
+                  type: "CUSTOM_WIDGET_UPDATE_MODEL",
+                  data
+                },
+                bubbles: true,
+                composed: true
+              }));
+            },
+            updateHeight: (height) => {
+              shadowRoot.dispatchEvent(new CustomEvent("custom-widget-event", {
+                detail: {
+                  type: "CUSTOM_WIDGET_UPDATE_HEIGHT",
+                  data: { height }
+                },
+                bubbles: true,
+                composed: true
+              }));
+            }
+          };
         };
 
-        // User's JavaScript
-        ${props.srcDoc.js}
+        // Initialize the custom widget API in the shadowRoot scope
+        window.customWidget = createCustomWidgetContext(document.currentScript.getRootNode());
       `;
-      shadowRoot.appendChild(scriptEl);
+      shadowRoot.appendChild(initScriptEl);
+
+      // Add user's JavaScript in a separate script to ensure API is initialized
+      const userScriptEl = document.createElement("script");
+      userScriptEl.type = "module";
+      userScriptEl.textContent = props.srcDoc.js;
+      shadowRoot.appendChild(userScriptEl);
     }
   }, [isShadowRootReady, props.srcDoc]);
 
