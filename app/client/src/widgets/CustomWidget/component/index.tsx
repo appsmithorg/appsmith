@@ -3,15 +3,7 @@ import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import script from "!!raw-loader!./customWidgetscript.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import css from "!!raw-loader!./reset.css";
+// Scripts and styles will be loaded differently in ShadowDOM implementation
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
@@ -29,7 +21,7 @@ import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
-const StyledIframe = styled.iframe<{
+const ShadowContainer = styled.div<{
   componentWidth: number;
   componentHeight: number;
   componentMinHeight: number;
@@ -37,6 +29,7 @@ const StyledIframe = styled.iframe<{
   width: ${(props) => props.componentWidth}px;
   height: ${(props) => props.componentHeight}px;
   min-height: ${(props) => props.componentMinHeight}px;
+  position: relative;
 `;
 
 const OverlayDiv = styled.div`
@@ -52,16 +45,22 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const { disableIframeWidgetSandbox } = getAppsmithConfigs();
+// Shadow DOM doesn't need sandbox configuration
 
 function CustomComponent(props: CustomComponentProps) {
-  const iframe = useRef<HTMLIFrameElement>(null);
-
+  const shadowHostRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = React.useState(true);
-
-  const [isIframeReady, setIsIframeReady] = useState(false);
-
+  const [isShadowRootReady, setIsShadowRootReady] = useState(false);
   const [height, setHeight] = useState(props.height);
+
+  // Initialize shadow root
+  useEffect(() => {
+    if (shadowHostRef.current && !shadowHostRef.current.shadowRoot) {
+      shadowHostRef.current.attachShadow({ mode: "open" });
+      setIsShadowRootReady(true);
+      setLoading(false);
+    }
+  }, [shadowHostRef]);
 
   const theme = useMemo(() => {
     return {
@@ -71,171 +70,184 @@ function CustomComponent(props: CustomComponentProps) {
     };
   }, [props.theme]);
 
+  // Initialize widget when shadow root is ready
   useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      const iframeWindow =
-        iframe.current?.contentWindow ||
-        iframe.current?.contentDocument?.defaultView;
+    if (isShadowRootReady && shadowHostRef.current?.shadowRoot) {
+      // Signal widget is ready
+      setLoading(false);
 
-      if (event.source === iframeWindow) {
-        // Sending acknowledgement for all messages since we're queueing all the postmessage from iframe
-        iframe.current?.contentWindow?.postMessage(
-          {
-            type: EVENTS.CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK,
-            key: event.data.key,
-            success: true,
-          },
-          "*",
-        );
+      // Initialize with current model and UI state
+      if (props.renderMode === "DEPLOYED" || props.renderMode === "EDITOR") {
+        AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
+          widgetId: props.widgetId,
+          renderMode: props.renderMode,
+        });
+      }
+    }
+  }, [isShadowRootReady, props.widgetId, props.renderMode]);
 
-        const message = event.data;
+  // Handle custom widget events
+  useEffect(() => {
+    const handleCustomEvent = (e: CustomEvent) => {
+      if (!e.detail) return;
 
-        switch (message.type) {
-          case EVENTS.CUSTOM_WIDGET_READY:
-            setIsIframeReady(true);
-            iframe.current?.contentWindow?.postMessage(
-              {
-                type: EVENTS.CUSTOM_WIDGET_READY_ACK,
-                model: props.model,
-                ui: {
-                  width: props.width,
-                  height: props.height,
-                },
-                mode: props.renderMode,
-                theme,
-              },
-              "*",
-            );
-
-            if (
-              props.renderMode === "DEPLOYED" ||
-              props.renderMode === "EDITOR"
-            ) {
-              AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
-                widgetId: props.widgetId,
-                renderMode: props.renderMode,
-              });
-            }
-
-            break;
-          case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
-            props.update(message.data);
-            break;
-          case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
-            props.execute(message.data.eventName, message.data.contextObj);
-            break;
-          case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
-            const height = message.data.height;
-
-            if (
-              props.renderMode !== "BUILDER" &&
-              height &&
-              (props.dynamicHeight !== DynamicHeight.FIXED ||
-                props.layoutSystemType === LayoutSystemTypes.AUTO)
-            ) {
-              iframe.current?.style.setProperty("height", `${height}px`);
-              setHeight(height);
-            }
-
-            break;
-          case "CUSTOM_WIDGET_CONSOLE_EVENT":
-            props.onConsole &&
-              props.onConsole(message.data.type, message.data.args);
-            break;
-        }
+      switch (e.detail.type) {
+        case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
+          props.update(e.detail.data);
+          break;
+        case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
+          props.execute(e.detail.data.eventName, e.detail.data.contextObj);
+          break;
+        case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
+          if (
+            props.renderMode !== "BUILDER" &&
+            e.detail.data.height &&
+            (props.dynamicHeight !== DynamicHeight.FIXED ||
+              props.layoutSystemType === LayoutSystemTypes.AUTO)
+          ) {
+            setHeight(e.detail.data.height);
+          }
+          break;
+        case "CUSTOM_WIDGET_CONSOLE_EVENT":
+          props.onConsole?.(e.detail.data.type, e.detail.data.args);
+          break;
       }
     };
 
-    window.addEventListener("message", handler, false);
+    if (shadowHostRef.current?.shadowRoot) {
+      shadowHostRef.current.shadowRoot.addEventListener(
+        "custom-widget-event",
+        handleCustomEvent as EventListener,
+      );
+    }
 
-    return () => window.removeEventListener("message", handler, false);
+    return () => {
+      if (shadowHostRef.current?.shadowRoot) {
+        shadowHostRef.current.shadowRoot.removeEventListener(
+          "custom-widget-event",
+          handleCustomEvent as EventListener,
+        );
+      }
+    };
+  }, [props, props.dynamicHeight, props.layoutSystemType]);
+
+  // Update model when it changes
+  useEffect(() => {
+    if (isShadowRootReady && shadowHostRef.current?.shadowRoot) {
+      const event = new CustomEvent("model-update", {
+        detail: { model: props.model },
+        bubbles: true,
+        composed: true,
+      });
+      shadowHostRef.current.shadowRoot.dispatchEvent(event);
+    }
+  }, [props.model, isShadowRootReady]);
+
+  // Update UI dimensions when they change
+  useEffect(() => {
+    if (isShadowRootReady && shadowHostRef.current?.shadowRoot) {
+      const event = new CustomEvent("ui-update", {
+        detail: { width: props.width, height },
+        bubbles: true,
+        composed: true,
+      });
+      shadowHostRef.current.shadowRoot.dispatchEvent(event);
+
+      if (
+        props.dynamicHeight === DynamicHeight.FIXED &&
+        props.layoutSystemType === LayoutSystemTypes.FIXED
+      ) {
+        setHeight(props.height);
+      }
+    }
   }, [
-    props.model,
     props.width,
+    height,
+    props.dynamicHeight,
     props.height,
     props.layoutSystemType,
-    props.dynamicHeight,
+    isShadowRootReady,
   ]);
 
+  // Update theme when it changes
   useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
-          type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
-          model: props.model,
-        },
-        "*",
-      );
+    if (isShadowRootReady && shadowHostRef.current?.shadowRoot) {
+      const event = new CustomEvent("theme-update", {
+        detail: { theme },
+        bubbles: true,
+        composed: true,
+      });
+      shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
-  }, [props.model]);
+  }, [theme, isShadowRootReady]);
 
+  // Inject content into shadow root
   useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
-          type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
-          ui: {
-            width: props.width,
-            height: height,
+    if (isShadowRootReady && shadowHostRef.current?.shadowRoot) {
+      const shadowRoot = shadowHostRef.current.shadowRoot;
+
+      // Clear existing content
+      while (shadowRoot.firstChild) {
+        shadowRoot.removeChild(shadowRoot.firstChild);
+      }
+
+      // Add CSS
+      const styleEl = document.createElement("style");
+      styleEl.textContent = props.srcDoc.css;
+      shadowRoot.appendChild(styleEl);
+
+      // Add HTML content
+      const contentEl = document.createElement("div");
+      contentEl.innerHTML = props.srcDoc.html;
+      shadowRoot.appendChild(contentEl);
+
+      // Add JavaScript
+      const scriptEl = document.createElement("script");
+      scriptEl.type = "module";
+      scriptEl.textContent = `
+        // Initialize custom widget API
+        window.customWidget = {
+          triggerEvent: (eventName, contextObj) => {
+            const event = new CustomEvent("custom-widget-event", {
+              detail: {
+                type: "CUSTOM_WIDGET_TRIGGER_EVENT",
+                data: { eventName, contextObj }
+              },
+              bubbles: true,
+              composed: true
+            });
+            document.dispatchEvent(event);
           },
-        },
-        "*",
-      );
+          updateModel: (data) => {
+            const event = new CustomEvent("custom-widget-event", {
+              detail: {
+                type: "CUSTOM_WIDGET_UPDATE_MODEL",
+                data
+              },
+              bubbles: true,
+              composed: true
+            });
+            document.dispatchEvent(event);
+          },
+          updateHeight: (height) => {
+            const event = new CustomEvent("custom-widget-event", {
+              detail: {
+                type: "CUSTOM_WIDGET_UPDATE_HEIGHT",
+                data: { height }
+              },
+              bubbles: true,
+              composed: true
+            });
+            document.dispatchEvent(event);
+          }
+        };
+
+        // User's JavaScript
+        ${props.srcDoc.js}
+      `;
+      shadowRoot.appendChild(scriptEl);
     }
-  }, [props.width, height]);
-
-  useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
-          type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
-          theme,
-        },
-        "*",
-      );
-    }
-  }, [theme]);
-
-  useEffect(() => {
-    if (
-      props.dynamicHeight === DynamicHeight.FIXED &&
-      props.layoutSystemType === LayoutSystemTypes.FIXED
-    ) {
-      iframe.current?.style.setProperty("height", `${props.height}px`);
-      setHeight(props.height);
-    }
-  }, [
-    props.dynamicHeight,
-    props.height,
-    iframe.current,
-    props.layoutSystemType,
-  ]);
-
-  const srcDoc = `
-    <html>
-      <head>
-        <style>${css}</style>
-      </head>
-      <body>
-        <script type="text/javascript">${
-          props.onConsole ? appsmithConsole : ""
-        }</script>
-        <script type="module">
-          ${script}
-          main();
-        </script>
-        ${props.srcDoc.html}
-        <script type="module">
-          ${props.srcDoc.js}
-        </script>
-        <style>${props.srcDoc.css}</style>
-      </body>
-    </html>
-  `;
-
-  useEffect(() => {
-    setLoading(true);
-  }, [srcDoc]);
+  }, [isShadowRootReady, props.srcDoc]);
 
   return (
     <Container
@@ -252,7 +264,7 @@ function CustomComponent(props: CustomComponentProps) {
         boxShadow={props.boxShadow}
         widgetId={props.widgetId}
       >
-        <StyledIframe
+        <ShadowContainer
           componentHeight={height}
           componentMinHeight={
             props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
@@ -260,17 +272,7 @@ function CustomComponent(props: CustomComponentProps) {
               : 0
           }
           componentWidth={props.width}
-          loading="lazy"
-          onLoad={() => {
-            setLoading(false);
-          }}
-          ref={iframe}
-          sandbox={
-            disableIframeWidgetSandbox
-              ? undefined
-              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
-          }
-          srcDoc={srcDoc}
+          ref={shadowHostRef}
         />
       </WidgetStyleContainer>
     </Container>

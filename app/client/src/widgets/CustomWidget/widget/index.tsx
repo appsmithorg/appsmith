@@ -70,8 +70,16 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       events: ["onResetClick"],
       isVisible: true,
       defaultModel: DEFAULT_MODEL,
-      srcDoc: defaultApp.srcDoc,
-      uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
+      srcDoc: {
+        html: defaultApp.srcDoc.html,
+        css: defaultApp.srcDoc.css,
+        js: defaultApp.srcDoc.js,
+      },
+      uncompiledSrcDoc: {
+        html: defaultApp.uncompiledSrcDoc.html,
+        css: defaultApp.uncompiledSrcDoc.css,
+        js: defaultApp.uncompiledSrcDoc.js,
+      },
       theme: "{{appsmith.theme}}",
       dynamicBindingPathList: [{ key: "theme" }],
       dynamicTriggerPathList: [{ key: "onResetClick" }],
@@ -450,7 +458,11 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         minDynamicHeight={this.props.minDynamicHeight}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
-        srcDoc={this.props.srcDoc}
+        srcDoc={{
+          html: this.props.srcDoc.html,
+          css: this.props.srcDoc.css,
+          js: this.props.srcDoc.js,
+        }}
         theme={this.props.theme}
         update={this.update}
         widgetId={this.props.widgetId}
@@ -463,6 +475,16 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 export interface CustomWidgetProps extends WidgetProps {
   events: string[];
   theme: AppThemeProperties;
+  srcDoc: {
+    html: string;
+    css: string;
+    js: string;
+  };
+  uncompiledSrcDoc: {
+    html: string;
+    css: string;
+    js: string;
+  };
 }
 
 export default CustomWidget;

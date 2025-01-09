@@ -35,14 +35,13 @@ export const createChannelToParent = () => {
     };
   }
 
-  // Listen for 'message' events and dispatch to registered event handlers
-  window.addEventListener("message", (event) => {
-    if (event.source === window.parent) {
-      const handlerList = onMessageMap.get(event.data.type);
+  // Listen for custom events and dispatch to registered event handlers
+  document.addEventListener("custom-widget-event", (event) => {
+    const customEvent = event;
+    const handlerList = onMessageMap.get(customEvent.detail.type);
 
-      if (handlerList) {
-        handlerList.forEach((fn) => fn(event.data));
-      }
+    if (handlerList) {
+      handlerList.forEach((fn) => fn(customEvent.detail));
     }
   });
   // Queue to hold postMessage requests
@@ -74,11 +73,13 @@ export const createChannelToParent = () => {
                 },
               );
 
-              // Send the message to the parent
-              window.parent.postMessage(
-                Object.assign(Object.assign({}, message), { key }),
-                "*",
-              );
+              // Send the message using CustomEvent
+              const event = new CustomEvent("custom-widget-event", {
+                detail: Object.assign(Object.assign({}, message), { key }),
+                bubbles: true,
+                composed: true
+              });
+              document.dispatchEvent(event);
             });
           }
 

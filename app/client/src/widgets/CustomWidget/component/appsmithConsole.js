@@ -1,7 +1,7 @@
 (function (nativeConsole) {
-  const postMessage = (method, args) => {
-    window.parent.postMessage(
-      {
+  const dispatchConsoleEvent = (method, args) => {
+    const event = new CustomEvent("custom-widget-event", {
+      detail: {
         type: "CUSTOM_WIDGET_CONSOLE_EVENT",
         data: {
           type: method,
@@ -10,15 +10,17 @@
           })),
         },
       },
-      "*",
-    );
+      bubbles: true,
+      composed: true,
+    });
+    document.dispatchEvent(event);
   };
 
   const createProxy = (method) =>
     new Proxy(nativeConsole[method], {
       apply(target, _this, args) {
         try {
-          postMessage(method, args);
+          dispatchConsoleEvent(method, args);
         } finally {
           return Reflect.apply(target, _this, args);
         }
@@ -30,6 +32,6 @@
   });
 
   window.addEventListener("error", (event) => {
-    postMessage("error", [event.message]);
+    dispatchConsoleEvent("error", [event.message]);
   });
 })(window.console);
