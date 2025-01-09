@@ -352,4 +352,5 @@ export class CommonLocators {
     `[data-testid="t--entity-item-${entity}"]`;
   _dropdownOption = ".rc-select-item-option-content";
   _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
+  _homeIcon = "[data-testid='t--default-home-icon']";
 }

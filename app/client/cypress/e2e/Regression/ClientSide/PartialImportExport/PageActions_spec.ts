@@ -46,7 +46,7 @@ describe("Check Page Actions Menu", {}, function () {
     });
     PageList.ShowList();
     agHelper.GetElement(locators._entityTestId("NewPage")).within(() => {
-      agHelper.AssertElementExist('[data-testid="t--default-home-icon"]');
+      agHelper.AssertElementExist(locators._homeIcon);
     });
 
     entityExplorer.ActionContextMenuByEntityName({
@@ -56,7 +56,7 @@ describe("Check Page Actions Menu", {}, function () {
     });
     PageList.ShowList();
     agHelper.GetElement(locators._entityTestId("Page1")).within(() => {
-      agHelper.AssertElementExist('[data-testid="t--default-home-icon"]');
+      agHelper.AssertElementExist(locators._homeIcon);
     });
 
     EditorNavigation.NavigateToPage("NewPage", true);
