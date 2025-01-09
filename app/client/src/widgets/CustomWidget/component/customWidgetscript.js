@@ -79,6 +79,7 @@ export const createChannelToParent = () => {
                 bubbles: true,
                 composed: true,
               });
+
               document.dispatchEvent(event);
             });
           }

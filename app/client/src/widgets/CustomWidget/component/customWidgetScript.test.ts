@@ -60,12 +60,14 @@ describe("createChannelToParent", () => {
         if (!eventHandlers.has(type)) {
           eventHandlers.set(type, new Set());
         }
+
         eventHandlers.get(type).add(handler);
       },
     );
 
     document.dispatchEvent = jest.fn((event: Event) => {
       const handlers = eventHandlers.get(event.type);
+
       if (handlers) {
         handlers.forEach((handler: EventListenerOrEventListenerObject) => {
           if (typeof handler === "function") {
@@ -75,6 +77,7 @@ describe("createChannelToParent", () => {
           }
         });
       }
+
       return true;
     });
 
@@ -84,6 +87,7 @@ describe("createChannelToParent", () => {
         bubbles: true,
         composed: true,
       }) as AppsmithCustomEvent;
+
       document.dispatchEvent(event);
     };
   });
@@ -111,6 +115,7 @@ describe("createChannelToParent", () => {
     // Add handler for message acknowledgment
     document.addEventListener("custom-widget-event", (event: Event) => {
       const customEvent = event as AppsmithCustomEvent;
+
       if (
         customEvent.detail.type === "test1" ||
         customEvent.detail.type === "test2"
@@ -182,12 +187,14 @@ describe("CustomWidgetScript", () => {
         if (!eventHandlers.has(type)) {
           eventHandlers.set(type, new Set());
         }
+
         eventHandlers.get(type).add(handler);
       },
     );
 
     document.dispatchEvent = jest.fn((event: Event) => {
       const handlers = eventHandlers.get(event.type);
+
       if (handlers) {
         handlers.forEach((handler: EventListenerOrEventListenerObject) => {
           if (typeof handler === "function") {
@@ -197,6 +204,7 @@ describe("CustomWidgetScript", () => {
           }
         });
       }
+
       return true;
     });
 
@@ -206,6 +214,7 @@ describe("CustomWidgetScript", () => {
         bubbles: true,
         composed: true,
       }) as AppsmithCustomEvent;
+
       document.dispatchEvent(event);
     };
 
@@ -228,6 +237,7 @@ describe("CustomWidgetScript", () => {
           modelSubscribers.add(fn);
           fn(window.appsmith.model);
         }
+
         return () => {
           modelSubscribers.delete(fn);
         };
@@ -237,6 +247,7 @@ describe("CustomWidgetScript", () => {
           uiSubscribers.add(fn);
           fn(window.appsmith.ui);
         }
+
         return () => {
           uiSubscribers.delete(fn);
         };
@@ -246,12 +257,14 @@ describe("CustomWidgetScript", () => {
           themeSubscribers.add(fn);
           fn(window.appsmith.theme);
         }
+
         return () => {
           themeSubscribers.delete(fn);
         };
       }),
       updateModel: jest.fn((data) => {
         const prevModel = { ...window.appsmith.model };
+
         window.appsmith.model = { ...prevModel, ...data };
         const event = new CustomEvent("custom-widget-event", {
           detail: {
@@ -262,6 +275,7 @@ describe("CustomWidgetScript", () => {
           bubbles: true,
           composed: true,
         });
+
         document.dispatchEvent(event);
         modelSubscribers.forEach((fn: ModelHandler) =>
           fn(window.appsmith.model, prevModel),
@@ -280,6 +294,7 @@ describe("CustomWidgetScript", () => {
           bubbles: true,
           composed: true,
         });
+
         document.dispatchEvent(event);
       }),
     };
@@ -289,6 +304,7 @@ describe("CustomWidgetScript", () => {
 
   it("should check API functions - onReady and init", () => {
     const handler = jest.fn();
+
     window.appsmith.onReady(handler);
 
     window.triggerEvent("custom-widget-event", {
@@ -312,6 +328,7 @@ describe("CustomWidgetScript", () => {
     expect(handler).toHaveBeenCalledWith({ test: 1 });
 
     const prevModel = { ...window.appsmith.model };
+
     window.appsmith.model = { test: 2 };
     window.triggerEvent("custom-widget-event", {
       type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
@@ -343,6 +360,7 @@ describe("CustomWidgetScript", () => {
     expect(handler).toHaveBeenCalledWith({ width: 1, height: 2 });
 
     const prevUi = { ...window.appsmith.ui };
+
     window.appsmith.ui = { width: 2, height: 3 };
     window.triggerEvent("custom-widget-event", {
       type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
@@ -375,6 +393,7 @@ describe("CustomWidgetScript", () => {
     expect(handler).toHaveBeenCalledWith({ color: "#fff" });
 
     const prevTheme = { ...window.appsmith.theme };
+
     window.appsmith.theme = { color: "#000" };
     window.triggerEvent("custom-widget-event", {
       type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
@@ -422,6 +441,7 @@ describe("CustomWidgetScript", () => {
 
   it("should check API functions - triggerEvent", async () => {
     const dispatchEventSpy = jest.spyOn(document, "dispatchEvent");
+
     dispatchEventSpy.mockClear();
 
     window.appsmith.triggerEvent("test", { test: 5 });

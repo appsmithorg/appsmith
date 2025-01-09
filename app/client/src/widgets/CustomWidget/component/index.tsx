@@ -16,7 +16,6 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { getAppsmithConfigs } from "ee/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -107,6 +106,7 @@ function CustomComponent(props: CustomComponentProps) {
           ) {
             setHeight(e.detail.data.height);
           }
+
           break;
         case "CUSTOM_WIDGET_CONSOLE_EVENT":
           props.onConsole?.(e.detail.data.type, e.detail.data.args);
@@ -139,6 +139,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [props.model, isShadowRootReady]);
@@ -151,6 +152,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
 
       if (
@@ -177,6 +179,7 @@ function CustomComponent(props: CustomComponentProps) {
         bubbles: true,
         composed: true,
       });
+
       shadowHostRef.current.shadowRoot.dispatchEvent(event);
     }
   }, [theme, isShadowRootReady]);
@@ -193,16 +196,19 @@ function CustomComponent(props: CustomComponentProps) {
 
       // Add CSS
       const styleEl = document.createElement("style");
+
       styleEl.textContent = props.srcDoc.css;
       shadowRoot.appendChild(styleEl);
 
       // Add HTML content
       const contentEl = document.createElement("div");
+
       contentEl.innerHTML = props.srcDoc.html;
       shadowRoot.appendChild(contentEl);
 
       // Add JavaScript
       const scriptEl = document.createElement("script");
+
       scriptEl.type = "module";
       scriptEl.textContent = `
         // Initialize custom widget API

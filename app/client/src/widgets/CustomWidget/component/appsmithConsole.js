@@ -13,6 +13,7 @@
       bubbles: true,
       composed: true,
     });
+
     document.dispatchEvent(event);
   };
 
