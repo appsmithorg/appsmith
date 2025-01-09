@@ -77,7 +77,7 @@ export const createChannelToParent = () => {
               const event = new CustomEvent("custom-widget-event", {
                 detail: Object.assign(Object.assign({}, message), { key }),
                 bubbles: true,
-                composed: true
+                composed: true,
               });
               document.dispatchEvent(event);
             });
