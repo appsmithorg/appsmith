@@ -45,18 +45,6 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: npm install -g dpdm@3.14
 
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
-      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
-      # Restoring the cache manually instead
-      - name: Restore PRs yarn cache
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/client/.yarn/cache
-            app/client/node_modules/.cache/webpack/
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-
       # Install all the dependencies
       - name: Install dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
@@ -80,18 +68,6 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         with:
           ref: release
-
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
-      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
-      # Restoring the cache manually instead
-      - name: Restore release yarn cache
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/client/.yarn/cache
-            app/client/node_modules/.cache/webpack/
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Install all the dependencies
       - name: Install dependencies
