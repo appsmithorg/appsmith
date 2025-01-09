@@ -16,12 +16,14 @@ import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
 export const PropertyPaneSidebar = memo(() => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
 
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
@@ -31,6 +33,7 @@ export const PropertyPaneSidebar = memo(() => {
   //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
+    isPreviewMode ||
     (isDraggingOrResizing &&
       selectedWidgetIds[0] !== prevSelectedWidgetId.current) ||
     selectedWidgetIds[0] === MAIN_CONTAINER_WIDGET_ID;
