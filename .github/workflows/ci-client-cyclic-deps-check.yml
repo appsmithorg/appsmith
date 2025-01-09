@@ -49,6 +49,7 @@ jobs:
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
+          yarn install --immutable
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
@@ -67,6 +68,7 @@ jobs:
         id: count-cyclic-deps-in-release
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
+          yarn install --immutable
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
           # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
