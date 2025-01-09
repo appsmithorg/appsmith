@@ -52,12 +52,12 @@ const EntityGroup = <T,>({ group }: { group: EntityGroupProps<T> }) => {
       key={group.groupTitle}
     >
       <List className={group.className} groupTitle={group.groupTitle}>
-        {updatedGroup.items.map((item: T) =>
+        {updatedGroup.items.map((item: T, index) =>
           group.renderList ? (
             group.renderList(item)
           ) : (
             <ListItem
-              key={(item as ListItemProps)?.title}
+              key={(item as ListItemProps)?.title || `item-${index}`}
               {...(item as ListItemProps)}
             />
           ),

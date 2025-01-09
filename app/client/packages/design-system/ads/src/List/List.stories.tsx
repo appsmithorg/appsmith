@@ -60,8 +60,12 @@ const items = [
 export const ListStory = ListTemplate.bind({}) as StoryObj;
 ListStory.storyName = "List";
 ListStory.args = {
-  children: items.map((item, index) => (
-    <ListItem key={index} {...item} onClick={() => alert("Clicked")} />
+  children: items.map((item) => (
+    <ListItem
+      key={`item-${item.title}`}
+      {...item}
+      onClick={() => alert("Clicked")}
+    />
   )),
 };
 
