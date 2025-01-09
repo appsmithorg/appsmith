@@ -12,7 +12,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
 import type { SVGProps } from "react";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
@@ -126,7 +125,7 @@ export interface WidgetConfiguration extends WidgetBaseConfiguration {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta: Record<string, any>;
-    derived: DerivedPropertiesMap;
+    derived: Record<string, string>;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
