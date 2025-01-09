@@ -1,4 +1,4 @@
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../actions/ReduxActionTypes";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
 import type { SaveActionNameParams } from "PluginActionEditor";

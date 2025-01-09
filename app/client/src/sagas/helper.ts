@@ -16,7 +16,7 @@ import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import { toast } from "@appsmith/ads";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ReduxActionType } from "constants/ReduxActionTypes";
+import type { ReduxActionType } from "../actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
 import get from "lodash/get";
 import set from "lodash/set";

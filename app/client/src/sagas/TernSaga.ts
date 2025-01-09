@@ -1,4 +1,4 @@
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";

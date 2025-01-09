@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../../../actions/ReduxActionTypes";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Text as ADSText, Flex } from "@appsmith/ads";

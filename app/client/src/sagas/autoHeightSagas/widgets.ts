@@ -38,7 +38,7 @@ import {
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 import WidgetFactory from "WidgetProvider/factory";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../actions/ReduxActionTypes";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
 import { getAppMode } from "ee/selectors/entitiesSelector";

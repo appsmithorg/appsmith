@@ -1,5 +1,5 @@
 import { widgetURL } from "ee/RouteBuilder";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

@@ -22,7 +22,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "constants/ReduxActionTypes";
+import { type ReduxAction } from "../../../../actions/ReduxActionTypes";
 
 const mockStore = configureStore([]);
 

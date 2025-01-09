@@ -4,7 +4,7 @@ import {
   showReconnectDatasourceModal,
 } from "ee/actions/applicationActions";
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

@@ -4,7 +4,7 @@ import type {
   PropertyOverrideDependency,
 } from "ee/entities/DataTree/types";
 import type { MetaState, WidgetMetaState } from ".";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../actions/ReduxActionTypes";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
 import { set, unset } from "lodash";

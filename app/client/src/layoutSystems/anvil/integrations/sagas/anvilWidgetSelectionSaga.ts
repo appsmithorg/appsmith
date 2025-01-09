@@ -20,7 +20,7 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { setActiveEditorField } from "actions/activeFieldActions";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { setEvalPopupState } from "actions/editorContextActions";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../../actions/ReduxActionTypes";
 
 /**
  * This saga selects widgets in the Anvil Layout system

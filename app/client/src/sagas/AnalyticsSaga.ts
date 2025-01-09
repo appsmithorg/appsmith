@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ReduxActionType } from "constants/ReduxActionTypes";
+import type { ReduxActionType } from "../actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {

@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { type ReduxAction } from "constants/ReduxActionTypes";
+import { type ReduxAction } from "../actions/ReduxActionTypes";
 import {
   toastMessageErrorTypes,
   ReduxActionTypes,

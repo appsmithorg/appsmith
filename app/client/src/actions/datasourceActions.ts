@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionWithCallbacks,
-} from "constants/ReduxActionTypes";
+import type { ReduxAction, ReduxActionWithCallbacks } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {

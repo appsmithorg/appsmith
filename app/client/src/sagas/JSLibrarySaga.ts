@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

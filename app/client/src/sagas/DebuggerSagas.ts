@@ -8,7 +8,7 @@ import {
   debuggerLogInit,
   deleteErrorLog,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   Log,

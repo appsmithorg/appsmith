@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

@@ -1,4 +1,4 @@
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { SelectedArenaDimensions } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";

@@ -1,10 +1,11 @@
-import type {
-  BufferedReduxAction,
-  ReduxAction,
-} from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { AFFECTED_JS_OBJECTS_FNS } from "ee/sagas/InferAffectedJSObjects";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
+import type {
+  AffectedJSObjects,
+  BufferedReduxAction,
+} from "actions/EvaluationReduxActionTypes";
 
 export const parseUpdatesAndDeleteUndefinedUpdates = (
   updates: string,
@@ -52,11 +53,6 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
 
   return consolidatedUpdates;
 };
-
-export interface AffectedJSObjects {
-  ids: string[];
-  isAllAffected: boolean;
-}
 
 const mergeAffectedJSObjects = (
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,

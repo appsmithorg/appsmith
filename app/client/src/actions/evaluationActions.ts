@@ -1,4 +1,4 @@
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { intersection } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";

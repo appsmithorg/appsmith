@@ -1,8 +1,7 @@
-import type { AffectedJSObjects } from "../sagas/EvaluationsSagaUtils";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import type {
-  ReduxActionTypes,
   ReduxActionErrorType,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 
 export type ReduxActionType =
@@ -11,10 +10,6 @@ export type ReduxActionType =
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
-}
-
-export interface BufferedReduxAction<T> extends ReduxAction<T> {
-  affectedJSObjects: AffectedJSObjects;
 }
 
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
@@ -31,11 +26,6 @@ export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
 }
 
 export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
-
-export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<AnyReduxAction>;
-  affectedJSObjects?: AffectedJSObjects;
-}
 
 export interface PromisePayload {
   // TODO: Fix this the next time the file is edited

@@ -18,7 +18,7 @@ import type { EntityItem } from "ee/entities/IDE/constants";
 import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";

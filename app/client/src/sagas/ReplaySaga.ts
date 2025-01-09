@@ -17,7 +17,7 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {

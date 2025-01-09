@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "constants/ReduxActionTypes";
+import { type ReduxAction } from "./ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type {
   RefactorAction,

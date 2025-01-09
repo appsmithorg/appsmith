@@ -1,4 +1,4 @@
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { createReducer } from "utils/ReducerUtils";

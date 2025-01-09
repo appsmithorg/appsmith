@@ -1,9 +1,5 @@
 import type { WidgetType } from "constants/WidgetConstants";
-import type {
-  AnyReduxAction,
-  EvaluationReduxAction,
-  ReduxAction,
-} from "constants/ReduxActionTypes";
+import type { AnyReduxAction, ReduxAction } from "./ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -33,6 +29,7 @@ import type {
 import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
+import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
 export interface FetchPageListPayload {
   applicationId: string;

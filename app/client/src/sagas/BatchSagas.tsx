@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { batchActionSuccess } from "actions/batchActions";
 import * as log from "loglevel";

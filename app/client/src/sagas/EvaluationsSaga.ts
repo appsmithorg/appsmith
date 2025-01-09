@@ -12,11 +12,10 @@ import {
 } from "redux-saga/effects";
 
 import type {
-  EvaluationReduxAction,
   ReduxAction,
   ReduxActionType,
   AnyReduxAction,
-} from "constants/ReduxActionTypes";
+} from "../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getDataTree,
@@ -104,7 +103,6 @@ import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
 import {
   getAffectedJSObjectIdsFromAction,
   parseUpdatesAndDeleteUndefinedUpdates,
@@ -121,6 +119,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
+import type {
+  AffectedJSObjects,
+  EvaluationReduxAction,
+} from "../actions/EvaluationReduxActionTypes";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 

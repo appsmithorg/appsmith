@@ -2,15 +2,13 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type {
-  ReduxAction,
-  EvaluationReduxAction,
-} from "constants/ReduxActionTypes";
+import type { ReduxAction } from "./ReduxActionTypes";
 import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ErrorActionPayload } from "../sagas/ErrorSagas";
+import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
 export interface FetchJSCollectionsPayload {
   applicationId: string;

@@ -3,11 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type {
-  AnyReduxAction,
-  EvaluationReduxAction,
-  ReduxAction,
-} from "constants/ReduxActionTypes";
+import type { AnyReduxAction, ReduxAction } from "./ReduxActionTypes";
 import type {
   Action,
   ActionViewMode,
@@ -23,6 +19,7 @@ import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
+import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {

@@ -2,7 +2,7 @@ import { call, put, select } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "constants/ReduxActionTypes";
+} from "../../actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

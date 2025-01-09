@@ -8,7 +8,7 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";

@@ -1,7 +1,7 @@
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionTypes";
+} from "./ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

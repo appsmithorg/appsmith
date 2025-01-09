@@ -3,7 +3,7 @@ import { JSFunctionRun } from "./components/JSFunctionRun";
 import type { JSActionDropdownOption } from "./types";
 import { ActionButtons, NameWrapper, StyledFormRow } from "../styledComponents";
 import type { SaveActionNameParams } from "PluginActionEditor";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../../../actions/ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { JSObjectNameEditor } from "./JSObjectNameEditor";

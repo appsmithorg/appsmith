@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionWithCallbacks,
-} from "constants/ReduxActionTypes";
+import type { ReduxAction, ReduxActionWithCallbacks } from "./ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

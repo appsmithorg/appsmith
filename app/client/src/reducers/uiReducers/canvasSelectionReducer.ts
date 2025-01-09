@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../../actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";

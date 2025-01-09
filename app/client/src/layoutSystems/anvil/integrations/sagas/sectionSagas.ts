@@ -1,5 +1,5 @@
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "constants/ReduxActionTypes";
+import { type ReduxAction } from "../../../../actions/ReduxActionTypes";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";

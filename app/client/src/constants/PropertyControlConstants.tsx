@@ -8,7 +8,7 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { Stylesheet } from "entities/AppTheming";
-import type { ReduxActionType } from "constants/ReduxActionTypes";
+import type { ReduxActionType } from "../actions/ReduxActionTypes";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 

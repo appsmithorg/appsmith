@@ -1,7 +1,7 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Page } from "entities/Page";
-import type { ReduxAction } from "constants/ReduxActionTypes";
+import type { ReduxAction } from "../actions/ReduxActionTypes";
 import type { AppState } from "ee/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
