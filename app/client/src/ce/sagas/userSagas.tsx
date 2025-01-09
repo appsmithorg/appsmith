@@ -1,4 +1,12 @@
-import { call, fork, put, select, take } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  type TakeEffect,
+} from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -75,6 +83,11 @@ import type {
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import type { SessionRecordingConfig } from "utils/Analytics/mixpanel";
+import {
+  segmentInitSuccess,
+  segmentInitUncertain,
+} from "actions/analyticsActions";
+import { getSegmentState } from "selectors/analyticsSelectors";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -139,14 +152,62 @@ function* getSessionRecordingConfig() {
 
 function* initTrackers(currentUser: User) {
   try {
+    const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+
+    if (!isFFFetched) {
+      yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+    }
+
     const sessionRecordingConfig: SessionRecordingConfig = yield call(
       getSessionRecordingConfig,
     );
 
     yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
+    yield put(segmentInitSuccess());
   } catch (e) {
     log.error(e);
+    yield put(segmentInitUncertain());
   }
+}
+
+function* waitForInitialization() {
+  const currentUser: User = yield select(getCurrentUser);
+  // Dependents for starting tracking
+  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+  const isSegmentInitialized: string | undefined =
+    yield select(getSegmentState);
+
+  const waits: TakeEffect[] = [];
+
+  // FF is required to know if GAC is enabled for the user
+  if (!isFFFetched) {
+    yield fork(fetchFeatureFlagsInit);
+    waits.push(take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS));
+  }
+
+  // If the user is anonymous, we need to wait for the editor or viewer to initialize
+  if (currentUser?.isAnonymous) {
+    waits.push(
+      take([
+        ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      ]),
+    );
+
+    // If the user is anonymous, we need to wait for the segment to initialize
+    // As it will provide the anonymous id
+    if (isSegmentInitialized === undefined) {
+      waits.push(
+        take([
+          ReduxActionTypes.SEGMENT_INITIALIZED,
+          ReduxActionTypes.SEGMENT_INIT_UNCERTAIN,
+        ]),
+      );
+    }
+  }
+
+  // Only wait for actions that are still pending
+  yield all(waits);
 }
 
 function* restartUserTracking() {
@@ -154,29 +215,19 @@ function* restartUserTracking() {
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
 
-  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
-
-  if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
-    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
-  }
-
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-
-  const isGACEnabled = featureFlags?.license_gac_enabled;
-
-  const isFreeLicense = !isGACEnabled;
-
   if (!isAirgappedInstance) {
-    // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
+    // We need to stop and start tracking activity to ensure that the tracking
+    // from previous session is not carried forward
     yield call(UsagePulse.stopTrackingActivity);
 
-    if (currentUser?.isAnonymous) {
-      yield take([
-        ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-        ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-      ]);
-    }
+    // Wait for any items that are required for tracking
+    yield call(waitForInitialization);
+
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+    const isGACEnabled = featureFlags?.license_gac_enabled;
+
+    const isFreeLicense = !isGACEnabled;
 
     yield call(
       UsagePulse.startTrackingActivity,
@@ -191,11 +242,13 @@ export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
 
+  yield fork(restartUserTracking);
+
   if (enableTelemetry) {
     yield fork(initTrackers, currentUser);
+  } else {
+    yield put(segmentInitSuccess());
   }
-
-  yield fork(restartUserTracking);
 
   if (currentUser.emptyInstance) {
     history.replace(SETUP);
