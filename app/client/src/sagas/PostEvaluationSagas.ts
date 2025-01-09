@@ -21,7 +21,7 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "../actions/ReduxActionTypes";
+import type { AnyReduxAction } from "actions/ReduxActionTypes";
 import AppsmithConsole from "utils/AppsmithConsole";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";

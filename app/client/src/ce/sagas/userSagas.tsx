@@ -10,7 +10,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "../../actions/ReduxActionTypes";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

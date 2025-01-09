@@ -1,5 +1,5 @@
 import { takeLatest, put, all, select } from "redux-saga/effects";
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

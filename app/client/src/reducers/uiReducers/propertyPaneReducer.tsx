@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";

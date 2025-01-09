@@ -2,7 +2,7 @@ import ApplicationApi, {
   type exportApplicationRequest,
 } from "ee/api/ApplicationApi";
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

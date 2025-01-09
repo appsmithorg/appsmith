@@ -3,7 +3,7 @@ import {
   initDatasourceConnectionDuringImportRequest,
 } from "ee/actions/applicationActions";
 import ApplicationApi from "ee/api/ApplicationApi";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 import { areEnvironmentsFetched } from "ee/selectors/environmentSelectors";

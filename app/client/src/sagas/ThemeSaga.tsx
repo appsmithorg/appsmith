@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { select, takeLatest } from "redux-saga/effects";
 import localStorage from "utils/localStorage";

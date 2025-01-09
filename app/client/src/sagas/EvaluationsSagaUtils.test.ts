@@ -8,7 +8,7 @@ import {
 } from "actions/jsActionActions";
 import { updateJSCollectionBodySuccess } from "actions/jsPaneActions";
 import type { JSCollection } from "entities/JSCollection";
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

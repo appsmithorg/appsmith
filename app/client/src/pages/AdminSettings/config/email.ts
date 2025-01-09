@@ -1,7 +1,7 @@
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { isEmail } from "utils/formhelpers";
 import type { Dispatch } from "react";
-import type { ReduxAction } from "../../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
 import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";

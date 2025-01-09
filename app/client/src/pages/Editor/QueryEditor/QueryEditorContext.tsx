@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import React, { createContext, useMemo } from "react";
 

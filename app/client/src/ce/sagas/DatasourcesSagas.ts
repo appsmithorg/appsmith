@@ -13,7 +13,7 @@ import type {
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
-} from "../../actions/ReduxActionTypes";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

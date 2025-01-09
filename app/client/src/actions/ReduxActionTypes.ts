@@ -1,4 +1,3 @@
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import type {
   ReduxActionErrorType,
   ReduxActionTypes,
@@ -38,11 +37,4 @@ export interface PromisePayload {
 
 export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
   payload: T & PromisePayload;
-}
-
-export interface ReduxActionErrorPayload {
-  message: string;
-  source?: string;
-  code?: ERROR_CODES;
-  stackTrace?: string;
 }

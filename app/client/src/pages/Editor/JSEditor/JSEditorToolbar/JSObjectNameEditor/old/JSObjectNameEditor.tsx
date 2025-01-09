@@ -24,7 +24,7 @@ import NameEditorComponent, {
   NameWrapper,
 } from "components/utils/NameEditorComponent";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
-import type { ReduxAction } from "../../../../../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { SaveActionNameParams } from "PluginActionEditor";
 
 export interface JSObjectNameEditorProps {

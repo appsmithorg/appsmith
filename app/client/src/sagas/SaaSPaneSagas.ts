@@ -1,6 +1,6 @@
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import history from "utils/history";
 import {

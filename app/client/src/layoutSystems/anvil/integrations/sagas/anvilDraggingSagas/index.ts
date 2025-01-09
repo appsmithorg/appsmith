@@ -1,5 +1,5 @@
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "../../../../../actions/ReduxActionTypes";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";

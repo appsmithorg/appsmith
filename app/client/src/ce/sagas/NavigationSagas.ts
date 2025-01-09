@@ -5,7 +5,7 @@ import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "../../actions/ReduxActionTypes";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";

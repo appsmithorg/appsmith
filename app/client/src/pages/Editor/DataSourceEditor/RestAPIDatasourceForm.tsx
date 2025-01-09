@@ -15,7 +15,7 @@ import {
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import type { ReduxAction } from "../../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   datasourceToFormValues,
   formValuesToDatasource,

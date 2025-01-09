@@ -15,7 +15,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "../actions/ReduxActionTypes";
+} from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "ee/actions/applicationActions";

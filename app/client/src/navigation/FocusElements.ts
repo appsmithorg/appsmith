@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { AppState } from "ee/reducers";
 
 export enum FocusElement {

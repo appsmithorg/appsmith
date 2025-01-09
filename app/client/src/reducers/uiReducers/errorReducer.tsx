@@ -1,8 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
-  ReduxAction,
-  ReduxActionErrorPayload,
-} from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import _ from "lodash";
@@ -12,6 +9,13 @@ const initialState: ErrorReduxState = {
   safeCrashCode: undefined,
   currentError: { sourceAction: "", message: "", stackTrace: "" },
 };
+
+interface ReduxActionErrorPayload {
+  message: string;
+  source?: string;
+  code?: ERROR_CODES;
+  stackTrace?: string;
+}
 
 const errorReducer = createReducer(initialState, {
   [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (

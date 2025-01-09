@@ -21,7 +21,7 @@ import {
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

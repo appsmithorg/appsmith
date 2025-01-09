@@ -16,7 +16,7 @@ import {
 import { Tooltip } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
-import type { ReduxAction } from "../../../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { SaveActionNameParams } from "PluginActionEditor";
 
 export const searchHighlightSpanClassName = "token";

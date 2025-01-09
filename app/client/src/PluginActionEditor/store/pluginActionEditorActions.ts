@@ -1,6 +1,6 @@
 import type { PluginEditorDebuggerState } from "./pluginEditorReducer";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { type ReduxAction } from "../../actions/ReduxActionTypes";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
 
 export const setPluginActionEditorDebuggerState = (

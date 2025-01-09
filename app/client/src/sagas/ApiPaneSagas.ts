@@ -7,7 +7,7 @@ import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithMeta,
-} from "../actions/ReduxActionTypes";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

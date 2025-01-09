@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { createReducer } from "utils/ReducerUtils";

@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
 import _ from "lodash";

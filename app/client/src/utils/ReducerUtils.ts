@@ -1,4 +1,4 @@
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import produce from "immer";
 
 export const createReducer = (

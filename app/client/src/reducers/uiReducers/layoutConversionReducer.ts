@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 
 export enum AlertType {
   SUCCESS = "SUCCESS",

@@ -4,7 +4,7 @@ import { usePluginActionContext } from "../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ActionUrlIcon } from "pages/Editor/Explorer/ExplorerIcons";

@@ -11,7 +11,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type {
   ReduxAction,
   ReduxActionWithMeta,
-} from "../actions/ReduxActionTypes";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

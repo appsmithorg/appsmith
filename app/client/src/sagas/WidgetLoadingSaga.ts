@@ -10,7 +10,7 @@ import type {
   ActionData,
   ActionDataState,
 } from "ee/reducers/entityReducers/actionsReducer";
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

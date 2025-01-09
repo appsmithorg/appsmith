@@ -4,7 +4,7 @@ import {
   debuggerLogInit,
   deleteErrorLogsInit,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { LogActionPayload, Log } from "entities/AppsmithConsole";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
 import store from "store";

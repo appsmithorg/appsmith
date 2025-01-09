@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "../../actions/ReduxActionTypes";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

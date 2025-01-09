@@ -1,4 +1,4 @@
-import type { ReduxAction, ReduxActionType } from "../actions/ReduxActionTypes";
+import type { ReduxAction, ReduxActionType } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
