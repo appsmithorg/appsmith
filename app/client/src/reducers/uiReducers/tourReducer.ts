@@ -32,10 +32,6 @@ const tourReducer = createReducer(initialState, {
   }),
 });
 
-export interface TourReducerState {
-  isTourInProgress: boolean;
-  activeTourType?: TourType;
-  activeTourIndex: number;
-}
+import type { TourReducerState } from "./tourReducer.types";
 
 export default tourReducer;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "./Api.types";
 import {
   apiRequestInterceptor,
   apiFailureResponseInterceptor,
@@ -138,7 +138,5 @@ class Api {
     });
   }
 }
-
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export default Api;

@@ -2,37 +2,25 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
-  ConditionalOutput,
-  FormEvalOutput,
+  TriggerValuesEvaluationState,
+  TriggerActionPayload,
+  TriggerActionLoadingPayload,
   FormEvaluationState,
-} from "./formEvaluationReducer";
-
-// // Type for the object that will store the eval output for the app
-export type TriggerValuesEvaluationState = Record<string, FormEvalOutput>;
-
-export interface TriggerActionPayload {
-  formId: string;
-  values: ConditionalOutput;
-}
-
-export interface TriggerActionLoadingPayload {
-  formId: string;
-  keys: string[]; // keys that need their loading states set.
-  value: boolean;
-}
+  FormEvalOutput,
+} from "./triggerReducer.types";
 
 const initialState: TriggerValuesEvaluationState = {};
 
 const triggers = createReducer(initialState, {
   [ReduxActionTypes.INIT_TRIGGER_VALUES]: (
-    state: FormEvaluationState,
-    action: ReduxAction<FormEvaluationState>,
-  ): FormEvaluationState => action.payload,
+    state: TriggerValuesEvaluationState,
+    action: ReduxAction<TriggerValuesEvaluationState>,
+  ): TriggerValuesEvaluationState => action.payload,
   [ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT]: (
-    state: FormEvaluationState,
+    state: TriggerValuesEvaluationState,
     action: ReduxAction<TriggerActionPayload>,
   ) => {
-    const triggers = state[action.payload.formId];
+    const triggers = state[action.payload.formId] || {};
 
     return {
       [action.payload.formId]: {
@@ -42,10 +30,10 @@ const triggers = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.FETCH_TRIGGER_VALUES_SUCCESS]: (
-    state: FormEvaluationState,
+    state: TriggerValuesEvaluationState,
     action: ReduxAction<TriggerActionPayload>,
   ) => {
-    const triggers = state[action.payload.formId];
+    const triggers = state[action.payload.formId] || {};
 
     return {
       [action.payload.formId]: {
@@ -55,24 +43,25 @@ const triggers = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.SET_TRIGGER_VALUES_LOADING]: (
-    state: FormEvaluationState,
+    state: TriggerValuesEvaluationState,
     action: ReduxAction<TriggerActionLoadingPayload>,
   ) => {
-    const triggers = state[action.payload.formId];
+    const triggers = state[action.payload.formId] || {};
 
-    const triggersToBeFetched: FormEvalOutput = {};
+    const triggersToBeFetched: Record<string, FormEvalOutput> = {};
 
     Object.entries(triggers).forEach(([key, value]) => {
       if (action.payload.keys.includes(key)) {
+        const existingValue = value as FormEvalOutput;
         const newValue = {
-          ...value,
+          ...existingValue,
           fetchDynamicValues: {
-            ...value.fetchDynamicValues,
+            ...(existingValue.fetchDynamicValues || {}),
             isLoading: action.payload.value,
           },
         };
 
-        triggersToBeFetched[key] = newValue as unknown as FormEvalOutput;
+        triggersToBeFetched[key] = newValue;
       }
     });
 

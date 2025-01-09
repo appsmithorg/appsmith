@@ -4,49 +4,14 @@ import { klona } from "klona";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
-
-export interface MetaWidgetsReduxState {
-  [widgetId: string]: FlattenedWidgetProps;
-}
-
-export type FlattenedWidgetProps<orType = never> =
-  | (WidgetProps & {
-      children?: string[];
-    })
-  | orType;
-
-/**
- * addOrUpdate - Set of meta widgets that needs to be added to the metaWidgetReducer.
- * deleteIds - List of meta widget ids that is to be removed from the metaWidgetReducer.
- * propertyUpdates - These are specific updates that needs to be carried out based on the
- *  path provided. This is an array of objects (path, value).
- * creatorId - This represents the creator of the meta widgets that are passed to
- *  addOrUpdate/deleteIds. If a list widget creates creates/adds a bunch of meta widgets then
- *  the creatorId would be the list widget's widgetId.
- */
-export interface ModifyMetaWidgetPayload {
-  addOrUpdate: Record<string, FlattenedWidgetProps>;
-  deleteIds: string[];
-  propertyUpdates?: MetaWidgetPropertyUpdate[];
-  creatorId?: string;
-}
-
-export interface UpdateMetaWidgetPropertyPayload {
-  updates: BatchPropertyUpdatePayload;
-  widgetId: string;
-  creatorId?: string;
-}
-export interface DeleteMetaWidgetsPayload {
-  creatorIds: string[];
-}
-
-interface MetaWidgetPropertyUpdate {
-  path: string;
-  value: unknown;
-}
+import type {
+  MetaWidgetsReduxState,
+  FlattenedWidgetProps,
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+  DeleteMetaWidgetsPayload,
+} from "./metaWidgetsReducer.types";
+import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer.types";
 
 export const initialState: MetaWidgetsReduxState = {};
 
@@ -131,16 +96,18 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
       action.payload.widgetsToUpdate,
     )) {
       // Iterate through each property to update in `widgetId`
-      propertyPathsToUpdate.forEach(({ propertyPath, propertyValue }) => {
-        const path = `${widgetId}.${propertyPath}`;
-        // Get original value in reducer
-        const originalPropertyValue = get(state, path);
+      (propertyPathsToUpdate as Array<{ propertyPath: string; propertyValue: unknown }>).forEach(
+        ({ propertyPath, propertyValue }) => {
+          const path = `${widgetId}.${propertyPath}`;
+          // Get original value in reducer
+          const originalPropertyValue = get(state, path);
 
-        // If the original and new values are different
-        if (propertyValue !== originalPropertyValue)
-          // Set the new values
-          set(state, path, propertyValue);
-      });
+          // If the original and new values are different
+          if (propertyValue !== originalPropertyValue)
+            // Set the new values
+            set(state, path, propertyValue);
+        },
+      );
     }
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {

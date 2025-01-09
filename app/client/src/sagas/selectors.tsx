@@ -4,7 +4,7 @@ import memoize from "proxy-memoize";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "reducers/entityReducers/canvasWidgetsReducer.types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -15,7 +15,7 @@ import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer.types";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;

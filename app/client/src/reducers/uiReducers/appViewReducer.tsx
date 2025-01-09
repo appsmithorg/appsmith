@@ -68,10 +68,6 @@ const appViewReducer = createReducer(initialState, {
   },
 });
 
-export interface AppViewReduxState {
-  initialized: boolean;
-  isFetchingPage: boolean;
-  headerHeight: number;
-}
+import type { AppViewReduxState } from "./appViewReducer.types";
 
 export default appViewReducer;

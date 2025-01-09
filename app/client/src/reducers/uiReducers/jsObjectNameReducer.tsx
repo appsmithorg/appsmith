@@ -62,9 +62,6 @@ const jsObjectNameReducer = createReducer(initialState, {
   },
 });
 
-export interface JSObjectNameReduxState {
-  isSaving: Record<string, boolean>;
-  errors: Record<string, boolean>;
-}
+import type { JSObjectNameReduxState } from "./jsObjectNameReducer.types";
 
 export default jsObjectNameReducer;

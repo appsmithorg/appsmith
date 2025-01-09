@@ -59,7 +59,7 @@ import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "utils/history";
-import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer.types";
 import {
   getSelectedDatasourceId,
   getSelectedEntityUrl,

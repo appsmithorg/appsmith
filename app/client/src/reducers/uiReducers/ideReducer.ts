@@ -121,27 +121,6 @@ const ideReducer = createImmerReducer(initialState, {
   },
 });
 
-export interface IDEState {
-  view: EditorViewMode;
-  isListViewActive: boolean;
-  tabs: ParentEntityIDETabs;
-  showCreateModal: boolean;
-  renameEntity: string;
-  ideCanvasSideBySideHover: IDECanvasSideBySideHover;
-}
-
-export interface ParentEntityIDETabs {
-  [parentId: string]: IDETabs;
-}
-
-export interface IDETabs {
-  [EditorEntityTab.JS]: string[];
-  [EditorEntityTab.QUERIES]: string[];
-}
-
-export interface IDECanvasSideBySideHover {
-  navigated: boolean;
-  widgetTypes: string[];
-}
+import type { IDEState, ParentEntityIDETabs, IDETabs, IDECanvasSideBySideHover } from "./ideReducer.types";
 
 export default ideReducer;

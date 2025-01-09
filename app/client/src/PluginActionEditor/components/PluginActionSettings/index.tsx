@@ -1,5 +1,5 @@
 import React from "react";
-import { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi.types";
 import { usePluginActionContext } from "../../PluginActionContext";
 import ApiSettings from "./ApiSettings";
 import QuerySettings from "./QuerySettings";

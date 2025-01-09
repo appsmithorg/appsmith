@@ -77,14 +77,6 @@ const globalSearchReducer = createReducer(initialState, {
   }),
 });
 
-export interface GlobalSearchReduxState {
-  query: string;
-  modalOpen: boolean;
-  recentEntities: Array<RecentEntity>;
-  recentEntitiesRestored: boolean;
-  filterContext: {
-    category: SearchCategory;
-  };
-}
+import type { GlobalSearchReduxState } from "./globalSearchReducer.types";
 
 export default globalSearchReducer;

@@ -11,7 +11,7 @@ import { toast } from "@appsmith/ads";
 import type {
   PublishCommunityTemplateRequest,
   PublishCommunityTemplateResponse,
-} from "api/TemplatesApi";
+} from "api/TemplatesApi.types";
 import TemplatesAPI from "api/TemplatesApi";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

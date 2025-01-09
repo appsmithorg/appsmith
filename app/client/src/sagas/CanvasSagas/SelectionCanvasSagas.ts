@@ -12,7 +12,7 @@ import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/boxHelpers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { SelectedArenaDimensions } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 

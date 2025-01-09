@@ -15,8 +15,8 @@ import {
 } from "constants/WidgetConstants";
 import WidgetFactory from "../WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer.types";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer.types";
 import type { WidgetError } from "widgets/BaseWidget";
 import { get } from "lodash";
 import type { DataTreeError } from "utils/DynamicBindingUtils";

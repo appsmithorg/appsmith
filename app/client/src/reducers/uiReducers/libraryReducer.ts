@@ -8,18 +8,7 @@ import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLib
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { defaultLibraries } from "workers/common/JSLibrary";
 
-export enum InstallState {
-  Queued,
-  Installing,
-  Failed,
-  Success,
-}
-
-export interface LibraryState {
-  installationStatus: Record<string, InstallState>;
-  installedLibraries: JSLibrary[];
-  isInstallerOpen: boolean;
-}
+import { InstallState, type LibraryState } from "./libraryReducer.types";
 
 const initialState = {
   isInstallerOpen: false,

@@ -18,21 +18,9 @@ and property values
 For example:
 { "xyz123": [{ propertyPath: "bottomRow", propertyValue: 20 }] }
 */
-export type UpdateWidgetsPayload = Record<
-  string,
-  Array<{
-    propertyPath: string;
-    propertyValue: unknown;
-  }>
->;
+import type { UpdateWidgetsPayload, FlattenedWidgetProps, CanvasWidgetsReduxState } from "./canvasWidgetsReducer.types";
 
 export const initialState: CanvasWidgetsReduxState = {};
-
-export type FlattenedWidgetProps<orType = never> =
-  | (WidgetProps & {
-      children?: string[];
-    })
-  | orType;
 
 /**
  *
@@ -167,9 +155,5 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     return state;
   },
 });
-
-export interface CanvasWidgetsReduxState {
-  [widgetId: string]: FlattenedWidgetProps;
-}
 
 export default canvasWidgetsReducer;

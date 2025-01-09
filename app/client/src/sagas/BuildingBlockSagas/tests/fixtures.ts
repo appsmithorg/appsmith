@@ -1,7 +1,7 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { PaginationType, PluginType, type Action } from "entities/Action";
 
 export const skeletonWidget: FlattenedWidgetProps = {

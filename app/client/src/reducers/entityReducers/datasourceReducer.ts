@@ -1,50 +1,15 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import type {
-  Datasource,
-  DatasourceStorage,
-  DatasourceStructure,
-  MockDatasource,
-} from "entities/Datasource";
+} from "ce/constants/ReduxActionConstants";
+import type { Datasource, DatasourceStorage, MockDatasource } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DropdownOption } from "@appsmith/ads-old";
 import produce from "immer";
 import { assign } from "lodash";
-
-export interface DatasourceDataState {
-  list: Datasource[];
-  loading: boolean;
-  loadingTokenForDatasourceId: string | null;
-  isTesting: boolean;
-  isListing: boolean; // fetching unconfigured datasource list
-  fetchingDatasourceStructure: Record<string, boolean>;
-  structure: Record<string, DatasourceStructure>;
-  isFetchingMockDataSource: false;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mockDatasourceList: any[];
-  executingDatasourceQuery: boolean;
-  isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
-  unconfiguredList: Datasource[];
-  isDatasourceBeingSaved: boolean;
-  isDatasourceBeingSavedFromPopup: boolean;
-  gsheetToken: string;
-  gsheetProjectID: string;
-  gsheetStructure: {
-    spreadsheets: Record<string, { value?: DropdownOption[]; error?: string }>;
-    sheets: Record<string, { value?: DropdownOption[]; error?: string }>;
-    columns: Record<string, { value?: DropdownOption[]; error?: string }>;
-    isFetchingSpreadsheets: boolean;
-    isFetchingSheets: boolean;
-    isFetchingColumns: boolean;
-  };
-  recentDatasources: string[];
-}
+import type { DatasourceDataState } from "./datasourceReducer.types";
 
 const initialState: DatasourceDataState = {
   list: [],

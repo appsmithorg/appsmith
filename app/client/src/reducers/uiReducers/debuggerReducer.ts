@@ -7,6 +7,7 @@ import equal from "fast-deep-equal";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { klona } from "klona";
 import type { GenericEntityItem } from "ee/entities/IDE/constants";
+import type { DebuggerReduxState, DebuggerContext, CanvasDebuggerState } from "./debuggerReducer.types";
 
 export const DefaultDebuggerContext = {
   scrollPosition: 0,
@@ -203,31 +204,5 @@ const debuggerReducer = createImmerReducer(initialState, {
     return klona(initialState);
   },
 });
-
-export interface DebuggerReduxState {
-  logs: Log[];
-  isOpen: boolean;
-  errors: Record<string, Log>;
-  expandId: string;
-  hideErrors: boolean;
-  context: DebuggerContext;
-  stateInspector: {
-    selectedItem?: GenericEntityItem;
-  };
-}
-
-export interface DebuggerContext {
-  scrollPosition: number;
-  errorCount: number;
-  selectedDebuggerTab: string;
-  responseTabHeight: number;
-  selectedDebuggerFilter: string;
-}
-
-export interface CanvasDebuggerState {
-  open: boolean;
-  responseTabHeight: number;
-  selectedTab?: string;
-}
 
 export default debuggerReducer;

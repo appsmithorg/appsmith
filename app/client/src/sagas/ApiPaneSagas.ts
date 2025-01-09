@@ -60,7 +60,7 @@ import {
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
 import {
   getPostBodyFormat,
   setExtraFormData,

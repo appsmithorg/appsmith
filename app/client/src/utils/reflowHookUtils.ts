@@ -1,6 +1,6 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type {
   GridProps,
   ReflowedSpace,

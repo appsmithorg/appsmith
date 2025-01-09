@@ -1,13 +1,8 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer";
-
-export type CanvasLevelsPayload = Record<string, number>;
-
-export interface CanvasLevelsReduxState {
-  [widgetId: string]: number;
-}
+import type { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer.types";
+import type { CanvasLevelsPayload, CanvasLevelsReduxState } from "./canvasLevelsReducer.types";
 
 const initialState: CanvasLevelsReduxState = {};
 

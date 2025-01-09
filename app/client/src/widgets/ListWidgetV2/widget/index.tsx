@@ -36,7 +36,7 @@ import {
   WIDGET_TAGS,
 } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer.types";
 import type { WidgetState } from "../../BaseWidget";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {

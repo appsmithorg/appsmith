@@ -4,16 +4,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
-export interface AppThemingState {
-  isSaving: boolean;
-  isChanging: boolean;
-  stack: AppThemingMode[];
-  selectedTheme: AppTheme;
-  themes: AppTheme[];
-  themesLoading: boolean;
-  selectedThemeLoading: boolean;
-  isBetaCardShown: boolean;
-}
+import type { AppThemingState } from "./appThemingReducer.types";
 
 const initialState: AppThemingState = {
   stack: [],

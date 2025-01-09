@@ -1,18 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-
-export type ActionSelectorReduxState = Record<
-  string,
-  {
-    evaluatedValue: {
-      value: string;
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: any[];
-    };
-  }
->;
+import type { ActionSelectorReduxState } from "./actionSelectorReducer.types";
 
 const initialState: ActionSelectorReduxState = {};
 

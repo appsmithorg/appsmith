@@ -4,9 +4,7 @@ import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
 
-export interface SelectedPropertyPanel {
-  [path: string]: number;
-}
+import type { SelectedPropertyPanel } from "./propertyPaneReducer.types";
 
 const initialState: PropertyPaneReduxState = {
   isVisible: false,
@@ -116,17 +114,6 @@ const propertyPaneReducer = createImmerReducer(initialState, {
   },
 });
 
-export interface PropertyPaneReduxState {
-  widgetId?: string;
-  isVisible: boolean;
-  lastWidgetId?: string;
-  isVisibleBeforeAction?: boolean;
-  isNew: boolean;
-  selectedPropertyPanel: SelectedPropertyPanel;
-  propertyControlId?: string;
-  widgetChildProperty?: string;
-  width: number;
-  focusedProperty?: string;
-}
+import type { PropertyPaneReduxState } from "./propertyPaneReducer.types";
 
 export default propertyPaneReducer;

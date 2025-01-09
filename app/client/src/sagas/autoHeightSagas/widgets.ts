@@ -31,7 +31,7 @@ import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
-import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
+import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer.types";
 import {
   getAutoHeightLayoutTree,
   getCanvasLevelMap,

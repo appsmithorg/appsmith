@@ -1,7 +1,7 @@
 import { get, set } from "lodash";
 import type { Diff } from "deep-diff";
 
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
 
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 

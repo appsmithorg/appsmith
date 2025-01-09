@@ -1,19 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
-
-export interface FocusState {
-  entityInfo: FocusEntityInfo;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  state: Record<string, any>;
-}
-
-export type FocusHistory = Record<string, FocusState>;
-
-export interface FocusHistoryState {
-  history: FocusHistory;
-}
+import type { FocusState, FocusHistory, FocusHistoryState } from "./focusHistoryReducer.types";
 
 const initialState: FocusHistoryState = {
   history: {},

@@ -34,10 +34,8 @@ import {
 } from "constants/WidgetConstants";
 import _, { cloneDeep, get, isString, set, uniq } from "lodash";
 import log from "loglevel";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   actionChannel,
   all,

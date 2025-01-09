@@ -1,10 +1,8 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  CONVERSION_STATES,
-  SnapshotDetails,
-} from "reducers/uiReducers/layoutConversionReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer.types";
+import type { SnapshotDetails } from "reducers/uiReducers/layoutConversionReducer.types";
 
 /**
  * Calculate size and position changes owing to minSizes and flex wrap.

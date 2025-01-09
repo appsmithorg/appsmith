@@ -44,7 +44,7 @@ import { createLogTitleString } from "components/editorComponents/Debugger/helpe
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";

@@ -9,11 +9,7 @@ const initialState: OneClickBindingState = {
   showOptions: false,
 };
 
-export interface OneClickBindingState {
-  isConnecting: boolean;
-  config: WidgetQueryGenerationFormConfig | null;
-  showOptions: boolean;
-}
+import type { OneClickBindingState } from "./oneClickBindingReducer.types";
 
 const oneClickBindingReducer = createReducer(initialState, {
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE]: (

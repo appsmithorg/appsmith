@@ -7,10 +7,10 @@ import {
 } from "ee/constants/messages";
 import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
-import { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi.types";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer.types";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,

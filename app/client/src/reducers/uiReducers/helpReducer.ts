@@ -23,10 +23,6 @@ const helpReducer = createReducer(initialState, {
   },
 });
 
-export interface HelpReduxState {
-  url: string;
-  modalOpen: boolean;
-  defaultRefinement: string;
-}
+import type { HelpReduxState } from "./helpReducer.types";
 
 export default helpReducer;

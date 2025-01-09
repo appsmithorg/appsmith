@@ -1,5 +1,5 @@
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi.types";
+import { UIComponentTypes } from "api/PluginApi.types";
 
 export const getUIComponent = (pluginId: string, allPlugins: Plugin[]) => {
   let uiComponent = UIComponentTypes.DbEditorForm;

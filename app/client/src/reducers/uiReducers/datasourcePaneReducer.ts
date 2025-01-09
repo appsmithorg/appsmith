@@ -17,25 +17,7 @@ const initialState: DatasourcePaneReduxState = {
   selectedTableName: "",
 };
 
-export interface DatasourcePaneReduxState {
-  drafts: Record<string, Datasource>;
-  expandDatasourceId: string;
-  actionRouteInfo: Partial<{
-    baseApiId: string;
-    datasourceId: string;
-    baseParentEntityId: string;
-    baseApplicationId: string;
-  }>;
-  newDatasource: string;
-  viewMode: boolean;
-  collapsibleState: Record<string, boolean>;
-  defaultKeyValueArrayConfig: Array<string>;
-  responseTabHeight: number;
-
-  // This is the table selected on datasource preview,
-  // this needs to be used when new query is created
-  selectedTableName: string;
-}
+import type { DatasourcePaneReduxState } from "./datasourcePaneReducer.types";
 
 const datasourcePaneReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (

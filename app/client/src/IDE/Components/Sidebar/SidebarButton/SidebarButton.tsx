@@ -1,29 +1,8 @@
 import React, { useCallback } from "react";
 import { Flex, Icon, Text, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
-
 import { Condition } from "../../../enums";
-
-const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
-  [Condition.Warn]: {
-    icon: "warning",
-    color: "#ffe283",
-  },
-  // TODO add this information for further conditions
-  // Error: { color: "", icon: "" },
-  // Success: { color: "", icon: "" },
-};
-
-export interface SidebarButtonProps {
-  title?: string;
-  testId: string;
-  selected: boolean;
-  icon: string;
-  onClick: (urlSuffix: string) => void;
-  urlSuffix: string;
-  tooltip?: string;
-  condition?: Condition;
-}
+import { ConditionConfig, type SidebarButtonProps } from "./SidebarButton.types";
 
 const Container = styled(Flex)`
   justify-content: center;

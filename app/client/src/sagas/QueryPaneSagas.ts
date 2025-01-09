@@ -60,8 +60,8 @@ import {
   integrationEditorURL,
   queryEditorIdURL,
 } from "ee/RouteBuilder";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi.types";
+import { UIComponentTypes } from "api/PluginApi.types";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";

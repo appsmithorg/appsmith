@@ -2,8 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isEqual } from "lodash";
-
-export type LoadingEntitiesState = Set<string>;
+import type { LoadingEntitiesState } from "./loadingEntitiesReducer.types";
 
 const initialState: LoadingEntitiesState = new Set<string>();
 

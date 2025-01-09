@@ -14,10 +14,10 @@ import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer.types";
+import type { MetaState } from "reducers/entityReducers/metaReducer/index.types";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer.types";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer.types";
 import type { Module } from "ee/constants/ModuleConstants";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import type {
