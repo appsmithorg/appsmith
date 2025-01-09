@@ -16,6 +16,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { objectKeys } from "@appsmith/utils";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -307,8 +308,11 @@ function evaluateDynamicValuesConfig(
 }
 
 function evaluateFormConfigElements(
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   actionConfiguration: ActionConfig,
   config: FormConfigEvalObject,
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  editorContextType: ActionParentEntityTypeInterface,
   /* eslint-disable @typescript-eslint/no-unused-vars */
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
@@ -333,6 +337,7 @@ function evaluateFormConfigElements(
 function evaluate(
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvalOutput,
+  editorContextType: ActionParentEntityTypeInterface,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
@@ -432,6 +437,7 @@ function evaluate(
                     currentEvalState[key]
                       .evaluateFormConfig as EvaluatedFormConfig
                   ).evaluateFormConfigObject,
+                  editorContextType,
                   datasourceConfiguration,
                 );
             }
@@ -449,6 +455,7 @@ function getFormEvaluation(
   formId: string,
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
+  editorContextType: ActionParentEntityTypeInterface,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
@@ -503,6 +510,7 @@ function getFormEvaluation(
       conditionToBeEvaluated = evaluate(
         actionConfiguration,
         currentEvalState[formId],
+        editorContextType,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,
@@ -515,6 +523,7 @@ function getFormEvaluation(
       conditionToBeEvaluated = evaluate(
         actionConfiguration,
         conditionToBeEvaluated,
+        editorContextType,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,
@@ -573,6 +582,7 @@ export function setFormEvaluationSaga(
       actionConfiguration,
       actionDiffPath,
       datasourceConfiguration,
+      editorContextType,
       formId,
       hasRouteChanged,
     } = payload;
@@ -585,6 +595,7 @@ export function setFormEvaluationSaga(
         formId,
         actionConfiguration,
         currentEvalState,
+        editorContextType,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,
