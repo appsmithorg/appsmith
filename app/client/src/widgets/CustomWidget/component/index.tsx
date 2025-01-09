@@ -222,6 +222,9 @@ function CustomComponent(props: CustomComponentProps) {
 
       initScriptEl.type = "module";
       initScriptEl.textContent = `
+        // Get the shadowRoot context
+        const root = document.currentScript.getRootNode();
+        
         // Create a scoped context for the custom widget
         const createCustomWidgetContext = (shadowRoot) => {
           return {
@@ -258,8 +261,11 @@ function CustomComponent(props: CustomComponentProps) {
           };
         };
 
+        // Bridge the global appsmith object to shadowRoot context
+        root.appsmith = window.appsmith;
+        
         // Initialize the custom widget API in the shadowRoot scope
-        window.customWidget = createCustomWidgetContext(document.currentScript.getRootNode());
+        root.customWidget = createCustomWidgetContext(root);
       `;
       shadowRoot.appendChild(initScriptEl);
 
@@ -267,7 +273,12 @@ function CustomComponent(props: CustomComponentProps) {
       const userScriptEl = document.createElement("script");
 
       userScriptEl.type = "module";
-      userScriptEl.textContent = props.srcDoc.js;
+      // Ensure appsmith is available in the script's scope
+      userScriptEl.textContent = `
+        // Make appsmith available in the current scope
+        const appsmith = document.currentScript.getRootNode().appsmith;
+        ${props.srcDoc.js}
+      `;
       shadowRoot.appendChild(userScriptEl);
     }
   }, [isShadowRootReady, props.srcDoc]);
