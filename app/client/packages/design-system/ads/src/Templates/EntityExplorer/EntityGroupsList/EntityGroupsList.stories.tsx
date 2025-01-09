@@ -32,43 +32,43 @@ SingleGroupWithAddNLazyLoad.args = {
   items: [
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-users",
+      className: "t--datasource-create-option-users",
       title: "Users",
       onClick: () => console.log("Users clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-movies",
+      className: "t--datasource-create-option-movies",
       title: "Movies",
       onClick: () => console.log("Movies clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-untitled_datasource_1",
+      className: "t--datasource-create-option-untitled_datasource_1",
       title: "Untitled datasource 1",
       onClick: () => console.log("Untitled datasource 1 clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-untitled_datasource_2",
+      className: "t--datasource-create-option-untitled_datasource_2",
       title: "Untitled datasource 2",
       onClick: () => console.log("Untitled datasource 2 clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-untitled_datasource_3",
+      className: "t--datasource-create-option-untitled_datasource_3",
       title: "Untitled datasource 3",
       onClick: () => console.log("Untitled datasource 3 clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-untitled_datasource_4",
+      className: "t--datasource-create-option-untitled_datasource_4",
       title: "Untitled datasource 4",
       onClick: () => console.log("Untitled datasource 4 clicked"),
     },
     {
       startIcon: <Icon name="database-2-line" />,
-      className: "t--datasoucre-create-option-users_(1)",
+      className: "t--datasource-create-option-users_(1)",
       title: "Users (1)",
       onClick: () => console.log("Users(1) clicked"),
     },
@@ -80,13 +80,13 @@ SingleGroupWithAddNLazyLoad.args = {
   },
 };
 
-const EntityGroupsListTempplate = <T,>(props: EntityGroupsListProps<T>) => {
+const EntityGroupsListTemplate = <T,>(props: EntityGroupsListProps<T>) => {
   const { groups } = props;
 
   return <EntityGroupsList groups={groups} showDivider />;
 };
 
-export const MultipleGroupsWithAddNLazyLoad = EntityGroupsListTempplate.bind(
+export const MultipleGroupsWithAddNLazyLoad = EntityGroupsListTemplate.bind(
   {},
 ) as StoryObj;
 
@@ -98,19 +98,19 @@ MultipleGroupsWithAddNLazyLoad.args = {
       items: [
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-users",
+          className: "t--datasource-create-option-users",
           title: "Users",
           onClick: () => console.log("Users clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-movies",
+          className: "t--datasource-create-option-movies",
           title: "Movies",
           onClick: () => console.log("Movies clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-untitled_datasource_1",
+          className: "t--datasource-create-option-untitled_datasource_1",
           title: "Untitled datasource 1",
           onClick: () => console.log("Untitled datasource 1 clicked"),
         },
@@ -127,37 +127,37 @@ MultipleGroupsWithAddNLazyLoad.args = {
       items: [
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-users",
+          className: "t--datasource-create-option-users",
           title: "Users",
           onClick: () => console.log("Users clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-movies",
+          className: "t--datasource-create-option-movies",
           title: "Movies",
           onClick: () => console.log("Movies clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-untitled_datasource_1",
+          className: "t--datasource-create-option-untitled_datasource_1",
           title: "Untitled datasource 1",
           onClick: () => console.log("Untitled datasource 1 clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-untitled_datasource_2",
+          className: "t--datasource-create-option-untitled_datasource_2",
           title: "Untitled datasource 2",
           onClick: () => console.log("Untitled datasource 2 clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-untitled_datasource_3",
+          className: "t--datasource-create-option-untitled_datasource_3",
           title: "Untitled datasource 3",
           onClick: () => console.log("Untitled datasource 3 clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-untitled_datasource_4",
+          className: "t--datasource-create-option-untitled_datasource_4",
           title: "Untitled datasource 4",
           onClick: () => console.log("Untitled datasource 4 clicked"),
         },
@@ -169,13 +169,13 @@ MultipleGroupsWithAddNLazyLoad.args = {
       items: [
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-users",
+          className: "t--datasource-create-option-users",
           title: "Users",
           onClick: () => console.log("Users clicked"),
         },
         {
           startIcon: <Icon name="database-2-line" />,
-          className: "t--datasoucre-create-option-movies",
+          className: "t--datasource-create-option-movies",
           title: "Movies",
           onClick: () => console.log("Movies clicked"),
         },

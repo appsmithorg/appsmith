@@ -118,7 +118,7 @@ export const useGroupedAddQueryOperations = () => {
     const items = getListItems(group.operations);
     const lastItem = items[items.length - 1];
 
-    if (group.title === "Datasources" && lastItem.title === "New datasource") {
+    if (group.title === "Datasources" && lastItem?.title === "New datasource") {
       items.splice(items.length - 1);
 
       const addConfig = {
