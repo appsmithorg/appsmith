@@ -155,9 +155,7 @@ function* initTrackers(currentUser: User) {
     const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
 
     if (!isFFFetched) {
-if (!isFFFetched) {
-  yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
-}
+      yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
     }
 
     const sessionRecordingConfig: SessionRecordingConfig = yield call(
