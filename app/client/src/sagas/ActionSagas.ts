@@ -145,7 +145,7 @@ import {
   RequestPayloadAnalyticsPath,
 } from "./helper";
 import { handleQueryEntityRedirect } from "./IDESaga";
-import type { EvaluationReduxAction } from "../actions/EvaluationReduxActionTypes";
+import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",

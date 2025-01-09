@@ -24,7 +24,7 @@ import type {
 } from "ee/entities/DataTree/types";
 import { isObject } from "lodash";
 
-import type { AffectedJSObjects } from "../../../actions/EvaluationReduxActionTypes";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";

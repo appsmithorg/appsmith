@@ -17,7 +17,7 @@ import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { ICacheProps } from "../common/AppComputationCache/types";
-import type { AffectedJSObjects } from "../../actions/EvaluationReduxActionTypes";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

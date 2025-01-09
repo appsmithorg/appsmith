@@ -122,7 +122,7 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type {
   AffectedJSObjects,
   EvaluationReduxAction,
-} from "../actions/EvaluationReduxActionTypes";
+} from "actions/EvaluationReduxActionTypes";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 

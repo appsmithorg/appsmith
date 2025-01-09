@@ -8,7 +8,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type {
   AffectedJSObjects,
   BufferedReduxAction,
-} from "../../actions/EvaluationReduxActionTypes";
+} from "actions/EvaluationReduxActionTypes";
 
 export function getAffectedJSObjectIdsFromJSAction(
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,

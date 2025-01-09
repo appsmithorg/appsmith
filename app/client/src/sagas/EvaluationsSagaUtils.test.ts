@@ -13,7 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { BufferedReduxAction } from "../actions/EvaluationReduxActionTypes";
+import type { BufferedReduxAction } from "actions/EvaluationReduxActionTypes";
 
 describe("getAffectedJSObjectIdsFromAction", () => {
   const jsObject1 = { id: "1234" } as JSCollection;
