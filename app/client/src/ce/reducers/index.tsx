@@ -64,6 +64,7 @@ import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightR
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
+import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
@@ -94,6 +95,7 @@ export const reducerObject = {
 export interface AppState {
   ui: {
     consolidatedPageLoad: ConsolidatedPageLoadState;
+    analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;
