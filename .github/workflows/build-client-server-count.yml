@@ -31,7 +31,6 @@ jobs:
       - name: Set args
         id: args
         run: |
-          echo "[DEBUG] Full client_payload: ${{ toJson(github.event.client_payload) }}"
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "is-pg-build=${{ github.event.client_payload.pull_request.base.ref == 'pg' }}" >> $GITHUB_OUTPUT
 
