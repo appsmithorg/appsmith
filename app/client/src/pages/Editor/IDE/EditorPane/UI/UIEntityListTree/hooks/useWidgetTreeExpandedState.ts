@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 
@@ -14,6 +14,18 @@ export const useWidgetTreeState = () => {
         : [...prev, id],
     );
   }, []);
+
+  useEffect(
+    function handleExpandedWidgetsUpdate() {
+      // Merge current expanded with new list
+      // This is to ensure that the expanded widgets are not lost when the list is updated
+      setExpandedWidgets((prev) => [
+        ...prev,
+        ...widgetsToExpand.filter((widgetId) => !prev.includes(widgetId)),
+      ]);
+    },
+    [widgetsToExpand],
+  );
 
   return {
     expandedWidgets,

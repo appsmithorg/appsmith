@@ -47,7 +47,7 @@ export const UIEntityListTree = () => {
   const items = enhanceItemsTree(widgets?.children || [], (widget) => ({
     id: widget.widgetId,
     title: widget.widgetName,
-    startIcon: WidgetTypeIcon(widget.type),
+    startIcon: <WidgetTypeIcon type={widget.type} />,
     isSelected: selectedWidgets.includes(widget.widgetId),
     isExpanded: expandedWidgets.includes(widget.widgetId),
     onClick: (e) => switchToWidget(e, widget),
