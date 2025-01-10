@@ -18,7 +18,8 @@ import {
   APP_LIBRARIES_PANE_WIDTH,
 } from "constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
-import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
+import { type Area } from "../Layout.types";
+import { Areas, SIDEBAR_WIDTH } from "../constants";
 import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
 
 interface ReturnValue {
