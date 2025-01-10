@@ -32,8 +32,9 @@ import {
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
-import EditorLoader from "pages/Editor/loader";
-import AppViewerLoader from "pages/AppViewer/loader";
+const EditorLoader = React.lazy(() => import("pages/Editor/loader"));
+const AppViewerLoader = React.lazy(() => import("pages/AppViewer/loader"));
+const ReroutedIDE = React.lazy(() => import("pages/Editor/IDE/ReroutedIDE"));
 import LandingScreen from "../LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
@@ -133,8 +134,8 @@ export function Routes() {
        * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method
        * Context: https://github.com/appsmithorg/appsmith/pull/19833
        */}
-      <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
-      <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
+      <SentryRoute component={ReroutedIDE} path={BUILDER_PATH} />
+      <SentryRoute component={ReroutedIDE} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
       {/*
