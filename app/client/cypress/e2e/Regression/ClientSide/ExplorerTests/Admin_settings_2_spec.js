@@ -50,7 +50,9 @@ describe(
     );
 
     it("6. should test that settings page is not accessible to normal users", () => {
+      cy.intercept("POST", "/api/v1/logout").as("logoutAPI");
       cy.LogOut(false);
+      cy.wait("@logoutAPI").its("response.statusCode").should("eq", 200);
       cy.get(".t--login-container").should("be.visible");
       cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME3"),
@@ -60,7 +62,9 @@ describe(
       cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });
       // non super users are redirected to home page
       cy.url().should("contain", adminSettingsHelper.routes.APPLICATIONS);
+      cy.intercept("POST", "/api/v1/logout").as("logoutAPI");
       cy.LogOut(false);
+      cy.wait("@logoutAPI").its("response.statusCode").should("eq", 200);
     });
   },
 );
