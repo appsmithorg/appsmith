@@ -30,15 +30,23 @@ export function EntityListTree(props: EntityListTreeProps) {
   const childrenDepth = currentDepth + 1;
 
   return (
-    <Flex flex="1" flexDirection="column">
+    <Flex
+      flex="1"
+      flexDirection="column"
+      role={currentDepth == 0 ? "tree" : undefined}
+    >
       {props.items.map((item) => (
         <Flex flex="1" flexDirection="column" key={item.id}>
           <EntityItemWrapper
             alignItems="center"
+            aria-expanded={item.isExpanded}
+            aria-level={currentDepth}
+            aria-selected={item.isSelected}
             data-depth={currentDepth}
             data-disabled={item.isDisabled || false}
             data-selected={item.isSelected}
             flexDirection="row"
+            role="treeitem"
           >
             {item.children && item.children.length ? (
               <CollapseWrapper

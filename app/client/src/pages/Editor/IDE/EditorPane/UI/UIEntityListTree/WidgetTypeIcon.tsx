@@ -2,12 +2,20 @@ import React from "react";
 import WidgetFactory from "WidgetProvider/factory";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 
-export const WidgetTypeIcon = (type: string) => {
-  const { IconCmp } = WidgetFactory.getWidgetMethods(type);
+interface WidgetTypeIconProps {
+  type: string;
+}
 
-  if (IconCmp) {
-    return <IconCmp />;
-  }
+export const WidgetTypeIcon: React.FC<WidgetTypeIconProps> = React.memo(
+  ({ type }) => {
+    const { IconCmp } = WidgetFactory.getWidgetMethods(type);
 
-  return <WidgetIcon type={type} />;
-};
+    if (IconCmp) {
+      return <IconCmp />;
+    }
+
+    return <WidgetIcon type={type} />;
+  },
+);
+
+WidgetTypeIcon.displayName = "WidgetTypeIcon";
