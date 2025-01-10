@@ -12,7 +12,7 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function useDeleteWidget(widgetId: string): () => void {
   const dispatch = useDispatch();
-  const { parentId, tabId, tabName } = useSelector(getWidgetByID(widgetId));
+  const widget = useSelector(getWidgetByID(widgetId));
 
   const parentWidget = useSelector((state) => getParentWidget(state, widgetId));
 
@@ -20,17 +20,17 @@ export function useDeleteWidget(widgetId: string): () => void {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
     // This is similar to deleting a tab from the property pane
     if (
-      tabName &&
+      widget?.tabName &&
       parentWidget &&
       parentWidget.type === WidgetTypes.TABS_WIDGET
     ) {
       const tabsObj = { ...parentWidget.tabsObj };
       const filteredTabs = Object.values(tabsObj);
 
-      if (parentId && !!filteredTabs.length) {
+      if (widget?.parentId && !!filteredTabs.length) {
         dispatch({
           type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
-          payload: { ...tabsObj[tabId] },
+          payload: { ...tabsObj[widget?.tabId] },
         });
       }
 
@@ -41,8 +41,8 @@ export function useDeleteWidget(widgetId: string): () => void {
       type: WidgetReduxActionTypes.WIDGET_DELETE,
       payload: {
         widgetId,
-        parentId,
+        parentId: widget?.parentId,
       },
     });
-  }, [dispatch, parentWidget, parentId, tabId, tabName, widgetId]);
+  }, [dispatch, parentWidget, widget, widgetId]);
 }

@@ -63,7 +63,9 @@ export const getWidgetMetaProps = createSelector(
 export const getWidgetByID = (widgetId: string) => {
   return createSelector(
     getWidgets,
-    (canvasWidgets: { [widgetId: string]: FlattenedWidgetProps }) => {
+    (canvasWidgets: {
+      [widgetId: string]: FlattenedWidgetProps;
+    }): FlattenedWidgetProps | undefined => {
       return canvasWidgets[widgetId];
     },
   );

@@ -36,12 +36,12 @@ export const WidgetContextMenu = (props: {
       type: ReduxActionTypes.SET_ENTITY_INFO,
       payload: {
         entityId: widgetId,
-        entityName: widget.widgetName,
+        entityName: widget?.widgetName,
         entityType: ENTITY_TYPE.WIDGET,
         show: true,
       },
     });
-  }, [dispatch, widget.widgetName, widgetId]);
+  }, [dispatch, widget?.widgetName, widgetId]);
 
   const editWidgetName = useCallback(() => {
     // We add a delay to avoid having the focus stuck in the menu trigger
@@ -67,7 +67,7 @@ export const WidgetContextMenu = (props: {
         </MenuItem>
         <MenuItem
           className="error-menuitem"
-          disabled={!canManagePages && widget.isDeletable !== false}
+          disabled={!canManagePages && widget?.isDeletable !== false}
           onClick={deleteWidget}
           startIcon="trash"
         >
@@ -80,7 +80,7 @@ export const WidgetContextMenu = (props: {
     deleteWidget,
     editWidgetName,
     showBinding,
-    widget.isDeletable,
+    widget?.isDeletable,
   ]);
 
   return (
