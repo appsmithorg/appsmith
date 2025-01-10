@@ -26,9 +26,11 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String branchName;
 
+    @Transient
     @JsonView(Views.Internal.class)
     RefType refType;
 
+    @Transient
     @JsonView(Views.Internal.class)
     String refName;
 
