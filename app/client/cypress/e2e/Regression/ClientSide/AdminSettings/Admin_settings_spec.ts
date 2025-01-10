@@ -2,6 +2,7 @@ import adminsSettings from "../../../../locators/AdminsSettings";
 import {
   agHelper,
   adminSettings as adminSettingsHelper,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
 const {
@@ -210,7 +211,9 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     "11. Verify all admin setting sections are accessible",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
-      cy.visit("/applications", { timeout: 60000 });
+      homePage.LogOutviaAPI();
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
       cy.wait("@getEnvVariables");
       agHelper.GetNClick(adminsSettings.generalTab);
