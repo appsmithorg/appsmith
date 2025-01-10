@@ -10,6 +10,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   CUSTOM_LOADING_STATE_ENABLED,
+  ColumnTypes,
 } from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
@@ -24,6 +25,11 @@ import {
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 import Widget from "../index";
+import Data from "./PanelConfig/Data";
+
+const columnTypePropertyConfig = {
+  [ColumnTypes.BUTTON_GROUP]: Data,
+};
 
 export default [
   {

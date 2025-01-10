@@ -16,7 +16,7 @@ const Data = {
         titlePropertyName: "label",
         panelIdPropertyName: "id",
         updateHook: (
-          props: any,
+          props: Record<string, unknown>,
           propertyPath: string,
           propertyValue: string,
         ) => {
