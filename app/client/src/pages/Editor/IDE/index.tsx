@@ -4,6 +4,8 @@ import { AnimatedLayout, StaticLayout } from "./Layout";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { BaseLayoutProps } from "./Layout/Layout.types";
+import { useGridLayoutTemplate } from "./Layout/hooks/useGridLayoutTemplate";
 
 const checkAnimatedIDEFlagValue = (state: AppState) => {
   return selectFeatureFlagCheck(
@@ -17,12 +19,11 @@ const checkAnimatedIDEFlagValue = (state: AppState) => {
  */
 function IDE() {
   const isAnimatedIDEEnabled = useSelector(checkAnimatedIDEFlagValue);
+  const layoutProps = useGridLayoutTemplate();
 
-  if (isAnimatedIDEEnabled) {
-    return <AnimatedLayout />;
-  }
+  const LayoutComponent = isAnimatedIDEEnabled ? AnimatedLayout : StaticLayout;
 
-  return <StaticLayout />;
+  return <LayoutComponent {...layoutProps} />;
 }
 
 IDE.displayName = "AppIDE";

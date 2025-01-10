@@ -1,35 +1,12 @@
 import React from "react";
-
-import BottomBar from "components/BottomBar";
-import EditorWrapperContainer from "../../commons/EditorWrapperContainer";
 import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "../LeftPane";
 import MainPane from "../MainPane";
 import RightPane from "../RightPane";
-import ProtectedCallout from "../ProtectedCallout";
-import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import styled from "styled-components";
 import { Areas } from "./constants";
-import {
-  useGitModEnabled,
-  useGitProtectedMode,
-} from "pages/Editor/gitSync/hooks/modHooks";
-import { GitProtectedBranchCallout as GitProtectedBranchCalloutNew } from "git";
-
-function GitProtectedBranchCallout() {
-  const isGitModEnabled = useGitModEnabled();
-  const isProtectedMode = useGitProtectedMode();
-
-  if (isGitModEnabled) {
-    return <GitProtectedBranchCalloutNew />;
-  }
-
-  if (isProtectedMode) {
-    return <ProtectedCallout />;
-  }
-
-  return null;
-}
+import type { BaseLayoutProps } from "./Layout.types";
+import { BaseLayout } from "./BaseLayout";
 
 const GridContainer = styled.div`
   display: grid;
@@ -42,39 +19,35 @@ const LayoutContainer = styled.div<{ name: string }>`
   grid-area: ${(props) => props.name};
 `;
 
-export const StaticLayout = React.memo(() => {
-  const { areas, columns } = useGridLayoutTemplate();
-
+function StaticLayoutComponent({ areas, columns, rows }: BaseLayoutProps) {
   const isSidebarVisible = columns[0] !== "0px";
 
   return (
-    <>
-      <GitProtectedBranchCallout />
-      <EditorWrapperContainer>
-        <GridContainer
-          style={{
-            gridTemplateRows: "100%",
-            gridTemplateAreas: areas
-              .map((area) => `"${area.join(" ")}"`)
-              .join("\n"),
-            gridTemplateColumns: columns.join(" "),
-          }}
-        >
-          <LayoutContainer name={Areas.Sidebar}>
-            {isSidebarVisible ? <Sidebar /> : <div />}
-          </LayoutContainer>
-          <LayoutContainer name={Areas.Explorer}>
-            <LeftPane />
-          </LayoutContainer>
-          <LayoutContainer name={Areas.WidgetEditor}>
-            <MainPane id="app-body" />
-          </LayoutContainer>
-          <LayoutContainer name={Areas.PropertyPane}>
-            <RightPane />
-          </LayoutContainer>
-        </GridContainer>
-      </EditorWrapperContainer>
-      <BottomBar />
-    </>
+    <BaseLayout areas={areas} columns={columns} rows={rows}>
+      <GridContainer
+        style={{
+          gridTemplateRows: rows.join(" "),
+          gridTemplateAreas: areas
+            .map((area) => `"${area.join(" ")}"`)
+            .join("\n"),
+          gridTemplateColumns: columns.join(" "),
+        }}
+      >
+        <LayoutContainer name={Areas.Sidebar}>
+          {isSidebarVisible ? <Sidebar /> : <div />}
+        </LayoutContainer>
+        <LayoutContainer name={Areas.Explorer}>
+          <LeftPane />
+        </LayoutContainer>
+        <LayoutContainer name={Areas.WidgetEditor}>
+          <MainPane id="app-body" />
+        </LayoutContainer>
+        <LayoutContainer name={Areas.PropertyPane}>
+          <RightPane />
+        </LayoutContainer>
+      </GridContainer>
+    </BaseLayout>
   );
-});
+}
+
+export const StaticLayout = React.memo(StaticLayoutComponent);
