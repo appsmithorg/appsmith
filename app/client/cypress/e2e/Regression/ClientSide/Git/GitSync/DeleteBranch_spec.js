@@ -27,8 +27,21 @@ describe(
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
+      // Wait for Git connection to complete
+      cy.wait("@connectGitRepo").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
       gitSync.CreateGitBranch();
       //cy.createGitBranch(branchName);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       cy.get(gitSync.locators.branchItem).should("be.visible");
       // verify can not delete the checked out branch
       DeleteBranchFromUI(1);
@@ -60,6 +73,13 @@ describe(
     it.skip("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
       gitSync.SwitchGitBranch("master");
       gitSync.CreateGitBranch("", true);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
@@ -85,6 +105,13 @@ describe(
 
     it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
       gitSync.CreateGitBranch("", true);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
