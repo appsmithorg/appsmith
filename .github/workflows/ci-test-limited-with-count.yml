@@ -146,75 +146,77 @@ jobs:
         run: |
           echo "Spec list: ${{ inputs.specs_to_run }}"
 
-          - name: Verify limited-tests.txt File Exists
-          run: |
-            if [[ ! -f ${{ github.workspace }}/app/client/cypress/limited-tests.txt ]]; then
-              echo "[ERROR] limited-tests.txt is missing. Ensure it is committed and pushed." >&2
-              exit 1
-            else
-              echo "[INFO] limited-tests.txt file found."
-            fi
+      - name: Verify limited-tests.txt File Exists
+        run: |
+          if [[ ! -f ${{ github.workspace }}/app/client/cypress/limited-tests.txt ]]; then
+            echo "[ERROR] limited-tests.txt is missing. Ensure it is committed and pushed." >&2
+            exit 1
+          else
+            echo "[INFO] limited-tests.txt file found."
+          fi    
 
-            - name: Get specs to run
-            run: |
-              ls -l
-              echo "[DEBUG] Checking inputs.specs_to_run: '${{ inputs.specs_to_run }}'"
-              echo "[DEBUG] Checking github.event.inputs.specs_to_run: '${{ github.event.inputs.specs_to_run }}'"
-              
-              # Determine the source of the specs_to_run input
-              if [[ -n "${{ inputs.specs_to_run }}" ]]; then
-                specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
-                echo "[INFO] specs_to_run provided via workflow_call: $specs_to_run"
-              elif [[ -n "${{ github.event.inputs.specs_to_run }}" ]]; then
-                specs_to_run="${{ github.event.inputs.specs_to_run }}" # For workflow_dispatch
-                echo "[INFO] specs_to_run provided via workflow_dispatch: $specs_to_run"
-              else
-                specs_to_run=""
-                echo "[INFO] No specs provided. Falling back to limited-tests.txt."
-              fi
-          
-              # Check if specs_to_run is provided; if not, use the fallback file
-              echo "[DEBUG] Initial specs_to_run value: '$specs_to_run'"
-          
-              if [[ "$specs_to_run" == "no_data" || -z "$specs_to_run" || "$specs_to_run" == "" ]]; then
-                echo "[INFO] No specs provided or 'no_data' detected, falling back to limited-tests.txt file."
-          
-                # Verify if the fallback file exists
-                limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
-                if [[ ! -f "$limited_tests_file" ]]; then
-                  echo "[ERROR] limited-tests.txt file not found at $limited_tests_file!" >&2
-                  exit 1
-                else
-                  echo "[INFO] limited-tests.txt file found. Proceeding to read specs."
-                fi
-          
-                specs_to_run=""
-          
-                # Read each line of limited-tests.txt
-                while IFS= read -r line || [[ -n "$line" ]]; do
-                  # Skip comments and empty lines
-                  if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
-                    continue
-                  fi
-                  specs_to_run="$specs_to_run,$line"
-                done < "$limited_tests_file"
-          
-                # Remove leading comma
-                specs_to_run=${specs_to_run#,}
-                echo "[DEBUG] Final specs_to_run after processing limited-tests.txt: $specs_to_run"
-          
-                # If no specs found, return an error
-                if [[ -z "$specs_to_run" ]]; then
-                  echo "[ERROR] No specs found in limited-tests.txt after processing!" >&2
-                  exit 1
-                fi
-              else
-                echo "[INFO] Using provided specs: $specs_to_run"
-              fi
-          
-              # Log the final specs_to_run value
-              echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
-              echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+      # Step to get specs from the file or use the provided specs
+      - name: Get specs to run
+      run: |
+        ls -l
+        echo "[DEBUG] Checking inputs.specs_to_run: '${{ inputs.specs_to_run }}'"
+        echo "[DEBUG] Checking github.event.inputs.specs_to_run: '${{ github.event.inputs.specs_to_run }}'"
+        
+        # Determine the source of the specs_to_run input
+        if [[ -n "${{ inputs.specs_to_run }}" ]]; then
+          specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
+          echo "[INFO] specs_to_run provided via workflow_call: $specs_to_run"
+        elif [[ -n "${{ github.event.inputs.specs_to_run }}" ]]; then
+          specs_to_run="${{ github.event.inputs.specs_to_run }}" # For workflow_dispatch
+          echo "[INFO] specs_to_run provided via workflow_dispatch: $specs_to_run"
+        else
+          specs_to_run=""
+          echo "[INFO] No specs provided. Falling back to limited-tests.txt."
+        fi
+
+        # Check if specs_to_run is provided; if not, use the fallback file
+        echo "[DEBUG] Initial specs_to_run value: '$specs_to_run'"
+
+        if [[ "$specs_to_run" == "no_data" || -z "$specs_to_run" || "$specs_to_run" == "" ]]; then
+          echo "[INFO] No specs provided or 'no_data' detected, falling back to limited-tests.txt file."
+
+          # Verify if the fallback file exists
+          limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
+          if [[ ! -f "$limited_tests_file" ]]; then
+            echo "[ERROR] limited-tests.txt file not found at $limited_tests_file!" >&2
+            exit 1
+          else
+            echo "[INFO] limited-tests.txt file found. Proceeding to read specs."
+          fi
+
+          specs_to_run=""
+
+          # Read each line of limited-tests.txt
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            # Skip comments and empty lines
+            if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
+              continue
+            fi
+            specs_to_run="$specs_to_run,$line"
+          done < "$limited_tests_file"
+
+          # Remove leading comma
+          specs_to_run=${specs_to_run#,}
+          echo "[DEBUG] Final specs_to_run after processing limited-tests.txt: $specs_to_run"
+
+          # If no specs found, return an error
+          if [[ -z "$specs_to_run" ]]; then
+            echo "[ERROR] No specs found in limited-tests.txt after processing!" >&2
+            exit 1
+          fi
+        else
+          echo "[INFO] Using provided specs: $specs_to_run"
+        fi
+
+        # Log the final specs_to_run value
+        echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
+        echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
