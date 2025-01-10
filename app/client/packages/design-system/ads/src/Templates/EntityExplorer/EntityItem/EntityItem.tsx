@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
-import { ListItem, Spinner, Tooltip } from "../../..";
+import { ListItem } from "../../../List";
+import { Spinner } from "../../../Spinner";
+import { Tooltip } from "../../../Tooltip";
 
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styles";

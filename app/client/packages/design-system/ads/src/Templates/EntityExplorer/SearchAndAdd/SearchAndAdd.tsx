@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 
-import { SearchInput } from "@appsmith/ads";
+import { SearchInput } from "../../../SearchInput";
 import * as Styles from "./SearchAndAdd.styles";
 import type { SearchAndAddProps } from "./SearchAndAdd.types";
 

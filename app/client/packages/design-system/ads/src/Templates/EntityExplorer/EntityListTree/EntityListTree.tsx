@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import type { EntityListTreeProps } from "./EntityListTree.types";
-import { Flex, Icon } from "../../..";
-import { EntityItem } from "../";
+import { Flex } from "../../../Flex";
+import { Icon } from "../../../Icon";
+import { EntityItem } from "../EntityItem";
 import {
   CollapseSpacer,
   PaddingOverrider,

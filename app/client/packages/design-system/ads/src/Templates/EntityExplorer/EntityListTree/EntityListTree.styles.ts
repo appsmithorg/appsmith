@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Flex } from "../../..";
+import { Flex } from "../../../Flex";
 
 /**
  * This is used to add a spacing when collapse icon is not present
@@ -13,8 +13,8 @@ export const PaddingOverrider = styled.div`
 
   & > div {
     /* Override the padding of the entity item since collapsible icon can be on the left
-     * By default the padding on the left is 8px, so we need to reduce it to 4px
-     **/
+         * By default the padding on the left is 8px, so we need to reduce it to 4px
+         **/
     padding-left: 4px;
   }
 `;
