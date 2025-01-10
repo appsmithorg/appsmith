@@ -220,44 +220,11 @@ export interface BaseCellProperties {
   isCellDisabled?: boolean;
 }
 
-export interface ButtonGroupCellProperties {
-  groupButtons?: Record<
-    string,
-    {
-      id: string;
-      label?: string;
-      buttonColor?: string;
-      iconName?: IconName;
-      iconAlign?: Alignment;
-      onClick?: string;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      buttonType?: "SIMPLE" | "MENU";
-      menuItems?: Record<
-        string,
-        {
-          id: string;
-          label?: string;
-          onClick?: string;
-          isVisible?: boolean;
-          isDisabled?: boolean;
-          iconName?: IconName;
-          iconAlign?: Alignment;
-          backgroundColor?: string;
-          textColor?: string;
-          iconColor?: string;
-        }
-      >;
-    }
-  >;
-}
-
 export interface CellLayoutProperties
   extends CellWrappingProperties,
     ButtonCellProperties,
     URLCellProperties,
-    BaseCellProperties,
-    ButtonGroupCellProperties {
+    BaseCellProperties {
   cellColor?: "default" | PlainTextCellProps["cellColor"];
 }
 

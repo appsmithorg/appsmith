@@ -143,7 +143,6 @@ export enum ColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   CURRENCY = "currency",
-  BUTTON_GROUP = "buttonGroup",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -163,7 +162,6 @@ export const ActionColumnTypes = [
   ColumnTypes.ICON_BUTTON,
   ColumnTypes.MENU_BUTTON,
   ColumnTypes.EDIT_ACTIONS,
-  ColumnTypes.BUTTON_GROUP,
 ];
 
 export const FilterableColumnTypes = [
