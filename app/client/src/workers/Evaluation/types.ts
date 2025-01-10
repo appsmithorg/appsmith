@@ -18,6 +18,7 @@ import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { ICacheProps } from "../common/AppComputationCache/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
+import type { actionDataPayload } from "actions/pluginActionActions";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,6 +52,7 @@ export interface EvalTreeRequestData {
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
   affectedJSObjects: AffectedJSObjects;
+  actionDataPayloadConsolidated?: actionDataPayload;
 }
 
 export interface EvalTreeResponseData {

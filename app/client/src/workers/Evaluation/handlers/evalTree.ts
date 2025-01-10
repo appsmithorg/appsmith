@@ -34,6 +34,7 @@ import {
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
+import { updateActionsToEvalTree } from "./updateActionData";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +71,7 @@ export async function evalTree(
   let isNewWidgetAdded = false;
 
   const {
+    actionDataPayloadConsolidated,
     affectedJSObjects,
     allActionValidationConfig,
     appMode,
@@ -190,6 +192,10 @@ export async function evalTree(
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
+      const tree = dataTreeEvaluator.getEvalTree();
+
+      updateActionsToEvalTree(tree, actionDataPayloadConsolidated);
+
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
@@ -212,6 +218,7 @@ export async function evalTree(
             configTree,
             webworkerTelemetry,
             affectedJSObjects,
+            actionDataPayloadConsolidated,
           ),
       );
 

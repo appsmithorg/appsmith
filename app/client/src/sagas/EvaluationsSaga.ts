@@ -249,6 +249,7 @@ export function* evaluateTreeSaga(
   forceEvaluation = false,
   requiresLogging = false,
   affectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects,
+  actionDataPayloadConsolidated?: actionDataPayload,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
@@ -291,6 +292,7 @@ export function* evaluateTreeSaga(
     widgetsMeta,
     shouldRespondWithLogs,
     affectedJSObjects,
+    actionDataPayloadConsolidated,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -545,7 +547,7 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 interface BUFFERED_ACTION {
   hasDebouncedHandleUpdate: boolean;
   hasBufferedAction: boolean;
-  actionDataPayloadConsolidated: actionDataPayload[];
+  actionDataPayloadConsolidated: actionDataPayload;
 }
 
 export function evalQueueBuffer() {
@@ -682,11 +684,17 @@ function* evalAndLintingHandler(
     forceEvaluation: boolean;
     requiresLogging: boolean;
     affectedJSObjects: AffectedJSObjects;
+    actionDataPayloadConsolidated: actionDataPayload;
   }>,
 ) {
   const span = startRootSpan("evalAndLintingHandler");
-  const { affectedJSObjects, forceEvaluation, requiresLogging, shouldReplay } =
-    options;
+  const {
+    actionDataPayloadConsolidated,
+    affectedJSObjects,
+    forceEvaluation,
+    requiresLogging,
+    shouldReplay,
+  } = options;
 
   const requiresLinting = getRequiresLinting(action);
 
@@ -728,6 +736,7 @@ function* evalAndLintingHandler(
         forceEvaluation,
         requiresLogging,
         affectedJSObjects,
+        actionDataPayloadConsolidated,
       ),
     );
   }
@@ -833,6 +842,21 @@ function* evaluationChangeListenerSaga(): any {
       hasBufferedAction,
       hasDebouncedHandleUpdate,
     } = action as unknown as BUFFERED_ACTION;
+
+    // when there are
+    if (hasDebouncedHandleUpdate && hasBufferedAction) {
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        actionDataPayloadConsolidated,
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+
+      continue;
+    }
 
     if (hasDebouncedHandleUpdate) {
       yield call(
