@@ -13,6 +13,9 @@ const DocViewer = lazy(async () =>
 const XlsxViewer = lazy(async () =>
   retryPromise(async () => import("./XlsxViewer")),
 );
+const PdfViewer = lazy(async () =>
+  retryPromise(async () => import("./PdfViewer")),
+);
 
 const ErrorWrapper = styled.div`
   display: flex;
@@ -142,6 +145,8 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
           renderer = Renderers.DOCX_VIEWER;
         } else if (extension === "xlsx" || extension == "xls") {
           renderer = Renderers.XLSX_VIEWER;
+        } else if (extension === "pdf") {
+          renderer = Renderers.PDF_VIEWER;
         }
       } else {
         errorMessage = "invalid base64 data";
@@ -188,7 +193,9 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
 
   if (hasExtension) {
     if (validExtension) {
-      if (!(extension === "txt" || extension === "pdf")) {
+      if (extension === "pdf") {
+        renderer = Renderers.PDF_VIEWER;
+      } else if (!(extension === "txt")) {
         viewer = "office";
         renderer = Renderers.DOCUMENT_VIEWER;
       }
@@ -220,6 +227,12 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
       return (
         <Suspense fallback={<Skeleton />}>
           <XlsxViewer blob={blob} />
+        </Suspense>
+      );
+    case Renderers.PDF_VIEWER:
+      return (
+        <Suspense fallback={<Skeleton />}>
+          <PdfViewer blob={blob} url={url} />
         </Suspense>
       );
     case Renderers.DOCUMENT_VIEWER:
