@@ -35,10 +35,6 @@ export const EntityItemWrapper = styled(Flex)<{ "data-depth": number }>`
   cursor: pointer;
 
   padding-left: ${(props) => {
-    if (props["data-depth"] === 0) {
-      return 0;
-    }
-
     return 4 + props["data-depth"] * 10;
   }}px;
 
