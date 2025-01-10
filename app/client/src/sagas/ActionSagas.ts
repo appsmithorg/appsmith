@@ -51,10 +51,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "ee/constants/messages";
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -148,6 +145,7 @@ import {
   RequestPayloadAnalyticsPath,
 } from "./helper";
 import { handleQueryEntityRedirect } from "./IDESaga";
+import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
