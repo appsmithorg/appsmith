@@ -182,15 +182,20 @@ jobs:
 
             # Verify if the fallback file exists
             limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
-            
+            cat ${{ github.workspace }}/app/client/cypress/limited-tests.txt
             specs_to_run=""
 
             # Read each line of limited-tests.txt
             while IFS= read -r line || [[ -n "$line" ]]; do
+              echo "[DEBUG] Read line: '$line'" 
+
               # Skip comments and empty lines
               if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
+                echo "[DEBUG] Skipped line: '$line'" # Indicate skipped lines
                 continue
               fi
+
+              # Add the line to specs_to_run
               specs_to_run="$specs_to_run,$line"
             done < "$limited_tests_file"
 
