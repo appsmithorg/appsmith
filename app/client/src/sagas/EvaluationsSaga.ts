@@ -843,7 +843,9 @@ function* evaluationChangeListenerSaga(): any {
       hasDebouncedHandleUpdate,
     } = action as unknown as BUFFERED_ACTION;
 
-    // when there are
+    // when there are both debounced action updates evaluation and a regular evaluation
+    // we will convert that to a regular evaluation this should help in performance by
+    // not performing a debounced action updates evaluation
     if (hasDebouncedHandleUpdate && hasBufferedAction) {
       const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
 
