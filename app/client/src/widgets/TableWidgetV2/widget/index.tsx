@@ -2096,6 +2096,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
+      case ColumnTypes.BUTTON_GROUP:
+        return (
+          <ButtonGroupCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            buttonVariant={
+              cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY
+            }
+            compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
+            groupButtons={cellProperties.groupButtons}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isDisabled={!!cellProperties.isDisabled}
+            isHidden={isHidden}
+            orientation={cellProperties.orientation || "horizontal"}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
       case ColumnTypes.EDIT_ACTIONS:
         return (
           <EditActionCell

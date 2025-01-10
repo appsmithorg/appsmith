@@ -166,7 +166,7 @@ export interface ButtonCellProperties extends BaseButtonProperties {
   iconAlign?: Alignment;
 }
 
-export interface GroupButtonConfig {
+export interface GroupButtonMenuItem extends BaseButtonProperties {
   id: string;
   label?: string;
   onClick?: string;
@@ -174,24 +174,23 @@ export interface GroupButtonConfig {
   isDisabled?: boolean;
   iconName?: IconName;
   iconAlign?: Alignment;
-  buttonColor?: string;
-  buttonVariant?: ButtonVariant;
+  backgroundColor?: string;
+  textColor?: string;
+  iconColor?: string;
   buttonType?: "SIMPLE" | "MENU";
-  menuItems?: Record<
-    string,
-    {
-      id: string;
-      label?: string;
-      onClick?: string;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      iconName?: IconName;
-      iconAlign?: Alignment;
-      backgroundColor?: string;
-      textColor?: string;
-      iconColor?: string;
-    }
-  >;
+  menuItems?: Record<string, GroupButtonMenuItem>;
+}
+
+export interface GroupButtonConfig extends BaseButtonProperties {
+  id: string;
+  label?: string;
+  onClick?: string;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  buttonType: "SIMPLE" | "MENU";
+  menuItems?: Record<string, GroupButtonMenuItem>;
 }
 
 export interface ButtonGroupCellProperties extends BaseButtonProperties {
@@ -199,8 +198,6 @@ export interface ButtonGroupCellProperties extends BaseButtonProperties {
   orientation?: "horizontal" | "vertical";
   buttonVariant?: ButtonVariant;
   isDisabled?: boolean;
-  borderRadius?: string;
-  boxShadow?: string;
 }
 
 export interface MenuButtonCellProperties {

@@ -8,6 +8,7 @@ import { Button } from "@blueprintjs/core";
 import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
 import styled from "styled-components";
+import { objectKeys } from "@appsmith/utils";
 
 const ButtonGroupContainer = styled.div<{
   orientation?: "horizontal" | "vertical";
@@ -68,26 +69,31 @@ function ButtonGroupCell(props: ButtonGroupCellProps) {
 
   return (
     <ButtonGroupContainer orientation={orientation}>
-      {Object.entries(groupButtons)
-        .filter(([_, button]) => button.isVisible !== false)
-        .map(([id, button]) => (
-          <Button
-            alignText={button.iconAlign}
-            disabled={isDisabled || button.isDisabled}
-            fill
-            icon={button.iconName}
-            intent={
-              buttonVariant === ButtonVariantTypes.PRIMARY ? "primary" : "none"
-            }
-            key={id}
-            loading={loadingButtons[id]}
-            minimal={buttonVariant === ButtonVariantTypes.TERTIARY}
-            onClick={() => handleClick(id, button.onClick)}
-            outlined={buttonVariant === ButtonVariantTypes.SECONDARY}
-            small
-            text={button.label}
-          />
-        ))}
+      {objectKeys(groupButtons)
+        .filter((id) => groupButtons[id].isVisible !== false)
+        .map((id) => {
+          const button = groupButtons[id];
+          return (
+            <Button
+              alignText={button.iconAlign}
+              disabled={isDisabled || button.isDisabled}
+              fill
+              icon={button.iconName}
+              intent={
+                buttonVariant === ButtonVariantTypes.PRIMARY
+                  ? "primary"
+                  : "none"
+              }
+              key={id}
+              loading={loadingButtons[id]}
+              minimal={buttonVariant === ButtonVariantTypes.TERTIARY}
+              onClick={() => handleClick(id, button.onClick)}
+              outlined={buttonVariant === ButtonVariantTypes.SECONDARY}
+              small
+              text={button.label}
+            />
+          );
+        })}
     </ButtonGroupContainer>
   );
 }

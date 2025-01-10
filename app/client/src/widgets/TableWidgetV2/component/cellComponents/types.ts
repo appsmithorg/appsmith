@@ -15,6 +15,4 @@ export interface ButtonGroupCellProps extends BaseCellComponentProps {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
-  borderRadius?: string;
-  boxShadow?: string;
 }
