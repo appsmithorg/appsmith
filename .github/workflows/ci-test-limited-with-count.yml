@@ -146,6 +146,15 @@ jobs:
         run: |
           echo "Spec list: ${{ inputs.specs_to_run }}"
 
+      - name: Verify limited-tests.txt File Exists
+        run: |
+          if [[ ! -f ${{ github.workspace }}/app/client/cypress/limited-tests.txt ]]; then
+            echo "[ERROR] limited-tests.txt is missing. Ensure it is committed and pushed." >&2
+            exit 1
+          else
+            echo "[INFO] limited-tests.txt file found."
+          fi    
+
       # Step to get specs from the file or use the provided specs
       - name: Get specs to run
         run: |
