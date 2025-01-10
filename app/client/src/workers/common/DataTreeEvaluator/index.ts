@@ -145,7 +145,6 @@ import {
   profileAsyncFn,
   profileFn,
 } from "instrumentation/generateWebWorkerTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import appComputationCache from "../AppComputationCache";
 import {
@@ -155,6 +154,7 @@ import {
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

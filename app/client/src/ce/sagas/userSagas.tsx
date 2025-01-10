@@ -10,7 +10,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
