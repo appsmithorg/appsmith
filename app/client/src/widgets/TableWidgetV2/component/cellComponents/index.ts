@@ -1,1 +1,1 @@
-export { default as ButtonGroupCell } from "./ButtonGroupCell";
+export { ButtonGroupCell } from "./ButtonGroupCell";

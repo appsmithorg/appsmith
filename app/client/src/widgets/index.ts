@@ -63,7 +63,6 @@ import { WDSCheckboxWidget } from "modules/ui-builder/ui/wds/WDSCheckboxWidget";
 import { WDSIconButtonWidget } from "modules/ui-builder/ui/wds/WDSIconButtonWidget";
 import type BaseWidget from "./BaseWidget";
 import ExternalWidget from "./ExternalWidget";
-import { WDSTableWidget } from "modules/ui-builder/ui/wds/WDSTableWidget";
 import { WDSCurrencyInputWidget } from "modules/ui-builder/ui/wds/WDSCurrencyInputWidget";
 import { WDSToolbarButtonsWidget } from "modules/ui-builder/ui/wds/WDSToolbarButtonsWidget";
 import { WDSPhoneInputWidget } from "modules/ui-builder/ui/wds/WDSPhoneInputWidget";
@@ -163,7 +162,7 @@ const WDSWidgets = [
   WDSInputWidget,
   WDSCheckboxWidget,
   WDSIconButtonWidget,
-  WDSTableWidget,
+
   WDSCurrencyInputWidget,
   WDSToolbarButtonsWidget,
   WDSPhoneInputWidget,
