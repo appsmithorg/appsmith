@@ -1,5 +1,6 @@
 import type { PhoneInputWidgetProps } from "./index";
 import { defaultValueValidation } from "./index";
+import PhoneInputWidget from "./index";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
@@ -35,6 +36,30 @@ describe("defaultValueValidation", () => {
           message: "This value must be string",
         },
       ],
+    });
+  });
+});
+
+describe("PhoneInputWidget methods", () => {
+  describe("getSetterConfig", () => {
+    it("should return correct setter config with setText", () => {
+      const setterConfig = PhoneInputWidget.getSetterConfig();
+
+      expect(setterConfig.__setters).toHaveProperty("setText");
+
+      expect(setterConfig.__setters.setText).toEqual({
+        path: "defaultText",
+        type: "string",
+      });
+    });
+
+    it("should include all required setters", () => {
+      const setterConfig = PhoneInputWidget.getSetterConfig();
+      const expectedSetters = ["setVisibility", "setDisabled", "setText"];
+
+      expectedSetters.forEach((setter) => {
+        expect(setterConfig.__setters).toHaveProperty(setter);
+      });
     });
   });
 });
