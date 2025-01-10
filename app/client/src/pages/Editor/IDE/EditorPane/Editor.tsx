@@ -1,13 +1,8 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
-import {
-  jsSegmentRoutes,
-  querySegmentRoutes,
-} from "ee/pages/Editor/IDE/EditorPane/constants";
-import { JSEditorPane } from "./JS";
-import { QueryEditor } from "./Query";
+import { editorRoutes } from "../EditorRoutes";
 import EditorTabs from "../EditorTabs";
 import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
@@ -37,16 +32,18 @@ const Editor = () => {
       overflow="hidden"
     >
       <EditorTabs />
-      <Switch>
-        <SentryRoute
-          component={JSEditorPane}
-          path={jsSegmentRoutes.map((route) => `${path}${route}`)}
-        />
-        <SentryRoute
-          component={QueryEditor}
-          path={querySegmentRoutes.map((route) => `${path}${route}`)}
-        />
-      </Switch>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          {editorRoutes.map((route) => (
+            <SentryRoute
+              key={route.key}
+              component={route.component}
+              exact={route.exact}
+              path={`${path}${route.path}`}
+            />
+          ))}
+        </Switch>
+      </Suspense>
     </Container>
   );
 };

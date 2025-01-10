@@ -1,7 +1,7 @@
-import type { FC } from "react";
+import type { ComponentType, LazyExoticComponent } from "react";
 
 export interface EditorRoute {
-  component: FC;
+  component: LazyExoticComponent<ComponentType<any>>;
   exact?: boolean;
   key: string;
   path: string;
