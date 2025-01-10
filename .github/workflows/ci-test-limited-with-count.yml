@@ -182,13 +182,7 @@ jobs:
 
             # Verify if the fallback file exists
             limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
-            if [[ ! -f "$limited_tests_file" ]]; then
-              echo "[ERROR] limited-tests.txt file not found at $limited_tests_file!" >&2
-              exit 1
-            else
-              echo "[INFO] limited-tests.txt file found. Proceeding to read specs."
-            fi
-
+            
             specs_to_run=""
 
             # Read each line of limited-tests.txt
