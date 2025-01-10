@@ -63,7 +63,9 @@ describe(
       cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
-      cy.get(".t--draggable-checkboxwidget").should("exist").should("be.visible");
+      cy.get(".t--draggable-checkboxwidget")
+        .should("exist")
+        .should("be.visible");
       cy.commitAndPush();
       cy.merge("master");
       gitSync.CloseOpsModal();

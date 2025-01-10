@@ -71,7 +71,11 @@ describe(
           cy.get(homePageLocators.publishButton).click();
           cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
           cy.get(gitSync.locators.opsCommitBtn).click();
-          cy.wait("@commit").should("have.nested.property", "response.body.responseMeta.status", 201);
+          cy.wait("@commit").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+          );
           gitSync.CloseOpsModal();
           cy.merge(mainBranch);
           gitSync.CloseOpsModal();
@@ -132,7 +136,11 @@ describe(
           agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
           cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
           cy.get(gitSync.locators.opsCommitBtn).click();
-          cy.wait("@commit").should("have.nested.property", "response.body.responseMeta.status", 201);
+          cy.wait("@commit").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+          );
           gitSync.CloseOpsModal();
           cy.latestDeployPreview();
           cy.get(".t--canvas-artboard").should("be.visible");

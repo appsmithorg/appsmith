@@ -223,7 +223,9 @@ describe(
       cy.wait("@updateApplication");
       cy.get(gitSync.locators.branchButton).should("be.visible");
       // assert error toast
-      cy.contains(`origin/${tempBranchRenamed} already exists`).should("be.visible");
+      cy.contains(`origin/${tempBranchRenamed} already exists`).should(
+        "be.visible",
+      );
       cy.get(gitSync.locators.branchCloseBtn).click();
     });
 
