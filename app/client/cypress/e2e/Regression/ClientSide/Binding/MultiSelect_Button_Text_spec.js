@@ -61,11 +61,11 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.closePropertyPane();
 
         agHelper.GetNClick(".rc-select-selector", 0, true);
-        cy.wait(1000);
+        cy.get('.rc-select-item-option').should('be.visible');
         cy.get('.rc-select-item-option:contains("Blue")').click({
           force: true,
         });
-        cy.wait(1000);
+        cy.get(".t--text-widget-container").should("exist");
         cy.get(".t--text-widget-container").each((item, index, list) => {
           cy.wrap(item).should("contain.text", "BLUE");
         });
@@ -77,7 +77,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.get(".t--widget-buttonwidget:contains('Submit')")
           .scrollIntoView()
           .click({ force: true });
-        cy.wait(4000);
+        cy.get(".t--widget-buttonwidget").should("be.visible");
       });
 
       it("3. Publish the app and validate reset action", function () {
@@ -86,9 +86,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.get(".rc-select-item-option:contains('Blue')").click({
           force: true,
         });
-        cy.wait(1000);
+        cy.get("button:contains('Submit')").should("be.visible");
         cy.get("button:contains('Submit')").click({ force: true });
-        cy.wait(1000);
+        cy.get(".t--text-widget-container").should("be.visible");
         cy.get(".t--text-widget-container").each((item, index, list) => {
           cy.wrap(item).should("not.contain.text", "BLUE");
         });

@@ -24,7 +24,7 @@ describe(
     });
 
     it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
-      cy.wait(3000);
+      cy.get(".t--canvas-artboard").should("be.visible");
       /**Create an Api1 of Paginate with Table Page No */
       apiPage.CreateAndFillApi(
         this.dataSet.paginationUrl + this.dataSet.paginationParam,
@@ -69,10 +69,10 @@ describe(
 
     it("2. Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table v2 Page No", function () {
       deployMode.DeployApp();
-      cy.wait(500);
+      cy.get(".tbody").should("be.visible");
       // Make sure onPageLoad action has run before validating the data
       cy.wait("@postExecute");
-      cy.wait(2000);
+      cy.get(".tbody").should("be.visible");
       cy.readTableV2data("0", "4").then((tabData) => {
         const tableData = tabData;
         expect(tableData).to.equal("1");
@@ -104,13 +104,13 @@ describe(
       });
       cy.get(commonlocators.tableNextPage).click({ force: true });
       cy.wait("@postExecute");
-      cy.wait(500);
+      cy.get(".tbody").should("be.visible");
       cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
     });
 
     it("4. Test_Add Paginate with Response URL and Execute the Api", function () {
       deployMode.NavigateBacktoEditor();
-      cy.wait(3000);
+      cy.get(".t--canvas-artboard").should("be.visible");
       /** Create Api2 of Paginate with Response URL*/
       apiPage.CreateAndFillApi(
         this.dataSet.paginationUrl + this.dataSet.paginationParam,
@@ -155,7 +155,7 @@ describe(
       cy.get("@postExecute.all");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");
-      agHelper.Sleep(3000);
+      cy.get(".tbody").should("be.visible");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.ValidatePaginateResponseUrlDataV2(

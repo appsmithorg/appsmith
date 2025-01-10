@@ -27,8 +27,7 @@ describe(
           "SELECT * FROM configs LIMIT 10;",
         );
         // Resetting the default query and rewriting a new one
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000);
+        cy.get(".t--property-pane-section-general").should("be.visible");
         // Mock the response for this test
         cy.intercept("/api/v1/actions/execute", {
           fixture: "addWidgetTable-mock",
@@ -46,21 +45,21 @@ describe(
         });
         cy.get(homePage.shareApp).click();
         cy.enablePublicAccess(true);
-        cy.wait(3000);
+        cy.get(".t--canvas-artboard").should("be.visible");
         _.deployMode.DeployApp();
-        cy.wait(3000);
+        cy.get(".tbody").should("be.visible");
         cy.url().then((url) => {
           currentUrl = url;
           cy.log("Published url is: " + currentUrl);
           _.deployMode.NavigateBacktoEditor();
-          cy.wait(2000);
+          cy.get(".t--canvas-artboard").should("be.visible");
           cy.visit(currentUrl, { timeout: 60000 });
           cy.wait("@getConsolidatedData").should(
             "have.nested.property",
             "response.body.responseMeta.status",
             200,
           );
-          cy.wait(3000);
+          cy.get(".tbody").should("be.visible");
           cy.waitUntil(
             () =>
               cy

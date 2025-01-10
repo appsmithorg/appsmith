@@ -89,10 +89,8 @@ describe(
       dataSources.NavigateToDSCreateNew();
       apiPage.CreateApi("ParentApi1");
       jsEditor.CreateJSObject();
-      // Added because api name edit takes some time to
-      // reflect in api sidebar after the call passes.
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
+      // Wait for API name to be visible in sidebar
+      cy.get(".t--entity-name").should("be.visible");
       gitSync.CreateGitBranch(childBranchKey, true);
       cy.get("@gitbranchName").then((branName) => {
         childBranchKey = branName;
@@ -107,13 +105,11 @@ describe(
       dataSources.NavigateToDSCreateNew();
       apiPage.CreateApi("ChildApi1");
       jsEditor.CreateJSObject();
-      // Added because api name edit takes some time to
-      // reflect in api sidebar after the call passes.
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
+      // Wait for API name to be visible in sidebar
+      cy.get(".t--entity-name").should("be.visible");
 
       // A switch here should not show a 404 page
-      cy.switchGitBranch(parentBranchKey);
+      gitSync.SwitchGitBranch(parentBranchKey);
       // When entity not found, takes them to the home page
       PageList.VerifyIsCurrentPage("Page1");
 
@@ -238,9 +234,9 @@ describe(
         PageList.AddNewPage();
         cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
         cy.get(gitSync.locators.branchSearchInput).type("{selectall}master");
-        cy.wait(400);
+        cy.get(gitSync.locators.branchItem).contains("master").should("be.visible");
         cy.get(gitSync.locators.branchItem).contains("master").click();
-        cy.wait(4000);
+        cy.get(".t--canvas-artboard").should("be.visible");
         PageLeftPane.switchSegment(PagePaneSegment.UI);
         PageList.VerifyIsCurrentPage("Page1");
         cy.get(".t--canvas-artboard").should("be.visible");

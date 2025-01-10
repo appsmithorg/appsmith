@@ -41,7 +41,7 @@ describe(
       agHelper.GetNClick(homePageLocators.createNew, 0);
       cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
       cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
-      cy.wait(1000);
+      cy.xpath(homePageLocators.uploadLogo).should("be.visible");
       cy.xpath(homePageLocators.uploadLogo).selectFile(
         "cypress/fixtures/gitImport.json",
         { force: true },
@@ -49,7 +49,7 @@ describe(
       cy.wait(4000);
       cy.wait("@importNewApplication").then((interception) => {
         cy.log(interception.response.body.data);
-        cy.wait(1000);
+        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
         // should check reconnect modal opening
         cy.get(reconnectDatasourceModal.Modal).should("be.visible");
         cy.ReconnectDatasource("TEDPostgres");
@@ -63,7 +63,7 @@ describe(
         dataSources.FillMySqlDSForm();
         cy.testDatasource(true);
         agHelper.GetNClick(dataSources._saveDs);
-        cy.wait(1000);
+        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
         cy.ReconnectDatasource("TEDMongo");
         cy.wait(1000);
         dataSources.FillMongoDSForm();
@@ -126,11 +126,11 @@ describe(
       });
       cy.wait("@gitStatus").then((interception) => {
         cy.log(interception.response.body.data);
-        cy.wait(1000);
+        cy.get(gitSync.locators.quickActionsPullBtn).should("be.visible");
       });
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
 
-      cy.wait(3000); //for uncommited changes to appear if any!
+      cy.get(gitSync.locators.quickActionsPullBtn).should("be.visible");
       cy.get("body").then(($body) => {
         if ($body.find(gitSync.locators.quickActionsCommitCount).length > 0) {
           gitSync.CommitAndPush();
@@ -168,7 +168,7 @@ describe(
       PageList.ClonePage();
 
       // verify jsObject is not duplicated
-      agHelper.Sleep(2000); //for cloning of table data to finish
+      cy.get(".t--widget-tablewidget").should("be.visible");
       EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject); //Also checking jsobject exists after cloning the page
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -184,7 +184,7 @@ describe(
       cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
       agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       gitSync.CloseOpsModal();
-      cy.wait(2000);
+      cy.get(gitSync.locators.quickActionsPullBtn).should("be.visible");
       gitSync.MergeToMaster();
       cy.wait(2000);
       cy.latestDeployPreview();
@@ -205,7 +205,7 @@ describe(
 
     it("5. Switch to master and verify data in edit and view mode", () => {
       cy.switchGitBranch("master");
-      cy.wait(2000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       // validate data binding in edit and deploy mode
       cy.latestDeployPreview();
       cy.get(".tbody").should("have.length", 2);
@@ -224,15 +224,15 @@ describe(
 
     it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.wait(2000); // wait for transition
+      cy.get(".t--entity-name").should("be.visible");
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
-      cy.wait(3000);
+      cy.get(gitSync.locators.commitButton).should("be.visible");
       gitSync.CommitAndPush();
       cy.merge(newBranch);
       gitSync.CloseOpsModal();
-      cy.wait(2000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       cy.switchGitBranch(newBranch);
-      cy.wait(4000);
+      cy.get(".t--widget-buttonwidget").should("be.visible");
       // verify button widget is visible on child branch
       cy.get(".t--widget-buttonwidget").should("be.visible");
     });

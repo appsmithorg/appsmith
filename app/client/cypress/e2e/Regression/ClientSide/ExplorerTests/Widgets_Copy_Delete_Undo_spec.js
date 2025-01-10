@@ -25,9 +25,7 @@ describe(
       EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
       propPane.RenameWidget("Form1", "FormTest");
       cy.get(commonlocators.copyWidget).click();
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get(commonlocators.toastBody).first().contains("Copied");
+      cy.get(commonlocators.toastBody).first().should("be.visible").contains("Copied");
     });
 
     it("2. Delete Widget from sidebar and Undo action validation", function () {
@@ -53,8 +51,7 @@ describe(
         "response.body.responseMeta.status",
         200,
       );
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
+      cy.get(".t--entity-name").should("be.visible");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "FormTest",
         action: "Show bindings",

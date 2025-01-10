@@ -32,7 +32,7 @@ describe(
         action: "Rename",
       });
       agHelper.TypeText(locators._entityNameEditing("Tab2"), tabname);
-      agHelper.Sleep(2000);
+      cy.get(locators._entityNameEditing("Tab2")).should("have.value", tabname);
       entityExplorer.ValidateDuplicateMessageToolTip(tabname);
       cy.get(explorer.editEntity)
         .last()

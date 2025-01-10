@@ -29,7 +29,7 @@ describe(
       });
       gitSync.CreateGitBranch();
       //cy.createGitBranch(branchName);
-      cy.wait(1000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       // verify can not delete the checked out branch
       DeleteBranchFromUI(1);
       cy.get("@gitbranchName").then((branName) => {
@@ -50,9 +50,9 @@ describe(
         );
         cy.get(gitSync.locators.branchCloseBtn).click({ force: true });
         // verify remote branch is there for the deleted local branch
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchItem).should("be.visible");
         cy.switchGitBranch(`origin/${branchName}`);
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchItem).should("be.visible");
       });
     });
 
@@ -60,7 +60,7 @@ describe(
     it.skip("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
       gitSync.SwitchGitBranch("master");
       gitSync.CreateGitBranch("", true);
-      cy.wait(1000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
       cy.get(".t--draggable-checkboxwidget").should("exist");
@@ -69,7 +69,7 @@ describe(
       cy.merge("master");
       gitSync.CloseOpsModal();
       cy.switchGitBranch("master");
-      cy.wait(2000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
 
       DeleteBranchFromUI(1);
 
@@ -84,7 +84,7 @@ describe(
 
     it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
       gitSync.CreateGitBranch("", true);
-      cy.wait(1000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
       cy.get(".t--widget-chartwidget").should("exist");

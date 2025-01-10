@@ -26,7 +26,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.editColumn("id");
       cy.moveToStyleTab();
-      cy.wait(500);
+      cy.get(".t--property-pane-section-general").should("be.visible");
 
       propPane.EnterJSContext("Text align", testdata.bindingAlign);
 
@@ -40,11 +40,10 @@ describe(
       cy.get(propPaneBack).click({ force: true });
       cy.editColumn("id");
       cy.moveToStyleTab();
-      cy.wait(500);
-      cy.wait(1000);
+      cy.get(".t--property-pane-section-general").should("be.visible");
+      cy.wait("@updateLayout");
       cy.get(widgetsPage.textSize).last().click({ force: true });
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
+      cy.wait("@updateLayout");
       cy.selectTxtSize("XL");
 
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "30px");
@@ -55,7 +54,7 @@ describe(
       cy.get(propPaneBack).click({ force: true });
       cy.editColumn("id");
       cy.moveToStyleTab();
-      cy.wait(500);
+      cy.get(".t--property-pane-section-general").should("be.visible");
       propPane.EnterJSContext("Text size", testdata.bindingNewSize);
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
       cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
@@ -67,7 +66,7 @@ describe(
       cy.editColumn("id");
       cy.moveToStyleTab();
       cy.get(widgetsPage.toggleTextSize).first().click({ force: true });
-      cy.wait(1000);
+      cy.get(".t--property-control-verticalalignment").should("be.visible");
       propPane.EnterJSContext(
         "Vertical alignment",
         testdata.bindingVerticalAlig,
@@ -86,8 +85,7 @@ describe(
       .first()
       .click({ force: true });
       */
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
+      cy.get(".t--property-control-emphasis").should("be.visible");
       propPane.EnterJSContext("Emphasis", testdata.bindingStyle);
       cy.readTableV2dataValidateCSS("0", "0", "font-style", "normal");
       cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
@@ -99,8 +97,7 @@ describe(
       cy.editColumn("id");
       cy.moveToStyleTab();
       cy.get(widgetsPage.toggleVerticalAlig).first().click({ force: true });
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
+      cy.get(".t--property-control-textcolor").should("be.visible");
       propPane.EnterJSContext("Text color", testdata.bindingTextColor);
       cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
       cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
@@ -111,7 +108,7 @@ describe(
       cy.get(propPaneBack).click({ force: true });
       cy.editColumn("id");
       cy.moveToStyleTab();
-      cy.wait(1000);
+      cy.get(".t--property-control-cellbackground").should("be.visible");
       propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
       cy.readTableV2dataValidateCSS(
         "0",

@@ -65,13 +65,13 @@ describe(
       //cy.switchGitBranch(mainBranch);
       _.gitSync.CreateGitBranch(tempBranch2, true);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.Createpage("NewPage");
-      cy.commitAndPush();
-      cy.merge(mainBranch);
+      PageList.AddNewPage();
+      _.gitSync.CommitAndPush();
+      _.gitSync.MergeToMaster();
       _.gitSync.CloseOpsModal();
-      cy.wait(4000);
-      cy.switchGitBranch(mainBranch);
-      cy.wait(4000); // wait for switch branch
+      cy.get(_.gitSync.locators.branchItem).should("be.visible");
+      _.gitSync.SwitchGitBranch(mainBranch);
+      cy.get(_.gitSync.locators.branchItem).should("be.visible"); // wait for branch switch
       cy.contains("NewPage");
     });
 
@@ -87,7 +87,7 @@ describe(
 
     it("3. Checks clean url updates across branches", () => {
       PageList.DeletePage("NewPage");
-      cy.wait(1000);
+      cy.get(".t--entity-name").should("be.visible");
       let legacyPathname = "";
       let newPathname = "";
       // question to qa can we remove this assertion

@@ -207,7 +207,7 @@ describe(
       const y = 80;
       // select the first building block in the list
       const selector = ".t--widget-card-draggable-buildingblock";
-      agHelper.Sleep(500);
+      cy.get(selector).should("be.visible");
       agHelper
         .GetElement(selector)
         .first()

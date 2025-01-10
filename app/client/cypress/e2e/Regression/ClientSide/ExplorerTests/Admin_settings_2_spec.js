@@ -51,7 +51,7 @@ describe(
 
     it("6. should test that settings page is not accessible to normal users", () => {
       cy.LogOut(false);
-      cy.wait(2000);
+      cy.get(".t--login-container").should("be.visible");
       cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME3"),
         Cypress.env("TESTPASSWORD3"),

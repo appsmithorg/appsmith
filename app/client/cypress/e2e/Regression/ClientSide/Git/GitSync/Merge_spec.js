@@ -43,7 +43,7 @@ describe(
       cy.get(_.gitSync.locators.opsModalTabDeploy);
 
       cy.get(_.gitSync.locators.opsMergeBtn).should("be.disabled");
-      cy.wait(3000);
+      cy.get(_.gitSync.locators.opsMergeBranchSelect).should("be.visible");
       cy.get(_.gitSync.locators.opsMergeBranchSelect).click();
       cy.get(commonLocators.dropdownmenu).contains(mainBranch).click();
       _.gitSync.AssertAbsenceOfCheckingMergeability();
@@ -53,8 +53,7 @@ describe(
         "response.body.data.isMergeAble",
         true,
       );
-      cy.wait(2000);
-      cy.get(_.gitSync.locators.opsMergeBtn).should("be.enabled");
+      cy.get(_.gitSync.locators.opsMergeBtn).should("be.visible").should("be.enabled");
       _.gitSync.CloseOpsModal();
     });
 

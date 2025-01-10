@@ -146,7 +146,7 @@ describe(
       // navigate to page2
       EditorNavigation.SelectEntityByName(page2, EntityType.Page);
       cy.wait("@getPage");
-      cy.wait(3000);
+      cy.get(".t--entity-name").should("be.visible");
       /* create and save jsObject */
       //     jsEditor.CreateJSObject('return "Success";');
       // delete jsObject1
@@ -222,8 +222,6 @@ describe(
         Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
       );
       cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-      agHelper.Sleep(2000);
-
       agHelper.AssertElementVisibility(".ads-v2-callout__children");
       agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
     });

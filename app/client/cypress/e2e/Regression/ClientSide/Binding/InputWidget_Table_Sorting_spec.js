@@ -29,7 +29,7 @@ describe(
 
       cy.testJsontext("defaultselectedrow", "0");
       cy.get(".draggable-header").contains("id").click({ force: true });
-      cy.wait(1000);
+      cy.get(".tbody").should("be.visible");
       cy.readTabledataPublish("0", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("6788734");
@@ -40,7 +40,7 @@ describe(
           .should("contain", tabValue);
       });
       cy.get(".draggable-header").contains("id").click({ force: true });
-      cy.wait(1000);
+      cy.get(".tbody").should("be.visible");
       cy.readTabledataPublish("0", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("2381224");

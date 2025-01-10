@@ -34,8 +34,7 @@ describe(
     it("1. Create MyPage and validate if its successfully created", function () {
       cy.Createpage(pageid);
       agHelper.AddDsl("displayWidgetDsl");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
+      cy.get(".pages-list-container").should("exist");
       PageList.ShowList();
       PageLeftPane.assertPresence(pageid);
       //Table Widget V2 Functionality with multiple page
@@ -59,7 +58,7 @@ describe(
     });
 
     it("2. Validate NavigateTo Page functionality ", function () {
-      cy.wait(2000);
+      cy.get(widgetsPage.tableWidgetV2).should("be.visible");
       deployMode.DeployApp();
       cy.get(widgetsPage.chartWidget).should("not.exist");
       table.SelectTableRow(1, 0, true, "v2");

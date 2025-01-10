@@ -210,11 +210,11 @@ describe(
       gitSync.CreateNConnectToGit();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
-        cy.wait(2000);
+        cy.get(_.gitSync.locators.branchButton).should("be.visible");
 
         // check last deploy preview
         cy.latestDeployPreview();
-        cy.wait(1000);
+        cy.get(".t--canvas-artboard").should("be.visible");
         cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
           "be.visible",
         );

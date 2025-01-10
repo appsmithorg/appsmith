@@ -163,7 +163,7 @@ function chooseColMultiSelectAndReset() {
   cy.get(".rc-select-item-option-content:contains('Blue')").click({
     force: true,
   });
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "BLUE",
@@ -179,7 +179,7 @@ function chooseColMultiSelectAndReset() {
 
 function selectTabAndReset() {
   cy.get(".t--tabid-tab2").click({ force: true });
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "Tab 2",
@@ -249,7 +249,7 @@ function selectAndReset() {
 
 function selectCurrencyInputAndReset() {
   cy.get(".bp3-input").click({ force: true }).type("123");
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "123",
@@ -268,7 +268,7 @@ function multiTreeSelectAndReset() {
   cy.get(".rc-tree-select-tree-title:contains('Red')").click({
     force: true,
   });
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "RED",
@@ -317,7 +317,7 @@ function listwidgetAndReset() {
 
 function ratingwidgetAndReset() {
   cy.get(".bp3-icon-star svg").last().click({ force: true });
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "3",
@@ -332,12 +332,12 @@ function ratingwidgetAndReset() {
 }
 
 function checkboxGroupAndReset() {
-  cy.wait(2000);
+  cy.get("[data-testid=checkbox-group-container] > :nth-child(3)").should("be.visible");
   cy.get("[data-testid=checkbox-group-container] > :nth-child(3)")
     .last()
     .should("be.visible")
     .click({ force: true });
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "RED",
@@ -382,7 +382,7 @@ function audioRecorderWidgetAndReset() {
 
 function phoneInputWidgetAndReset() {
   cy.get(".bp3-input").type("1234");
-  cy.wait(1000);
+  cy.get(_.locators._textWidgetInDeployed).should("be.visible");
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "1234",

@@ -71,19 +71,18 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("S3_Query");
 
-    cy.wait(1000);
+    cy.get(".t--actionConfiguration\\.formData\\.bucket\\.data").should("be.visible");
     cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
       ch: 2,
       line: 0,
     });
-    cy.wait(1000);
     cy.wait("@saveAction");
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
     PageLeftPane.selectItem("JSObject1");
 
-    cy.wait(1000);
+    cy.get(".js-editor").should("be.visible");
     cy.focusCodeInput(".js-editor", { ch: 4, line: 4 });
     cy.wait("@saveAction");
 
@@ -114,7 +113,7 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     pluginActionForm.toolbar.toggleSettings();
     agHelper.GetElement(dataSources._usePreparedStatement).should("be.focused");
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
-    agHelper.Sleep();
+    cy.get(locators._queryName).should("be.visible");
     pluginActionForm.toolbar.toggleSettings();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });

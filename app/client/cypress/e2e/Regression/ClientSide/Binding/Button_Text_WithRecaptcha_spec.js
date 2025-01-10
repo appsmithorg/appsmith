@@ -40,7 +40,7 @@ describe(
         testdata.v2Key,
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.Sleep();
+      cy.get(_.locators._widgetInCanvas("textwidget") + " span").should("exist");
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
@@ -50,7 +50,7 @@ describe(
         "reCAPTCHA v2",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.Sleep();
+      cy.get(_.locators._widgetInCanvas("textwidget") + " span").should("exist");
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
@@ -59,7 +59,7 @@ describe(
         "reCAPTCHA v3",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.Sleep();
+      cy.get(_.locators._widgetInCanvas("textwidget") + " span").should("exist");
     });
 
     it("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
@@ -73,7 +73,7 @@ describe(
         "reCAPTCHA v3",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.Sleep();
+      cy.get(_.locators._widgetInCanvas("textwidget") + " span").should("exist");
       cy.get("body").then(($ele) => {
         if (
           $ele.find(

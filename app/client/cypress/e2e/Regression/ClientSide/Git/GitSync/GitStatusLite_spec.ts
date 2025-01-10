@@ -34,7 +34,7 @@ describe(
     });
 
     it("Issue 26038 : No simultaneous git status and remote compare api calls on commit modal", function () {
-      cy.wait(1000);
+      cy.get(_.gitSync.locators.quickActionsPullBtn).should("be.visible");
 
       cy.intercept({
         method: "GET",

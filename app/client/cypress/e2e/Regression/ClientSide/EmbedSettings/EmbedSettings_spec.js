@@ -40,13 +40,13 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       "https://app.appsmith.com/applications/6752ba5904a5f464099437ec/pages/6752ba5904a5f464099437f3",
     );
     //});
-    _.agHelper.Sleep(5000); //for Iframe to fully load with url data
+    cy.get(".t--widget-iframewidget iframe").should("be.visible").and("have.attr", "src");
     _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     )
-      .click()
-      .wait(1000);
+      .click();
+    cy.get(".bp3-popover-content").should("be.visible");
     _.agHelper.ClickButton("Copy application url");
     cy.window().then((win) => {
       cy.stub(win.navigator.clipboard, "writeText").as("deployUrl").resolves();

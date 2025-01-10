@@ -50,8 +50,7 @@ describe(
 
     it("3. Publish App and validate loading functionalty", function () {
       _.deployMode.DeployApp();
-      //eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
+      cy.get(widgetsPage.widgetBtn).should("be.visible");
       cy.get(widgetsPage.widgetBtn).first().click({ force: true });
       cy.wait("@postExecute").should(
         "have.nested.property",

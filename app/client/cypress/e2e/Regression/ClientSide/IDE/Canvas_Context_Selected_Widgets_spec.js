@@ -21,7 +21,7 @@ describe(
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
       EditorNavigation.SelectEntityByName(page1, EntityType.Page);
       cy.CreateAPI(api1);
-      _.agHelper.Sleep(2000); // adding wait for page to load
+      cy.get(".t--entity-name").should("be.visible"); // wait for page to load
       PageLeftPane.switchSegment(PagePaneSegment.UI);
     });
 
@@ -50,7 +50,7 @@ describe(
 
       //switch to page1
       EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the Camera1 is selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -73,7 +73,7 @@ describe(
 
       //navigate back to page1
       EditorNavigation.ShowCanvas();
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the Camera1 is selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -131,7 +131,7 @@ describe(
 
       //navigate back to page1
       EditorNavigation.ShowCanvas();
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
@@ -173,11 +173,10 @@ describe(
 
       //navigate to API1
       EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-      cy.wait(500);
 
       //navigate back to page1
       EditorNavigation.ShowCanvas();
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the Modal1 is selected and open in page1
       cy.get(".t--modal-widget").should("have.length", 1);
@@ -226,11 +225,10 @@ describe(
 
       //navigate to API1
       EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-      cy.wait(500);
 
       //navigate back to page1
       EditorNavigation.ShowCanvas();
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the Modal1 is open and Text1 is selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -281,11 +279,10 @@ describe(
 
       //navigate to API1
       EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-      cy.wait(500);
 
       //navigate back to page1
       EditorNavigation.ShowCanvas();
-      cy.wait(500);
+      cy.get(".t--property-pane-title").should("be.visible");
 
       //verify the tab 2 is open and Button 4 is selected in page1
       cy.get(".is-selected").should("contain", "Tab 2");
@@ -317,8 +314,8 @@ describe(
         // open the URL
         cy.visit(url);
 
-        // wati for the page to load
-        cy.wait(4000);
+        // wait for the page to load
+        cy.get(".t--canvas-artboard").should("be.visible");
 
         //select widget in page1
         EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, [

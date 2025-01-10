@@ -78,7 +78,7 @@ describe(
         entityType: EntityItems.Api,
         entityNameinLeftSidebar: firstApiName,
       });
-      cy.wait(1000);
+      cy.get(".t--entity-name").should("be.visible");
     });
   },
 );
@@ -89,7 +89,7 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     // create JS object and name it
     jsEditor.CreateJSObject('return "Hello World";');
     entityExplorer.RenameEntityFromExplorer("JSObject1", firstApiName);
-    cy.wait(2000); //for the changed JS name to reflect
+    cy.get(".t--entity-name").should("contain", firstApiName);
 
     cy.CreateAPI(secondApiName);
 
@@ -101,7 +101,7 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
     entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
-    cy.wait(2000);
+    cy.get(".t--entity-name").should("be.visible");
     entityExplorer.ActionContextMenuByEntityName({
       action: "Delete",
       entityNameinLeftSidebar: secondApiName,

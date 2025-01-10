@@ -257,7 +257,7 @@ function verifyPropertyPaneContext(
 
   //Switch back to Button1 widget
   EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
-  cy.wait(500);
+  cy.get(".t--property-pane-section-general").should("be.visible");
 
   //assert Callback
   assertCallback();
@@ -267,7 +267,7 @@ function verifyPropertyPaneContext(
   EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
   cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
   EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-  cy.wait(500);
+  cy.get(".t--entity-name").should("be.visible");
 
   //assert Callback
   assertCallback();
@@ -275,7 +275,7 @@ function verifyPropertyPaneContext(
   //Navigate to API1 Pane and back
   EditorNavigation.SelectEntityByName(api1, EntityType.Api);
   EditorNavigation.ShowCanvas();
-  cy.wait(500);
+  cy.get(".t--canvas-artboard").should("be.visible");
 
   //assert Callback
   assertCallback();

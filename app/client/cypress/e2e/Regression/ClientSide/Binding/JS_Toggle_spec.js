@@ -22,8 +22,7 @@ describe("JS Toggle tests", { tags: ["@tag.Binding"] }, () => {
     cy.EnableAllCodeEditors();
 
     cy.testJsontext("visible", "false");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
+    cy.get(".t--widget-buttonwidget").should("not.exist");
 
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
 

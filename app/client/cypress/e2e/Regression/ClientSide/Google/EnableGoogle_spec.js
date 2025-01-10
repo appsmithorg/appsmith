@@ -20,7 +20,7 @@ describe(
         .should("be.visible")
         .should("contain", "Enable");
       cy.get(adminSettings.googleButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible");
       // fill google form
       cy.fillGoogleFormPartly();
       cy.get(commonlocators.toastBody).should("be.visible");
@@ -43,10 +43,10 @@ describe(
         .should("be.visible")
         .should("contain", "Enable");
       cy.get(adminSettings.googleButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible");
       // fill google form
       cy.fillGoogleForm();
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
       // assert server is restarting
       cy.get(adminSettings.restartNotice).should("be.visible");
       // adding wait for server to restart
@@ -77,7 +77,7 @@ describe(
         .should("be.visible")
         .should("contain", "Edit");
       cy.get(adminSettings.googleButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.disconnectBtn).should("be.visible");
       cy.get(adminSettings.disconnectBtn)
         .should("be.visible")
         .should("contain", "Disconnect");
@@ -94,11 +94,11 @@ describe(
           .contains("Google authentication", { timeout: 180000 })
           .should("be.visible"),
       );
-      cy.wait(1000);
+      cy.get(homePage.profileMenu).should("be.visible");
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
-      cy.wait(500);
+      cy.get("form").should("be.visible");
       // validating sso with google is disabled
       cy.get(adminSettings.loginWithGoogle).should("not.exist");
     });

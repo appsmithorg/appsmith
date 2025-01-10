@@ -26,12 +26,12 @@ describe(
         .within(() => {
           cy.get(".t--code-editor-wrapper").type(testdata.externalPage);
         });
-      cy.wait(300);
+      cy.get(propPane._actionCard).should("be.visible");
       // Button click should take the control to page link validation", function () {
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-      cy.wait(2000);
+      cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON)).should("be.visible");
       agHelper.ClickButton("Submit");
-      cy.wait(4000); //for page to load
+      cy.url().should("include", testdata.externalPage);
       agHelper.AssertElementAbsence(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );

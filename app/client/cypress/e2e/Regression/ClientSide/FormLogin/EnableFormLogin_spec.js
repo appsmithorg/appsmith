@@ -10,11 +10,11 @@ describe("Form Login test functionality", function () {
       .should("be.visible")
       .should("contain", "Edit");
     cy.get(adminSettings.formloginButton).click();
-    cy.wait(2000);
+    cy.get(adminSettings.formSignupDisabled).should("be.visible");
     // disable form signup
     cy.get(adminSettings.formSignupDisabled).should("have.value", "on");
     cy.get(adminSettings.formSignupDisabled).click({ force: true });
-    cy.wait(2000);
+    cy.get(adminSettings.saveButton).should("be.visible");
     // assert server is restarting
     cy.get(adminSettings.saveButton).should("be.visible");
     cy.get(adminSettings.saveButton).should("not.be.disabled");
@@ -23,7 +23,7 @@ describe("Form Login test functionality", function () {
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
-    cy.wait(500);
+    cy.get(".t--sign-up").should("be.visible");
     // validating form signup is disabled
     cy.get(".t--sign-up").click({ force: true });
     cy.generateUUID().then((uid) => {
@@ -39,9 +39,9 @@ describe("Form Login test functionality", function () {
       cy.get(".admin-settings-menu-option").click();
       cy.get(adminSettings.authenticationTab).click();
       cy.get(adminSettings.formloginButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.formSignupDisabled).should("be.visible");
       cy.get(adminSettings.formSignupDisabled).click({ force: true });
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
       cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
@@ -72,20 +72,19 @@ describe("Form Login test functionality", function () {
 
       // enable github login
       cy.get(adminSettings.githubButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible");
       // fill github form
       cy.fillGithubForm();
-      cy.wait(120000);
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
-      cy.wait(5000);
+      cy.get("body").should("be.visible");
       cy.reload();
       cy.get(adminSettings.authenticationTab).click();
       cy.get(adminSettings.formloginButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.formLoginDisabled).should("be.visible");
       // disable form signup
       cy.get(adminSettings.formLoginDisabled).should("have.value", "on");
       cy.get(adminSettings.formLoginDisabled).click({ force: true });
-      cy.wait(2000);
+      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
       // assert server is restarting
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");
@@ -94,9 +93,9 @@ describe("Form Login test functionality", function () {
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
-      cy.wait(500);
+      cy.get("body").should("be.visible");
       cy.reload();
-      cy.wait(5000);
+      cy.get("body").should("be.visible");
       // validating form signup is disabled
       cy.get("form").should("not.exist");
       cy.get(".t--sign-up").should("not.exist");
@@ -122,7 +121,7 @@ describe("Form Login test functionality", function () {
       // disable github
       cy.get(adminSettings.authenticationTab).click();
       cy.get(adminSettings.githubButton).click();
-      cy.wait(2000);
+      cy.get(adminSettings.disconnectBtn).should("be.visible");
       cy.get(adminSettings.disconnectBtn)
         .click()
         .should("contain", "Are you sure?");

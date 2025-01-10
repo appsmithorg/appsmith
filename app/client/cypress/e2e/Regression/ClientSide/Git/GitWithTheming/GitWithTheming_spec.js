@@ -71,10 +71,10 @@ describe(
         backgroudColorMaster,
       ); //Widget Color
       cy.commitAndPush();
-      cy.wait(2000);
+      cy.get(_.gitSync.locators.branchButton).should("be.visible");
       _.gitSync.CreateGitBranch(tempBranch);
       //cy.createGitBranch(tempBranch);
-      cy.wait(1000);
+      cy.get(".canvas").should("be.visible");
       cy.get(".canvas").click(0, 0, { force: true });
       // change theme on tempBranch
       _.appSettings.OpenAppSettings();
@@ -109,7 +109,7 @@ describe(
         backgroudColorChildBranch,
       ); //Widget Color
       cy.get(commonlocators.backToEditor).click();
-      cy.wait(2000);
+      cy.get(".t--canvas-artboard").should("be.visible");
     });
 
     after(() => {

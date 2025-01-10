@@ -32,14 +32,13 @@ describe(
       //Create MyPage and valdiate if its successfully created
       cy.Createpage(pageid);
       agHelper.AddDsl("navigateToInputDsl");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
+      cy.get(".t--entity-name").should("be.visible");
       EditorNavigation.SelectEntityByName(pageid, EntityType.Page);
     });
 
     it("2. Validate NavigateTo Page functionality ", function () {
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      cy.wait(4000);
+      cy.get(".t--canvas-artboard").should("be.visible");
       deployMode.DeployApp();
       cy.readTabledataPublish("1", "0").then((tabDataP) => {
         const tabValueP = tabDataP;
