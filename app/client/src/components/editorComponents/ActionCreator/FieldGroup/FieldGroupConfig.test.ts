@@ -30,6 +30,7 @@ describe("Test Field Group Config", () => {
         FieldType.PAGE_SELECTOR_FIELD,
         FieldType.QUERY_PARAMS_FIELD,
         FieldType.NAVIGATION_TARGET_FIELD,
+        FieldType.APP_NAME_FIELD,
       ],
     },
     {

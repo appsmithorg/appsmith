@@ -42,7 +42,7 @@ export default function* navigateActionSaga(
   if (appName) {
     const applicationList = (yield select(getApplicationList)) as ApplicationPayload[];
     const app = applicationList.find((app) => app.name === appName);
-    
+
     if (!app) {
       throw new TriggerFailureError(`No application found with name: ${appName}`);
     }
@@ -69,12 +69,12 @@ export default function* navigateActionSaga(
         params,
       },
     });
-    
+
     AnalyticsUtil.logEvent("NAVIGATE", {
       appName,
       pageParams: params,
     });
-    
+
     return;
   }
 
