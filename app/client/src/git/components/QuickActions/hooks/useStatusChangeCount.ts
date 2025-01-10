@@ -8,9 +8,10 @@ export const calcStatusChangeCount = (status: FetchStatusResponseData) => {
     modifiedDatasources = 0,
     modifiedJSLibs = 0,
     modifiedJSObjects = 0,
-    modifiedModules = 0,
+    modifiedModuleInstances = 0,
     modifiedPages = 0,
     modifiedQueries = 0,
+    modifiedSourceModules = 0,
   } = status || {};
   const themeCount = modified.includes("theme.json") ? 1 : 0;
   const settingsCount = modified.includes("application.json") ? 1 : 0;
@@ -20,10 +21,11 @@ export const calcStatusChangeCount = (status: FetchStatusResponseData) => {
     modifiedDatasources +
     modifiedJSLibs +
     modifiedJSObjects +
-    modifiedModules +
     modifiedPages +
     modifiedQueries +
     themeCount +
+    modifiedSourceModules +
+    modifiedModuleInstances +
     settingsCount
   );
 };
