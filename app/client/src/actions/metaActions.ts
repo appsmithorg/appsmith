@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
@@ -18,6 +18,7 @@ export interface UpdateWidgetMetaPropertyPayload {
 export interface BatchUpdateWidgetMetaPropertyPayload {
   batchMetaUpdates: UpdateWidgetMetaPropertyPayload[];
 }
+
 export const updateWidgetMetaPropAndEval = (
   widgetId: string,
   propertyName: string,
