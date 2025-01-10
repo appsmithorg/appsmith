@@ -3,6 +3,11 @@ import { loadingIndicator } from "ce/AppRouter";
 import { useIDEFeatureFlags } from "./services/ideFeatureFlags";
 import { useGridLayoutTemplate } from "./Layout/hooks/useGridLayoutTemplate";
 import type { BaseLayoutProps } from "./Layout/Layout.types";
+import { PaneComponentsProvider } from "./services/PaneComponentsContext";
+import LeftPane from "./LeftPane";
+import RightPane from "./RightPane";
+import MainPane from "./MainPane";
+import Sidebar from "./Sidebar";
 
 // Lazy load layout components directly to break circular dependencies
 const AnimatedLayout = React.lazy(() => 
@@ -23,7 +28,16 @@ function IDE() {
 
   return (
     <Suspense fallback={loadingIndicator}>
-      <LayoutComponent {...layoutProps} />
+      <PaneComponentsProvider
+        components={{
+          LeftPane,
+          RightPane,
+          MainPane,
+          Sidebar,
+        }}
+      >
+        <LayoutComponent {...layoutProps} />
+      </PaneComponentsProvider>
     </Suspense>
   );
 }

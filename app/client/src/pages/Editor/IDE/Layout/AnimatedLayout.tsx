@@ -1,15 +1,13 @@
 import React from "react";
-import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import { AnimatedGridLayout, LayoutArea } from "components/AnimatedGridLayout";
-import Sidebar from "../Sidebar";
-import LeftPane from "../LeftPane";
-import MainPane from "../MainPane";
-import RightPane from "../RightPane";
 import { Areas } from "./constants";
 import type { BaseLayoutProps } from "./Layout.types";
 import { BaseLayout } from "./BaseLayout";
+import { usePaneComponents } from "../services/PaneComponentsContext";
 
 function AnimatedLayoutComponent({ areas, columns, rows }: BaseLayoutProps) {
+  const { LeftPane, MainPane, RightPane, Sidebar } = usePaneComponents();
+
   if (columns.length === 0) {
     return null;
   }

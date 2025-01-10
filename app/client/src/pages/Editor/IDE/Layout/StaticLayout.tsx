@@ -1,12 +1,9 @@
 import React from "react";
-import Sidebar from "pages/Editor/IDE/Sidebar";
-import LeftPane from "../LeftPane";
-import MainPane from "../MainPane";
-import RightPane from "../RightPane";
 import styled from "styled-components";
 import { Areas } from "./constants";
 import type { BaseLayoutProps } from "./Layout.types";
 import { BaseLayout } from "./BaseLayout";
+import { usePaneComponents } from "../services/PaneComponentsContext";
 
 const GridContainer = styled.div`
   display: grid;
@@ -20,6 +17,7 @@ const LayoutContainer = styled.div<{ name: string }>`
 `;
 
 function StaticLayoutComponent({ areas, columns, rows }: BaseLayoutProps) {
+  const { LeftPane, MainPane, RightPane, Sidebar } = usePaneComponents();
   const isSidebarVisible = columns[0] !== "0px";
 
   return (
