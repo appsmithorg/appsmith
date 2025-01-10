@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
-import type { EditorState } from "ee/entities/IDE/constants";
 import type { SidebarButtonProps } from "./SidebarButton/SidebarButton";
 import { Flex } from "@appsmith/ads";
 
@@ -19,7 +18,7 @@ const Container = styled(Flex)`
 // the button should be selected and only handle calling the onClick
 export interface IDESidebarButton
   extends Omit<SidebarButtonProps, "onClick" | "selected"> {
-  state: EditorState;
+  state: string;
   urlSuffix: string;
 }
 
@@ -27,7 +26,7 @@ interface IDESidebarProps {
   id?: string;
   topButtons: IDESidebarButton[];
   bottomButtons: IDESidebarButton[];
-  editorState: EditorState;
+  editorState: string;
   onClick: (suffix: string) => void;
 }
 

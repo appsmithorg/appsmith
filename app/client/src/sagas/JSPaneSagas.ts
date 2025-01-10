@@ -62,7 +62,7 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,

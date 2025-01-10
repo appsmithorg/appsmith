@@ -19,7 +19,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import type { ComponentType, ReactNode } from "react";
 import type { IDESidebarButton } from "IDE";
 

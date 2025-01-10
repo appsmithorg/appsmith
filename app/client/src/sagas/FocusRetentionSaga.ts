@@ -17,7 +17,7 @@ import {
 import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
 import { IDE_TYPE } from "ee/entities/IDE/constants";

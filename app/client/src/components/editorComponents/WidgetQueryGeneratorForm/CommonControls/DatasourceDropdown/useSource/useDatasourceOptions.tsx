@@ -12,7 +12,7 @@ import {
   DatasourceConnectionMode,
   type MockDatasource,
 } from "entities/Datasource";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import {
   addAndFetchMockDatasourceStructure,
   fetchDatasourceStructure,
