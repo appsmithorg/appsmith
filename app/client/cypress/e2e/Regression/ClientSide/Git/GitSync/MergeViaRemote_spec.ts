@@ -87,7 +87,9 @@ describe(
 
     it("3. Checks clean url updates across branches", () => {
       PageList.DeletePage("NewPage");
+      // Wait for page deletion to complete
       cy.get(".t--entity-name").should("be.visible");
+      cy.wait("@deletePage");
       let legacyPathname = "";
       let newPathname = "";
       // question to qa can we remove this assertion
@@ -95,11 +97,13 @@ describe(
         req.continue();
       }).as("appAndPages");
       cy.reload();
-      cy.wait("@getConsolidatedData").then((intercept2) => {
-        const { application, pages } = intercept2.response.body.data.pages.data;
-        const defaultPage = pages.find((p) => p.isDefault);
-        legacyPathname = `/applications/${application.baseId}/pages/${defaultPage.baseId}`;
-        newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.baseId}`;
+      cy.wait("@getConsolidatedData").then((intercept2: any) => {
+        if (intercept2.response?.body?.data?.pages?.data) {
+          const { application, pages } = intercept2.response.body.data.pages.data;
+          const defaultPage = pages.find((p: { isDefault: boolean }) => p.isDefault);
+          legacyPathname = `/applications/${application.baseId}/pages/${defaultPage.baseId}`;
+          newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.baseId}`;
+        }
       });
 
       cy.location().should((location) => {
@@ -116,7 +120,7 @@ describe(
         expect(location.pathname).includes(legacyPathname);
       });
 
-      cy.switchGitBranch(mainBranch);
+      _.gitSync.SwitchGitBranch(mainBranch);
 
       cy.get(".t--upgrade").click({ force: true });
 

@@ -40,7 +40,7 @@ describe(
         cy.get(gitSync.locators.branchCloseBtn).click({ force: true });
         // switch to master and delete new branch created
         cy.switchGitBranch("master");
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchButton).should("be.visible");
 
         DeleteBranchFromUI(1);
         cy.wait("@deleteBranch").should(
@@ -63,8 +63,7 @@ describe(
       cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
-      cy.get(".t--draggable-checkboxwidget").should("exist");
-      cy.wait(2000);
+      cy.get(".t--draggable-checkboxwidget").should("exist").should("be.visible");
       cy.commitAndPush();
       cy.merge("master");
       gitSync.CloseOpsModal();
@@ -87,12 +86,11 @@ describe(
       cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
-      cy.get(".t--widget-chartwidget").should("exist");
-      cy.wait(2000);
+      cy.get(".t--widget-chartwidget").should("exist").should("be.visible");
       cy.commitAndPush();
-      cy.wait(1000);
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       cy.switchGitBranch("master");
-      cy.wait(3000);
+      cy.get(gitSync.locators.branchButton).should("be.visible");
 
       DeleteBranchFromUI(1);
 
@@ -106,7 +104,6 @@ describe(
     });
 
     it("4. Verify Default branch deletion not allowed ", () => {
-      agHelper.Sleep(2000); //for toasts to appear then wait for disappear
       agHelper.WaitUntilAllToastsDisappear();
       DeleteBranchFromUI(0);
       cy.get(gitSync.locators.branchCloseBtn).click({ force: true });

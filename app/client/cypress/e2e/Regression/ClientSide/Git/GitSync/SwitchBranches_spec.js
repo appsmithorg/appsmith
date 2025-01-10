@@ -219,9 +219,11 @@ describe(
       cy.get(gitSync.locators.branchCloseBtn).click();
       cy.switchGitBranch(`origin/${tempBranchRenamed}`);
       cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);
-      cy.wait(4000); // wait for switch branch
+      // Wait for branch switch to complete
+      cy.wait("@updateApplication");
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       // assert error toast
-      cy.contains(`origin/${tempBranchRenamed} already exists`);
+      cy.contains(`origin/${tempBranchRenamed} already exists`).should("be.visible");
       cy.get(gitSync.locators.branchCloseBtn).click();
     });
 

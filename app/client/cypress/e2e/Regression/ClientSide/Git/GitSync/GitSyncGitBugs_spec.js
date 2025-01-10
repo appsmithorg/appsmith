@@ -71,7 +71,7 @@ describe(
           cy.get(homePageLocators.publishButton).click();
           cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
           cy.get(gitSync.locators.opsCommitBtn).click();
-          cy.wait(8000);
+          cy.wait("@commit").should("have.nested.property", "response.body.responseMeta.status", 201);
           gitSync.CloseOpsModal();
           cy.merge(mainBranch);
           gitSync.CloseOpsModal();
@@ -132,10 +132,10 @@ describe(
           agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
           cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
           cy.get(gitSync.locators.opsCommitBtn).click();
-          cy.wait(8000);
+          cy.wait("@commit").should("have.nested.property", "response.body.responseMeta.status", 201);
           gitSync.CloseOpsModal();
           cy.latestDeployPreview();
-          cy.wait(2000);
+          cy.get(".t--canvas-artboard").should("be.visible");
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
@@ -153,11 +153,8 @@ describe(
 
     it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
       // create a new branch, clone page and validate jsObject data binding
-      //cy.createGitBranch(tempBranch);
-      cy.wait(3000);
-
       gitSync.CreateGitBranch(tempBranch, true);
-      cy.wait(2000);
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       // verify jsObject is not duplicated
@@ -272,7 +269,7 @@ describe(
         // verify app is visible and open
         homePage.NavigateToHome();
         cy.reload();
-        cy.wait(3000);
+        cy.get(homePage.searchInput).should("be.visible");
         cy.SearchApp(`${newWorkspaceName}app`);
       });
     });
