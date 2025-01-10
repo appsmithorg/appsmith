@@ -4,12 +4,12 @@ import { useIDEFeatureFlags } from "./services/ideFeatureFlags";
 import { useGridLayoutTemplate } from "./Layout/hooks/useGridLayoutTemplate";
 import type { BaseLayoutProps } from "./Layout/Layout.types";
 
-// Lazy load layout components to break circular dependencies
+// Lazy load layout components directly to break circular dependencies
 const AnimatedLayout = React.lazy(() => 
-  import("./Layout").then(({ AnimatedLayout }) => ({ default: AnimatedLayout }))
+  import("./Layout/AnimatedLayout").then(({ AnimatedLayout }) => ({ default: AnimatedLayout }))
 );
 const StaticLayout = React.lazy(() => 
-  import("./Layout").then(({ StaticLayout }) => ({ default: StaticLayout }))
+  import("./Layout/StaticLayout").then(({ StaticLayout }) => ({ default: StaticLayout }))
 );
 
 /**
