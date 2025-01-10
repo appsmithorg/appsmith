@@ -3,6 +3,9 @@ package com.appsmith.external.models;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +24,8 @@ public abstract class RefAwareDomain extends GitSyncedDomain {
     String branchName;
 
     @JsonView(Views.Internal.class)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ref_type")
     RefType refType;
 
     @JsonView(Views.Internal.class)
