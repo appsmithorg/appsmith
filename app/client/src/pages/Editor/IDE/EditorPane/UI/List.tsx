@@ -87,6 +87,7 @@ const ListWidgets = (props: {
           data-testid="t--ide-list"
           flex="1"
           flexDirection={"column"}
+          overflowX="hidden"
           overflowY="auto"
           px="spaces-3"
         >

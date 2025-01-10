@@ -28,10 +28,6 @@ export const CollapseWrapper = styled.div`
   width: 16px;
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
-
-  :hover {
-    background-color: var(--ads-v2-colors-content-surface-hover-bg);
-  }
 `;
 
 export const EntityItemWrapper = styled(Flex)<{ "data-depth": number }>`

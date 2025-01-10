@@ -39,7 +39,7 @@ export function EntityListTree(props: EntityListTreeProps) {
             data-selected={item.isSelected}
             flexDirection="row"
           >
-            {item.children ? (
+            {item.children && item.children.length ? (
               <CollapseWrapper
                 data-itemid={item.id}
                 data-testid="entity-item-expand-icon"
