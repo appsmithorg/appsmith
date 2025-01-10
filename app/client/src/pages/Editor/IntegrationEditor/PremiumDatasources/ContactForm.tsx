@@ -168,6 +168,7 @@ export default connect((state: AppState) => {
       formSyncErrors?: FormErrors<string, string>;
       closeModal: () => void;
       integrationName: string;
+      onSubmit?: () => void;
     }
   >({
     validate,
