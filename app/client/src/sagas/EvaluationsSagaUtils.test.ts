@@ -8,14 +8,12 @@ import {
 } from "actions/jsActionActions";
 import { updateJSCollectionBodySuccess } from "actions/jsPaneActions";
 import type { JSCollection } from "entities/JSCollection";
-import type {
-  BufferedReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type { BufferedReduxAction } from "actions/EvaluationReduxActionTypes";
 
 describe("getAffectedJSObjectIdsFromAction", () => {
   const jsObject1 = { id: "1234" } as JSCollection;

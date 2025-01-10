@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type LOG_TYPE from "./logtype";
 import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { PluginType } from "entities/Action";

@@ -6,10 +6,8 @@ import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import {
-  ReduxActionErrorTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
