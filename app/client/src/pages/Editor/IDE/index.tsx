@@ -1,27 +1,22 @@
-import React, { lazy, Suspense } from "react";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import React, { Suspense } from "react";
 import { loadingIndicator } from "ce/AppRouter";
-
-const AnimatedLayout = lazy(() => import("./Layout/AnimatedLayout").then(m => ({ default: m.AnimatedLayout })));
-const StaticLayout = lazy(() => import("./Layout/StaticLayout").then(m => ({ default: m.StaticLayout })));
-import type { BaseLayoutProps } from "./Layout/Layout.types";
+import { useIDEFeatureFlags } from "./services/ideFeatureFlags";
 import { useGridLayoutTemplate } from "./Layout/hooks/useGridLayoutTemplate";
+import type { BaseLayoutProps } from "./Layout/Layout.types";
 
-const checkAnimatedIDEFlagValue = (state: AppState) => {
-  return selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.release_ide_animations_enabled,
-  );
-};
+// Lazy load layout components to break circular dependencies
+const AnimatedLayout = React.lazy(() => 
+  import("./Layout").then(({ AnimatedLayout }) => ({ default: AnimatedLayout }))
+);
+const StaticLayout = React.lazy(() => 
+  import("./Layout").then(({ StaticLayout }) => ({ default: StaticLayout }))
+);
 
 /**
  * OldName: MainContainer
  */
 function IDE() {
-  const isAnimatedIDEEnabled = useSelector(checkAnimatedIDEFlagValue);
+  const { isAnimatedIDEEnabled } = useIDEFeatureFlags();
   const layoutProps = useGridLayoutTemplate();
 
   const LayoutComponent = isAnimatedIDEEnabled ? AnimatedLayout : StaticLayout;
