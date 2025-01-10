@@ -210,6 +210,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     "11. Verify all admin setting sections are accessible",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
+      cy.LogOut();
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.visit("/applications", { timeout: 60000 });
       agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
       cy.wait("@getEnvVariables");
