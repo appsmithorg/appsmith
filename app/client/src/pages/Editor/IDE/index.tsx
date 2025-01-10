@@ -1,9 +1,12 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { AnimatedLayout, StaticLayout } from "./Layout";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { loadingIndicator } from "ce/AppRouter";
+
+const AnimatedLayout = lazy(() => import("./Layout/AnimatedLayout").then(m => ({ default: m.AnimatedLayout })));
+const StaticLayout = lazy(() => import("./Layout/StaticLayout").then(m => ({ default: m.StaticLayout })));
 import type { BaseLayoutProps } from "./Layout/Layout.types";
 import { useGridLayoutTemplate } from "./Layout/hooks/useGridLayoutTemplate";
 
@@ -23,7 +26,11 @@ function IDE() {
 
   const LayoutComponent = isAnimatedIDEEnabled ? AnimatedLayout : StaticLayout;
 
-  return <LayoutComponent {...layoutProps} />;
+  return (
+    <Suspense fallback={loadingIndicator}>
+      <LayoutComponent {...layoutProps} />
+    </Suspense>
+  );
 }
 
 IDE.displayName = "AppIDE";
