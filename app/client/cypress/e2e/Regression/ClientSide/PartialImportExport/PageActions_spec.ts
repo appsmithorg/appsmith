@@ -66,7 +66,6 @@ describe("Check Page Actions Menu", {}, function () {
       partialImportExport.locators.export.modelContents.widgetsSection,
       ["Text1"],
     );
-    cy.wait(5000);
 
     //Import the exported App
     partialImportExport.OpenImportModal("NewPage");
@@ -127,7 +126,6 @@ describe("Check Page Actions Menu", {}, function () {
       partialImportExport.locators.export.modelContents.widgetsSection,
       ["Text1"],
     );
-    cy.wait(5000);
 
     //Import the exported App
     partialImportExport.OpenImportModal("HomePage");
