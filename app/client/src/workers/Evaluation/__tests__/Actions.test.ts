@@ -129,9 +129,9 @@ describe("Add functions", () => {
     const target = "NEW_WINDOW";
     const appName = "TestApp";
 
-    expect(evalContext.navigateTo(pageNameOrUrl, params, target, appName)).resolves.toBe(
-      {},
-    );
+    expect(
+      evalContext.navigateTo(pageNameOrUrl, params, target, appName),
+    ).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
