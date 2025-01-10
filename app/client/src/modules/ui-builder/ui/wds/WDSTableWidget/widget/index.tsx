@@ -66,6 +66,7 @@ import {
   PlainTextCell,
   URLCell,
   ButtonCell,
+  ButtonGroupCell,
 } from "../component/cellComponents";
 
 import localStorage from "utils/localStorage";
@@ -1622,6 +1623,20 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+          />
+        );
+      case "buttonGroup":
+        return (
+          <ButtonGroupCell
+            groupButtons={cellProperties.groupButtons}
+            orientation="horizontal"
+            isDisabled={cellProperties.isDisabled}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            verticalAlignment={cellProperties.verticalAlignment}
+            cellBackground={cellProperties.cellBackground}
+            fontStyle={cellProperties.fontStyle}
           />
         );
       default:
