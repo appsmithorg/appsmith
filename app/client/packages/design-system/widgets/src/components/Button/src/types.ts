@@ -41,4 +41,8 @@ export interface ButtonProps extends HeadlessButtonProps {
    * @default medium
    */
   size?: Omit<keyof typeof SIZES, "large">;
+  /** Indicates if the button should be disabled when the form is invalid */
+  disableOnInvalidForm?: boolean;
+  /** Indicates if the button should reset the form when clicked */
+  resetFormOnClick?: boolean;
 }
