@@ -2,6 +2,14 @@
 {
   "$schema": "http://json.schemastore.org/eslintrc",
   "root": true,
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/strict",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
   "parser": "@typescript-eslint/parser",
   "ignorePatterns": [
     "jest.config.js",
@@ -10,9 +18,9 @@
     ".eslintrc.js"
   ],
   "plugins": [
-    "react",
-    "eslint-plugin-react-compiler",
     "@typescript-eslint",
+    "react",
+    "react-hooks",
     "prettier",
     "sort-destructure-keys",
     "cypress",
@@ -21,27 +29,53 @@
     "@appsmith",
     "react-perf"
   ],
-  "extends": [
-    "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
-    "plugin:@typescript-eslint/recommended",
-    "plugin:cypress/recommended",
-    "plugin:testing-library/react",
-    "plugin:react-hooks/recommended",
-    "plugin:@appsmith/recommended",
-    "plugin:react-perf/recommended",
-    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
-    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended"
-  ],
   "parserOptions": {
-    "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
-    "sourceType": "module", // Allows for the use of imports
+    "ecmaVersion": 2024,
+    "sourceType": "module",
+    "project": "./tsconfig.json",
     "ecmaFeatures": {
-      "jsx": true // Allows for the parsing of JSX
-    },
-    "project": "./tsconfig.json"
+      "jsx": true
+    }
   },
   "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-use-before-define": ["error", { "functions": false }],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "@typescript-eslint/no-import-type-side-effects": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": [".*"],
+            "message": "Please use absolute imports instead"
+          },
+          {
+            "group": ["@blueprintjs/core/lib/esnext/*"],
+            "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
+          },
+          {
+            "group": ["*.svg"],
+            "importNames": ["ReactComponent"],
+            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+          },
+          {
+            "group": ["remixicon-react/*"],
+            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+          }
+        ]
+      }
+    ],
     "react-compiler/react-compiler": "warn",
     "padding-line-between-statements": [
       "error",
@@ -72,16 +106,11 @@
         "testIdAttribute": ["data-testid"]
       }
     ],
-    "@typescript-eslint/consistent-type-definitions": "error",
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/promise-function-async": "error",
     "@typescript-eslint/strict-boolean-expressions": "error",
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-unused-vars": "error",
     "jest/no-focused-tests": "error",
     "jest/no-disabled-tests": "error",
-    // enforce `import type` for all type-only imports so the bundler knows to erase them
-    "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
@@ -102,26 +131,6 @@
         // we are disabling this rule here for native component since it won't make much difference in performance
         // we want to target react components more since there is possibility they can be pure components and new istance props should be avoided for them
         "nativeAllowList": "all"
-      }
-    ],
-    "@typescript-eslint/no-restricted-imports": [
-      "error",
-      {
-        "patterns": [
-          {
-            "group": ["@blueprintjs/core/lib/esnext/*"],
-            "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
-          },
-          {
-            "group": ["*.svg"],
-            "importNames": ["ReactComponent"],
-            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
-          },
-          {
-            "group": ["remixicon-react/*"],
-            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
-          }
-        ]
       }
     ]
   },

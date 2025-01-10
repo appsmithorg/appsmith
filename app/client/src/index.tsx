@@ -8,16 +8,16 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
-import "@appsmith/ads-old/src/themes/default/index.css";
-import "@appsmith/ads/src/__theme__/default/index.css";
+import "@appsmith/ads-old/themes/default/index.css";
+import "@appsmith/ads/__theme__/default/index.css";
 import { ThemeProvider } from "styled-components";
 import { appInitializer } from "./utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "./constants/Layers";
-import AppRouter from "./ee/AppRouter";
+import AppRouter from "ee/AppRouter";
 import { getCurrentThemeDetails } from "./selectors/themeSelectors";
 import { connect } from "react-redux";
-import type { AppState } from "./ee/reducers";
+// import type { AppState } from "ee/reducers";
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
@@ -36,7 +36,7 @@ runSagaMiddleware();
 
 appInitializer();
 
-isTracingEnabled() &&
+if (isTracingEnabled()) {
   (async () => {
     try {
       await import(
@@ -46,6 +46,7 @@ isTracingEnabled() &&
       log.error("Error loading telemetry script", e);
     }
   })();
+}
 
 function App() {
   return (
@@ -76,7 +77,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 

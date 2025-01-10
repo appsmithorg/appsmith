@@ -1,4 +1,4 @@
-@import "../../../shared/colors/colors.module.css";
+@import "@appsmith/wds/shared/colors/colors.module.css";
 
 .text {
   /* using auto instead of 100% so that text does not push everything to the edge when the parent is flex layout ( this happens in case of switch ) */

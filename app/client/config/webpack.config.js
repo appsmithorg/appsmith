@@ -29,6 +29,8 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 // ESLint integration
 const ESLintPlugin = require('eslint-webpack-plugin');
+// TypeScript type checking in a separate process
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // Project paths configuration
 const paths = require('./paths');
 // Module resolution configuration
@@ -37,8 +39,6 @@ const modules = require('./modules');
 const getClientEnvironment = require('./env');
 // Handles module not found errors
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-// TypeScript type checking in a separate process
-const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 // React Fast Refresh support
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 // Compresses assets
@@ -71,6 +71,7 @@ module.exports = function (webpackEnv) {
   // Determine if we're in development or production mode
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
+  const isEnvProductionProfile = isEnvProduction && process.env.PROFILE === 'true';
 
   // Function to configure style loaders (CSS, SASS, etc.)
   const getStyleLoaders = (cssOptions, preProcessor) => {
@@ -248,48 +249,137 @@ module.exports = function (webpackEnv) {
     // Module resolution configuration
     resolve: {
       // Configure how modules are resolved
-      modules: ['node_modules', paths.appNodeModules].concat(
+      modules: [
+        'node_modules',
+        paths.appNodeModules,
+        paths.appSrc,
+        path.resolve(paths.appPath, 'packages'),
+      ].concat(
         modules.additionalModulePaths || []
       ),
-      extensions: paths.moduleFileExtensions
-        .map(ext => `.${ext}`)
-        .filter(ext => useTypeScript || !ext.includes('ts')),
+      mainFields: ['browser', 'module', 'main'],
+      extensions: [
+        '.web.mjs',
+        '.mjs',
+        '.web.js',
+        '.js',
+        '.web.ts',
+        '.ts',
+        '.web.tsx',
+        '.tsx',
+        '.json',
+        '.web.jsx',
+        '.jsx',
+        '.css',
+        '.module.css'
+      ],
       alias: {
-        // Support React Native Web
-        'react-native': 'react-native-web',
+        '@': paths.appSrc,
+        'ee': path.resolve(paths.appSrc, 'ee'),
+        'ce': path.resolve(paths.appSrc, 'ce'),
+        'actions': path.resolve(paths.appSrc, 'actions'),
+        'api': path.resolve(paths.appSrc, 'api'),
+        'assets': path.resolve(paths.appSrc, 'assets'),
+        'components': path.resolve(paths.appSrc, 'components'),
+        'constants': path.resolve(paths.appSrc, 'constants'),
+        'entities': path.resolve(paths.appSrc, 'entities'),
+        'reducers': path.resolve(paths.appSrc, 'reducers'),
+        'utils': path.resolve(paths.appSrc, 'utils'),
+        'workers': path.resolve(paths.appSrc, 'workers'),
+        '@appsmith/wds': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
+        '@appsmith/wds/src': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
+        '@appsmith/wds/shared': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared'),
+        '@appsmith/wds/src/shared': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared'),
+        '@appsmith/wds/shared/colors': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared/colors'),
+        '@appsmith/ads': path.resolve(paths.appPath, 'packages/design-system/ads/src'),
+        '@appsmith/ads/__theme__': path.resolve(paths.appPath, 'packages/design-system/ads/src/__theme__'),
+        '@appsmith/ads-old': path.resolve(paths.appPath, 'packages/design-system/ads-old/src'),
+        '@appsmith/ads-old/themes': path.resolve(paths.appPath, 'packages/design-system/ads-old/src/themes'),
+        '@appsmith/utils': path.resolve(paths.appPath, 'packages/utils/src'),
+        'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+        'acorn': path.resolve(paths.appNodeModules, 'acorn'),
+        'acorn/dist/acorn': path.resolve(paths.appNodeModules, 'acorn/dist/acorn.js'),
+        'acorn/dist/walk': path.resolve(paths.appNodeModules, 'acorn-walk/dist/walk.js'),
+        'acorn-walk': path.resolve(paths.appNodeModules, 'acorn-walk'),
+        ...(isEnvProductionProfile && {
+          'react-dom$': 'react-dom/profiling',
+          'scheduler/tracing': 'scheduler/tracing-profiling',
+        }),
         ...(modules.webpackAliases || {}),
       },
       plugins: [
-        // Prevents importing files outside of src/
-        new ModuleScopePlugin(paths.appSrc, [
+        // Allow imports from both src/ and workspace packages
+        new ModuleScopePlugin([
+          paths.appSrc,
+          paths.appNodeModules,
+          path.resolve(paths.appPath, 'packages'),
+        ], [
           paths.appPackageJson,
-          paths.appTsConfig,
+          ...fs.readdirSync(path.resolve(paths.appPath, 'packages'))
+            .filter(pkg => !pkg.startsWith('.'))  // Ignore hidden files/folders
+            .map(pkg => path.resolve(paths.appPath, 'packages', pkg, 'package.json'))
+            .filter(pkgPath => fs.existsSync(pkgPath))
         ]),
       ],
+      symlinks: true, // Enable symlink resolution for workspaces
       fallback: {
-        path: false,
-        fs: false,
+        "zlib": false,
+        "stream": false,
+        "crypto": false,
+        "http": false,
+        "https": false,
+        "os": false,
+        "url": false,
+        "assert": false,
+        "buffer": false,
+        "fs": false,
+        "tls": false,
+        "net": false,
+        "path": false,
+        "util": false,
+        "querystring": false,
+        "module": false,
+        "process": false
       },
+      exportsFields: ['exports'],
+      importsFields: ['imports'],
+      conditionNames: ['import', 'require', 'node', 'default'],
+      fullySpecified: false,
     },
 
     // Module rules configuration
     module: {
       strictExportPresence: true,
       rules: [
-        // Handle TypeScript and JavaScript
+        // Handle node_modules packages that contain sourcemaps
+        shouldUseSourceMap && {
+          enforce: 'pre',
+          exclude: /@babel(?:\/|\\{1,2})runtime/,
+          test: /\.(js|mjs|jsx|ts|tsx|css)$/,
+          use: 'source-map-loader',
+        },
         {
-          test: /\.(js|mjs|jsx|ts|tsx)$/,
-          include: [
-            paths.appSrc,
-            /node_modules\/workbox-*/,
-            /node_modules\/@grafana\/faro-react/,
-            /node_modules\/@grafana/,
-          ],
-          exclude: [
-            /node_modules[/\\](?!(@grafana|workbox-))/,
-          ],
-          use: [
+          // "oneOf" will traverse all following loaders until one will
+          // match the requirements. When no loader matches it will fall
+          // back to the "file" loader at the end of the loader list.
+          oneOf: [
+            // TODO: Merge this config once `image/avif` is in the mime-db
+            // https://github.com/jshttp/mime-db
             {
+              test: [/\.avif$/],
+              type: 'asset',
+              mimetype: 'image/avif',
+              parser: {
+                dataUrlCondition: {
+                  maxSize: imageInlineSizeLimit,
+                },
+              },
+            },
+            // Process application JS with Babel.
+            // The preset includes JSX, Flow, TypeScript, and some ESnext features.
+            {
+              test: /\.(js|mjs|jsx|ts|tsx)$/,
+              include: paths.appSrc,
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
@@ -305,104 +395,116 @@ module.exports = function (webpackEnv) {
                 ],
                 plugins: [
                   isEnvDevelopment &&
-                    shouldUseReactRefresh &&
-                    require.resolve('react-refresh/babel'),
+                  shouldUseReactRefresh &&
+                  require.resolve('react-refresh/babel'),
                 ].filter(Boolean),
+                // This is a feature of `babel-loader` for webpack (not Babel itself).
+                // It enables caching results in ./node_modules/.cache/babel-loader/
+                // directory for faster rebuilds.
                 cacheDirectory: true,
+                // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,
               },
             },
-          ],
-        },
-        // Handle CSS
-        {
-          test: /\.css$/,
-          exclude: /\.module\.css$/,
-          use: getStyleLoaders({
-            importLoaders: 1,
-            sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-            modules: {
-              mode: 'icss',
-            },
-          }),
-          sideEffects: true,
-        },
-        // Handle CSS Modules
-        {
-          test: /\.module\.css$/,
-          use: getStyleLoaders({
-            importLoaders: 1,
-            sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-            modules: {
-              mode: 'local',
-              getLocalIdent: getCSSModuleLocalIdent,
-            },
-          }),
-        },
-        // Handle images
-        {
-          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-          type: 'asset',
-          parser: {
-            dataUrlCondition: {
-              maxSize: imageInlineSizeLimit,
-            },
-          },
-        },
-        // Handle SVG
-        {
-          test: /\.svg$/,
-          use: [
+            // Handle CSS
             {
-              loader: require.resolve('@svgr/webpack'),
-              options: {
-                prettier: false,
-                svgo: false,
-                svgoConfig: {
-                  plugins: [{ removeViewBox: false }],
+              test: /\.css$/,
+              exclude: /\.module\.css$/,
+              include: [
+                paths.appSrc,
+                path.resolve(paths.appPath, 'packages'),
+              ],
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                modules: {
+                  mode: 'icss',
                 },
-                titleProp: true,
-                ref: true,
-              },
+              }),
+              sideEffects: true,
             },
+            // Handle CSS Modules
             {
-              loader: require.resolve('file-loader'),
-              options: {
-                name: 'static/media/[name].[hash].[ext]',
-              },
+              test: /\.module\.css$/,
+              include: [
+                paths.appSrc,
+                path.resolve(paths.appPath, 'packages'),
+              ],
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                modules: {
+                  mode: 'local',
+                  getLocalIdent: getCSSModuleLocalIdent,
+                },
+              }),
             },
-          ],
-          issuer: {
-            and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
-          },
-        },
-        // Handle Web Workers
-        {
-          test: /\.worker\.(js|ts)$/,
-          use: [
+            // Handle images
             {
-              loader: require.resolve('worker-loader'),
-              options: {
-                filename: 'static/js/[name].[contenthash:8].worker.js',
+              test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+              type: 'asset',
+              parser: {
+                dataUrlCondition: {
+                  maxSize: imageInlineSizeLimit,
+                },
               },
             },
+            // Handle SVG
             {
-              loader: require.resolve('babel-loader'),
-              options: {
-                presets: [
-                  [require.resolve('@babel/preset-env')],
-                  useTypeScript && [require.resolve('@babel/preset-typescript')],
-                ].filter(Boolean),
-                plugins: [
-                  [require.resolve('@babel/plugin-transform-runtime')],
-                ],
-                cacheDirectory: true,
-                cacheCompression: false,
-                compact: isEnvProduction,
+              test: /\.svg$/,
+              use: [
+                {
+                  loader: require.resolve('@svgr/webpack'),
+                  options: {
+                    prettier: false,
+                    svgo: false,
+                    svgoConfig: {
+                      plugins: [{ removeViewBox: false }],
+                    },
+                    titleProp: true,
+                    ref: true,
+                  },
+                },
+                {
+                  loader: require.resolve('file-loader'),
+                  options: {
+                    name: 'static/media/[name].[hash].[ext]',
+                  },
+                },
+              ],
+              issuer: {
+                and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
               },
             },
-          ],
+            // Handle Web Workers
+            {
+              test: /\.worker\.(js|ts)$/,
+              use: [
+                {
+                  loader: require.resolve('worker-loader'),
+                  options: {
+                    filename: 'static/js/[name].[contenthash:8].worker.js',
+                  },
+                },
+                {
+                  loader: require.resolve('babel-loader'),
+                  options: {
+                    presets: [
+                      [require.resolve('@babel/preset-env')],
+                      useTypeScript && [require.resolve('@babel/preset-typescript')],
+                    ].filter(Boolean),
+                    plugins: [
+                      [require.resolve('@babel/plugin-transform-runtime')],
+                    ],
+                    cacheDirectory: true,
+                    cacheCompression: false,
+                    compact: isEnvProduction,
+                  },
+                },
+              ],
+            },
+          ].filter(Boolean),
         },
       ].filter(Boolean),
     },
@@ -459,6 +561,47 @@ module.exports = function (webpackEnv) {
             files: manifestFiles,
             entrypoints: entrypointFiles,
           };
+        },
+      }),
+      // TypeScript type checking
+      new ForkTsCheckerWebpackPlugin({
+        async: isEnvDevelopment,
+        typescript: {
+          typescriptPath: resolve.sync('typescript', {
+            basedir: paths.appNodeModules,
+          }),
+          configOverwrite: {
+            compilerOptions: {
+              module: 'esnext',
+              moduleResolution: 'bundler',
+              isolatedModules: true,
+              jsx: 'react',
+              allowImportingTsExtensions: true,
+            },
+          },
+          context: paths.appPath,
+          diagnosticOptions: {
+            syntactic: true,
+            semantic: true,
+            declaration: true,
+            global: true,
+          },
+          mode: 'write-references',
+        },
+        issue: {
+          include: [
+            { file: '../**/src/**/*.{ts,tsx}' },
+            { file: '**/src/**/*.{ts,tsx}' },
+          ],
+          exclude: [
+            { file: '**/src/**/__tests__/**' },
+            { file: '**/src/**/?(*.){spec|test}.*' },
+            { file: '**/src/setupProxy.*' },
+            { file: '**/src/setupTests.*' },
+          ],
+        },
+        logger: {
+          infrastructure: 'silent',
         },
       }),
       // Service Worker configuration

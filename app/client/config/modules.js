@@ -5,6 +5,7 @@ const path = require('path');
 const paths = require('./paths');
 const chalk = require('react-dev-utils/chalk');
 const resolve = require('resolve');
+const ts = require('typescript');
 
 /**
  * Get additional module paths based on the baseUrl of a compilerOptions object.
@@ -14,26 +15,34 @@ const resolve = require('resolve');
 function getAdditionalModulePaths(options = {}) {
   const baseUrl = options.baseUrl;
 
-  if (!baseUrl) {
-    const nodePath = process.env.NODE_PATH || '';
-    return nodePath.split(path.delimiter).filter(Boolean);
+  // We need to explicitly check for null and undefined (and not a falsy value) because
+  // TypeScript can be explicitly configured to use [''] as the baseUrl.
+  if (baseUrl == null) {
+    const config = ts.readConfigFile(paths.appTsConfig, ts.sys.readFile).config;
+    const { baseUrl: tsConfigBaseUrl } = config.compilerOptions || {};
+    if (tsConfigBaseUrl) {
+      return [path.resolve(paths.appPath, tsConfigBaseUrl)];
+    }
   }
 
   const baseUrlResolved = path.resolve(paths.appPath, baseUrl);
 
-  // We don't need to do anything if `baseUrl` is set to `node_modules`. This is
-  // the default behavior.
+  // We don't need to do any glob matching since TypeScript's path mappings are based on baseUrl
   if (path.relative(paths.appNodeModules, baseUrlResolved) === '') {
     return null;
   }
 
-  // Allow the user set the `baseUrl` to `appSrc`.
   if (path.relative(paths.appSrc, baseUrlResolved) === '') {
-    return [paths.appSrc];
+    return null;
   }
 
-  // Support any baseUrl by adding it to the module paths
-  return [baseUrlResolved];
+  // Otherwise, throw an error.
+  throw new Error(
+    chalk.red.bold(
+      "Your project's `baseUrl` can only be set to `src` or `node_modules`." +
+        ' Create React App does not support other values at this time.'
+    )
+  );
 }
 
 /**
@@ -45,36 +54,32 @@ function getWebpackAliases(options = {}) {
   const baseUrl = options.baseUrl;
 
   if (!baseUrl) {
+    const config = ts.readConfigFile(paths.appTsConfig, ts.sys.readFile).config;
+    const { baseUrl: tsConfigBaseUrl, paths: tsConfigPaths } = config.compilerOptions || {};
+    
+    if (tsConfigBaseUrl && tsConfigPaths) {
+      const webpackAliases = {};
+      Object.keys(tsConfigPaths).forEach(key => {
+        const path = tsConfigPaths[key][0];
+        if (path) {
+          webpackAliases[key.replace('/*', '')] = path.replace('/*', '');
+        }
+      });
+      return webpackAliases;
+    }
     return {};
   }
 
   const baseUrlResolved = path.resolve(paths.appPath, baseUrl);
 
-  // Support any baseUrl by creating an alias for it
-  return {
-    [baseUrl]: baseUrlResolved,
-  };
-}
-
-function getModules() {
-  const hasTsConfig = fs.existsSync(paths.appTsConfig);
-  let config;
-
-  if (hasTsConfig) {
-    const ts = require('typescript');
-    config = ts.readConfigFile(paths.appTsConfig, ts.sys.readFile).config;
+  if (path.relative(paths.appPath, baseUrlResolved) === '') {
+    return {
+      src: paths.appSrc,
+    };
   }
-
-  config = config || {};
-  const options = config.compilerOptions || {};
-
-  const additionalModulePaths = getAdditionalModulePaths(options);
-
-  return {
-    additionalModulePaths,
-    webpackAliases: getWebpackAliases(options),
-    hasTsConfig,
-  };
 }
 
-module.exports = getModules();
+module.exports = {
+  getAdditionalModulePaths,
+  getWebpackAliases,
+};

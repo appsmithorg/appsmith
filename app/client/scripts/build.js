@@ -1,5 +1,8 @@
 'use strict';
 
+// Set memory limit to 10GB
+process.env.NODE_OPTIONS = '--max-old-space-size=16000';
+
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
@@ -61,7 +64,7 @@ async function main() {
 
     // Start the webpack build
     const results = await build(previousFileSizes);
-    
+
     // Print the file sizes after build
     console.log();
     console.log(chalk.cyan('File sizes after gzip:'));
@@ -101,7 +104,7 @@ async function build(previousFileSizes) {
   console.log();
 
   const config = configFactory('production');
-  
+
   // Log webpack configuration details
   console.log(chalk.cyan('Webpack configuration overview:'));
   console.log(chalk.cyan('- Entry point:'), chalk.yellow(config.entry));
@@ -111,7 +114,7 @@ async function build(previousFileSizes) {
   console.log();
 
   const compiler = webpack(config);
-  
+
   console.log(chalk.cyan('Starting webpack compilation...'));
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
@@ -153,7 +156,7 @@ async function build(previousFileSizes) {
         console.log(
           chalk.yellow(
             '\nTreating warnings as errors because process.env.CI = true.\n' +
-              'Most CI servers set it automatically.\n'
+            'Most CI servers set it automatically.\n'
           )
         );
         return reject(new Error(messages.warnings.join('\n\n')));
@@ -161,7 +164,7 @@ async function build(previousFileSizes) {
 
       // Log successful compilation
       console.log(chalk.green('✓ Compilation completed successfully'));
-      
+
       // Log compilation stats
       const info = stats.toJson();
       console.log();
@@ -170,7 +173,7 @@ async function build(previousFileSizes) {
       console.log(chalk.cyan('- Output files:'), chalk.yellow(info.assets.length));
       console.log(chalk.cyan('- Chunks:'), chalk.yellow(info.chunks.length));
       console.log(chalk.cyan('- Modules:'), chalk.yellow(info.modules.length));
-      
+
       return resolve({
         stats,
         previousFileSizes,

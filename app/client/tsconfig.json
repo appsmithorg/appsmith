@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2022",
     "lib": [
       "DOM",
-      "ES6",
+      "ES2022",
       "DOM.Iterable",
       "ScriptHost",
       "ES2016.Array.Include",
@@ -20,17 +20,20 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "verbatimModuleSyntax": true,
     "sourceMap": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "allowImportingTsExtensions": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
   },
   "include": [
     "./src/**/*"

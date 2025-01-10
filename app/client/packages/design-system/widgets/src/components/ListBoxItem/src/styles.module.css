@@ -1,4 +1,4 @@
-@import "../../../shared/colors/colors.module.css";
+@import "@appsmith/wds/shared/colors/colors.module.css";
 
 .listBoxItem {
   display: flex;

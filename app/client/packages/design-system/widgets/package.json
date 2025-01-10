@@ -25,6 +25,7 @@
     "@react-types/shared": "^3.23.1",
     "@tabler/icons-react": "^3.10.0",
     "clsx": "^2.0.0",
+    "dom-helpers": "^5.2.1",
     "lodash": "*",
     "react-aria-components": "^1.2.1",
     "react-markdown": "^9.0.1",
