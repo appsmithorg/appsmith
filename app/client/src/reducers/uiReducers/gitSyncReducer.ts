@@ -754,8 +754,7 @@ export interface GitStatusData {
   modifiedJSObjects: number;
   modifiedQueries: number;
   modifiedJSLibs: number;
-  modifiedPackages?: number;
-  modifiedModules?: number;
+  modifiedSourceModules?: number;
   modifiedModuleInstances?: number;
 }
 
