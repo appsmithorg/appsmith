@@ -17,6 +17,7 @@ import {
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import { ButtonVariantTypes } from "components/constants";
 
 export default {
   sectionName: "Data",
@@ -121,6 +122,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.BUTTON_GROUP;
       },
       panelConfig: {
@@ -183,6 +185,7 @@ export default {
                     `${propertyPath.split(".", 2).join(".")}.buttonType`,
                     "",
                   );
+
                   return buttonType !== "MENU";
                 },
                 dependencies: ["groupButtons"],
@@ -410,6 +413,80 @@ export default {
             ],
           },
         ],
+      },
+    },
+    {
+      propertyName: "buttonVariant",
+      label: "Button variant",
+      controlType: "ICON_TABS",
+      fullWidth: true,
+      helpText: "Sets the variant of all buttons in the group",
+      options: [
+        {
+          label: "Primary",
+          value: ButtonVariantTypes.PRIMARY,
+        },
+        {
+          label: "Secondary",
+          value: ButtonVariantTypes.SECONDARY,
+        },
+        {
+          label: "Tertiary",
+          value: ButtonVariantTypes.TERTIARY,
+        },
+      ],
+      defaultValue: ButtonVariantTypes.PRIMARY,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+
+        return columnType !== ColumnTypes.BUTTON_GROUP;
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: [
+            ButtonVariantTypes.PRIMARY,
+            ButtonVariantTypes.SECONDARY,
+            ButtonVariantTypes.TERTIARY,
+          ],
+        },
+      },
+    },
+    {
+      propertyName: "orientation",
+      label: "Orientation",
+      controlType: "ICON_TABS",
+      fullWidth: true,
+      helpText: "Sets the orientation of buttons in the group",
+      options: [
+        {
+          label: "Horizontal",
+          value: "horizontal",
+        },
+        {
+          label: "Vertical",
+          value: "vertical",
+        },
+      ],
+      defaultValue: "horizontal",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+
+        return columnType !== ColumnTypes.BUTTON_GROUP;
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["horizontal", "vertical"],
+        },
       },
     },
     {

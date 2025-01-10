@@ -154,13 +154,53 @@ export interface CellWrappingProperties {
   allowCellWrapping: boolean;
 }
 
-export interface ButtonCellProperties {
-  buttonVariant: ButtonVariant;
+export interface BaseButtonProperties {
+  buttonVariant?: ButtonVariant;
   buttonColor?: string;
+}
+
+export interface ButtonCellProperties extends BaseButtonProperties {
   buttonLabel?: string;
   isCompact?: boolean;
   iconName?: IconName;
   iconAlign?: Alignment;
+}
+
+export interface GroupButtonConfig {
+  id: string;
+  label?: string;
+  onClick?: string;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  buttonColor?: string;
+  buttonVariant?: ButtonVariant;
+  buttonType?: "SIMPLE" | "MENU";
+  menuItems?: Record<
+    string,
+    {
+      id: string;
+      label?: string;
+      onClick?: string;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      iconName?: IconName;
+      iconAlign?: Alignment;
+      backgroundColor?: string;
+      textColor?: string;
+      iconColor?: string;
+    }
+  >;
+}
+
+export interface ButtonGroupCellProperties extends BaseButtonProperties {
+  groupButtons?: Record<string, GroupButtonConfig>;
+  orientation?: "horizontal" | "vertical";
+  buttonVariant?: ButtonVariant;
+  isDisabled?: boolean;
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 export interface MenuButtonCellProperties {
@@ -226,6 +266,7 @@ export interface CellLayoutProperties
     InlineEditingCellProperties,
     CellWrappingProperties,
     ButtonCellProperties,
+    ButtonGroupCellProperties,
     URLCellProperties,
     MenuButtonCellProperties,
     SelectCellProperties,
@@ -393,6 +434,9 @@ export interface ColumnProperties
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+  // Button group properties
+  groupButtons?: Record<string, GroupButtonConfig>;
+  orientation?: "horizontal" | "vertical";
 }
 
 export const ConditionFunctions: {
@@ -557,6 +601,8 @@ export interface BaseCellComponentProps {
   textColor?: string;
   textSize?: string;
   isCellDisabled?: boolean;
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 export enum CheckboxState {
