@@ -1,4 +1,4 @@
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import type { SupportedLayouts } from "reducers/entityReducers/types";
 import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 import type { WidgetCardProps } from "widgets/BaseWidget";
