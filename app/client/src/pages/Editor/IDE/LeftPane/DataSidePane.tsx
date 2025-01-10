@@ -47,11 +47,7 @@ const StyledList = styled(List)`
   gap: 0;
 `;
 
-interface DataSidePaneProps {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dsUsageSelector?: (...args: any[]) => Record<string, string>;
-}
+import type { DataSidePaneProps } from "./LeftPane.types";
 
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;

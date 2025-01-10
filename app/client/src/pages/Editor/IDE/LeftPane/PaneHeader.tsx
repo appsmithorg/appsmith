@@ -2,11 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { Text } from "@appsmith/ads";
 
-interface Props {
-  title: string;
-  rightIcon?: React.ReactNode;
-  className?: string;
-}
+import type { PaneHeaderProps } from "./LeftPane.types";
+
+type Props = PaneHeaderProps;
 
 const Container = styled.div`
   background: var(--ads-v2-color-gray-50);

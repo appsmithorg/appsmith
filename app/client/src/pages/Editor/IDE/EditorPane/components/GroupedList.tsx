@@ -5,10 +5,8 @@ import styled from "styled-components";
 import type { GroupedListProps } from "./types";
 import { Group } from "./Group";
 
-interface Props {
-  groups: GroupedListProps[];
-  flexProps?: FlexProps;
-}
+import type { GroupedListComponentProps } from "./types";
+type Props = GroupedListComponentProps;
 
 const StyledFlex = styled(Flex)`
   & .groups-list-group:last-child {

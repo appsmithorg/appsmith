@@ -4,10 +4,8 @@ import { createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
-interface Props {
-  titleMessage: () => string;
-  onCloseClick?: () => void;
-}
+import type { SegmentAddHeaderProps } from "./types";
+type Props = SegmentAddHeaderProps;
 
 const SegmentAddHeader = (props: Props) => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
