@@ -25,7 +25,10 @@ describe(
       EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
       propPane.RenameWidget("Form1", "FormTest");
       cy.get(commonlocators.copyWidget).click();
-      cy.get(commonlocators.toastBody).first().should("be.visible").contains("Copied");
+      cy.get(commonlocators.toastBody)
+        .first()
+        .should("be.visible")
+        .contains("Copied");
     });
 
     it("2. Delete Widget from sidebar and Undo action validation", function () {

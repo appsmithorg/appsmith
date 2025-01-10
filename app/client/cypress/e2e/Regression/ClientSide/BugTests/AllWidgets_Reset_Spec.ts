@@ -332,7 +332,9 @@ function ratingwidgetAndReset() {
 }
 
 function checkboxGroupAndReset() {
-  cy.get("[data-testid=checkbox-group-container] > :nth-child(3)").should("be.visible");
+  cy.get("[data-testid=checkbox-group-container] > :nth-child(3)").should(
+    "be.visible",
+  );
   cy.get("[data-testid=checkbox-group-container] > :nth-child(3)")
     .last()
     .should("be.visible")

@@ -71,7 +71,9 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("S3_Query");
 
-    cy.get(".t--actionConfiguration\\.formData\\.bucket\\.data").should("be.visible");
+    cy.get(".t--actionConfiguration\\.formData\\.bucket\\.data").should(
+      "be.visible",
+    );
     cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
       ch: 2,
       line: 0,

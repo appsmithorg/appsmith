@@ -24,7 +24,8 @@ describe(
       propPane.RenameWidget("Form1", "FormTest");
       EditorNavigation.SelectEntityByName("FormTest", EntityType.Widget);
       cy.get("body").type(`{${modifierKey}}c`);
-      cy.get(commonlocators.toastBody).should("be.visible")
+      cy.get(commonlocators.toastBody)
+        .should("be.visible")
         .first()
         .contains("Copied FormTest")
         .click();

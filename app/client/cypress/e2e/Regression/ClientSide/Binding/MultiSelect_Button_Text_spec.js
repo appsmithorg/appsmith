@@ -61,7 +61,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.closePropertyPane();
 
         agHelper.GetNClick(".rc-select-selector", 0, true);
-        cy.get('.rc-select-item-option').should('be.visible');
+        cy.get(".rc-select-item-option").should("be.visible");
         cy.get('.rc-select-item-option:contains("Blue")').click({
           force: true,
         });

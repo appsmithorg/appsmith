@@ -234,7 +234,9 @@ describe(
         PageList.AddNewPage();
         cy.get(gitSync.locators.quickActionsBranchBtn).click({ force: true });
         cy.get(gitSync.locators.branchSearchInput).type("{selectall}master");
-        cy.get(gitSync.locators.branchItem).contains("master").should("be.visible");
+        cy.get(gitSync.locators.branchItem)
+          .contains("master")
+          .should("be.visible");
         cy.get(gitSync.locators.branchItem).contains("master").click();
         cy.get(".t--canvas-artboard").should("be.visible");
         PageLeftPane.switchSegment(PagePaneSegment.UI);

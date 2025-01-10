@@ -41,7 +41,9 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.formloginButton).click();
       cy.get(adminSettings.formSignupDisabled).should("be.visible");
       cy.get(adminSettings.formSignupDisabled).click({ force: true });
-      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
+      cy.get(adminSettings.saveButton)
+        .should("be.visible")
+        .should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
       cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
@@ -84,7 +86,9 @@ describe("Form Login test functionality", function () {
       // disable form signup
       cy.get(adminSettings.formLoginDisabled).should("have.value", "on");
       cy.get(adminSettings.formLoginDisabled).click({ force: true });
-      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
+      cy.get(adminSettings.saveButton)
+        .should("be.visible")
+        .should("not.be.disabled");
       // assert server is restarting
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");

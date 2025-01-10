@@ -53,7 +53,9 @@ describe(
         "response.body.data.isMergeAble",
         true,
       );
-      cy.get(_.gitSync.locators.opsMergeBtn).should("be.visible").should("be.enabled");
+      cy.get(_.gitSync.locators.opsMergeBtn)
+        .should("be.visible")
+        .should("be.enabled");
       _.gitSync.CloseOpsModal();
     });
 

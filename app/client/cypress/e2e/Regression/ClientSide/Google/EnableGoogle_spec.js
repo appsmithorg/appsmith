@@ -46,7 +46,9 @@ describe(
       cy.get(adminSettings.saveButton).should("be.visible");
       // fill google form
       cy.fillGoogleForm();
-      cy.get(adminSettings.saveButton).should("be.visible").should("not.be.disabled");
+      cy.get(adminSettings.saveButton)
+        .should("be.visible")
+        .should("not.be.disabled");
       // assert server is restarting
       cy.get(adminSettings.restartNotice).should("be.visible");
       // adding wait for server to restart

@@ -29,7 +29,9 @@ describe(
       cy.get(propPane._actionCard).should("be.visible");
       // Button click should take the control to page link validation", function () {
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-      cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON)).should("be.visible");
+      cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON)).should(
+        "be.visible",
+      );
       agHelper.ClickButton("Submit");
       cy.url().should("include", testdata.externalPage);
       agHelper.AssertElementAbsence(
