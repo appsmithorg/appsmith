@@ -42,77 +42,82 @@ const defaultProps: EntityListTreeProps = {
   onItemExpand: mockOnItemExpand,
 };
 
-it("renders the EntityListTree component", () => {
-  render(<EntityListTree {...defaultProps} />);
-  expect(screen.getByRole("tree")).toBeInTheDocument();
-});
+describe("EntityListTree", () => {
+  it("renders the EntityListTree component", () => {
+    render(<EntityListTree {...defaultProps} />);
+    expect(screen.getByRole("tree")).toBeInTheDocument();
+  });
 
-it("calls onItemExpand when expand icon is clicked", () => {
-  render(<EntityListTree {...defaultProps} />);
-  const expandIcon = screen.getByTestId("entity-item-expand-icon");
+  it("calls onItemExpand when expand icon is clicked", () => {
+    render(<EntityListTree {...defaultProps} />);
+    const expandIcon = screen.getByTestId("entity-item-expand-icon");
 
-  fireEvent.click(expandIcon);
-  expect(mockOnItemExpand).toHaveBeenCalledWith("1");
-});
+    fireEvent.click(expandIcon);
+    expect(mockOnItemExpand).toHaveBeenCalledWith("1");
+  });
 
-it("does not call onItemExpand when item has no children", () => {
-  const props = {
-    ...defaultProps,
-    items: [
-      {
-        id: "2",
-        title: "No Children Parent",
-        isExpanded: false,
-        isSelected: false,
-        isDisabled: false,
-        children: [],
-        nameEditorConfig: mockNameEditorConfig,
-        onClick: mockOnClick,
-      },
-    ],
-  };
+  it("does not call onItemExpand when item has no children", () => {
+    const props = {
+      ...defaultProps,
+      items: [
+        {
+          id: "2",
+          title: "No Children Parent",
+          isExpanded: false,
+          isSelected: false,
+          isDisabled: false,
+          children: [],
+          nameEditorConfig: mockNameEditorConfig,
+          onClick: mockOnClick,
+        },
+      ],
+    };
 
-  render(<EntityListTree {...props} />);
-  const expandIcon = screen.queryByTestId("entity-item-expand-icon");
+    render(<EntityListTree {...props} />);
+    const expandIcon = screen.queryByTestId("entity-item-expand-icon");
 
-  expect(expandIcon).toBeNull();
-});
+    expect(
+      screen.getByRole("treeitem", { name: "No Children Parent" }),
+    ).toBeInTheDocument();
+    expect(expandIcon).toBeNull();
+  });
 
-it("renders nested EntityListTree when item is expanded", () => {
-  const props = {
-    ...defaultProps,
-    items: [
-      {
-        id: "1",
-        title: "Parent",
-        isExpanded: true,
-        isSelected: false,
-        isDisabled: false,
-        nameEditorConfig: mockNameEditorConfig,
-        onClick: mockOnClick,
-        children: [
-          {
-            id: "1-1",
-            title: "Child",
-            isExpanded: false,
-            isSelected: false,
-            isDisabled: false,
-            nameEditorConfig: mockNameEditorConfig,
-            onClick: mockOnClick,
-            children: [],
-          },
-        ],
-      },
-    ],
-  };
+  it("renders nested EntityListTree when item is expanded", () => {
+    const props = {
+      ...defaultProps,
+      items: [
+        {
+          id: "1",
+          title: "Parent",
+          isExpanded: true,
+          isSelected: false,
+          isDisabled: false,
+          nameEditorConfig: mockNameEditorConfig,
+          onClick: mockOnClick,
+          children: [
+            {
+              id: "1-1",
+              title: "Child",
+              isExpanded: false,
+              isSelected: false,
+              isDisabled: false,
+              nameEditorConfig: mockNameEditorConfig,
+              onClick: mockOnClick,
+              children: [],
+            },
+          ],
+        },
+      ],
+    };
 
-  render(<EntityListTree {...props} />);
+    render(<EntityListTree {...props} />);
 
-  expect(screen.getByRole("treeitem", { name: "1-1" })).toBeInTheDocument();
-});
+    expect(screen.getByRole("treeitem", { name: "Child" })).toBeInTheDocument();
+  });
 
-it("does not render nested EntityListTree when item is not expanded", () => {
-  render(<EntityListTree {...defaultProps} />);
+  it("does not render nested EntityListTree when item is not expanded", () => {
+    render(<EntityListTree {...defaultProps} />);
 
-  expect(screen.queryByRole("treeitem", { name: "1-1" })).toBeNull();
+    expect(screen.queryByRole("treeitem", { name: "Child" })).toBeNull();
+  });
 });
