@@ -39,7 +39,8 @@ export interface ListItemProps {
 }
 
 export interface ListProps {
-  items: ListItemProps[];
   className?: string;
   id?: string;
+  children: ReactNode | ReactNode[];
+  groupTitle?: string;
 }

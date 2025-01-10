@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Flex, List, Text } from "@appsmith/ads";
+import { Flex, List, ListItem, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getDatasourceUsageCountForApp,
@@ -144,23 +144,26 @@ const DataSidePane = (props: DataSidePaneProps) => {
                   {key}
                 </Text>
               </Flex>
-              <StyledList
-                items={value.map((data) => ({
-                  className: "t--datasource",
-                  title: data.name,
-                  onClick: () => goToDatasource(data.id),
-                  description: get(dsUsageMap, data.id, ""),
-                  descriptionType: "block",
-                  isSelected: currentSelectedDatasource === data.id,
-                  startIcon: (
-                    <DatasourceIcon
-                      src={getAssetUrl(
-                        groupedPlugins[data.pluginId].iconLocation,
-                      )}
-                    />
-                  ),
-                }))}
-              />
+              <StyledList>
+                {value.map((data) => (
+                  <ListItem
+                    className="t--datasource"
+                    description={get(dsUsageMap, data.id, "")}
+                    descriptionType="block"
+                    isSelected={currentSelectedDatasource === data.id}
+                    key={data.id}
+                    onClick={() => goToDatasource(data.id)}
+                    startIcon={
+                      <DatasourceIcon
+                        src={getAssetUrl(
+                          groupedPlugins[data.pluginId].iconLocation,
+                        )}
+                      />
+                    }
+                    title={data.name}
+                  />
+                ))}
+              </StyledList>
             </Flex>
           ))}
         </Flex>
