@@ -4,18 +4,20 @@ import _ from "lodash";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Page } from "entities/Page";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getAppMode, getApplicationList } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
 import history from "utils/history";
 import { setDataUrl } from "ee/sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
+import urlBuilder from "ce/entities/URLRedirect/URLAssembly";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 import type { SourceEntity } from "entities/AppsmithConsole";
+import type { ApplicationPayload } from "entities/Application";
+import type { SagaIterator } from "redux-saga";
 
 export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",
@@ -32,32 +34,68 @@ const isValidPageName = (
 export default function* navigateActionSaga(
   action: TNavigateToDescription,
   source?: SourceEntity,
-) {
+): SagaIterator {
   const { payload } = action;
-  const pageList: Page[] = yield select(getPageList);
-  const { pageNameOrUrl, params, target } = payload;
+  const pageList = (yield select(getPageList)) as Page[];
+  const { pageNameOrUrl, params, target, appName } = payload;
+
+  if (appName) {
+    const applicationList = (yield select(getApplicationList)) as ApplicationPayload[];
+    const app = applicationList.find((app) => app.name === appName);
+    
+    if (!app) {
+      throw new TriggerFailureError(`No application found with name: ${appName}`);
+    }
+
+    const appMode = (yield select(getAppMode)) as APP_MODE;
+    const path = urlBuilder.build(
+      {
+        basePageId: app.defaultPageId,
+        params,
+      },
+      appMode,
+    );
+
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      window.location.assign(path);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(path, "_blank");
+    }
+
+    AppsmithConsole.info({
+      source,
+      text: `navigateTo('${appName}') was triggered`,
+      state: {
+        params,
+      },
+    });
+    
+    AnalyticsUtil.logEvent("NAVIGATE", {
+      appName,
+      pageParams: params,
+    });
+    
+    return;
+  }
 
   const page = isValidPageName(pageNameOrUrl, pageList);
 
   if (page) {
-    const currentPageId: string = yield select(getCurrentPageId);
+    const currentPageId = (yield select(getCurrentPageId)) as string;
 
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
     });
 
-    const appMode: APP_MODE = yield select(getAppMode);
-    const path =
-      appMode === APP_MODE.EDIT
-        ? builderURL({
-            basePageId: page.basePageId,
-            params,
-          })
-        : viewerURL({
-            basePageId: page.basePageId,
-            params,
-          });
+    const appMode = (yield select(getAppMode)) as APP_MODE;
+    const path = urlBuilder.build(
+      {
+        basePageId: page.basePageId,
+        params,
+      },
+      appMode,
+    );
 
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);

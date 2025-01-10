@@ -82,6 +82,7 @@ export const ViewTypes = {
 export const NAVIGATE_TO_TAB_OPTIONS = {
   PAGE_NAME: "page-name",
   URL: "url",
+  APP_NAME: "app-name",
 };
 
 export const NEW_MODAL_LABEL = "New Modal";
@@ -95,6 +96,7 @@ export const EMPTY_BINDING = "{{}}";
 export const EMPTY_BINDING_WITH_EMPTY_OBJECT = "{{{}}}";
 
 export enum FieldType {
+  APP_NAME_FIELD = "APP_NAME_FIELD",
   PARAMS_FIELD = "PARAMS_FIELD",
   ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",

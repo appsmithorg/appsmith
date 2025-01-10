@@ -123,6 +123,41 @@ describe("Add functions", () => {
     );
   });
 
+  it("navigateTo with app name works", () => {
+    const pageNameOrUrl = "";
+    const params = "{ param1: value1 }";
+    const target = "NEW_WINDOW";
+    const appName = "TestApp";
+
+    expect(evalContext.navigateTo(pageNameOrUrl, params, target, appName)).resolves.toBe(
+      {},
+    );
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("PROCESS_TRIGGER", {
+        data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
+          trigger: {
+            type: "NAVIGATE_TO",
+            payload: {
+              pageNameOrUrl,
+              params,
+              target,
+              appName,
+            },
+          },
+          eventType: undefined,
+          triggerMeta: {
+            source: {},
+            triggerPropertyName: undefined,
+            onPageLoad: false,
+          },
+        },
+        method: "PROCESS_TRIGGER",
+      }),
+    );
+  });
+
   it("showAlert works", () => {
     const message = "Alert message";
     const style = "info";

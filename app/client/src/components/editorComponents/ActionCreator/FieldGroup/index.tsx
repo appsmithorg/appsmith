@@ -25,6 +25,13 @@ function FieldGroup(props: FieldGroupProps) {
         setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
       },
     },
+    {
+      id: "app-name",
+      text: "App name",
+      action: () => {
+        setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[2]);
+      },
+    },
   ];
 
   const apiAndQueryCallbackTabSwitches: SwitchType[] = [

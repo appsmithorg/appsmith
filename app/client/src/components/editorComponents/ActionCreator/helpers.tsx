@@ -364,13 +364,16 @@ function getFieldsForSelectedAction(
      * if PAGE_NAME then this field will be PAGE_SELECTOR_FIELD (default)
      * if URL then this field will be URL_FIELD
      **/
-    if (
-      functionMatch === APPSMITH_GLOBAL_FUNCTIONS.navigateTo &&
-      activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
-    ) {
-      fields[2] = {
-        field: FieldType.URL_FIELD,
-      };
+    if (functionMatch === APPSMITH_GLOBAL_FUNCTIONS.navigateTo) {
+      if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL) {
+        fields[2] = {
+          field: FieldType.URL_FIELD,
+        };
+      } else if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.APP_NAME) {
+        fields[2] = {
+          field: FieldType.APP_NAME_FIELD,
+        };
+      }
     }
 
     return fields;
