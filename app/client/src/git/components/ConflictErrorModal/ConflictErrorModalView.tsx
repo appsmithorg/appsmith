@@ -6,7 +6,7 @@ import {
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
 } from "ee/constants/messages";
 
-import { Button } from "@appsmith/ads";
+import { Button, Flex } from "@appsmith/ads";
 import noop from "lodash/noop";
 import ConflictError from "../ConflictError";
 
@@ -62,18 +62,12 @@ function ConflictErrorModalView({
       >
         <div className={Classes.OVERLAY_CONTENT}>
           <div className="git-error-popup">
-            <div
-              // ! case: remove inline styles
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
+            <Flex justifyContent="space-between">
+              <Flex alignItems="center">
                 <span className="title">
                   {createMessage(CONFLICTS_FOUND_WHILE_PULLING_CHANGES)}
                 </span>
-              </div>
+              </Flex>
               <Button
                 isIconButton
                 kind="tertiary"
@@ -81,7 +75,7 @@ function ConflictErrorModalView({
                 size="sm"
                 startIcon="close-modal"
               />
-            </div>
+            </Flex>
             <ConflictError />
           </div>
         </div>

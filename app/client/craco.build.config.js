@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 const { merge } = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
+const FaroSourceMapUploaderPlugin = require("@grafana/faro-webpack-plugin");
 const path = require("path");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
@@ -39,26 +39,20 @@ plugins.push(
 );
 
 if (env === "PRODUCTION" || env === "STAGING") {
-  if (
-    process.env.SENTRY_AUTH_TOKEN != null &&
-    process.env.SENTRY_AUTH_TOKEN !== ""
-  ) {
-    plugins.push(
-      new SentryWebpackPlugin({
-        include: "build",
-        ignore: ["node_modules", "webpack.config.js"],
-        release: process.env.REACT_APP_SENTRY_RELEASE,
-        deploy: {
-          env: process.env.REACT_APP_SENTRY_ENVIRONMENT,
-        },
-      }),
-    );
-  } else {
-    console.log(
-      "Sentry configuration missing in process environment. Sentry will be disabled.",
-    );
-  }
+  plugins.push(
+    new FaroSourceMapUploaderPlugin({
+      appId: process.env.REACT_APP_FARO_APP_ID,
+      appName: process.env.REACT_APP_FARO_APP_NAME,
+      endpoint: process.env.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT,
+      stackId: process.env.REACT_APP_FARO_STACK_ID,
+      // instructions on how to obtain your API key are in the documentation
+      // https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/sourcemap-upload-plugins/#obtain-an-api-key
+      apiKey: process.env.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY,
+      gzipContents: true,
+    }),
+  );
 }
+
 plugins.push(new CompressionPlugin());
 
 plugins.push(

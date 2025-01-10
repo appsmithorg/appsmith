@@ -2,7 +2,6 @@ import React from "react";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import EditorWrapperContainer from "pages/Editor/commons/EditorWrapperContainer";
 import { AnimatedGridLayout, LayoutArea } from "components/AnimatedGridLayout";
-import { useSelector } from "react-redux";
 import BottomBar from "components/BottomBar";
 import Sidebar from "../Sidebar";
 import LeftPane from "../LeftPane";
@@ -10,10 +9,28 @@ import MainPane from "../MainPane";
 import RightPane from "../RightPane";
 import { Areas } from "./constants";
 import ProtectedCallout from "../ProtectedCallout";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import {
+  useGitModEnabled,
+  useGitProtectedMode,
+} from "pages/Editor/gitSync/hooks/modHooks";
+import { GitProtectedBranchCallout as GitProtectedBranchCalloutNew } from "git";
+
+function GitProtectedBranchCallout() {
+  const isGitModEnabled = useGitModEnabled();
+  const isProtectedMode = useGitProtectedMode();
+
+  if (isGitModEnabled) {
+    return <GitProtectedBranchCalloutNew />;
+  }
+
+  if (isProtectedMode) {
+    return <ProtectedCallout />;
+  }
+
+  return null;
+}
 
 function AnimatedLayout() {
-  const isProtectedMode = useSelector(protectedModeSelector);
   const { areas, columns, rows } = useGridLayoutTemplate();
 
   if (columns.length === 0) {
@@ -22,7 +39,7 @@ function AnimatedLayout() {
 
   return (
     <>
-      {isProtectedMode && <ProtectedCallout />}
+      <GitProtectedBranchCallout />
       <EditorWrapperContainer>
         <AnimatedGridLayout
           areas={areas}

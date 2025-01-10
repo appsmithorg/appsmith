@@ -65,7 +65,7 @@ public class AutoCommitEligibilityHelperTest {
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         gitArtifactMetadata.setDefaultApplicationId(DEFAULT_APPLICATION_ID);
         gitArtifactMetadata.setRepoName(REPO_NAME);
-        gitArtifactMetadata.setBranchName(BRANCH_NAME);
+        gitArtifactMetadata.setRefName(BRANCH_NAME);
         return gitArtifactMetadata;
     }
 

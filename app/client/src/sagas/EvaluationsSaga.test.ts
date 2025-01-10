@@ -13,7 +13,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
 
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -26,6 +26,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { updateActionData } from "actions/pluginActionActions";
 
 jest.mock("loglevel");
 
@@ -190,6 +191,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,
       postEvalActions: [],
@@ -207,6 +211,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1", "2"], isAllAffected: false },
       postEvalActions: [],
@@ -228,6 +235,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: [], isAllAffected: true },
       postEvalActions: [],
@@ -243,6 +253,9 @@ describe("evalQueueBuffer", () => {
     const bufferedAction = buffer.take();
 
     expect(bufferedAction).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1"], isAllAffected: false },
       postEvalActions: [],
@@ -255,8 +268,119 @@ describe("evalQueueBuffer", () => {
     const bufferedActionsWithDefaultAffectedJSObjects = buffer.take();
 
     expect(bufferedActionsWithDefaultAffectedJSObjects).toEqual({
+      actionDataPayloadConsolidated: [],
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: false,
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,
+      postEvalActions: [],
+    });
+  });
+  test("should debounce UPDATE_ACTION_DATA actions together when the buffer is busy", () => {
+    const buffer = evalQueueBuffer();
+
+    buffer.put(
+      updateActionData([
+        {
+          entityName: "widget1",
+          dataPath: "data",
+          data: { a: 1 },
+          dataPathRef: "",
+        },
+      ]),
+    );
+    buffer.put(
+      updateActionData([
+        {
+          entityName: "widget2",
+          dataPath: "data",
+          data: { a: 2 },
+          dataPathRef: "",
+        },
+      ]),
+    );
+    const bufferedActionsWithDefaultAffectedJSObjects = buffer.take();
+
+    expect(bufferedActionsWithDefaultAffectedJSObjects).toEqual({
+      actionDataPayloadConsolidated: [
+        {
+          data: {
+            a: 1,
+          },
+          dataPath: "data",
+          dataPathRef: "",
+          entityName: "widget1",
+        },
+        {
+          data: {
+            a: 2,
+          },
+          dataPath: "data",
+          dataPathRef: "",
+          entityName: "widget2",
+        },
+      ],
+
+      hasBufferedAction: false,
+      hasDebouncedHandleUpdate: true,
+      type: ReduxActionTypes.BUFFERED_ACTION,
+      affectedJSObjects: defaultAffectedJSObjects,
+      postEvalActions: [],
+    });
+  });
+  test("should be able to debounce UPDATE_ACTION_DATA actions and BUFFERED_ACTION together when the buffer is busy", () => {
+    const buffer = evalQueueBuffer();
+
+    buffer.put(
+      updateActionData([
+        {
+          entityName: "widget1",
+          dataPath: "data",
+          data: { a: 1 },
+          dataPathRef: "",
+        },
+      ]),
+    );
+    buffer.put(
+      updateActionData([
+        {
+          entityName: "widget2",
+          dataPath: "data",
+          data: { a: 2 },
+          dataPathRef: "",
+        },
+      ]),
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    buffer.put(createJSCollectionSuccess({ id: "1" } as any));
+
+    const bufferedActionsWithDefaultAffectedJSObjects = buffer.take();
+
+    expect(bufferedActionsWithDefaultAffectedJSObjects).toEqual({
+      actionDataPayloadConsolidated: [
+        {
+          data: {
+            a: 1,
+          },
+          dataPath: "data",
+          dataPathRef: "",
+          entityName: "widget1",
+        },
+        {
+          data: {
+            a: 2,
+          },
+          dataPath: "data",
+          dataPathRef: "",
+          entityName: "widget2",
+        },
+      ],
+
+      hasBufferedAction: true,
+      hasDebouncedHandleUpdate: true,
+      type: ReduxActionTypes.BUFFERED_ACTION,
+      affectedJSObjects: { ids: ["1"], isAllAffected: false },
       postEvalActions: [],
     });
   });

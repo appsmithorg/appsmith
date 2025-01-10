@@ -62,14 +62,14 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",
-      parsedText: "",
+      text: "",
     });
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       rawText: "defaultText",
-      parsedText: "defaultText",
+      text: "defaultText",
     };
   }
 
@@ -157,17 +157,17 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
     if (
       prevProps.rawText !== this.props.rawText &&
-      this.props.rawText !== toString(this.props.parsedText)
+      this.props.rawText !== toString(this.props.text)
     ) {
       pushBatchMetaUpdates(
-        "parsedText",
+        "text",
         parseText(this.props.rawText, this.props.inputType),
       );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
       pushBatchMetaUpdates(
-        "parsedText",
+        "text",
         parseText(this.props.rawText, this.props.inputType),
       );
     }
@@ -190,7 +190,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     // derived properties won't work as expected inside a List widget.
     // TODO(Balaji): Once we refactor the List widget, need to conver
     // text to a derived property.
-    pushBatchMetaUpdates("parsedText", parseText(value, this.props.inputType));
+    pushBatchMetaUpdates("text", parseText(value, this.props.inputType));
 
     pushBatchMetaUpdates("rawText", value, {
       triggerPropertyName: "onTextChanged",
@@ -211,7 +211,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     pushBatchMetaUpdates("rawText", "");
-    pushBatchMetaUpdates("parsedText", parseText("", this.props.inputType));
+    pushBatchMetaUpdates("text", parseText("", this.props.inputType));
     commitBatchMetaUpdates();
   };
 

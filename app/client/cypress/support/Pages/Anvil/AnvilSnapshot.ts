@@ -173,8 +173,8 @@ export class AnvilSnapshot {
 
   public triggerInputInvalidState = () => {
     this.enterPreviewMode();
-    cy.get("input[aria-required=true]").first().type("123");
-    cy.get("input[aria-required=true]").first().clear();
+    cy.get("input[required]").first().type("123");
+    cy.get("input[required]").first().clear();
     this.exitPreviewMode();
     this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
   };

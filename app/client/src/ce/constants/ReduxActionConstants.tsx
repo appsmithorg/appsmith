@@ -1,6 +1,3 @@
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -697,6 +694,8 @@ const IDEDebuggerActionTypes = {
   SET_JS_PANE_DEBUGGER_STATE: "SET_JS_PANE_DEBUGGER_STATE",
   SET_CANVAS_DEBUGGER_STATE: "SET_CANVAS_DEBUGGER_STATE",
   SHOW_DEBUGGER_LOGS: "SHOW_DEBUGGER_LOGS",
+  SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM:
+    "SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM",
 };
 
 const ThemeActionTypes = {
@@ -1299,9 +1298,6 @@ export const ReduxActionTypes = {
   ...WorkspaceActionTypes,
 } as const;
 
-export type ReduxActionType =
-  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
-
 export const ReduxActionErrorTypes = {
   ...ActionActionErrorTypes,
   ...AdminSettingsActionErrorTypes,
@@ -1348,11 +1344,6 @@ export const toastMessageErrorTypes = {
 export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
-export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
-  payload: T;
-}
-
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
@@ -1370,47 +1361,3 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
-
-export interface BufferedReduxAction<T> extends ReduxAction<T> {
-  affectedJSObjects: AffectedJSObjects;
-}
-
-export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
-
-export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
-  meta: M;
-}
-
-export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
-  onSuccess?: ReduxAction<S>;
-  onError?: ReduxAction<E>;
-  onSuccessCallback?: (response: S) => void;
-  onErrorCallback?: (error: E) => void;
-}
-
-export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
-
-export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<AnyReduxAction>;
-  affectedJSObjects?: AffectedJSObjects;
-}
-
-export interface PromisePayload {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reject: any;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolve: any;
-}
-
-export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
-  payload: T & PromisePayload;
-}
-
-export interface ReduxActionErrorPayload {
-  message: string;
-  source?: string;
-  code?: ERROR_CODES;
-  stackTrace?: string;
-}

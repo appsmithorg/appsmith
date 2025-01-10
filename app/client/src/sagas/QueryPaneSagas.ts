@@ -11,7 +11,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type {
   ReduxAction,
   ReduxActionWithMeta,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -398,6 +398,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(pluginType)
   )
     return;

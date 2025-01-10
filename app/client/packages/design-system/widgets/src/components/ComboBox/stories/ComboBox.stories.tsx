@@ -6,7 +6,7 @@ import { ComboBox, ListBoxItem, Flex, Button } from "@appsmith/wds";
 import { items } from "./items";
 
 const meta: Meta<typeof ComboBox> = {
-  title: "WDS/Widgets/ComboBox",
+  title: "WDS/Widgets/Combo Box",
   component: ComboBox,
   tags: ["autodocs"],
   args: {

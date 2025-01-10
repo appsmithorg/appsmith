@@ -41,6 +41,12 @@ export const StyledSegment = styled.span`
   & > * {
     color: var(--ads-v2-colors-control-segment-value-default-fg);
   }
+
+  &[data-selected="true"] {
+    span {
+      font-weight: var(--ads-v2-font-weight-bold);
+    }
+  }
 `;
 
 export const StyledControlContainer = styled.div`
@@ -81,6 +87,7 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
+
   &:not(:hover):not(:last-child):not([data-selected="true"]):not(
       :has(+ [data-selected="true"])
     ):after {

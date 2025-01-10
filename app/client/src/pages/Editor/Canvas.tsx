@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
@@ -44,7 +44,7 @@ const Wrapper = styled.section<{
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -92,7 +92,7 @@ const Canvas = (props: CanvasProps) => {
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={isAnvilLayout ? "" : backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative t--canvas-artboard mp-mask ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
           data-testid={"t--canvas-artboard"}

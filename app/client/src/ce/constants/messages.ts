@@ -393,7 +393,23 @@ export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
+export const SAMPLE_DATASOURCE_SUBHEADING = () =>
+  "Use sample datasources if you don’t have a datasource for testing";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
+export const NOT_FOUND = () => "Not found";
+export const CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API = () =>
+  "Authenticated API";
+export const CREATE_NEW_DATASOURCE_GRAPHQL_API = () => "GraphQL API";
+export const CREATE_NEW_API_SECTION_HEADER = () => "APIs";
+export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS integrations";
+export const CREATE_NEW_AI_SECTION_HEADER = () => "AI integrations";
+export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
+export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
+  "Select a sample datasource or connect your own";
+export const SEARCH_FOR_DATASOURCES = () => "Search for datasources";
+export const EMPTY_SEARCH_DATASOURCES_TITLE = () => "No results found";
+export const EMPTY_SEARCH_DATASOURCES_DESCRIPTION = () =>
+  "Please try again with a different search";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -477,6 +493,8 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 // Modules
 export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
 export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
+export const PACKAGE_UPGRADING_ACTION_STATUS = (action: string) =>
+  `You're not able to ${action} while package references are updating. Please wait until the update is complete.`;
 
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -561,6 +579,7 @@ export const DEBUGGER_ERRORS = () => "Linter";
 export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
+export const DEBUGGER_STATE = () => "State";
 
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
@@ -2304,6 +2323,7 @@ export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
   "Connect a datasource to write your first query";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
+export const DATASOURCE_BLANK_STATE_CTA = () => "Bring your data";
 
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
@@ -2318,9 +2338,6 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
-export const START_WITH_DATA_CONNECT_HEADING = () => "Connect your datasource";
-export const START_WITH_DATA_CONNECT_SUBHEADING = () =>
-  "Select an option to establish a connection. Your data's security is our priority.";
 export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
@@ -2375,8 +2392,6 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
-
-export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
 
 export const CUSTOM_WIDGET_FEATURE = {
   addEvent: {
@@ -2576,9 +2591,37 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith might use this email exclusively to follow up on your integration request.",
+      "Appsmith will use this email exclusively to follow up on your integration request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
   SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
 };
+
+export const PREMIUM_DATASOURCES = {
+  RELEVANT_EMAIL_DESCRIPTION: () =>
+    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Schedule a call now to see how Appsmith can transform your workflows!",
+  NON_RELEVANT_EMAIL_DESCRIPTION: () =>
+    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Give us your email and the Appsmith team will reach out to you soon.",
+  LEARN_MORE: () => "Learn more about Premium",
+  SCHEDULE_CALL: () => "Schedule a call",
+  SUBMIT: () => "Submit",
+  SUCCESS_TOAST_MESSAGE: () =>
+    "Thank you! The Appsmith Team will contact you shortly.",
+  FORM_EMAIL: {
+    LABEL: () => "Email",
+    DESCRIPTION: () =>
+      "Appsmith will use this email to follow up on your integration interest.",
+    NAME: "email",
+    ERROR: () => "Please enter email",
+  },
+  PREMIUM_TAG: () => "Premium",
+  SOON_TAG: () => "Soon",
+  COMING_SOON_SUFFIX: () => "Coming soon",
+  COMING_SOON_DESCRIPTION: () =>
+    "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
+  NOTIFY_ME: () => "Notify me",
+};
+
+export const DATASOURCE_SECURE_TEXT = () =>
+  `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;

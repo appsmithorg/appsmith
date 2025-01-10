@@ -32,8 +32,10 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import {
+  EvaluationSubstitutionType,
+  ENTITY_TYPE,
+} from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
@@ -142,10 +144,7 @@ import microDiff from "microdiff";
 import {
   profileAsyncFn,
   profileFn,
-  type WebworkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+} from "instrumentation/generateWebWorkerTraces";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import appComputationCache from "../AppComputationCache";
 import {
@@ -154,6 +153,8 @@ import {
 } from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -252,7 +253,7 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
     cacheProps: ICacheProps,
   ) {
     this.setConfigTree(configTree);
@@ -550,7 +551,7 @@ export default class DataTreeEvaluator {
   }: {
     unEvalTree: UnEvalTree;
     configTree: ConfigTree;
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes>;
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes>;
     affectedJSObjects: AffectedJSObjects;
   }) {
     //get difference in js collection body to be parsed
@@ -634,7 +635,7 @@ export default class DataTreeEvaluator {
   setupUpdateTree(
     unEvalTree: UnEvalTree,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
     affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
@@ -1092,6 +1093,11 @@ export default class DataTreeEvaluator {
     const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
+    const allNewEntityDiffSet = new Set(
+      unevalUpdates
+        .filter((v) => v.event === DataTreeDiffEvent.NEW)
+        .map((v) => v.payload.propertyPath),
+    );
     let evalContextCache;
 
     if (WorkerEnv.flags.release_evaluation_scope_cache) {
@@ -1198,7 +1204,7 @@ export default class DataTreeEvaluator {
             if (isATriggerPath) continue;
 
             const isNewWidget =
-              isFirstTree || isNewEntity(unevalUpdates, entityName);
+              isFirstTree || isNewEntity(allNewEntityDiffSet, entityName);
 
             const widgetEntity = entity as WidgetEntity;
 

@@ -6,7 +6,7 @@ import type {
   BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
 
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,

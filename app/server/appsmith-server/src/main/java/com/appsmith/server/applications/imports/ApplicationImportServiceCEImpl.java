@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.imports;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -460,12 +461,6 @@ public class ApplicationImportServiceCEImpl
             }
         }
         return importApplicationMono
-                .doOnNext(application -> {
-                    if (application.getGitArtifactMetadata() != null) {
-                        importingMetaDTO.setBranchName(
-                                application.getGitArtifactMetadata().getBranchName());
-                    }
-                })
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
@@ -649,19 +644,21 @@ public class ApplicationImportServiceCEImpl
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         if (!hasText(branchedArtifactId)) {
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null, null);
         }
 
         return applicationService.findById(branchedArtifactId).flatMap(application -> {
             String baseArtifactId = application.getBaseId();
-            String branchName = null;
+            String refName = null;
+            RefType refType = null;
 
             if (application.getGitArtifactMetadata() != null) {
-                branchName = application.getGitArtifactMetadata().getBranchName();
+                refName = application.getGitArtifactMetadata().getRefName();
+                refType = application.getGitArtifactMetadata().getRefType();
             }
 
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+                    applicationJson, baseArtifactId, refName, refType);
         });
     }
 }

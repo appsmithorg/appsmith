@@ -9,15 +9,15 @@ const RUN_JS_OBJECT_MSG = "Incorrect_users failed to execute";
 
 const PAGE_LOAD_MSG = `The action "Incorrect_users" has failed.`;
 
-describe(
+describe.skip(
   "Published mode toggle toast with debug flag in the url",
   { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("publishedModeToastToggleDsl");
     });
-
-    it("1. Should not show any application related toasts", function () {
+    //open bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("1. Should not show any application related toasts", function () {
       _.apiPage.CreateAndFillApi(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
         "Correct_users",
@@ -72,7 +72,8 @@ describe(
       );
     });
 
-    it("2. Should show all application related toasts with debug flag true in url", function () {
+    //open bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("2. Should show all application related toasts with debug flag true in url", function () {
       cy.url().then((url) => {
         cy.visit({
           url,

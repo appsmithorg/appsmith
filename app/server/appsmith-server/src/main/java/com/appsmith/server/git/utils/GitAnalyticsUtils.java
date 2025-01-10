@@ -13,11 +13,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -68,7 +73,7 @@ public class GitAnalyticsUtils {
             Boolean isMergeable) {
 
         String branchName = artifact.getGitArtifactMetadata() != null
-                ? artifact.getGitArtifactMetadata().getBranchName()
+                ? artifact.getGitArtifactMetadata().getRefName()
                 : null;
         return addAnalyticsForGitOperation(
                 event, artifact, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
@@ -136,7 +141,7 @@ public class GitAnalyticsUtils {
                 "appId",
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
-                gitArtifactMetadata.getBranchName(),
+                gitArtifactMetadata.getRefName(),
                 "organizationId",
                 artifact.getWorkspaceId(),
                 "repoUrl",
@@ -145,5 +150,70 @@ public class GitAnalyticsUtils {
                 elapsedTime);
         return analyticsService.sendEvent(
                 AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data);
+    }
+
+    /**
+     * Sends one or more analytics events when there's a change in protected branches.
+     * If n number of branches are un-protected and m number of branches are protected, it'll send m+n number of
+     * events. It receives the list of branches before and after the action.
+     * For example, if user has "main" and "develop" branches as protected and wants to include "staging" branch as
+     * protected as well, then oldProtectedBranches will be ["main", "develop"] and newProtectedBranches will be
+     * ["main", "develop", "staging"]
+     *
+     * @param artifact          Application object of the root artifact
+     * @param oldProtectedBranches List of branches that were protected before this action.
+     * @param newProtectedBranches List of branches that are going to be protected.
+     * @return An empty Mono
+     */
+    public Mono<Void> sendBranchProtectionAnalytics(
+            Artifact artifact, List<String> oldProtectedBranches, List<String> newProtectedBranches) {
+        List<String> itemsAdded = new ArrayList<>(newProtectedBranches); // add all new items
+        itemsAdded.removeAll(oldProtectedBranches); // remove the items that were present earlier
+
+        List<String> itemsRemoved = new ArrayList<>(oldProtectedBranches); // add all old items
+        itemsRemoved.removeAll(newProtectedBranches); // remove the items that are also present in new list
+
+        List<Mono<? extends Artifact>> eventSenderMonos = new ArrayList<>();
+
+        // send an analytics event for each removed branch
+        for (String branchName : itemsRemoved) {
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_REMOVE_PROTECTED_BRANCH, branchName, artifact));
+        }
+
+        // send an analytics event for each newly protected branch
+        for (String branchName : itemsAdded) {
+            eventSenderMonos.add(addAnalyticsForGitOperation(GIT_ADD_PROTECTED_BRANCH, branchName, artifact));
+        }
+
+        return Flux.merge(eventSenderMonos).then();
+    }
+
+    /**
+     * Generic method to send analytics for git operations.
+     *
+     * @param analyticsEvents Name of the event
+     * @param artifact        Application object
+     * @param extraProps      Extra properties that need to be passed along with default ones.
+     * @return A void mono
+     */
+    public Mono<Void> sendGitAnalyticsEvent(
+            AnalyticsEvents analyticsEvents, Artifact artifact, Map<String, Object> extraProps) {
+        GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+
+        // TODO: analytics generalisation
+        analyticsProps.put("appId", gitData.getDefaultArtifactId());
+        analyticsProps.put("orgId", artifact.getWorkspaceId());
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        if (extraProps != null) {
+            analyticsProps.putAll(extraProps);
+        }
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user ->
+                        analyticsService.sendEvent(analyticsEvents.getEventName(), user.getUsername(), analyticsProps));
     }
 }

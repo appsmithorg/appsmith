@@ -7,6 +7,7 @@ export class CommonLocators {
   _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
+  _link = ".ads-v2-link";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".editor-tab.active > .ads-v2-text";
@@ -86,7 +87,7 @@ export class CommonLocators {
   _anvilDnDHighlight = "[data-type=anvil-dnd-highlight]";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--add-item";
+  _createNew = "[data-testid='t--add-item']";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR_TAB]";
@@ -346,4 +347,9 @@ export class CommonLocators {
   _showBoundary = ".show-boundary";
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
+  _editorTab = ".editor-tab";
+  _entityTestId = (entity: string) =>
+    `[data-testid="t--entity-item-${entity}"]`;
+  _dropdownOption = ".rc-select-item-option-content";
+  _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
 }

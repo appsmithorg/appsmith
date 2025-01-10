@@ -6,9 +6,11 @@ import { useGoToDatasource } from "PluginActionEditor/components/PluginActionRes
 const CurrentDataSourceLink = ({
   datasourceId,
   datasourceName,
+  pluginId,
 }: {
   datasourceId: string;
   datasourceName: string;
+  pluginId: string;
 }) => {
   const { goToDatasource } = useGoToDatasource();
 
@@ -19,10 +21,7 @@ const CurrentDataSourceLink = ({
 
   return (
     <Link onClick={handleClick}>
-      <CurrentDataSource
-        datasourceId={datasourceId}
-        datasourceName={datasourceName}
-      />
+      <CurrentDataSource datasourceName={datasourceName} pluginId={pluginId} />
     </Link>
   );
 };

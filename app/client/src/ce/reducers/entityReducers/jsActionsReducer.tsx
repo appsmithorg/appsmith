@@ -1,6 +1,6 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -20,7 +20,9 @@ export interface JSCollectionData {
   // Existence of parse errors for each action (updates after execution)
   isDirty?: Record<string, boolean>;
 }
+
 export type JSCollectionDataState = JSCollectionData[];
+
 export interface PartialActionData {
   isLoading: boolean;
   config: { id: string };

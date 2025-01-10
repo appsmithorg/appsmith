@@ -1,15 +1,17 @@
 package com.appsmith.server.applications.base;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedServiceCE;
+import com.appsmith.server.artifacts.permissions.ArtifactPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -74,7 +76,7 @@ import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrde
 @Slf4j
 @Service
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String>
-        implements ApplicationServiceCE {
+        implements ApplicationServiceCE, ArtifactBasedServiceCE<Application> {
 
     private final PolicySolution policySolution;
     private final PermissionGroupService permissionGroupService;
@@ -165,8 +167,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * This method is used to fetch all the applications for a given workspaceId. It also sorts the applications based
      * on recently used order.
      * For git connected applications only default branched application is returned.
-     * @param workspaceId   workspaceId for which applications are to be fetched
-     * @return              Flux of applications
+     *
+     * @param workspaceId workspaceId for which applications are to be fetched
+     * @return Flux of applications
      */
     @Override
     public Flux<Application> findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(String workspaceId) {
@@ -206,13 +209,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                              * - Applications that are not connected to Git.
                              * - Applications that, when connected, revert with default branch only.
                              */
-                            return !GitUtils.isApplicationConnectedToGit(application)
-                                    || GitUtils.isDefaultBranchedApplication(application);
+                            return !GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())
+                                    || GitUtils.isDefaultBranchedArtifact(application.getGitArtifactMetadata());
                         })));
     }
 
     @Override
-    public Mono<Application> save(Application application) {
+    public Mono<Application> save(Artifact artifact) {
+        Application application = (Application) artifact;
         if (!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
@@ -225,6 +229,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             }
         }
         return repository.save(application).flatMap(this::setTransientFields);
+    }
+
+    @Override
+    public ArtifactPermission getPermissionService() {
+        return applicationPermission;
     }
 
     @Override
@@ -299,10 +308,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             Mono<String> applicationIdMono;
             GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
-                    && !StringUtils.isEmpty(gitData.getBranchName())
+                    && !StringUtils.isEmpty(gitData.getRefName())
                     && !StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                 applicationIdMono = this.findByBranchNameAndBaseApplicationId(
-                                gitData.getBranchName(),
+                                gitData.getRefName(),
                                 gitData.getDefaultArtifactId(),
                                 applicationPermission.getEditPermission())
                         .map(Application::getId);
@@ -650,84 +659,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     /**
-     * Generate SSH private and public keys required to communicate with remote. Keys will be stored only in the
-     * default/root application only and not the child branched application. This decision is taken because the combined
-     * size of keys is close to 4kB
-     *
-     * @param branchedApplicationId application for which the SSH key needs to be generated
-     * @return public key which will be used by user to copy to relevant platform
-     */
-    @Override
-    public Mono<GitAuth> createOrUpdateSshKeyPair(String branchedApplicationId, String keyType) {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository
-                .findById(branchedApplicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", branchedApplicationId)))
-                .flatMap(application -> {
-                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
-                    // Check if the current application is the root application
-
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
-                            && branchedApplicationId.equals(gitData.getDefaultArtifactId())) {
-                        // This is the root application with update SSH key request
-                        gitAuth.setRegeneratedKey(true);
-                        gitData.setGitAuth(gitAuth);
-                        return save(application);
-                    } else if (gitData == null) {
-                        // This is a root application with generate SSH key request
-                        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
-                        gitArtifactMetadata.setDefaultApplicationId(branchedApplicationId);
-                        gitArtifactMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitArtifactMetadata);
-                        return save(application);
-                    }
-                    // Children application with update SSH key request for root application
-                    // Fetch root application and then make updates. We are storing the git metadata only in root
-                    // application
-                    if (StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
-                        throw new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Unable to find root application, please connect your application to remote repo to resolve this issue.");
-                    }
-                    gitAuth.setRegeneratedKey(true);
-
-                    return repository
-                            .findById(gitData.getDefaultArtifactId(), applicationPermission.getEditPermission())
-                            .flatMap(baseApplication -> {
-                                GitArtifactMetadata gitArtifactMetadata = baseApplication.getGitApplicationMetadata();
-                                gitArtifactMetadata.setDefaultApplicationId(baseApplication.getId());
-                                gitArtifactMetadata.setGitAuth(gitAuth);
-                                baseApplication.setGitApplicationMetadata(gitArtifactMetadata);
-                                return save(baseApplication);
-                            });
-                })
-                .flatMap(application -> {
-                    // Send generate SSH key analytics event
-                    assert application.getId() != null;
-                    final Map<String, Object> eventData = Map.of(
-                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, application);
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID,
-                            application.getId(),
-                            "organizationId",
-                            application.getWorkspaceId(),
-                            "isRegeneratedKey",
-                            gitAuth.isRegeneratedKey(),
-                            FieldName.EVENT_DATA,
-                            eventData);
-                    return analyticsService
-                            .sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
-                            .onErrorResume(e -> {
-                                log.warn("Error sending ssh key generation data point", e);
-                                return Mono.just(application);
-                            });
-                })
-                .thenReturn(gitAuth);
-    }
-
-    /**
      * Method to get the SSH public key
      *
      * @param applicationId application for which the SSH key is requested
@@ -969,7 +900,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(applicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return this.getById(applicationId).map(GitUtils::isApplicationConnectedToGit);
+        return this.getById(applicationId)
+                .map(application -> GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata()));
     }
 
     @Override
@@ -1025,9 +957,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     /**
      * Gets branched application with the right permission set based on mode of application
+     *
      * @param defaultApplicationId : default app id
-     * @param branchName : branch name of the application
-     * @param mode : is it edit mode or view mode
+     * @param branchName           : branch name of the application
+     * @param mode                 : is it edit mode or view mode
      * @return : returns a publisher of branched application
      */
     @Override
