@@ -64,7 +64,7 @@ function QuickActionsView({
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
-  isStatusClean = false,
+  isStatusClean = true,
   isTriggerAutocommitLoading = false,
   pull = noop,
   statusBehindCount = 0,

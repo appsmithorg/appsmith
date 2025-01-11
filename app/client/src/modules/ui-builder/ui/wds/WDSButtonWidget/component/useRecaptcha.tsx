@@ -7,11 +7,15 @@ export interface UseRecaptchaProps {
   recaptchaKey?: string;
   recaptchaType?: RecaptchaType;
   onRecaptchaSubmitError?: (error: string) => void;
-  onRecaptchaSubmitSuccess?: (token: string) => void;
+  onRecaptchaSubmitSuccess?: (token: string, onReset?: () => void) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
 }
 
-export type RecaptchaProps = ButtonComponentProps & UseRecaptchaProps;
+export type RecaptchaProps = ButtonComponentProps &
+  UseRecaptchaProps & {
+    onReset?: () => void;
+    onClick?: (onReset?: () => void) => void;
+  };
 
 interface UseRecaptchaReturn {
   // TODO: Fix this the next time the file is edited
@@ -21,10 +25,10 @@ interface UseRecaptchaReturn {
 }
 
 export const useRecaptcha = (props: RecaptchaProps): UseRecaptchaReturn => {
-  const { onPress: onClickProp, recaptchaKey } = props;
+  const { onClick: onClickProp, recaptchaKey } = props;
 
   if (!recaptchaKey) {
-    return { onClick: onClickProp };
+    return { onClick: () => onClickProp?.(props?.onReset) };
   }
 
   if (props.recaptchaType === "V2") {
