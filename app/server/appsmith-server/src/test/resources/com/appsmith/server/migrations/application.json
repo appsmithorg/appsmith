@@ -1,6 +1,6 @@
 {
   "artifactJsonType": "APPLICATION",
-  "clientSchemaVersion": 1.0,
+  "clientSchemaVersion": 2.0,
   "serverSchemaVersion": 7.0,
   "exportedApplication": {
     "name": "json-schema-migration",

@@ -43,6 +43,9 @@
         <reactor-test.version>3.5.1</reactor-test.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
+        <skipITs>${skipTests}</skipITs>
+        <skipTests>false</skipTests>
+        <skipUTs>${skipTests}</skipUTs>
         <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
@@ -75,6 +78,30 @@
                 <version>3.4.0</version>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <sources>
+                                <source>src/test/java</source>
+                                <!-- Default test directory -->
+                                <source>src/test/it</source>
+                                <!-- Additional test directory -->
+                                <source>src/test/utils</source>
+                                <!-- Another additional directory -->
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
@@ -84,6 +111,41 @@
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                    <testSourceDirectory>src/test/java</testSourceDirectory>
+                    <skipTests>${skipUTs}</skipTests>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.6.2</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.junit.platform</groupId>
+                                <artifactId>junit-platform-commons</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <printSummary>true</printSummary>
+                    <!-- Allow JUnit to access the test classes -->
+                    <argLine>-ea
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.time=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                    <systemPropertyVariables>
+                        <pf4j.pluginsDir>../dist/plugins</pf4j.pluginsDir>
+                        <!-- Specify plugin directory -->
+                    </systemPropertyVariables>
+                    <testSourceDirectory>src/test/it</testSourceDirectory>
+                    <skipITs>${skipITs}</skipITs>
+                    <!-- Property for skipping integration tests -->
                 </configuration>
                 <dependencies>
                     <dependency>

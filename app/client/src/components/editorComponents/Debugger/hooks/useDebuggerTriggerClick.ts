@@ -14,7 +14,7 @@ import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 import type { AppState } from "ee/reducers";
 

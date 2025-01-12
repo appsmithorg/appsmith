@@ -1,7 +1,4 @@
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -79,6 +76,7 @@ import { IDE_TYPE } from "ee/entities/IDE/constants";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -144,6 +142,7 @@ export function* createJSCollectionSaga(
     });
   }
 }
+
 export function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {

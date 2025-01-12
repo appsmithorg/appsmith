@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Flex, Text, SearchAndAdd } from "@appsmith/ads";
+import { Flex, Text, SearchAndAdd, NoSearchResults } from "@appsmith/ads";
 import styled from "styled-components";
 
 import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
@@ -18,7 +18,6 @@ import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextPr
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
@@ -62,6 +61,8 @@ const ListJSObjects = () => {
       px="spaces-3"
       py="spaces-3"
     >
+      {(!itemGroups || itemGroups.length === 0) && <BlankState />}
+
       {itemGroups && itemGroups.length > 0 ? (
         <SearchAndAdd
           onAdd={openAddJS}
@@ -111,14 +112,15 @@ const ListJSObjects = () => {
             );
           })}
           {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-            <EmptySearchResult
-              type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+            <NoSearchResults
+              text={createMessage(
+                EDITOR_PANE_TEXTS.empty_search_result,
+                createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),
+              )}
             />
           ) : null}
         </Flex>
       </FilesContextProvider>
-
-      {(!itemGroups || itemGroups.length === 0) && <BlankState />}
     </JSContainer>
   );
 };

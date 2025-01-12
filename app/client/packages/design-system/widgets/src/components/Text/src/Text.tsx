@@ -45,6 +45,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLDivElement>) => {
         fontStyle: isItalic ? "italic" : "normal",
         wordBreak,
         textAlign,
+        whiteSpace: "pre-wrap",
         ...style,
       }}
       {...rest}

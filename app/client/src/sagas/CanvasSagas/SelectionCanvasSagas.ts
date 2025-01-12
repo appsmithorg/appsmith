@@ -1,6 +1,6 @@
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import equal from "fast-deep-equal/es6";

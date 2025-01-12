@@ -125,7 +125,6 @@ function Files() {
               parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
-              type={type}
             />
           );
         } else {

@@ -1,4 +1,4 @@
-name: Appsmith Github Release Workflow
+name: Github Release
 
 # This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
 # The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.get_version.outputs.tag }}
+      tag: ${{ steps.main.outputs.tag }}
+      docker_tags: ${{ steps.main.outputs.docker_tags }}
 
     steps:
       - name: Environment details

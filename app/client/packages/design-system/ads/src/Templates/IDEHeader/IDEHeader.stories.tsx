@@ -6,7 +6,7 @@ import { IDEHeaderSwitcher } from "./HeaderSwitcher";
 import { noop } from "lodash";
 import { Icon } from "../../Icon";
 import { Button } from "../../Button";
-import { List } from "../../List";
+import { List, ListItem } from "../../List";
 import { Flex } from "../../Flex";
 import { Text } from "../../Text";
 import { ListHeaderContainer } from "../EntityExplorer/styles";
@@ -58,6 +58,16 @@ export const WithHeaderTitle = () => {
 
 export const WithHeaderDropdown = () => {
   const [open, setOpen] = React.useState(false);
+  const items = [
+    {
+      title: "Page1",
+      onClick: noop,
+    },
+    {
+      title: "Page2",
+      onClick: noop,
+    },
+  ];
 
   return (
     <IDEHeader>
@@ -79,22 +89,11 @@ export const WithHeaderDropdown = () => {
               <Text kind="heading-xs">Pages</Text>
               <Button isIconButton kind="tertiary" startIcon="plus" />
             </ListHeaderContainer>
-            <List
-              items={[
-                {
-                  title: "Page1",
-                  onClick: noop,
-                  description: "",
-                  descriptionType: "inline",
-                },
-                {
-                  title: "Page2",
-                  onClick: noop,
-                  description: "",
-                  descriptionType: "inline",
-                },
-              ]}
-            />
+            <List>
+              {items.map((item) => (
+                <ListItem key={item.title} {...item} />
+              ))}
+            </List>
           </Flex>
         </IDEHeaderSwitcher>
       </IDEHeader.Left>

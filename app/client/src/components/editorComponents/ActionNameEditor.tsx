@@ -15,7 +15,7 @@ import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "ee/constants/messages";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { Action } from "entities/Action";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";

@@ -16,7 +16,7 @@ import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
 import curlImportSagas from "sagas/CurlImportSagas";
-import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
+import { watchDatasourcesSagas } from "ee/sagas/DatasourcesSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import errorSagas from "sagas/ErrorSagas";
@@ -52,6 +52,7 @@ import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
+import gitSagas from "git/sagas";
 
 export const sagas = [
   initSagas,
@@ -106,4 +107,5 @@ export const sagas = [
   ternSagas,
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
+  gitSagas,
 ];

@@ -1,5 +1,5 @@
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";

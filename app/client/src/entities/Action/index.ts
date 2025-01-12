@@ -15,6 +15,7 @@ export enum PluginType {
   REMOTE = "REMOTE",
   AI = "AI",
   INTERNAL = "INTERNAL",
+  EXTERNAL_SAAS = "EXTERNAL_SAAS",
 }
 
 export enum PluginPackageName {
@@ -260,13 +261,22 @@ export interface ActionViewMode {
   timeoutInMillisecond?: number;
 }
 
+export interface ExternalSaasAction extends BaseAction {
+  pluginType: PluginType.EXTERNAL_SAAS;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
+
 export type Action =
   | ApiAction
   | QueryAction
   | SaaSAction
   | RemoteAction
   | AIAction
-  | InternalAction;
+  | InternalAction
+  | ExternalSaasAction;
 
 export enum SlashCommand {
   NEW_API,

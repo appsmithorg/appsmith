@@ -118,4 +118,31 @@ export const propertyPaneContentConfig = [
       },
     ],
   },
+  {
+    sectionName: "Form settings",
+    children: [
+      {
+        helpText:
+          "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
+        propertyName: "disableOnInvalidForm",
+        label: "Disable when form invalid",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        helpText:
+          "Resets the fields of the form, on click, if this widget exists directly within a Form widget.",
+        propertyName: "resetFormOnClick",
+        label: "Reset form on success",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+    ],
+  },
 ];

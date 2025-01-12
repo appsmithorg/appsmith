@@ -10,47 +10,46 @@ import { useMemo } from "react";
 
 export default function useGitPermissions() {
   const { artifact, artifactDef } = useGitContext();
-  const { artifactType } = artifactDef;
 
   const isConnectPermitted = useMemo(() => {
     if (artifact) {
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef?.artifactType === GitArtifactType.Application) {
         return hasConnectToGitPermission(artifact.userPermissions);
       }
     }
 
     return false;
-  }, [artifact, artifactType]);
+  }, [artifact, artifactDef?.artifactType]);
 
   const isManageDefaultBranchPermitted = useMemo(() => {
     if (artifact) {
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef?.artifactType === GitArtifactType.Application) {
         return hasManageDefaultBranchPermission(artifact.userPermissions);
       }
     }
 
     return false;
-  }, [artifact, artifactType]);
+  }, [artifact, artifactDef?.artifactType]);
 
   const isManageProtectedBranchesPermitted = useMemo(() => {
     if (artifact) {
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef?.artifactType === GitArtifactType.Application) {
         return hasManageProtectedBranchesPermission(artifact.userPermissions);
       }
     }
 
     return false;
-  }, [artifact, artifactType]);
+  }, [artifact, artifactDef?.artifactType]);
 
   const isManageAutocommitPermitted = useMemo(() => {
     if (artifact) {
-      if (artifactType === GitArtifactType.Application) {
+      if (artifactDef?.artifactType === GitArtifactType.Application) {
         return hasManageAutoCommitPermission(artifact.userPermissions);
       }
     }
 
     return false;
-  }, [artifact, artifactType]);
+  }, [artifact, artifactDef?.artifactType]);
 
   return {
     isConnectPermitted,

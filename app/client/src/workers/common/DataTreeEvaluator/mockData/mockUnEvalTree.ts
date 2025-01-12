@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 export const unEvalTree = {
   MainContainer: {

@@ -14,8 +14,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* updateProtectedBranchesSaga(
   action: GitArtifactPayloadAction<UpdateProtectedBranchesInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const artifactDef = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
   let response: UpdateProtectedBranchesResponse | undefined;
 
   try {
@@ -25,14 +24,16 @@ export default function* updateProtectedBranchesSaga(
 
     response = yield call(
       updateProtectedBranchesRequest,
-      baseArtifactId,
+      artifactDef.baseArtifactId,
       params,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.updateProtectedBranchesSuccess(artifactDef));
-      yield put(gitArtifactActions.fetchProtectedBranchesInit(artifactDef));
+      yield put(
+        gitArtifactActions.updateProtectedBranchesSuccess({ artifactDef }),
+      );
+      yield put(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
     }
   } catch (e) {
     if (response && response.responseMeta.error) {
@@ -40,7 +41,7 @@ export default function* updateProtectedBranchesSaga(
 
       yield put(
         gitArtifactActions.updateProtectedBranchesError({
-          ...artifactDef,
+          artifactDef,
           error,
         }),
       );

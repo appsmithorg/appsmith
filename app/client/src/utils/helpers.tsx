@@ -43,7 +43,7 @@ import { klona as klonaRegular } from "klona";
 import { klona as klonaLite } from "klona/lite";
 import { klona as klonaJson } from "klona/json";
 
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,

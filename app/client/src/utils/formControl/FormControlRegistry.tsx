@@ -37,8 +37,7 @@ import MultiFilePickerControl from "components/formControls/MultiFilePickerContr
 import type { MultipleFilePickerControlProps } from "components/formControls/MultiFilePickerControl";
 import type { RadioButtonControlProps } from "components/formControls/RadioButtonControl";
 import RadioButtonControl from "components/formControls/RadioButtonControl";
-import type { CarbonButtonProps } from "ee/components/formControls/CarbonButton";
-import { CarbonButton } from "ee/components/formControls/CarbonButton";
+import { RagDocuments } from "ee/components/formControls/RagDocuments";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -192,9 +191,14 @@ class FormControlRegistry {
         return <RadioButtonControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.CARBON_BUTTON, {
-      buildPropertyControl(controlProps: CarbonButtonProps): JSX.Element {
-        return <CarbonButton {...controlProps} />;
+    FormControlFactory.registerControlBuilder(formControlTypes.RAG_DOCUMENTS, {
+      buildPropertyControl(controlProps): JSX.Element {
+        return (
+          <RagDocuments
+            datasourceId={controlProps.datasourceId}
+            workspaceId={controlProps.workspaceId}
+          />
+        );
       },
     });
   }

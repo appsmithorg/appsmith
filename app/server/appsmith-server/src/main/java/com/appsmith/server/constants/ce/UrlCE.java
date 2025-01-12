@@ -32,6 +32,8 @@ public class UrlCE {
     public static final String PRODUCT_ALERT = BASE_URL + VERSION + "/product-alert";
     public static final String SEARCH_ENTITY_URL = BASE_URL + VERSION + "/search-entities";
     public static final String CONSOLIDATED_API_URL = BASE_URL + VERSION + "/consolidated-api";
+    public static final String GIT_APPLICATION_URL = BASE_URL + VERSION + "/git/applications";
+    public static final String GIT_ARTIFACT_URL = BASE_URL + VERSION + "/git/artifacts";
 
     // Sub-paths
     public static final String MOCKS = "/mocks";
