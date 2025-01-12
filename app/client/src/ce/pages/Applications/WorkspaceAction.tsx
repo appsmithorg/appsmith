@@ -80,6 +80,15 @@ function WorkspaceAction({
         >
           {createMessage(WORKSPACE_ACTION_BUTTON)}
         </Button>
+        <Button
+          className="t--new-button createnew"
+          endIcon="arrow-down-s-line"
+          isLoading={isCreatingApplication}
+          onClick={openActionMenu}
+          size="md"
+        >
+          {createMessage(APPGHALAM_STORE)}
+        </Button>
       </MenuTrigger>
       <MenuContent
         align="end"
