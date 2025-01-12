@@ -1,20 +1,29 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
-import type { GitArtifactErrorPayloadAction } from "../types";
+import { createArtifactAction } from "../helpers/createArtifactAction";
+import type {
+  GitArtifactBasePayload,
+  GitArtifactErrorPayloadAction,
+} from "../types";
 
-export const discardInitAction = createSingleArtifactAction((state) => {
-  state.apiResponses.discard.loading = true;
-  state.apiResponses.discard.error = null;
+export interface DiscardInitPayload extends GitArtifactBasePayload {
+  artifactId: string;
+}
 
-  return state;
-});
+export const discardInitAction = createArtifactAction<DiscardInitPayload>(
+  (state) => {
+    state.apiResponses.discard.loading = true;
+    state.apiResponses.discard.error = null;
 
-export const discardSuccessAction = createSingleArtifactAction((state) => {
+    return state;
+  },
+);
+
+export const discardSuccessAction = createArtifactAction((state) => {
   state.apiResponses.discard.loading = false;
 
   return state;
 });
 
-export const discardErrorAction = createSingleArtifactAction(
+export const discardErrorAction = createArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
@@ -25,7 +34,7 @@ export const discardErrorAction = createSingleArtifactAction(
   },
 );
 
-export const clearDiscardErrorAction = createSingleArtifactAction((state) => {
+export const clearDiscardErrorAction = createArtifactAction((state) => {
   state.apiResponses.discard.error = null;
 
   return state;

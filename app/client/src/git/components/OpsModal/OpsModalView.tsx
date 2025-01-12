@@ -72,20 +72,20 @@ function OpsModalView({
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
-        <StyledModalContent data-testid="t--git-sync-modal">
+        <StyledModalContent data-testid="t--git-ops-modal">
           <ModalHeader>{repoName}</ModalHeader>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
               <Tab
-                data-testid={"t--tab-deploy"}
+                data-testid={"t--git-ops-tab-deploy"}
                 disabled={isProtectedMode}
                 value={GitOpsTab.Deploy}
               >
                 {createMessage(DEPLOY)}
               </Tab>
               <Tab
-                data-testid={"t--tab-merge"}
+                data-testid={"t--git-ops-tab-merge"}
                 disabled={isProtectedMode}
                 value={GitOpsTab.Merge}
               >

@@ -1,7 +1,5 @@
-import {
-  ReduxActionTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";

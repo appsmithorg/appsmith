@@ -71,13 +71,21 @@ case "$IMAGE" in
     *) product_name="UNKNOWN" ;;
 esac
 
+# Download Trivy DB if necessary
+if [ ! -d "$HOME/.cache/trivy/db" ]; then
+  echo "Trivy DB not found. Downloading..."
+  TRIVY_TEMP_DIR=$(mktemp -d)
+  trivy --cache-dir $TRIVY_TEMP_DIR image --download-db-only
+  tar -cf ./db.tar.gz -C $TRIVY_TEMP_DIR/db metadata.json trivy.db
+  rm -rf $TRIVY_TEMP_DIR
+fi
+
 # Run Trivy scan
 echo "Running Trivy scan for image: $IMAGE..."
 trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db --insecure --format json "$IMAGE" > "trivy_vulnerabilities.json" || {
     echo "Error: Trivy scan failed for image: $IMAGE"
     exit 1
 }
-
 
 # Process vulnerabilities and generate CSV
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then

@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -200,8 +201,8 @@ public class ActionCollectionServiceImplTest {
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
-        Mockito.when(newPageService.findByBranchNameAndBasePageId(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(false));
@@ -234,8 +235,8 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
-        Mockito.when(newPageService.findByBranchNameAndBasePageId(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
@@ -292,8 +293,8 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(newPage));
-        Mockito.when(newPageService.findByBranchNameAndBasePageId(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
@@ -388,8 +389,8 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.empty());
 
-        Mockito.when(newPageService.findByBranchNameAndBasePageId(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))

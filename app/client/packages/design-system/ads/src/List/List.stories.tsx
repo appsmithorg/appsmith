@@ -1,5 +1,5 @@
 import React from "react";
-import { List, ListItem, Icon } from "@appsmith/ads";
+import { List, ListItem, Icon, Button } from "@appsmith/ads";
 import type { StoryObj } from "@storybook/react";
 import type { ListItemProps, ListProps } from "@appsmith/ads";
 
@@ -26,39 +26,47 @@ const ListTemplate = (args: ListProps) => {
   return <List {...args} />;
 };
 
+const items = [
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 1",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 2",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 3",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 4",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 5",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 6",
+  },
+  {
+    startIcon: <Icon name="file-list-2-line" size={"md"} />,
+    title: "Action item 7",
+  },
+];
+
 export const ListStory = ListTemplate.bind({}) as StoryObj;
 ListStory.storyName = "List";
 ListStory.args = {
-  items: [
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 1",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 2",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 3",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 4",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 5",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 6",
-    },
-    {
-      startIcon: <Icon name="file-list-2-line" size={"md"} />,
-      title: "Action item 7",
-    },
-  ],
+  children: items.map((item) => (
+    <ListItem
+      key={`item-${item.title}`}
+      {...item}
+      onClick={() => alert("Clicked")}
+    />
+  )),
 };
 
 const ListItemArgTypes = {
@@ -79,14 +87,20 @@ const ListItemArgTypes = {
       },
     },
   },
-  endIcon: {
-    control: "text",
-    description: "The icon to display at the end of the list item",
+  rightControl: {
+    description: "The control to display at the end of the list item",
     table: {
       type: {
-        summary: "string",
+        summary: "ReactNode",
       },
     },
+  },
+  rightControlVisibility: {
+    description:
+      "`always` type will show the right control always. `hover` type will show the right control only when the list item is hovered.",
+    control: "radio",
+    options: ["always", "hover"],
+    defaultValue: "always",
   },
   description: {
     control: "text",
@@ -140,11 +154,12 @@ const ListItemArgTypes = {
       },
     },
   },
-  onEndIconClick: {
-    description: "callback for when the end icon is clicked",
+  customTitleComponent: {
+    description:
+      "A custom title component for the list item to use input component for name editing",
     table: {
       type: {
-        summary: "() => void",
+        summary: "ReactNode",
       },
     },
   },
@@ -163,7 +178,7 @@ ListItemLargeStory.args = {
   description: "inline",
   descriptionType: "inline",
   size: "lg",
-  endIcon: "add-more",
+  rightControl: <Icon name="add-more" size={"md"} />,
 };
 
 export const ListItemErrorStory = ListItemTemplate.bind({}) as StoryObj;
@@ -203,6 +218,7 @@ export const ListItemBlockDescStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemBlockDescStory.storyName = "List item block description";
 ListItemBlockDescStory.argTypes = ListItemArgTypes;
 ListItemBlockDescStory.args = {
+  startIcon: <Icon name="file-list-2-line" size={"md"} />,
   title: "Action item 1",
   description: "block",
   descriptionType: "block",
@@ -212,13 +228,16 @@ export const ListItemOverflowStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemOverflowStory.storyName = "List item title overflow";
 ListItemOverflowStory.argTypes = ListItemArgTypes;
 ListItemOverflowStory.args = {
-  title: "Action item 1 Action item 1 Action item 1 Action item 1",
+  title:
+    "Action item 1 Action item 1 Action item 1 Action item 1 Action item 1",
 };
 
-export const ListItemEndIconStory = ListItemTemplate.bind({}) as StoryObj;
-ListItemEndIconStory.storyName = "List item end icon";
-ListItemEndIconStory.argTypes = ListItemArgTypes;
-ListItemEndIconStory.args = {
+export const ListItemRightControlStory = ListItemTemplate.bind({}) as StoryObj;
+ListItemRightControlStory.storyName = "List item right control";
+ListItemRightControlStory.argTypes = ListItemArgTypes;
+ListItemRightControlStory.args = {
   title: "Action item 1",
-  endIcon: "add-more",
+  rightControl: (
+    <Button isIconButton kind="tertiary" size={"sm"} startIcon="add-more" />
+  ),
 };

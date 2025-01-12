@@ -33,7 +33,7 @@ interface QuickActionsViewProps {
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
-  isGitConnected: boolean;
+  isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
@@ -57,14 +57,14 @@ function QuickActionsView({
   isAutocommitEnabled = false,
   isAutocommitPolling = false,
   isBranchPopupOpen = false,
+  isConnected = false,
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
-  isGitConnected = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
-  isStatusClean = false,
+  isStatusClean = true,
   isTriggerAutocommitLoading = false,
   pull = noop,
   statusBehindCount = 0,
@@ -131,7 +131,7 @@ function QuickActionsView({
     toggleConnectModal(true);
   }, [toggleConnectModal]);
 
-  return isGitConnected ? (
+  return isConnected ? (
     <Container>
       <BranchButton
         currentBranch={currentBranch}
@@ -144,42 +144,40 @@ function QuickActionsView({
       />
 
       {isAutocommitEnabled && isAutocommitPolling ? (
-        <AutocommitStatusbar completed={!isAutocommitPolling} />
+        <div data-testid="t--git-autocommit-loader">
+          <AutocommitStatusbar completed={!isAutocommitPolling} />
+        </div>
       ) : (
         <>
           <QuickActionButton
-            className="t--bottom-bar-commit"
             count={isProtectedMode ? undefined : statusChangeCount}
             disabled={!isFetchStatusLoading && isProtectedMode}
             icon="plus"
-            key="commit-action-btn"
             loading={isFetchStatusLoading}
             onClick={onCommitBtnClick}
+            testKey="commit"
             tooltipText={createMessage(COMMIT_CHANGES)}
           />
           <QuickActionButton
-            className="t--bottom-bar-pull"
             count={statusBehindCount}
             disabled={!isPullButtonLoading && isPullDisabled}
             icon="down-arrow-2"
-            key="pull-action-btn"
             loading={isPullButtonLoading}
             onClick={onPullBtnClick}
+            testKey="pull"
             tooltipText={pullTooltipMessage}
           />
           <QuickActionButton
-            className="t--bottom-bar-merge"
             disabled={isProtectedMode}
             icon="fork"
-            key="merge-action-btn"
             onClick={onMergeBtnClick}
+            testKey="merge"
             tooltipText={createMessage(MERGE)}
           />
           <QuickActionButton
-            className="t--bottom-git-settings"
             icon="settings-v3"
-            key="settings-action-btn"
             onClick={onSettingsClick}
+            testKey="settings"
             tooltipText={createMessage(GIT_SETTINGS)}
           />
         </>

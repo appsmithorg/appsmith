@@ -2,7 +2,6 @@ import type { ApiResponse } from "api/types";
 
 export interface GenerateSSHKeyRequestParams {
   keyType: string;
-  isImport: boolean;
 }
 
 export interface GenerateSSHKeyResponseData {

@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class ClonePageMetaDTO {
     String branchedSourcePageId;
     PageDTO clonedPageDTO;
-    String branchName;
+    RefType refType;
+    String refName;
     Map<String, String> oldToNewCollectionIds = new HashMap<>();
 }

@@ -62,7 +62,7 @@ function ConnectButton({ isConnectPermitted, onClick }: ConnectButtonProps) {
             size="lg"
           />
           <Button
-            className="t--connect-git-bottom-bar"
+            data-testid="t--git-quick-actions-connect"
             isDisabled={!isConnectPermitted}
             kind="secondary"
             onClick={onClick}

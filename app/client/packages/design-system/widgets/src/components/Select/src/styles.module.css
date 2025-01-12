@@ -23,3 +23,7 @@ button.selectTriggerButton {
   align-items: center;
   flex: 1;
 }
+
+.selectTriggerButton [data-select-text][data-placeholder] {
+  color: var(--color-fg-neutral-subtle);
+}

@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "classnames";
 
 import type { ListItemProps, ListProps } from "./List.types";
 import {
-  ContentTextWrapper,
-  DescriptionWrapper,
-  EndIconWrapper,
+  BottomContentWrapper,
+  GroupedList,
+  GroupTitle,
   InlineDescriptionWrapper,
+  RightControlWrapper,
+  StyledGroup,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
-  Wrapper,
+  TopContentWrapper,
 } from "./List.styles";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
-import { Button } from "../Button";
 import { Tooltip } from "../Tooltip";
 import {
   ListClassName,
@@ -23,53 +24,47 @@ import {
   ListItemIDescClassName,
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
-  ListItemWrapperClassName,
 } from "./List.constants";
+import { useEventCallback } from "usehooks-ts";
 
-function List({ className, items, ...rest }: ListProps) {
-  return (
+function List({ children, className, groupTitle, ...rest }: ListProps) {
+  return groupTitle ? (
+    <StyledGroup flexDirection="column">
+      <GroupTitle kind="body-s">{groupTitle}</GroupTitle>
+      <GroupedList className={className}>{children}</GroupedList>
+    </StyledGroup>
+  ) : (
     <StyledList className={clsx(ListClassName, className)} {...rest}>
-      {items.map((item) => {
-        return <ListItem key={item.title} {...item} />;
-      })}
+      {children}
     </StyledList>
   );
 }
 
 function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
-  const ref = React.useRef<HTMLDivElement>(null);
   const [disableTooltip, setDisableTooltip] = useState(true);
 
-  const isEllipsisActive = () => {
-    let active = false;
+  const handleShowFullText = useEventCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      let isInEllipsis = false;
+      const text_node = e.target;
 
-    if (ref.current) {
-      const text_node = ref.current.children[0];
-
-      if (props.isMultiline) {
-        active = text_node && text_node.clientHeight < text_node.scrollHeight;
-      } else {
-        active = text_node && text_node.clientWidth < text_node.scrollWidth;
+      if (text_node instanceof HTMLElement) {
+        if (props.isMultiline) {
+          isInEllipsis =
+            text_node && text_node.clientHeight < text_node.scrollHeight;
+        } else {
+          isInEllipsis =
+            text_node && text_node.clientWidth < text_node.scrollWidth;
+        }
       }
-    }
 
-    setDisableTooltip(!active);
-  };
-
-  useEffect(() => {
-    if (ref.current) {
-      isEllipsisActive();
-      ref.current.addEventListener("mouseover", isEllipsisActive);
-
-      return () => {
-        ref.current?.removeEventListener("mouseover", isEllipsisActive);
-      };
-    }
-  }, []);
+      setDisableTooltip(!isInEllipsis);
+    },
+  );
 
   return (
     <Tooltip content={props.children} isDisabled={disableTooltip}>
-      <TooltipTextWrapper ref={ref}>
+      <TooltipTextWrapper onMouseOver={handleShowFullText}>
         <Text
           {...props}
           className={clsx(ListItemTextOverflowClassName, props.className)}
@@ -85,87 +80,61 @@ function ListItem(props: ListItemProps) {
   const {
     description,
     descriptionType = "inline",
-    endIcon,
     hasError,
+    rightControl,
+    rightControlVisibility = "always",
     size = "md",
     startIcon,
     title,
   } = props;
-  const isBlockDescription = descriptionType === "block";
+  const isBlockDescription = descriptionType === "block" && description;
+  const isInlineDescription = descriptionType === "inline" && description;
 
-  const listItemhandleKeyDown = (e: React.KeyboardEvent) => {
-    if (!props.isDisabled && props.onClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onClick();
-          break;
-      }
-    }
-  };
-
-  const endIconhandleKeyDown = (e: React.KeyboardEvent) => {
+  const handleOnClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!props.isDisabled && props.onEndIconClick) {
-      switch (e.key) {
-        case "Enter":
-        case " ":
-          props.onEndIconClick();
-          break;
-      }
+    if (!props.isDisabled && props.onClick) {
+      props.onClick(e);
     }
-  };
+  });
 
-  const endIconOnClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!props.isDisabled && props.onEndIconClick) {
-      props.onEndIconClick();
+    if (!props.isDisabled && props.onDoubleClick) {
+      props.onDoubleClick();
     }
-  };
+  });
 
-  const handleOnClick = () => {
-    if (!props.isDisabled && props.onClick) {
-      props.onClick();
-    }
-  };
+  const handleRightControlClick = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  });
 
   return (
-    <Wrapper className={clsx(ListItemWrapperClassName, props.wrapperClassName)}>
-      <StyledListItem
-        className={clsx(ListItemClassName, props.className)}
-        data-disabled={props.isDisabled || false}
-        data-selected={props.isSelected}
-        endIcon={props.endIcon}
-        isBlockDescription={isBlockDescription}
-        onClick={handleOnClick}
-        onKeyDown={listItemhandleKeyDown}
-        size={size}
-        tabIndex={props.isDisabled ? -1 : 0}
-      >
-        <ContentTextWrapper>
-          {startIcon}
+    <StyledListItem
+      className={clsx(ListItemClassName, props.className)}
+      data-disabled={props.isDisabled || false}
+      data-rightcontrolvisibility={rightControlVisibility}
+      data-selected={props.isSelected}
+      id={props.id}
+      onClick={handleOnClick}
+      onDoubleClick={handleDoubleClick}
+      role="listitem"
+      size={size}
+    >
+      <TopContentWrapper>
+        {startIcon}
+        {props.customTitleComponent ? (
+          props.customTitleComponent
+        ) : (
           <InlineDescriptionWrapper>
-            <DescriptionWrapper>
-              <TextWithTooltip
-                className={ListItemTitleClassName}
-                color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
-              >
-                {title}
-              </TextWithTooltip>
-              {isBlockDescription && description && (
-                <TextWithTooltip
-                  className={ListItemBDescClassName}
-                  color="var(--ads-v2-color-fg-muted)"
-                  isMultiline
-                  kind="body-s"
-                >
-                  {description}
-                </TextWithTooltip>
-              )}
-            </DescriptionWrapper>
-            {!isBlockDescription && description && (
+            <TextWithTooltip
+              className={ListItemTitleClassName}
+              color={hasError ? "var(--ads-v2-color-fg-error)" : undefined}
+            >
+              {title}
+            </TextWithTooltip>
+            {isInlineDescription && (
               <TextWithTooltip
                 className={ListItemIDescClassName}
                 color="var(--ads-v2-color-fg-muted)"
@@ -175,22 +144,26 @@ function ListItem(props: ListItemProps) {
               </TextWithTooltip>
             )}
           </InlineDescriptionWrapper>
-        </ContentTextWrapper>
-      </StyledListItem>
-      {endIcon && (
-        <EndIconWrapper>
-          <Button
-            isDisabled={props.isDisabled}
-            isIconButton
-            kind="tertiary"
-            onClick={endIconOnClick}
-            onKeyDown={endIconhandleKeyDown}
-            size={"sm"}
-            startIcon={endIcon}
-          />
-        </EndIconWrapper>
+        )}
+        {rightControl && (
+          <RightControlWrapper onClick={handleRightControlClick}>
+            {rightControl}
+          </RightControlWrapper>
+        )}
+      </TopContentWrapper>
+      {isBlockDescription && (
+        <BottomContentWrapper>
+          <TextWithTooltip
+            className={ListItemBDescClassName}
+            color="var(--ads-v2-color-fg-muted)"
+            isMultiline
+            kind="body-s"
+          >
+            {description}
+          </TextWithTooltip>
+        </BottomContentWrapper>
       )}
-    </Wrapper>
+    </StyledListItem>
   );
 }
 

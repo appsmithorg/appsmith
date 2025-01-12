@@ -3,18 +3,16 @@ import type {
   GitArtifactErrorPayloadAction,
   GitAsyncSuccessPayload,
 } from "../types";
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 
-export const fetchLocalProfileInitAction = createSingleArtifactAction(
-  (state) => {
-    state.apiResponses.localProfile.loading = true;
-    state.apiResponses.localProfile.error = null;
+export const fetchLocalProfileInitAction = createArtifactAction((state) => {
+  state.apiResponses.localProfile.loading = true;
+  state.apiResponses.localProfile.error = null;
 
-    return state;
-  },
-);
+  return state;
+});
 
-export const fetchLocalProfileSuccessAction = createSingleArtifactAction<
+export const fetchLocalProfileSuccessAction = createArtifactAction<
   GitAsyncSuccessPayload<FetchLocalProfileResponseData>
 >((state, action) => {
   state.apiResponses.localProfile.loading = false;
@@ -23,7 +21,7 @@ export const fetchLocalProfileSuccessAction = createSingleArtifactAction<
   return state;
 });
 
-export const fetchLocalProfileErrorAction = createSingleArtifactAction(
+export const fetchLocalProfileErrorAction = createArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 

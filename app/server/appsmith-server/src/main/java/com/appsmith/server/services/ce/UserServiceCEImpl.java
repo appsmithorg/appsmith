@@ -510,7 +510,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-    private Mono<User> signupIfAllowed(User user) {
+    @Override
+    public Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {

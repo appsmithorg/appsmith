@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Text, SearchAndAdd } from "@appsmith/ads";
+import { Flex, Text, SearchAndAdd, NoSearchResults } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -18,7 +18,6 @@ import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
@@ -53,6 +52,8 @@ const ListQuery = () => {
       px="spaces-3"
       py="spaces-3"
     >
+      {Object.keys(itemGroups).length === 0 && <BlankState />}
+
       {itemGroups.length > 0 ? (
         <SearchAndAdd
           onAdd={openAddQuery}
@@ -95,13 +96,14 @@ const ListQuery = () => {
           );
         })}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult
-            type={createMessage(EDITOR_PANE_TEXTS.search_objects.queries)}
+          <NoSearchResults
+            text={createMessage(
+              EDITOR_PANE_TEXTS.empty_search_result,
+              createMessage(EDITOR_PANE_TEXTS.search_objects.queries),
+            )}
           />
         ) : null}
       </Flex>
-
-      {Object.keys(itemGroups).length === 0 && <BlankState />}
     </Flex>
   );
 };
