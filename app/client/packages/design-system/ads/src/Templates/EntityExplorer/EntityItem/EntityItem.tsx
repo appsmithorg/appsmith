@@ -47,13 +47,6 @@ export const EntityItem = (props: EntityItemProps) => {
     () => ({
       onChange: handleTitleChange,
       onKeyUp: handleKeyUp,
-      style: {
-        backgroundColor: "var(--ads-v2-color-bg)",
-        paddingTop: 0,
-        paddingBottom: 0,
-        height: "32px",
-        top: 0,
-      },
     }),
     [handleKeyUp, handleTitleChange],
   );
