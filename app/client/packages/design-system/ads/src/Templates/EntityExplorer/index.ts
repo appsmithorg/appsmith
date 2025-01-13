@@ -8,3 +8,4 @@ export * from "./ExplorerContainer";
 export * from "./EntityItem";
 export { useEditableText } from "./Editable";
 export * from "./EntityGroupsList";
+export * from "./EntityListTree";

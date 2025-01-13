@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
-import { ListItem, Spinner, Tooltip } from "../../..";
+import { ListItem } from "../../../List";
+import { Spinner } from "../../../Spinner";
+import { Tooltip } from "../../../Tooltip";
 
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styles";
@@ -32,11 +34,21 @@ export const EntityItem = (props: EntityItemProps) => {
     onNameSave,
   );
 
+  // When in loading state, start icon becomes the loading icon
+  const startIcon = useMemo(() => {
+    if (isLoading) {
+      return <Spinner size="md" />;
+    }
+
+    return props.startIcon;
+  }, [isLoading, props.startIcon]);
+
   const inputProps = useMemo(
     () => ({
       onChange: handleTitleChange,
       onKeyUp: handleKeyUp,
       style: {
+        backgroundColor: "var(--ads-v2-color-bg)",
         paddingTop: 0,
         paddingBottom: 0,
         height: "32px",
@@ -46,14 +58,7 @@ export const EntityItem = (props: EntityItemProps) => {
     [handleKeyUp, handleTitleChange],
   );
 
-  const startIcon = useMemo(() => {
-    if (isLoading) {
-      return <Spinner size="md" />;
-    }
-
-    return props.startIcon;
-  }, [isLoading, props.startIcon]);
-
+  // Use List Item custom title prop to show the editable name
   const customTitle = useMemo(() => {
     return (
       <Tooltip
@@ -75,6 +80,15 @@ export const EntityItem = (props: EntityItemProps) => {
     );
   }, [editableName, inputProps, inputRef, inEditMode, validationError]);
 
+  // Do not show right control if the visibility is hover and the item is in edit mode
+  const rightControl = useMemo(() => {
+    if (props.rightControlVisibility === "hover" && inEditMode) {
+      return null;
+    }
+
+    return props.rightControl;
+  }, [inEditMode, props.rightControl, props.rightControlVisibility]);
+
   return (
     <ListItem
       {...props}
@@ -82,6 +96,7 @@ export const EntityItem = (props: EntityItemProps) => {
       customTitleComponent={customTitle}
       data-testid={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
+      rightControl={rightControl}
       startIcon={startIcon}
     />
   );
