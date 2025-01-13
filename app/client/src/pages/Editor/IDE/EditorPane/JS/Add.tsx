@@ -100,6 +100,9 @@ const AddJS = () => {
         <SearchInput onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
           <EntityGroupsList
+            flexProps={{
+              pb: "spaces-3",
+            }}
             groups={filteredItemGroups}
             showDivider
             visibleItems={DEFAULT_GROUP_LIST_SIZE}
