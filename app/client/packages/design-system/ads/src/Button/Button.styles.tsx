@@ -273,9 +273,11 @@ export const StyledButton = styled.button<{
     ${({ isFocusVisible }) =>
       isFocusVisible &&
       css`
-        outline: var(--ads-v2-border-width-outline) solid
-          var(--ads-v2-color-outline);
-        outline-offset: var(--ads-v2-offset-outline);
+        :focus-visible {
+          outline: var(--ads-v2-border-width-outline) solid
+            var(--ads-v2-color-outline) !important;
+          outline-offset: var(--ads-v2-offset-outline) !important;
+        }
       `}
   }
 `;
