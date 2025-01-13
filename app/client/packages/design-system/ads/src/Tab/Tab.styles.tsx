@@ -88,7 +88,7 @@ export const StyledTab = styled(RadixTabs.TabsTrigger)`
   &:focus-visible {
     --tab-color: var(--ads-v2-colors-content-label-default-fg);
     outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 `;
