@@ -4,19 +4,22 @@ import { builderURL } from "ee/RouteBuilder";
 import { createMessage, DISCARD_SUCCESS } from "ee/constants/messages";
 import discardRequest from "git/requests/discardRequest";
 import type { DiscardResponse } from "git/requests/discardRequest.types";
+import type { DiscardInitPayload } from "git/store/actions/discardActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
 import { call, delay, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
-export default function* discardSaga(action: GitArtifactPayloadAction) {
-  const { artifactDef } = action.payload;
+export default function* discardSaga(
+  action: GitArtifactPayloadAction<DiscardInitPayload>,
+) {
+  const { artifactDef, artifactId } = action.payload;
 
   let response: DiscardResponse | undefined;
 
   try {
-    response = yield call(discardRequest, artifactDef.baseArtifactId);
+    response = yield call(discardRequest, artifactId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

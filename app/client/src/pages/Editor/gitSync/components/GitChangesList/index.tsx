@@ -50,7 +50,6 @@ export default function GitChangesList() {
       <ExpandableChange kind={ExpandableChangeKind.JSLIBS} status={status} />
       <StaticChange kind={StaticChangeKind.SETTINGS} status={status} />
       <StaticChange kind={StaticChangeKind.THEME} status={status} />
-      <StaticChange kind={StaticChangeKind.PACKAGES} status={status} />
       <StaticChange kind={StaticChangeKind.MODULES} status={status} />
       {status?.migrationMessage ? (
         <CalloutContainer>

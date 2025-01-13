@@ -2,10 +2,14 @@ import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import type { ListItemProps } from "@appsmith/ads";
-import { Flex, SearchInput, NoSearchResults } from "@appsmith/ads";
+import {
+  EntityGroupsList,
+  Flex,
+  SearchInput,
+  NoSearchResults,
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import GroupedList from "../components/GroupedList";
 import {
   useGroupedAddJsOperations,
   useJSAdd,
@@ -54,7 +58,7 @@ const AddJS = () => {
 
   const itemGroups = groupedJsOperations.map(
     ({ className, operations, title }) => ({
-      groupTitle: title,
+      groupTitle: title || "",
       className: className,
       items: operations.map(getListItems),
     }),
@@ -94,7 +98,7 @@ const AddJS = () => {
         />
         <SearchInput onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
-          <GroupedList groups={filteredItemGroups} />
+          <EntityGroupsList groups={filteredItemGroups} showDivider />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults

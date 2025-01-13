@@ -24,11 +24,10 @@ export interface FetchStatusResponseData {
   modifiedDatasources: number;
   modifiedJSLibs: number;
   modifiedJSObjects: number;
-  modifiedPackages: number;
-  modifiedModuleInstances: number;
-  modifiedModules: number;
   modifiedPages: number;
   modifiedQueries: number;
+  modifiedSourceModules: number;
+  modifiedModuleInstances: number;
   pagesAdded: string[];
   pagesModified: string[];
   pagesRemoved: string[];
