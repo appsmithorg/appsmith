@@ -24,7 +24,7 @@ export const OldWidgetEntityList = () => {
   if (!widgets.children) return null;
 
   return (
-    <ListContainer>
+    <ListContainer flexDirection="column">
       {widgets.children.map((child) => (
         <WidgetEntity
           basePageId={basePageId}
