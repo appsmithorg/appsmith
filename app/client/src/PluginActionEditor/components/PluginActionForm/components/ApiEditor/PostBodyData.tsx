@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import {
   POST_BODY_FORMAT_OPTIONS,
@@ -16,14 +16,14 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes } from "@appsmith/ads-old";
-import {
-  getPostBodyFormat,
-  updatePostBodyContentType,
-} from "../../../../store";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
-import { Select, Option } from "@appsmith/ads";
+import SelectField from "components/editorComponents/form/fields/SelectField";
+import { getFormValues } from "redux-form";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { Action } from "entities/Action";
+import { get } from "lodash";
 
 const PostBodyContainer = styled.div`
   display: flex;
@@ -31,6 +31,7 @@ const PostBodyContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   height: 100%;
   gap: var(--ads-v2-spaces-4);
+
   .ads-v2-select {
     max-width: 250px;
     width: 100%;
@@ -40,6 +41,7 @@ const PostBodyContainer = styled.div`
 const JSONEditorFieldWrapper = styled.div`
   /* margin: 0 30px;
   width: 65%; */
+
   .CodeMirror {
     height: auto;
     min-height: 250px;
@@ -70,12 +72,12 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const postBodyFormat = useSelector(getPostBodyFormat);
-  const dispatch = useDispatch();
-
-  const updateBodyContentType = useCallback((tab: string) => {
-    dispatch(updatePostBodyContentType(tab));
-  }, []);
+  const formValues = useSelector(getFormValues(API_EDITOR_FORM_NAME)) as Action;
+  const postBodyFormat = get(
+    formValues,
+    "actionConfiguration.formData.apiContentType",
+    POST_BODY_FORMAT_OPTIONS.NONE,
+  );
 
   const { dataTreePath, theme } = props;
 
@@ -171,19 +173,14 @@ function PostBodyData(props: Props) {
 
   return (
     <PostBodyContainer>
-      <Select
+      <SelectField
         data-testid="t--api-body-tab-switch"
-        defaultValue={postBodyFormat.value}
-        onSelect={updateBodyContentType}
-        value={postBodyFormat.value}
-      >
-        {options.map((option) => (
-          <Option key={option.value} value={option.value}>
-            {option.label}
-          </Option>
-        ))}
-      </Select>
-      {tabComponentsMap(postBodyFormat.value)}
+        name="actionConfiguration.formData.apiContentType"
+        options={options}
+        placeholder="Select Body Type"
+        showLabelOnly
+      />
+      {tabComponentsMap(postBodyFormat)}
     </PostBodyContainer>
   );
 }

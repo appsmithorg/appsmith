@@ -90,7 +90,9 @@ function DropdownWrapper(props: DropdownWrapperProps) {
     >
       {props.options.map((option: Partial<SelectOptionProps>) => (
         <Option key={option.value} value={option.id}>
-          <Text renderAs="p">{option.value}</Text>
+          {props.showLabelOnly ? null : (
+            <Text renderAs="p">{option.value}</Text>
+          )}
           {option.label && <Text renderAs="p">{option.label}</Text>}
         </Option>
       ))}
