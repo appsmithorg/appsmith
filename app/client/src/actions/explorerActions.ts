@@ -1,11 +1,16 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
-export const initExplorerEntityNameEdit = (actionId: string) => {
+export const initExplorerEntityNameEdit = (entityId: string) => {
   return {
     type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
     payload: {
-      id: actionId,
+      id: entityId,
     },
+  };
+};
+export const endExplorerEntityNameEdit = () => {
+  return {
+    type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
   };
 };
 

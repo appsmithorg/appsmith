@@ -70,7 +70,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return config.settersConfig;
   }
 
-  onButtonClick = () => {
+  onButtonClick = (onReset?: () => void) => {
     if (this.props.onClick) {
       this.setState({ isLoading: true });
 
@@ -79,33 +79,35 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
-          callback: this.handleActionComplete,
+          callback: (result: ExecutionResult) =>
+            this.handleActionComplete(result, onReset),
         },
       });
 
       return;
     }
 
-    if (this.props.resetFormOnClick && this.props.onReset) {
-      this.props.onReset();
+    if (this.props.resetFormOnClick && onReset) {
+      onReset();
 
       return;
     }
   };
 
   hasOnClickAction = () => {
-    const { isDisabled, onClick, onReset, resetFormOnClick } = this.props;
+    const { isDisabled, onClick, resetFormOnClick } = this.props;
 
-    return Boolean((onClick || onReset || resetFormOnClick) && !isDisabled);
+    return Boolean((onClick || resetFormOnClick) && !isDisabled);
   };
 
-  onRecaptchaSubmitSuccess = (token: string) => {
+  onRecaptchaSubmitSuccess = (token: string, onReset?: () => void) => {
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
-        callback: this.handleActionComplete,
+        callback: (result: ExecutionResult) =>
+          this.handleActionComplete(result, onReset),
       },
     });
   };
@@ -124,49 +126,34 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  handleActionComplete = (result: ExecutionResult) => {
+  handleActionComplete = (result: ExecutionResult, onReset?: () => void) => {
     this.setState({
       isLoading: false,
     });
 
     if (result.success) {
-      if (this.props.resetFormOnClick && this.props.onReset)
-        this.props.onReset();
+      if (this.props.resetFormOnClick && onReset) onReset();
     }
   };
 
   getWidgetView() {
-    const isDisabled = (() => {
-      const { disabledWhenInvalid, isFormValid } = this.props;
-      const isDisabledWhenFormIsInvalid =
-        disabledWhenInvalid && "isFormValid" in this.props && !isFormValid;
-
-      return this.props.isDisabled || isDisabledWhenFormIsInvalid;
-    })();
-
-    const onPress = (() => {
-      if (this.hasOnClickAction()) {
-        return this.onButtonClick;
-      }
-
-      return undefined;
-    })();
-
     return (
       <ButtonComponent
         color={this.props.buttonColor}
+        disableOnInvalidForm={this.props.disableOnInvalidForm}
         excludeFromTabOrder={this.props.disableWidgetInteraction}
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         icon={this.props.iconName}
         iconPosition={this.props.iconAlign}
-        isDisabled={isDisabled}
+        isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        onPress={onPress}
+        onClick={this.onButtonClick}
         onRecaptchaSubmitError={this.onRecaptchaSubmitError}
         onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
         recaptchaKey={this.props.googleRecaptchaKey}
         recaptchaType={this.props.recaptchaType}
+        resetFormOnClick={this.props.resetFormOnClick}
         text={this.props.text}
         tooltip={this.props.tooltip}
         variant={this.props.buttonVariant}

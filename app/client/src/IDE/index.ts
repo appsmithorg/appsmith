@@ -48,6 +48,7 @@ export {
   EditableName,
   RenameMenuItem,
   useIsRenaming,
+  useValidateEntityName,
 } from "./Components/EditableName";
 
 /* ====================================================

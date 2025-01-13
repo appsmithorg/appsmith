@@ -291,7 +291,12 @@ function AddDeployKey({
           Now, give write access to it.
         </WellText>
         <FieldContainer>
-          <StyledSelect onChange={setKeyType} size="sm" value={keyType}>
+          <StyledSelect
+            getPopupContainer={(triggerNode) => triggerNode.parentNode}
+            onChange={setKeyType}
+            size="sm"
+            value={keyType}
+          >
             <Option value="ECDSA">ECDSA 256</Option>
             <Option value="RSA">RSA 4096</Option>
           </StyledSelect>

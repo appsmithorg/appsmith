@@ -1,7 +1,7 @@
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "ee/constants/ReduxActionConstants";
+} from "./ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,

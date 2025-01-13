@@ -27,8 +27,8 @@ import {
   handleLearnMoreClick,
   handleSubmitEvent,
   shouldLearnMoreButtonBeVisible,
-} from "utils/PremiumDatasourcesHelpers";
-import { PREMIUM_INTEGRATION_CONTACT_FORM } from "constants/PremiumDatasourcesConstants";
+} from "./Helpers";
+import { PREMIUM_INTEGRATION_CONTACT_FORM } from "./Constants";
 
 const FormWrapper = styled.form`
   display: flex;

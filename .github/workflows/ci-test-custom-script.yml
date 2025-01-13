@@ -390,11 +390,12 @@ jobs:
           overwrite: true
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: ${{ github.workspace }}/app/client/cypress/screenshots/
+          overwrite: true
 
       - name: Collect CI container logs
         if: failure()

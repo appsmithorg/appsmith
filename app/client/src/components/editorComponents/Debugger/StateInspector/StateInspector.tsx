@@ -3,6 +3,7 @@ import ReactJson from "react-json-view";
 import {
   Flex,
   List,
+  ListItem,
   type ListItemProps,
   SearchInput,
   Text,
@@ -69,7 +70,11 @@ export const StateInspector = () => {
               >
                 {item.group}
               </Styled.GroupName>
-              <List items={item.items} />
+              <List>
+                {item.items.map((eachItem) => (
+                  <ListItem key={eachItem.title} {...eachItem} />
+                ))}
+              </List>
             </Styled.Group>
           ))}
         </Flex>

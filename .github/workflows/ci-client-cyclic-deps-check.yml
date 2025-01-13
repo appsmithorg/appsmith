@@ -34,12 +34,32 @@ jobs:
           files: |
             app/client/src/**
 
+      - name: Use Node.js
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # Globally install the npm package
+      - name: Install dpdm globally
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm install -g dpdm@3.14
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
+
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          npx dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
-          pr_count=$(cat pr_circular_deps.txt | wc -l)
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > pr_circular_deps.txt
+          # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
+          # wc -l: Count the number of lines in the file
+          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
+          pr_count="$(awk 'NF' pr_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
           cat pr_circular_deps.txt
 
@@ -49,12 +69,21 @@ jobs:
         with:
           ref: release
 
-      - name: Count circular dependencies on release branch
-        id: coun-cyclic-deps-in-release
+      # Install all the dependencies
+      - name: Install dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
-          release_count=$(cat release_circular_deps.txt | wc -l)
+          yarn install --immutable
+
+      - name: Count circular dependencies on release branch
+        id: count-cyclic-deps-in-release
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
+          # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
+          # wc -l: Count the number of lines in the file
+          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
+          release_count="$(awk 'NF' release_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
           echo "release_count=$release_count" >> $GITHUB_OUTPUT
           cat release_circular_deps.txt
 
@@ -62,9 +91,9 @@ jobs:
         id: compare-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          release_count=${{ steps.coun-cyclic-deps-in-release.outputs.release_count }}
-          pr_count=${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}
-          diff=$((pr_count - release_count))
+          release_count="${{ steps.count-cyclic-deps-in-release.outputs.release_count }}"
+          pr_count="${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}"
+          diff="$((pr_count - release_count))"
 
           if [ "$diff" -gt 0 ]; then
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
@@ -79,9 +108,14 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
+            const message = `🔴🔴🔴 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
               body: message
             });
+
+      # Fail the workflow if cyclic dependencies are found
+      - name: Fail the workflow if cyclic dependencies are found
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
+        run: exit 1

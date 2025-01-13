@@ -31,7 +31,7 @@ function QuickActions() {
   const { currentBranch, isBranchPopupOpen, toggleBranchPopup } = useBranches();
 
   const isPullFailing = !!pullError;
-  const isStatusClean = status?.isClean ?? false;
+  const isStatusClean = status?.isClean ?? true;
   const statusBehindCount = status?.behindCount ?? 0;
   const statusChangeCount = useStatusChangeCount(status);
 

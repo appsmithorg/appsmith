@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -754,8 +754,7 @@ export interface GitStatusData {
   modifiedJSObjects: number;
   modifiedQueries: number;
   modifiedJSLibs: number;
-  modifiedPackages?: number;
-  modifiedModules?: number;
+  modifiedSourceModules?: number;
   modifiedModuleInstances?: number;
 }
 
