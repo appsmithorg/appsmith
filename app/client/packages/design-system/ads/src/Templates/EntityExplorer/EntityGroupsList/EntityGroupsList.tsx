@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { LoadMore } from "./EntityGroupsList.styles";
 import type {
   EntityGroupProps,
@@ -37,6 +37,10 @@ const EntityGroup = <T,>({
   const [visibleItemsCount, setVisibleItemsCount] = React.useState(
     visibleItems || group.items.length,
   );
+
+  useEffect(() => {
+    setVisibleItemsCount(visibleItems || group.items.length);
+  }, [group.items.length, visibleItems]);
 
   const lazyLoading = useMemo(() => {
     return {
