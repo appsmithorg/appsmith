@@ -4,8 +4,11 @@ import clsx from "classnames";
 import type { ListItemProps, ListProps } from "./List.types";
 import {
   BottomContentWrapper,
+  GroupedList,
+  GroupTitle,
   InlineDescriptionWrapper,
   RightControlWrapper,
+  StyledGroup,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
@@ -24,12 +27,15 @@ import {
 } from "./List.constants";
 import { useEventCallback } from "usehooks-ts";
 
-function List({ className, items, ...rest }: ListProps) {
-  return (
+function List({ children, className, groupTitle, ...rest }: ListProps) {
+  return groupTitle ? (
+    <StyledGroup flexDirection="column">
+      <GroupTitle kind="body-s">{groupTitle}</GroupTitle>
+      <GroupedList className={className}>{children}</GroupedList>
+    </StyledGroup>
+  ) : (
     <StyledList className={clsx(ListClassName, className)} {...rest}>
-      {items.map((item) => {
-        return <ListItem key={item.title} {...item} />;
-      })}
+      {children}
     </StyledList>
   );
 }

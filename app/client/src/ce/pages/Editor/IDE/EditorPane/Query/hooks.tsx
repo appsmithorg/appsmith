@@ -28,7 +28,11 @@ import type { UseRoutes } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "@appsmith/ads";
+import {
+  type EntityGroupProps,
+  type ListItemProps,
+  type EntityItemProps,
+} from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -71,9 +75,10 @@ export type GroupedAddOperations = Array<{
   operations: ActionOperation[];
 }>;
 
-export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
+export const useGroupedAddQueryOperations = () => {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const pagePermissions = useSelector(getPagePermissions);
+  const { getListItems } = useAddQueryListItems();
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -91,6 +96,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   );
 
   const groups: GroupedAddOperations = [];
+  const groupedItems: EntityGroupProps<ListItemProps | EntityItemProps>[] = [];
 
   /** From existing Datasource **/
 
@@ -108,7 +114,35 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
     operations: fromNewBlankAPI,
   });
 
-  return groups;
+  groups.map((group) => {
+    const items = getListItems(group.operations);
+    const lastItem = items[items.length - 1];
+
+    if (group.title === "Datasources" && lastItem?.title === "New datasource") {
+      items.splice(items.length - 1);
+
+      const addConfig = {
+        icon: lastItem.startIcon,
+        onClick: lastItem.onClick,
+        title: lastItem.title,
+      };
+
+      groupedItems.push({
+        groupTitle: group.title,
+        className: group.className,
+        items,
+        addConfig,
+      });
+    } else {
+      groupedItems.push({
+        groupTitle: group.title || "",
+        className: group.className,
+        items,
+      });
+    }
+  });
+
+  return groupedItems;
 };
 
 const PluginActionEditor = lazy(async () =>

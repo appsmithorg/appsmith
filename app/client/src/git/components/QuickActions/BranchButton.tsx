@@ -51,7 +51,7 @@ export default function BranchButton({
   isAutocommitPolling = false,
   isBranchPopupOpen = false,
   isProtectedMode = false,
-  isStatusClean = false,
+  isStatusClean = true,
   isTriggerAutocommitLoading = false,
   toggleBranchPopup = noop,
 }: BranchButtonProps) {
