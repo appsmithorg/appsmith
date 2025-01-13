@@ -129,14 +129,6 @@ export const StyledListItem = styled.div<{
     background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
-  /* Focus styles */
-
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
-  }
-
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
     white-space: nowrap;
