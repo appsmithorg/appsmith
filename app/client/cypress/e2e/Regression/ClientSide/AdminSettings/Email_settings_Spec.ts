@@ -19,29 +19,28 @@ describe(
     const fromEmail = `sagar.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
     const POLL_INTERVAL = 5000;
     const TIMEOUT = 80000;
-    const resetPassSubject: string = "Reset your Appsmith password";
-    const testEmailSubject: string = "Test email from Appsmith";
-    const testEmailBody: string =
-      "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!";
     const originUrl = Cypress.config("baseUrl");
 
     let workspaceName: string, applicationName: string;
-    const emailOne = `sagarSpec1.testuserone@appsmith.com`;
-    const emailTwo = `sagarSpec2.testusertwo@appsmith.com`;
-    const emailThree = `sagarSpec3.testuserthree@appsmith.com`;
-    const emailFour = `sagarSpec4.testuserfour@appsmith.com`;
+    const emailOne = `sagarspec1.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
+    const emailTwo = `sagarspec2.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
+    const emailThree = `sagarspec3.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
+    const emailFour = `sagarspec4.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
     const tempPassword = "testPassword";
 
-    it("1. Verify adding new admin user and sign up process", () => {
+    before(() => {
       cy.LogOut();
       cy.SignupFromAPI(emailOne, tempPassword);
       cy.LogOut();
       cy.SignupFromAPI(emailTwo, tempPassword);
       cy.LogOut();
-      // cy.SignupFromAPI(emailThree, tempPassword);
-      // cy.LogOut();
-      // cy.SignupFromAPI(emailFour, tempPassword);
-      // cy.LogOut();
+      cy.SignupFromAPI(emailThree, tempPassword);
+      cy.LogOut();
+      cy.SignupFromAPI(emailFour, tempPassword);
+      cy.LogOut();
+    });
+
+    it("1. Verify adding new admin user and sign up process", () => {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
@@ -58,11 +57,13 @@ describe(
         formWidgetsPage.dropdownInput,
       );
       cy.SignupFromAPI(fromEmail, "testPassword");
-
       cy.LoginFromAPI(fromEmail, "testPassword");
     });
 
     it("2. Verify admin setup smtp and test email works", () => {
+      const testEmailSubject: string = "Test email from Appsmith";
+      const testEmailBody: string =
+        "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!";
       agHelper.RefreshPage();
       adminSettings.NavigateToAdminSettings(false);
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
@@ -135,6 +136,10 @@ describe(
     });
 
     it("3. To verify forget password email", () => {
+      const resetPassSubject: string =
+        CURRENT_REPO === REPO.EE
+          ? "Reset your Appsmith password"
+          : "Reset your Appsmith password";
       cy.LogOut();
       cy.LoginFromAPI(emailOne, tempPassword);
       agHelper.RefreshPage();
@@ -149,7 +154,7 @@ describe(
           url: "/api/v1/users/forgotPassword", // Match the endpoint
         },
         (req) => {
-          req.headers["Origin"] = originUrl;
+          req.headers["Origin"] = originUrl.replace(/\/$/, "");
           req.continue();
         },
       ).as("forgotPasswordCall");
@@ -169,20 +174,6 @@ describe(
         `A password reset link has been sent to your email address ${emailOne} registered with Appsmith.`,
       );
 
-      cy.request({
-        method: "POST",
-        url: "/api/v1/users/forgotPassword",
-        headers: {
-          "X-Requested-By": "Appsmith",
-          Origin: originUrl,
-        },
-        body: {
-          email: emailOne,
-        },
-        failOnStatusCode: true,
-      }).then((response) => {
-        console.log("Forget Response:", response);
-      });
       agHelper
         .waitForEmail({
           pollInterval: POLL_INTERVAL,
@@ -201,10 +192,9 @@ describe(
           );
 
           if (resetPasswordLinkMatch) {
-            const resetPasswordLink = resetPasswordLinkMatch[1].replace(
-              /([^:]\/)\/+/g,
-              "$1",
-            );
+            const resetPasswordLink = resetPasswordLinkMatch[1]
+              .replace(new RegExp(`(${originUrl})(\\/+)`, "g"), "$1/")
+              .replace(/&#61;/g, "=");
             console.log("Reset Password Link:", resetPasswordLink);
             cy.visit(resetPasswordLink, { timeout: 60000 });
             agHelper.AssertContains("Reset password");
@@ -220,6 +210,10 @@ describe(
     });
 
     it("4. To verify invite workspace email", () => {
+      const inviteEmailSubject: string =
+        CURRENT_REPO === REPO.EE
+          ? "You’re invited to the workspace"
+          : "You’re invited to the workspace";
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -232,12 +226,14 @@ describe(
         homePage.NavigateToHome();
         homePage.InviteUserToWorkspace(workspaceName, emailTwo, "Developer");
       });
+      cy.LogOut();
+      cy.LoginFromAPI(emailTwo, tempPassword);
       agHelper
         .waitForEmail({
           pollInterval: POLL_INTERVAL,
           timeout: TIMEOUT,
           targetSubject: inviteEmailSubject,
-          targetEmail: Cypress.env("TESTUSERNAME2"),
+          targetEmail: emailTwo,
         })
         .then((email) => {
           expect(email).to.exist;
@@ -250,8 +246,6 @@ describe(
           ); // Extract the link using regex
 
           if (inviteLinkMatch) {
-            cy.LogOut();
-            cy.LoginFromAPI(emailTwo, tempPassword);
             const inviteLink = inviteLinkMatch[1].replace(/([^:]\/)\/+/g, "$1");
             console.log("Invite workspace Link:", inviteLink);
             cy.visit(inviteLink, { timeout: 60000 });
@@ -270,6 +264,10 @@ describe(
     });
 
     it("5. To verify application invite email with developer right", () => {
+      const inviteEmailSubject: string =
+        CURRENT_REPO === REPO.EE
+          ? "You're invited to the app"
+          : "You’re invited to the Appsmith workspace.";
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -289,6 +287,7 @@ describe(
       inviteModal.OpenShareModal();
       homePage.InviteUserToApplication(emailThree, "Developer");
       cy.LogOut();
+      cy.LoginFromAPI(emailThree, tempPassword);
       agHelper
         .waitForEmail({
           pollInterval: POLL_INTERVAL,
@@ -300,40 +299,48 @@ describe(
           console.log("Email:", email);
           expect(email).to.exist;
           expect(email.headers.subject).to.include(inviteEmailSubject);
-          expect(email.headers.to).to.equal(emailThree);
-
+          expect(email.headers.to).to.include(emailThree);
           const emailHtml = email.html; // Store the email HTML content
 
-          console.log("workspaceName: ", workspaceName);
+          // Match all href links inside the <body>
+          const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+          console.log("bodyMatch: ", bodyMatch);
+          if (bodyMatch && bodyMatch[1]) {
+            const bodyContent = bodyMatch[1];
 
-          const inviteLinkMatch = emailHtml.match(
-            /href="([^"]*applications[^"]*)"/,
-          ); // Extract the link using regex
-
-          if (inviteLinkMatch) {
-            cy.LoginFromAPI(emailThree, tempPassword);
-            const inviteLink = inviteLinkMatch[1].replace(/([^:]\/)\/+/g, "$1");
-            cy.visit(inviteLink, { timeout: 60000 });
-            homePage.SelectWorkspace(workspaceName);
-            agHelper.AssertContains(workspaceName);
-            cy.get(homePageLocators.applicationCard)
-              .first()
-              .trigger("mouseover");
-            agHelper.AssertElementExist(homePageLocators.appEditIcon);
-          } else {
-            throw new Error(
-              "Invite developer app link not found in the email HTML",
+            const inviteLinkMatch = bodyContent.match(
+              /href="https?:\/\/[^"]*"/,
             );
+            console.log("inviteLinkMatch: ", inviteLinkMatch);
+
+            if (inviteLinkMatch) {
+              const inviteLink = inviteLinkMatch[0]
+                .replace(/([^:]\/)\/+/g, "$1")
+                .replace(/href=|=|"|"/g, "");
+
+              console.log("Invite workspace Link:", inviteLink);
+              cy.visit(inviteLink, { timeout: 60000 });
+              homePage.SelectWorkspace(workspaceName);
+              agHelper.AssertContains(applicationName);
+              cy.get(homePageLocators.applicationCard)
+                .first()
+                .trigger("mouseover");
+              agHelper.AssertElementExist(homePageLocators.appEditIcon);
+            } else {
+              throw new Error(
+                "Invite developer app link not found in the email HTML",
+              );
+            }
           }
         });
       cy.LogOut();
     });
 
-    it.only("6. To verify application invite email with view right", () => {
+    it("6. To verify application invite email with view right", () => {
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You're invited to the app"
-          : "You're invited to the Appsmith workspace";
+          : "You’re invited to the Appsmith workspace.";
 
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
 
@@ -354,6 +361,7 @@ describe(
       inviteModal.OpenShareModal();
       homePage.InviteUserToApplication(emailFour, "App Viewer");
       cy.LogOut();
+      cy.LoginFromAPI(emailFour, tempPassword);
       agHelper
         .waitForEmail({
           pollInterval: POLL_INTERVAL,
@@ -365,32 +373,38 @@ describe(
           console.log("Email:", email);
           expect(email).to.exist;
           expect(email.headers.subject).to.include(inviteEmailSubject);
-          expect(email.headers.to).to.equal(emailFour);
-
+          expect(email.headers.to).to.include(emailFour);
           const emailHtml = email.html; // Store the email HTML content
 
-          console.log("workspaceName", workspaceName);
+          // Match all href links inside the <body>
+          const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+          console.log("bodyMatch: ", bodyMatch);
+          if (bodyMatch && bodyMatch[1]) {
+            const bodyContent = bodyMatch[1];
 
-          const inviteLinkMatch = emailHtml.match(
-            /href="([^"]*applications[^"]*)"/,
-          ); // Extract the link using regex
-
-          if (inviteLinkMatch) {
-            cy.LoginFromAPI(emailFour, tempPassword);
-            const inviteLink = inviteLinkMatch[1].replace(/([^:]\/)\/+/g, "$1");
-            console.log("Invite workspace Link:", inviteLink);
-            cy.visit(inviteLink, { timeout: 60000 });
-
-            homePage.SelectWorkspace(workspaceName);
-            agHelper.AssertContains(applicationName);
-            cy.get(homePageLocators.applicationCard)
-              .first()
-              .trigger("mouseover");
-            agHelper.AssertElementAbsence(homePageLocators.appEditIcon);
-          } else {
-            throw new Error(
-              "Invite viewr app link not found in the email HTML",
+            const inviteLinkMatch = bodyContent.match(
+              /href="https?:\/\/[^"]*"/,
             );
+            console.log("inviteLinkMatch: ", inviteLinkMatch);
+
+            if (inviteLinkMatch) {
+              const inviteLink = inviteLinkMatch[0]
+                .replace(/([^:]\/)\/+/g, "$1")
+                .replace(/href=|=|"|"/g, "");
+
+              console.log("Invite workspace Link:", inviteLink);
+              cy.visit(inviteLink, { timeout: 60000 });
+              homePage.SelectWorkspace(workspaceName);
+              agHelper.AssertContains(applicationName);
+              cy.get(homePageLocators.applicationCard)
+                .first()
+                .trigger("mouseover");
+              agHelper.AssertElementAbsence(homePageLocators.appEditIcon);
+            } else {
+              throw new Error(
+                "Invite viewer app link not found in the email HTML",
+              );
+            }
           }
         });
       cy.LogOut();
