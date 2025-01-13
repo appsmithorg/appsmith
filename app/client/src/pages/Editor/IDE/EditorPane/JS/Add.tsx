@@ -21,6 +21,7 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
+import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 
 const AddJS = () => {
   const dispatch = useDispatch();
@@ -98,7 +99,11 @@ const AddJS = () => {
         />
         <SearchInput onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
-          <EntityGroupsList groups={filteredItemGroups} showDivider />
+          <EntityGroupsList
+            groups={filteredItemGroups}
+            showDivider
+            visibleItems={DEFAULT_GROUP_LIST_SIZE}
+          />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults
