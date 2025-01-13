@@ -103,6 +103,7 @@ export class ApiPage {
   private runOnPageLoadJSObject =
     "input[name^='execute-on-page-load'][type='checkbox']";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
+  public splitPaneContextMenuTrigger = ".entity-context-menu";
 
   CreateApi(
     apiName = "",

@@ -272,28 +272,14 @@ function statusThemeTransformer(status: FetchStatusResponseData) {
   return tree;
 }
 
-function statusPackagesTransformer(status: FetchStatusResponseData) {
-  const {
-    modifiedModuleInstances = 0,
-    modifiedModules = 0,
-    modifiedPackages = 0,
-  } = status;
+function statusModuleInstancesTransformer(status: FetchStatusResponseData) {
+  const { modifiedModuleInstances = 0, modifiedSourceModules = 0 } = status;
   const tree = [] as StatusTreeStruct[];
 
-  if (modifiedPackages > 0) {
+  if (modifiedSourceModules > 0) {
     tree.push(
       createTreeNode({
-        subject: `${modifiedPackages} package${modifiedPackages > 1 ? "s" : ""}`,
-        verb: "modified",
-        type: "package",
-      }),
-    );
-  }
-
-  if (modifiedModules > 0) {
-    tree.push(
-      createTreeNode({
-        subject: `${modifiedModules} module${modifiedModules > 1 ? "s" : ""}`,
+        subject: `${modifiedSourceModules} source module${modifiedSourceModules > 1 ? "s" : ""}`,
         verb: "modified",
         type: "module",
       }),
@@ -323,7 +309,7 @@ export default function applicationStatusTransformer(
     ...statusJsLibTransformer(status),
     ...statusSettingsTransformer(status),
     ...statusThemeTransformer(status),
-    ...statusPackagesTransformer(status),
+    ...statusModuleInstancesTransformer(status),
   ] as StatusTreeStruct[];
 
   return tree;
