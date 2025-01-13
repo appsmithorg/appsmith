@@ -34,6 +34,7 @@ export const CollapseWrapper = styled.div`
 export const EntityItemWrapper = styled(Flex)<{ "data-depth": number }>`
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
+  user-select: none;
 
   padding-left: ${(props) => {
     return 4 + props["data-depth"] * 8;

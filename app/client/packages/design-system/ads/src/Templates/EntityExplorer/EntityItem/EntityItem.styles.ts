@@ -13,4 +13,12 @@ export const EntityEditableName = styled(Text)`
     min-width: 3ch;
     text-overflow: unset;
   }
+
+  & input {
+    background-color: var(--ads-v2-color-bg);
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 32px;
+    top: 0;
+  }
 `;
