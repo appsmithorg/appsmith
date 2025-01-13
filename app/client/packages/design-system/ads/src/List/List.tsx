@@ -64,7 +64,10 @@ function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
 
   return (
     <Tooltip content={props.children} isDisabled={disableTooltip}>
-      <TooltipTextWrapper onMouseOver={handleShowFullText}>
+      <TooltipTextWrapper
+        className={`${props.className}-wrapper`}
+        onMouseOver={handleShowFullText}
+      >
         <Text
           {...props}
           className={clsx(ListItemTextOverflowClassName, props.className)}
@@ -157,7 +160,7 @@ function ListItem(props: ListItemProps) {
         )}
       </TopContentWrapper>
       {isBlockDescription && (
-        <BottomContentWrapper>
+        <BottomContentWrapper data-isiconpresent={Boolean(startIcon)}>
           <TextWithTooltip
             className={ListItemBDescClassName}
             color="var(--ads-v2-color-fg-muted)"
