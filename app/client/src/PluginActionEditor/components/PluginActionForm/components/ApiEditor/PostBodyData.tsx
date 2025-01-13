@@ -174,11 +174,11 @@ function PostBodyData(props: Props) {
   return (
     <PostBodyContainer>
       <SelectField
-        data-testid="t--api-body-tab-switch"
         name="actionConfiguration.formData.apiContentType"
         options={options}
         placeholder="Select Body Type"
         showLabelOnly
+        testId="t--api-body-tab-switch"
       />
       {tabComponentsMap(postBodyFormat)}
     </PostBodyContainer>

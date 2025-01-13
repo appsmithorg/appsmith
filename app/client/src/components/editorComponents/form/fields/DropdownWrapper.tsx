@@ -24,6 +24,7 @@ interface DropdownWrapperProps {
   disabled?: boolean;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
+  testId?: string;
 }
 
 function DropdownWrapper(props: DropdownWrapperProps) {
@@ -79,6 +80,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
 
   return (
     <Select
+      data-testId={props.testId}
       defaultValue={props.isMultiSelect ? selectedOption : selectedOption[0]}
       isDisabled={props.disabled}
       isMultiSelect={props.isMultiSelect}
