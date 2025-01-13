@@ -177,7 +177,7 @@ jobs:
           # Check if specs_to_run is provided; if not, use the fallback file
           echo "[DEBUG] Initial specs_to_run value: '$specs_to_run'"
 
-          if [[ "$specs_to_run" == "no_data" || -z "$specs_to_run" || "$specs_to_run" == "" ]]; then
+          if [[ "$specs_to_run" == *"no_data"* || -z "$specs_to_run" || "$specs_to_run" == "" ]]; then
             echo "[INFO] No specs provided or 'no_data' detected, falling back to limited-tests.txt file."
 
             # Verify if the fallback file exists
