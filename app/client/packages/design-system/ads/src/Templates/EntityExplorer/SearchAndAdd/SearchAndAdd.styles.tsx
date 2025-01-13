@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { Button } from "@appsmith/ads";
+import { Button } from "../../../Button";
 
 export const Root = styled.div`
   display: flex;

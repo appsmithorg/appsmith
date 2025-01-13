@@ -93,7 +93,6 @@ export const StyledListItem = styled.div<{
   flex-direction: column;
 
   ${({ size }) => Sizes[size]}
-
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {
       display: none;
@@ -122,14 +121,6 @@ export const StyledListItem = styled.div<{
 
   &:active {
     background-color: var(--ads-v2-colors-content-surface-active-bg);
-  }
-
-  /* Focus styles */
-
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
   }
 
   & .${ListItemTextOverflowClassName} {

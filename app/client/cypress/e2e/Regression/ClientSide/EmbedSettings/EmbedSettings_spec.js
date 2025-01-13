@@ -18,6 +18,8 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     );
   };
 
+  let clipboardData;
+
   function ValidateEditModeSetting(setting) {
     _.deployMode.NavigateBacktoEditor();
     _.embedSettings.OpenEmbedSettings();
@@ -31,6 +33,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
   }
 
   before(() => {
+    _.agHelper.GiveChromeCopyPermission();
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.IFRAME);
@@ -48,9 +51,22 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       .click()
       .wait(1000);
     _.agHelper.ClickButton("Copy application url");
+
     cy.window().then((win) => {
-      cy.stub(win.navigator.clipboard, "writeText").as("deployUrl").resolves();
+      new Cypress.Promise((resolve, reject) => {
+        win.navigator.clipboard.readText().then(resolve).catch(reject);
+      }).then((text) => {
+        clipboardData = text; // Store the clipboard content in a variable
+        cy.log(`Clipboard Content: ${clipboardData}`); // Log clipboard content
+        expect(clipboardData).to.equal("Expected clipboard text"); // Add assertions if needed
+      });
     });
+
+    // Log clipboard data after it's been set
+    cy.then(() => {
+      cy.log(`Stored Clipboard Data: ${clipboardData}`);
+    });
+
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
     _.agHelper.RefreshPage();
@@ -67,10 +83,8 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
     _.agHelper.Sleep(2000);
-    cy.get("@deployUrl").then((depUrl) => {
-      cy.log("deployUrl is " + depUrl);
-      cy.visit(depUrl, { timeout: 60000 });
-    });
+
+    cy.visit(clipboardData, { timeout: 60000 });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
     // });
@@ -84,10 +98,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
     _.agHelper.Sleep(2000);
-    cy.get("@deployUrl").then((depUrl) => {
-      cy.log("deployUrl is " + depUrl);
-      cy.visit(depUrl, { timeout: 60000 });
-    });
+    cy.visit(clipboardData, { timeout: 60000 });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
     // });
@@ -98,13 +109,11 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").last().click();
     });
+
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
     _.agHelper.Sleep(2000);
-    cy.get("@deployUrl").then((depUrl) => {
-      cy.log("deployUrl is " + depUrl);
-      cy.visit(depUrl, { timeout: 60000 });
-    });
+    cy.visit(clipboardData, { timeout: 60000 });
     getIframeBody().contains("Submit").should("not.exist");
 
     ValidateEditModeSetting(_.embedSettings.locators._disabledText);

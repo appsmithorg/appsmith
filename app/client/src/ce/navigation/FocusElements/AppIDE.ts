@@ -77,16 +77,11 @@ import { ActionExecutionResizerHeight } from "PluginActionEditor/components/Plug
 import {
   getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,
-  getFormData,
-  setExtraFormData,
   setPluginActionEditorDebuggerState,
   setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import {
-  API_EDITOR_TABS,
-  POST_BODY_FORMAT_OPTIONS,
-} from "PluginActionEditor/constants/CommonApiConstants";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -153,16 +148,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
         [PluginPackageName.REST_API]: {
           defaultValue: API_EDITOR_TABS.HEADERS,
         },
-      },
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.PluginActionFormData,
-      selector: getFormData,
-      setter: setExtraFormData,
-      defaultValue: {
-        label: POST_BODY_FORMAT_OPTIONS.NONE,
-        value: POST_BODY_FORMAT_OPTIONS.NONE,
       },
     },
     {

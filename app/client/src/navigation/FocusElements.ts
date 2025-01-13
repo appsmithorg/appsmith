@@ -3,7 +3,6 @@ import type { AppState } from "ee/reducers";
 
 export enum FocusElement {
   PluginActionConfigTabs = "PluginActionConfigTabs",
-  PluginActionFormData = "PluginActionFormData",
   CodeEditorHistory = "CodeEditorHistory",
   EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",

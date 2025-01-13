@@ -1070,9 +1070,6 @@ export const getExistingActionNames = createSelector(
   },
 );
 
-export const getEditingEntityName = (state: AppState) =>
-  state.ui.explorer.entity.editingEntityName;
-
 export const getExistingJSCollectionNames = createSelector(
   getJSCollections,
   (jsActions) =>
