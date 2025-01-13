@@ -1794,7 +1794,7 @@ class CodeEditor extends Component<Props, State> {
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
               removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
-              showFocusRing={!this.props.isJSObject}
+              showFocusVisible={!this.props.isJSObject}
               size={size}
             >
               {this.state.peekOverlayProps && (

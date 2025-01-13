@@ -54,7 +54,7 @@ export const EditorWrapper = styled.div<{
   AIEnabled?: boolean;
   mode: string;
   maxHeight?: string | number;
-  showFocusRing?: boolean;
+  showFocusVisible?: boolean;
 }>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
@@ -85,7 +85,7 @@ export const EditorWrapper = styled.div<{
 
   && {
     ${(props) =>
-      props.showFocusRing &&
+      props.showFocusVisible &&
       `
         .CodeMirror-focused {
           outline: var(--ads-v2-border-width-outline) solid

@@ -64,7 +64,7 @@ const SearchInputWrapper = styled(InputGroup)<{
       width: 100%;
     }
 
-    input:focus-visible {
+    input:focus {
       outline: var(--ads-v2-border-width-outline) solid
         var(--ads-v2-color-outline);
       outline-offset: var(--ads-v2-offset-outline);
