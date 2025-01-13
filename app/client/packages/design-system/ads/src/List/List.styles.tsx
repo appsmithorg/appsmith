@@ -91,8 +91,13 @@ export const StyledListItem = styled.div<{
   gap: var(--ads-v2-spaces-1);
   flex-shrink: 0;
   flex-direction: column;
+  max-height: 32px;
 
   ${({ size }) => Sizes[size]}
+
+  &[data-isblockdescription="true"] {
+    max-height: 54px;
+  }
 
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {

@@ -9,13 +9,13 @@ import { List, ListItem, type ListItemProps } from "../../../List";
 import { Divider } from "../../../Divider";
 
 const EntityGroupsList = <T,>(props: EntityGroupsListProps<T>) => {
-  const { flexProps, groups, showDivider } = props;
+  const { flexProps, groups, showDivider, visibleItemsCount } = props;
 
   return (
     <Flex flexDirection="column" gap="spaces-4" overflowY="auto" {...flexProps}>
       {groups.map((group, index) => (
         <Flex flexDirection="column" gap="spaces-3" key={group.groupTitle}>
-          <EntityGroup group={group} />
+          <EntityGroup group={group} visibleItemsCount={visibleItemsCount} />
           {showDivider && index < groups.length - 1 && (
             <Divider
               style={{ borderColor: "var(--ads-v2-color-border-muted)" }}
@@ -27,14 +27,22 @@ const EntityGroupsList = <T,>(props: EntityGroupsListProps<T>) => {
   );
 };
 
-const EntityGroup = <T,>({ group }: { group: EntityGroupProps<T> }) => {
-  const [visibleItemsCount, setVisibleItemsCount] = React.useState(5);
+const EntityGroup = <T,>({
+  group,
+  visibleItemsCount,
+}: {
+  group: EntityGroupProps<T>;
+  visibleItemsCount?: number;
+}) => {
+  const [visibleItems, setVisibleItems] = React.useState(
+    visibleItemsCount || group.items.length,
+  );
 
   const lazyLoading = useMemo(() => {
     return {
       visibleItemsCount,
-      hasMore: visibleItemsCount < group.items.length,
-      handleLoadMore: () => setVisibleItemsCount(group.items.length),
+      hasMore: visibleItems < group.items.length,
+      handleLoadMore: () => setVisibleItems(group.items.length),
     };
   }, [visibleItemsCount, group.items.length]);
 

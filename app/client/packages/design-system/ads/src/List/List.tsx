@@ -87,8 +87,12 @@ function ListItem(props: ListItemProps) {
     startIcon,
     title,
   } = props;
-  const isBlockDescription = descriptionType === "block" && description;
-  const isInlineDescription = descriptionType === "inline" && description;
+  const isBlockDescription = Boolean(
+    descriptionType === "block" && description,
+  );
+  const isInlineDescription = Boolean(
+    descriptionType === "inline" && description,
+  );
 
   const handleOnClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,6 +118,7 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
       data-disabled={props.isDisabled || false}
+      data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
       id={props.id}

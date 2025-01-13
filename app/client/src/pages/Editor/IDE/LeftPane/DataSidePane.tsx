@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Flex, List, ListItem, Text } from "@appsmith/ads";
+import { EntityGroupsList, Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getDatasourceUsageCountForApp,
@@ -41,10 +41,6 @@ const PaneBody = styled.div`
 const DatasourceIcon = styled.img`
   height: 16px;
   width: 16px;
-`;
-
-const StyledList = styled(List)`
-  gap: 0;
 `;
 
 interface DataSidePaneProps {
@@ -128,45 +124,33 @@ const DataSidePane = (props: DataSidePaneProps) => {
             icon={"datasource-v3"}
           />
         ) : null}
-        <Flex
-          flexDirection={"column"}
-          gap="spaces-4"
-          overflowY="auto"
-          px="spaces-3"
-        >
-          {Object.entries(groupedDatasources).map(([key, value]) => (
-            <Flex flexDirection={"column"} key={key}>
-              <Flex px="spaces-3" py="spaces-1">
-                <Text
-                  className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                  kind="body-s"
-                >
-                  {key}
-                </Text>
-              </Flex>
-              <StyledList>
-                {value.map((data) => (
-                  <ListItem
-                    className="t--datasource"
-                    description={get(dsUsageMap, data.id, "")}
-                    descriptionType="block"
-                    isSelected={currentSelectedDatasource === data.id}
-                    key={data.id}
-                    onClick={() => goToDatasource(data.id)}
-                    startIcon={
-                      <DatasourceIcon
-                        src={getAssetUrl(
-                          groupedPlugins[data.pluginId].iconLocation,
-                        )}
-                      />
-                    }
-                    title={data.name}
-                  />
-                ))}
-              </StyledList>
-            </Flex>
-          ))}
-        </Flex>
+        <EntityGroupsList
+          flexProps={{ px: "spaces-3" }}
+          groups={Object.entries(groupedDatasources).map(([key, value]) => {
+            return {
+              groupTitle: key,
+              items: value.map((data) => {
+                return {
+                  id: data.id,
+                  title: data.name,
+                  startIcon: (
+                    <DatasourceIcon
+                      src={getAssetUrl(
+                        groupedPlugins[data.pluginId].iconLocation,
+                      )}
+                    />
+                  ),
+                  description: get(dsUsageMap, data.id, ""),
+                  descriptionType: "block",
+                  className: "t--datasource",
+                  isSelected: currentSelectedDatasource === data.id,
+                  onClick: () => goToDatasource(data.id),
+                };
+              }),
+              className: "",
+            };
+          })}
+        />
       </PaneBody>
     </Flex>
   );
