@@ -1,5 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-app/client/cypress/e2e/Regression/ClientSide/Git/GitSync/MergeViaRemote_spec.ts
+cypress/e2e/Regression/ClientSide/Git/GitSync/MergeViaRemote_spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
