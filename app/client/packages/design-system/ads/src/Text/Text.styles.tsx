@@ -201,8 +201,13 @@ export const StyledEditableInput = styled.input`
     border-color: var(--ads-v2-colors-control-field-hover-border);
   }
 
-  &:focus,
   &:active {
     border-color: var(--ads-v2-colors-control-field-active-border);
+  }
+
+  &:focus-visible {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
   }
 `;
