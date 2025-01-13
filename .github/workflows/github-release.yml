@@ -21,26 +21,23 @@ jobs:
       docker_tags: ${{ steps.main.outputs.docker_tags }}
 
     steps:
-      - name: Environment details
-        run: |
-          echo ${{ secrets.DOCKER_HUB_USERNAME2 }}
-          echo "PWD: $PWD"
-          echo "GITHUB_REF: $GITHUB_REF"
-          echo "GITHUB_SHA: $GITHUB_SHA"
-          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
-      - name: Login to DockerHub
-        uses: docker/login-action@v3.3.0
+      - uses: actions/checkout@v4
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME2 }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN2 }}
-      - name: Get the version
-        id: get_version
-        run: |
-          if ! [[ ${GITHUB_REF-} =~ ^refs/tags/v[[:digit:]]\.[[:digit:]]+(\.[[:digit:]]+)?$ ]]; then
-            echo "Invalid tag: '${GITHUB_REF-}'. Has to be like `v1.22`, `v1.22.33` only."
-            exit 1
-          fi
-          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          ref: ${{ github.ref }}
+          fetch-depth: "5"
+          fetch-tags: "true"
+
+      - name: Prelude checks and preparations
+        uses: actions/github-script@v7
+        id: main
+        with:
+          script: |
+            require(
+              "${{ github.workspace }}/.github/workflows/scripts/github-release/prelude.js",
+            )(
+              { core, context, github },
+              "${{ secrets.DOCKER_HUB_USERNAME2 }}/appsmith-ce:latest",
+            )
 
   client-build:
     needs:
