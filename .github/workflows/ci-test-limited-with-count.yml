@@ -182,6 +182,7 @@ jobs:
 
             # Verify if the fallback file exists
             limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
+            ls -l ${{ github.workspace }}/app/client/cypress/limited-tests.txt
             cat ${{ github.workspace }}/app/client/cypress/limited-tests.txt
             specs_to_run=""
 
