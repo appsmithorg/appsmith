@@ -33,6 +33,7 @@ interface QuickActionsViewProps {
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
+  isInitialized: boolean;
   isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
@@ -61,6 +62,7 @@ function QuickActionsView({
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
+  isInitialized = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
@@ -130,6 +132,10 @@ function QuickActionsView({
 
     toggleConnectModal(true);
   }, [toggleConnectModal]);
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return isConnected ? (
     <Container>

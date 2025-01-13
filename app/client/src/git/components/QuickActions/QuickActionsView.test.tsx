@@ -30,6 +30,7 @@ describe("QuickActionsView Component", () => {
     isDiscardLoading: false,
     isFetchStatusLoading: false,
     isConnected: false,
+    isInitialized: true,
     isProtectedMode: false,
     isPullFailing: false,
     isPullLoading: false,
