@@ -21,7 +21,7 @@ describe(
         dataSources._datasourceStructureSearchInput,
         "public.us",
       );
-      agHelper.Sleep(1000);
+      agHelper.AssertElementVisibility(dataSources._datasourceStructureSearchInput);
       agHelper.AssertElementAbsence(
         `${dataSources._dsStructurePreviewMode} ${dataSources._datasourceSchemaColumn}`,
       );

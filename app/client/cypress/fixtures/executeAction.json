@@ -434,7 +434,7 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/mock-api",
+          "path": "/v1/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [
@@ -542,7 +542,7 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/mock-api",
+          "path": "/v1/mock-api",
           "headers": [],
           "encodeParamsToggle": true,
           "queryParameters": [

@@ -54,7 +54,7 @@ describe(
         dataSourceName,
         EntityType.Datasource,
       );
-      agHelper.Sleep(1500);
+      agHelper.WaitUntilToastDisappear("datasource is valid");
       agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
       AppSidebar.navigate(AppSidebarButton.Editor);
       EditorNavigation.SelectEntityByName("Query1", EntityType.Query);

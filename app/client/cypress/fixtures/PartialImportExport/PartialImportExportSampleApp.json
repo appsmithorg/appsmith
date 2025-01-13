@@ -31,7 +31,7 @@
           "mode": "READ_WRITE",
           "ssl": { "authType": "DEFAULT" }
         },
-        "endpoints": [{ "host": "mockdb.internal.appsmith.com" }],
+        "endpoints": [{ "host": "host.docker.internal:5001" }],
         "authentication": {
           "username": "users",
           "password": "new-users-db-pass",

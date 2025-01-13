@@ -55,7 +55,7 @@
         },
         "endpoints": [
           {
-            "host": "mockdb.internal.appsmith.com"
+            "host": "host.docker.internal:5001"
           }
         ]
       },

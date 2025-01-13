@@ -44,11 +44,10 @@ describe(
         cy.get(datasourceEditor.username).type(
           datasourceFormData["postgres-username"],
         );
-        cy.wait(500);
+        agHelper.AssertElementVisibility(datasourceEditor.password);
         cy.get(datasourceEditor.password).type(
           datasourceFormData["postgres-password"],
         );
-        //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
         cy.get("body").type(`{${modifierKey}}z`);
         cy.get("body").type(`{${modifierKey}}{shift}z`);
@@ -61,7 +60,7 @@ describe(
       cy.CreateAPI("FirstAPI");
       cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
         "have.text",
-        "https://mock-api.appsmith.com/users", //testing placeholder!
+        "http://host.docker.internal:5001/v1/mock-api/users", //testing placeholder!
       );
       cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
       agHelper.RemoveUIElement(
@@ -76,8 +75,7 @@ describe(
       cy.get("body").type(`{${modifierKey}}z`);
       // cy.wait(2000);
       // cy.get("body").type(`{${modifierKey}}z`);
-      cy.wait(2000);
-      cy.get("body").click(0, 0);
+      cy.get("body").should('be.visible').click(0, 0);
       cy.get("body").type(`{${modifierKey}}z`);
       cy.get(apiwidget.headers)
         .parent()
@@ -86,7 +84,7 @@ describe(
 
       cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
         "have.text",
-        "https://mock-api.appsmith.com/users",
+        "http://host.docker.internal:5001/v1/mock-api/users",
       );
       cy.get(`${apiwidget.headerKey} .CodeMirror-placeholder`).should(
         "have.text",
@@ -125,7 +123,7 @@ describe(
 
     it("4. Checks undo/redo in JS Objects", () => {
       jsEditor.NavigateToNewJSEditor();
-      cy.wait(1000);
+      agHelper.AssertElementVisibility(".CodeMirror textarea");
       cy.get(".CodeMirror textarea")
         .first()
         .focus()
@@ -148,10 +146,10 @@ describe(
     it("5. Checks undo/redo for Authenticated APIs", () => {
       cy.NavigateToAPI_Panel();
       cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
-      cy.wait(2000);
+      agHelper.AssertElementVisibility(dataSources._headerKey);
       agHelper.TypeText(dataSources._headerKey, testdata.headerKey);
       agHelper.TypeText(dataSources._urlInputControl, testdata.baseUrl);
-      agHelper.Sleep(1000);
+      agHelper.AssertElementVisibility("body");
       cy.get("body").click(0, 0);
       cy.get("body").type(`{${modifierKey}}z`);
       cy.get("input[name='url']").should("have.value", "");
