@@ -60,6 +60,7 @@ export class AppSettings {
     _scrollArrows: ".scroll-arrows",
     _getActivePage: (pageName: string) =>
       `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
+    _importBtn: "[data-testid='t--app-setting-import-btn']",
   };
 
   public errorMessageSelector = (fieldId: string) => {
