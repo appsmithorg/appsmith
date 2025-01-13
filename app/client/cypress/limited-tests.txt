@@ -2,6 +2,6 @@
 #cypress/e2e/Regression/ClientSide/VisualTests/JSEditorIndent_spec.js
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
-cypress/e2e/Regression/ClientSide/EmbedSettings/EmbedSettings_spec.js
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.

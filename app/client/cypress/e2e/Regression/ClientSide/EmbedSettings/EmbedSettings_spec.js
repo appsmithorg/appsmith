@@ -54,10 +54,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
 
     cy.window().then((win) => {
       new Cypress.Promise((resolve, reject) => {
-        win.navigator.clipboard
-          .readText()
-          .then(resolve)
-          .catch(reject);
+        win.navigator.clipboard.readText().then(resolve).catch(reject);
       }).then((text) => {
         clipboardData = text; // Store the clipboard content in a variable
         cy.log(`Clipboard Content: ${clipboardData}`); // Log clipboard content
