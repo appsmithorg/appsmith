@@ -197,7 +197,7 @@ jobs:
 
               # Add the line to specs_to_run
               specs_to_run="$specs_to_run,$line"
-            done < "$limited_tests_file"
+            done < ${{ github.workspace }}/app/client/cypress/limited-tests.txt
 
             # Remove leading comma
             specs_to_run=${specs_to_run#,}
