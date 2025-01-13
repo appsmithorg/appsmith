@@ -27,7 +27,10 @@ describe(
       cy.CreateAPI("FirstAPI");
       cy.get(".CodeMirror-placeholder")
         .first()
-        .should("have.text", "http://host.docker.internal:5001/v1/mock-api/users");
+        .should(
+          "have.text",
+          "http://host.docker.internal:5001/v1/mock-api/users",
+        );
       cy.log("Creation of FirstAPI Action successful");
       cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
       cy.SaveAndRunAPI();
@@ -53,7 +56,10 @@ describe(
       cy.CreateAPI("FirstAPI");
       cy.get(".CodeMirror-placeholder")
         .first()
-        .should("have.text", "http://host.docker.internal:5001/v1/mock-api/users");
+        .should(
+          "have.text",
+          "http://host.docker.internal:5001/v1/mock-api/users",
+        );
       cy.log("Creation of FirstAPI Action successful");
       cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
       cy.get(apiwidget.settings).click({ force: true });
@@ -100,7 +106,7 @@ describe(
           "http://host.docker.internal:5001/{{Button2.text}}?key=test&val={{Button2.text}}",
           { force: true, parseSpecialCharSequences: false },
         )
-        .should('be.visible')
+        .should("be.visible")
         .click({
           force: true,
         });

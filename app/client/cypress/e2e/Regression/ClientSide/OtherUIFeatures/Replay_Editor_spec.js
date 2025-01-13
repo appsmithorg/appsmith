@@ -75,7 +75,7 @@ describe(
       cy.get("body").type(`{${modifierKey}}z`);
       // cy.wait(2000);
       // cy.get("body").type(`{${modifierKey}}z`);
-      cy.get("body").should('be.visible').click(0, 0);
+      cy.get("body").should("be.visible").click(0, 0);
       cy.get("body").type(`{${modifierKey}}z`);
       cy.get(apiwidget.headers)
         .parent()
