@@ -24,20 +24,6 @@ export const openPluginActionSettings = (payload: boolean) => ({
   },
 });
 
-export const updatePostBodyContentType = (
-  title: string,
-): ReduxAction<{ title: string }> => ({
-  type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
-  payload: { title },
-});
-
-export const setExtraFormData = (
-  values: Record<string, { label: string; value: string }>,
-) => ({
-  type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-  payload: { values },
-});
-
 export const changeApi = (
   id: string,
   isSaas: boolean,
