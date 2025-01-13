@@ -7,10 +7,14 @@ export interface InitGitForEditorPayload {
 
 export const initGitForEditorAction =
   createArtifactAction<InitGitForEditorPayload>((state) => {
-    state.ui.initializing = true;
-    state.ui.initialized = false;
+    // need to do this to avoid mutation, bug with redux-toolkit immer
+    const ui = {
+      ...state.ui,
+      initializing: true,
+      initialized: false,
+    };
 
-    return state;
+    return { ...state, ui };
   });
 
 export const initGitForEditorSuccessAction = createArtifactAction((state) => {
