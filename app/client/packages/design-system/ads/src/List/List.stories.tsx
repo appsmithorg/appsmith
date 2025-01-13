@@ -38,6 +38,7 @@ const items = [
   {
     startIcon: <Icon name="file-list-2-line" size={"md"} />,
     title: "Action item 3",
+    isSelected: true,
   },
   {
     startIcon: <Icon name="file-list-2-line" size={"md"} />,
