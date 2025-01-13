@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Text } from "../../..";
+import { Text } from "../../../Text";
 
 export const EntityEditableName = styled(Text)`
   overflow: hidden;
