@@ -2,6 +2,7 @@ package com.appsmith.server.acl.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import org.jgrapht.graph.DefaultEdge;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PROTECTED_BRANCHES;
@@ -28,13 +30,16 @@ public class PolicyGeneratorCEIT {
         // We don't need to create test instances since we're just testing permission inheritance
         // between workspace-level and application-level permissions
 
-        // Generate permissions for the application
-        Set<AclPermission> permissions =
-                policyGenerator.getChildPermissions(WORKSPACE_CREATE_APPLICATION, Application.class);
+        // Get lateral permissions since MANAGE_PROTECTED_BRANCHES is granted through lateral graph
+        Set<AclPermission> lateralPermissions = new HashSet<>();
+        Set<DefaultEdge> lateralEdges = policyGenerator.getLateralGraph().outgoingEdgesOf(WORKSPACE_CREATE_APPLICATION);
+        lateralEdges.stream()
+                .map(edge -> policyGenerator.getLateralGraph().getEdgeTarget(edge))
+                .forEach(lateralPermissions::add);
 
         // Verify that MANAGE_PROTECTED_BRANCHES permission is included when CREATE_APPLICATION is granted
         boolean hasManageProtectedBranches =
-                permissions.stream().anyMatch(permission -> MANAGE_PROTECTED_BRANCHES.equals(permission));
+                lateralPermissions.stream().anyMatch(permission -> MANAGE_PROTECTED_BRANCHES.equals(permission));
 
         assertThat(hasManageProtectedBranches)
                 .as("MANAGE_PROTECTED_BRANCHES permission should be granted when CREATE_APPLICATION is granted")
