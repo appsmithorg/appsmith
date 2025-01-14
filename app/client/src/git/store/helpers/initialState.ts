@@ -11,6 +11,8 @@ import type {
 } from "../types";
 
 const gitArtifactInitialUIState: GitArtifactUIReduxState = {
+  initializing: false,
+  initialized: false,
   connectModalOpen: false,
   connectSuccessModalOpen: false,
   disconnectBaseArtifactId: null,
