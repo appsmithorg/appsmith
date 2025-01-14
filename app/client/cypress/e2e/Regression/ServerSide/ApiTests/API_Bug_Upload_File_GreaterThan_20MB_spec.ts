@@ -10,7 +10,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
-describe(
+//skipping this due to : https://github.com/appsmithorg/appsmith/issues/38156
+describe.skip(
   "To test [Bug]: A-force -> Not being able to upload file using binary format and multi part form data #34123",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
