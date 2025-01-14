@@ -2617,9 +2617,9 @@ export const PREMIUM_DATASOURCES = {
   },
   PREMIUM_TAG: () => "Premium",
   SOON_TAG: () => "Soon",
-  COMING_SOON_SUFFIX: () => "Coming soon",
+  COMING_SOON_SUFFIX: () => "is coming soon",
   COMING_SOON_DESCRIPTION: () =>
-    "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
+    "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
 };
 

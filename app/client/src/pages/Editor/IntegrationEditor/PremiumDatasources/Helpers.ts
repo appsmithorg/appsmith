@@ -74,7 +74,7 @@ export const getContactFormModalTitle = (
   integrationName: string,
   isBusinessOrEnterprise?: boolean,
 ) => {
-  return `${isBusinessOrEnterprise ? "Integration to " : ""}${integrationName} ${isBusinessOrEnterprise ? `- ${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`;
+  return `${integrationName} ${isBusinessOrEnterprise ? `${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`;
 };
 
 export const getContactFormModalDescription = (
