@@ -21,7 +21,7 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
 import type { ComponentType, ReactNode } from "react";
-import type { IDESidebarButton } from "IDE";
+import type { IDESidebarButton } from "@appsmith/ads";
 
 export enum EditorState {
   DATA = "DATA",
