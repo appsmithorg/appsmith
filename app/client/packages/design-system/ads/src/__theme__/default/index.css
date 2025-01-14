@@ -239,9 +239,9 @@
   /* --ads-v2-color-outline: var(--ads-v2-color-blue-300);
   --ads-v2-border-width-outline: 2px; */
   /* TODO: fix focus issue across the platform */
-  --ads-v2-color-outline: var(--ads-v2-color-blue-300);
-  --ads-v2-border-width-outline: 2px;
-  --ads-v2-offset-outline: -2px;
+  --ads-v2-color-outline: transparent;
+  --ads-v2-border-width-outline: 0;
+  --ads-v2-offset-outline: 0;
 
   /**
     * ===========================================*
@@ -251,22 +251,17 @@
   --ads-v2-opacity-disabled: 0.6;
 }
 
-:focus {
-  outline: none !important;
-}
-
 /* react-aria useFocusRing helper class*/
 .ads-v2-focus-ring {
-  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline) !important;
-  outline-offset: var(--ads-v2-offset-outline) !important;
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+  outline-offset: var(--ads-v2-offset-outline);
 }
 
 /* Placeholder color */
 ::placeholder {
   /* This needs to be important to override the placeholder color on main repo */
   color: var(--ads-v2-colors-control-placeholder-default-fg) !important;
-  opacity: 1;
-  /* Firefox */
+  opacity: 1; /* Firefox */
 }
 
 :-ms-input-placeholder {

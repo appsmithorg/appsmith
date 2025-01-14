@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import {
+  AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   COMMIT_CHANGES,
   createMessage,
   GIT_SETTINGS,
@@ -13,7 +14,7 @@ import { GitOpsTab } from "../../constants/enums";
 import { GitSettingsTab } from "../../constants/enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
-import AutocommitStatusbar from "../Statusbar";
+import Statusbar from "../Statusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
 import BranchButton from "./BranchButton";
@@ -33,6 +34,7 @@ interface QuickActionsViewProps {
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
+  isInitialized: boolean;
   isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
@@ -61,6 +63,7 @@ function QuickActionsView({
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
+  isInitialized = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
@@ -131,6 +134,10 @@ function QuickActionsView({
     toggleConnectModal(true);
   }, [toggleConnectModal]);
 
+  if (!isInitialized) {
+    return null;
+  }
+
   return isConnected ? (
     <Container>
       <BranchButton
@@ -145,7 +152,10 @@ function QuickActionsView({
 
       {isAutocommitEnabled && isAutocommitPolling ? (
         <div data-testid="t--git-autocommit-loader">
-          <AutocommitStatusbar completed={!isAutocommitPolling} />
+          <Statusbar
+            completed={!isAutocommitPolling}
+            message={createMessage(AUTOCOMMIT_IN_PROGRESS_MESSAGE)}
+          />
         </div>
       ) : (
         <>
