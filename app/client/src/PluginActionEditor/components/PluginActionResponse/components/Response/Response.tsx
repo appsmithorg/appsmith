@@ -7,7 +7,6 @@ import pluralize from "pluralize";
 import { Callout, Tooltip, type CalloutLinkProps } from "@appsmith/ads";
 
 import type { ActionResponse } from "api/ActionAPI";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { PluginType, type Action } from "entities/Action";
 
@@ -31,6 +30,7 @@ import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 
 import * as Styled from "./styles";
 import { checkForPreparedStatement, parseActionResponse } from "./utils";
+import ActionExecutionInProgressView from "./components/ActionExecutionInProgressView";
 
 interface ResponseProps {
   action: Action;
