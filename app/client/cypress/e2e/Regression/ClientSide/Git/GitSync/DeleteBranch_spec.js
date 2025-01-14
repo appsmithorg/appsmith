@@ -27,9 +27,22 @@ describe(
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
+      // Wait for Git connection to complete
+      cy.wait("@connectGitRepo").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
       gitSync.CreateGitBranch();
       //cy.createGitBranch(branchName);
-      cy.wait(1000);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       // verify can not delete the checked out branch
       DeleteBranchFromUI(1);
       cy.get("@gitbranchName").then((branName) => {
@@ -40,7 +53,7 @@ describe(
         cy.get(gitSync.locators.branchCloseBtn).click({ force: true });
         // switch to master and delete new branch created
         cy.switchGitBranch("master");
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchButton).should("be.visible");
 
         DeleteBranchFromUI(1);
         cy.wait("@deleteBranch").should(
@@ -50,9 +63,9 @@ describe(
         );
         cy.get(gitSync.locators.branchCloseBtn).click({ force: true });
         // verify remote branch is there for the deleted local branch
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchItem).should("be.visible");
         cy.switchGitBranch(`origin/${branchName}`);
-        cy.wait(2000);
+        cy.get(gitSync.locators.branchItem).should("be.visible");
       });
     });
 
@@ -60,16 +73,24 @@ describe(
     it.skip("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
       gitSync.SwitchGitBranch("master");
       gitSync.CreateGitBranch("", true);
-      cy.wait(1000);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
-      cy.get(".t--draggable-checkboxwidget").should("exist");
-      cy.wait(2000);
+      cy.get(".t--draggable-checkboxwidget")
+        .should("exist")
+        .should("be.visible");
       cy.commitAndPush();
       cy.merge("master");
       gitSync.CloseOpsModal();
       cy.switchGitBranch("master");
-      cy.wait(2000);
+      cy.get(gitSync.locators.branchItem).should("be.visible");
 
       DeleteBranchFromUI(1);
 
@@ -84,15 +105,21 @@ describe(
 
     it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
       gitSync.CreateGitBranch("", true);
-      cy.wait(1000);
+      // Wait for branch creation to complete and UI to update
+      cy.wait("@createGitBranch").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(gitSync.locators.branchButton).should("be.visible");
+      cy.get(gitSync.locators.branchItem).should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
-      cy.get(".t--widget-chartwidget").should("exist");
-      cy.wait(2000);
+      cy.get(".t--widget-chartwidget").should("exist").should("be.visible");
       cy.commitAndPush();
-      cy.wait(1000);
+      cy.get(gitSync.locators.branchButton).should("be.visible");
       cy.switchGitBranch("master");
-      cy.wait(3000);
+      cy.get(gitSync.locators.branchButton).should("be.visible");
 
       DeleteBranchFromUI(1);
 
@@ -106,7 +133,6 @@ describe(
     });
 
     it("4. Verify Default branch deletion not allowed ", () => {
-      agHelper.Sleep(2000); //for toasts to appear then wait for disappear
       agHelper.WaitUntilAllToastsDisappear();
       DeleteBranchFromUI(0);
       cy.get(gitSync.locators.branchCloseBtn).click({ force: true });

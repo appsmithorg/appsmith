@@ -119,7 +119,7 @@ describe(
         subAction: pageid,
         toastToValidate: "action moved to page",
       });
-      cy.wait(500);
+      cy.get(".t--entity-name").should("be.visible");
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       PageLeftPane.assertPresence("SecondAPI");
       ee.ActionContextMenuByEntityName({

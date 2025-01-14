@@ -263,7 +263,7 @@ WhatTrumpThinks.run().then((res) => { showAlert("Today's quote for " + user + " 
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.Sleep(1000);
+    agHelper.WaitUntilToastDisappear();
     agHelper
       .GetNAssertContains(
         locators._toastMsg,

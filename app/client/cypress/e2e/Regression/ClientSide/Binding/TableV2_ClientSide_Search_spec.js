@@ -10,12 +10,12 @@ describe(
     });
 
     it("1. Validate onSearchTextChanged function is called when configured for search text", function () {
-      cy.wait(5000);
+      cy.get(".t--widget-tablewidgetv2 .t--search-input").should("be.visible");
       // input text in search bar
       cy.get(".t--widget-tablewidgetv2 .t--search-input input")
         .first()
         .type("2");
-      cy.wait(5000);
+      cy.get(".tbody").should("be.visible");
       // Verify it filtered the table
       cy.readTableV2dataPublish("0", "0").then((tabData) => {
         expect(tabData).to.eq("#2");
@@ -35,7 +35,7 @@ describe(
       });
       // Disable Client Search
       _.agHelper.CheckUncheck(commonlocators.clientSideSearch, false);
-      cy.wait(1000); //wait & then read the table value
+      cy.get(".tbody").should("be.visible"); //wait for table to update
       // Verify Client Search doesnt work
       cy.readTableV2dataPublish("0", "0").then((tabData) => {
         expect(tabData).to.eq("#1");

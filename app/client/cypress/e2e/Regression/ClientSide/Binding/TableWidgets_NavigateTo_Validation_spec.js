@@ -53,7 +53,7 @@ describe(
         .click({ force: true });
       agHelper.AssertAutoSave();
       //Validate NavigateTo Page functionality
-      cy.wait(2000);
+      cy.get(widgetsPage.tableWidget).should("be.visible");
       deployMode.DeployApp();
       cy.get(widgetsPage.chartWidget).should("not.exist");
       table.SelectTableRow(1);

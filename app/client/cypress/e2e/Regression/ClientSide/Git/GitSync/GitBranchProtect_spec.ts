@@ -31,7 +31,7 @@ describe(
         _.homePage.CreateNewWorkspace(wsName, true);
         _.homePage.CreateAppInWorkspace(wsName, appName);
         _.gitSync.CreateNConnectToGit("repoprotect", true, true);
-        cy.wait(1000);
+        cy.get(_.gitSync.locators.quickActionsPullBtn).should("be.visible");
 
         cy.intercept({
           method: "POST",

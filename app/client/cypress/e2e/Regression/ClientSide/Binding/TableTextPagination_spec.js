@@ -66,10 +66,10 @@ describe(
 
     it("2. Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function () {
       deployMode.DeployApp();
-      cy.wait(500);
+      cy.get(".tbody").should("be.visible");
       // Make sure onPageLoad action has run before validating the data
       cy.wait("@postExecute");
-      cy.wait(2000);
+      cy.get(".tbody").should("be.visible");
       cy.readTabledata("0", "4").then((tabData) => {
         const tableData = tabData;
         expect(tableData).to.equal("1");
@@ -86,13 +86,12 @@ describe(
 
     it("3. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
       deployMode.NavigateBacktoEditor();
-      cy.wait(3000);
+      cy.get(`.t--entity-name:contains("Table1")`).should("be.visible");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.testJsontext("totalrecordcount", 20);
       deployMode.DeployApp();
-      cy.wait(500);
+      cy.get(".tbody").should("be.visible");
       cy.wait("@postExecute");
-      cy.wait(500);
       cy.get(".show-page-items").should("contain", "20 Records");
       cy.get(".page-item").next().should("contain", "of 2");
 
@@ -109,7 +108,7 @@ describe(
 
     it("4. Test_Add Paginate with Response URL and Execute the Api", function () {
       deployMode.NavigateBacktoEditor();
-      cy.wait(3000);
+      cy.get(".t--canvas-artboard").should("be.visible");
       /** Create Api2 of Paginate with Response URL*/
 
       apiPage.CreateAndFillApi(

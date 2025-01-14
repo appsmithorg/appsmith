@@ -29,7 +29,6 @@ describe(
         cy.visit(forkableAppUrl);
 
         agHelper.GetNClick(applicationLocators.forkButton);
-        cy.wait(2000);
         agHelper.AssertElementVisibility(applicationLocators.forkModal);
         cy.location("search").should("include", "fork=true");
         agHelper.GetNClick(applicationLocators.closeModalPopup);

@@ -133,7 +133,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
     if (CURRENT_REPO === REPO.EE) {
       featureFlagIntercept({ license_branding_enabled: true });
 
-      cy.wait(2000);
+      cy.get(locators.AdminSettingsColorInput).should("be.visible");
 
       // branding color
       cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
@@ -293,7 +293,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
 
     cy.get(locators.LeftPaneBrandingLink).should("be.visible");
     cy.get(locators.LeftPaneBrandingLink).click();
-    cy.wait(2000);
+    cy.get(locators.submitButton).should("be.visible");
 
     featureFlagIntercept({ license_branding_enabled: false });
     cy.get(locators.submitButton).should("be.disabled");

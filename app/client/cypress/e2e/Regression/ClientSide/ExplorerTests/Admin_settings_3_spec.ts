@@ -67,7 +67,6 @@ describe(
       cy.get(adminsSettings.readMoreLink).within(() => {
         cy.get("a").click();
       });
-      cy.wait(2000);
       cy.get(".ads-v2-modal__content").should("be.visible");
       cy.get(".ads-v2-modal__content-header").should("be.visible");
       cy.get(".ads-v2-modal__content-header").should(
@@ -76,7 +75,6 @@ describe(
       );
       cy.get(".ads-v2-button__content-icon-start").should("be.visible");
       cy.get(".ads-v2-button__content-icon-start").click();
-      cy.wait(2000);
       cy.get(".ads-v2-modal__content").should("not.exist");
     });
 

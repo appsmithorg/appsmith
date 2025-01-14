@@ -31,9 +31,9 @@ describe(
 
     it("1. Create a page/moveQuery/rename/delete in explorer", function () {
       cy.Createpage(pageid);
-      cy.wait(2000);
+      cy.get(".t--entity-name").should("be.visible");
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      cy.wait(2000);
+      cy.get(".t--entity-name").should("be.visible");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       dataSources.FillPostgresDSForm();
@@ -106,9 +106,9 @@ describe(
         subAction: pageid,
         toastToValidate: "action moved to page",
       });
-      cy.wait(2000);
+      cy.get(".t--entity-name").should("be.visible");
       EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
-      cy.wait(2000);
+      cy.get(".t--action-name-edit-field").should("be.visible");
       cy.runQuery();
 
       //deleteQuery & DS

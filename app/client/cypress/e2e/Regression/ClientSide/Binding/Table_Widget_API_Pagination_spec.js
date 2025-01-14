@@ -42,7 +42,7 @@ describe(
         );
         expect(hasPaginationField).to.equal(true);
       });
-      cy.wait(2000);
+      cy.get(".tbody").should("be.visible");
       cy.get(`.t--widget-tablewidget .page-item`)
         .first()
         .should("contain", "2");

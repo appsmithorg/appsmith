@@ -25,8 +25,7 @@ describe(
         response.response &&
           (parentApplicationDsl = response.response.body.data.dsl);
       });
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(2000);
+      cy.get(_.homePage._applicationCard).should("be.visible");
       _.homePage.NavigateToHome();
       _.homePage.FilterApplication(appname);
       // eslint-disable-next-line cypress/no-unnecessary-waiting

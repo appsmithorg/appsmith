@@ -42,7 +42,7 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.ValidateNSelectDropdown("Command", "Raw", "Find document(s)");
 
-    cy.wait(500);
+    cy.get(formControls.rawBody).should("be.visible");
 
     _.agHelper.EnterValue("modifyCollection", {
       propFieldName: "",

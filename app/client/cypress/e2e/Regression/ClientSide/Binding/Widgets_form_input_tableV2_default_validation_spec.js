@@ -20,7 +20,6 @@ describe(
       ]);
       cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
-      cy.wait(2000);
       cy.wait("@updateLayout").should(
         "have.nested.property",
         "response.body.responseMeta.status",

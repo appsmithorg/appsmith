@@ -74,7 +74,7 @@ describe(
       cy.get(".t--widget-tablewidgetv2 .t--search-input")
         .first()
         .type("Currey");
-      cy.wait(3000);
+      cy.get(".tbody").should("be.visible");
 
       // Captures the API call made on search
       cy.wait("@postExecute").then((interception) => {

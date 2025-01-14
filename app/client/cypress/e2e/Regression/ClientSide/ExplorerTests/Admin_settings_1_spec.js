@@ -33,11 +33,9 @@ describe(
         timeout: 60000,
       });
       cy.url().should("contain", "/developer-settings");
-      cy.wait(2000); //page to load properly
       cy.get(adminsSettings.appsmithHeader).should("be.visible");
       cy.visit(adminSettingsHelper.routes.GOOGLEAUTH, { timeout: 60000 });
       cy.url().should("contain", "/google-auth");
-      cy.wait(2000); //page to load properly
       cy.get(adminsSettings.appsmithHeader).should("be.visible");
     });
 
@@ -60,7 +58,7 @@ describe(
       "5. should test that settings page tab redirects and google maps doesn't exist - airgap",
       () => {
         cy.visit(adminSettingsHelper.routes.APPLICATIONS, { timeout: 60000 });
-        cy.wait(3000);
+        cy.get(".admin-settings-menu-option").should("be.visible");
         cy.get(".admin-settings-menu-option").click();
         cy.get(adminsSettings.generalTab).click();
         cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
@@ -111,7 +109,7 @@ describe(
         expect(interception.request.body.instanceName).to.equal(instanceName);
       });
       cy.get(adminsSettings.restartNotice).should("not.exist");
-      cy.wait(3000);
+      cy.get(adminsSettings.appsmithHeader).should("be.visible");
     });
 
     it("8. should test saving settings value from different tabs", () => {

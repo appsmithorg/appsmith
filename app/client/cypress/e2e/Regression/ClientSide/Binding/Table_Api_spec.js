@@ -74,7 +74,7 @@ describe(
       agHelper.CheckUncheck(commonlocators.enableClientSideSearch, false);
 
       cy.get(".t--widget-tablewidget .t--search-input").first().type("Currey");
-      cy.wait(3000);
+      cy.get(".tbody").should("be.visible");
 
       // Captures the API call made on search
       cy.wait("@postExecute").then((interception) => {

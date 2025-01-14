@@ -24,9 +24,8 @@ describe(
       propPane.RenameWidget("Form1", "FormTest");
       EditorNavigation.SelectEntityByName("FormTest", EntityType.Widget);
       cy.get("body").type(`{${modifierKey}}c`);
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
       cy.get(commonlocators.toastBody)
+        .should("be.visible")
         .first()
         .contains("Copied FormTest")
         .click();
@@ -36,7 +35,7 @@ describe(
         "response.body.responseMeta.status",
         200,
       );
-      cy.wait(1000);
+      cy.get(".t--entity-name").should("be.visible");
       EditorNavigation.SelectEntityByName(
         "FormTestCopy",
         EntityType.Widget,
@@ -49,7 +48,7 @@ describe(
         "response.body.responseMeta.status",
         200,
       );
-      agHelper.Sleep();
+      cy.get(".t--widget-buttonwidget").should("be.visible");
       cy.get("body").type(`{${modifierKey}}z`, { force: true });
       EditorNavigation.SelectEntityByName(
         "FormTestCopy",

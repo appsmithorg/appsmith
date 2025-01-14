@@ -43,7 +43,7 @@ describe(
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
-      cy.wait(3000);
+      cy.get(".t--canvas-artboard").should("be.visible");
 
       gitSync.CreateGitBranch(parentBranchKey, true);
       cy.get("@gitbranchName").then((branName) => {

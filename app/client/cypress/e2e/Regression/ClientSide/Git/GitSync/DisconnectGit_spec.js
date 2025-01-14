@@ -57,7 +57,7 @@ describe(
       // disconnect button should be disabled
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.disabled");
       _.agHelper.GetNClick(_.gitSync.locators.disconnectModalCloseBtn);
-      cy.wait(2000);
+      cy.get(_.gitSync.locators.settingsModal).should("not.exist");
     });
 
     it("2. should have disconnect repo button", function () {
@@ -81,7 +81,7 @@ describe(
       // disconnecting validation
       cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
       cy.get(_.gitSync.locators.disconnectModalRevokeBtn).click();
-      cy.wait(3000);
+      cy.get(_.gitSync.locators.disconnectModalRevokeBtn).should("be.visible");
       cy.wait("@disconnect").should(
         "have.nested.property",
         "response.body.responseMeta.status",

@@ -36,8 +36,7 @@ describe(
     it("1. Create MyPage and valdiate if its successfully created", function () {
       cy.Createpage(pageid);
       agHelper.AddDsl("displayWidgetDsl");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(3000);
+      cy.get(commonlocators.pageNameField).should("be.visible");
       PageList.ShowList();
       PageLeftPane.assertPresence(pageid);
     });
@@ -55,7 +54,7 @@ describe(
     });
 
     it("3. Validate NavigateTo Page functionality ", function () {
-      cy.wait(4000);
+      cy.get(".t--widget-tablewidget").should("be.visible");
       table.SelectTableRow(1);
       cy.readTabledataPublish("1", "0").then((tabData) => {
         const tabValue = tabData;

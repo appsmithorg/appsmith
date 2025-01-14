@@ -108,12 +108,10 @@ describe(
         },
         "Table1",
       );
-      cy.wait(500);
-      cy.get(propPaneBack).click();
+      cy.get(propPaneBack).should("be.visible").click();
       cy.get(".t--property-pane-title").should("contain", "status");
 
-      cy.wait(500);
-      cy.get(propPaneBack).click();
+      cy.get(propPaneBack).should("be.visible").click();
       cy.get(".t--property-pane-title").should("contain", "Table1");
     });
 
@@ -235,7 +233,7 @@ function verifyPropertyPaneContext(
 
   //Switch back to Button1 widget
   EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
-  cy.wait(500);
+  cy.get(".t--property-pane-title").should("be.visible");
 
   //assert Callback
   assertCallback();
@@ -245,7 +243,7 @@ function verifyPropertyPaneContext(
   EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
   cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
   EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-  cy.wait(500);
+  cy.get(".t--property-pane-title").should("be.visible");
 
   //assert Callback
   assertCallback();
@@ -253,7 +251,7 @@ function verifyPropertyPaneContext(
   //Navigate to API1 Pane and back
   EditorNavigation.SelectEntityByName(api1, EntityType.Api);
   EditorNavigation.ShowCanvas();
-  cy.wait(500);
+  cy.get(".t--property-pane-title").should("be.visible");
 
   //assert Callback
   assertCallback();

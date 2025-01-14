@@ -20,7 +20,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.editColumn("id");
       cy.moveToStyleTab();
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
       cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
       cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
@@ -30,14 +30,14 @@ describe(
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
       //cy.movetoStyleTab();
       cy.get(widgetsPage.textSize).last().click({ force: true });
-      _.agHelper.Sleep();
+      cy.get(".t--dropdown-option").should("be.visible");
       cy.selectTxtSize("XL");
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "30px");
     });
 
     it("3. Table widget toggle test for vertical Alignment", function () {
       //cy.movetoStyleTab();
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext(
         "Vertical alignment",
         testdata.bindingVerticalAlig,
@@ -48,14 +48,14 @@ describe(
 
     it("4. Table widget toggle test for text size", function () {
       //cy.movetoStyleTab();
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext("Text size", testdata.bindingNewSize);
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
       cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
     });
 
     it("5. Table widget V2 toggle test for style Alignment", function () {
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext("Emphasis", testdata.bindingStyle);
       cy.readTableV2dataValidateCSS("0", "0", "font-style", "normal");
       cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
@@ -63,7 +63,7 @@ describe(
 
     it("6. Table widget toggle test for text color", function () {
       cy.moveToStyleTab();
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext("Text color", testdata.bindingTextColor);
       cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
       cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
@@ -71,7 +71,7 @@ describe(
 
     it("7. Table widget toggle test for background color", function () {
       cy.moveToStyleTab();
-      _.agHelper.Sleep();
+      cy.get(".t--property-pane-section-general").should("be.visible");
       _.propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
       cy.readTableV2dataValidateCSS(
         "0",
