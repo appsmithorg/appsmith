@@ -64,7 +64,10 @@ function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
 
   return (
     <Tooltip content={props.children} isDisabled={disableTooltip}>
-      <TooltipTextWrapper onMouseOver={handleShowFullText}>
+      <TooltipTextWrapper
+        className={`${props.className}-wrapper`}
+        onMouseOver={handleShowFullText}
+      >
         <Text
           {...props}
           className={clsx(ListItemTextOverflowClassName, props.className)}
@@ -87,8 +90,12 @@ function ListItem(props: ListItemProps) {
     startIcon,
     title,
   } = props;
-  const isBlockDescription = descriptionType === "block" && description;
-  const isInlineDescription = descriptionType === "inline" && description;
+  const isBlockDescription = Boolean(
+    descriptionType === "block" && description,
+  );
+  const isInlineDescription = Boolean(
+    descriptionType === "inline" && description,
+  );
 
   const handleOnClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,6 +121,7 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
       data-disabled={props.isDisabled || false}
+      data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
       id={props.id}
@@ -152,7 +160,7 @@ function ListItem(props: ListItemProps) {
         )}
       </TopContentWrapper>
       {isBlockDescription && (
-        <BottomContentWrapper>
+        <BottomContentWrapper data-isiconpresent={Boolean(startIcon)}>
           <TextWithTooltip
             className={ListItemBDescClassName}
             color="var(--ads-v2-color-fg-muted)"

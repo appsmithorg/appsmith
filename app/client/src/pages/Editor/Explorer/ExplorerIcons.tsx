@@ -350,8 +350,8 @@ export function AppsmithAIIcon() {
   );
 }
 
-export function ActionUrlIcon(url: string) {
-  return <img src={url} />;
+export function ActionUrlIcon(url: string, height?: string, width?: string) {
+  return <img height={height} src={url} width={width} />;
 }
 
 export function DefaultModuleIcon() {

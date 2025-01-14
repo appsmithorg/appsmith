@@ -1668,7 +1668,7 @@ export const getQuerySegmentItems = createSelector(
       }
 
       return {
-        icon: ActionUrlIcon(iconUrl),
+        icon: ActionUrlIcon(iconUrl, "16", "16"),
         title: action.config.name,
         key: action.config.baseId,
         type: action.config.pluginType,
