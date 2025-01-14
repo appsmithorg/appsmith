@@ -166,6 +166,7 @@ public class PolicyGeneratorCE {
 
         lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, WORKSPACE_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, WORKSPACE_DELETE_APPLICATIONS);
+        lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, MANAGE_PROTECTED_BRANCHES);
 
         // Add the must-have side effects of manage all applications
         lateralGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS);

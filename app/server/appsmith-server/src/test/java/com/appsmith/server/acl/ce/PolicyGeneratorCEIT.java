@@ -1,8 +1,7 @@
 package com.appsmith.server.acl.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.Permission;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,24 +25,16 @@ public class PolicyGeneratorCEIT {
     @Test
     @WithUserDetails(value = "api_user")
     public void whenCreateApplicationPermissionGranted_ThenManageProtectedBranchesPermissionAlsoGranted() {
-        // Create a test workspace
-        Workspace workspace = new Workspace();
-        workspace.setId("test-workspace");
-        workspace.setName("Test Workspace");
+        // We don't need to create test instances since we're just testing permission inheritance
+        // between workspace-level and application-level permissions
 
-        // Create a test application
-        Application application = new Application();
-        application.setId("test-application");
-        application.setName("Test Application");
-        application.setWorkspaceId(workspace.getId());
-
-        // Generate policies for the application
-        Set<Permission> permissions =
-                policyGenerator.getAllChildPermissions(Set.of(WORKSPACE_CREATE_APPLICATION), workspace);
+        // Generate permissions for the application
+        Set<AclPermission> permissions =
+                policyGenerator.getChildPermissions(WORKSPACE_CREATE_APPLICATION, Application.class);
 
         // Verify that MANAGE_PROTECTED_BRANCHES permission is included when CREATE_APPLICATION is granted
-        boolean hasManageProtectedBranches = permissions.stream()
-                .anyMatch(permission -> MANAGE_PROTECTED_BRANCHES.equals(permission.getAclPermission()));
+        boolean hasManageProtectedBranches =
+                permissions.stream().anyMatch(permission -> MANAGE_PROTECTED_BRANCHES.equals(permission));
 
         assertThat(hasManageProtectedBranches)
                 .as("MANAGE_PROTECTED_BRANCHES permission should be granted when CREATE_APPLICATION is granted")
