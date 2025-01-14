@@ -22,7 +22,7 @@ export interface IDESidebarButton
   urlSuffix: string;
 }
 
-interface IDESidebarProps {
+export interface IDESidebarProps {
   id?: string;
   topButtons: IDESidebarButton[];
   bottomButtons: IDESidebarButton[];
