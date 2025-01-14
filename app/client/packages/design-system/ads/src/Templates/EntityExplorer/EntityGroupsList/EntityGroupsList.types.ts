@@ -16,4 +16,5 @@ export interface EntityGroupsListProps<T> {
   groups: EntityGroupProps<T>[];
   flexProps?: FlexProps;
   showDivider?: boolean;
+  visibleItems?: number;
 }
