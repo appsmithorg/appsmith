@@ -158,17 +158,18 @@ function resetWidgetMetaProperty(
         const unEvalEntity = oldUnEvalTree[widget.widgetName] as WidgetEntity;
         // Skip resetting inputText meta property if it's already set and matches expected type
         const currentMetaValue = metaObj[propertyPath];
-        const skipReset = propertyPath === "inputText" && 
-          currentMetaValue !== undefined && 
-          unEvalEntity && 
+        const skipReset =
+          propertyPath === "inputText" &&
+          currentMetaValue !== undefined &&
+          unEvalEntity &&
           typeof currentMetaValue === "string";
-        
+
         // Debug logging for meta property reset
         console.debug(
           `[MetaReset] Property: ${propertyPath}, Value: ${currentMetaValue}, Skip: ${skipReset}`,
-          { widgetName: widget.widgetName }
+          { widgetName: widget.widgetName },
         );
-        
+
         if (!skipReset) {
           evalMetaUpdates.push({
             widgetId: evaluatedEntity.isMetaWidget

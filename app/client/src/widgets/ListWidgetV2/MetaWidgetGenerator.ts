@@ -1,7 +1,11 @@
 import hash from "object-hash";
 import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import type { VirtualizerOptions } from "@tanstack/virtual-core";
-import type { RowDataChangeOptions, MetaWidgetRowCache, RowCache } from "./types";
+import type {
+  RowDataChangeOptions,
+  MetaWidgetRowCache,
+  RowCache,
+} from "./types";
 import {
   elementScroll,
   observeElementOffset,
@@ -542,7 +546,7 @@ export default class MetaWidgetGenerator {
   private hasRowDataChanged(key: string, widgetId: string): boolean {
     const currentData = this.getCurrentRowData(key);
     const cachedData = this.rowDataCache[key]?.data;
-    
+
     // If we don't have cached data, consider it as changed
     if (!cachedData) {
       this.updateRowDataCache(key, currentData);
@@ -551,17 +555,18 @@ export default class MetaWidgetGenerator {
 
     // Compare the current data with cached data
     const hasChanged = !isEqual(currentData, cachedData);
-    
+
     // Debug logging for row data changes
-    console.debug(
-      `[RowDataChange] Key: ${key}, Changed: ${hasChanged}`,
-      { widgetId, currentData, cachedData }
-    );
-    
+    console.debug(`[RowDataChange] Key: ${key}, Changed: ${hasChanged}`, {
+      widgetId,
+      currentData,
+      cachedData,
+    });
+
     if (hasChanged) {
       this.updateRowDataCache(key, currentData);
     }
-    
+
     return hasChanged;
   }
 

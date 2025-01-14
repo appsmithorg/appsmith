@@ -22,7 +22,7 @@ jest.mock("utils/helpers", () => ({
 
 describe("MetaWidgetGenerator", () => {
   let generator: MetaWidgetGenerator;
-  
+
   beforeEach(() => {
     generator = new MetaWidgetGenerator({
       getWidgetCache: () => ({}),
@@ -79,7 +79,7 @@ describe("MetaWidgetGenerator", () => {
         setWidgetReferenceCache: () => {},
       });
 
-      Object.defineProperty(generator, 'rowDataCache', {
+      Object.defineProperty(generator, "rowDataCache", {
         value: {
           "test-key": {
             data: { value: "old" },
@@ -89,7 +89,7 @@ describe("MetaWidgetGenerator", () => {
         writable: true,
       });
 
-      Object.defineProperty(generator, 'cachedKeyDataMap', {
+      Object.defineProperty(generator, "cachedKeyDataMap", {
         value: {
           "test-key": { value: "new" },
         },
@@ -118,7 +118,7 @@ describe("MetaWidgetGenerator", () => {
 
       const testData = { value: "same" };
 
-      Object.defineProperty(generator, 'rowDataCache', {
+      Object.defineProperty(generator, "rowDataCache", {
         value: {
           "test-key": {
             data: testData,
@@ -128,7 +128,7 @@ describe("MetaWidgetGenerator", () => {
         writable: true,
       });
 
-      Object.defineProperty(generator, 'cachedKeyDataMap', {
+      Object.defineProperty(generator, "cachedKeyDataMap", {
         value: {
           "test-key": testData,
         },
