@@ -22,6 +22,23 @@ body.dragging * {
   cursor: grabbing !important;
 }
 
+/**
+  Disable outline completely from all components
+*/
+:focus,
+:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+/**
+  Disable outline for adsv2 select component
+*/
+.ads-v2-select.rc-select-focused {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
 #root.overlay {
   opacity: 0;
   pointer-events: none;
