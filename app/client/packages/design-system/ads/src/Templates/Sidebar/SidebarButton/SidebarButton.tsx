@@ -2,23 +2,11 @@ import React, { useCallback } from "react";
 import { Icon } from "../../../Icon";
 import { Text } from "../../../Text";
 import { Tooltip } from "../../../Tooltip";
-
-import type { Condition } from "../enums";
 import { ConditionConfig } from "./constants";
 import * as Styled from "./styles";
+import type { SidebarButtonProps } from "./SidebarButton.types";
 
-export interface SidebarButtonProps {
-  title?: string;
-  testId: string;
-  selected: boolean;
-  icon: string;
-  onClick: (urlSuffix: string) => void;
-  urlSuffix: string;
-  tooltip?: string;
-  condition?: Condition;
-}
-
-function SidebarButton(props: SidebarButtonProps) {
+export function SidebarButton(props: SidebarButtonProps) {
   const { condition, icon, onClick, selected, title, tooltip, urlSuffix } =
     props;
   const handleOnClick = useCallback(() => {
@@ -56,5 +44,3 @@ function SidebarButton(props: SidebarButtonProps) {
     </Styled.Container>
   );
 }
-
-export default SidebarButton;

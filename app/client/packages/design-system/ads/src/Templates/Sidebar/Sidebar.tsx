@@ -1,23 +1,7 @@
 import React from "react";
-import SidebarButton from "./SidebarButton";
-import type { SidebarButtonProps } from "./SidebarButton/SidebarButton";
+import { SidebarButton } from "./SidebarButton";
 import * as Styled from "./styles";
-
-// Sidebar handles the correct handling of sidebar button. It will check if
-// the button should be selected and only handle calling the onClick
-export interface IDESidebarButton
-  extends Omit<SidebarButtonProps, "onClick" | "selected"> {
-  state: string;
-  urlSuffix: string;
-}
-
-export interface IDESidebarProps {
-  id?: string;
-  topButtons: IDESidebarButton[];
-  bottomButtons: IDESidebarButton[];
-  editorState: string;
-  onClick: (suffix: string) => void;
-}
+import type { IDESidebarProps } from "./types";
 
 export function IDESidebar(props: IDESidebarProps) {
   const { bottomButtons, editorState, onClick, topButtons } = props;

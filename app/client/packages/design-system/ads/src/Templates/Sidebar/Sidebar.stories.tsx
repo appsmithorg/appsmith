@@ -1,8 +1,9 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { IDESidebar, type IDESidebarProps } from "./Sidebar";
+import { IDESidebar } from "./Sidebar";
 import { Condition } from "./enums";
 import { Flex } from "../../Flex";
+import type { IDESidebarProps } from "./types";
 
 export default {
   title: "ADS/Templates/IDE Sidebar",
