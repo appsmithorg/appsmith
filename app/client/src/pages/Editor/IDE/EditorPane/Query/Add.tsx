@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
+import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 
 const AddQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,7 +60,14 @@ const AddQuery = () => {
         />
         <SearchInput autoFocus onChange={setSearchTerm} value={searchTerm} />
         {filteredItemGroups.length > 0 ? (
-          <EntityGroupsList groups={filteredItemGroups} showDivider />
+          <EntityGroupsList
+            flexProps={{
+              pb: "spaces-3",
+            }}
+            groups={filteredItemGroups}
+            showDivider
+            visibleItems={DEFAULT_GROUP_LIST_SIZE}
+          />
         ) : null}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults
