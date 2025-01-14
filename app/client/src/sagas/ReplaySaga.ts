@@ -83,6 +83,7 @@ import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -358,6 +359,7 @@ function* replayActionSaga(
                 replayEntity.actionConfiguration,
                 replayEntity.datasource.id || "",
                 replayEntity.pluginId,
+                replayEntity.contextType || ActionParentEntityType.PAGE,
                 u.modifiedProperty,
                 true,
                 datasource?.datasourceStorages[currentEnvironment]

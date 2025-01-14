@@ -11,6 +11,7 @@ import {
   LINT_REDUX_ACTIONS,
   LOG_REDUX_ACTIONS,
 } from "ee/actions/evaluationActionsList";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export const shouldTriggerEvaluation = (action: ReduxAction<unknown>) => {
   return (
@@ -99,6 +100,7 @@ export const startFormEvaluations = (
   formData: QueryActionConfig,
   datasourceId: string,
   pluginId: string,
+  editorContextType: ActionParentEntityTypeInterface,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
@@ -110,6 +112,7 @@ export const startFormEvaluations = (
       actionConfiguration: formData,
       datasourceId,
       pluginId,
+      editorContextType,
       actionDiffPath,
       hasRouteChanged,
       datasourceConfiguration,
