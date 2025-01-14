@@ -72,9 +72,8 @@ export const StyledSwitchInput = styled.input<{
   ${({ isFocusVisible }) =>
     isFocusVisible &&
     `
-      outline: var(--ads-v2-border-width-outline) solid
-        var(--ads-v2-color-outline) !important;
-      outline-offset: var(--ads-v2-offset-outline) !important;
+      outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
     `}
 
   &:hover {
