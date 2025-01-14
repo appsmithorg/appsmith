@@ -1,6 +1,7 @@
 import hash from "object-hash";
 import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import type { VirtualizerOptions } from "@tanstack/virtual-core";
+import type { RowDataChangeOptions, MetaWidgetRowCache, RowCache } from "./types";
 import {
   elementScroll,
   observeElementOffset,
@@ -212,10 +213,11 @@ const hasCurrentView = (value: string) =>
 const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
-class MetaWidgetGenerator {
-  private siblings: Siblings;
-  private cachedItemKeys: CachedRows;
-  private containerParentId: GeneratorOptions["containerParentId"];
+export default class MetaWidgetGenerator {
+  siblings: Siblings;
+  rowDataCache: MetaWidgetRowCache = {};
+  cachedItemKeys: CachedRows;
+  containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
   private currViewMetaWidgets: ViewMetaWidget[];
@@ -537,6 +539,43 @@ class MetaWidgetGenerator {
     return Array.from(removedWidgetsFromView);
   };
 
+  private hasRowDataChanged(key: string, widgetId: string): boolean {
+    const currentData = this.getCurrentRowData(key);
+    const cachedData = this.rowDataCache[key]?.data;
+    
+    // If we don't have cached data, consider it as changed
+    if (!cachedData) {
+      this.updateRowDataCache(key, currentData);
+      return true;
+    }
+
+    // Compare the current data with cached data
+    const hasChanged = !isEqual(currentData, cachedData);
+    
+    // Debug logging for row data changes
+    console.debug(
+      `[RowDataChange] Key: ${key}, Changed: ${hasChanged}`,
+      { widgetId, currentData, cachedData }
+    );
+    
+    if (hasChanged) {
+      this.updateRowDataCache(key, currentData);
+    }
+    
+    return hasChanged;
+  }
+
+  private getCurrentRowData(key: string): Record<string, unknown> | undefined {
+    return this.cachedKeyDataMap[key] || undefined;
+  }
+
+  private updateRowDataCache(key: string, data?: Record<string, unknown>) {
+    this.rowDataCache[key] = {
+      data,
+      lastUpdated: Date.now(),
+    };
+  }
+
   private generateMetaWidgetRecursively = ({
     options,
     parentId,
@@ -583,7 +622,8 @@ class MetaWidgetGenerator {
 
     if (
       !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
-      !options?.keepMetaWidgetData
+      !options?.keepMetaWidgetData &&
+      !this.hasRowDataChanged(key, templateWidget.widgetId)
     ) {
       return { childMetaWidgets, metaWidgetName, metaWidgetId };
     }
@@ -1986,4 +2026,4 @@ class MetaWidgetGenerator {
   };
 }
 
-export default MetaWidgetGenerator;
+// Class is already exported as default above
