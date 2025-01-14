@@ -29,7 +29,8 @@ public class PolicyGeneratorCEIT {
         // between workspace-level and application-level permissions
 
         // Get all child permissions (both lateral and hierarchical)
-        Set<AclPermission> allPermissions = policyGenerator.getChildPermissions(WORKSPACE_CREATE_APPLICATION, Application.class);
+        Set<AclPermission> allPermissions =
+                policyGenerator.getChildPermissions(WORKSPACE_CREATE_APPLICATION, Application.class);
 
         // Verify that MANAGE_PROTECTED_BRANCHES permission is included when CREATE_APPLICATION is granted
         boolean hasManageProtectedBranches =
