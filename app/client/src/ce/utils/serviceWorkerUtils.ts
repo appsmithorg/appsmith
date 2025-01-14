@@ -9,7 +9,7 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
-} from "../constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 
 interface TMatchResult {
   basePageId?: string;
@@ -168,8 +168,6 @@ export class PrefetchApiService {
   prefetchFetchMutexMap = new Map<string, Mutex>();
   // Header keys used to create the unique request key
   headerKeys = ["branchname"];
-
-  constructor() {}
 
   // Function to get the request key
   getRequestKey = (request: Request) => {

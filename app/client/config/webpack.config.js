@@ -174,6 +174,7 @@ module.exports = function (webpackEnv) {
       version: require('./webpack/persistentCache/createEnvironmentHash')(env.raw),
       cacheDirectory: paths.appWebpackCache,
       store: 'pack',
+      compression: 'gzip',
       buildDependencies: {
         defaultWebpack: ['webpack/lib/'],
         config: [__filename],
@@ -181,6 +182,7 @@ module.exports = function (webpackEnv) {
           fs.existsSync(f)
         ),
       },
+      maxAge: 172800000, // 2 days
     },
 
     // Infrastructure logging configuration
@@ -192,7 +194,6 @@ module.exports = function (webpackEnv) {
     optimization: {
       minimize: isEnvProduction,
       minimizer: [
-        // JavaScript minification
         new TerserPlugin({
           terserOptions: {
             parse: {
@@ -203,6 +204,9 @@ module.exports = function (webpackEnv) {
               warnings: false,
               comparisons: false,
               inline: 2,
+              drop_console: isEnvProduction,
+              drop_debugger: isEnvProduction,
+              pure_funcs: isEnvProduction ? ['console.log', 'console.info', 'console.debug'] : [],
             },
             mangle: {
               safari10: true,
@@ -213,99 +217,111 @@ module.exports = function (webpackEnv) {
               ascii_only: true,
             },
           },
+          parallel: true,
+          extractComments: false,
         }),
-        // CSS minification
-        new CssMinimizerPlugin(),
+        new CssMinimizerPlugin({
+          parallel: true,
+          minimizerOptions: {
+            preset: [
+              'default',
+              {
+                discardComments: { removeAll: true },
+                minifyFontValues: { removeQuotes: false },
+              },
+            ],
+          },
+        }),
       ],
       splitChunks: {
-        chunks: chunk => {
-          // In development, don't split workbox chunks
-          if (!isEnvProduction && /workbox/.test(chunk.name)) {
-            return false;
-          }
-          return true;
-        },
+        chunks: 'all',
+        maxInitialRequests: 25,
+        minSize: 20000,
+        maxSize: 244000,
         cacheGroups: {
-          vendors: {
+          vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
+            name(module) {
+              // Handle cases where module.context is undefined/null
+              if (!module.context) return 'vendor';
+
+              const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+              // If no match is found, return a default vendor name
+              if (!match) return 'vendor';
+
+              const packageName = match[1];
+              return `vendor.${packageName.replace('@', '')}`;
+            },
             priority: 10,
           },
           common: {
             test: /[\\/]src[\\/]/,
             name: 'common',
-            chunks: 'all',
             minChunks: 2,
             priority: 5,
+            reuseExistingChunk: true,
           },
         },
       },
       runtimeChunk: {
         name: entrypoint => `runtime-${entrypoint.name}`,
       },
+      removeEmptyChunks: true,
+      mergeDuplicateChunks: true,
+      removeAvailableModules: true,
     },
 
     // Module resolution configuration
     resolve: {
       // Configure how modules are resolved
+      extensions: paths.moduleFileExtensions.map(ext => `.${ext}`),
       modules: [
+        paths.appSrc, // Add src directory for absolute imports
         'node_modules',
-        paths.appNodeModules,
-        paths.appSrc,
-        path.resolve(paths.appPath, 'packages'),
+        paths.appNodeModules
       ].concat(
-        modules.additionalModulePaths || []
+        modules.additionalModulePaths || [],
       ),
-      mainFields: ['browser', 'module', 'main'],
-      extensions: [
-        '.web.mjs',
-        '.mjs',
-        '.web.js',
-        '.js',
-        '.web.ts',
-        '.ts',
-        '.web.tsx',
-        '.tsx',
-        '.json',
-        '.web.jsx',
-        '.jsx',
-        '.css',
-        '.module.css'
-      ],
       alias: {
-        '@': paths.appSrc,
-        'ee': path.resolve(paths.appSrc, 'ee'),
-        'ce': path.resolve(paths.appSrc, 'ce'),
-        'actions': path.resolve(paths.appSrc, 'actions'),
-        'api': path.resolve(paths.appSrc, 'api'),
-        'assets': path.resolve(paths.appSrc, 'assets'),
-        'components': path.resolve(paths.appSrc, 'components'),
-        'constants': path.resolve(paths.appSrc, 'constants'),
-        'entities': path.resolve(paths.appSrc, 'entities'),
-        'reducers': path.resolve(paths.appSrc, 'reducers'),
-        'utils': path.resolve(paths.appSrc, 'utils'),
-        'workers': path.resolve(paths.appSrc, 'workers'),
-        '@appsmith/wds': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
-        '@appsmith/wds/src': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
-        '@appsmith/wds/shared': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared'),
-        '@appsmith/wds/src/shared': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared'),
-        '@appsmith/wds/shared/colors': path.resolve(paths.appPath, 'packages/design-system/widgets/src/shared/colors'),
-        '@appsmith/ads': path.resolve(paths.appPath, 'packages/design-system/ads/src'),
-        '@appsmith/ads/__theme__': path.resolve(paths.appPath, 'packages/design-system/ads/src/__theme__'),
-        '@appsmith/ads-old': path.resolve(paths.appPath, 'packages/design-system/ads-old/src'),
-        '@appsmith/ads-old/themes': path.resolve(paths.appPath, 'packages/design-system/ads-old/src/themes'),
-        '@appsmith/utils': path.resolve(paths.appPath, 'packages/utils/src'),
-        'react/jsx-runtime': require.resolve('react/jsx-runtime'),
-        'acorn': path.resolve(paths.appNodeModules, 'acorn'),
-        'acorn/dist/acorn': path.resolve(paths.appNodeModules, 'acorn/dist/acorn.js'),
-        'acorn/dist/walk': path.resolve(paths.appNodeModules, 'acorn-walk/dist/walk.js'),
-        'acorn-walk': path.resolve(paths.appNodeModules, 'acorn-walk'),
-        ...(isEnvProductionProfile && {
-          'react-dom$': 'react-dom/profiling',
-          'scheduler/tracing': 'scheduler/tracing-profiling',
-        }),
         ...(modules.webpackAliases || {}),
+        // Add path aliases for ce and ee directories
+        ce: path.resolve(paths.appSrc, 'ce'),
+        ee: path.resolve(paths.appSrc, 'ee'),
+        // Add aliases for @appsmith packages
+        '@appsmith/ads': path.resolve(paths.appPath, 'packages/design-system/ads/src'),
+        '@appsmith/ads-old': path.resolve(paths.appPath, 'packages/design-system/ads-old/src'),
+        '@appsmith/design-system': path.resolve(paths.appPath, 'packages/design-system'),
+        '@appsmith/widgets': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
+        '@appsmith/widgets-old': path.resolve(paths.appPath, 'packages/design-system/widgets-old/src'),
+        '@appsmith/wds': path.resolve(paths.appPath, 'packages/design-system/widgets/src'),
+        '@appsmith/ast': path.resolve(paths.appPath, 'packages/ast/src'),
+        '@appsmith/dsl': path.resolve(paths.appPath, 'packages/dsl/src'),
+        '@appsmith/icons': path.resolve(paths.appPath, 'packages/icons/src'),
+        '@appsmith/utils': path.resolve(paths.appPath, 'packages/utils/src'),
+        '@appsmith/rts': path.resolve(paths.appPath, 'packages/rts/src')
+      },
+      fallback: {
+        "crypto": false,
+        "stream": false,
+        "assert": false,
+        "http": false,
+        "https": false,
+        "os": false,
+        "url": path.resolve(paths.appSrc, 'polyfills/url.js'),
+        "zlib": false,
+        "path": false,
+        "module": false,
+        "buffer": false,
+        "util": false,
+        "fs": false,
+        "process": false,
+        "querystring": false,
+        "timers": false,
+        "child_process": false,
+        "vm": false,
+        "tls": false,
+        "net": false,
+        "dns": false
       },
       plugins: [
         // Allow imports from both src/ and workspace packages
@@ -322,25 +338,6 @@ module.exports = function (webpackEnv) {
         ]),
       ],
       symlinks: true, // Enable symlink resolution for workspaces
-      fallback: {
-        "zlib": false,
-        "stream": false,
-        "crypto": false,
-        "http": false,
-        "https": false,
-        "os": false,
-        "url": false,
-        "assert": false,
-        "buffer": false,
-        "fs": false,
-        "tls": false,
-        "net": false,
-        "path": false,
-        "util": false,
-        "querystring": false,
-        "module": false,
-        "process": false
-      },
       exportsFields: ['exports'],
       importsFields: ['imports'],
       conditionNames: ['import', 'require', 'node', 'default'],
@@ -357,6 +354,23 @@ module.exports = function (webpackEnv) {
           exclude: /@babel(?:\/|\\{1,2})runtime/,
           test: /\.(js|mjs|jsx|ts|tsx|css)$/,
           use: 'source-map-loader',
+        },
+        {
+          // Handle node: scheme imports
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+            fallback: {
+              crypto: require.resolve('crypto-browserify'),
+              stream: require.resolve('stream-browserify'),
+              assert: require.resolve('assert'),
+              http: require.resolve('stream-http'),
+              https: require.resolve('https-browserify'),
+              os: require.resolve('os-browserify/browser'),
+              url: require.resolve('url'),
+              buffer: require.resolve('buffer'),
+            },
+          },
         },
         {
           // "oneOf" will traverse all following loaders until one will
@@ -379,7 +393,10 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: paths.appSrc,
+              include: [
+                paths.appSrc,
+                path.resolve(paths.appPath, 'packages'),
+              ],
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
@@ -397,31 +414,135 @@ module.exports = function (webpackEnv) {
                   isEnvDevelopment &&
                   shouldUseReactRefresh &&
                   require.resolve('react-refresh/babel'),
+                  require.resolve('babel-plugin-styled-components'),
                 ].filter(Boolean),
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
                 cacheDirectory: true,
-                // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,
               },
             },
-            // Handle CSS
+            // Handle LESS files
+            {
+              test: /\.less$/,
+              use: [
+                isEnvDevelopment ? require.resolve('style-loader') : MiniCssExtractPlugin.loader,
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 3,
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                    modules: {
+                      mode: 'icss',
+                    },
+                  },
+                },
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        require('postcss-flexbugs-fixes'),
+                        [
+                          require('postcss-preset-env'),
+                          {
+                            autoprefixer: {
+                              flexbox: 'no-2009',
+                            },
+                            stage: 3,
+                          },
+                        ],
+                        isEnvProduction && require('postcss-normalize')(),
+                      ].filter(Boolean),
+                    },
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+                {
+                  loader: require.resolve('less-loader'),
+                  options: {
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+              ],
+            },
+            // Handle Blueprint CSS
+            {
+              test: /blueprint-datetime.*\.css$/,
+              use: [
+                isEnvDevelopment ? require.resolve('style-loader') : MiniCssExtractPlugin.loader,
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 1,
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        require('postcss-flexbugs-fixes'),
+                        [
+                          require('postcss-preset-env'),
+                          {
+                            autoprefixer: {
+                              flexbox: 'no-2009',
+                            },
+                            stage: 3,
+                          },
+                        ],
+                        isEnvProduction && require('postcss-normalize')(),
+                      ].filter(Boolean),
+                    },
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+              ],
+            },
+            // Handle regular CSS
             {
               test: /\.css$/,
               exclude: /\.module\.css$/,
               include: [
                 paths.appSrc,
                 path.resolve(paths.appPath, 'packages'),
+                /node_modules/,
               ],
-              use: getStyleLoaders({
-                importLoaders: 1,
-                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-                modules: {
-                  mode: 'icss',
+              use: [
+                isEnvDevelopment ? require.resolve('style-loader') : MiniCssExtractPlugin.loader,
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 1,
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
                 },
-              }),
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        require('postcss-flexbugs-fixes'),
+                        [
+                          require('postcss-preset-env'),
+                          {
+                            autoprefixer: {
+                              flexbox: 'no-2009',
+                            },
+                            stage: 3,
+                          },
+                        ],
+                        isEnvProduction && require('postcss-normalize')(),
+                      ].filter(Boolean),
+                    },
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+              ],
               sideEffects: true,
             },
             // Handle CSS Modules
@@ -431,14 +552,46 @@ module.exports = function (webpackEnv) {
                 paths.appSrc,
                 path.resolve(paths.appPath, 'packages'),
               ],
-              use: getStyleLoaders({
-                importLoaders: 1,
-                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-                modules: {
-                  mode: 'local',
-                  getLocalIdent: getCSSModuleLocalIdent,
+              use: [
+                isEnvDevelopment ? require.resolve('style-loader') : MiniCssExtractPlugin.loader,
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 1,
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                    modules: {
+                      mode: 'local',
+                      getLocalIdent: getCSSModuleLocalIdent,
+                    },
+                  },
                 },
-              }),
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        require('postcss-flexbugs-fixes'),
+                        [
+                          require('postcss-preset-env'),
+                          {
+                            autoprefixer: {
+                              flexbox: 'no-2009',
+                            },
+                            stage: 3,
+                          },
+                        ],
+                        isEnvProduction && require('postcss-normalize')(),
+                      ].filter(Boolean),
+                    },
+                    sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                  },
+                },
+              ],
+            },
+            // Handle Lottie animation files
+            {
+              test: /\.json\.txt$/,
+              type: 'asset/source',
             },
             // Handle images
             {
@@ -453,29 +606,34 @@ module.exports = function (webpackEnv) {
             // Handle SVG
             {
               test: /\.svg$/,
-              use: [
+              oneOf: [
                 {
-                  loader: require.resolve('@svgr/webpack'),
-                  options: {
-                    prettier: false,
-                    svgo: false,
-                    svgoConfig: {
-                      plugins: [{ removeViewBox: false }],
+                  issuer: /\.[jt]sx?$/,
+                  use: [
+                    {
+                      loader: require.resolve('@svgr/webpack'),
+                      options: {
+                        prettier: false,
+                        svgo: false,
+                        svgoConfig: {
+                          plugins: [{ removeViewBox: false }],
+                        },
+                        titleProp: true,
+                        ref: true,
+                      },
                     },
-                    titleProp: true,
-                    ref: true,
-                  },
+                    {
+                      loader: require.resolve('file-loader'),
+                      options: {
+                        name: 'static/media/[name].[hash].[ext]',
+                      },
+                    },
+                  ],
                 },
                 {
-                  loader: require.resolve('file-loader'),
-                  options: {
-                    name: 'static/media/[name].[hash].[ext]',
-                  },
+                  type: 'asset/resource',
                 },
               ],
-              issuer: {
-                and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
-              },
             },
             // Handle Web Workers
             {
@@ -504,7 +662,7 @@ module.exports = function (webpackEnv) {
                 },
               ],
             },
-          ].filter(Boolean),
+          ],
         },
       ].filter(Boolean),
     },
@@ -531,6 +689,15 @@ module.exports = function (webpackEnv) {
             },
           }
           : undefined),
+      }),
+      // Handle node: protocol imports
+      new webpack.NormalModuleReplacementPlugin(/^node:(.*)$/, (resource) => {
+        const mod = resource.request.replace(/^node:/, '');
+        if (mod === 'url') {
+          resource.request = path.resolve(paths.appSrc, 'polyfills/url.js');
+        } else {
+          resource.request = mod;
+        }
       }),
       isEnvProduction && shouldInlineRuntimeChunk &&
       new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
@@ -695,9 +862,12 @@ module.exports = function (webpackEnv) {
         minRatio: 0.8,
       }),
       isEnvProduction && new RetryChunkLoadPlugin({
-        cacheBust: `?retry=${Date.now()}`,
-        maxRetries: 5,
+        cacheBust: function () {
+          return `?retry=${Date.now()}`;
+        },
+        maxRetries: 2,
         retryDelay: 3000,
+        lastResortScript: "window.location.href='/404.html';",
       }),
       isEnvProduction && process.env.REACT_APP_ENVIRONMENT !== 'DEVELOPMENT' && new FaroSourceMapUploaderPlugin({
         appId: process.env.REACT_APP_FARO_APP_ID,
@@ -707,9 +877,21 @@ module.exports = function (webpackEnv) {
         apiKey: process.env.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY,
         gzipContents: true,
       }),
+      new webpack.NormalModuleReplacementPlugin(/^node:(.*)$/, (resource) => {
+        const mod = resource.request.replace(/^node:/, '');
+        if (mod === 'url') {
+          resource.request = path.resolve(paths.appSrc, 'polyfills/url.js');
+        } else {
+          resource.request = mod;
+        }
+      }),
     ].filter(Boolean),
 
     // Disable performance optimization
-    performance: false,
+    performance: {
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+      hints: isEnvProduction ? 'warning' : false,
+    },
   };
 };

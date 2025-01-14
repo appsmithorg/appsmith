@@ -126,6 +126,7 @@ export const matchAppLibrariesPath = (pathName: string) =>
 
 export const matchAppPackagesPath = (pathName: string) =>
   match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
+export const GIT_BRANCH_QUERY_KEY = "branch";
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
@@ -161,7 +162,6 @@ export interface JSEditorRouteParams {
   baseCollectionId?: string;
 }
 
-export const GIT_BRANCH_QUERY_KEY = "branch";
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",

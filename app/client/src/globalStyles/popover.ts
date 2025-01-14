@@ -3,6 +3,7 @@ import { Classes } from "@blueprintjs/core";
 import { Classes as PopoverClasses } from "@blueprintjs/popover2";
 import { Layers } from "constants/Layers";
 import { Colors } from "constants/Colors";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 export const PopoverStyles = createGlobalStyle`
   .${Classes.POPOVER}, .${PopoverClasses.POPOVER2} {

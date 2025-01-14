@@ -1,14 +1,8 @@
-@import "@appsmith/wds/src/shared/colors/colors.module.css";
+@import "@appsmith/wds/shared/colors/colors.module.css";
 
 .table {
-  --th-height: calc(
-    var(--caption-line-height) + var(--caption-margin-end) +
-      var(--caption-margin-start) + (2 * var(--inner-spacing-4))
-  );
-  --tr-height: calc(
-    var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) +
-      (2 * var(--outer-spacing-4))
-  );
+  --th-height: calc(var(--caption-line-height) + var(--caption-margin-end) + var(--caption-margin-start) + (2 * var(--inner-spacing-4)));
+  --tr-height: calc(var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) + (2 * var(--outer-spacing-4)));
 
   display: flex;
   justify-content: space-between;
@@ -112,10 +106,7 @@
     padding-inline-end: var(--padding-inline-end);
   }
 
-  &
-    thead
-    [role="columnheader"]:has([data-status="dragging"])
-    [data-draggable-header] {
+  & thead [role="columnheader"]:has([data-status="dragging"]) [data-draggable-header] {
     background: var(--color-bg);
     border-radius: 4px;
     z-index: 100;
@@ -179,8 +170,7 @@
     border-block-end-color: transparent;
   }
 
-  &:is([data-variant="horizontal-borders"], [data-variant="default"])
-    [role="cell"] {
+  &:is([data-variant="horizontal-borders"], [data-variant="default"]) [role="cell"] {
     border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
@@ -209,14 +199,12 @@
   /*-------------------------------------------------------------------------
   * Column Types
   *-------------------------------------------------------------------------- */
-  &
-    [role="cell"]:is(
-      [data-column-type="text"],
-      [data-column-type="number"],
-      [data-column-type="url"],
-      [data-column-type="date"],
+  & [role="cell"]:is([data-column-type="text"],
+    [data-column-type="number"],
+    [data-column-type="url"],
+    [data-column-type="date"],
 
-    ) {
+  ) {
     padding: var(--outer-spacing-4) var(--outer-spacing-3);
   }
 
@@ -226,42 +214,42 @@
   }
 
   @each $color in colors {
-    &
-      [role="cell"][data-cell-color="$(color)"]:not(
-        [data-column-type="button"],
-        [data-column-type="url"]
-      ) {
-      background-color: var(--color-bg-$(color)-subtle);
-    }
 
-    &
-      [role="row"][aria-checked="true"]
-      [role="cell"][data-cell-color="$(color)"] {
-      background-color: var(--color-bg-$(color)-subtle-active);
-    }
+    & [role="cell"][data-cell-color="$(color)"]:not([data-column-type="button"],
+      [data-column-type="url"]) {
+      background-color: var(--color-bg-$(
+          color)-subtle
+      );
   }
 
-  /* --------------------------------------------------------------------------
+  & [role="row"][aria-checked="true"] [role="cell"][data-cell-color="$(color)"] {
+    background-color: var(--color-bg-$(
+        color)-subtle-active
+    );
+}
+}
+
+/* --------------------------------------------------------------------------
   * Resizor
   *-------------------------------------------------------------------------- */
-  & [data-resizor] {
-    display: inline-block;
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transform: translateX(50%);
-    z-index: 1;
-    /* prevents from scrolling while dragging on touch devices */
-    touch-action: none;
-  }
+& [data-resizor] {
+  display: inline-block;
+  width: 10px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translateX(50%);
+  z-index: 1;
+  /* prevents from scrolling while dragging on touch devices */
+  touch-action: none;
+}
 
-  & [data-resizor][data-status="resizing"] {
-    cursor: isResizing;
-  }
+& [data-resizor][data-status="resizing"] {
+  cursor: isResizing;
+}
 
-  & thead th:last-child [data-resizor] {
-    right: 5px;
-  }
+& thead th:last-child [data-resizor] {
+  right: 5px;
+}
 }

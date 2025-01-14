@@ -154,6 +154,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           _sortTableColumn("", asc);
         } else {
           const column = columns[columnIndex];
+          if (!column) return; // Safety check to ensure column exists
           const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
 
           if (

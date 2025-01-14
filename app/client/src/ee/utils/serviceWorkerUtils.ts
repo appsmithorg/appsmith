@@ -1,1 +1,1 @@
-export * from "../../ce/utils/serviceWorkerUtils";
+export * from "ce/utils/serviceWorkerUtils";
