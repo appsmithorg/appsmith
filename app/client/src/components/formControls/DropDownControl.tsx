@@ -303,13 +303,10 @@ function renderDropdown(
     >
       {groupedOptions.length === 0
         ? flatOptions.map(renderOptionWithIcon)
-        : groupedOptions.map((groupedOptionList) => {
+        : groupedOptions.map(({ children, label }) => {
             return (
-              <OptGroup
-                aria-label={groupedOptionList.label}
-                key={groupedOptionList.label}
-              >
-                {groupedOptionList.children.map(renderOptionWithIcon)}
+              <OptGroup aria-label={label} key={label}>
+                {children.map(renderOptionWithIcon)}
               </OptGroup>
             );
           })}
