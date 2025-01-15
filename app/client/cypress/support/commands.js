@@ -816,7 +816,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td mp-mask'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -841,7 +841,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td mp-mask'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
