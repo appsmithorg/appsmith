@@ -17,7 +17,7 @@ import {
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
-import { Icon, Option, Select } from "@appsmith/ads";
+import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
 
 const DropdownSelect = styled.div<{
   width: string;
@@ -131,9 +131,18 @@ function renderDropdown(
         ? (props.initialValue as string[])
         : "";
 
-      if (props.setFirstOptionAsDefault && props.options.length > 0) {
-        selectedValue = props.options[0].value as string;
-        props.input?.onChange(selectedValue);
+      if (props.setFirstOptionAsDefault) {
+        if (props.options.length > 0) {
+          selectedValue = props.options[0].value as string;
+          props.input?.onChange(selectedValue);
+        } else if (
+          !!props.groupedOptions &&
+          props.groupedOptions?.length > 0 &&
+          props.groupedOptions[0].children.length > 0
+        ) {
+          selectedValue = props.groupedOptions[0].children[0].value as string;
+          props.input?.onChange(selectedValue);
+        }
       }
     }
   } else {
@@ -148,13 +157,28 @@ function renderDropdown(
     }
   }
 
-  let options: SelectOptionProps[] = [];
+  let flatOptions: SelectOptionProps[] = [];
+  let groupedOptions: DropDownGroupedOptionsInterface[] = [];
   let selectedOptions: SelectOptionProps[] = [];
 
   if (typeof props.options === "object" && Array.isArray(props.options)) {
-    options = props.options;
+    flatOptions = props.options;
+  }
+
+  if (
+    !!props.groupedOptions &&
+    typeof props.groupedOptions === "object" &&
+    Array.isArray(props.groupedOptions)
+  ) {
+    groupedOptions = props.groupedOptions;
+    groupedOptions.forEach((groupedOptionList) => {
+      flatOptions = flatOptions.concat(groupedOptionList.children);
+    });
+  }
+
+  if (flatOptions.length > 0) {
     selectedOptions =
-      options.filter((option: SelectOptionProps) => {
+      flatOptions.filter((option: SelectOptionProps) => {
         if (props.isMultiSelect)
           return selectedValue.includes(option.value as string);
         else return selectedValue === option.value;
@@ -210,7 +234,7 @@ function renderDropdown(
     }
   };
 
-  if (props.options.length > 0) {
+  if (flatOptions.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
 
@@ -241,17 +265,17 @@ function renderDropdown(
         props.input?.onChange(tempSelectedValues);
       }
 
-      const isOptionDynamic = options.some((opt) => "disabled" in opt);
+      const isOptionDynamic = flatOptions.some((opt) => "disabled" in opt);
 
       if (isOptionDynamic && !!props?.isRequired) {
-        const isCurrentOptionDisabled = options.some(
+        const isCurrentOptionDisabled = flatOptions.some(
           (opt) => opt?.value === selectedValue && opt.disabled,
         );
 
         if (!tempSelectedValues || isCurrentOptionDisabled) {
-          const firstEnabledOption = props?.options.find(
-            (opt) => !opt?.disabled,
-          );
+          const firstEnabledOption = flatOptions.find((opt) => {
+            return !opt?.disabled;
+          });
 
           if (firstEnabledOption) {
             selectedValue = firstEnabledOption?.value as string;
@@ -277,26 +301,48 @@ function renderDropdown(
       showSearch={props.isSearchable}
       value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
     >
-      {options.map((option) => {
-        return (
-          <Option
-            aria-label={option.label}
-            disabled={option.disabled}
-            isDisabled={option.isDisabled}
-            key={option.value}
-            value={option.value}
-          >
-            {option.icon && <Icon color={option.color} name={option.icon} />}
-            {option.label}
-          </Option>
-        );
-      })}
+      {groupedOptions.length === 0
+        ? flatOptions.map((option: SelectOptionProps) => {
+            return <OptionWithIcon key={option.value} option={option} />;
+          })
+        : groupedOptions.map((groupedOptionList) => {
+            return (
+              <OptGroup
+                aria-label={groupedOptionList.label}
+                key={groupedOptionList.label}
+              >
+                {groupedOptionList.children.map((option) => {
+                  return <OptionWithIcon key={option.value} option={option} />;
+                })}
+              </OptGroup>
+            );
+          })}
     </Select>
   );
 }
 
+function OptionWithIcon({ option }: { option: SelectOptionProps }) {
+  return (
+    <Option
+      aria-label={option.label}
+      disabled={option.disabled}
+      isDisabled={option.isDisabled}
+      value={option.value}
+    >
+      {option.icon && <Icon color={option.color} name={option.icon} />}
+      {option.label}
+    </Option>
+  );
+}
+
+export interface DropDownGroupedOptionsInterface {
+  label: string;
+  children: SelectOptionProps[];
+}
+
 export interface DropDownControlProps extends ControlProps {
   options: SelectOptionProps[];
+  groupedOptions?: DropDownGroupedOptionsInterface[];
   optionWidth?: string;
   placeholderText: string;
   propertyValue: string;
