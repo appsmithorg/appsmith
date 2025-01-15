@@ -23,7 +23,12 @@ const UlWrapper = styled.ul`
 
 export default function ExternalSaasConnection() {
   return (
-    <Wrapper flexDirection="column" gap="spaces-7" padding="spaces-8">
+    <Wrapper
+      flexDirection="column"
+      flexGrow="1"
+      gap="spaces-7"
+      padding="spaces-8"
+    >
       <ImageWrapper src={getAssetUrl(`${ASSETS_CDN_URL}/Illustration.png`)} />
       <TextContainer flexDirection="column" flexGrow="1" gap="spaces-3">
         <Text isBold kind="heading-m">
