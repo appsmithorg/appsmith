@@ -95,13 +95,14 @@ export const StyledInputGroup = styled(InputGroup)<{
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
-    &:focus-visible {
+    &:focus {
       outline: var(--ads-v2-border-width-outline) solid
         var(--ads-v2-color-outline);
       outline-offset: var(--ads-v2-offset-outline);
     }
 
-    &:hover {
+    &:hover,
+    &:focus {
       border-color: ${({ $isValid }) =>
         $isValid
           ? "var(--ads-v2-color-border-emphasis)"

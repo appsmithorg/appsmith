@@ -2,7 +2,7 @@ import React from "react";
 import { Flex } from "@appsmith/ads";
 import { useChangeActionCall } from "./hooks/useChangeActionCall";
 import { usePluginActionContext } from "../../PluginActionContext";
-import { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "entities/Plugin";
 import APIEditorForm from "./components/ApiEditor";
 import GraphQLEditorForm from "./components/GraphQLEditor";
 import UQIEditorForm from "./components/UQIEditor";

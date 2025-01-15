@@ -24,7 +24,7 @@ import {
   isEnvironmentConfigured,
 } from "ee/utils/Environments";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import { useEditorType } from "ee/hooks";
 import { useHistory } from "react-router";
 import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";

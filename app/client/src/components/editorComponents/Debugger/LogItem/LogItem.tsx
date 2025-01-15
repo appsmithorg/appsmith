@@ -311,7 +311,7 @@ export function LogItem(props: LogItemProps) {
           })}
           {props.state && (
             <JsonWrapper
-              className="t--debugger-log-state mp-mask"
+              className="t--debugger-log-state as-mask"
               onClick={(e) => e.stopPropagation()}
             >
               <ReactJson src={props.state} {...reactJsonProps} />
@@ -325,7 +325,7 @@ export function LogItem(props: LogItemProps) {
               if (typeof logDatum === "object") {
                 return (
                   <JsonWrapper
-                    className="t--debugger-console-log-data mp-mask"
+                    className="t--debugger-console-log-data as-mask"
                     key={Math.random()}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -334,7 +334,7 @@ export function LogItem(props: LogItemProps) {
                 );
               } else {
                 return (
-                  <span className="debugger-label mp-mask" key={Math.random()}>
+                  <span className="debugger-label as-mask" key={Math.random()}>
                     {`${logDatum} `}
                   </span>
                 );

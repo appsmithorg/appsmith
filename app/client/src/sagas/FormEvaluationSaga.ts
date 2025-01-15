@@ -28,7 +28,7 @@ import {
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
 

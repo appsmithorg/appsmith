@@ -60,7 +60,7 @@ import {
 } from "@appsmith/ads";
 import { isEnvironmentConfigured } from "ee/utils/Environments";
 import { keyBy } from "lodash";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,

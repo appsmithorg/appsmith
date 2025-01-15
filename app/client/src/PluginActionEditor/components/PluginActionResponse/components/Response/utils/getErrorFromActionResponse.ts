@@ -1,5 +1,5 @@
 import type { ActionResponse } from "api/ActionAPI";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 
 /**

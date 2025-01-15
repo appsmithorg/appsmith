@@ -35,7 +35,7 @@ import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";

@@ -32,7 +32,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   fixActionPayloadForMongoQuery,
@@ -100,8 +100,6 @@ import {
   ActionCreationSourceTypeEnum,
   isAPIAction,
   isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
   SlashCommand,
 } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

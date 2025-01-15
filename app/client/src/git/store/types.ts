@@ -63,6 +63,8 @@ export interface GitArtifactAPIResponsesReduxState
 
 export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
+  initializing: boolean;
+  initialized: boolean;
   connectModalOpen: boolean;
   connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;

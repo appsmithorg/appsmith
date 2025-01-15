@@ -112,7 +112,7 @@ export default function TabMergeView({
 
   let status = MergeStatusState.NONE;
 
-  if (isFetchStatusLoading) {
+  if (isFetchStatusLoading || isFetchBranchesLoading) {
     status = MergeStatusState.FETCHING;
     message = createMessage(FETCH_GIT_STATUS);
   } else if (!isStatusClean) {

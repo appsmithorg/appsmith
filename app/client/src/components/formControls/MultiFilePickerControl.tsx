@@ -12,7 +12,7 @@ import type { Datasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { connect } from "react-redux";
 import PluginsApi from "api/PluginApi";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { get, isArray } from "lodash";
 import { formatFileSize } from "./utils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
