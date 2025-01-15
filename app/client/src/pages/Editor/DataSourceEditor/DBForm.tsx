@@ -9,7 +9,7 @@ import { reduxForm } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { convertArrayToSentence } from "utils/helpers";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { AppState } from "ee/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";

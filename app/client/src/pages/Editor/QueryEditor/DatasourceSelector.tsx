@@ -14,7 +14,7 @@ import type { Action } from "entities/Action";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { getPluginImages } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 

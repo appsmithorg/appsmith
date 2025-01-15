@@ -20,7 +20,7 @@ import {
 } from "ee/constants/messages";
 import { getAppsmithConfigs } from "ee/configs";
 import { DocsLink, openDoc } from "constants/DocumentationLinks";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
