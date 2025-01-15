@@ -5,8 +5,10 @@ import type {
 } from "./fetchMergeStatusRequest.types";
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
+import urlArtifactType from "./helpers/urlArtifactType";
+import type { GitArtifactType } from "git/constants/enums";
 
-export default async function fetchMergeStatusRequest(
+async function fetchMergeStatusRequestOld(
   branchedApplicationId: string,
   params: FetchMergeStatusRequestParams,
 ): AxiosPromise<FetchMergeStatusResponse> {
@@ -14,4 +16,32 @@ export default async function fetchMergeStatusRequest(
     `${GIT_BASE_URL}/merge/status/app/${branchedApplicationId}`,
     params,
   );
+}
+
+async function fetchMergeStatusRequestNew(
+  artifactType: GitArtifactType,
+  branchedApplicationId: string,
+  params: FetchMergeStatusRequestParams,
+): AxiosPromise<FetchMergeStatusResponse> {
+  return Api.post(
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/merge/status`,
+    params,
+  );
+}
+
+export default async function fetchMergeStatusRequest(
+  artifactType: GitArtifactType,
+  branchedApplicationId: string,
+  params: FetchMergeStatusRequestParams,
+  isNew: boolean,
+): AxiosPromise<FetchMergeStatusResponse> {
+  if (isNew) {
+    return fetchMergeStatusRequestNew(
+      artifactType,
+      branchedApplicationId,
+      params,
+    );
+  } else {
+    return fetchMergeStatusRequestOld(branchedApplicationId, params);
+  }
 }

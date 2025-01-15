@@ -7,14 +7,32 @@ import type {
   CheckoutRefRequestParams,
   CheckoutRefResponse,
 } from "./checkoutRefRequest.types";
+import createBranchRequestOld from "./createBranchRequest";
 
-export async function checkoutRefRequest(
+async function checkoutRefRequestNew(
   artifactType: GitArtifactType,
-  branchedArtifactId: string,
+  refArtifactid: string,
   params: CheckoutRefRequestParams,
 ): AxiosPromise<CheckoutRefResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedArtifactId}/checkout-ref`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactid}/checkout-ref`,
     params,
   );
+}
+
+export default async function checkoutRefRequest(
+  artifactType: GitArtifactType,
+  refArtifactid: string,
+  params: CheckoutRefRequestParams,
+  isNew: boolean,
+) {
+  if (isNew) {
+    return checkoutRefRequestNew(artifactType, refArtifactid, params);
+  } else {
+    const checkoutBranchParams = {
+      branchName: params.refName,
+    };
+
+    return createBranchRequestOld(refArtifactid, checkoutBranchParams);
+  }
 }

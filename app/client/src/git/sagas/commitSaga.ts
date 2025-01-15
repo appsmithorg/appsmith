@@ -17,6 +17,7 @@ import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import type { ApplicationPayload } from "entities/Application";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,
@@ -30,8 +31,17 @@ export default function* commitSaga(
       commitMessage: action.payload.commitMessage,
       doPush: action.payload.doPush,
     };
+    const isGitApiContractEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
 
-    response = yield call(commitRequest, artifactId, params);
+    response = yield call(
+      commitRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractEnabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
