@@ -2,9 +2,10 @@ import { render } from "@testing-library/react";
 import React from "react";
 import ButtonGroupWidget from "../index";
 import { RenderModes } from "constants/WidgetConstants";
+import type { ButtonGroupWidgetProps } from "../index";
 
 describe("ButtonGroupWidget disabledWhenInvalid", () => {
-  const defaultProps = {
+  const defaultProps: ButtonGroupWidgetProps = {
     widgetId: "test-button-group",
     renderMode: RenderModes.CANVAS,
     version: 1,
@@ -54,7 +55,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
     const buttons = container.querySelectorAll("button");
     
     buttons.forEach((button) => {
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute("disabled");
     });
   });
 
@@ -68,7 +69,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
     const buttons = container.querySelectorAll("button");
     
     buttons.forEach((button) => {
-      expect(button).not.toBeDisabled();
+      expect(button).not.toHaveAttribute("disabled");
     });
   });
 
@@ -93,7 +94,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
     const buttons = container.querySelectorAll("button");
     
     buttons.forEach((button) => {
-      expect(button).not.toBeDisabled();
+      expect(button).not.toHaveAttribute("disabled");
     });
   });
 });

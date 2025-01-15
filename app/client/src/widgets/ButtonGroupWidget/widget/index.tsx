@@ -529,7 +529,8 @@ class ButtonGroupWidget extends BaseWidget<
                     {
                       propertyName: "disabledWhenInvalid",
                       label: "Disabled invalid forms",
-                      helpText: "Disables this button if the form is invalid, if this button exists directly within a Form widget",
+                      helpText:
+                        "Disables this button if the form is invalid, if this button exists directly within a Form widget",
                       controlType: "SWITCH",
                       isJSConvertible: true,
                       isBindProperty: true,
@@ -860,7 +861,7 @@ class ButtonGroupWidget extends BaseWidget<
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
   isDisabled: boolean;
-  disabledWhenInvalid?: boolean;
+  isFormValid?: boolean;
   borderRadius?: string;
   boxShadow?: string;
   buttonVariant: ButtonVariant;
@@ -872,6 +873,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       index: number;
       isVisible?: boolean;
       isDisabled?: boolean;
+      disabledWhenInvalid?: boolean;
       label?: string;
       buttonType?: string;
       buttonColor?: string;
@@ -887,6 +889,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
           index: number;
           isVisible?: boolean;
           isDisabled?: boolean;
+          disabledWhenInvalid?: boolean;
           label?: string;
           backgroundColor?: string;
           textColor?: string;
