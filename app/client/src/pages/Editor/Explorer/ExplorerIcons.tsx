@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
 import {

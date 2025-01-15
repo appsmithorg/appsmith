@@ -1,9 +1,10 @@
 import * as Factory from "factory.ts";
-import type { ApiAction } from "entities/Action";
-import { PaginationType, PluginPackageName, PluginType } from "entities/Action";
+import { PaginationType, type ApiAction } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
 const pageId = "0123456789abcdef00000000";
+
 export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
   name: Factory.each((i) => `Api${i + 1}`),
   id: "api_id",

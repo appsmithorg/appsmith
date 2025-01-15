@@ -2,9 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { AppState } from "ee/reducers";
-import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginType } from "entities/Action";
+import { type Plugin, PluginType } from "entities/Plugin";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import {
   DatasourceContainer,

@@ -1,4 +1,3 @@
-import type { Plugin } from "api/PluginApi";
 import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
@@ -6,7 +5,12 @@ import {
 } from "ee/constants/forms";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import { diff } from "deep-diff";
-import { PluginName, PluginPackageName, PluginType } from "entities/Action";
+import {
+  type Plugin,
+  PluginName,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import type {
   Datasource,
   DatasourceStructure,

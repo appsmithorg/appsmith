@@ -6,7 +6,7 @@ import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { get, isNil } from "lodash";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { objectKeys } from "@appsmith/utils";

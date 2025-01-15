@@ -8,7 +8,8 @@ import { Callout, Tooltip, type CalloutLinkProps } from "@appsmith/ads";
 
 import type { ActionResponse } from "api/ActionAPI";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";

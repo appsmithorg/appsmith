@@ -1,5 +1,5 @@
 import type { Datasource } from "entities/Datasource";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { debounce, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,11 @@ import { getQueryParams } from "utils/URLUtils";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginType,
+} from "entities/Plugin";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {

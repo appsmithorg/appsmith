@@ -1,4 +1,4 @@
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import GSheets from "./GSheets";
 import MongoDB from "./MongoDB";
