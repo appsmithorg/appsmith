@@ -37,7 +37,7 @@ import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
-import type { PluginType } from "entities/Plugin";
+import { PluginType } from "entities/Plugin";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -336,7 +336,7 @@ function DatasourceAuth({
         updateDatasource(
           getSanitizedFormData(),
           currentEnvironment,
-          pluginType
+          pluginType && pluginType !== PluginType.EXTERNAL_SAAS
             ? redirectAuthorizationCode(
                 parentEntityId,
                 datasourceId,
@@ -347,19 +347,6 @@ function DatasourceAuth({
         ),
       );
     }
-
-    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
-      dsName: datasource?.name,
-      orgId: datasource?.workspaceId,
-      pluginName: pluginName,
-      scopeValue: scopeValue,
-    });
-  };
-
-  // Handles Edit datasource for EXTERNAL_SAAS Plugins
-  const handleEditIntegration = () => {
-    dispatch(toggleSaveActionFlag(true));
-    dispatch(updateDatasource(getSanitizedFormData(), currentEnvironment));
 
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
       dsName: datasource?.name,
@@ -460,7 +447,7 @@ function DatasourceAuth({
           isDisabled={!canManageDatasource}
           isLoading={isSaving}
           key={buttonType}
-          onClick={handleEditIntegration}
+          onClick={handleOauthDatasourceSave}
           size="md"
         >
           {createMessage(CONNECT_DATASOURCE_BUTTON_TEXT)}
