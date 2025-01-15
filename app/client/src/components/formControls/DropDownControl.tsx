@@ -302,18 +302,14 @@ function renderDropdown(
       value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
     >
       {groupedOptions.length === 0
-        ? flatOptions.map((option: SelectOptionProps) => {
-            return <OptionWithIcon key={option.value} option={option} />;
-          })
+        ? flatOptions.map(renderOptionWithIcon)
         : groupedOptions.map((groupedOptionList) => {
             return (
               <OptGroup
                 aria-label={groupedOptionList.label}
                 key={groupedOptionList.label}
               >
-                {groupedOptionList.children.map((option) => {
-                  return <OptionWithIcon key={option.value} option={option} />;
-                })}
+                {groupedOptionList.children.map(renderOptionWithIcon)}
               </OptGroup>
             );
           })}
@@ -321,7 +317,7 @@ function renderDropdown(
   );
 }
 
-function OptionWithIcon({ option }: { option: SelectOptionProps }) {
+function renderOptionWithIcon(option: SelectOptionProps) {
   return (
     <Option
       aria-label={option.label}
