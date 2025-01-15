@@ -576,7 +576,11 @@ class ButtonGroupComponent extends React.Component<
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
-            button.isDisabled || isDisabled || !!loadedBtnId || isLoading || (button.disabledWhenInvalid && !isFormValid);
+            button.isDisabled ||
+            isDisabled ||
+            !!loadedBtnId ||
+            isLoading ||
+            (button.disabledWhenInvalid && !isFormValid);
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;

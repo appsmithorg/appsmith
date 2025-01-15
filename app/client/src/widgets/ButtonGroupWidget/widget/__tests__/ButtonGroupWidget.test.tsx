@@ -57,7 +57,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
 
     const { container } = render(<ButtonGroupWidget {...props} />);
     const buttons = container.querySelectorAll("button");
-    
+
     buttons.forEach((button) => {
       expect(button).toHaveAttribute("disabled");
     });
@@ -71,7 +71,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
 
     const { container } = render(<ButtonGroupWidget {...props} />);
     const buttons = container.querySelectorAll("button");
-    
+
     buttons.forEach((button) => {
       expect(button).not.toHaveAttribute("disabled");
     });
@@ -96,7 +96,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
 
     const { container } = render(<ButtonGroupWidget {...props} />);
     const buttons = container.querySelectorAll("button");
-    
+
     buttons.forEach((button) => {
       expect(button).not.toHaveAttribute("disabled");
     });
