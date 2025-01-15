@@ -92,5 +92,3 @@ if ((window as any).Cypress) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).store = store;
 }
-
-//
