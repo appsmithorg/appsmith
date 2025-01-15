@@ -1,4 +1,5 @@
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 
 export function checkForPreparedStatement(action: Action) {
   const { actionConfiguration } = action;

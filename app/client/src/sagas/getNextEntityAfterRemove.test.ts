@@ -1,5 +1,5 @@
 import { EditorState, type EntityItem } from "ee/entities/IDE/constants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import * as FocusEntityObj from "navigation/FocusEntity";
 import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";
 import { FocusEntity } from "navigation/FocusEntity";

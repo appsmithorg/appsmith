@@ -14,7 +14,7 @@ import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
 import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { omit } from "lodash";
 import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

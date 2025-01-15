@@ -47,7 +47,7 @@ import type {
   ApiAction,
   CreateApiActionDefaultsParams,
 } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import log from "loglevel";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
@@ -55,7 +55,6 @@ import { createMessage, ERROR_ACTION_RENAME_FAIL } from "ee/constants/messages";
 import { parseUrlForQueryParams, queryParamsRegEx } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { Plugin } from "api/PluginApi";
 import { apiEditorIdURL, datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";

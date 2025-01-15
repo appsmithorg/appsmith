@@ -14,9 +14,8 @@ import {
   getCurrentApplicationId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginPackageName } from "entities/Plugin";
 import type { Action, PaginationType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import type { CSSProperties } from "styled-components";
 import styled from "styled-components";

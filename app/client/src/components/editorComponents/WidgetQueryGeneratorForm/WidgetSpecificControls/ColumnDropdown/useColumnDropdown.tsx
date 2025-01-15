@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

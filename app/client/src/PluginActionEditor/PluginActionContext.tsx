@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from "react";
 import type { Action } from "entities/Action";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import type { ActionResponse } from "api/ActionAPI";
 
