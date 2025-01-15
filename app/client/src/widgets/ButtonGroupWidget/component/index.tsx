@@ -746,6 +746,7 @@ export interface ButtonGroupComponentProps {
   widgetId: string;
   buttonMinWidth?: number;
   minHeight?: number;
+  isFormValid?: boolean;
 }
 
 export interface ButtonGroupComponentState {
