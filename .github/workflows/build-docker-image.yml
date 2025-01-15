@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       pr:
-        description: "This is the PR number in case the workflow is being called in a pull request- sample"
+        description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
 
@@ -113,7 +113,7 @@ jobs:
           docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
             | grep -v cicontainer \
             | cut -d, -f2 \
-            | xargs -r docker rmi
+            | xargs -r docker rmi || true
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
