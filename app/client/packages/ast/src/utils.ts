@@ -1,7 +1,7 @@
 import unescapeJS from "unescape-js";
 import type { PropertyNode } from "../index";
 import { isLiteralNode } from "../index";
-//
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export function sanitizeScript(js: string, evaluationVersion: number) {
