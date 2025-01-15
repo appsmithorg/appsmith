@@ -126,6 +126,11 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return { ...state, loading: true };
   },
+  [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_CANCELLED]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: false };
+  },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
@@ -356,6 +361,14 @@ const datasourceReducer = createReducer(initialState, {
         action.payload.id,
         ...state.recentDatasources.filter((ds) => ds !== action.payload.id),
       ],
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_CANCELLED]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loading: false,
     };
   },
   [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN]: (

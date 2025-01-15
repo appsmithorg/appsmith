@@ -190,6 +190,7 @@ div.bp3-popover-arrow {
   background-color: var(--ads-v2-color-bg) !important;
   border-radius: var(--ads-v2-border-radius) !important;
 }
+
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
 }
@@ -220,6 +221,7 @@ div.bp3-popover-arrow {
 .error-menuitem {
   color: var(--ads-v2-color-fg-error) !important;
 }
+
 .error-menuitem > .ads-v2-menu__menu-item-children {
   color: var(--ads-v2-color-fg-error) !important;
 }
@@ -228,9 +230,11 @@ div.bp3-popover-arrow {
 .error-menuitem:focus-visible {
   background-color: var(--ads-v2-color-red-50) !important;
 }
+
 .error-menuitem:active:not([data-disabled]) {
   background-color: var(--ads-v2-color-red-100) !important;
 }
+
 .menuitem-nohover:hover {
   background-color: transparent !important;
   cursor: default !important;
@@ -242,4 +246,8 @@ div.bp3-popover-arrow {
 
 .reconnect-datasource-modal {
   z-index: 9 !important;
+}
+
+#paragon-connect-frame {
+  pointer-events: auto;
 }

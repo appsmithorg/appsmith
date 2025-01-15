@@ -47,6 +47,7 @@ import {
   PREMIUM_INTEGRATIONS,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
+import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -211,6 +212,8 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
       {plugins.map((p) => (
         <DatasourceItem
           handleOnClick={() => {
+            if (isCreating) return;
+
             AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
               pluginName: p.name,
               pluginPackageName: p.packageName,
@@ -222,6 +225,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           icon={getAssetUrl(p.iconLocation)}
           key={p.id}
           name={p.name}
+          rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
         />
       ))}
       <PremiumDatasources plugins={props.premiumPlugins} />
@@ -275,7 +279,11 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
 
 const mapStateToProps = (
   state: AppState,
-  props: { showSaasAPIs?: boolean; isPremiumDatasourcesViewEnabled: boolean },
+  props: {
+    showSaasAPIs?: boolean;
+    isPremiumDatasourcesViewEnabled: boolean;
+    isCreating?: boolean;
+  },
 ) => {
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
@@ -291,9 +299,12 @@ const mapStateToProps = (
         p.type === PluginType.EXTERNAL_SAAS,
   );
 
-  plugins = plugins.filter((p) =>
-    p.name.toLocaleLowerCase().includes(searchedPlugin),
-  );
+  plugins = plugins
+    .sort((a, b) => {
+      // Sort the AI plugins alphabetically
+      return a.name.localeCompare(b.name);
+    })
+    .filter((p) => p.name.toLocaleLowerCase().includes(searchedPlugin));
 
   let authApiPlugin = !props.showSaasAPIs
     ? allPlugins.find((p) => p.name === "REST API")
@@ -329,6 +340,7 @@ const mapStateToProps = (
     authApiPlugin,
     restAPIVisible,
     graphQLAPIVisible,
+    isCreating: props.isCreating || getDatasourcesLoadingState(state),
   };
 };
 

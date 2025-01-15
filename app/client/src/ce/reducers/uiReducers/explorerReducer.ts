@@ -125,6 +125,7 @@ export const handlers = {
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionTypes.UPDATE_DATASOURCE_CANCELLED]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]:
     setUpdatingDatasourceEntity,
