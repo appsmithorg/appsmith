@@ -8,8 +8,11 @@ import {
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginType,
+} from "entities/Plugin";
 import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";

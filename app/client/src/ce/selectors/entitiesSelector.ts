@@ -15,11 +15,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import {
-  isStoredDatasource,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -32,11 +28,13 @@ import type {
   JSCollectionData,
   JSCollectionDataState,
 } from "ee/reducers/entityReducers/jsActionsReducer";
-import type {
-  DefaultPlugin,
-  GenerateCRUDEnabledPluginMap,
-  Plugin,
-} from "api/PluginApi";
+import {
+  type DefaultPlugin,
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";

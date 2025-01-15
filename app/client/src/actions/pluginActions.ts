@@ -9,7 +9,7 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import type { PluginFormPayload } from "api/PluginApi";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 export const fetchPlugins = (payload?: {
   workspaceId?: string;

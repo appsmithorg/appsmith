@@ -1,9 +1,10 @@
 import * as Factory from "factory.ts";
 import type { JSCollection } from "entities/JSCollection";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
 const pageId = "0123456789abcdef00000000";
+
 export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
   id: "js_id",
   baseId: "js_base_id",

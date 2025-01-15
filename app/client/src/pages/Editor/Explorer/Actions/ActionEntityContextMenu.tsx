@@ -32,7 +32,7 @@ import {
 } from "../Files/FilesContextProvider";
 import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 

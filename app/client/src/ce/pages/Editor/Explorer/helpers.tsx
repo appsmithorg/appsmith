@@ -18,7 +18,7 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import localStorage from "utils/localStorage";
 import { EDITOR_PATHS } from "ee/entities/IDE/utils";
 import type { Match } from "path-to-regexp";

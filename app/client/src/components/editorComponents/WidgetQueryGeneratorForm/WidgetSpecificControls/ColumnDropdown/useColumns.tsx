@@ -1,5 +1,5 @@
 import type { AppState } from "ee/reducers";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { isArray } from "lodash";
 import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";

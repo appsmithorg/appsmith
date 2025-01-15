@@ -1,7 +1,7 @@
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { getDatasourceConnectionMode } from "./utils";
 import type { DatasourceStorage } from "entities/Datasource";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import PostgreSQL from "WidgetQueryGenerators/PostgreSQL";
 import GSheets from "WidgetQueryGenerators/GSheets";
 

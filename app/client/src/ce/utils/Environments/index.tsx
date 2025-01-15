@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { Datasource } from "entities/Datasource";
 
 export const DB_NOT_SUPPORTED = [

@@ -2,7 +2,7 @@ import { getQueryEntityItemUrl, getQueryUrl } from "./utils";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { EditorState } from "ee/entities/IDE/constants";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 describe("getQueryEntityItemUrl", () => {

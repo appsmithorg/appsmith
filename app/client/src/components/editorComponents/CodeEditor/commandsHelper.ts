@@ -20,7 +20,7 @@ import type {
   NavigationData,
 } from "selectors/navigationSelectors";
 import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 export const getShowHintOptions = (
   list: CommandsCompletion[],

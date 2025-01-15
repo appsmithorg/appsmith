@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import configureStore from "redux-mock-store";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import {
   ActionEntityContextMenu,
   type EntityContextMenuProps,

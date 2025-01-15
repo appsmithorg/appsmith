@@ -4,13 +4,12 @@ import { useCallback, useState } from "react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { PluginName } from "entities/Action";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { type GenerateCRUDEnabledPluginMap, PluginName } from "entities/Plugin";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import {
   getGenerateCRUDEnabledPluginMap,

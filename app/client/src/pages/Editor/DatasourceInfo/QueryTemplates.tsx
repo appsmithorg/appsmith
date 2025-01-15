@@ -19,7 +19,7 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { MenuItem, Tag } from "@appsmith/ads";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
