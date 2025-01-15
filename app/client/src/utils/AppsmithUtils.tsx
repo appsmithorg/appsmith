@@ -77,7 +77,7 @@ export const getNextEntityName = (
     }
 
     return 0;
-  }) as number[];
+  });
 
   const lastIndex = Math.max(...usedIndices, ...[0]);
 
@@ -107,7 +107,7 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
     }
 
     return 0;
-  }) as number[];
+  });
 
   const lastIndex = Math.max(...usedIndices, ...[0]);
 

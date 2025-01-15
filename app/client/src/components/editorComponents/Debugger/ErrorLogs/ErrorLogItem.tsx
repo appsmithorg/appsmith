@@ -133,7 +133,7 @@ export const getUpdateTimestamp = (state?: Record<string, any>) => {
 // returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as string,
+    icon: getLogIcon(e),
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,

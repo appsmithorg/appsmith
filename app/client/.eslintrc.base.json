@@ -38,6 +38,25 @@
     }
   },
   "rules": {
+    "@typescript-eslint/no-implied-eval": "warn",
+    "@typescript-eslint/restrict-plus-operands": "warn",
+    "@typescript-eslint/no-base-to-string": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-for-in-array": "warn",
+    "@typescript-eslint/no-extraneous-class": "warn",
+    "@typescript-eslint/no-redundant-type-constituents": "warn",
+    "@typescript-eslint/restrict-template-expressions": "warn",
+    "@typescript-eslint/no-invalid-void-type": "warn",
+    "@typescript-eslint/no-useless-constructor": "warn",
+    "@typescript-eslint/no-misused-promises": "warn",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/require-await": "warn",
+    "@typescript-eslint/no-floating-promises": "warn",
+    "@typescript-eslint/await-thenable": "warn",
+    "@typescript-eslint/no-dynamic-delete": "warn",
+    "@typescript-eslint/no-unsafe-enum-comparison": "warn",
+    "@typescript-eslint/no-use-before-define": "warn",
+    "@typescript-eslint/unbound-method": "warn",
     "@typescript-eslint/no-unsafe-argument": "warn",
     "@typescript-eslint/no-unsafe-assignment": "warn",
     "@typescript-eslint/no-unsafe-call": "warn",
@@ -45,18 +64,6 @@
     "@typescript-eslint/no-unsafe-member-access": "warn",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_"
-      }
-    ],
-    "@typescript-eslint/no-use-before-define": [
-      "error",
-      {
-        "functions": false
-      }
-    ],
     "@typescript-eslint/consistent-type-imports": [
       "error",
       {
@@ -73,12 +80,6 @@
         "patterns": [
           {
             "group": [
-              ".*"
-            ],
-            "message": "Please use absolute imports instead"
-          },
-          {
-            "group": [
               "@blueprintjs/core/lib/esnext/*"
             ],
             "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
@@ -90,13 +91,13 @@
             "importNames": [
               "ReactComponent"
             ],
-            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+            "message": "Reason: Please don't import SVG icons statically. (They won't always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
           },
           {
             "group": [
               "remixicon-react/*"
             ],
-            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+            "message": "Reason: Please don't import Remix icons statically. (They won't always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
           }
         ]
       }

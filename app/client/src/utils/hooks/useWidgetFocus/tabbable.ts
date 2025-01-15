@@ -37,7 +37,7 @@ export function getTabbableDescendants(
     if (modal) {
       const tabbableDescendants = Array.from(
         modal.querySelectorAll(WIDGET_SELECTOR),
-      ) as HTMLElement[];
+      );
 
       const domRect = modal.getBoundingClientRect();
 
@@ -57,7 +57,7 @@ export function getTabbableDescendants(
     if (currentNode.matches(CANVAS_WIDGET)) {
       const tabbableDescendants = Array.from(
         currentNode.querySelectorAll(WIDGET_SELECTOR),
-      ) as HTMLElement[];
+      );
 
       const domRect = currentNode.getBoundingClientRect();
 
@@ -178,7 +178,7 @@ export function getFocussableElementOfWidget(node: HTMLElement) {
 export function getChildrenWidgetsOfNode(node: HTMLElement) {
   const widgets = Array.from(
     node.querySelectorAll(WIDGET_SELECTOR),
-  ) as HTMLElement[];
+  );
 
   return widgets;
 }
@@ -197,7 +197,7 @@ function getWidgetSiblingsOfNode(node: HTMLElement) {
   const widget = node.closest(WIDGET_SELECTOR) as HTMLElement;
   const siblings = Array.from(
     canvas.querySelectorAll(`:scope > ${WIDGET_SELECTOR}`),
-  ) as HTMLElement[];
+  );
 
   return siblings.filter((sibling) => sibling !== widget);
 }

@@ -721,7 +721,8 @@ export const replaceActionInQuery = (
       if (
         isCallExpressionNode(node) &&
         isMemberExpressionNode(node.callee) &&
-        node.arguments[argNum]
+        node.arguments[argNum] &&
+        typeof node.arguments[argNum].start === "number"
       ) {
         // add 1 to get the starting position of the next
         // node to ending position of previous

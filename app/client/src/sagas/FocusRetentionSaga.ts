@@ -226,7 +226,7 @@ class FocusRetention {
         } else if (defaultValue !== undefined) {
           if (typeof defaultValue === "function") {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error
             const stateDefaultValue: unknown = yield select(defaultValue);
 
             yield call(this.setState, selectorInfo, stateDefaultValue);

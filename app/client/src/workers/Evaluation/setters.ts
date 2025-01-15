@@ -97,7 +97,7 @@ class Setters {
 
     if (isWidget(entity)) {
       overrideWidgetProperties({
-        entity: entity as WidgetEntity,
+        entity: entity,
         propertyPath,
         value: parsedValue,
         currentTree: evalTree,

@@ -41,7 +41,7 @@ export function getWidgetDOMElement(widgetId: string): HTMLDivElement | null {
   const selector = getAnvilWidgetDOMId(widgetId);
   let widgetElement = document.querySelector(
     `#${selector}`,
-  ) as HTMLDivElement | null;
+  );
 
   if (!widgetElement) {
     widgetElement = document.getElementsByClassName(
@@ -70,14 +70,14 @@ export function handleWidgetUpdate(
     widgetElement,
     widgetNameComponent,
     () => {
-      computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
+      computePosition(widgetElement, widgetNameComponent, {
         placement: "top-start",
         strategy: "fixed",
         middleware: [
           flip(),
           shift(),
           offset({ mainAxis: 0, crossAxis: -5 }),
-          getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
+          getOverflowMiddleware(widgetsEditorElement),
           hide({ strategy: "referenceHidden" }),
           hide({ strategy: "escaped" }),
         ],

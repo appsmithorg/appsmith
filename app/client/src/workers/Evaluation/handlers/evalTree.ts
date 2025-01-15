@@ -87,7 +87,7 @@ export async function evalTree(
 
   const unevalTree = __unevalTree__.unEvalTree;
 
-  configTree = __unevalTree__.configTree as ConfigTree;
+  configTree = __unevalTree__.configTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
   metaWidgetsCache = metaWidgets;
@@ -109,7 +109,7 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+        (dataTreeEvaluator).setupFirstTree.bind(
           dataTreeEvaluator,
           unevalTree,
           configTree,
@@ -127,7 +127,7 @@ export async function evalTree(
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree.bind(
+        (dataTreeEvaluator).evalAndValidateFirstTree.bind(
           dataTreeEvaluator,
         ),
       );
@@ -162,7 +162,7 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+        (dataTreeEvaluator).setupFirstTree.bind(
           dataTreeEvaluator,
           unevalTree,
           configTree,

@@ -357,7 +357,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
 
     const resources = performance.getEntriesByType(
       "resource",
-    ) as PerformanceResourceTiming[];
+    );
 
     const filteredResources = this.getResourcesToTrack(resources);
 

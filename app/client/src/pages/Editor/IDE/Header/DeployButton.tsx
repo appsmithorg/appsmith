@@ -62,7 +62,7 @@ function DeployButton() {
       if (currentApplication?.applicationDetail?.navigationSetting) {
         const settingKeys = objectKeys(
           currentApplication.applicationDetail.navigationSetting,
-        ) as Array<keyof NavigationSetting>;
+        );
 
         settingKeys.map((key: keyof NavigationSetting) => {
           if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {

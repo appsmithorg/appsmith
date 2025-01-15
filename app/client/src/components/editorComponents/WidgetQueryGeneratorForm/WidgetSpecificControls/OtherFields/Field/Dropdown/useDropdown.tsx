@@ -124,7 +124,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [updateConfig]);
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
-    const option = (options as DropdownOptionType[]).find(
+    const option = (options).find(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (d: any) => d.id === selectedOption.key,
@@ -161,7 +161,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const selected = useMemo(() => {
     if (selectedValue) {
-      const option = (options as DropdownOptionType[]).find(
+      const option = (options).find(
         (option) => option.value === selectedValue,
       );
 
@@ -174,7 +174,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const renderOptions = () => {
     if (options && options.length > 0) {
-      return (options as DropdownOptionType[])?.map((option) => (
+      return (options)?.map((option) => (
         <Option
           data-testid={`t--one-click-binding-column-${props.id}--column`}
           key={option.id}

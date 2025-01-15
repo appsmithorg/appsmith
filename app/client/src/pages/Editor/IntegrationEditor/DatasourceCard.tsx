@@ -400,7 +400,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                         className="t--datasource-option-delete error-menuitem"
                         disabled={isDeletingDatasource}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
+                        // @ts-expect-error
                         onSelect={(e: Event) => {
                           e.preventDefault();
                           e.stopPropagation();

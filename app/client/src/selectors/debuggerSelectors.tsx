@@ -52,7 +52,7 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          const widgetEntity = entity as WidgetEntity;
+          const widgetEntity = entity;
 
           if (shouldSuppressDebuggerError(widgetEntity)) {
             return false;

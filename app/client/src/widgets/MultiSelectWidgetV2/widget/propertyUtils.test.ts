@@ -279,7 +279,7 @@ describe("labelKeyValidation", () => {
   test("should test that empty values return error", () => {
     ["", undefined, null].forEach((d) => {
       expect(
-        labelKeyValidation(d, {} as MultiSelectWidgetProps, _ as LoDashStatic),
+        labelKeyValidation(d, {} as MultiSelectWidgetProps, _),
       ).toEqual({
         parsed: "",
         isValid: false,
@@ -298,7 +298,7 @@ describe("labelKeyValidation", () => {
       labelKeyValidation(
         "test",
         {} as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "test",
@@ -312,7 +312,7 @@ describe("labelKeyValidation", () => {
       labelKeyValidation(
         ["blue", "green", "yellow"],
         {} as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: ["blue", "green", "yellow"],
@@ -332,7 +332,7 @@ describe("labelKeyValidation", () => {
       ["blue", null, "yellow"],
     ].forEach((d) => {
       expect(
-        labelKeyValidation(d, {} as MultiSelectWidgetProps, _ as LoDashStatic),
+        labelKeyValidation(d, {} as MultiSelectWidgetProps, _),
       ).toEqual({
         parsed: [],
         isValid: false,
@@ -347,7 +347,7 @@ describe("labelKeyValidation", () => {
 
     // boolean
     expect(
-      labelKeyValidation(true, {} as MultiSelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation(true, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -361,7 +361,7 @@ describe("labelKeyValidation", () => {
 
     // number
     expect(
-      labelKeyValidation(1, {} as MultiSelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation(1, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -375,7 +375,7 @@ describe("labelKeyValidation", () => {
 
     // object
     expect(
-      labelKeyValidation({}, {} as MultiSelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation({}, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -400,7 +400,7 @@ describe("valueKeyValidation", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
-          _ as LoDashStatic,
+          _,
         ),
       ).toEqual({
         parsed: "",
@@ -424,7 +424,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "test",
@@ -447,7 +447,7 @@ describe("valueKeyValidation", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
-          _ as LoDashStatic,
+          _,
         ),
       ).toEqual({
         parsed: d,
@@ -473,7 +473,7 @@ describe("valueKeyValidation", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
-          _ as LoDashStatic,
+          _,
         ),
       ).toEqual({
         parsed: [],
@@ -495,7 +495,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: ["blue", "blue", "yellow"],
@@ -516,7 +516,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "yellow",
@@ -538,7 +538,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",
@@ -561,7 +561,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",
@@ -584,7 +584,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",

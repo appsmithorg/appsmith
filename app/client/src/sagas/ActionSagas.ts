@@ -549,7 +549,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 
       yield put(updateActionSuccess({ data: response.data }));
       checkAndLogErrorsIfCyclicDependency(
-        (response.data as Action).errorReports,
+        (response.data).errorReports,
       );
     }
   } catch (error) {
@@ -567,7 +567,7 @@ export function* apiCallToSaveAction(action: Action) {
 
   if (isValidResponse) {
     yield put(updateActionSuccess({ data: response.data }));
-    checkAndLogErrorsIfCyclicDependency((response.data as Action).errorReports);
+    checkAndLogErrorsIfCyclicDependency((response.data).errorReports);
   }
 
   return { isValidResponse, response };

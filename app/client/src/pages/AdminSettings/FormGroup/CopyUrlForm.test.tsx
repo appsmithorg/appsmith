@@ -41,7 +41,7 @@ describe("Redirect URL Form", () => {
     expect(fieldTitle).toBeDefined();
     const inputEl = screen.getByTestId(
       `${values.fieldName}-input`,
-    ) as HTMLInputElement;
+    );
     const value = `${window.location.origin}/link-to-be-copied`;
 
     expect(inputEl?.value).toBeDefined();

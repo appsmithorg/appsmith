@@ -58,7 +58,7 @@ const plugins: Record<string, any> = {
 Object.keys(plugins).forEach((key: string) =>
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (plugins[key] as any)(FusionCharts),
+  (plugins[key])(FusionCharts),
 );
 
 const { fusioncharts } = getAppsmithConfigs();
@@ -344,7 +344,7 @@ class ChartComponent extends React.Component<
 
   getCustomFusionChartDataSource = () => {
     // in case of evaluation error, customFusionChartConfig can be undefined
-    let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
+    let config = this.props.customFusionChartConfig;
 
     if (config && config.dataSource) {
       config = {

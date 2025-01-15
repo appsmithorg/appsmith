@@ -61,7 +61,7 @@ export interface ControlData {
   label: string;
   alternateViewTypes?: ViewTypes[];
   tooltipText?: string | Record<string, string>;
-  configProperty: string;
+  configProperty: FormDataPaths;
   controlType: ControlType;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,11 +71,11 @@ export interface ControlData {
   validationRegex?: string;
   dataType?: InputType;
   initialValue?:
-    | string
-    | boolean
-    | number
-    | Record<string, string>
-    | Array<string>;
+  | string
+  | boolean
+  | number
+  | Record<string, string>
+  | Array<string>;
   info?: string; //helper text
   isRequired?: boolean;
   conditionals?: ConditonalObject; // Object that contains the conditionals config

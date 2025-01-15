@@ -83,7 +83,7 @@ describe("Tests to assert install/uninstall flows", function () {
   });
 
   it("Detects name space collision where there is another entity(api, widget or query) with the same name and creates a unique accessor", async function () {
-    delete self["lodash"];
+    delete self.lodash;
     const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js",
@@ -102,7 +102,7 @@ describe("Tests to assert install/uninstall flows", function () {
       },
       accessor: ["lodash_2"],
     });
-    delete self["lodash_2"];
+    delete self.lodash_2;
   });
 
   it("Removes or set the accessors to undefined on the global object on un-installation", async function () {

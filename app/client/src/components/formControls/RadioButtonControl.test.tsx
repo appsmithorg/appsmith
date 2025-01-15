@@ -51,7 +51,7 @@ describe("RadioButtonControl", () => {
     );
     const radioButton = (await screen.findByTestId(
       "actionConfiguration.testPath",
-    )) as HTMLElement;
+    ));
 
     expect(radioButton).toBeInTheDocument();
 
@@ -74,7 +74,7 @@ describe("RadioButtonControl", () => {
     );
     const radioButton = (await screen.findByTestId(
       "actionConfiguration.testPath",
-    )) as HTMLElement;
+    ));
 
     expect(radioButton).toBeInTheDocument();
 
@@ -99,7 +99,7 @@ describe("RadioButtonControl", () => {
     );
     const radioButton = (await screen.findByTestId(
       "actionConfiguration.testPath",
-    )) as HTMLElement;
+    ));
 
     expect(radioButton).toBeInTheDocument();
 

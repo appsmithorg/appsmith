@@ -100,7 +100,7 @@ export const filterEntityTypeLabels: Partial<Record<EntityTypeValue, string>> =
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
-    WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
+    WidgetFactory.widgetConfigMap.get(label)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
     filterEntityTypeLabels[label as EntityTypeValue] ||
     label

@@ -161,7 +161,7 @@ export const useEntityLink = () => {
       if (!basePageId) return;
 
       if (isWidget(entity)) {
-        const widgetEntity = entity as WidgetEntity;
+        const widgetEntity = entity;
 
         navigateToWidget(
           widgetEntity.widgetId,

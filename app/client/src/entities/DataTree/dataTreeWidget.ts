@@ -141,10 +141,7 @@ export function getSetterConfig(
 
         if (!accessorSettersMap) continue;
 
-        const entries = Object.entries(accessorSettersMap) as [
-          string,
-          Record<string, unknown>,
-        ][];
+        const entries = Object.entries(accessorSettersMap);
 
         for (const [setterName, setterBody] of entries) {
           //path = primaryColumns.action.isRequired

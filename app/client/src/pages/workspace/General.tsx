@@ -124,21 +124,21 @@ export function GeneralSettings() {
 
   const onWorkspaceNameChange = debounce((newName: string) => {
     saveChanges({
-      id: workspaceId as string,
+      id: workspaceId,
       name: newName,
     });
   }, timeout);
 
   const onWebsiteChange = debounce((newWebsite: string) => {
     saveChanges({
-      id: workspaceId as string,
+      id: workspaceId,
       website: newWebsite,
     });
   }, timeout);
 
   const onEmailChange = debounce((newEmail: string) => {
     saveChanges({
-      id: workspaceId as string,
+      id: workspaceId,
       email: newEmail,
     });
   }, timeout);
@@ -169,7 +169,7 @@ export function GeneralSettings() {
 
     dispatch(
       uploadWorkspaceLogo({
-        id: workspaceId as string,
+        id: workspaceId,
         logo: file,
         progress: progress,
       }),

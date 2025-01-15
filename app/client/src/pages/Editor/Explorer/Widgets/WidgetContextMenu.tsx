@@ -109,7 +109,7 @@ export function WidgetContextMenu(props: {
   return optionTree.length > 0 ? (
     <ContextMenu
       className={props.className}
-      optionTree={optionTree as TreeDropdownOption[]}
+      optionTree={optionTree}
     />
   ) : null;
 }

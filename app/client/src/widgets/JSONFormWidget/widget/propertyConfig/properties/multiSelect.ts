@@ -49,7 +49,7 @@ export function defaultOptionValueValidation(
   const convertToArray = (value: unknown): unknown[] => {
     if (typeof value === "string" && value.trim() !== "") {
       try {
-        const parsedValue = JSON.parse(value as string);
+        const parsedValue = JSON.parse(value);
 
         if (Array.isArray(parsedValue)) return parsedValue;
       } catch (e) {

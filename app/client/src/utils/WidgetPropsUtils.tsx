@@ -219,7 +219,7 @@ export const noCollision = (
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
-      clientOffset as XYCord,
+      clientOffset,
       dropTargetOffset,
     );
 

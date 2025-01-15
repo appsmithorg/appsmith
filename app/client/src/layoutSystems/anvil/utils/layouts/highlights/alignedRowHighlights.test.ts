@@ -25,7 +25,7 @@ describe("AlignedRow highlights", () => {
     it("should return three initial highlights if layout is empty", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [],
-      }).layout as LayoutComponentProps;
+      }).layout;
       const { layoutId } = layout;
 
       const startPosition: LayoutElementPosition = {
@@ -104,7 +104,7 @@ describe("AlignedRow highlights", () => {
   describe("fill child widget", () => {
     it("should not render highlights for alignments", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock()
-        .layout as LayoutComponentProps;
+        .layout;
       const { layoutId } = layout;
 
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
@@ -193,7 +193,7 @@ describe("AlignedRow highlights", () => {
             widgetType: ButtonWidget.type,
           },
         ],
-      }).layout as LayoutComponentProps;
+      }).layout;
       const { layoutId } = layout;
 
       const layoutPosition: LayoutElementPosition = {

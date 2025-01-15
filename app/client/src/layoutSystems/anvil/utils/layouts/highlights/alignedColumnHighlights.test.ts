@@ -19,7 +19,7 @@ describe("AlignedColumnHighlights tests", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
         layout: [],
-      }).layout as LayoutComponentProps;
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -64,7 +64,7 @@ describe("AlignedColumnHighlights tests", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
         layout: [],
-      }).layout as LayoutComponentProps;
+      }).layout;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -95,7 +95,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      }).layout as LayoutComponentProps;
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -159,7 +159,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      }).layout as LayoutComponentProps;
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -219,7 +219,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      }).layout as LayoutComponentProps;
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -282,7 +282,7 @@ describe("AlignedColumnHighlights tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
         layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
-      }).layout as LayoutComponentProps;
+      }).layout;
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -349,12 +349,12 @@ describe("AlignedColumnHighlights tests", () => {
        * Create 2 rows with two widgets in each of them.
        */
       const row1: LayoutComponentProps = generateLayoutComponentMock()
-        .layout as LayoutComponentProps;
+        .layout;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
       const row2: LayoutComponentProps = generateLayoutComponentMock()
-        .layout as LayoutComponentProps;
+        .layout;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -367,7 +367,7 @@ describe("AlignedColumnHighlights tests", () => {
           layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         },
         false,
-      ).layout as LayoutComponentProps;
+      ).layout;
 
       /**
        * Create dimensions data
@@ -468,13 +468,13 @@ describe("AlignedColumnHighlights tests", () => {
        * Create 2 rows with two widgets in each of them.
        */
       const row1: LayoutComponentProps = generateLayoutComponentMock()
-        .layout as LayoutComponentProps;
+        .layout;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
       const row2: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-      }).layout as LayoutComponentProps;
+      }).layout;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -487,7 +487,7 @@ describe("AlignedColumnHighlights tests", () => {
           layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         },
         false,
-      ).layout as LayoutComponentProps;
+      ).layout;
 
       /**
        * Create dimensions data

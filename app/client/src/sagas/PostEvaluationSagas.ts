@@ -226,7 +226,7 @@ export function* updateTernDefinitions(
       if (!entity || !isWidget(entity)) return false;
 
       return isWidgetPropertyNamePath(
-        entity as WidgetEntity,
+        entity,
         update.payload.propertyPath,
       );
     });

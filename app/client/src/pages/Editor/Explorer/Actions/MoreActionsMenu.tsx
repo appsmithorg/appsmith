@@ -129,7 +129,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                   <MenuItem
                     key={page.baseId}
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-ignore
+                    //@ts-expect-error
                     onSelect={() =>
                       copyActionToPage(props.id, props.name, page.id)
                     }
@@ -156,7 +156,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                       <MenuItem
                         key={page.baseId}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-ignore
+                        //@ts-expect-error
                         onSelect={() =>
                           moveActionToPage(props.id, props.name, page.id)
                         }
@@ -175,7 +175,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           <MenuItem
             className="t--apiFormDeleteBtn error-menuitem"
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
+            //@ts-expect-error
             onSelect={(e: Event) => {
               e.preventDefault();
               confirmDelete

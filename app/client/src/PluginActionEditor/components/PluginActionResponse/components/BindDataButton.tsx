@@ -348,7 +348,7 @@ function BindDataButton(props: BindDataButtonProps) {
         queryId: (params.baseApiId ||
           params.baseQueryId ||
           params.moduleInstanceId) as string,
-        applicationId: applicationId as string,
+        applicationId: applicationId,
         basePageId: params.basePageId,
       }),
     );

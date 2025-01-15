@@ -323,7 +323,7 @@ export const isEnabledForPreviewData = (
   return (
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO &&
-      !!(datasource as Datasource)?.isMock) ||
+      !!(datasource)?.isMock) ||
     isGoogleSheetPlugin
   );
 };

@@ -283,7 +283,7 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
 
 export const useAddQueryListItems = () => {
   const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId) as string;
+  const pageId = useSelector(getCurrentPageId);
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });

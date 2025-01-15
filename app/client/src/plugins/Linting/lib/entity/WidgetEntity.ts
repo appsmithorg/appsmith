@@ -36,7 +36,7 @@ export class WidgetEntity implements IEntity {
     return this.entity.widgetName;
   }
   getId() {
-    return this.config.widgetId as string;
+    return this.config.widgetId;
   }
   getConfig() {
     return this.config;

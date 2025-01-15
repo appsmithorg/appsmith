@@ -160,7 +160,7 @@ describe("PropertyUtils - ", () => {
       updateColumnStyles(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        props as any as TableWidgetProps,
+        props as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
       ),
@@ -205,7 +205,7 @@ describe("PropertyUtils - ", () => {
       updateColumnStyles(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        props as any as TableWidgetProps,
+        props as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
       ),
@@ -224,7 +224,7 @@ describe("PropertyUtils - ", () => {
       updateColumnStyles(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        props as any as TableWidgetProps,
+        props as TableWidgetProps,
         "",
         "someOtherRandomStyleValue",
       ),

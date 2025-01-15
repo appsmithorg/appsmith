@@ -706,8 +706,8 @@ function GeneratePageForm() {
           {dataSourceOptions.map((option) => {
             const isConnectNewDataSourceBtn =
               CONNECT_NEW_DATASOURCE_OPTION_ID ===
-              (option as DropdownOption).id;
-            const isSupportedForTemplate = (option as DropdownOption)?.data
+              (option).id;
+            const isSupportedForTemplate = (option)?.data
               ?.isSupportedForTemplate;
             const isNotSupportedDatasource =
               !isSupportedForTemplate && !isConnectNewDataSourceBtn;
@@ -721,7 +721,7 @@ function GeneratePageForm() {
                 <DataSourceOption
                   dataTestid="t--datasource-dropdown-option"
                   extraProps={{ routeToCreateNewDatasource }}
-                  key={(option as DropdownOption).id}
+                  key={(option).id}
                   option={option}
                   optionWidth={DROPDOWN_DIMENSION.WIDTH}
                 />

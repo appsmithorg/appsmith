@@ -14,7 +14,7 @@ const EditorTitle = () => {
     value: isMenuOpen,
   } = useBoolean(false);
 
-  const pageId = useSelector(getCurrentPageId) as string;
+  const pageId = useSelector(getCurrentPageId);
   const currentPage = useSelector(getPageById(pageId));
 
   if (!currentPage) return null;

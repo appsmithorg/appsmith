@@ -128,7 +128,7 @@ describe("Test Field Group Config", () => {
   )("test case %d", (index, input, expectedLabel, expectedFields) => {
     const result = FIELD_GROUP_CONFIG[input as string];
 
-    expect(result.label).toStrictEqual(expectedLabel as string);
+    expect(result.label).toStrictEqual(expectedLabel);
     expect(result.fields).toStrictEqual(expectedFields as string[]);
   });
 });

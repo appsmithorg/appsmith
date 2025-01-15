@@ -27,33 +27,33 @@ export default class EntityFactory {
     K extends DataTreeEntityConfig | undefined,
   >(entity: T, config: K, classLoader: EntityClassLoader): IEntity {
     const { DiffGenerator, Parser } = classLoader.load(
-      entity as DataTreeEntity,
+      entity,
     );
 
     if (isWidget(entity)) {
       return new WidgetEntity(
-        entity as TWidgetEntity,
+        entity,
         config as TWidgetEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else if (isJSAction(entity)) {
       return new JSEntity(
-        entity as TJSActionEntity,
+        entity,
         config as TJSActionEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else if (isAction(entity)) {
       return new ActionEntity(
-        entity as TActionEntity,
+        entity,
         config as TActionEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else {
       return new AppsmithEntity(
-        entity as TAppsmithEntity,
+        entity,
         undefined,
         new Parser(),
         new DiffGenerator(),

@@ -38,7 +38,7 @@ describe("DataSidePane", () => {
     const state = getIDETestState({
       actions: [usersAction1, usersAction2, ordersAction1],
       datasources: [productsDS, usersDS, ordersDS],
-    }) as AppState;
+    });
 
     render(<DataSidePane />, {
       url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
@@ -70,7 +70,7 @@ describe("DataSidePane", () => {
   it("it uses the selector dsUsageSelector passed as prop", () => {
     const state = getIDETestState({
       datasources: [productsDS, usersDS, ordersDS],
-    }) as AppState;
+    });
 
     const usageSelector = () => {
       return {

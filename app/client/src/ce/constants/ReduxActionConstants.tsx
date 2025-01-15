@@ -1349,7 +1349,7 @@ export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
+  type: ReduxActionType  ;
   payload: T;
 }
 

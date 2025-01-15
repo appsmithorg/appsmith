@@ -238,7 +238,7 @@ function MultiTreeSelectComponent({
       data-testid="multitreeselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
-      ref={_menu as React.RefObject<HTMLDivElement>}
+      ref={_menu}
     >
       <DropdownStyles
         accentColor={accentColor}

@@ -26,7 +26,7 @@ import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
 import MenuField from "components/editorComponents/form/fields/MenuField";
 import type { InjectedFormProps } from "redux-form";
-import { type Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import { CurrentDataSourceLink } from "../CurrentDataSourceLink";
 import { CurrentDataSource } from "../CurrentDataSource";
 import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDatasource";

@@ -197,7 +197,7 @@ export default function LeftPane() {
   const othersCategories = getSettingsCategory(CategoryType.OTHER);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { category, selected: subCategory } = useParams() as any;
+  const { category, selected: subCategory } = useParams();
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
   const tenantPermissions = useSelector(getTenantPermissions);

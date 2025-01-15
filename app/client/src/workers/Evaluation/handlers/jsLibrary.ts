@@ -459,7 +459,7 @@ function movetheDefaultExportedLibraryToAccessorKey(
     // mapping default functionality to library name accessor
     self[uniqAccessor] = self["default"];
     // deleting the reference of default key from the self object
-    delete self["default"];
+    delete self.default;
     // mapping all the references of differentiating keys from the self object to the self[uniqAccessor] key object
     diffAccessors.map((key) => {
       if (key !== "default") {

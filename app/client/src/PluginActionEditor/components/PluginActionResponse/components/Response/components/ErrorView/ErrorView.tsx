@@ -7,7 +7,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 
 import { Tooltip } from "@appsmith/ads";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { type Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
 import type { SourceEntity } from "entities/AppsmithConsole";
 

@@ -48,7 +48,7 @@ export const getPropertiesToUpdateForReset = (
         .map((propertyKey) => {
           if (
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error
             THEME_BINDING_REGEX.test(stylesheetValue[propertyKey]) &&
             stylesheetValue[propertyKey] !== widget[propertyKey]
           ) {

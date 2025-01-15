@@ -72,7 +72,7 @@ export abstract class EntityTree {
       rawTree[name] = entity.getRawEntity() as DataTreeEntity;
     }
 
-    return rawTree as DataTree;
+    return rawTree;
   }
 
   getEntityByName(name: string) {

@@ -116,7 +116,7 @@ const Header = () => {
   const currentApplication = useSelector(getCurrentApplication);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const pageId = useSelector(getCurrentPageId) as string;
+  const pageId = useSelector(getCurrentPageId);
   const currentPage = useSelector(getPageById(pageId));
   const appState = useCurrentAppState();
   const isSaving = useSelector(getIsPageSaving);

@@ -24,7 +24,7 @@ export const dataTreeTypeDefCreator = (
   const entityMap: EntityMap = new Map();
 
   Object.entries(dataTree).forEach(([entityName, entity]) => {
-    const entityType = (entity as DataTreeEntityObject).ENTITY_TYPE;
+    const entityType = (entity).ENTITY_TYPE;
 
     if (entityType && entityDefGeneratorMap[entityType]) {
       entityDefGeneratorMap[entityType]({

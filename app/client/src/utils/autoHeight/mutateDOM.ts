@@ -86,7 +86,7 @@ export function directlyMutateDOMNodes(
     ) {
       // We need to select the modal widget's parent overlay to adjust size.
       widgetNode = (widgetNode?.closest(`.${Classes.OVERLAY_CONTENT}`) ||
-        null) as HTMLElement | null;
+        null);
       // We don't mess with the top, and let the widget handle it.
       skipTop = true;
     }

@@ -120,7 +120,7 @@ const getMarkOptions = (data: NavigationData): CodeMirror.TextMarkerOptions => {
   return {
     className: `${data.navigable ? NAVIGATION_CLASSNAME : ""}`,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error
     attributes: {
       ...(data.navigable && {
         [NAVIGATE_TO_ATTRIBUTE]: `${data.name}`,

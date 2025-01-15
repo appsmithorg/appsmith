@@ -126,7 +126,7 @@ const processFieldArray = (
      */
     return metaInternalFieldState.map((metaFieldStateItem) =>
       processFieldSchemaItem(schema[ARRAY_ITEM_KEY], metaFieldStateItem),
-    ) as MetaFieldState[];
+    );
   }
 
   return [];

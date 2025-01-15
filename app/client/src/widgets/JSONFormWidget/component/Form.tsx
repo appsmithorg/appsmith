@@ -237,7 +237,7 @@ function Form<TValues = any>(
          */
         setTimeout(() => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error
           reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }

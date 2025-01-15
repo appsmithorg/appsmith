@@ -374,7 +374,7 @@ class CodeEditor extends Component<Props, State> {
         // Used to disable multiple cursors on the editor
         // when command/ctrl click is done
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         configureMouse: () => {
           return {
             addNew: false,

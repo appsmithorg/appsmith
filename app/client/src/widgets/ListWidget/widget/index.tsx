@@ -925,7 +925,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
 
-    return renderAppsmithCanvas(childWidgetData as WidgetProps);
+    return renderAppsmithCanvas(childWidgetData);
   };
 
   getGridGap = () =>

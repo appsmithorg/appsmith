@@ -77,7 +77,7 @@ export const getApplicationList = createSelector(
     ) {
       const fuzzy = new Fuse(applications, fuzzySearchOptions);
 
-      return fuzzy.search(keyword) as ApplicationPayload[];
+      return fuzzy.search(keyword);
     } else if (
       applications &&
       (keyword === undefined || keyword.trim().length === 0)

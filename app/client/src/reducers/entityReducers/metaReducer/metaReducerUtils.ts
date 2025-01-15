@@ -23,7 +23,7 @@ export function getMetaWidgetResetObj(
 
     // propertyOverrideDependency has defaultProperty name for each meta property of widget
     Object.entries(
-      propertyOverrideDependency as PropertyOverrideDependency,
+      propertyOverrideDependency,
     ).map(([propertyName, dependency]) => {
       const defaultPropertyValue =
         dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];

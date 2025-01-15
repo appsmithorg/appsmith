@@ -101,7 +101,7 @@ function ObjectField({
 
       return (
         <FieldRenderer
-          fieldName={fieldName as ControllerRenderProps["name"]}
+          fieldName={fieldName}
           key={schemaItem.identifier}
           passedDefaultValue={objectPassedDefaultValue[schemaItem.accessor]}
           propertyPath={fieldPropertyPath}

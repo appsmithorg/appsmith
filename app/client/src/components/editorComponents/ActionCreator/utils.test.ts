@@ -89,7 +89,7 @@ describe("Test argStringToArray", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
-      const result = argsStringToArray(input as string);
+      const result = argsStringToArray(input);
 
       expect(result).toStrictEqual(expected);
     },
@@ -177,7 +177,7 @@ describe("Test stringToJS", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
-      const result = stringToJS(input as string);
+      const result = stringToJS(input);
 
       expect(result).toStrictEqual(expected);
     },
@@ -240,7 +240,7 @@ describe("Test JSToString", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
-      const result = JSToString(input as string);
+      const result = JSToString(input);
 
       expect(result).toStrictEqual(expected);
     },
@@ -278,7 +278,7 @@ describe("Test modalSetter", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected, x.value]))(
     "test case %d",
     (index, input, expected, value) => {
-      const result = modalSetter(value as string, input as string);
+      const result = modalSetter(value, input);
 
       expect(result).toStrictEqual(expected);
     },
@@ -322,7 +322,7 @@ describe("Test modalGetter", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (index, input, expected) => {
-      const result = modalGetter(input as string);
+      const result = modalGetter(input);
 
       expect(result).toStrictEqual(expected);
     },
@@ -437,9 +437,9 @@ describe("Test textSetter", () => {
     cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
   )("test case %d", (index, input, expected, value, argNum) => {
     const result = textSetter(
-      value as string,
-      input as string,
-      argNum as number,
+      value,
+      input,
+      argNum,
     );
 
     expect(result).toStrictEqual(expected);
@@ -555,7 +555,7 @@ describe("Test textGetter", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected, x.argNum]))(
     "test case %d",
     (index, input, expected, argNum) => {
-      const result = textGetter(input as string, argNum as number);
+      const result = textGetter(input, argNum);
 
       expect(result).toStrictEqual(expected);
     },
@@ -605,9 +605,9 @@ describe("Test enumTypeSetter", () => {
     cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
   )("test case %d", (index, input, expected, value, argNum) => {
     const result = enumTypeSetter(
-      value as string,
-      input as string,
-      argNum as number,
+      value,
+      input,
+      argNum,
     );
 
     expect(result).toStrictEqual(expected);
@@ -639,7 +639,7 @@ describe("Test enumTypeGetter", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected, x.argNum]))(
     "test case %d",
     (index, input, expected, argNum) => {
-      const result = enumTypeGetter(input as string, argNum as number);
+      const result = enumTypeGetter(input, argNum);
 
       expect(result).toStrictEqual(expected);
     },
@@ -675,9 +675,9 @@ describe("Test objectSetter", () => {
     cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
   )("test case %d", (index, input, expected, value, argNum) => {
     const result = objectSetter(
-      value as string,
-      input as string,
-      argNum as number,
+      value,
+      input,
+      argNum,
     );
 
     expect(result).toStrictEqual(expected);
@@ -731,7 +731,7 @@ describe("Test isValueValidURL", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
-      const result = isValueValidURL(input as string);
+      const result = isValueValidURL(input);
 
       expect(result).toStrictEqual(expected);
     },

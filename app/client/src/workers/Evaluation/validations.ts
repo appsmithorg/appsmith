@@ -159,7 +159,7 @@ function validateArray(
 
   // Concatenate unique keys from config.params?.unique
   uniqueKeys = Array.isArray(config.params?.unique)
-    ? uniqueKeys.concat(config.params?.unique as Array<string>)
+    ? uniqueKeys.concat(config.params?.unique)
     : uniqueKeys;
 
   // Validation configuration for children

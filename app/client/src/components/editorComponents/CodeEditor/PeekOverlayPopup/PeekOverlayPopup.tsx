@@ -170,16 +170,16 @@ export function PeekOverlayPopUpContent(
         )}
         {/* TODO: Fix this the next time the file is edited */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "function" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "function" && <div>{(jsData).toString()}</div>}
         {/* TODO: Fix this the next time the file is edited */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "boolean" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "boolean" && <div>{(jsData).toString()}</div>}
         {/* TODO: Fix this the next time the file is edited */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "string" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "string" && <div>{(jsData).toString()}</div>}
         {/* TODO: Fix this the next time the file is edited */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "number" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "number" && <div>{(jsData).toString()}</div>}
         {((dataType !== "object" &&
           dataType !== "function" &&
           dataType !== "boolean" &&
@@ -190,7 +190,7 @@ export function PeekOverlayPopUpContent(
           <div>
             {/* TODO: Fix this the next time the file is edited */}
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(jsData as any)?.toString() ?? jsData ?? jsData === undefined
+            {(jsData)?.toString() ?? jsData ?? jsData === undefined
               ? "undefined"
               : "null"}
           </div>

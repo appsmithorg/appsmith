@@ -94,9 +94,9 @@ import type {
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
-import {
-  type actionDataPayload,
-  type updateActionDataPayloadType,
+import type {
+  actionDataPayload,
+  updateActionDataPayloadType,
 } from "actions/pluginActionActions";
 import { executeJSUpdates } from "actions/jsPaneActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";

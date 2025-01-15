@@ -111,7 +111,7 @@ export function* getUpdatedListOfWidgetsAfterAddingNewWidget(
 ) {
   const { alignment, canvasId } = highlight;
   const allWidgetsFromRedux: CanvasWidgetsReduxState = yield select(getWidgets);
-  const allWidgets = klona(allWidgetsFromRedux) as CanvasWidgetsReduxState;
+  const allWidgets = klona(allWidgetsFromRedux);
 
   const parentWidgetWithLayout = allWidgets[canvasId];
 

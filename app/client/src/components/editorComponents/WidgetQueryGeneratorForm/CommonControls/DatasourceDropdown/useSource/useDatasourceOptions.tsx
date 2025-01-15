@@ -181,7 +181,7 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
             value: "sample " + datasource.name,
             data: {
               pluginId: invert(pluginsPackageNamesMap)[
-                datasource.packageName as string
+                datasource.packageName
               ],
               pluginPackageName: datasource.packageName,
               isSample: true,
@@ -194,7 +194,7 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
                   src={getAssetUrl(
                     pluginImages[
                       invert(pluginsPackageNamesMap)[
-                        datasource.packageName as string
+                        datasource.packageName
                       ]
                     ],
                   )}
@@ -209,7 +209,7 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
                 (d) =>
                   d.id ===
                   invert(pluginsPackageNamesMap)[
-                    datasource.packageName as string
+                    datasource.packageName
                   ],
               );
 

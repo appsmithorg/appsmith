@@ -103,7 +103,7 @@ export const useResendEmailVerification = (
 
     UserApi.resendEmailVerification(email)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       .then((response: ApiResponse) => {
         if (!response.responseMeta.success && response.responseMeta.error) {
           const { code, message } = response.responseMeta.error;

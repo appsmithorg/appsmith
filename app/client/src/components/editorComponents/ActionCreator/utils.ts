@@ -638,7 +638,7 @@ export function paramGetter(code: string, argNum?: number) {
 }
 
 export function sortSubMenuOptions(options: TreeDropdownOption[]) {
-  return (options as TreeDropdownOption[]).sort(
+  return (options).sort(
     (a: TreeDropdownOption, b: TreeDropdownOption) => {
       // Makes default labels like "New modal" show up on top
       if (DEFAULT_LABELS.includes(a.label)) {

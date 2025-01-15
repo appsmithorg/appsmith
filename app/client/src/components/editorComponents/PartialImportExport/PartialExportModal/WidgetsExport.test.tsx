@@ -43,7 +43,7 @@ describe("<WidgetsExport />", () => {
       "t--partial-export-modal-widget-select-all",
     );
 
-    fireEvent.click(selectAllCheckbox!);
+    fireEvent.click(selectAllCheckbox);
     expect(baseProps.updateSelectAllChecked).toHaveBeenCalledWith(true);
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith(
       widgetIds.slice(1),
@@ -60,7 +60,7 @@ describe("<WidgetsExport />", () => {
       `t--partial-export-modal-widget-select-${mockTblUserInfoWidgetId}`,
     );
 
-    fireEvent.click(selectAllCheckbox!);
+    fireEvent.click(selectAllCheckbox);
     expect(baseProps.updateSelectAllChecked).toHaveBeenCalledWith(true);
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith(
       widgetIds.slice(1),

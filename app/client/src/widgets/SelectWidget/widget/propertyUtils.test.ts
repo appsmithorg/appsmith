@@ -265,7 +265,7 @@ describe("labelKeyValidation", () => {
   test("should test that empty values return error", () => {
     ["", undefined, null].forEach((d) => {
       expect(
-        labelKeyValidation(d, {} as SelectWidgetProps, _ as LoDashStatic),
+        labelKeyValidation(d, {} as SelectWidgetProps, _),
       ).toEqual({
         parsed: "",
         isValid: false,
@@ -281,7 +281,7 @@ describe("labelKeyValidation", () => {
 
   test("should test that string values validates", () => {
     expect(
-      labelKeyValidation("test", {} as SelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation("test", {} as SelectWidgetProps, _),
     ).toEqual({
       parsed: "test",
       isValid: true,
@@ -294,7 +294,7 @@ describe("labelKeyValidation", () => {
       labelKeyValidation(
         ["blue", "green", "yellow"],
         {} as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: ["blue", "green", "yellow"],
@@ -314,7 +314,7 @@ describe("labelKeyValidation", () => {
       ["blue", null, "yellow"],
     ].forEach((d) => {
       expect(
-        labelKeyValidation(d, {} as SelectWidgetProps, _ as LoDashStatic),
+        labelKeyValidation(d, {} as SelectWidgetProps, _),
       ).toEqual({
         parsed: [],
         isValid: false,
@@ -329,7 +329,7 @@ describe("labelKeyValidation", () => {
 
     // boolean
     expect(
-      labelKeyValidation(true, {} as SelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation(true, {} as SelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -343,7 +343,7 @@ describe("labelKeyValidation", () => {
 
     // number
     expect(
-      labelKeyValidation(1, {} as SelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation(1, {} as SelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -357,7 +357,7 @@ describe("labelKeyValidation", () => {
 
     // object
     expect(
-      labelKeyValidation({}, {} as SelectWidgetProps, _ as LoDashStatic),
+      labelKeyValidation({}, {} as SelectWidgetProps, _),
     ).toEqual({
       parsed: "",
       isValid: false,
@@ -375,7 +375,7 @@ describe("valueKeyValidation", () => {
   test("should test that empty values return error", () => {
     ["", undefined, null].forEach((d) => {
       expect(
-        valueKeyValidation(d, {} as SelectWidgetProps, _ as LoDashStatic),
+        valueKeyValidation(d, {} as SelectWidgetProps, _),
       ).toEqual({
         parsed: "",
         isValid: false,
@@ -396,7 +396,7 @@ describe("valueKeyValidation", () => {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "test",
@@ -419,7 +419,7 @@ describe("valueKeyValidation", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as SelectWidgetProps,
-          _ as LoDashStatic,
+          _,
         ),
       ).toEqual({
         parsed: d,
@@ -445,7 +445,7 @@ describe("valueKeyValidation", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as SelectWidgetProps,
-          _ as LoDashStatic,
+          _,
         ),
       ).toEqual({
         parsed: [],
@@ -468,7 +468,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: ["blue", "blue", "yellow"],
@@ -489,7 +489,7 @@ describe("valueKeyValidation", () => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "yellow",
@@ -509,7 +509,7 @@ describe("valueKeyValidation", () => {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",
@@ -530,7 +530,7 @@ describe("valueKeyValidation", () => {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",
@@ -551,7 +551,7 @@ describe("valueKeyValidation", () => {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
-        _ as LoDashStatic,
+        _,
       ),
     ).toEqual({
       parsed: "",

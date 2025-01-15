@@ -97,7 +97,7 @@ const getActionBindings = (
 ) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const config = (entityDefinitions.ACTION as any)(entity as any);
+  const config = (entityDefinitions.ACTION as any)(entity);
 
   entityProperties = Object.keys(config || {})
     .filter((k) => k.indexOf("!") === -1)

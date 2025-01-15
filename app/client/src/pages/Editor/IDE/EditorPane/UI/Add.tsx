@@ -15,7 +15,7 @@ const Container = styled(Flex)`
 `;
 
 const AddWidgets = (props: { focusSearchInput?: boolean }) => {
-  const basePageId = useSelector(getCurrentBasePageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const closeButtonClickHandler = useCallback(() => {
     history.push(widgetListURL({ basePageId }));

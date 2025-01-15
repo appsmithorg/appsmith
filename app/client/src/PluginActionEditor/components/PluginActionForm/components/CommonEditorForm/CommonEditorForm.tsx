@@ -1,6 +1,6 @@
 import React from "react";
 import { Tab, TabsList } from "@appsmith/ads";
-import { type Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
 import { API_EDITOR_TAB_TITLES, createMessage } from "ee/constants/messages";

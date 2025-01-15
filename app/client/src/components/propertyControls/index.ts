@@ -136,7 +136,7 @@ export type PropertyControlPropsType =
   | ControlProps
   | InputControlProps
   | DropDownControlProps
-  | SwitchControlProps
+   
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps
@@ -149,7 +149,7 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
   | MenuButtonDynamicItemsControlProps
-  | PrimaryColumnDropdownControlProps
+   
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
   | TableInlineEditValidationControlProps

@@ -23,7 +23,7 @@ import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const pageId = useSelector(getCurrentPageId) as string;
+  const pageId = useSelector(getCurrentPageId);
   const itemGroups = useSelector(selectQuerySegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
   const pagePermissions = useSelector(getPagePermissions);

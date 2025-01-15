@@ -390,7 +390,7 @@ describe("#generate", () => {
     };
 
     delete nextTemplateWidget2[buttonWidget.widgetId];
-    delete nextTemplateWidget2["epowimtfiu"]; // Image widget
+    delete nextTemplateWidget2.epowimtfiu; // Image widget
 
     options.currTemplateWidgets = nextTemplateWidget2;
 

@@ -158,7 +158,7 @@ function JSResponseView(props: Props) {
                       isRunDisabled={disabled}
                       isRunning={isLoading}
                       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                      // @ts-ignore
+                      // @ts-expect-error
                       onRunClick={onButtonClick}
                     />
                   )}

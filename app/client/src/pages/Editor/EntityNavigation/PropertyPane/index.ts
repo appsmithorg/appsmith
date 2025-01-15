@@ -87,7 +87,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const enhancements = yield select(enhancementSelector as any);
+    const enhancements = yield select(enhancementSelector);
     const finalProps = yield call(
       evaluateHiddenProperty,
       [...propertyPaneContentConfig, ...propertyPaneStyleConfig],

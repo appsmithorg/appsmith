@@ -1,8 +1,8 @@
-import {
-  type Analytics,
-  type EventProperties,
-  type MiddlewareFunction,
-  type UserTraits,
+import type {
+  Analytics,
+  EventProperties,
+  MiddlewareFunction,
+  UserTraits,
 } from "@segment/analytics-next";
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";

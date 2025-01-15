@@ -15,7 +15,7 @@ import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import { type OnUpdateSettingsProps } from "../../JSEditorToolbar";
+import type { OnUpdateSettingsProps } from "../../JSEditorToolbar";
 import { JSFunctionSettings } from "../../JSEditorToolbar/components/JSFunctionSettings";
 
 interface Props {

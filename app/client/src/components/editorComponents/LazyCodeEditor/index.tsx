@@ -212,7 +212,7 @@ function LazyCodeEditor({
       if (editorWrapper && renderTarget === "editor-focused") {
         const editor = editorWrapper.querySelector(
           ".CodeEditorTarget",
-        ) as HTMLElement | null;
+        );
 
         if (editor) {
           editor.focus();

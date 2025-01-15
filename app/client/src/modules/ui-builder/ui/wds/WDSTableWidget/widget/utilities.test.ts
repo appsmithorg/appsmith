@@ -2478,7 +2478,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "step",
       "left",
@@ -2489,7 +2489,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "action",
       "right",
@@ -2504,7 +2504,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "action",
       "left",
@@ -2518,7 +2518,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "step",
       "right",
@@ -2534,7 +2534,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "action",
       "left",
@@ -2550,7 +2550,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "step",
       "right",
@@ -2567,7 +2567,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "step",
       "",
@@ -2578,7 +2578,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       tableConfig.columnOrder,
       "action",
       "",
@@ -2597,7 +2597,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       ["step", "action", "task", "status"],
       "step",
       "",
@@ -2617,7 +2617,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     newColumnOrder = generateNewColumnOrderFromStickyValue(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tableConfig.primaryColumns as any,
+      tableConfig.primaryColumns,
       ["status", "step", "action", "task"],
       "task",
       "",

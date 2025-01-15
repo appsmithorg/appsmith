@@ -836,7 +836,7 @@ const getDataTreeWithoutSuppressedAutoComplete = (
     const entity = dataTree[entityName];
 
     return (
-      isWidget(entity) && shouldSuppressAutoComplete(entity as WidgetEntity)
+      isWidget(entity) && shouldSuppressAutoComplete(entity)
     );
   });
 

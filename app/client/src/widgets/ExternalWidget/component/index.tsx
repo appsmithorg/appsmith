@@ -2,10 +2,10 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+//@ts-expect-error
 import script from "!!raw-loader!./script.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+//@ts-expect-error
 import css from "!!raw-loader!./reset.css";
 
 const StyledIframe = styled.iframe`

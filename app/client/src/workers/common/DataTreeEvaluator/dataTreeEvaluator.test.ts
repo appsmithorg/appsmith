@@ -213,7 +213,7 @@ describe("DataTreeEvaluator", () => {
           getDynamicValueCapturedParams.push(args);
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error
           return originalGetDynamicValue(...args);
         },
       );

@@ -19,8 +19,8 @@ export function getEntityDependencies(
   return (
     getDependencies[entity.ENTITY_TYPE](
       entity as DataTreeEntityObject,
-      entityConfig as DataTreeEntityConfig,
-      allKeys as Record<string, true>,
+      entityConfig,
+      allKeys,
     ) || {}
   );
 }
@@ -36,9 +36,9 @@ export function getEntityPathDependencies(
   return (
     getPathDependencies[entity.ENTITY_TYPE](
       entity as DataTreeEntity,
-      entityConfig as DataTreeEntityConfig,
-      fullPropertyPath as string,
-      allKeys as Record<string, true>,
+      entityConfig,
+      fullPropertyPath,
+      allKeys,
     ) || []
   );
 }

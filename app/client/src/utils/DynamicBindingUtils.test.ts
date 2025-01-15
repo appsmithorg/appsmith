@@ -39,7 +39,7 @@ describe.each([
   ["}} {{", ["}} {{"]],
 ])("Parse the dynamic string(%s, %j)", (dynamicString, expected) => {
   test(`returns ${expected}`, () => {
-    expect(getDynamicStringSegments(dynamicString as string)).toStrictEqual(
+    expect(getDynamicStringSegments(dynamicString)).toStrictEqual(
       expected,
     );
   });

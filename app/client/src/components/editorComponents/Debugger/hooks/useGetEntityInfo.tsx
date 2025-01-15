@@ -37,7 +37,7 @@ export const useGetEntityInfo = (name: string) => {
 
   const getEntityInfo = useCallback(() => {
     if (isWidget(entity)) {
-      const widgetEntity = entity as WidgetEntity;
+      const widgetEntity = entity;
       const icon = <WidgetIcon type={entity.type} />;
       const hasError = doesEntityHaveErrors(
         widgetEntity.widgetId,

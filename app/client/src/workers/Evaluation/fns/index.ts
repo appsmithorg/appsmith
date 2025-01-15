@@ -127,7 +127,7 @@ const entityFns = [
       actionEntity.name = entityName;
 
       return getFnWithGuards(
-        run.bind(actionEntity as ActionEntity),
+        run.bind(actionEntity),
         `${entityName}.run`,
         [isAsyncGuard],
       );
@@ -181,7 +181,7 @@ export type ActionTriggerKeys =
   | TShowModalActionType
   | TCloseModalActionType
   | TShowAlertActionType
-  | TDownloadActionType
+   
   | TNavigateToActionType
   | TResetWidgetActionType
   | TCopyToClipboardActionType
@@ -222,7 +222,7 @@ export type ActionDescription =
   | TClearDescription
   | TShowModalDescription
   | TCloseModalDescription
-  | TClearDescription
+   
   | TStoreValueDescription
   | TClearStoreDescription
   | TRemoveValueDescription

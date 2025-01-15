@@ -353,7 +353,7 @@ function updateBlobDataFromUrls(
   blobMap: string[],
   blobDataMap: Record<string, Blob>,
 ) {
-  Object.entries(blobUrlPaths as Record<string, string>).forEach(
+  Object.entries(blobUrlPaths).forEach(
     // blobUrl: string eg: blob:1234-1234-1234?type=binary
     ([path, blobUrl]) => {
       if (isArrayBuffer(newVal[path])) {

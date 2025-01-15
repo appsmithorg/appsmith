@@ -165,7 +165,7 @@ const filterCategoryList = getFilterCategoryList();
 const emptyObj = {};
 
 function GlobalSearch() {
-  const currentPageId = useSelector(getCurrentPageId) as string;
+  const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [query, setQueryInState] = useState("");

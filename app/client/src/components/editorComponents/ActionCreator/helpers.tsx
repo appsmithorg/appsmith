@@ -122,7 +122,7 @@ export function getFieldFromValue(
         value,
         activeTabNavigateTo,
         activeTabApiAndQueryCallback,
-        dataTree as DataTreeForActionCreator,
+        dataTree,
         isChainedAction,
       );
     }

@@ -159,7 +159,7 @@ export function MainContainerResizer({
           dispatch(setAutoCanvasResizing(false));
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          document.removeEventListener("mousemove", events[0] as any);
+          document.removeEventListener("mousemove", events[0]);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
         };

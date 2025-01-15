@@ -26,7 +26,7 @@ function Settings() {
   const isLoading = useSelector(getSettingsLoadingState);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const params = useParams() as any;
+  const params = useParams();
   const { category, selected: subCategory } = params;
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,

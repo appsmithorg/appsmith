@@ -73,7 +73,7 @@ export const getUsagePulsePayload = (
       let fallback = localStorage.getItem(FALLBACK_KEY);
 
       if (!fallback) {
-        fallback = nanoid() as string;
+        fallback = nanoid();
         localStorage.setItem(FALLBACK_KEY, fallback);
       }
 

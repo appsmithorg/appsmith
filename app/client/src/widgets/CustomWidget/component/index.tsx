@@ -2,15 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+//@ts-expect-error
 import script from "!!raw-loader!./customWidgetscript.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+//@ts-expect-error
 import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+//@ts-expect-error
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";

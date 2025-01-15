@@ -746,7 +746,7 @@ describe("Tern server completion", () => {
       data,
       MockCodemirrorEditor as unknown as CodeMirror.Editor,
       jest.fn,
-    )!;
+    );
 
     const expectedContainingItems = _.sortBy(expectedValue, "text").map(
       (item) => expect.objectContaining(item),

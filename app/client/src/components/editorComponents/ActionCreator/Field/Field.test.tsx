@@ -199,7 +199,7 @@ describe("Field component", () => {
         field: {
           field: field as FieldType,
         },
-        value: value as string,
+        value: value,
       };
       const expectedLabel = FIELD_CONFIG[field as FieldType].label(props);
       const expectedDefaultText = FIELD_CONFIG[field as FieldType].defaultText;

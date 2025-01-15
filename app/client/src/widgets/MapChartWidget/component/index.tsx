@@ -64,7 +64,7 @@ export default function EchartComponent(props: MapChartComponentProps) {
 
   useEffect(() => {
     chartInstance.current = echarts.init(
-      chartContainer.current!,
+      chartContainer.current,
       {},
       {
         renderer: "svg",

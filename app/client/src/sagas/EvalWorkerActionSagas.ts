@@ -175,7 +175,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       endSpan(rootSpan);
 
       yield call(updateDataTreeHandler, {
-        evalTreeResponse: workerResponse as EvalTreeResponseData,
+        evalTreeResponse: workerResponse,
         unevalTree: unEvalAndConfigTree.unEvalTree || {},
         requiresLogging: false,
         configTree: unEvalAndConfigTree.configTree,

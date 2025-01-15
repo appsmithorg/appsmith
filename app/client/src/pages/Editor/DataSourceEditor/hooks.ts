@@ -136,7 +136,7 @@ export const useShowPageGenerationOnHeader = (
   const isPluginAllowedToPreviewData =
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO &&
-      !!(datasource as Datasource)?.isMock) ||
+      !!(datasource)?.isMock) ||
     isGoogleSheetPlugin;
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
@@ -159,7 +159,7 @@ export const useShowPageGenerationOnHeader = (
 
   const supportTemplateGeneration =
     !isPluginAllowedToPreviewData &&
-    !!generateCRUDSupportedPlugin[(datasource as Datasource).pluginId];
+    !!generateCRUDSupportedPlugin[(datasource).pluginId];
 
   return (
     !releaseDragDropBuildingBlocks && // only show generate page button if dragging of building blocks is not enabled (product decision)

@@ -351,7 +351,7 @@ export const generateQuickCommands = (
               from: NavigationMethod.SlashCommandHint,
             }}
             icon={icon}
-            name={data.displayText as string}
+            name={data.displayText}
             url={suggestion.url}
           />,
           element,

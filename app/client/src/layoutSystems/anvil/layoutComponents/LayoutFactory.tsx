@@ -12,7 +12,7 @@ class LayoutFactory {
     layoutComponents.forEach((layoutComponent: typeof BaseLayoutComponent) => {
       this.layoutsMap.set(
         layoutComponent.type,
-        layoutComponent as typeof BaseLayoutComponent,
+        layoutComponent,
       );
     });
   }

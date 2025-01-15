@@ -1206,7 +1206,7 @@ export default class DataTreeEvaluator {
             const isNewWidget =
               isFirstTree || isNewEntity(allNewEntityDiffSet, entityName);
 
-            const widgetEntity = entity as WidgetEntity;
+            const widgetEntity = entity;
 
             let parsedValue = validateAndParseWidgetProperty({
               fullPropertyPath,
@@ -1258,7 +1258,7 @@ export default class DataTreeEvaluator {
             break;
           }
           case ENTITY_TYPE.ACTION: {
-            const actionEntity = entity as ActionEntity;
+            const actionEntity = entity;
 
             const configProperty = propertyPath.replace(
               "config",

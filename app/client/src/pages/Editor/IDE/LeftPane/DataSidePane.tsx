@@ -56,7 +56,7 @@ interface DataSidePaneProps {
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
-  const basePageId = useSelector(getCurrentBasePageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId);
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");

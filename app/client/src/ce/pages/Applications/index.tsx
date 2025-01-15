@@ -639,7 +639,7 @@ export function ApplicationsSection(props: any) {
   const workspaceNameChange = (newName: string, workspaceId: string) => {
     dispatch(
       saveWorkspace({
-        id: workspaceId as string,
+        id: workspaceId,
         name: newName,
       }),
     );

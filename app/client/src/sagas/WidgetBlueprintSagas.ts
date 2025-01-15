@@ -231,7 +231,7 @@ export function* executeWidgetBlueprintChildOperations(
     // Little abstraction leak, but will be deprecated soon
     const widgetPropertyMaps = {
       defaultPropertyMap: WidgetFactory.getWidgetDefaultPropertiesMap(
-        canvasWidgets[widgetId].type as WidgetType,
+        canvasWidgets[widgetId].type,
       ),
     };
 

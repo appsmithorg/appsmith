@@ -338,7 +338,7 @@ function ArrayField({
     const fieldPropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
     return itemKeys.map((key, index) => {
-      const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+      const fieldName = `${name}[${index}]`;
 
       return (
         <Accordion

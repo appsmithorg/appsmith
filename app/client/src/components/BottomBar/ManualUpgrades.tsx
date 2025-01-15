@@ -122,7 +122,7 @@ function UpdatesModal({
               AnalyticsUtil.logEvent("MANUAL_UPGRADE_CLICK");
               dispatch(
                 updateApplication(
-                  applicationId as string,
+                  applicationId,
                   {
                     applicationVersion: latestVersion,
                   },

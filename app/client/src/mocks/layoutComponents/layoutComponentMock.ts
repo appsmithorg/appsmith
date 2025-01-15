@@ -103,12 +103,12 @@ export function generateAlignedRowMock(
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
 
-    (layout as WidgetLayoutProps[]).push({
+    (layout).push({
       alignment: FlexLayerAlignment.Start,
       widgetId: buttonWidget.widgetId,
       widgetType: buttonWidget.type,
     });
-    (layout as WidgetLayoutProps[]).push({
+    (layout).push({
       alignment: FlexLayerAlignment.Start,
       widgetId: inputWidget.widgetId,
       widgetType: inputWidget.type,

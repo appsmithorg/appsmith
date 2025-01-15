@@ -63,7 +63,7 @@ function ForkTemplate({
               getPopupContainer={(triggerNode) => triggerNode.parentNode}
               // TODO: (Albin) Fix this
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              //@ts-ignore
+              //@ts-expect-error
               onSelect={(
                 dropdownOptionValue: string,
                 dropdownOption: {

@@ -167,9 +167,9 @@ function renderDropdown(
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (!selectedValue.includes(value))
-            (selectedValue as string[]).push(value);
+            (selectedValue).push(value);
         } else {
-          selectedValue = [selectedValue as string, value];
+          selectedValue = [selectedValue, value];
         }
       } else selectedValue = value;
 
@@ -183,8 +183,8 @@ function renderDropdown(
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (selectedValue.includes(value))
-            (selectedValue as string[]).splice(
-              (selectedValue as string[]).indexOf(value),
+            (selectedValue).splice(
+              (selectedValue).indexOf(value),
               1,
             );
         } else {

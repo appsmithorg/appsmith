@@ -87,7 +87,7 @@ const PageElement = ({
 
   const contextMenu = (
     <PageContextMenu
-      applicationId={applicationId as string}
+      applicationId={applicationId}
       className={EntityClassNames.CONTEXT_MENU}
       hasExportPermission={hasExportPermission}
       isCurrentPage={isCurrentPage}

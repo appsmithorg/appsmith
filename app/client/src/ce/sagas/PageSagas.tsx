@@ -114,7 +114,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { builderURL } from "ee/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
-import { type InitConsolidatedApi } from "sagas/InitSagas";
+import type { InitConsolidatedApi } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
@@ -545,7 +545,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       yield put(savePageSuccess(savePageResponse));
 
       checkAndLogErrorsIfCyclicDependency(
-        (savePageResponse.data as SavePageResponseData)
+        (savePageResponse.data)
           .layoutOnLoadActionErrors,
       );
     }
@@ -1082,7 +1082,7 @@ export function* updateWidgetNameSaga(
             },
           });
           checkAndLogErrorsIfCyclicDependency(
-            (response.data as PageLayout).layoutOnLoadActionErrors,
+            (response.data).layoutOnLoadActionErrors,
           );
         }
       } else {

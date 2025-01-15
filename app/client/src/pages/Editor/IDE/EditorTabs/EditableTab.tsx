@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 
 import { FileTab } from "IDE/Components/FileTab";
-import { type EntityItem } from "ee/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../hooks";
 
 import { useDispatch, useSelector } from "react-redux";

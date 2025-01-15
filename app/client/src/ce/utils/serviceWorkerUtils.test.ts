@@ -14,7 +14,7 @@ import { Request as NFRequest, Response as NFResponse } from "node-fetch";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).fetch = jest.fn() as jest.Mock;
+(global as any).fetch = jest.fn();
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).caches = {

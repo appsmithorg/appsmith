@@ -12,7 +12,7 @@ function getAllEffectedBoxes(
   belows.forEach((belowId) => {
     if (!_processed[belowId]) {
       getAllEffectedBoxes(belowId, tree, effectedBoxes, _processed);
-      (effectedBoxes as string[]).push(belowId);
+      (effectedBoxes).push(belowId);
       _processed[belowId] = true;
     }
   });

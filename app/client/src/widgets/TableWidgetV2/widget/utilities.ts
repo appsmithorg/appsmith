@@ -771,7 +771,7 @@ export const getColumnType = (
     case "boolean":
       return ColumnTypes.CHECKBOX;
     case "string": {
-      const isHTML = /<[^>]*>/.test(columnValue as string);
+      const isHTML = /<[^>]*>/.test(columnValue);
 
       if (isHTML) {
         return ColumnTypes.HTML;

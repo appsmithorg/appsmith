@@ -135,7 +135,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
         disabled={isDeleting}
         key={"delete-datasource-button"}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         onSelect={(e: Event) => {
           e.preventDefault();
           e.stopPropagation();
