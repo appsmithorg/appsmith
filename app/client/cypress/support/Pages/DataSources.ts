@@ -147,7 +147,7 @@ export class DataSources {
     option +
     "']";
   _queryTableResponse =
-    "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td mp-mask']";
+    "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td as-mask']";
   _queryResponseHeader = (header: string) =>
     "//div[@data-guided-tour-id='query-table-response']//div[@class='table']//div[@role ='columnheader']//span[text()='" +
     header +
