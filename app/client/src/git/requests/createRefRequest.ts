@@ -14,8 +14,8 @@ async function createRefRequestNew(
   refArtifactId: string,
   params: CreateRefRequestParams,
 ): AxiosPromise<CreateRefResponse> {
-  return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/checkout-ref`,
+  return Api.post(
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/create-ref`,
     params,
   );
 }
