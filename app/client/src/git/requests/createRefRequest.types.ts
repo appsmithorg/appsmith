@@ -2,7 +2,7 @@ import type { ApiResponse } from "api/types";
 import type { GitArtifact } from "git/store/types";
 
 export interface CreateRefRequestParams {
-  refType: string;
+  refType: "branch" | "tag";
   refName: string;
 }
 

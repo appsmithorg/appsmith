@@ -57,11 +57,11 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
   const { artifactDef, artifactId } = params;
   let triggerResponse: TriggerAutocommitResponse | undefined;
 
-  try {
-    const isGitApiContractsEnabled: boolean = yield select(
-      selectGitApiContractsEnabled,
-    );
+  const isGitApiContractsEnabled: boolean = yield select(
+    selectGitApiContractsEnabled,
+  );
 
+  try {
     triggerResponse = yield call(
       triggerAutocommitRequest,
       artifactDef.artifactType,
@@ -97,10 +97,6 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
       while (true) {
         yield put(
           gitArtifactActions.fetchAutocommitProgressInit({ artifactDef }),
-        );
-
-        const isGitApiContractsEnabled: boolean = yield select(
-          selectGitApiContractsEnabled,
         );
 
         progressResponse = yield call(

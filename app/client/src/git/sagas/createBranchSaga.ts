@@ -26,7 +26,7 @@ export default function* createBranchSaga(
       refName: action.payload.branchName,
     };
 
-    const isGitApiContractEnabled: boolean = yield select(
+    const isGitApiContractsEnabled: boolean = yield select(
       selectGitApiContractsEnabled,
     );
 
@@ -35,18 +35,18 @@ export default function* createBranchSaga(
       artifactDef.artifactType,
       artifactId,
       params,
-      isGitApiContractEnabled,
+      isGitApiContractsEnabled,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      // yield put(
-      //   gitArtifactActions.fetchBranchesInit({
-      //     artifactDef,
-      //     artifactId,
-      //     pruneBranches: true,
-      //   }),
-      // );
+      yield put(
+        gitArtifactActions.fetchBranchesInit({
+          artifactDef,
+          artifactId,
+          pruneBranches: true,
+        }),
+      );
       yield put(
         gitArtifactActions.checkoutBranchInit({
           artifactDef,

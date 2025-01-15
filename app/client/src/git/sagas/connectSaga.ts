@@ -37,7 +37,7 @@ export default function* connectSaga(
       gitProfile: action.payload.gitProfile,
     };
 
-    const isGitApiContractEnabled: boolean = yield select(
+    const isGitApiContractsEnabled: boolean = yield select(
       selectGitApiContractsEnabled,
     );
 
@@ -46,7 +46,7 @@ export default function* connectSaga(
       artifactDef.artifactType,
       artifactDef.baseArtifactId,
       params,
-      isGitApiContractEnabled,
+      isGitApiContractsEnabled,
     );
 
     const isValidResponse: boolean = yield validateResponse(response, false);

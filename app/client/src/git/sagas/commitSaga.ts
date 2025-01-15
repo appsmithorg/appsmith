@@ -31,7 +31,7 @@ export default function* commitSaga(
       commitMessage: action.payload.commitMessage,
       doPush: action.payload.doPush,
     };
-    const isGitApiContractEnabled: boolean = yield select(
+    const isGitApiContractsEnabled: boolean = yield select(
       selectGitApiContractsEnabled,
     );
 
@@ -40,7 +40,7 @@ export default function* commitSaga(
       artifactDef.artifactType,
       artifactId,
       params,
-      isGitApiContractEnabled,
+      isGitApiContractsEnabled,
     );
 
     const isValidResponse: boolean = yield validateResponse(response, false);
