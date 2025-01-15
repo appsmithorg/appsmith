@@ -80,7 +80,8 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { ConsolidatedPageLoadApi } from "api";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {

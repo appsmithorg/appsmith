@@ -18,8 +18,7 @@ import { useParams } from "react-router";
 import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { ActionResponse } from "api/ActionAPI";
-import type { Plugin } from "api/PluginApi";
-import type { UIComponentTypes } from "api/PluginApi";
+import type { Plugin, UIComponentTypes } from "entities/Plugin";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {

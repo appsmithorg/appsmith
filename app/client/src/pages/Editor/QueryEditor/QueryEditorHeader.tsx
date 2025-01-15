@@ -10,7 +10,7 @@ import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
 import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "ee/reducers";
 import DatasourceSelector from "./DatasourceSelector";

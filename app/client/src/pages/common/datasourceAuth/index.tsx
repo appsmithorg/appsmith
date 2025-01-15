@@ -36,7 +36,7 @@ import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

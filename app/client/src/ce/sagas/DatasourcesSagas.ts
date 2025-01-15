@@ -118,11 +118,16 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { type Action, PluginPackageName, PluginType } from "entities/Action";
+import { type Action } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   klonaLiteWithTelemetry,

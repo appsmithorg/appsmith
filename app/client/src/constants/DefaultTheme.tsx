@@ -8,10 +8,6 @@ import type { Typography, TypographyKeys } from "./typography";
 import { typography } from "./typography";
 
 import type { LabelPosition } from "components/constants";
-import {
-  TABLE_SCROLLBAR_HEIGHT,
-  TABLE_SCROLLBAR_WIDTH,
-} from "widgets/TableWidgetV2/component/Constants";
 import { Icon } from "@appsmith/ads";
 import React from "react";
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
@@ -547,30 +543,6 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
 
 export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
-`;
-
-export const tableScrollBars = css`
-  &::-webkit-scrollbar {
-    width: ${TABLE_SCROLLBAR_WIDTH}px;
-    height: ${TABLE_SCROLLBAR_HEIGHT}px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--wds-color-bg-disabled);
-    border-radius: 10px;
-  }
-
-  &:hover {
-    &::-webkit-scrollbar-track {
-      background: var(--wds-color-bg-disabled);
-      border-radius: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
-      border-radius: 10px;
-    }
-  }
 `;
 
 export const hideScrollbar = css`

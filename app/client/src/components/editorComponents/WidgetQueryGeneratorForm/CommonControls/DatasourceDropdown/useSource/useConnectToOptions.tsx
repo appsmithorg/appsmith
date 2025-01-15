@@ -14,7 +14,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import type {
   ActionData,
   ActionDataState,
