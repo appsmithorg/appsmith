@@ -580,7 +580,7 @@ class ButtonGroupComponent extends React.Component<
             isDisabled ||
             !!loadedBtnId ||
             isLoading ||
-            (button.disabledWhenInvalid && !isFormValid);
+            (button.disabledWhenInvalid && isFormValid === false);
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;

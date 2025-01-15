@@ -3,6 +3,7 @@ import React from "react";
 import ButtonGroupWidget from "../index";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ButtonGroupWidgetProps } from "../index";
+import { klona } from "klona";
 
 describe("ButtonGroupWidget disabledWhenInvalid", () => {
   const defaultProps: ButtonGroupWidgetProps = {
@@ -50,47 +51,43 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
   };
 
   it("disables buttons when disabledWhenInvalid is true and form is invalid", () => {
-    const props = {
-      ...defaultProps,
-      isFormValid: false,
-    };
+    const props = klona(defaultProps);
+
+    props.isFormValid = false;
 
     const { container } = render(<ButtonGroupWidget {...props} />);
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
-      expect(button).toHaveAttribute("disabled");
+      expect(button.hasAttribute("disabled")).toBe(true);
     });
   });
 
   it("enables buttons when disabledWhenInvalid is true but form is valid", () => {
-    const props = {
-      ...defaultProps,
-      isFormValid: true,
-    };
+    const props = klona(defaultProps);
+
+    props.isFormValid = true;
 
     const { container } = render(<ButtonGroupWidget {...props} />);
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
-      expect(button).not.toHaveAttribute("disabled");
+      expect(button.hasAttribute("disabled")).toBe(false);
     });
   });
 
   it("enables buttons when disabledWhenInvalid is false regardless of form validity", () => {
-    const props = {
-      ...defaultProps,
-      isFormValid: false,
-      groupButtons: {
-        ...defaultProps.groupButtons,
-        groupButton1: {
-          ...defaultProps.groupButtons.groupButton1,
-          disabledWhenInvalid: false,
-        },
-        groupButton2: {
-          ...defaultProps.groupButtons.groupButton2,
-          disabledWhenInvalid: false,
-        },
+    const props = klona(defaultProps);
+
+    props.groupButtons = {
+      ...defaultProps.groupButtons,
+      groupButton1: {
+        ...defaultProps.groupButtons.groupButton1,
+        disabledWhenInvalid: false,
+      },
+      groupButton2: {
+        ...defaultProps.groupButtons.groupButton2,
+        disabledWhenInvalid: false,
       },
     };
 
@@ -98,7 +95,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
-      expect(button).not.toHaveAttribute("disabled");
+      expect(button.hasAttribute("disabled")).toBe(false);
     });
   });
 });
