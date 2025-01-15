@@ -17,6 +17,10 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
     bottomRow: 0,
     isLoading: false,
     orientation: "horizontal",
+    isDisabled: false,
+    buttonVariant: "PRIMARY",
+    type: "BUTTON_GROUP_WIDGET",
+    widgetName: "ButtonGroup1",
     groupButtons: {
       groupButton1: {
         label: "Test Button 1",
