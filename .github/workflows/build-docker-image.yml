@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       pr:
-        description: "This is the PR number in case the workflow is being called in a pull request"
+        description: "This is the PR number in case the workflow is being called in a pull request- sample"
         required: false
         type: number
 
