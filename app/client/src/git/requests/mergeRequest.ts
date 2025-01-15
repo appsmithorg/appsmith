@@ -14,24 +14,24 @@ async function mergeRequestOld(
 
 async function mergeRequestNew(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   params: MergeRequestParams,
 ): AxiosPromise<MergeResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/merge`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/merge`,
     params,
   );
 }
 
 export default async function mergeRequest(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   params: MergeRequestParams,
   isNew: boolean,
 ): AxiosPromise<MergeResponse> {
   if (isNew) {
-    return mergeRequestNew(artifactType, branchedApplicationId, params);
+    return mergeRequestNew(artifactType, refArtifactId, params);
   } else {
-    return mergeRequestOld(branchedApplicationId, params);
+    return mergeRequestOld(refArtifactId, params);
   }
 }

@@ -13,21 +13,21 @@ async function triggerAutocommitRequestOld(
 
 async function triggerAutocommitRequestNew(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
 ): AxiosPromise<TriggerAutocommitResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/auto-commit`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/auto-commit`,
   );
 }
 
 export default async function triggerAutocommitRequest(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<TriggerAutocommitResponse> {
   if (isNew) {
-    return triggerAutocommitRequestNew(artifactType, branchedApplicationId);
+    return triggerAutocommitRequestNew(artifactType, refArtifactId);
   } else {
-    return triggerAutocommitRequestOld(branchedApplicationId);
+    return triggerAutocommitRequestOld(refArtifactId);
   }
 }

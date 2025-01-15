@@ -13,21 +13,21 @@ async function fetchLocalProfileRequestOld(
 
 async function fetchLocalProfileRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
 ): AxiosPromise<FetchLocalProfileResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/profile`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/profile`,
   );
 }
 
 export default async function fetchLocalProfileRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<FetchLocalProfileResponse> {
   if (isNew) {
-    return fetchLocalProfileRequestNew(artifactType, baseApplicationId);
+    return fetchLocalProfileRequestNew(artifactType, baseArtifactId);
   } else {
-    return fetchLocalProfileRequestOld(baseApplicationId);
+    return fetchLocalProfileRequestOld(baseArtifactId);
   }
 }

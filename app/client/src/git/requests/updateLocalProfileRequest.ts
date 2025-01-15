@@ -17,28 +17,24 @@ async function updateLocalProfileRequestOld(
 
 async function updateLocalProfileRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   params: UpdateLocalProfileRequestParams,
 ): AxiosPromise<UpdateLocalProfileResponse> {
   return Api.put(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/profile`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/profile`,
     params,
   );
 }
 
 export default async function updateLocalProfileRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   params: UpdateLocalProfileRequestParams,
   isNew: boolean,
 ): AxiosPromise<UpdateLocalProfileResponse> {
   if (isNew) {
-    return updateLocalProfileRequestNew(
-      artifactType,
-      baseApplicationId,
-      params,
-    );
+    return updateLocalProfileRequestNew(artifactType, baseArtifactId, params);
   } else {
-    return updateLocalProfileRequestOld(baseApplicationId, params);
+    return updateLocalProfileRequestOld(baseArtifactId, params);
   }
 }

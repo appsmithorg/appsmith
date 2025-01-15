@@ -17,24 +17,24 @@ async function fetchStatusRequestOld(
 
 async function fetchStatusRequestNew(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  baseArtifactId: string,
   params: FetchStatusRequestParams,
 ): AxiosPromise<FetchStatusResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/status`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/status`,
     params,
   );
 }
 
 export default async function fetchStatusRequest(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  baseArtifactId: string,
   params: FetchStatusRequestParams,
   isNew: boolean,
 ): AxiosPromise<FetchStatusResponse> {
   if (isNew) {
-    return fetchStatusRequestNew(artifactType, branchedApplicationId, params);
+    return fetchStatusRequestNew(artifactType, baseArtifactId, params);
   } else {
-    return fetchStatusRequestOld(branchedApplicationId, params);
+    return fetchStatusRequestOld(baseArtifactId, params);
   }
 }

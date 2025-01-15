@@ -20,28 +20,28 @@ async function updateProtectedBranchesRequestOld(
 
 async function updateProtectedBranchesRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   params: UpdateProtectedBranchesRequestParams,
 ): AxiosPromise<UpdateProtectedBranchesResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/protected`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/protected`,
     params,
   );
 }
 
 export default async function updateProtectedBranchesRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   params: UpdateProtectedBranchesRequestParams,
   isNew: boolean,
 ): AxiosPromise<UpdateProtectedBranchesResponse> {
   if (isNew) {
     return updateProtectedBranchesRequestNew(
       artifactType,
-      baseApplicationId,
+      baseArtifactId,
       params,
     );
   } else {
-    return updateProtectedBranchesRequestOld(baseApplicationId, params);
+    return updateProtectedBranchesRequestOld(baseArtifactId, params);
   }
 }

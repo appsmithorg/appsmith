@@ -20,28 +20,24 @@ async function fetchMergeStatusRequestOld(
 
 async function fetchMergeStatusRequestNew(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   params: FetchMergeStatusRequestParams,
 ): AxiosPromise<FetchMergeStatusResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/merge/status`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/merge/status`,
     params,
   );
 }
 
 export default async function fetchMergeStatusRequest(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   params: FetchMergeStatusRequestParams,
   isNew: boolean,
 ): AxiosPromise<FetchMergeStatusResponse> {
   if (isNew) {
-    return fetchMergeStatusRequestNew(
-      artifactType,
-      branchedApplicationId,
-      params,
-    );
+    return fetchMergeStatusRequestNew(artifactType, refArtifactId, params);
   } else {
-    return fetchMergeStatusRequestOld(branchedApplicationId, params);
+    return fetchMergeStatusRequestOld(refArtifactId, params);
   }
 }

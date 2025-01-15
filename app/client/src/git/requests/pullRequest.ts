@@ -13,21 +13,21 @@ async function pullRequestOld(
 
 async function pullRequestNew(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
 ): AxiosPromise<PullResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${branchedApplicationId}/pull`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/pull`,
   );
 }
 
 export default async function pullRequest(
   artifactType: GitArtifactType,
-  branchedApplicationId: string,
+  refArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<PullResponse> {
   if (isNew) {
-    return pullRequestNew(artifactType, branchedApplicationId);
+    return pullRequestNew(artifactType, refArtifactId);
   } else {
-    return pullRequestOld(branchedApplicationId);
+    return pullRequestOld(refArtifactId);
   }
 }

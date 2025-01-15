@@ -13,21 +13,21 @@ async function fetchMetadataRequestOld(
 
 async function fetchMetadataRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
 ): AxiosPromise<FetchMetadataResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/metadata`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/metadata`,
   );
 }
 
 export default async function fetchMetadataRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<FetchMetadataResponse> {
   if (isNew) {
-    return fetchMetadataRequestNew(artifactType, baseApplicationId);
+    return fetchMetadataRequestNew(artifactType, baseArtifactId);
   } else {
-    return fetchMetadataRequestOld(baseApplicationId);
+    return fetchMetadataRequestOld(baseArtifactId);
   }
 }

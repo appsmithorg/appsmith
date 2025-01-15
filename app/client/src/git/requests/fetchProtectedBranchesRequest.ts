@@ -13,21 +13,21 @@ async function fetchProtectedBranchesRequestOld(
 
 async function fetchProtectedBranchesRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
 ): AxiosPromise<FetchProtectedBranchesResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/protected`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/protected`,
   );
 }
 
 export default async function fetchProtectedBranchesRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<FetchProtectedBranchesResponse> {
   if (isNew) {
-    return fetchProtectedBranchesRequestNew(artifactType, baseApplicationId);
+    return fetchProtectedBranchesRequestNew(artifactType, baseArtifactId);
   } else {
-    return fetchProtectedBranchesRequestOld(baseApplicationId);
+    return fetchProtectedBranchesRequestOld(baseArtifactId);
   }
 }

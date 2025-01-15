@@ -15,21 +15,21 @@ async function toggleAutocommitRequestOld(
 
 async function toggleAutocommitRequestNew(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
 ): AxiosPromise<ToggleAutocommitResponse> {
   return Api.patch(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseApplicationId}/auto-commit/toggle`,
+    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/auto-commit/toggle`,
   );
 }
 
 export default async function toggleAutocommitRequest(
   artifactType: GitArtifactType,
-  baseApplicationId: string,
+  baseArtifactId: string,
   isNew: boolean,
 ): AxiosPromise<ToggleAutocommitResponse> {
   if (isNew) {
-    return toggleAutocommitRequestNew(artifactType, baseApplicationId);
+    return toggleAutocommitRequestNew(artifactType, baseArtifactId);
   } else {
-    return toggleAutocommitRequestOld(baseApplicationId);
+    return toggleAutocommitRequestOld(baseArtifactId);
   }
 }
