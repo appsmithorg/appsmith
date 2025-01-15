@@ -187,7 +187,7 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
+            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway --add-host=mockdb.appsmith.com:host-gateway \
             cicontainer
 
       - name: Use Node.js
