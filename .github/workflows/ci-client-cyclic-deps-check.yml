@@ -33,6 +33,11 @@ jobs:
         with:
           files: |
             app/client/src/**
+            app/client/packages/ast/**
+            app/client/packages/design-system/**
+            app/client/packages/dsl/**
+            app/client/packages/icons/**
+            app/client/packages/utils/**
 
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
