@@ -10,6 +10,7 @@ import {
   Tab,
   Tabs,
   TabsList,
+  Tooltip,
 } from "@appsmith/ads";
 import styled from "styled-components";
 // import ReconnectSSHError from "../components/ReconnectSSHError";
@@ -24,6 +25,14 @@ const StyledModalContent = styled(ModalContent)`
     left: calc(50% - 320px);
     max-height: calc(100vh - 200px);
   }
+`;
+
+const StyledModalHeader = styled(ModalHeader)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 580px; /* Leaving some padding from modal width (640px) */
+  display: block;
 `;
 
 interface OpsModalViewProps {
@@ -73,7 +82,9 @@ function OpsModalView({
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          <ModalHeader>{repoName}</ModalHeader>
+          <Tooltip content={repoName} placement="bottom">
+            <StyledModalHeader>{repoName}</StyledModalHeader>
+          </Tooltip>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
