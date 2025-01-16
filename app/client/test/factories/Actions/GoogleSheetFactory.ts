@@ -1,6 +1,6 @@
 import * as Factory from "factory.ts";
 import type { SaaSAction } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
 const pageId = "0123456789abcdef00000000";

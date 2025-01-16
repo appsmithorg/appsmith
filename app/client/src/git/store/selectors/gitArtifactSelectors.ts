@@ -9,6 +9,17 @@ export const selectGitArtifact = (
   ];
 };
 
+// init
+export const selectInitializing = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui?.initializing ?? false;
+
+export const selectInitialized = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.ui?.initialized ?? false;
+
 // metadata
 export const selectMetadataState = (
   state: GitRootState,

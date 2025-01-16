@@ -4,8 +4,11 @@ import clsx from "classnames";
 import type { ListItemProps, ListProps } from "./List.types";
 import {
   BottomContentWrapper,
+  GroupedList,
+  GroupTitle,
   InlineDescriptionWrapper,
   RightControlWrapper,
+  StyledGroup,
   StyledList,
   StyledListItem,
   TooltipTextWrapper,
@@ -24,12 +27,15 @@ import {
 } from "./List.constants";
 import { useEventCallback } from "usehooks-ts";
 
-function List({ className, items, ...rest }: ListProps) {
-  return (
+function List({ children, className, groupTitle, ...rest }: ListProps) {
+  return groupTitle ? (
+    <StyledGroup flexDirection="column">
+      <GroupTitle kind="body-s">{groupTitle}</GroupTitle>
+      <GroupedList className={className}>{children}</GroupedList>
+    </StyledGroup>
+  ) : (
     <StyledList className={clsx(ListClassName, className)} {...rest}>
-      {items.map((item) => {
-        return <ListItem key={item.title} {...item} />;
-      })}
+      {children}
     </StyledList>
   );
 }
@@ -58,7 +64,10 @@ function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
 
   return (
     <Tooltip content={props.children} isDisabled={disableTooltip}>
-      <TooltipTextWrapper onMouseOver={handleShowFullText}>
+      <TooltipTextWrapper
+        className={`${props.className}-wrapper`}
+        onMouseOver={handleShowFullText}
+      >
         <Text
           {...props}
           className={clsx(ListItemTextOverflowClassName, props.className)}
@@ -81,8 +90,12 @@ function ListItem(props: ListItemProps) {
     startIcon,
     title,
   } = props;
-  const isBlockDescription = descriptionType === "block" && description;
-  const isInlineDescription = descriptionType === "inline" && description;
+  const isBlockDescription = Boolean(
+    descriptionType === "block" && description,
+  );
+  const isInlineDescription = Boolean(
+    descriptionType === "inline" && description,
+  );
 
   const handleOnClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -108,6 +121,7 @@ function ListItem(props: ListItemProps) {
     <StyledListItem
       className={clsx(ListItemClassName, props.className)}
       data-disabled={props.isDisabled || false}
+      data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
       id={props.id}
@@ -146,7 +160,7 @@ function ListItem(props: ListItemProps) {
         )}
       </TopContentWrapper>
       {isBlockDescription && (
-        <BottomContentWrapper>
+        <BottomContentWrapper data-isiconpresent={Boolean(startIcon)}>
           <TextWithTooltip
             className={ListItemBDescClassName}
             color="var(--ads-v2-color-fg-muted)"

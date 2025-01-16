@@ -113,7 +113,7 @@ jobs:
           docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
             | grep -v cicontainer \
             | cut -d, -f2 \
-            | xargs docker rmi
+            | xargs -r docker rmi || true
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 

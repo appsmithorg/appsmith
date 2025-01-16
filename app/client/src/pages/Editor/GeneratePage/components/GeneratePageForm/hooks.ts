@@ -1,13 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import type { DropdownOptions } from "../constants";
 import type { Datasource } from "entities/Datasource";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "@appsmith/ads-old";
 import { useDispatch, useSelector } from "react-redux";
-import { PluginPackageName } from "entities/Action";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  PluginPackageName,
+} from "entities/Plugin";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 

@@ -15,7 +15,7 @@ import {
 } from "ee/constants/messages";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";

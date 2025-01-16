@@ -17,7 +17,8 @@ import * as log from "loglevel";
 import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import type { Action, PluginPackageName } from "../entities/Action";
+import type { PluginPackageName } from "entities/Plugin";
+import type { Action } from "../entities/Action";
 import { createOrUpdateDataSourceWithAction } from "../ee/sagas/DatasourcesSagas";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {

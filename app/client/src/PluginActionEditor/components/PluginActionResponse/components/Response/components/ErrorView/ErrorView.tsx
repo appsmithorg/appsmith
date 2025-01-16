@@ -82,6 +82,7 @@ export const ErrorView: React.FC<ErrorViewProps> = ({
           <div data-testid="t--response-error">{errorMessage}</div>
           <LogHelper
             logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+            message={`${errorMessage}`}
             name="PluginExecutionError"
             pluginErrorDetails={
               actionResponse && actionResponse.pluginErrorDetails

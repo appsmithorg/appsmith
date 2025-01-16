@@ -1,5 +1,5 @@
 import * as Factory from "factory.ts";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { PluginIDs } from "test/factories/MockPluginsState";
 import { DatasourceConnectionMode, type Datasource } from "entities/Datasource";
 import { SSLType } from "entities/Datasource/RestAPIForm";
