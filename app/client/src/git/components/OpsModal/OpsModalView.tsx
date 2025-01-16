@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect } from "react";
 import TabDeploy from "./TabDeploy";
 import TabMerge from "./TabMerge";
 import { createMessage, DEPLOY, MERGE } from "ee/constants/messages";
@@ -34,7 +28,7 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-const BaseStyledModalHeader = styled(ModalHeader)`
+const StyledModalHeaderText = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -42,10 +36,12 @@ const BaseStyledModalHeader = styled(ModalHeader)`
   display: block;
 `;
 
-const StyledModalHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->((props, ref) => <BaseStyledModalHeader {...props} as="div" ref={ref} />);
+const StyledModalHeader = styled(ModalHeader)`
+  &&& {
+    margin: 0;
+    padding: ${(props) => props.theme.spaces[5]}px;
+  }
+`;
 
 interface OpsModalViewProps {
   fetchStatus: () => void;
@@ -90,19 +86,32 @@ function OpsModalView({
     [toggleOpsModal],
   );
 
-  const headerRef = useRef<HTMLDivElement>(null);
+  const headerRef = React.useRef<HTMLSpanElement>(null);
+  const [isTextTruncated, setIsTextTruncated] = React.useState(false);
+
+  useEffect(() => {
+    if (headerRef.current) {
+      const isTruncated = isEllipsisActive(headerRef.current);
+
+      setIsTextTruncated(isTruncated ?? false);
+    }
+  }, [repoName]);
 
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          {headerRef.current && isEllipsisActive(headerRef.current) ? (
-            <Tooltip content={repoName} placement="bottom">
-              <StyledModalHeader ref={headerRef}>{repoName}</StyledModalHeader>
+          <StyledModalHeader>
+            <Tooltip
+              content={repoName}
+              isDisabled={!isTextTruncated}
+              placement="bottom"
+            >
+              <StyledModalHeaderText ref={headerRef}>
+                {repoName}
+              </StyledModalHeaderText>
             </Tooltip>
-          ) : (
-            <StyledModalHeader ref={headerRef}>{repoName}</StyledModalHeader>
-          )}
+          </StyledModalHeader>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
