@@ -42,7 +42,7 @@ const StyledModalHeader = styled(ModalHeader).attrs(() => ({
   text-overflow: ellipsis;
   max-width: 580px; /* Leaving some padding from modal width (640px) */
   display: block;
-`;
+` as React.ComponentType<React.HTMLAttributes<HTMLDivElement>>;
 
 interface OpsModalViewProps {
   fetchStatus: () => void;
@@ -92,7 +92,7 @@ function OpsModalView({
 
   useLayoutEffect(() => {
     if (headerRef.current) {
-      setIsTextTruncated(isEllipsisActive(headerRef.current));
+      setIsTextTruncated(isEllipsisActive(headerRef.current) ?? false);
     }
   }, [isOpsModalOpen, repoName]);
 
