@@ -53,22 +53,20 @@ export default function BottomBar() {
         )}
         {isGitEnabled && <GitActions />}
       </Wrapper>
-      {!isPreviewMode && (
-        <Wrapper>
-          <PackageUpgradeStatus />
-          <ManualUpgrades showTooltip>
-            <Button
-              className="t--upgrade"
-              isIconButton
-              kind="tertiary"
-              size="md"
-              startIcon="upgrade"
-            />
-          </ManualUpgrades>
-          <DebuggerTrigger />
-          <HelpButton />
-        </Wrapper>
-      )}
+      <Wrapper>
+        <PackageUpgradeStatus />
+        <ManualUpgrades showTooltip>
+          <Button
+            className="t--upgrade"
+            isIconButton
+            kind="tertiary"
+            size="md"
+            startIcon="upgrade"
+          />
+        </ManualUpgrades>
+        <DebuggerTrigger />
+        <HelpButton />
+      </Wrapper>
     </Container>
   );
 }

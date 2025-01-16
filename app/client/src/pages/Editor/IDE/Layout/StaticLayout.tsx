@@ -42,39 +42,45 @@ const LayoutContainer = styled.div<{ name: string }>`
   grid-area: ${(props) => props.name};
 `;
 
-export const StaticLayout = React.memo(() => {
-  const { areas, columns } = useGridLayoutTemplate();
+interface StaticLayoutProps {
+  showEnvSwitcher?: boolean;
+}
 
-  const isSidebarVisible = columns[0] !== "0px";
+export const StaticLayout = React.memo(
+  ({ showEnvSwitcher = false }: StaticLayoutProps) => {
+    const { areas, columns } = useGridLayoutTemplate();
 
-  return (
-    <>
-      <GitProtectedBranchCallout />
-      <EditorWrapperContainer>
-        <GridContainer
-          style={{
-            gridTemplateRows: "100%",
-            gridTemplateAreas: areas
-              .map((area) => `"${area.join(" ")}"`)
-              .join("\n"),
-            gridTemplateColumns: columns.join(" "),
-          }}
-        >
-          <LayoutContainer name={Areas.Sidebar}>
-            {isSidebarVisible ? <Sidebar /> : <div />}
-          </LayoutContainer>
-          <LayoutContainer name={Areas.Explorer}>
-            <LeftPane />
-          </LayoutContainer>
-          <LayoutContainer name={Areas.WidgetEditor}>
-            <MainPane id="app-body" />
-          </LayoutContainer>
-          <LayoutContainer name={Areas.PropertyPane}>
-            <RightPane />
-          </LayoutContainer>
-        </GridContainer>
-      </EditorWrapperContainer>
-      <BottomBar />
-    </>
-  );
-});
+    const isSidebarVisible = columns[0] !== "0px";
+
+    return (
+      <>
+        <GitProtectedBranchCallout />
+        <EditorWrapperContainer hasBottomBar={showEnvSwitcher}>
+          <GridContainer
+            style={{
+              gridTemplateRows: "100%",
+              gridTemplateAreas: areas
+                .map((area) => `"${area.join(" ")}"`)
+                .join("\n"),
+              gridTemplateColumns: columns.join(" "),
+            }}
+          >
+            <LayoutContainer name={Areas.Sidebar}>
+              {isSidebarVisible ? <Sidebar /> : <div />}
+            </LayoutContainer>
+            <LayoutContainer name={Areas.Explorer}>
+              <LeftPane />
+            </LayoutContainer>
+            <LayoutContainer name={Areas.WidgetEditor}>
+              <MainPane id="app-body" />
+            </LayoutContainer>
+            <LayoutContainer name={Areas.PropertyPane}>
+              <RightPane />
+            </LayoutContainer>
+          </GridContainer>
+        </EditorWrapperContainer>
+        {showEnvSwitcher && <BottomBar />}
+      </>
+    );
+  },
+);

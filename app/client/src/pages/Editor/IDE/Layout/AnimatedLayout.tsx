@@ -30,7 +30,11 @@ function GitProtectedBranchCallout() {
   return null;
 }
 
-function AnimatedLayout() {
+interface AnimatedLayoutProps {
+  showEnvSwitcher?: boolean;
+}
+
+function AnimatedLayout({ showEnvSwitcher = false }: AnimatedLayoutProps) {
   const { areas, columns, rows } = useGridLayoutTemplate();
 
   if (columns.length === 0) {
@@ -40,7 +44,7 @@ function AnimatedLayout() {
   return (
     <>
       <GitProtectedBranchCallout />
-      <EditorWrapperContainer>
+      <EditorWrapperContainer hasBottomBar={showEnvSwitcher}>
         <AnimatedGridLayout
           areas={areas}
           columns={columns}
@@ -62,7 +66,7 @@ function AnimatedLayout() {
           </LayoutArea>
         </AnimatedGridLayout>
       </EditorWrapperContainer>
-      <BottomBar />
+      {showEnvSwitcher && <BottomBar />}
     </>
   );
 }

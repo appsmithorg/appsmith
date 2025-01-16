@@ -4,6 +4,9 @@ import { AnimatedLayout, StaticLayout } from "./Layout";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { previewModeSelector } from "selectors/editorSelectors";
+import useShowEnvSwitcher from "hooks/useShowEnvSwitcher";
+import BottomBar from "components/BottomBar";
 
 const checkAnimatedIDEFlagValue = (state: AppState) => {
   return selectFeatureFlagCheck(
@@ -17,12 +20,16 @@ const checkAnimatedIDEFlagValue = (state: AppState) => {
  */
 function IDE() {
   const isAnimatedIDEEnabled = useSelector(checkAnimatedIDEFlagValue);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const showEnvSwitcher = useShowEnvSwitcher({ viewMode: isPreviewMode });
 
   if (isAnimatedIDEEnabled) {
-    return <AnimatedLayout />;
+    return (
+      <AnimatedLayout showEnvSwitcher={!isPreviewMode || showEnvSwitcher} />
+    );
   }
 
-  return <StaticLayout />;
+  return <StaticLayout showEnvSwitcher={!isPreviewMode || showEnvSwitcher} />;
 }
 
 IDE.displayName = "AppIDE";
