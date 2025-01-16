@@ -53,8 +53,6 @@ if (env === "PRODUCTION" || env === "STAGING") {
   );
 }
 
-plugins.push(new CompressionPlugin());
-
 plugins.push(
   new CompressionPlugin({
     algorithm: "brotliCompress",
@@ -78,17 +76,16 @@ plugins.push(
 );
 
 module.exports = merge(common, {
-  webpack: {
-    configure: {
-      plugins,
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+    loaderOptions: {
+      cacheDirectory: false,
     },
   },
-  jest: {
+  webpack: {
     configure: {
-      moduleNameMapper: {
-        // Jest module mapper which will detect our absolute imports.
-        "^@test(.*)$": "<rootDir>/test$1",
-      },
+      devtool: env === "PRODUCTION" ? "source-map" : false,
+      plugins,
     },
   },
   plugins: [
