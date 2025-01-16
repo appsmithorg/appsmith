@@ -51,6 +51,7 @@ describe(
 
       agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       cy.waitForServerRestart();
+      cy.waitUntil(() => cy.get(homePage._profileMenu).should("be.visible"));
       agHelper.AssertContains(
         fromEmail,
         "exist",
@@ -133,6 +134,7 @@ describe(
         });
       agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       cy.waitForServerRestart();
+      cy.waitUntil(() => cy.get(homePage._profileMenu).should("be.visible"));
     });
 
     it("3. To verify forget password email", () => {
