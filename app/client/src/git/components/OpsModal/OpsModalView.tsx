@@ -80,15 +80,6 @@ function OpsModalView({
   );
 
   const headerRef = React.useRef<HTMLSpanElement>(null);
-  const [isTextTruncated, setIsTextTruncated] = React.useState(false);
-
-  useEffect(() => {
-    if (headerRef.current) {
-      const isTruncated = isEllipsisActive(headerRef.current);
-
-      setIsTextTruncated(isTruncated ?? false);
-    }
-  }, [repoName]);
 
   return (
     <>
@@ -97,7 +88,7 @@ function OpsModalView({
           <ModalHeader>
             <Tooltip
               content={repoName}
-              isDisabled={!isTextTruncated}
+              isDisabled={!isEllipsisActive(headerRef.current)}
               placement="bottom"
             >
               <HeaderText ref={headerRef}>{repoName}</HeaderText>
