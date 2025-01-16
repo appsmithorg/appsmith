@@ -7,7 +7,16 @@ export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
   ARRAY: ["selectedOptionValues", "selectedValues"],
   FUNCTION: ["run()"],
   BOOLEAN: ["isValid", "selectedRow", "data", "isChecked", "isSwitchedOn"],
-  UNKNOWN: ["selectedRow", "data", "run()", "pageSize", "pageOffset", "selectedOptionValue", "text", "value"],
+  UNKNOWN: [
+    "selectedRow",
+    "data",
+    "run()",
+    "pageSize",
+    "pageOffset",
+    "selectedOptionValue",
+    "text",
+    "value",
+  ],
 };
 
 export const DataTreeFunctionSortOrder = [
