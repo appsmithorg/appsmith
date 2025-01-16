@@ -1,7 +1,6 @@
 import { useLocation } from "react-router";
 import { DEBUGGER_TAB_KEYS } from "../constants";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
@@ -13,33 +12,41 @@ import {
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import type { AppState } from "ee/reducers";
+// Using global type definitions for AppState, EditorViewMode, ReduxAction
+
+// No-op analytics to avoid EE dependency
+const logDebuggerEvent = () => {
+  // No-op to avoid EE dependency
+};
+
+// Common type for all debugger states
+type CommonDebuggerState = {
+  selectedTab?: string;
+  open?: boolean;
+};
 
 interface Config {
   set: (
-    payload: Partial<CanvasDebuggerState>,
-  ) => ReduxAction<Partial<CanvasDebuggerState>>;
-  get: (state: AppState) => CanvasDebuggerState;
+    payload: Partial<CommonDebuggerState>,
+  ) => ReduxAction<Partial<CommonDebuggerState>>;
+  get: (state: AppState) => CommonDebuggerState;
 }
 
 const canvasDebuggerConfig: Config = {
   set: setCanvasDebuggerState,
-  get: getCanvasDebuggerState,
+  get: (state: AppState) => getCanvasDebuggerState(state) as unknown as CommonDebuggerState,
 };
 
 const pluginActionEditorDebuggerConfig: Config = {
   set: setPluginActionEditorDebuggerState,
-  get: getPluginActionDebuggerState,
+  get: (state: AppState) => getPluginActionDebuggerState(state) as unknown as CommonDebuggerState,
 };
 
 export const getDebuggerPaneConfig = (
   focusInfo: FocusEntityInfo,
   ideViewMode: EditorViewMode,
 ): Config => {
-  if (ideViewMode === EditorViewMode.SplitScreen) {
+  if (ideViewMode === "SplitScreen") {
     return canvasDebuggerConfig;
   }
 
@@ -49,7 +56,7 @@ export const getDebuggerPaneConfig = (
     case FocusEntity.JS_OBJECT:
       return {
         set: setJsPaneDebuggerState,
-        get: getJsPaneDebuggerState,
+        get: (state: AppState) => getJsPaneDebuggerState(state) as unknown as CommonDebuggerState,
       };
     default:
       return canvasDebuggerConfig;
@@ -59,7 +66,7 @@ export const getDebuggerPaneConfig = (
 const useDebuggerTriggerClick = () => {
   const location = useLocation();
   const currentFocus = identifyEntityFromPath(location.pathname);
-  const ideState = useSelector(getIDEViewMode);
+  const ideState = useSelector(getIDEViewMode) as EditorViewMode;
   const dispatch = useDispatch();
 
   const config = getDebuggerPaneConfig(currentFocus, ideState);
@@ -84,9 +91,7 @@ const useDebuggerTriggerClick = () => {
     }
 
     if (!state.open) {
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: "TRIGGER",
-      });
+      logDebuggerEvent();
     }
   };
 };

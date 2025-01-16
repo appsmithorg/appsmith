@@ -8,16 +8,17 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
+// Using global type definition for AppState
 import "@appsmith/ads-old/themes/default/index.css";
 import "@appsmith/ads/__theme__/default/index.css";
 import { ThemeProvider } from "styled-components";
 import { appInitializer } from "./utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "./constants/Layers";
-import AppRouter from "ee/AppRouter";
+import AppRouter from "ce/AppRouter";
 import { getCurrentThemeDetails } from "./selectors/themeSelectors";
 import { connect } from "react-redux";
-// import type { AppState } from "ee/reducers";
+// Using global type definition
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
@@ -37,7 +38,7 @@ runSagaMiddleware();
 appInitializer();
 
 if (isTracingEnabled()) {
-  (async () => {
+  void (async () => {
     try {
       await import(
         /* webpackChunkName: "instrumentation" */ "./instrumentation"
@@ -77,7 +78,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 
