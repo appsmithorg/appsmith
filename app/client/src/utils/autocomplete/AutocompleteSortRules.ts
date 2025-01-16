@@ -29,8 +29,8 @@ enum RuleWeight {
   DataTreeFunction,
   DataTreeMatch,
   RecentEntityMatch,
+  DataTreeEntityNameMatch, // Moved up to reduce weight from 8 to 5
   TypeMatch,
-  DataTreeEntityNameMatch,
   PriorityMatch,
   ScopeMatch,
 }
@@ -282,7 +282,8 @@ class TypeMatchRule implements AutocompleteRule {
     let score = 0;
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
 
-    if (completion.type === currentFieldInfo.expectedType)
+    // Don't increase score for entity names
+    if (completion.type === currentFieldInfo.expectedType && !completion.isEntityName)
       score += TypeMatchRule.threshold;
 
     return score;
@@ -299,7 +300,8 @@ class DataTreeEntityNameRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
-    if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
+    // Reduce score for entity names instead of increasing it
+    if (completion.isEntityName) score -= DataTreeEntityNameRule.threshold;
 
     return score;
   }
