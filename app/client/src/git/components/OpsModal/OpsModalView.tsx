@@ -91,19 +91,12 @@ function OpsModalView({
   );
 
   const headerRef = useRef<HTMLDivElement>(null);
-  const [isTextTruncated, setIsTextTruncated] = useState(false);
-
-  useLayoutEffect(() => {
-    if (headerRef.current) {
-      setIsTextTruncated(isEllipsisActive(headerRef.current) ?? false);
-    }
-  }, [isOpsModalOpen, repoName]);
 
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          {isTextTruncated ? (
+          {headerRef.current && isEllipsisActive(headerRef.current) ? (
             <Tooltip content={repoName} placement="bottom">
               <StyledModalHeader ref={headerRef}>{repoName}</StyledModalHeader>
             </Tooltip>
