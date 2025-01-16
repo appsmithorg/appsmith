@@ -12,18 +12,10 @@ export const handleBadRequestError = async (error: AxiosError<ApiResponse>) => {
     SERVER_ERROR_CODES.VERSION_MISMATCH.includes("" + errorCode)
   ) {
     const responseData = error?.response?.data;
-    const message = responseData?.responseMeta.error?.message;
     const serverVersion = (responseData?.data as { serverVersion: string })
       .serverVersion;
 
     handleVersionMismatch(getAppsmithConfigs().appVersion.id, serverVersion);
-
-    return Promise.reject({
-      ...error,
-      clientDefinedError: true,
-      statusCode: errorCode,
-      message,
-    });
   }
 
   return null;
