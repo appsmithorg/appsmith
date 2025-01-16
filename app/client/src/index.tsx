@@ -8,7 +8,7 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
-// Using global type definition
+// Using global type definition for AppState
 import "@appsmith/ads-old/themes/default/index.css";
 import "@appsmith/ads/__theme__/default/index.css";
 import { ThemeProvider } from "styled-components";
@@ -18,7 +18,7 @@ import { LayersContext, Layers } from "./constants/Layers";
 import AppRouter from "ce/AppRouter";
 import { getCurrentThemeDetails } from "./selectors/themeSelectors";
 import { connect } from "react-redux";
-// import type { AppState } from "ee/reducers";
+// Using global type definition
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
 import "./polyfills";
@@ -78,7 +78,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 
