@@ -89,7 +89,7 @@ function OpsModalView({
             <Tooltip
               content={repoName}
               isDisabled={!isEllipsisActive(headerRef.current)}
-              placement="bottom"
+              placement="topLeft"
             >
               <HeaderText ref={headerRef}>{repoName}</HeaderText>
             </Tooltip>
