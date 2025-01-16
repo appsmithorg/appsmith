@@ -1,11 +1,10 @@
-// This file is a base for all package-specific ESLint configurations
 {
   "$schema": "http://json.schemastore.org/eslintrc",
   "root": true,
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-type-checked",
-    "plugin:@typescript-eslint/strict",
+    "plugin:@typescript-eslint/strict-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "prettier"
@@ -32,12 +31,35 @@
   "parserOptions": {
     "ecmaVersion": 2024,
     "sourceType": "module",
-    "project": "./tsconfig.json",
+    "project": true,
+    "tsconfigRootDir": ".",
     "ecmaFeatures": {
       "jsx": true
     }
   },
   "rules": {
+    "@typescript-eslint/consistent-type-assertions": "warn",
+    "@typescript-eslint/prefer-function-type": "warn",
+    "@typescript-eslint/no-empty-interface": "warn",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/prefer-string-starts-ends-with": "warn",
+    "@typescript-eslint/prefer-reduce-type-parameter": "warn",
+    "@typescript-eslint/prefer-for-of": "warn",
+    "@typescript-eslint/no-unnecessary-type-arguments": "warn",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "warn",
+    "@typescript-eslint/dot-notation": "warn",
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+    "@typescript-eslint/prefer-includes": "warn",
+    "@typescript-eslint/no-inferrable-types": "warn",
+    "@typescript-eslint/no-throw-literal": "warn",
+    "@typescript-eslint/prefer-optional-chain": "warn",
+    "@typescript-eslint/array-type": "warn",
+    "@typescript-eslint/consistent-generic-constructors": "warn",
+    "@typescript-eslint/consistent-indexed-object-style": "warn",
+    "@typescript-eslint/no-confusing-void-expression": "warn",
+    "@typescript-eslint/non-nullable-type-assertion-style": "warn",
+    "@typescript-eslint/no-useless-template-literals": "warn",
+    "@typescript-eslint/no-unnecessary-condition": "warn",
     "@typescript-eslint/no-implied-eval": "warn",
     "@typescript-eslint/restrict-plus-operands": "warn",
     "@typescript-eslint/no-base-to-string": "warn",
@@ -190,8 +212,6 @@
     "react-perf/jsx-no-new-object-as-prop": [
       "warn",
       {
-        // we are disabling this rule here for native component since it won't make much difference in performance
-        // we want to target react components more since there is possibility they can be pure components and new istance props should be avoided for them
         "nativeAllowList": "all"
       }
     ]
@@ -202,7 +222,6 @@
     },
     "react": {
       "pragma": "React",
-      // Tells eslint-plugin-react to automatically detect the version of React to use
       "version": "detect"
     }
   },

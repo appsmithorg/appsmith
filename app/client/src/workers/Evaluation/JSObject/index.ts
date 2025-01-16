@@ -22,6 +22,11 @@ import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
+interface JSArgument {
+  defaultValue: any;
+  paramName: string;
+}
+
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
  *
@@ -146,7 +151,7 @@ export function saveResolvedFunctionsAndJSUpdates(
 
                   if (parsedElement.arguments) {
                     params = parsedElement.arguments.map(
-                      ({ defaultValue, paramName }) => ({
+                      ({ defaultValue, paramName }: JSArgument) => ({
                         name: paramName,
                         value: defaultValue,
                       }),

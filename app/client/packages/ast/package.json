@@ -3,14 +3,19 @@
   "private": true,
   "version": "1.0.0",
   "description": "",
-  "main": "./index.ts",
+  "main": "build/index.js",
+  "module": "build/index.es.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test:unit": "jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
     "test:jest": "jest --watch",
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "start": "rollup -c",
-    "build": "rollup -c"
+    "build": "tsc && rollup -c",
+    "type-check": "tsc --noEmit --project ./tsconfig.json",
+    "type-check:watch": "tsc --noEmit --watch --project ./tsconfig.json",
+    "prebuild": "rm -rf build"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^22.0.0",
@@ -27,7 +32,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
-    "typescript": "^5.5.4",
+    "typescript": "^5.3.3",
     "unescape-js": "^1.1.4"
   },
   "devDependencies": {

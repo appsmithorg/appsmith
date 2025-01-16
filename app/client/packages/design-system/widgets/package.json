@@ -32,6 +32,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-transition-group": "^4.4.5",
     "remark-gfm": "^4.0.0",
+    "typescript": "^5.3.3",
     "usehooks-ts": "*"
   },
   "devDependencies": {

@@ -2,8 +2,10 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const { merge } = require("webpack-merge");
+const svgConfig = require("./craco.svg.config");
 
-module.exports = {
+module.exports = merge({
   devServer: {
     client: {
       webSocketURL: {
@@ -186,4 +188,4 @@ module.exports = {
       },
     },
   ],
-};
+}, svgConfig);

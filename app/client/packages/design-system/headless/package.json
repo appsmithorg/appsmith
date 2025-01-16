@@ -19,7 +19,8 @@
     "@react-types/label": "^3.7.3",
     "@react-types/shared": "^3.23.1",
     "@react-types/textfield": "^3.9.6",
-    "react-aria-components": "^1.3.3"
+    "react-aria-components": "^1.3.3",
+    "typescript": "^5.3.3"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"

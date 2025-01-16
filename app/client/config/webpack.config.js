@@ -739,32 +739,32 @@ module.exports = function (webpackEnv) {
           }),
           configOverwrite: {
             compilerOptions: {
-              module: 'esnext',
-              moduleResolution: 'bundler',
-              isolatedModules: true,
-              jsx: 'react',
-              allowImportingTsExtensions: true,
+              sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+              skipLibCheck: true,
+              inlineSourceMap: false,
+              declarationMap: false,
+              noEmit: true,
+              incremental: true,
+              tsBuildInfoFile: paths.appTsBuildInfoFile,
             },
           },
           context: paths.appPath,
           diagnosticOptions: {
             syntactic: true,
-            semantic: true,
-            declaration: true,
-            global: true,
           },
           mode: 'write-references',
         },
         issue: {
           include: [
             { file: '../**/src/**/*.{ts,tsx}' },
-            { file: '**/src/**/*.{ts,tsx}' },
+            { file: '**/src/**/*.{ts,tsx}' }
           ],
           exclude: [
             { file: '**/src/**/__tests__/**' },
             { file: '**/src/**/?(*.){spec|test}.*' },
             { file: '**/src/setupProxy.*' },
             { file: '**/src/setupTests.*' },
+            { file: '**/packages/**/*' }
           ],
         },
         logger: {
@@ -820,13 +820,14 @@ module.exports = function (webpackEnv) {
         issue: {
           include: [
             { file: '../**/src/**/*.{ts,tsx}' },
-            { file: '**/src/**/*.{ts,tsx}' },
+            { file: '**/src/**/*.{ts,tsx}' }
           ],
           exclude: [
             { file: '**/src/**/__tests__/**' },
             { file: '**/src/**/?(*.){spec|test}.*' },
             { file: '**/src/setupProxy.*' },
             { file: '**/src/setupTests.*' },
+            { file: '**/packages/**/*' }
           ],
         },
         logger: {

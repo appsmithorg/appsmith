@@ -2,29 +2,75 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "ee/*": ["ee/*"],
-      "ce/*": ["ce/*"],
-      "actions/*": ["actions/*"],
-      "api/*": ["api/*"],
-      "assets/*": ["assets/*"],
-      "components/*": ["components/*"],
-      "constants/*": ["constants/*"],
-      "entities/*": ["entities/*"],
-      "reducers/*": ["reducers/*"],
-      "utils/*": ["utils/*"],
-      "workers/*": ["workers/*"],
-      "test/*": ["../test/*"],
+      "ee/*": [
+        "ee/*"
+      ],
+      "ce/*": [
+        "ce/*"
+      ],
+      "actions/*": [
+        "actions/*"
+      ],
+      "api/*": [
+        "api/*"
+      ],
+      "assets/*": [
+        "assets/*"
+      ],
+      "components/*": [
+        "components/*"
+      ],
+      "constants/*": [
+        "constants/*"
+      ],
+      "entities/*": [
+        "entities/*"
+      ],
+      "reducers/*": [
+        "reducers/*"
+      ],
+      "utils/*": [
+        "utils/*"
+      ],
+      "workers/*": [
+        "workers/*"
+      ],
+      "test/*": [
+        "../test/*"
+      ],
       "workbox-*": [
         "../node_modules/workbox-*"
       ],
-      "@appsmith/wds": ["../packages/design-system/widgets/src"],
-      "@appsmith/wds/*": ["../packages/design-system/widgets/src/*"],
-      "@appsmith/ads": ["../packages/ads/src"],
-      "@appsmith/ads/*": ["../packages/ads/src/*"],
-      "@appsmith/ads-old": ["../packages/ads-old/src"],
-      "@appsmith/ads-old/*": ["../packages/ads-old/src/*"],
-      "@appsmith/utils": ["../packages/utils/src"],
-      "@appsmith/utils/*": ["../packages/utils/src/*"]
+      "@appsmith/wds": [
+        "../packages/design-system/widgets/src"
+      ],
+      "@appsmith/wds/*": [
+        "../packages/design-system/widgets/src/*"
+      ],
+      "@appsmith/ads": [
+        "../packages/ads/src"
+      ],
+      "@appsmith/ads/*": [
+        "../packages/ads/src/*"
+      ],
+      "@appsmith/ads-old": [
+        "../packages/ads-old/src"
+      ],
+      "@appsmith/ads-old/*": [
+        "../packages/ads-old/src/*"
+      ],
+      "@appsmith/utils": [
+        "../packages/utils/src"
+      ],
+      "@appsmith/utils/*": [
+        "../packages/utils/src/*"
+      ],
+      "@shared/ast": [
+        "../packages/ast/build"
+      ],
+      "@shared/ast/*": [
+        "../packages/ast/build/*"
+      ]
     },
     "typeRoots": [
       "./typings",

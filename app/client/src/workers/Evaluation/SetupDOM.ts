@@ -1,4 +1,3 @@
-//@ts-expect-error no types.
 import * as documentMock from "linkedom/worker";
 
 export default function () {

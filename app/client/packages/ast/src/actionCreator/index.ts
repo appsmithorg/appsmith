@@ -721,19 +721,23 @@ export const replaceActionInQuery = (
       if (
         isCallExpressionNode(node) &&
         isMemberExpressionNode(node.callee) &&
-        node.arguments[argNum] &&
-        typeof node.arguments[argNum].start === "number"
+        node.arguments !== undefined &&
+        node.arguments[argNum] !== undefined &&
+        typeof node.arguments[argNum]?.start === "number"
       ) {
         // add 1 to get the starting position of the next
         // node to ending position of previous
-        const startPosition = node.arguments[argNum].start;
+        const arg = node.arguments[argNum];
+        if (arg) {
+          const startPosition = arg.start;
 
-        requiredNode.start = startPosition;
-        requiredNode.end = startPosition + changeAction.length;
-        node.arguments[argNum] = requiredNode;
-        requiredQuery = `${generate(astWithComments, {
-          comments: true,
-        }).trim()}`;
+          requiredNode.start = startPosition;
+          requiredNode.end = startPosition + changeAction.length;
+          node.arguments[argNum] = requiredNode;
+          requiredQuery = `${generate(astWithComments, {
+            comments: true,
+          }).trim()}`;
+        }
       }
     },
   });

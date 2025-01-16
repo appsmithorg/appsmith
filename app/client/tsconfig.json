@@ -20,7 +20,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -31,11 +31,26 @@
     "verbatimModuleSyntax": true,
     "sourceMap": true,
     "noFallthroughCasesInSwitch": true,
-    "allowImportingTsExtensions": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": false,
+    "rootDir": ".",
+    "types": [
+      "node",
+      "jest"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/typings"
+    ]
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./packages/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/build",
+    "**/dist",
+    "out"
   ]
 }

@@ -9,20 +9,28 @@ export default {
   input: ["./index.ts"],
   output: [
     {
-      file: packageJson.module,
+      file: "build/index.es.js",
       format: "esm",
-      sourcemap: true,
+      sourcemap: false,
     },
     {
-      file: packageJson.main,
+      file: "build/index.js",
       format: "cjs",
-      sourcemap: true,
+      sourcemap: false,
     },
   ],
   plugins: [
     peerDepsExternal(),
     commonjs(),
-    typescript({ useTsconfigDeclarationDir: true }),
+    typescript({ 
+      useTsconfigDeclarationDir: true,
+      tsconfigOverride: {
+        compilerOptions: {
+          declaration: true,
+          declarationDir: "build",
+        },
+      },
+    }),
     generatePackageJson({
       baseContents: (pkg) => ({
         ...pkg,

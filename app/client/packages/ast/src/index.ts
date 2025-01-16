@@ -606,7 +606,7 @@ export const getFunctionalParamsFromNode = (
           );
           const defaultValue =
             paramNode.right.type === "Literal" &&
-            typeof paramNode.right.value === "string"
+              typeof paramNode.right.value === "string"
               ? paramNode.right.value
               : `{{${defaultValueInString}}}`;
 
