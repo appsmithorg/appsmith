@@ -38,6 +38,7 @@
     }
   },
   "rules": {
+    "typescript-eslint/no-unsafe-assignment": "warn",
     "@typescript-eslint/consistent-type-assertions": "warn",
     "@typescript-eslint/prefer-function-type": "warn",
     "@typescript-eslint/no-empty-interface": "warn",
