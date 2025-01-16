@@ -50,7 +50,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -66,7 +65,9 @@ describe(
 
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
+      cy.reload();
       agHelper.RefreshPage();
+      agHelper.WaitUntilEleAppear(locators._modalWrapper, 0);
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
       agHelper.AssertText(locators._modalButtonText, "text", "Close", 1);
@@ -113,7 +114,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -174,7 +174,6 @@ describe(
       EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
