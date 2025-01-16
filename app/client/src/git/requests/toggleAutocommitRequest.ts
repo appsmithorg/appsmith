@@ -3,7 +3,6 @@ import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { ToggleAutocommitResponse } from "./toggleAutocommitRequest.types";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function toggleAutocommitRequestOld(
   baseApplicationId: string,
@@ -18,7 +17,7 @@ async function toggleAutocommitRequestNew(
   baseArtifactId: string,
 ): AxiosPromise<ToggleAutocommitResponse> {
   return Api.patch(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/auto-commit/toggle`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/auto-commit/toggle`,
   );
 }
 

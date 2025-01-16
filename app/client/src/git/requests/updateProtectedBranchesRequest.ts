@@ -5,7 +5,6 @@ import type {
   UpdateProtectedBranchesResponse,
 } from "./updateProtectedBranchesRequest.types";
 import type { AxiosPromise } from "axios";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function updateProtectedBranchesRequestOld(
@@ -24,7 +23,7 @@ async function updateProtectedBranchesRequestNew(
   params: UpdateProtectedBranchesRequestParams,
 ): AxiosPromise<UpdateProtectedBranchesResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/protected`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected`,
     params,
   );
 }

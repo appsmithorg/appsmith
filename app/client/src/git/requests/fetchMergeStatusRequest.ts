@@ -5,7 +5,6 @@ import type {
 } from "./fetchMergeStatusRequest.types";
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function fetchMergeStatusRequestOld(
@@ -24,7 +23,7 @@ async function fetchMergeStatusRequestNew(
   params: FetchMergeStatusRequestParams,
 ): AxiosPromise<FetchMergeStatusResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/merge/status`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactId}/merge/status`,
     params,
   );
 }

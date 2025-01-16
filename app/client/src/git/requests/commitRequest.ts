@@ -6,7 +6,6 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function commitRequestOld(
   branchedApplicationId: string,
@@ -24,7 +23,7 @@ async function commitRequestNew(
   params: CommitRequestParams,
 ): AxiosPromise<CommitResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/commit`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactId}/commit`,
     params,
   );
 }

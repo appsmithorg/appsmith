@@ -2,7 +2,6 @@ import type { AxiosPromise } from "axios";
 import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type {
   CheckoutRefRequestParams,
   CheckoutRefResponse,
@@ -15,7 +14,7 @@ async function checkoutRefRequestNew(
   params: CheckoutRefRequestParams,
 ): AxiosPromise<CheckoutRefResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactid}/checkout-ref`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactid}/checkout-ref`,
     params,
   );
 }

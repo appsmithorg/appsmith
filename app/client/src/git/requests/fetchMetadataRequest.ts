@@ -3,7 +3,6 @@ import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { FetchMetadataResponse } from "./fetchMetadataRequest.types";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function fetchMetadataRequestOld(
   baseApplicationId: string,
@@ -15,9 +14,7 @@ async function fetchMetadataRequestNew(
   artifactType: GitArtifactType,
   baseArtifactId: string,
 ): AxiosPromise<FetchMetadataResponse> {
-  return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/metadata`,
-  );
+  return Api.get(`${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/metadata`);
 }
 
 export default async function fetchMetadataRequest(

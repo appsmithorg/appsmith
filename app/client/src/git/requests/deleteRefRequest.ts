@@ -7,7 +7,6 @@ import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 import type { GitArtifactType } from "git/constants/enums";
 import deleteBranchRequestOld from "./deleteBranchRequest";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function deleteRefRequestNew(
   artifactType: GitArtifactType,
@@ -15,7 +14,7 @@ async function deleteRefRequestNew(
   params: DeleteRefRequestParams,
 ): AxiosPromise<DeleteRefResponse> {
   return Api.delete(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/ref`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/ref`,
     params,
   );
 }

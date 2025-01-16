@@ -2,7 +2,6 @@ import type { AxiosPromise } from "axios";
 import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type {
   CreateRefRequestParams,
   CreateRefResponse,
@@ -15,7 +14,7 @@ async function createRefRequestNew(
   params: CreateRefRequestParams,
 ): AxiosPromise<CreateRefResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/create-ref`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactId}/create-ref`,
     params,
   );
 }

@@ -2,7 +2,6 @@ import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { PullResponse } from "./pullRequest.types";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function pullRequestOld(
@@ -15,9 +14,7 @@ async function pullRequestNew(
   artifactType: GitArtifactType,
   refArtifactId: string,
 ): AxiosPromise<PullResponse> {
-  return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/pull`,
-  );
+  return Api.get(`${GIT_BASE_URL}/${artifactType}/${refArtifactId}/pull`);
 }
 
 export default async function pullRequest(

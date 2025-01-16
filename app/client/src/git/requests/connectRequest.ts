@@ -5,7 +5,6 @@ import type {
   ConnectResponse,
 } from "./connectRequest.types";
 import type { AxiosPromise } from "axios";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function connectRequestOld(
@@ -21,7 +20,7 @@ async function connectRequestNew(
   params: ConnectRequestParams,
 ): AxiosPromise<ConnectResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/connect`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/connect`,
     params,
   );
 }

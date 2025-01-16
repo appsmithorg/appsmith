@@ -5,7 +5,6 @@ import type {
 } from "./updateLocalProfileRequest.types";
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function updateLocalProfileRequestOld(
@@ -21,7 +20,7 @@ async function updateLocalProfileRequestNew(
   params: UpdateLocalProfileRequestParams,
 ): AxiosPromise<UpdateLocalProfileResponse> {
   return Api.put(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/profile`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/profile`,
     params,
   );
 }

@@ -3,7 +3,6 @@ import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { FetchProtectedBranchesResponse } from "./fetchProtectedBranchesRequest.types";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function fetchProtectedBranchesRequestOld(
   baseApplicationId: string,
@@ -15,9 +14,7 @@ async function fetchProtectedBranchesRequestNew(
   artifactType: GitArtifactType,
   baseArtifactId: string,
 ): AxiosPromise<FetchProtectedBranchesResponse> {
-  return Api.get(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${baseArtifactId}/protected`,
-  );
+  return Api.get(`${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected`);
 }
 
 export default async function fetchProtectedBranchesRequest(

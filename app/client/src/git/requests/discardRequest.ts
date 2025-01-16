@@ -2,7 +2,6 @@ import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { DiscardResponse } from "./discardRequest.types";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function discardRequestOld(
@@ -15,9 +14,7 @@ async function discardRequestNew(
   artifactType: GitArtifactType,
   refArtifactId: string,
 ): AxiosPromise<DiscardResponse> {
-  return Api.put(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/discard`,
-  );
+  return Api.put(`${GIT_BASE_URL}/${artifactType}/${refArtifactId}/discard`);
 }
 
 export default async function discardRequest(

@@ -3,7 +3,6 @@ import type { MergeRequestParams, MergeResponse } from "./mergeRequest.types";
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { GitArtifactType } from "git/constants/enums";
-import urlArtifactType from "./helpers/urlArtifactType";
 
 async function mergeRequestOld(
   branchedApplicationId: string,
@@ -18,7 +17,7 @@ async function mergeRequestNew(
   params: MergeRequestParams,
 ): AxiosPromise<MergeResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/merge`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactId}/merge`,
     params,
   );
 }

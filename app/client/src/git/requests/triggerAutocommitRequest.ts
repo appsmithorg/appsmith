@@ -2,7 +2,6 @@ import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosPromise } from "axios";
 import type { TriggerAutocommitResponse } from "./triggerAutocommitRequest.types";
-import urlArtifactType from "./helpers/urlArtifactType";
 import type { GitArtifactType } from "git/constants/enums";
 
 async function triggerAutocommitRequestOld(
@@ -16,7 +15,7 @@ async function triggerAutocommitRequestNew(
   refArtifactId: string,
 ): AxiosPromise<TriggerAutocommitResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${urlArtifactType(artifactType)}/${refArtifactId}/auto-commit`,
+    `${GIT_BASE_URL}/${artifactType}/${refArtifactId}/auto-commit`,
   );
 }
 
