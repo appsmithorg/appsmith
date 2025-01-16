@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import TabDeploy from "./TabDeploy";
 import TabMerge from "./TabMerge";
 import { createMessage, DEPLOY, MERGE } from "ee/constants/messages";
@@ -16,6 +22,7 @@ import styled from "styled-components";
 // import ReconnectSSHError from "../components/ReconnectSSHError";
 import { GitOpsTab } from "git/constants/enums";
 import noop from "lodash/noop";
+import { isEllipsisActive } from "utils/helpers";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -27,7 +34,9 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-const StyledModalHeader = styled(ModalHeader)`
+const StyledModalHeader = styled(ModalHeader).attrs(() => ({
+  as: "div",
+}))`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -78,13 +87,26 @@ function OpsModalView({
     [toggleOpsModal],
   );
 
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [isTextTruncated, setIsTextTruncated] = useState(false);
+
+  useLayoutEffect(() => {
+    if (headerRef.current) {
+      setIsTextTruncated(isEllipsisActive(headerRef.current));
+    }
+  }, [isOpsModalOpen, repoName]);
+
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          <Tooltip content={repoName} placement="bottom">
-            <StyledModalHeader>{repoName}</StyledModalHeader>
-          </Tooltip>
+          {isTextTruncated ? (
+            <Tooltip content={repoName} placement="bottom">
+              <StyledModalHeader ref={headerRef}>{repoName}</StyledModalHeader>
+            </Tooltip>
+          ) : (
+            <StyledModalHeader ref={headerRef}>{repoName}</StyledModalHeader>
+          )}
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
