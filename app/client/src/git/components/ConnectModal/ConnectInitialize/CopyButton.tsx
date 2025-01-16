@@ -33,7 +33,7 @@ function CopyButton({
   tooltipMessage,
   value,
 }: CopyButtonProps) {
-  const timerRef = useRef<number>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const [showCopied, setShowCopied] = useState(false);
 
   useEffect(function clearShowCopiedTimeout() {

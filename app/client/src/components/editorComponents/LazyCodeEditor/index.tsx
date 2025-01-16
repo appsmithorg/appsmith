@@ -214,7 +214,7 @@ function LazyCodeEditor({
           ".CodeEditorTarget",
         ) as HTMLElement | null;
 
-        if (editor) {
+        if (editor && typeof editor.focus === 'function') {
           editor.focus();
         }
       }

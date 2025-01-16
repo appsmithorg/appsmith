@@ -40,9 +40,8 @@ export const useGoogleSheetsSetDefaultProperty = () => {
         const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] =
           diff(action, initialValues);
 
-        const { path = "", value = "" } = {
-          ...getPathAndValueFromActionDiffObject(actionObjectDiff),
-        };
+        const result = getPathAndValueFromActionDiffObject(actionObjectDiff);
+        const { path = "", value = "" } = result || {};
 
         if (value && path) {
           dispatch(

@@ -76,7 +76,7 @@ class ThemedApp extends React.Component<{
     );
   }
 }
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: AppState): { currentTheme: ReturnType<typeof getCurrentThemeDetails> } => ({
   currentTheme: getCurrentThemeDetails(state),
 });
 

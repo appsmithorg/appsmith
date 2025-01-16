@@ -59,7 +59,7 @@ export const getDebuggerPaneConfig = (
 const useDebuggerTriggerClick = () => {
   const location = useLocation();
   const currentFocus = identifyEntityFromPath(location.pathname);
-  const ideState = useSelector(getIDEViewMode);
+  const ideState = useSelector(getIDEViewMode) as EditorViewMode;
   const dispatch = useDispatch();
 
   const config = getDebuggerPaneConfig(currentFocus, ideState);

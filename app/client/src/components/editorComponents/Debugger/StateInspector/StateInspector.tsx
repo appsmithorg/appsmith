@@ -82,7 +82,7 @@ export const StateInspector = () => {
             <Text kind="body-m">{selectedItem.title}</Text>
           </Styled.SelectedItem>
           <Flex overflowY="auto" px="spaces-3">
-            <ReactJson src={selectedItemCode} {...reactJsonProps} />
+            <ReactJson src={selectedItemCode as object} {...reactJsonProps} />
           </Flex>
         </Flex>
       ) : null}

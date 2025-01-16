@@ -31,7 +31,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   // Set to keep track of resource entries
   resourceEntriesSet: Set<string> = new Set();
   // Timeout for polling resource entries
-  resourceEntryPollTimeout: number | null = null;
+  resourceEntryPollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor({ ignoreResourceUrls = [] }: { ignoreResourceUrls?: string[] }) {
     // Initialize the base instrumentation with the name and version

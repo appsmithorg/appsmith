@@ -87,7 +87,7 @@ export function InputText(props: {
 
 class InputTextControl extends BaseControl<InputControlProps> {
   static contextType = CollapseContext;
-  context!: React.ContextType<typeof CollapseContext>;
+  declare context: React.ContextType<typeof CollapseContext>;
 
   render() {
     const {
