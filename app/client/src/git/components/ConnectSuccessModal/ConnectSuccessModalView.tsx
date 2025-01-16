@@ -26,6 +26,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import noop from "lodash/noop";
 import { GitSettingsTab } from "git/constants/enums";
+import { isEllipsisActive } from "utils/helpers";
 
 const TitleText = styled(Text)`
   flex: 1;
@@ -36,6 +37,14 @@ const LinkText = styled(Text)`
   span {
     font-weight: 500;
   }
+`;
+
+const TruncatedText = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: block;
 `;
 
 function ConnectionSuccessTitle() {
@@ -62,6 +71,8 @@ function ConnectSuccessContent({
   defaultBranch,
   repoName,
 }: ConnectSuccessContentProps) {
+  const repoNameRef = React.useRef<HTMLSpanElement>(null);
+
   return (
     <>
       <div className="flex gap-x-4 mb-6">
@@ -72,7 +83,13 @@ function ConnectSuccessContent({
               {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
             </Text>
           </div>
-          <Text renderAs="p">{repoName || "-"}</Text>
+          <Tooltip
+            content={repoName}
+            isDisabled={!isEllipsisActive(repoNameRef.current)}
+            placement="topLeft"
+          >
+            <TruncatedText ref={repoNameRef}>{repoName || "-"}</TruncatedText>
+          </Tooltip>
         </div>
         <div className="w-44">
           <div className="flex items-center">
