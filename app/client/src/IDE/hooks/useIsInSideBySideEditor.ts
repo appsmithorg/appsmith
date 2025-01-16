@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
-
 import { getIDEViewMode } from "../../selectors/ideSelectors";
+// Using global type definition
 import { identifyEntityFromPath } from "../../navigation/FocusEntity";
 import {
   getCurrentEntityInfo,
