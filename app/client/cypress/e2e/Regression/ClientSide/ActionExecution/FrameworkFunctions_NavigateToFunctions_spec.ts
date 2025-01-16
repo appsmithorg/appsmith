@@ -97,7 +97,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -162,7 +161,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -228,7 +226,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -303,7 +300,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,

@@ -65,7 +65,6 @@ describe(
 
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
-      cy.reload();
       agHelper.RefreshPage();
       agHelper.WaitUntilEleAppear(locators._modalWrapper, 0);
       agHelper.AssertElementVisibility(locators._modalWrapper);
