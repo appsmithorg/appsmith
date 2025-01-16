@@ -242,7 +242,17 @@ class RecentEntityRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
-    if (completion.recencyWeight) {
+    const { currentFieldInfo } = AutocompleteSorter;
+
+    // Do not consider same entity for recent check
+    if (
+      currentFieldInfo.entityName &&
+      completion.text.includes(currentFieldInfo.entityName)
+    ) {
+      return score;
+    }
+
+    if (completion.recencyWeight && completion.text.includes()) {
       score += RecentEntityRule.threshold + completion.recencyWeight;
     }
 
