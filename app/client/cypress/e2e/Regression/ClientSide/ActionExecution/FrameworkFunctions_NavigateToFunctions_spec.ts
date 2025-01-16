@@ -1,6 +1,7 @@
 import {
   agHelper,
   appSettings,
+  assertHelper,
   dataSources,
   deployMode,
   draggableWidgets,
@@ -180,6 +181,7 @@ describe(
     });
 
     it("3. To verify add a navigation using URL containing links to third party websites", () => {
+      assertHelper.AssertNetworkResponseData("@getConsolidatedData");
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
