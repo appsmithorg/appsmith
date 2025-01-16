@@ -283,7 +283,10 @@ class TypeMatchRule implements AutocompleteRule {
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
 
     // Don't increase score for entity names
-    if (completion.type === currentFieldInfo.expectedType && !completion.isEntityName)
+    if (
+      completion.type === currentFieldInfo.expectedType &&
+      !completion.isEntityName
+    )
       score += TypeMatchRule.threshold;
 
     return score;
