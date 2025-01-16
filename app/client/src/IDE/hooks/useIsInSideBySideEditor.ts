@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
+// Using global type definition for EditorViewMode
 import { getIDEViewMode } from "../../selectors/ideSelectors";
-// Using global type definition
 import { identifyEntityFromPath } from "../../navigation/FocusEntity";
 import {
   getCurrentEntityInfo,
@@ -13,7 +13,7 @@ import {
  */
 export const useIsInSideBySideEditor = () => {
   const { pathname } = useLocation();
-  const viewMode = useSelector(getIDEViewMode);
+  const viewMode = useSelector(getIDEViewMode) as EditorViewMode;
   const { appState, entity } = identifyEntityFromPath(pathname);
   const { segment } = getCurrentEntityInfo(entity);
 

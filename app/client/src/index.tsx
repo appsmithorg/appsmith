@@ -38,7 +38,7 @@ runSagaMiddleware();
 appInitializer();
 
 if (isTracingEnabled()) {
-  (async () => {
+  void (async () => {
     try {
       await import(
         /* webpackChunkName: "instrumentation" */ "./instrumentation"
