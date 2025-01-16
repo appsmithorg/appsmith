@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Flex, Popover, Text } from "@appsmith/ads";
 import * as Styled from "./styles";
-import type { Align, Side } from "@radix-ui/react-popper";
+// Define local types since they're not exported from @radix-ui/react-popper
+type Align = "start" | "center" | "end";
+type Side = "top" | "right" | "bottom" | "left";
 
 interface Props {
   trigger: React.ReactNode;
