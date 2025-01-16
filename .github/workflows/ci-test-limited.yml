@@ -150,7 +150,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
-          sudo /etc/init.d/ssh stop
+          sudo systemctl disable --now ssh.socket  # Prevent SSH socket from being created
+          sudo /etc/init.d/ssh stop  # Stop SSH service for good measure
           # Verify SSH service is stopped and port 22 is free
           sleep 2
           sudo lsof -i :22 || true  # Check if anything is using port 22
