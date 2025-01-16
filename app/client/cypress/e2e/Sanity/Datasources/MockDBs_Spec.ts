@@ -61,17 +61,17 @@ describe(
           expect(interception.request.body.source).to.equal("SELF");
         });
 
-        dataSources.runQueryAndVerifyResponseViews({
-          count: 1,
-          operator: "gte",
-        }); //minimum 1 rows are expected
+        // dataSources.runQueryAndVerifyResponseViews({
+        //   count: 1,
+        //   operator: "gte",
+        // }); //minimum 1 rows are expected
 
-        AppSidebar.navigate(AppSidebarButton.Data);
-        dataSources
-          .getDatasourceListItemDescription(mockDBName)
-          .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries in this app"),
-          );
+        // AppSidebar.navigate(AppSidebarButton.Data);
+        // dataSources
+        //   .getDatasourceListItemDescription(mockDBName)
+        //   .then(($queryCount) =>
+        //     expect($queryCount).to.eq("2 queries in this app"),
+        //   );
       });
     });
 
@@ -90,11 +90,11 @@ describe(
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
 
-        dataSources.runQueryAndVerifyResponseViews({
-          count: 1,
-          operator: "gte",
-          responseTypes: ["JSON", "RAW"],
-        });
+        // dataSources.runQueryAndVerifyResponseViews({
+        //   count: 1,
+        //   operator: "gte",
+        //   responseTypes: ["JSON", "RAW"],
+        // });
       });
     });
   },

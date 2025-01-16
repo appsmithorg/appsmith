@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
 import {
@@ -350,8 +350,8 @@ export function AppsmithAIIcon() {
   );
 }
 
-export function ActionUrlIcon(url: string) {
-  return <img src={url} />;
+export function ActionUrlIcon(url: string, height?: string, width?: string) {
+  return <img height={height} src={url} width={width} />;
 }
 
 export function DefaultModuleIcon() {

@@ -22,7 +22,7 @@ import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
-import { DatasourceComponentTypes } from "api/PluginApi";
+import { DatasourceComponentTypes } from "entities/Plugin";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
 import {

@@ -1,6 +1,6 @@
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { ActionResponse } from "api/ActionAPI";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";

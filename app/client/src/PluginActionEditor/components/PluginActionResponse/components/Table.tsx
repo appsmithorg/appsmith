@@ -44,12 +44,14 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   justify-content: space-between;
   flex-direction: column;
   overflow: auto;
+
   .tableWrap {
     height: 100%;
     display: block;
     overflow-x: auto;
     overflow-y: hidden;
   }
+
   .table {
     border-spacing: 0;
     color: var(--ads-v2-color-fg);
@@ -57,29 +59,37 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     display: table;
     width: 100%;
     height: auto;
+
     .thead,
     .tbody {
       overflow: hidden;
     }
+
     .tbody {
       height: calc(100% - ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px);
+
       .tr {
         width: 100%;
       }
     }
+
     .tr {
       overflow: hidden;
       border-bottom: 1px solid var(--ads-v2-color-black-75);
+
       &.selected-row {
         background: var(--ads-v2-color-bg-subtle);
+
         &:hover {
           background: var(--ads-v2-color-bg-subtle);
         }
       }
+
       &:hover {
         background: var(--ads-v2-color-gray-50);
       }
     }
+
     .th,
     .td {
       margin: 0;
@@ -87,6 +97,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
       line-height: ${TABLE_SIZES.ROW_FONT_SIZE}px;
+
       ${(props) =>
         `${
           props.minColumnWidth ? `min-width: ${props.minColumnWidth}px;` : ""
@@ -94,6 +105,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
       :last-child {
         border-right: 0;
       }
+
       .resizer {
         display: inline-block;
         width: 10px;
@@ -104,24 +116,28 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
         transform: translateX(50%);
         z-index: 1;
         ${"" /* prevents from scrolling while dragging on touch devices */}
-        touch-action:none;
+        touch-action: none;
+
         &.isResizing {
           cursor: n-resize;
         }
       }
     }
+
     .th {
       padding: 0 10px 0 0;
       height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
       line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
       background: var(--ads-v2-color-gray-50);
     }
+
     .td {
       height: auto;
       line-height: ${TABLE_SIZES.ROW_HEIGHT}px;
       padding: 0 10px;
     }
   }
+
   .draggable-header,
   .hidden-header {
     width: 100%;
@@ -132,30 +148,38 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     color: var(--ads-v2-color-fg);
     font-weight: 500;
     padding-left: 10px;
+
     &.sorted {
       padding-left: 5px;
     }
   }
+
   .draggable-header {
     cursor: pointer;
+
     &.reorder-line {
       width: 1px;
       height: 100%;
     }
   }
+
   .hidden-header {
     opacity: 0.6;
   }
+
   .column-menu {
     height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
     line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
   }
+
   .th {
     display: flex;
     justify-content: space-between;
+
     &.highlight-left {
       border-left: 2px solid var(--ads-v2-color-border-success);
     }
+
     &.highlight-right {
       border-right: 2px solid var(--ads-v2-color-border-success);
     }
@@ -313,7 +337,7 @@ function Table(props: TableProps) {
             return (
               <div
                 {...cell.getCellProps()}
-                className="td mp-mask"
+                className="td as-mask"
                 key={cellIndex}
               >
                 <CellWrapper>{cell.render("Cell")}</CellWrapper>
@@ -348,7 +372,7 @@ function Table(props: TableProps) {
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
                   {...headerGroup.getHeaderGroupProps()}
-                  className="tr mp-mask"
+                  className="tr as-mask"
                   key={index}
                 >
                   {headerGroup.headers.map(

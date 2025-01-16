@@ -10,7 +10,7 @@ import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 interface Props {
   datasourceId: string;

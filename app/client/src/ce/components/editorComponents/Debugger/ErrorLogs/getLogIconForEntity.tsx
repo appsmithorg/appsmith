@@ -1,7 +1,7 @@
 import type { FunctionComponent } from "react";
 import React from "react";
 import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import {
   ApiMethodIcon,

@@ -6,14 +6,10 @@ import {
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import {
-  isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
-import { generateReactKey } from "utils/generators";
+import { isGraphqlPlugin } from "entities/Action";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 
-import type { Plugin } from "api/PluginApi";
+import { generateReactKey } from "utils/generators";
 import {
   apiEditorIdURL,
   queryEditorIdURL,

@@ -157,7 +157,7 @@ export function PeekOverlayPopUpContent(
       >
         {(dataType === "object" || dataType === "array") && jsData !== null && (
           <JsonWrapper
-            className="mp-mask"
+            className="as-mask"
             onClick={objectCollapseAnalytics}
             style={{
               minHeight: "20px",

@@ -31,6 +31,10 @@ const Sizes = {
 export const TooltipTextWrapper = styled.div`
   display: flex;
   min-width: 0;
+
+  &.${ListItemIDescClassName}-wrapper {
+    min-width: unset;
+  }
 `;
 
 export const RightControlWrapper = styled.div`
@@ -54,8 +58,11 @@ export const TopContentWrapper = styled.div`
 `;
 
 export const BottomContentWrapper = styled.div`
-  padding-left: var(--ads-v2-spaces-7);
   padding-bottom: var(--ads-v2-spaces-2);
+
+  &[data-isiconpresent="true"] {
+    padding-left: var(--ads-v2-spaces-7);
+  }
 `;
 
 export const InlineDescriptionWrapper = styled.div`
@@ -91,8 +98,13 @@ export const StyledListItem = styled.div<{
   gap: var(--ads-v2-spaces-1);
   flex-shrink: 0;
   flex-direction: column;
+  max-height: 32px;
 
   ${({ size }) => Sizes[size]}
+
+  &[data-isblockdescription="true"] {
+    max-height: 54px;
+  }
 
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {
@@ -124,19 +136,12 @@ export const StyledListItem = styled.div<{
     background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
-  /* Focus styles */
-
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
-  }
-
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     flex: 1;
+    padding-right: var(--ads-v2-spaces-2);
   }
 
   & .${ListItemTitleClassName} {

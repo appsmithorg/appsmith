@@ -11,7 +11,7 @@ import {
 } from "ee/entities/DataTree/types";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
