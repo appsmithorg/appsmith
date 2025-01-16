@@ -235,7 +235,11 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
-          sudo /etc/init.d/ssh stop ;
+          sudo /etc/init.d/ssh stop
+          # Verify SSH service is stopped and port 22 is free
+          sleep 2
+          sudo lsof -i :22 || true  # Check if anything is using port 22
+          sudo netstat -tuln | grep ':22' || true  # Double check port status
           mkdir -p ~/git-server/keys
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
