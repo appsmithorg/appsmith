@@ -28,19 +28,12 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-const StyledModalHeaderText = styled.span`
+const HeaderText = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 580px; /* Leaving some padding from modal width (640px) */
+  max-width: 580px;
   display: block;
-`;
-
-const StyledModalHeader = styled(ModalHeader)`
-  &&& {
-    margin: 0;
-    padding: ${(props) => props.theme.spaces[5]}px;
-  }
 `;
 
 interface OpsModalViewProps {
@@ -101,17 +94,15 @@ function OpsModalView({
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          <StyledModalHeader>
+          <ModalHeader>
             <Tooltip
               content={repoName}
               isDisabled={!isTextTruncated}
               placement="bottom"
             >
-              <StyledModalHeaderText ref={headerRef}>
-                {repoName}
-              </StyledModalHeaderText>
+              <HeaderText ref={headerRef}>{repoName}</HeaderText>
             </Tooltip>
-          </StyledModalHeader>
+          </ModalHeader>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
