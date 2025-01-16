@@ -3,6 +3,7 @@ package com.appsmith.server.git.central;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
@@ -13,6 +14,7 @@ import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
@@ -44,6 +46,12 @@ public interface CentralGitServiceCE {
             boolean isFileLock,
             GitType gitType,
             RefType refType);
+
+    Mono<MergeStatusDTO> mergeBranch(
+            String branchedArtifactId, ArtifactType artifactType, GitMergeDTO gitMergeDTO, GitType gitType);
+
+    Mono<MergeStatusDTO> isBranchMergable(
+            String branchedArtifactId, ArtifactType artifactType, GitMergeDTO gitMergeDTO, GitType gitType);
 
     Mono<? extends Artifact> discardChanges(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 

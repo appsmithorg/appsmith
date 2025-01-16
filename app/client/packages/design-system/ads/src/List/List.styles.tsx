@@ -6,6 +6,8 @@ import {
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
+import { Flex } from "../Flex";
+import { Text } from "../Text";
 
 const Variables = css`
   --listitem-title-font-size: var(--ads-v2-font-size-4);
@@ -29,6 +31,10 @@ const Sizes = {
 export const TooltipTextWrapper = styled.div`
   display: flex;
   min-width: 0;
+
+  &.${ListItemIDescClassName}-wrapper {
+    min-width: unset;
+  }
 `;
 
 export const RightControlWrapper = styled.div`
@@ -52,8 +58,11 @@ export const TopContentWrapper = styled.div`
 `;
 
 export const BottomContentWrapper = styled.div`
-  padding-left: var(--ads-v2-spaces-7);
   padding-bottom: var(--ads-v2-spaces-2);
+
+  &[data-isiconpresent="true"] {
+    padding-left: var(--ads-v2-spaces-7);
+  }
 `;
 
 export const InlineDescriptionWrapper = styled.div`
@@ -71,7 +80,6 @@ export const StyledList = styled.div`
   padding: var(--ads-v2-spaces-1);
   display: flex;
   flex-direction: column;
-  gap: var(--ads-v2-spaces-2);
 `;
 
 export const StyledListItem = styled.div<{
@@ -88,11 +96,15 @@ export const StyledListItem = styled.div<{
   padding: var(--ads-v2-spaces-2);
   padding-left: var(--ads-v2-spaces-3);
   gap: var(--ads-v2-spaces-1);
-  flex: 1;
   flex-shrink: 0;
   flex-direction: column;
+  max-height: 32px;
 
   ${({ size }) => Sizes[size]}
+
+  &[data-isblockdescription="true"] {
+    max-height: 54px;
+  }
 
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {
@@ -124,19 +136,12 @@ export const StyledListItem = styled.div<{
     background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
-  /* Focus styles */
-
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
-  }
-
   & .${ListItemTextOverflowClassName} {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     flex: 1;
+    padding-right: var(--ads-v2-spaces-2);
   }
 
   & .${ListItemTitleClassName} {
@@ -159,4 +164,23 @@ export const StyledListItem = styled.div<{
     line-height: 16px;
     padding-right: var(--ads-v2-spaces-2);
   }
+`;
+
+export const StyledGroup = styled(Flex)`
+  & .ads-v2-listitem .ads-v2-listitem__idesc {
+    opacity: 0;
+  }
+
+  & .ads-v2-listitem:hover .ads-v2-listitem__idesc {
+    opacity: 1;
+  }
+`;
+
+export const GroupedList = styled(StyledList)`
+  padding: 0;
+`;
+
+export const GroupTitle = styled(Text)`
+  padding: var(--ads-v2-spaces-1) 0;
+  color: var(--ads-v2-color-fg-muted);
 `;

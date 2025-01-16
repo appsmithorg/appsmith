@@ -40,7 +40,7 @@ function ReadOnlyEditor(props: Props) {
     isReadOnly: true,
     isRawView: props.isRawView,
     border: CodeEditorBorder.NONE,
-    className: "mp-mask",
+    className: "as-mask",
   };
 
   return <LazyCodeEditor {...editorProps} />;

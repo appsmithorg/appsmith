@@ -10,7 +10,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import "@testing-library/jest-dom/extend-expect";
 import { EMPTY_RESPONSE_RUN } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";

@@ -2,6 +2,9 @@ import adminsSettings from "../../../../locators/AdminsSettings";
 import {
   agHelper,
   adminSettings as adminSettingsHelper,
+  homePage,
+  locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 const {
@@ -24,6 +27,9 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("1. Should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    agHelper.AssertElementAbsence(locators._loading);
+    assertHelper.AssertDocumentReady();
+    agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
     agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
     agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
@@ -32,6 +38,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
 
   it("2. Should test that settings page is not accessible to normal users", () => {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
+    agHelper.AssertElementAbsence(locators._loading);
+    assertHelper.AssertDocumentReady();
     agHelper.AssertElementAbsence(adminSettingsHelper._adminSettingsBtn);
     agHelper.VisitNAssert(adminSettingsHelper.routes.GENERAL);
     // non super users are redirected to home page
@@ -53,7 +61,9 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     () => {
       cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) cy.wait("@getAllWorkspaces");
-
+      agHelper.AssertElementAbsence(locators._loading);
+      assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
       agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
       cy.wait("@getEnvVariables");
       agHelper.GetNClick(adminsSettings.generalTab);
@@ -198,6 +208,9 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("10. Verify default instance name", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    agHelper.AssertElementAbsence(locators._loading);
+    assertHelper.AssertDocumentReady();
+    agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
     agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
     agHelper.AssertURL(adminSettingsHelper.routes.GENERAL);
     cy.wait("@getEnvVariables");
@@ -210,7 +223,12 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     "11. Verify all admin setting sections are accessible",
     { tags: ["@tag.excludeForAirgap"] },
     () => {
-      cy.visit("/applications", { timeout: 60000 });
+      homePage.LogOutviaAPI();
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      agHelper.AssertElementAbsence(locators._loading);
+      assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettingsHelper._adminSettingsBtn);
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GetNClick(adminSettingsHelper._adminSettingsBtn);
       cy.wait("@getEnvVariables");
       agHelper.GetNClick(adminsSettings.generalTab);

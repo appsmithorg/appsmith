@@ -393,8 +393,23 @@ export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
+export const SAMPLE_DATASOURCE_SUBHEADING = () =>
+  "Use sample datasources if you don’t have a datasource for testing";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
 export const NOT_FOUND = () => "Not found";
+export const CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API = () =>
+  "Authenticated API";
+export const CREATE_NEW_DATASOURCE_GRAPHQL_API = () => "GraphQL API";
+export const CREATE_NEW_API_SECTION_HEADER = () => "APIs";
+export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS integrations";
+export const CREATE_NEW_AI_SECTION_HEADER = () => "AI integrations";
+export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
+export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
+  "Select a sample datasource or connect your own";
+export const SEARCH_FOR_DATASOURCES = () => "Search for datasources";
+export const EMPTY_SEARCH_DATASOURCES_TITLE = () => "No results found";
+export const EMPTY_SEARCH_DATASOURCES_DESCRIPTION = () =>
+  "Please try again with a different search";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -2323,9 +2338,6 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
-export const START_WITH_DATA_CONNECT_HEADING = () => "Connect your datasource";
-export const START_WITH_DATA_CONNECT_SUBHEADING = () =>
-  "Select an option to establish a connection. Your data's security is our priority.";
 export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
@@ -2380,8 +2392,6 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
-
-export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
 
 export const CUSTOM_WIDGET_FEATURE = {
   addEvent: {
@@ -2565,23 +2575,23 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_NEW_BUTTON: () => "Request a new integration",
   REQUEST_BUTTON: () => "Request integration",
   CANCEL_BUTTON: () => "Cancel",
-  REQUEST_MODAL_HEADING: () => "Request a new integration",
+  REQUEST_MODAL_HEADING: () => "Request new integration",
   REQUEST_MODAL_INTEGRATION: {
-    LABEL: () => "Integration",
+    LABEL: () => "Integration name",
     PLACEHOLDER: () => "E.g. Zendesk, JIRA, Slack, others",
     NAME: "integration",
     ERROR: () => "Please enter integration name",
   },
   REQUEST_MODAL_USECASE: {
-    LABEL: () => "Tell us more about your case",
+    LABEL: () => "How would this integration help you?",
     PLACEHOLDER: () =>
-      "E.g. I want to create an app to manage my customers’ account.",
+      "For example, organizing client data or automating reports.",
     NAME: "useCase",
   },
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith will use this email exclusively to follow up on your integration request.",
+      "We’ll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
@@ -2589,10 +2599,10 @@ export const REQUEST_NEW_INTEGRATIONS = {
 };
 
 export const PREMIUM_DATASOURCES = {
-  RELEVANT_EMAIL_DESCRIPTION: () =>
-    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Schedule a call now to see how Appsmith can transform your workflows!",
-  NON_RELEVANT_EMAIL_DESCRIPTION: () =>
-    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Give us your email and the Appsmith team will reach out to you soon.",
+  RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
+    `Ready to connect with ${integrationName}? This feature is part of our premium plans. Schedule a call with our team to explore the right plan for your needs. We’re excited to help you get started!`,
+  NON_RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
+    `Ready to connect with ${integrationName}? This feature is part of our premium plans. We'll help you find a plan that fits your needs. Simply share your email, and we'll be in touch soon.`,
   LEARN_MORE: () => "Learn more about Premium",
   SCHEDULE_CALL: () => "Schedule a call",
   SUBMIT: () => "Submit",
@@ -2601,14 +2611,17 @@ export const PREMIUM_DATASOURCES = {
   FORM_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith will use this email to follow up on your integration interest.",
+      "We’ll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
   PREMIUM_TAG: () => "Premium",
   SOON_TAG: () => "Soon",
-  COMING_SOON_SUFFIX: () => "Coming soon",
+  COMING_SOON_SUFFIX: () => "is coming soon",
   COMING_SOON_DESCRIPTION: () =>
-    "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
+    "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
 };
+
+export const DATASOURCE_SECURE_TEXT = () =>
+  `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;

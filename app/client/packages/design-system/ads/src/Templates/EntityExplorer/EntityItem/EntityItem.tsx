@@ -1,9 +1,12 @@
 import React, { useMemo } from "react";
-import { ListItem, Spinner, Tooltip } from "../../..";
+import { ListItem } from "../../../List";
+import { Spinner } from "../../../Spinner";
+import { Tooltip } from "../../../Tooltip";
 
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styles";
 import { useEditableText } from "../Editable";
+import clx from "classnames";
 
 export const EntityItem = (props: EntityItemProps) => {
   const {
@@ -31,20 +34,7 @@ export const EntityItem = (props: EntityItemProps) => {
     onNameSave,
   );
 
-  const inputProps = useMemo(
-    () => ({
-      onChange: handleTitleChange,
-      onKeyUp: handleKeyUp,
-      style: {
-        paddingTop: 0,
-        paddingBottom: 0,
-        height: "32px",
-        top: 0,
-      },
-    }),
-    [handleKeyUp, handleTitleChange],
-  );
-
+  // When in loading state, start icon becomes the loading icon
   const startIcon = useMemo(() => {
     if (isLoading) {
       return <Spinner size="md" />;
@@ -53,6 +43,15 @@ export const EntityItem = (props: EntityItemProps) => {
     return props.startIcon;
   }, [isLoading, props.startIcon]);
 
+  const inputProps = useMemo(
+    () => ({
+      onChange: handleTitleChange,
+      onKeyUp: handleKeyUp,
+    }),
+    [handleKeyUp, handleTitleChange],
+  );
+
+  // Use List Item custom title prop to show the editable name
   const customTitle = useMemo(() => {
     return (
       <Tooltip
@@ -74,10 +73,23 @@ export const EntityItem = (props: EntityItemProps) => {
     );
   }, [editableName, inputProps, inputRef, inEditMode, validationError]);
 
+  // Do not show right control if the visibility is hover and the item is in edit mode
+  const rightControl = useMemo(() => {
+    if (props.rightControlVisibility === "hover" && inEditMode) {
+      return null;
+    }
+
+    return props.rightControl;
+  }, [inEditMode, props.rightControl, props.rightControlVisibility]);
+
   return (
     <ListItem
       {...props}
+      className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
+      data-testid={`t--entity-item-${props.title}`}
+      id={"entity-" + props.id}
+      rightControl={rightControl}
       startIcon={startIcon}
     />
   );

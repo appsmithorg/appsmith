@@ -5,6 +5,8 @@ export interface EntityItemProps
     ListItemProps,
     "customTitleComponent" | "description" | "descriptionType"
   > {
+  /** ID of the entity. Will be added to the markup for identification */
+  id: string;
   /** Control the name editing behaviour */
   nameEditorConfig: {
     // Set editable based on user permissions

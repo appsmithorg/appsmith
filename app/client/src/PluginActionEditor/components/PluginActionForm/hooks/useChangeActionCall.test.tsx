@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks/dom";
 import { useDispatch } from "react-redux";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { usePluginActionContext } from "../../../PluginActionContext";
 import { changeApi, changeQuery } from "../../../store";
 import usePrevious from "utils/hooks/usePrevious";

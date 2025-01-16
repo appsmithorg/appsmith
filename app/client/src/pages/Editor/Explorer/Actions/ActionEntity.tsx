@@ -9,7 +9,7 @@ import {
   getPlugins,
 } from "ee/selectors/entitiesSelector";
 import type { Action, StoredDatasource } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

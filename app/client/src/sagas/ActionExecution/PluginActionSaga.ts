@@ -21,7 +21,7 @@ import {
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -129,7 +129,7 @@ import {
   findDatatype,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";

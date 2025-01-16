@@ -1,5 +1,5 @@
 import React from "react";
-import { UIComponentTypes, type Plugin } from "api/PluginApi";
+import { type Plugin, UIComponentTypes } from "entities/Plugin";
 import ApiDatasourceSelector from "./ApiDatasourceSelector";
 import QueryDatasourceSelector from "./QueryDatasourceSelector";
 import {

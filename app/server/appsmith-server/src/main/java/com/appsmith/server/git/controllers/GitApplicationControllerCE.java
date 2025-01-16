@@ -3,6 +3,7 @@ package com.appsmith.server.git.controllers;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.appsmith.git.dto.CommitDTO;
@@ -14,6 +15,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.BranchProtectionRequestDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.git.autocommit.AutoCommitService;
@@ -145,6 +147,34 @@ public class GitApplicationControllerCE {
         log.info("Going to compare with remote for default referencedApplicationId {}", referencedApplicationId);
         return centralGitService
                 .fetchRemoteChanges(referencedApplicationId, ARTIFACT_TYPE, true, GIT_TYPE, refType)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{branchedApplicationId}/merge")
+    public Mono<ResponseDTO<MergeStatusDTO>> merge(
+            @PathVariable String branchedApplicationId, @RequestBody GitMergeDTO gitMergeDTO) {
+        log.debug(
+                "Going to merge branch {} with branch {} for application {}",
+                gitMergeDTO.getSourceBranch(),
+                gitMergeDTO.getDestinationBranch(),
+                branchedApplicationId);
+        return centralGitService
+                .mergeBranch(branchedApplicationId, ARTIFACT_TYPE, gitMergeDTO, GIT_TYPE)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{branchedApplicationId}/merge/status")
+    public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(
+            @PathVariable String branchedApplicationId, @RequestBody GitMergeDTO gitMergeDTO) {
+        log.info(
+                "Check if branch {} can be merged with branch {} for application {}",
+                gitMergeDTO.getSourceBranch(),
+                gitMergeDTO.getDestinationBranch(),
+                branchedApplicationId);
+        return centralGitService
+                .isBranchMergable(branchedApplicationId, ARTIFACT_TYPE, gitMergeDTO, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

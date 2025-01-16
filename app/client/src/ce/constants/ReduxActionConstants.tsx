@@ -1,6 +1,3 @@
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -772,7 +769,6 @@ const ActionActionTypes = {
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
-  SET_EXTRA_FORMDATA: "SET_EXTRA_FORMDATA",
   MOVE_ACTION_INIT: "MOVE_ACTION_INIT",
   MOVE_ACTION_SUCCESS: "MOVE_ACTION_SUCCESS",
   COPY_ACTION_INIT: "COPY_ACTION_INIT",
@@ -790,7 +786,6 @@ const ActionActionTypes = {
   TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS:
     "TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS",
   TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT: "TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT",
-  UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
 const ActionActionErrorTypes = {
@@ -1216,6 +1211,8 @@ const TenantActionErrorTypes = {
 };
 
 const AnalyticsActionTypes = {
+  SEGMENT_INITIALIZED: "SEGMENT_INITIALIZED",
+  SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_BUILDING_BLOCK_DRAG_START_TIME: "SET_BUILDING_BLOCK_DRAG_START_TIME",
   RESET_BUILDING_BLOCK_DRAG_START_TIME: "RESET_BUILDING_BLOCK_DRAG_START_TIME",
   SEND_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER:
@@ -1299,9 +1296,6 @@ export const ReduxActionTypes = {
   ...WorkspaceActionTypes,
 } as const;
 
-export type ReduxActionType =
-  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
-
 export const ReduxActionErrorTypes = {
   ...ActionActionErrorTypes,
   ...AdminSettingsActionErrorTypes,
@@ -1348,11 +1342,6 @@ export const toastMessageErrorTypes = {
 export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
-export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
-  payload: T;
-}
-
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
@@ -1370,47 +1359,3 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
-
-export interface BufferedReduxAction<T> extends ReduxAction<T> {
-  affectedJSObjects: AffectedJSObjects;
-}
-
-export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
-
-export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
-  meta: M;
-}
-
-export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
-  onSuccess?: ReduxAction<S>;
-  onError?: ReduxAction<E>;
-  onSuccessCallback?: (response: S) => void;
-  onErrorCallback?: (error: E) => void;
-}
-
-export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
-
-export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<AnyReduxAction>;
-  affectedJSObjects?: AffectedJSObjects;
-}
-
-export interface PromisePayload {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reject: any;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolve: any;
-}
-
-export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
-  payload: T & PromisePayload;
-}
-
-export interface ReduxActionErrorPayload {
-  message: string;
-  source?: string;
-  code?: ERROR_CODES;
-  stackTrace?: string;
-}

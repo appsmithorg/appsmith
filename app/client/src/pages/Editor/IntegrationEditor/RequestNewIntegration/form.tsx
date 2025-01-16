@@ -1,4 +1,4 @@
-import { Button, Flex, toast } from "@appsmith/ads";
+import { Button, ModalFooter, toast } from "@appsmith/ads";
 import { Close } from "@radix-ui/react-dialog";
 import { createMessage, REQUEST_NEW_INTEGRATIONS } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
@@ -21,7 +21,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
-  gap: var(--ads-spaces-7);
+  gap: var(--ads-spaces-5);
 `;
 
 const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
@@ -75,7 +75,7 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
         size="md"
         type="email"
       />
-      <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
+      <ModalFooter>
         <Close>
           <Button aria-label="Close" kind="secondary" size="md">
             {createMessage(REQUEST_NEW_INTEGRATIONS.CANCEL_BUTTON)}
@@ -84,7 +84,7 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
         <Button isDisabled={props.invalid} size="md" type="submit">
           {createMessage(REQUEST_NEW_INTEGRATIONS.REQUEST_BUTTON)}
         </Button>
-      </Flex>
+      </ModalFooter>
     </FormWrapper>
   );
 };

@@ -12,10 +12,8 @@ import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
 import type { SVGProps } from "react";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
@@ -27,6 +25,8 @@ import type {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import type { DerivedPropertiesMap } from "./factory/types";
+import type { ExtraDef } from "utils/autocomplete/types";
 
 export interface WidgetSizeConfig {
   viewportMinWidth: number;

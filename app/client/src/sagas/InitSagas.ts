@@ -15,7 +15,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "ee/actions/applicationActions";
@@ -80,7 +80,8 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { ConsolidatedPageLoadApi } from "api";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {
@@ -102,6 +103,7 @@ export interface ReduxURLChangeAction {
   type: typeof URL_CHANGE_ACTIONS;
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
+
 export interface DeployConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
   tenantConfig: ApiResponse;
@@ -115,6 +117,7 @@ export interface DeployConsolidatedApi {
   currentTheme: ApiResponse<AppTheme[]>;
   themes: ApiResponse<AppTheme>;
 }
+
 export interface EditConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
   tenantConfig: ApiResponse;
@@ -136,7 +139,9 @@ export interface EditConsolidatedApi {
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
   packagePullStatus: ApiResponse<PACKAGE_PULL_STATUS>;
 }
+
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
+
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],

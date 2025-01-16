@@ -15,7 +15,7 @@ import {
 } from "ee/constants/messages";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
@@ -112,9 +112,11 @@ function usePluginActionResponseTabs() {
   if (
     [
       PluginType.DB,
+      PluginType.AI,
       PluginType.REMOTE,
       PluginType.SAAS,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(plugin.type)
   ) {
     if (showSchema) {

@@ -8,7 +8,7 @@ import {
 import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { DatasourceConnectionMode, type Datasource } from "entities/Datasource";
 import { SSLType } from "entities/Datasource/RestAPIForm";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";

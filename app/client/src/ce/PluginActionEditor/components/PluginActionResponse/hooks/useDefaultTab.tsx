@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { usePluginActionContext } from "PluginActionEditor";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
 import {

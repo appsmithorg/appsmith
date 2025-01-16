@@ -30,6 +30,7 @@ describe("QuickActionsView Component", () => {
     isDiscardLoading: false,
     isFetchStatusLoading: false,
     isConnected: false,
+    isInitialized: true,
     isProtectedMode: false,
     isPullFailing: false,
     isPullLoading: false,
@@ -46,6 +47,24 @@ describe("QuickActionsView Component", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("should not render QuickActionsView when isInitialized is false", () => {
+    const props = {
+      ...defaultProps,
+      isInitialized: false,
+    };
+
+    render(
+      <ThemeProvider theme={theme}>
+        <QuickActionsView {...props} />
+      </ThemeProvider>,
+    );
+
+    expect(screen.queryByTestId("connect-button")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("t--git-quick-actions-commit"),
+    ).not.toBeInTheDocument();
   });
 
   it("should render ConnectButton when isConnected is false", () => {
