@@ -34,15 +34,18 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-const StyledModalHeader = styled(ModalHeader).attrs(() => ({
-  as: "div",
-}))`
+const BaseStyledModalHeader = styled(ModalHeader)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 580px; /* Leaving some padding from modal width (640px) */
   display: block;
-` as React.ComponentType<React.HTMLAttributes<HTMLDivElement>>;
+`;
+
+const StyledModalHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>((props, ref) => <BaseStyledModalHeader {...props} as="div" ref={ref} />);
 
 interface OpsModalViewProps {
   fetchStatus: () => void;
