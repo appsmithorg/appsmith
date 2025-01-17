@@ -95,7 +95,6 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "ee/utils/analyticsHelpers";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
@@ -866,11 +865,7 @@ function* handleCreateNewJSFromActionCreator(
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
   // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Create the JS Object with the given function name
   const pageId: string = yield select(getCurrentPageId);
