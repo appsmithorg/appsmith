@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   appSettings,
+  assertHelper,
   deployMode,
   draggableWidgets,
   entityExplorer,
@@ -58,6 +59,7 @@ describe(
         );
       });
       agHelper.RefreshPage();
+      agHelper.WaitUntilEleAppear(locators._modalWrapper);
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
       agHelper.AssertText(locators._modalButtonText, "text", "Close", 1);
@@ -66,7 +68,8 @@ describe(
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.RefreshPage();
-      agHelper.WaitUntilEleAppear(locators._modalWrapper, 0);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
+      agHelper.WaitUntilEleAppear(locators._modalWrapper);
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
       agHelper.AssertText(locators._modalButtonText, "text", "Close", 1);
