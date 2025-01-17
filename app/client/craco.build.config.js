@@ -38,7 +38,7 @@ plugins.push(
   }),
 );
 
-if (env === "PRODUCTION" || env === "STAGING") {
+if (env === "PRODUCTION") {
   plugins.push(
     new FaroSourceMapUploaderPlugin({
       appId: process.env.REACT_APP_FARO_APP_ID,
