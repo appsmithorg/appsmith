@@ -64,6 +64,7 @@ import {
   EditorEntityTab,
   type EntityItem,
   type GenericEntityItem,
+  type IDEType,
 } from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
@@ -1701,16 +1702,16 @@ export const getSelectedTableName = (state: AppState) =>
 export const getDatasourceUsageCountForApp = createSelector(
   getActions,
   getDatasources,
-  (state: AppState, editorType: string) => editorType,
-  (actions, datasources, editorType) => {
+  (state: AppState, ideType: IDEType) => ideType,
+  (actions, datasources, ideType) => {
     const actionCount = countBy(actions, "config.datasource.id");
     const actionDsMap: Record<string, string> = {};
 
     datasources.forEach((ds) => {
-      actionDsMap[ds.id] = `No queries in this ${editorType}`;
+      actionDsMap[ds.id] = `No queries in this ${ideType}`;
     });
     Object.keys(actionCount).forEach((dsId) => {
-      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${editorType}`;
+      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${ideType}`;
     });
 
     return actionDsMap;
