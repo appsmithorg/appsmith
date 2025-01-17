@@ -21,7 +21,7 @@ spec:
   {{- if .Values.persistence.existingClaim.enabled }}
   volumeName: {{ .Values.persistence.existingClaim.name }}
   {{- else}}
-  volumeName: {{ include "appsmith.fullname" . }}
+  volumeName: {{ include "appsmith.pvname" . }}
   {{- end }}
   resources:
     requests:
