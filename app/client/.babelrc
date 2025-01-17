@@ -1,5 +1,28 @@
 {
+  "presets": [
+    ["react-app", {
+      "typescript": true,
+      "absoluteRuntime": false,
+      "development": true,
+      "importSource": "@emotion/react"
+    }],
+    ["@babel/preset-typescript", {
+      "isTSX": true,
+      "allExtensions": true,
+      "onlyRemoveTypeImports": true,
+      "allowNamespaces": true,
+      "optimizeConstEnums": true
+    }]
+  ],
   "plugins": [
+    ["@babel/plugin-transform-typescript", {
+      "onlyRemoveTypeImports": true,
+      "allowNamespaces": true,
+      "allowDeclareFields": true,
+      "rewriteImportExtensions": true,
+      "isTSX": true,
+      "optimizeConstEnums": true
+    }],
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
@@ -10,11 +33,13 @@
         "components": "./src/components/",
         "selectors": "./src/selectors/",
         "reducers": "./src/reducers/",
-        "actions":"./src/actions/",
+        "actions": "./src/actions/",
         "api": "./src/api/",
         "assets": "./src/assets/",
-        "sagas": "./src/sagas/"
+        "sagas": "./src/sagas/",
+        "entities": "./src/entities/"
       }
-    }, "babel-plugin-styled-components"]
+    }],
+    "babel-plugin-styled-components"
   ]
 }

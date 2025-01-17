@@ -28,12 +28,23 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": ["./typings", "./node_modules/@types"],
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ],
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "importsNotUsedAsValues": "remove",
   },
-  "include": ["./src/**/*", "./packages"],
-  "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]
+  "include": [
+    "./src/**/*",
+    "./packages"
+  ],
+  "exclude": [
+    "./packages/rts",
+    "**/node_modules",
+    "**/.*/"
+  ]
 }

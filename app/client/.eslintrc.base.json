@@ -45,33 +45,69 @@
     "react-compiler/react-compiler": "warn",
     "padding-line-between-statements": [
       "error",
-      { "blankLine": "always", "prev": "*", "next": "return" },
       {
         "blankLine": "always",
         "prev": "*",
-        "next": ["if", "for", "while"]
+        "next": "return"
       },
       {
         "blankLine": "always",
-        "prev": ["if", "for", "while"],
+        "prev": "*",
+        "next": [
+          "if",
+          "for",
+          "while"
+        ]
+      },
+      {
+        "blankLine": "always",
+        "prev": [
+          "if",
+          "for",
+          "while"
+        ],
         "next": "*"
       },
-      { "blankLine": "always", "prev": ["const", "let"], "next": "*" },
+      {
+        "blankLine": "always",
+        "prev": [
+          "const",
+          "let"
+        ],
+        "next": "*"
+      },
       {
         "blankLine": "any",
-        "prev": ["const", "let"],
-        "next": ["const", "let"]
+        "prev": [
+          "const",
+          "let"
+        ],
+        "next": [
+          "const",
+          "let"
+        ]
       },
-      { "blankLine": "always", "prev": "*", "next": "function" },
-      { "blankLine": "always", "prev": "function", "next": "*" }
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "function"
+      },
+      {
+        "blankLine": "always",
+        "prev": "function",
+        "next": "*"
+      }
     ],
     "testing-library/consistent-data-testid": [
       "warn",
       {
         "testIdPattern": "^t--[a-zA-Z0-9_.-]*$",
-        "testIdAttribute": ["data-testid"]
+        "testIdAttribute": [
+          "data-testid"
+        ]
       }
     ],
+    "@typescript-eslint/triple-slash-reference": "warn",
     "@typescript-eslint/consistent-type-definitions": "error",
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/promise-function-async": "error",
@@ -89,7 +125,9 @@
     "react/jsx-no-useless-fragment": "error",
     "sort-destructure-keys/sort-destructure-keys": [
       "error",
-      { "caseSensitive": false }
+      {
+        "caseSensitive": false
+      }
     ],
     "no-console": "error",
     "no-debugger": "error",
@@ -109,16 +147,24 @@
       {
         "patterns": [
           {
-            "group": ["@blueprintjs/core/lib/esnext/*"],
+            "group": [
+              "@blueprintjs/core/lib/esnext/*"
+            ],
             "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
           },
           {
-            "group": ["*.svg"],
-            "importNames": ["ReactComponent"],
+            "group": [
+              "*.svg"
+            ],
+            "importNames": [
+              "ReactComponent"
+            ],
             "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
           },
           {
-            "group": ["remixicon-react/*"],
+            "group": [
+              "remixicon-react/*"
+            ],
             "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
           }
         ]
