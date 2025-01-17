@@ -17,7 +17,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { Callout } from "@appsmith/ads";
 import store from "store";
-import ExternalSaasConnection from "./ExternalSaasConnection";
+import ExternalSaasConnection from "ee/pages/Editor/DataSourceEditor/ExternalSaasConnection";
 
 const { cloudHosting } = getAppsmithConfigs();
 
