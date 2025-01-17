@@ -137,7 +137,7 @@ describe(
       cy.waitUntil(() => cy.get(homePage._profileMenu).should("be.visible"));
     });
 
-    it("3. To verify forget password email", () => {
+    it.only("3. To verify forget password email", () => {
       const resetPassSubject: string =
         CURRENT_REPO === REPO.EE
           ? "Reset your Appsmith password"
@@ -145,8 +145,10 @@ describe(
       cy.LogOut();
       cy.LoginFromAPI(emailOne, tempPassword);
       agHelper.RefreshPage();
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.reload();
+      cy.visit("/");
+      agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
       agHelper.GetNClick(SignupPageLocators.forgetPasswordLink, 0, true);
       agHelper.GetElement(SignupPageLocators.username).type(emailOne);
 
@@ -192,7 +194,7 @@ describe(
           const resetPasswordLinkMatch = emailHtml.match(
             /href="([^"]*resetPassword[^"]*)"/,
           );
-
+          console.log("Reset Password data:", resetPasswordLinkMatch);
           if (resetPasswordLinkMatch) {
             const resetPasswordLink = resetPasswordLinkMatch[1]
               .replace(new RegExp(`(${originUrl})(\\/+)`, "g"), "$1/")
@@ -208,6 +210,8 @@ describe(
             throw new Error("Reset password link not found in the email HTML");
           }
         });
+      cy.visit("/");
+      agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
       cy.LoginFromAPI(emailOne, tempPassword);
     });
 
