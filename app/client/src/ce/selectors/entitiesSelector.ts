@@ -1708,10 +1708,11 @@ export const getDatasourceUsageCountForApp = createSelector(
     const actionDsMap: Record<string, string> = {};
 
     datasources.forEach((ds) => {
-      actionDsMap[ds.id] = `No queries in this ${ideType}`;
+      actionDsMap[ds.id] = `No queries in this ${ideType.toLowerCase()}`;
     });
     Object.keys(actionCount).forEach((dsId) => {
-      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${ideType}`;
+      actionDsMap[dsId] =
+        `${actionCount[dsId]} queries in this ${ideType.toLowerCase()}`;
     });
 
     return actionDsMap;

@@ -25,7 +25,7 @@ import {
 } from "ee/utils/Environments";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { PluginType } from "entities/Plugin";
-import { useHistory } from "react-router";
+import { useLocation } from "react-router";
 import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
@@ -116,8 +116,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
-  const history = useHistory();
-  const ideType = getIDETypeByUrl(history.location.pathname);
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
 
   const deleteAction = () => {
     if (isDeleting) return;
