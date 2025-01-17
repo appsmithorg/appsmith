@@ -1,0 +1,132 @@
+import React, { useCallback, useMemo } from "react";
+import { EntityItem } from "@appsmith/ads";
+import type { EntityItem as EntityItemProps } from "ee/entities/IDE/constants";
+import type { AppState } from "ee/reducers";
+import {
+  getActionByBaseId,
+  getDatasource,
+  getPlugins,
+} from "ee/selectors/entitiesSelector";
+import {
+  PluginType,
+  type Action,
+  type StoredDatasource,
+} from "entities/Action";
+import { useDispatch, useSelector } from "react-redux";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import {
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Datasource } from "entities/Datasource";
+import history, { NavigationMethod } from "utils/history";
+import { keyBy } from "lodash";
+import { saveActionNameBasedOnIdeType } from "ee/actions/helpers";
+import { useNameEditorState } from "pages/Editor/IDE/EditorPane/hooks/useNameEditorState";
+import { useValidateEntityName } from "IDE";
+import { useLocation } from "react-router";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { QueryEntityContextMenu } from "./QueryEntityContextMenu";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
+
+export const QueryEntity = ({
+  item,
+  parentEntityId,
+}: {
+  parentEntityId: string;
+  item: EntityItemProps;
+}) => {
+  const action = useSelector((state: AppState) =>
+    getActionByBaseId(state, item.key),
+  ) as Action;
+  const datasource = useSelector((state) =>
+    getDatasource(state, (action?.datasource as StoredDatasource)?.id),
+  ) as Datasource;
+  const plugins = useSelector(getPlugins);
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
+  const activeActionBaseId = useActiveActionBaseId();
+
+  const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =
+    useNameEditorState();
+
+  const validateName = useValidateEntityName({});
+  const dispatch = useDispatch();
+
+  const actionPermissions = action.userPermissions || [];
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canDeleteAction = getHasDeleteActionPermission(
+    isFeatureEnabled,
+    actionPermissions,
+  );
+
+  const canManageAction = getHasManageActionPermission(
+    isFeatureEnabled,
+    actionPermissions,
+  );
+
+  const config = getActionConfig(action.pluginType);
+  const url = config?.getURL(
+    parentEntityId ?? "",
+    action.baseId,
+    action.pluginType,
+    pluginGroups[action.pluginId],
+  );
+
+  const switchToAction = useCallback(() => {
+    url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
+    AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+      type: "QUERIES/APIs",
+      fromUrl: location.pathname,
+      toUrl: url,
+      name: action.name,
+    });
+    AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+      actionId: action?.id,
+      datasourceId: datasource?.id,
+      pluginName: pluginGroups[action?.pluginId]?.name,
+      actionType: action?.pluginType === PluginType.DB ? "Query" : "API",
+      isMock: !!datasource?.isMock,
+    });
+  }, [url, location.pathname, action.name]);
+
+  const contextMenu = (
+    <QueryEntityContextMenu
+      canDeleteAction={canDeleteAction}
+      canManageAction={canManageAction}
+      id={action.id}
+      name={action.name}
+      parentEntityId={parentEntityId}
+      pluginType={action.pluginType}
+    />
+  );
+
+  return (
+    <EntityItem
+      id={action.id}
+      isSelected={activeActionBaseId === action.id}
+      key={action.id}
+      nameEditorConfig={{
+        canEdit: canManageAction,
+        isEditing: editingEntity === action.id,
+        isLoading: updatingEntity === action.id,
+        onEditComplete: exitEditMode,
+        onNameSave: (newName: string) =>
+          dispatch(saveActionNameBasedOnIdeType(action.id, newName, ideType)),
+        validateName: (newName) => validateName(newName, item.title),
+      }}
+      onClick={switchToAction}
+      onDoubleClick={() => enterEditMode(action.id)}
+      rightControl={contextMenu}
+      rightControlVisibility="hover"
+      startIcon={item.icon}
+      title={item.title}
+    />
+  );
+};

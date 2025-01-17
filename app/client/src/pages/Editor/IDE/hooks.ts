@@ -27,13 +27,13 @@ import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
 import { useGitCurrentBranch } from "../gitSync/hooks/modHooks";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useBoolean } from "usehooks-ts";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -65,9 +65,8 @@ export const useCurrentEditorState = () => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId: baseParentEntityId } =
-    useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId: baseParentEntityId } = useParentEntityInfo(ideType);
 
   /**
    * Callback to handle the segment change

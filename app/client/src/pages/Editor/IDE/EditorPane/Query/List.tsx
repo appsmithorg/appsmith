@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { Flex, Text, SearchAndAdd, NoSearchResults } from "@appsmith/ads";
+import {
+  Flex,
+  Text,
+  SearchAndAdd,
+  NoSearchResults,
+  EntityGroupsList,
+} from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
@@ -20,14 +22,22 @@ import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import { ActionEntity } from "ee/pages/Editor/IDE/EditorPane/Query/ActionEntity";
+import { useLocation } from "react-router";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const pageId = useSelector(getCurrentPageId) as string;
   const itemGroups = useSelector(selectQuerySegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { editorId, parentEntityId } = useParentEntityInfo(ideType);
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
@@ -38,10 +48,13 @@ const ListQuery = () => {
     isFeatureEnabled,
     pagePermissions,
   );
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const { openAddQuery } = useQueryAdd();
   const showWorkflows = useSelector(getShowWorkflowFeature);
+
+  const isNewADSTemplatesEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_ads_entity_item_enabled,
+  );
 
   return (
     <Flex
@@ -62,39 +75,55 @@ const ListQuery = () => {
         />
       ) : null}
       <Flex flexDirection={"column"} gap="spaces-4" overflowY="auto">
-        {filteredItemGroups.map(({ group, items }) => {
-          return (
-            <Flex flexDirection={"column"} key={group}>
-              <Flex py="spaces-1">
-                <Text
-                  className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                  kind="body-s"
-                >
-                  {group}
-                </Text>
-              </Flex>
-              <FilesContextProvider
-                canCreateActions={canCreateActions}
-                editorId={applicationId}
-                parentEntityId={pageId}
-                parentEntityType={ActionParentEntityType.PAGE}
-                showWorkflows={showWorkflows}
-              >
-                {items.map((file) => {
+        {isNewADSTemplatesEnabled ? (
+          <EntityGroupsList
+            groups={filteredItemGroups.map(({ group, items }) => {
+              return {
+                groupTitle: group,
+                items: items,
+                className: "",
+                renderList: (item: EntityItem) => {
                   return (
-                    <QueryListItem
-                      isActive={file.key === activeActionBaseId}
-                      item={file}
-                      key={file.key}
-                      parentEntityId={pageId}
-                      parentEntityType={ActionParentEntityType.PAGE}
-                    />
+                    <ActionEntity item={item} parentEntityId={parentEntityId} />
                   );
-                })}
-              </FilesContextProvider>
-            </Flex>
-          );
-        })}
+                },
+              };
+            })}
+          />
+        ) : (
+          filteredItemGroups.map(({ group, items }) => {
+            return (
+              <Flex flexDirection={"column"} key={group}>
+                <Flex py="spaces-1">
+                  <Text
+                    className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+                    kind="body-s"
+                  >
+                    {group}
+                  </Text>
+                </Flex>
+                <FilesContextProvider
+                  canCreateActions={canCreateActions}
+                  editorId={editorId}
+                  parentEntityId={parentEntityId}
+                  parentEntityType={ActionParentEntityType.PAGE}
+                  showWorkflows={showWorkflows}
+                >
+                  {items.map((file) => {
+                    return (
+                      <QueryListItem
+                        isActive={file.key === activeActionBaseId}
+                        item={file}
+                        key={file.key}
+                        parentEntityId={parentEntityId}
+                      />
+                    );
+                  })}
+                </FilesContextProvider>
+              </Flex>
+            );
+          })
+        )}
         {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <NoSearchResults
             text={createMessage(

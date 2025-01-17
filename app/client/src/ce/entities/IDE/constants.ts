@@ -139,3 +139,21 @@ export type UseRoutes = Array<{
   path: string[];
   exact: boolean;
 }>;
+
+export enum ActionEntityContextMenuItemsEnum {
+  RENAME = "Rename",
+  SHOW_BINDING = "Show Bindings",
+  CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
+  COPY = "Copy",
+  MOVE = "Move",
+  DELETE = "Delete",
+}
+
+export const defaultActionMenuItems = [
+  ActionEntityContextMenuItemsEnum.RENAME,
+  ActionEntityContextMenuItemsEnum.DELETE,
+  ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+  ActionEntityContextMenuItemsEnum.COPY,
+  ActionEntityContextMenuItemsEnum.MOVE,
+  ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
+];
