@@ -6,10 +6,8 @@ import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { APIFactory } from "test/factories/Actions/API";
-import localStorage from "utils/localStorage";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
 import { sagasToRunForTests } from "test/sagas";
-import userEvent from "@testing-library/user-event";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { screen, waitFor } from "@testing-library/react";
@@ -22,7 +20,6 @@ const FeatureFlags = {
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE URL rendering of Queries", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("Query Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(
@@ -144,7 +141,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { getAllByText, getByRole, getByTestId } = render(
+      const { getAllByRole, getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -159,13 +156,13 @@ describe("IDE URL rendering of Queries", () => {
         async () => {
           const elements = getAllByText("Api1"); // Use the common test ID or selector
 
-          expect(elements).toHaveLength(3); // Wait until there are exactly 3 elements
+          expect(elements).toHaveLength(2); // Wait until there are exactly 3 elements
         },
         { timeout: 3000, interval: 500 },
       );
 
-      // There will be 3 Api1 text (Left pane list, editor tab and Editor form)
-      expect(getAllByText("Api1").length).toEqual(3);
+      // There will be 2 Api1 text (Left pane list, editor tab)
+      expect(getAllByText("Api1").length).toEqual(2);
       // Left pane active state
       expect(
         getByTestId("t--entity-item-Api1").classList.contains("active"),
@@ -175,11 +172,11 @@ describe("IDE URL rendering of Queries", () => {
         true,
       );
       // Check if the form is rendered
-      getByTestId("t--action-form-API");
+      getByTestId("t--api-editor-form");
       // Check if the params tabs is visible
       getByRole("tab", { name: /params/i });
       // Check if run button is visible
-      getByRole("button", { name: /run/i });
+      expect(getAllByRole("button", { name: /run/i })).toHaveLength(2);
       // Check if the Add new button is shown
       getByTestId("t--add-item");
     });
@@ -201,7 +198,7 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByText, getByRole, getByTestId } = render(
+      const { getAllByRole, getAllByText, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -217,15 +214,15 @@ describe("IDE URL rendering of Queries", () => {
       getByTestId("t--widgets-editor");
 
       // Check if api is rendered in side by side
-      expect(getAllByText("Api2").length).toBe(2);
+      expect(getAllByText("Api2").length).toBe(1);
       // Tabs active state
       expect(getByTestId("t--ide-tab-api2").classList.contains("active")).toBe(
         true,
       );
       // Check if the form is rendered
-      getByTestId("t--action-form-API");
+      getByTestId("t--api-editor-form");
       // Check if run button is visible
-      getByRole("button", { name: /run/i });
+      expect(getAllByRole("button", { name: /run/i }).length).toBe(2);
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
     });
@@ -358,12 +355,12 @@ describe("IDE URL rendering of Queries", () => {
         async () => {
           const elements = getAllByText("Query1"); // Use the common test ID or selector
 
-          expect(elements).toHaveLength(3); // Wait until there are exactly 3 elements
+          expect(elements).toHaveLength(2); // Wait until there are exactly 3 elements
         },
         { timeout: 3000, interval: 500 },
       );
-      // There will be 3 Query1 text (Left pane list, editor tab and Editor form)
-      expect(getAllByText("Query1").length).toBe(3);
+      // There will be 2 Query1 text (Left pane list, editor tab)
+      expect(getAllByText("Query1").length).toBe(2);
       // Left pane active state
       expect(
         getByTestId("t--entity-item-Query1").classList.contains("active"),
@@ -372,11 +369,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(
         getByTestId("t--ide-tab-query1").classList.contains("active"),
       ).toBe(true);
-
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
       // Check if the form is rendered
-      getByTestId("t--action-form-DB");
+      getByTestId("t--uqi-editor-form");
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
@@ -417,16 +411,14 @@ describe("IDE URL rendering of Queries", () => {
       getByTestId("t--widgets-editor");
 
       // Check if api is rendered in side by side
-      expect(getAllByText("Query2").length).toBe(2);
+      expect(getAllByText("Query2").length).toBe(1);
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-query2").classList.contains("active"),
       ).toBe(true);
 
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
       // Check if the form is rendered
-      getByTestId("t--action-form-DB");
+      getByTestId("t--uqi-editor-form");
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
@@ -449,7 +441,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { container, getByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -460,8 +452,6 @@ describe("IDE URL rendering of Queries", () => {
           sagasToRun: sagasToRunForTests,
         },
       );
-
-      screen.logTestingPlaygroundURL(container);
 
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
@@ -562,8 +552,8 @@ describe("IDE URL rendering of Queries", () => {
         },
       );
 
-      // There will be 3 Query1 text (Left pane list, editor tab and Editor form)
-      expect(getAllByText("Sheets1").length).toBe(3);
+      // There will be 2 Query1 text (Left pane list, editor tab)
+      expect(getAllByText("Sheets1").length).toBe(2);
       // Left pane active state
       expect(
         getByTestId("t--entity-item-Sheets1").classList.contains("active"),
@@ -573,10 +563,8 @@ describe("IDE URL rendering of Queries", () => {
         getByTestId("t--ide-tab-sheets1").classList.contains("active"),
       ).toBe(true);
 
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
       // Check if the form is rendered
-      getByTestId("t--action-form-SAAS");
+      getByTestId("t--uqi-editor-form");
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
@@ -618,18 +606,16 @@ describe("IDE URL rendering of Queries", () => {
       getByTestId("t--widgets-editor");
 
       // Check if api is rendered in side by side
-      expect(getAllByText("Sheets2").length).toBe(2);
+      expect(getAllByText("Sheets2").length).toBe(1);
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-sheets2").classList.contains("active"),
       ).toBe(true);
 
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
       screen.logTestingPlaygroundURL(container);
 
       // Check if the form is rendered
-      getByTestId("t--action-form-SAAS");
+      getByTestId("t--uqi-editor-form");
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
@@ -653,7 +639,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { container, getByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -664,8 +650,6 @@ describe("IDE URL rendering of Queries", () => {
           sagasToRun: sagasToRunForTests,
         },
       );
-
-      screen.logTestingPlaygroundURL(container);
 
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));

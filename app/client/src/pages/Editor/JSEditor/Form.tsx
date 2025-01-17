@@ -55,14 +55,14 @@ import {
   type JSActionDropdownOption,
   convertJSActionToDropdownOption,
   getJSActionOption,
+  type OnUpdateSettingsProps,
 } from "./JSEditorToolbar";
-import type { JSFunctionSettingsProps } from "./JSEditorToolbar/components/old/JSFunctionSettings";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
   showSettings?: boolean;
-  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  onUpdateSettings: (props: OnUpdateSettingsProps) => void;
   saveJSObjectName: JSObjectNameEditorProps["saveJSObjectName"];
   backLink?: React.ReactNode;
   hideContextMenuOnEditor?: boolean;

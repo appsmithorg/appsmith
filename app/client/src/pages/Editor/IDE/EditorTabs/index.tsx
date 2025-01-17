@@ -17,7 +17,6 @@ import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import { SCROLL_AREA_OPTIONS, TabSelectors } from "./constants";
 import { AddButton } from "./AddButton";
-import { Announcement } from "../EditorPane/components/Announcement";
 import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { List } from "./List";
@@ -162,9 +161,6 @@ const EditorTabs = () => {
       {isListViewActive && ideViewMode === EditorViewMode.SplitScreen && (
         <List />
       )}
-
-      {/* Announcement modal */}
-      {ideViewMode === EditorViewMode.SplitScreen && <Announcement />}
     </>
   );
 };
