@@ -104,7 +104,7 @@ const TABLE_DATA_2 = `[
 
 describe(
   "Table widget v2: tableData change test",
-  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.ClearLocalStorageCache();

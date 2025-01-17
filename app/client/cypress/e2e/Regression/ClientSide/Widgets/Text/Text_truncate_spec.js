@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text Widget Truncate Functionality",
-  { tags: ["@tag.All", "@tag.Text", "@tag.Binding"] },
+  { tags: ["@tag.Widget", "@tag.Text", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("textNewDsl");
