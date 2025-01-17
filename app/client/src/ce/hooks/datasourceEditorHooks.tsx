@@ -21,9 +21,9 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { EditorNames } from "./";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -33,7 +33,7 @@ export interface HeaderActionProps {
 }
 
 export const useHeaderActions = (
-  editorType: string,
+  ideType: IDEType,
   {
     datasource,
     isPluginAuthorized,
@@ -72,7 +72,7 @@ export const useHeaderActions = (
     ? false
     : !!isPluginAllowedToPreviewData;
 
-  if (editorType === EditorNames.APPLICATION) {
+  if (ideType === IDE_TYPE.App) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
       isEnabled: isFeatureEnabled,
       dsPermissions: datasource?.userPermissions ?? [],

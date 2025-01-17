@@ -28,7 +28,7 @@ import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { useLocation } from "react-router";
 import {

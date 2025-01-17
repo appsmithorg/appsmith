@@ -7,11 +7,7 @@ import {
   getDatasource,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import {
-  PluginType,
-  type Action,
-  type StoredDatasource,
-} from "entities/Action";
+import { type Action, type StoredDatasource } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -31,6 +27,7 @@ import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { QueryEntityContextMenu } from "./QueryEntityContextMenu";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
+import { PluginType } from "entities/Plugin";
 
 export const QueryEntity = ({
   item,
