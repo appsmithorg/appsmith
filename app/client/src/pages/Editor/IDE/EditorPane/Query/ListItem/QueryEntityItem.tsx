@@ -106,6 +106,7 @@ export const QueryEntityItem = ({
 
   return (
     <EntityItem
+      className="action t--action-entity"
       id={action.id}
       isSelected={activeActionBaseId === action.id}
       key={action.id}
