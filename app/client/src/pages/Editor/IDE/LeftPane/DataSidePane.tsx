@@ -59,13 +59,12 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const ideType = getIDETypeByUrl(history.location.pathname);
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
   const dsUsageMap = useSelector((state) => dsUsageSelector(state, ideType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
-
-  const location = useLocation();
 
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
