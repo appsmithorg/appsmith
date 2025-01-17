@@ -9,8 +9,8 @@ import { omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import type { Plugin } from "api/PluginApi";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { Plugin } from "entities/Plugin";
 
 interface Props {
   datasourceId: string;

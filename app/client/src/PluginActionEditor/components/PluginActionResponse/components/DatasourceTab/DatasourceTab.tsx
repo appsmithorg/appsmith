@@ -13,7 +13,7 @@ import type { AppState } from "ee/reducers";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-import { DatasourceComponentTypes } from "api/PluginApi";
+import { DatasourceComponentTypes } from "entities/Plugin";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { SchemaDisplayStatus, StatusDisplay } from "./StatusDisplay";
 import { DatasourceTables } from "./DatasourceTables";

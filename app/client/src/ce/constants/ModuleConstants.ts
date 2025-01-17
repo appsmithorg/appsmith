@@ -1,4 +1,4 @@
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 
 type ID = string;
 

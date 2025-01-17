@@ -54,7 +54,7 @@ export function AppPage(props: AppPageProps) {
       sidebarWidth={sidebarWidth}
     >
       <PageView
-        className="mp-mask"
+        className="as-mask"
         data-testid="t--app-viewer-page"
         width={width}
       >

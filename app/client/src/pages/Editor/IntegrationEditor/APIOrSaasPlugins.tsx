@@ -5,9 +5,13 @@ import {
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import type { AppState } from "ee/reducers";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import { getQueryParams } from "utils/URLUtils";
 import {
   getGenerateCRUDEnabledPluginMap,

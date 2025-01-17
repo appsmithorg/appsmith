@@ -6,7 +6,6 @@ import {
   getPluginImages,
   getMostPopularPlugins,
 } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "ee/constants/forms";
 import {
   createDatasourceFromForm,
@@ -18,11 +17,9 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { API_ACTION } from "./APIOrSaasPlugins";
-import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@appsmith/ads";
 import {
   createMessage,
@@ -47,6 +44,12 @@ import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type { Datasource } from "entities/Datasource";
 import type { AnyAction, Dispatch } from "redux";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { IDEType } from "ee/entities/IDE/constants";
 

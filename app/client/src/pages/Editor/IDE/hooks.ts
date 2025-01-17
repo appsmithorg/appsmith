@@ -30,8 +30,6 @@ import { useGitCurrentBranch } from "../gitSync/hooks/modHooks";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useBoolean } from "usehooks-ts";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
@@ -211,12 +209,8 @@ export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
     LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE,
   );
 
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const { setFalse, value } = useBoolean(
-    widgetBindingsExist && isActionRedesignEnabled && !localStorageFlag,
+    widgetBindingsExist && !localStorageFlag,
   );
 
   const dismissNudge = useCallback(() => {

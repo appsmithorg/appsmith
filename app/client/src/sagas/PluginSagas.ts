@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
@@ -16,7 +16,6 @@ import {
   getPlugins,
 } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
 import {
   fetchPluginFormConfigsSuccess,
   fetchPluginFormConfigSuccess,
@@ -31,11 +30,8 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import {
-  getAppsmithAIPlugin,
-  getGraphQLPlugin,
-  PluginType,
-} from "entities/Action";
+import { getAppsmithAIPlugin, getGraphQLPlugin } from "entities/Action";
+import { type DefaultPlugin, type Plugin, PluginType } from "entities/Plugin";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
