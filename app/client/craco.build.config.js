@@ -38,7 +38,7 @@ plugins.push(
   }),
 );
 
-if (env === "PRODUCTION" || env === "STAGING") {
+if (env === "PRODUCTION") {
   plugins.push(
     new FaroSourceMapUploaderPlugin({
       appId: process.env.REACT_APP_FARO_APP_ID,
@@ -52,8 +52,6 @@ if (env === "PRODUCTION" || env === "STAGING") {
     }),
   );
 }
-
-plugins.push(new CompressionPlugin());
 
 plugins.push(
   new CompressionPlugin({
@@ -78,17 +76,16 @@ plugins.push(
 );
 
 module.exports = merge(common, {
-  webpack: {
-    configure: {
-      plugins,
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+    loaderOptions: {
+      cacheDirectory: false,
     },
   },
-  jest: {
+  webpack: {
     configure: {
-      moduleNameMapper: {
-        // Jest module mapper which will detect our absolute imports.
-        "^@test(.*)$": "<rootDir>/test$1",
-      },
+      devtool: env === "PRODUCTION" ? "source-map" : false,
+      plugins,
     },
   },
   plugins: [
