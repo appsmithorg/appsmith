@@ -15,7 +15,7 @@ let queryName: string;
 
 describe(
   "Bug 28287: Binding query to widget, check query response in query editor on page load",
-  { tags: ["@tag.Binding", "@tag.Widget"] },
+  { tags: ["@tag.Binding", "@tag.All"] },
   function () {
     before("Drag drop a text widget", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

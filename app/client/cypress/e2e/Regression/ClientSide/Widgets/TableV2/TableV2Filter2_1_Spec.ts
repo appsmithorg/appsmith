@@ -11,7 +11,7 @@ import {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   function () {
     it("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

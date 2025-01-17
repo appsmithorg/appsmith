@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "AForce - Community Issues page validations",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   function () {
     before(function () {
       agHelper.ClearLocalStorageCache();

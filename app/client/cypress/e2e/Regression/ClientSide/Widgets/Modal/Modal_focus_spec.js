@@ -8,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Modal focus",
-  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Modal", "@tag.Binding"] },
   function () {
     const someInputText = "some text";
 

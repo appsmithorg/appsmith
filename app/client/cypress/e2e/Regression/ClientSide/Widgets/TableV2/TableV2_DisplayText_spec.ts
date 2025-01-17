@@ -23,7 +23,7 @@ const data = [
 
 describe(
   "Table V2 sort & filter using display text functionality",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

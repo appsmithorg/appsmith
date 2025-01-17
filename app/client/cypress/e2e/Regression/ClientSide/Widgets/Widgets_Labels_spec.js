@@ -1,6 +1,6 @@
 let COLUMN_SPACE = 0;
 
-describe("Label feature", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
+describe("Label feature", { tags: ["@tag.All", "@tag.Binding"] }, () => {
   before(() => {
     cy.get("#canvas-viewport").invoke("width", `640px`);
     // 72 - gutter width

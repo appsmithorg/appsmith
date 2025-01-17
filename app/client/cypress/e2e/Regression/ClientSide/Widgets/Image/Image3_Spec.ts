@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Image widget - Rotation & Download",
-  { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Image", "@tag.Binding"] },
   function () {
     const jpgImg =
       "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";

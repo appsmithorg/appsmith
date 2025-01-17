@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tab widget test",
-  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tabsWithWidgetDsl");

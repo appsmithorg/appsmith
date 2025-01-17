@@ -11,7 +11,7 @@ import EditorNavigation, {
 
 describe(
   "Select Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.All", "@tag.Select"] },
   function () {
     it("Validate select widget data - source data , label key , value key, default selected value ", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);

@@ -10,7 +10,7 @@ import {
 
 describe(
   "Image Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Image", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("displayWidgetDsl");

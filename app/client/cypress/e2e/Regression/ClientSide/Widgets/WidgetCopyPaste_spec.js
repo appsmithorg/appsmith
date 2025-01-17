@@ -12,7 +12,7 @@ import PageList from "../../../../support/Pages/PageList";
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe(
   "Widget Copy paste",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     before(() => {

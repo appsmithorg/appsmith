@@ -6,7 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "RichTextEditor Widget Validation",
-  { tags: ["@tag.Widget", "@tag.TextEditor", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.TextEditor", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");

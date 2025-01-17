@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Dropdown", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Dropdown", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Select widget tests",
-  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT);

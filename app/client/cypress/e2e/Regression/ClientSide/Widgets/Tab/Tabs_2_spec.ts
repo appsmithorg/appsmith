@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Tabs widget Tests",
-  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tabsDsl");

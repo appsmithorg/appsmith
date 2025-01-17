@@ -3,7 +3,7 @@ import { DEFAULT_COLUMN_NAME } from "../../../../../support/Constants";
 
 describe(
   "tests bug 20663 TypeError: Cannot read properties of undefined",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.All", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

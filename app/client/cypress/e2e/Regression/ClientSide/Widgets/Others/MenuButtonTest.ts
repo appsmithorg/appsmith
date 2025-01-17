@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Menu Button widget Tests",
-  { tags: ["@tag.Widget", "@tag.MenuButton"] },
+  { tags: ["@tag.All", "@tag.MenuButton"] },
   function () {
     before(() => {
       agHelper.AddDsl("menuButtonDsl");

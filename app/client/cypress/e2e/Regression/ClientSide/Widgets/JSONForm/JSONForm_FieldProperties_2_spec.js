@@ -17,7 +17,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "Text Field Property Control",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

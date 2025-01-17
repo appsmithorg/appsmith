@@ -21,7 +21,7 @@ import EditorNavigation, {
 
 describe(
   "Switchgroup Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Switch", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Switch", "@tag.Binding"] },
   function () {
     /**
      * Adding switch group, checkbox group and text widgets

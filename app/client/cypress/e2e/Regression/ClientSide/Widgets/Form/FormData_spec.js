@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form data",
-  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Form", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formDataDsl");

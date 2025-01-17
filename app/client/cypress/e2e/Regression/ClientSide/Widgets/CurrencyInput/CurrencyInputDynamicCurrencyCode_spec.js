@@ -4,7 +4,7 @@ const widgetName = "currencyinputwidget";
 
 describe(
   "Currency input widget - ",
-  { tags: ["@tag.Widget", "@tag.CurrencyInput", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.CurrencyInput", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("CurrencyInputDynamic");

@@ -12,7 +12,7 @@ import {
 
 describe(
   "Statbox Widget",
-  { tags: ["@tag.Widget", "@tag.Statbox", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Statbox", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("StatboxDsl");

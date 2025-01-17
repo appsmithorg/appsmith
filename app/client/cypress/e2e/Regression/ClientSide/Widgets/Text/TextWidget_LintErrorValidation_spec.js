@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Linting warning validation with text widget",
-  { tags: ["@tag.Widget", "@tag.Text", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Text", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("textLintErrorDsl");

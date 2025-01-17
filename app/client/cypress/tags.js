@@ -63,7 +63,7 @@ module.exports = {
     "@tag.Theme",
     "@tag.Video",
     "@tag.Visual",
-    "@tag.Widget",
+    "@tag.All",
     "@tag.Workflows",
     "@tag.Workspace",
     "@tag.airgap",

@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
-  { tags: ["@tag.Widget", "@tag.JS", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JS", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300);

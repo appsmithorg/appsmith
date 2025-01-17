@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Iframe Widget functionality",
-  { tags: ["@tag.Widget", "@tag.Iframe", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Iframe", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("IframeDsl");

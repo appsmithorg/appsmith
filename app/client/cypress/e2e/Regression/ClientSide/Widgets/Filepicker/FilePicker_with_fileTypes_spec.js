@@ -7,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "FilePicker Widget Functionality with different file types",
-  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Filepicker", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("filepickerDsl");

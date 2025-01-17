@@ -9,7 +9,7 @@ const widgetInput = `${wiggetClass} input`;
 describe("Currency Input Issue", function () {
   it(
     "1. Import application json &should check that the widget input is not showing any error",
-    { tags: ["@tag.Widget", "@tag.CurrencyInput", "@tag.Binding"] },
+    { tags: ["@tag.All", "@tag.CurrencyInput", "@tag.Binding"] },
     function () {
       agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       homePage.ImportApp("CurrencyInputIssueExport.json");

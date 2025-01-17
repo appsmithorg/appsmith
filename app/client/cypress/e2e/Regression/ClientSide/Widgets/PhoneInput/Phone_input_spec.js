@@ -15,7 +15,7 @@ const searchAndSelectOption = (optionValue) => {
 };
 describe(
   "Phone input widget - ",
-  { tags: ["@tag.Widget", "@tag.PhoneInput", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.PhoneInput", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

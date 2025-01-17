@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Modal Widget test cases",
-  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Modal", "@tag.Binding"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
     const jpgImg =

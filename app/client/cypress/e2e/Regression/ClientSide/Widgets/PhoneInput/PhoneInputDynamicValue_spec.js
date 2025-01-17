@@ -12,7 +12,7 @@ const widgetName = "phoneinputwidget";
 
 describe(
   "Phone input widget - ",
-  { tags: ["@tag.Widget", "@tag.PhoneInput", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.PhoneInput", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("PhoneInputDynamic");

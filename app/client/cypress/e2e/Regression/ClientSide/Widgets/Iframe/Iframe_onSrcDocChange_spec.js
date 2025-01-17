@@ -10,7 +10,7 @@ const page1 = "Page1";
 
 describe(
   "Iframe Widget functionality",
-  { tags: ["@tag.Widget", "@tag.Iframe", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Iframe", "@tag.Binding"] },
   function () {
     it("1.Import application json", function () {
       cy.visit("/applications", { timeout: 60000 });

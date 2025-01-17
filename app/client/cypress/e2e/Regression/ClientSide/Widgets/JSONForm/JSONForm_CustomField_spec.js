@@ -16,7 +16,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "JSON Form Widget Custom Field",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     it("uses the custom field when the accessor matches", () => {
       const formDsl = JSON.parse(

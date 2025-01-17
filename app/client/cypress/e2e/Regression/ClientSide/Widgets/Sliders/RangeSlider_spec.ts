@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Range Slider spec",
-  { tags: ["@tag.Widget", "@tag.Slider", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Slider", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("rangesliderwidget", 550, 100);

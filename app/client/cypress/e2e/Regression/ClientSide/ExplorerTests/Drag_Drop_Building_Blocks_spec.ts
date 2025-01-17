@@ -16,7 +16,7 @@ describe(
   {
     tags: [
       "@tag.IDE",
-      "@tag.Widget",
+      "@tag.All",
       "@tag.Templates",
       "@tag.excludeForAirgap",
       "@tag.PropertyPane",

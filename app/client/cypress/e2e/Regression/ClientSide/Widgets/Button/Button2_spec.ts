@@ -19,7 +19,7 @@ import EditorNavigation, {
 
 describe(
   "Button widget testcases",
-  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Button", "@tag.Binding"] },
   () => {
     before(() => {
       apiPage.CreateAndFillApi(

@@ -3,7 +3,7 @@ import widgets from "../../../../../locators/Widgets.json";
 
 describe(
   "Form reset functionality",
-  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Form", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formResetDsl");

@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Image Widget Functionality with base64",
-  { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Image", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("base64imagedsl");

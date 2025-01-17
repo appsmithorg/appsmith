@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Table widget date column type validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.All", "@tag.Table"] },
   () => {
     before(() => {
       entityExplorer.DragNDropWidget("tablewidgetv2", 350, 500);

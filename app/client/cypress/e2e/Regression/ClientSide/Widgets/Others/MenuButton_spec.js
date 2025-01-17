@@ -5,7 +5,7 @@ const { modifierKey } = require("../../../../../support/Constants");
 
 describe(
   "Menu button Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.MenuButton", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.MenuButton", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("menuButtonDsl");

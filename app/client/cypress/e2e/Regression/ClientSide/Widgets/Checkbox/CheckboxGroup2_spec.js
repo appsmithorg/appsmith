@@ -8,7 +8,7 @@ import {
 
 describe(
   "Checkbox Group Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Checkbox", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Checkbox", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("checkboxgroupDsl");

@@ -5,7 +5,7 @@ const widgetName = "currencyinputwidget";
 
 describe(
   "Currency Widget showStepArrows Functionality - ",
-  { tags: ["@tag.Widget", "@tag.CurrencyInput", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.CurrencyInput", "@tag.Binding"] },
   function () {
     it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });

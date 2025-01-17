@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Icon Button widget Tests",
-  { tags: ["@tag.Widget", "@tag.IconButton", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.IconButton", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON);

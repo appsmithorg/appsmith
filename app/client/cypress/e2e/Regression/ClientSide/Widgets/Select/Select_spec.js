@@ -21,7 +21,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "Select widget",
-  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Select", "@tag.Binding"] },
   () => {
     it("1. Drag and drop Select/Text widgets", () => {
       cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });

@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Modal Widget with auto-layout usecases",
-  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Modal", "@tag.Binding"] },
   function () {
     it("1. Add new Modal widget with other widgets and validate with auto-layout", () => {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

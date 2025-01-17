@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Image widget tests",
-  { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Image", "@tag.Binding"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
     const jpgImg =

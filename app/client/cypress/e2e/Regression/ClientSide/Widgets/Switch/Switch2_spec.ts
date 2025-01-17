@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Switch widget testcases",
-  { tags: ["@tag.Widget", "@tag.Switch", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Switch", "@tag.Binding"] },
   () => {
     const jsonData = `[
         {

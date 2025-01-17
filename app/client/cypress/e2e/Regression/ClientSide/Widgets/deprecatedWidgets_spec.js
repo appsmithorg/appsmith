@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Deprecation warning feature",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("deprecatedWidgets");

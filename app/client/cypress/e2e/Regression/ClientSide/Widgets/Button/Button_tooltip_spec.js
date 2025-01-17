@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Button Widget Functionality - Validate tooltip visibility",
-  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Button", "@tag.Binding"] },
   function () {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(

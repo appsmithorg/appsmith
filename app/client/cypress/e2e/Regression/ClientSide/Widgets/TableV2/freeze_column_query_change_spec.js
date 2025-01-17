@@ -12,7 +12,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "1. Check frozen common and/or custom columns retain position on query change",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });

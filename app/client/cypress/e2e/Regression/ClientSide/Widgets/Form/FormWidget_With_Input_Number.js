@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form Widget with Input Functionality",
-  { tags: ["@tag.Widget", "@tag.Form"] },
+  { tags: ["@tag.All", "@tag.Form"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formWidgetWithInputValCheckDsl");

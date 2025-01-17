@@ -2,7 +2,7 @@ const widgetName = "audiorecorderwidget";
 
 describe(
   "AudioRecorder Widget",
-  { tags: ["@tag.Widget", "@tag.Audio", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Audio", "@tag.Binding"] },
   () => {
     it("Drag & drop AudioRecorder and Text widgets", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

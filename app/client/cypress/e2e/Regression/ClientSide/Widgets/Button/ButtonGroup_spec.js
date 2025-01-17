@@ -18,7 +18,7 @@ const menuButton =
 
 describe(
   "Button Group Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Button", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);

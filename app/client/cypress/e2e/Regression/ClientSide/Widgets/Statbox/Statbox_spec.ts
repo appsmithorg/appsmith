@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Statbox spec",
-  { tags: ["@tag.Widget", "@tag.Statbox", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Statbox", "@tag.Binding"] },
   () => {
     before(() => {
       /**

@@ -6,7 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Checkbox", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Checkbox", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("newFormDsl");

@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 describe(
   "JSONForm Footer spec",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

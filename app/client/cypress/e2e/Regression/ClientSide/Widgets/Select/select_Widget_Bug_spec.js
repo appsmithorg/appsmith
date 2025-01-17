@@ -6,7 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Select Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formSelectDsl");

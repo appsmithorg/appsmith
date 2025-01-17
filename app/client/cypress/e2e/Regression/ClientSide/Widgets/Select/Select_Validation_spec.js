@@ -8,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Select Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Select", "@tag.Sanity", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Select", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);
