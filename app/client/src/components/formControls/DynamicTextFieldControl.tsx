@@ -20,7 +20,6 @@ import {
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Flex } from "@appsmith/ads";
 
 const Wrapper = styled.div`
@@ -110,14 +109,12 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
   const pluginName = getPluginNameFromId(state, pluginId);
-  const { release_actions_redesign_enabled } = selectFeatureFlags(state);
 
   return {
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
     pluginName,
-    isActionRedesignEnabled: release_actions_redesign_enabled,
   };
 };
 
