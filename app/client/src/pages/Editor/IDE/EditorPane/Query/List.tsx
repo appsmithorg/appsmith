@@ -17,13 +17,13 @@ import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
+import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem/old/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import type { EntityItem } from "ee/entities/IDE/constants";
-import { ActionEntity } from "ee/pages/Editor/IDE/EditorPane/Query/ActionEntity";
+import { ActionEntityItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
@@ -84,7 +84,10 @@ const ListQuery = () => {
                 className: "",
                 renderList: (item: EntityItem) => {
                   return (
-                    <ActionEntity item={item} parentEntityId={parentEntityId} />
+                    <ActionEntityItem
+                      item={item}
+                      parentEntityId={parentEntityId}
+                    />
                   );
                 },
               };

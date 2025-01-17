@@ -29,7 +29,7 @@ import { QueryEntityContextMenu } from "./QueryEntityContextMenu";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
 
-export const QueryEntity = ({
+export const QueryEntityItem = ({
   item,
   parentEntityId,
 }: {
