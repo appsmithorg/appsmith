@@ -17,7 +17,7 @@ on:
 
 jobs:
   run-tests:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-22.04-8core
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'workflow_dispatch'
@@ -65,7 +65,7 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
-      
+
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
         with:
@@ -93,16 +93,14 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
-            if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
-                export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
-            else
-                export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
-            fi
+          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+              export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
+          else
+              export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+          fi
 
-            args=()
+          args=()
 
-            # Run tests and capture logs
-            cd app/server
-            mvn verify -DskipUTs=true "${args[@]}" | tee mvn_integration_test.log
-
-
+          # Run tests and capture logs
+          cd app/server
+          mvn verify -DskipUTs=true "${args[@]}" | tee mvn_integration_test.log
