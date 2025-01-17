@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com node scripts/start.js",
+    "start": "HTTPS=true SKIP_TYPE_CHECK=true REACT_APP_TESTING=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com node scripts/start.js",
     "build": "SKIP_TYPE_CHECK=true node --max-old-space-size=10240 scripts/build.js",
     "build-airgap": "node download-assets.js && node --max-old-space-size=10240 scripts/build.js",
     "build-local": "node --max-old-space-size=10240 scripts/build.js",

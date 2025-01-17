@@ -77,6 +77,7 @@ module.exports = function (proxy, allowedHost) {
         hostname: sockHost,
         pathname: sockPath,
         port: sockPort,
+        protocol: 'wss',  // Force secure WebSocket protocol
       },
       overlay: {
         errors: true,
