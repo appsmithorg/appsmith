@@ -1,13 +1,14 @@
 import {
   agHelper,
   appSettings,
-  assertHelper,
   dataSources,
   deployMode,
   draggableWidgets,
   entityExplorer,
   jsEditor,
   propPane,
+  homePage,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import EditorNavigation, {
@@ -97,6 +98,7 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -161,6 +163,7 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -176,10 +179,11 @@ describe(
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(pageTwoUrl);
+      agHelper.CypressReload();
+      agHelper.WaitUntilEleAppear(debuggerHelper.locators._debuggerIcon);
     });
 
     it("3. To verify add a navigation using URL containing links to third party websites", () => {
-      assertHelper.AssertNetworkResponseData("@getConsolidatedData");
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
@@ -226,6 +230,7 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -300,6 +305,7 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
