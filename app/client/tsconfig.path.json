@@ -1,8 +1,57 @@
 {
   "compilerOptions": {
     "paths": {
-      "ee/*": ["ee/*"],
-      "test/*": ["../test/*"]
+      "@appsmith/*": [
+        "../packages/*"
+      ],
+      "@appsmith/ce/*": [
+        "ce/*"
+      ],
+      "@appsmith/ee/*": [
+        "ee/*"
+      ],
+      "@appsmith/utils/*": [
+        "../packages/utils/*"
+      ],
+      "@appsmith/ast/*": [
+        "../packages/ast/*"
+      ],
+      "@appsmith/dsl/*": [
+        "../packages/dsl/*"
+      ],
+      "@appsmith/icons/*": [
+        "../packages/icons/*"
+      ],
+      "@appsmith/design-system/*": [
+        "../packages/design-system/*"
+      ],
+      "@appsmith/rts/*": [
+        "../packages/rts/*"
+      ],
+      "@appsmith/ads/*": [
+        "../packages/design-system/ads/*"
+      ],
+      "@appsmith/ads-old/*": [
+        "../packages/design-system/ads-old/*"
+      ],
+      "@appsmith/widgets/*": [
+        "../packages/design-system/widgets/*"
+      ],
+      "@appsmith/widgets-old/*": [
+        "../packages/design-system/widgets-old/*"
+      ],
+      "@appsmith/theming/*": [
+        "../packages/design-system/theming/*"
+      ],
+      "@appsmith/headless/*": [
+        "../packages/design-system/headless/*"
+      ],
+      "ee/*": [
+        "ee/*"
+      ],
+      "test/*": [
+        "../test/*"
+      ]
     }
   }
 }

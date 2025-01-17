@@ -253,48 +253,65 @@ module.exports = function (webpackEnv) {
     optimization: {
       minimize: isEnvProduction,
       minimizer: [
-        // This is only used in production mode
         new TerserPlugin({
           terserOptions: {
             parse: {
-              // We want terser to parse ecma 8 code. However, we don't want it
-              // to apply any minification steps that turns valid ecma 5 code
-              // into invalid ecma 5 code. This is why the 'compress' and 'output'
-              // sections only apply transformations that are ecma 5 safe
-              // https://github.com/facebook/create-react-app/pull/4234
               ecma: 8,
             },
             compress: {
               ecma: 5,
               warnings: false,
-              // Disabled because of an issue with Uglify breaking seemingly valid code:
-              // https://github.com/facebook/create-react-app/issues/2376
-              // Pending further investigation:
-              // https://github.com/mishoo/UglifyJS2/issues/2011
               comparisons: false,
-              // Disabled because of an issue with Terser breaking valid code:
-              // https://github.com/facebook/create-react-app/issues/5250
-              // Pending further investigation:
-              // https://github.com/terser-js/terser/issues/120
               inline: 2,
             },
             mangle: {
               safari10: true,
             },
-            // Added for profiling in devtools
             keep_classnames: isEnvProductionProfile,
             keep_fnames: isEnvProductionProfile,
             output: {
               ecma: 5,
               comments: false,
-              // Turned on because emoji and regex is not minified properly using default
-              // https://github.com/facebook/create-react-app/issues/2488
               ascii_only: true,
             },
           },
         }),
-        // This is only used in production mode
-        new CssMinimizerPlugin(),
+        new CssMinimizerPlugin({
+          minify: CssMinimizerPlugin.cssnanoMinify,
+          minimizerOptions: {
+            preset: [
+              'default',
+              {
+                discardComments: { removeAll: true },
+                normalizeWhitespace: false,
+                minifyFontValues: { removeQuotes: false },
+                calc: false,
+                colormin: false,
+                convertValues: false,
+                discardEmpty: false,
+                discardOverridden: false,
+                mergeLonghand: false,
+                mergeRules: false,
+                minifyGradients: false,
+                minifyParams: false,
+                minifySelectors: false,
+                normalizeCharset: false,
+                normalizeDisplayValues: false,
+                normalizePositions: false,
+                normalizeRepeatStyle: false,
+                normalizeString: false,
+                normalizeTimingFunctions: false,
+                normalizeUnicode: false,
+                normalizeUrl: false,
+                orderedValues: false,
+                reduceInitial: false,
+                reduceTransforms: false,
+                svgo: false,
+                uniqueSelectors: false,
+              },
+            ],
+          },
+        }),
       ],
     },
     resolve: {
@@ -303,8 +320,8 @@ module.exports = function (webpackEnv) {
       // if there are any conflicts. This matches Node resolution mechanism.
       // https://github.com/facebook/create-react-app/issues/253
       modules: [
-        path.resolve(__dirname, '../src'),  // Prioritize src directory
-        'node_modules'  // Then look in node_modules
+        path.resolve(__dirname, '../src'), // Prioritize src directory
+        'node_modules', // Then look in node_modules
       ],
       alias: {
         // When someone writes imports from "entities", resolve it to our local path
@@ -419,7 +436,10 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(ts|tsx)$/,
-              include: paths.appSrc,
+              include: [
+                paths.appSrc,
+                path.resolve(paths.appPath, 'packages')
+              ],
               use: [
                 {
                   loader: require.resolve('babel-loader'),
@@ -442,25 +462,23 @@ module.exports = function (webpackEnv) {
                         {
                           isTSX: true,
                           allExtensions: true,
-                          onlyRemoveTypeImports: true,
                           allowNamespaces: true,
+                          onlyRemoveTypeImports: true,
                           optimizeConstEnums: true
                         }
                       ]
                     ],
                     plugins: [
+                      isEnvDevelopment && shouldUseReactRefresh && require.resolve('react-refresh/babel'),
                       [
                         require.resolve('@babel/plugin-transform-typescript'),
                         {
-                          onlyRemoveTypeImports: true,
                           allowNamespaces: true,
                           allowDeclareFields: true,
-                          rewriteImportExtensions: true,
-                          isTSX: true,
-                          optimizeConstEnums: true
+                          onlyRemoveTypeImports: true
                         }
                       ]
-                    ],
+                    ].filter(Boolean),
                     cacheDirectory: true,
                     cacheCompression: false,
                     compact: isEnvProduction,
@@ -584,6 +602,70 @@ module.exports = function (webpackEnv) {
               exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
               type: 'asset/resource',
             },
+            // CSS handling
+            {
+              test: cssRegex,
+              exclude: cssModuleRegex,
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isEnvProduction
+                  ? shouldUseSourceMap
+                  : isEnvDevelopment,
+                modules: {
+                  mode: 'icss',
+                },
+              }),
+              sideEffects: true,
+            },
+            // CSS Modules
+            {
+              test: cssModuleRegex,
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isEnvProduction
+                  ? shouldUseSourceMap
+                  : isEnvDevelopment,
+                modules: {
+                  mode: 'local',
+                  getLocalIdent: getCSSModuleLocalIdent,
+                },
+              }),
+            },
+            // SASS
+            {
+              test: sassRegex,
+              exclude: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isEnvProduction
+                    ? shouldUseSourceMap
+                    : isEnvDevelopment,
+                  modules: {
+                    mode: 'icss',
+                  },
+                },
+                'sass-loader'
+              ),
+              sideEffects: true,
+            },
+            // SASS Modules
+            {
+              test: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isEnvProduction
+                    ? shouldUseSourceMap
+                    : isEnvDevelopment,
+                  modules: {
+                    mode: 'local',
+                    getLocalIdent: getCSSModuleLocalIdent,
+                  },
+                },
+                'sass-loader'
+              ),
+            },
             // ** STOP ** Are you adding a new loader?
             // Make sure to add the new loader(s) before the "file" loader.
           ],
@@ -601,18 +683,7 @@ module.exports = function (webpackEnv) {
           },
           isEnvProduction
             ? {
-                minify: {
-                  removeComments: true,
-                  collapseWhitespace: true,
-                  removeRedundantAttributes: true,
-                  useShortDoctype: true,
-                  removeEmptyAttributes: true,
-                  removeStyleLinkTypeAttributes: true,
-                  keepClosingSlash: true,
-                  minifyJS: true,
-                  minifyCSS: true,
-                  minifyURLs: true,
-                },
+                minify: false
               }
             : undefined
         )
@@ -655,6 +726,7 @@ module.exports = function (webpackEnv) {
           // both options are optional
           filename: 'static/css/[name].[contenthash:8].css',
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+          ignoreOrder: true,
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
@@ -805,77 +877,31 @@ module.exports = function (webpackEnv) {
     optimization: {
       minimize: isEnvProduction,
       minimizer: [
-        // This is only used in production mode
         new TerserPlugin({
           terserOptions: {
             parse: {
-              // We want terser to parse ecma 8 code. However, we don't want it
-              // to apply any minification steps that turns valid ecma 5 code
-              // into invalid ecma 5 code. This is why the 'compress' and 'output'
-              // sections only apply transformations that are ecma 5 safe
-              // https://github.com/facebook/create-react-app/pull/4234
               ecma: 8,
             },
             compress: {
               ecma: 5,
               warnings: false,
-              // Disabled because of an issue with Uglify breaking seemingly valid code:
-              // https://github.com/facebook/create-react-app/issues/2376
-              // Pending further investigation:
-              // https://github.com/mishoo/UglifyJS2/issues/2011
               comparisons: false,
-              // Disabled because of an issue with Terser breaking valid code:
-              // https://github.com/facebook/create-react-app/issues/5250
-              // Pending further investigation:
-              // https://github.com/terser-js/terser/issues/120
               inline: 2,
             },
             mangle: {
               safari10: true,
             },
-            // Added for profiling in devtools
             keep_classnames: isEnvProductionProfile,
             keep_fnames: isEnvProductionProfile,
             output: {
               ecma: 5,
               comments: false,
-              // Turned on because emoji and regex is not minified properly using default
-              // https://github.com/facebook/create-react-app/issues/2488
               ascii_only: true,
             },
           },
         }),
-        // This is only used in production mode
         new CssMinimizerPlugin(),
       ],
-      splitChunks: {
-        chunks: 'all',
-        name: false,
-        cacheGroups: {
-          icons: {
-            test: (module) => {
-              const modulePath = module.resource;
-              if (!modulePath) return false;
-              return (
-                modulePath.match(/node_modules[\\\/]remixicon-react[\\\/]/) ||
-                modulePath.endsWith('.svg.js') ||
-                modulePath.endsWith('.svg')
-              );
-            },
-            name: (module) => {
-              if (module.resource?.match(/node_modules[\\\/]remixicon-react[\\\/]/)) {
-                return 'remix-icons';
-              }
-              if (module.resource?.includes('blueprint')) {
-                return 'blueprint-icons';
-              }
-              return 'svg-icons';
-            },
-            chunks: 'async',
-            enforce: true,
-          },
-        },
-      },
     },
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter

@@ -1,50 +1,33 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es5",
     "lib": [
-      "DOM",
-      "ES6",
-      "DOM.Iterable",
-      "ScriptHost",
-      "ES2016.Array.Include",
-      "es2020.string",
-      "esnext",
-      "WebWorker"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
-    "strict": true,
-    "outDir": "./out/js/src",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
-    "sourceMap": true,
-    "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true,
+    "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
-    "importsNotUsedAsValues": "remove",
+    "sourceMap": false,
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true
   },
   "include": [
-    "./src/**/*",
-    "./packages"
-  ],
-  "exclude": [
-    "./packages/rts",
-    "**/node_modules",
-    "**/.*/"
+    "src",
+    "../packages/*/src"
   ]
 }
