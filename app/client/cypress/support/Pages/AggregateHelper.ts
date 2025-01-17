@@ -2032,100 +2032,69 @@ export class AggregateHelper {
             text: string;
           }> = res.body;
 
-          console.log(
-            "Fetched email subjects:",
-            emails.map((email) => email.headers.subject),
-          );
+          // Fetch emails from less than 5 minutes ago
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000); // T-5 minutes
+          cy.log(`Checking emails from T-5 minutes: ${fiveMinutesAgo}`);
 
-          let matchingEmail;
+          let matchingEmail = emails.filter((email) => {
+            const emailDate = parseDate(email.headers.date);
 
-          if (targetEmail) {
-            console.log(
-              "Filtering emails with targetSubject:",
-              targetSubject,
-              "and targetEmail:",
-              targetEmail,
+            cy.log(
+              `Comparing email date: ${emailDate} with T-5 minutes: ${fiveMinutesAgo}`,
             );
-            matchingEmail = emails.filter((email) => {
-              console.log(
-                "Comparing subject:",
-                email.headers.subject.trim(),
-                "to targetSubject:",
-                targetSubject.trim(),
-              );
-              console.log(
-                "Substring match:",
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()),
-              );
-
-              const toAddresses = email.headers.to.split(" "); // Split the email.to into an array of addresses
-              console.log("Email 'to' addresses:", toAddresses);
-
-              return (
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()) &&
-                toAddresses.some(
-                  (to) => to.toLowerCase() === targetEmail.toLowerCase(),
-                ) // Case-insensitive matching
-              );
-            });
-            console.log("Matching emails with targetEmail:", matchingEmail);
-          } else {
-            console.log("Filtering emails with targetSubject:", targetSubject);
-            matchingEmail = emails.filter((email) => {
-              console.log(
-                "Comparing subject:",
-                email.headers.subject.trim(),
-                "to targetSubject:",
-                targetSubject.trim(),
-              );
-              console.log(
-                "Substring match:",
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()),
-              );
-              return email.headers.subject
-                .trim()
-                .toLowerCase()
-                .includes(targetSubject.trim().toLowerCase());
-            });
-            console.log("Matching emails without targetEmail:", matchingEmail);
-          }
+            return emailDate >= fiveMinutesAgo;
+          });
 
           if (matchingEmail.length > 0) {
             matchingEmail.forEach((email) => {
               const emailDate = parseDate(email.headers.date);
-
-              if (emailDate <= (latestEmailDate || new Date(0))) {
-                console.log(
-                  `Subject matched but date not updated: ${email.headers.subject}, Email Date: ${emailDate}, Latest Date: ${latestEmailDate}`,
-                );
-              }
 
               if (!latestEmailDate || emailDate > latestEmailDate) {
                 latestEmailDate = emailDate;
                 latestEmail = email;
               }
             });
+
+            if (latestEmail) {
+              cy.log(
+                `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
+              );
+              return cy.wrap(latestEmail);
+            }
           }
 
-          if (latestEmail) {
-            console.log(
-              `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
+          // Continue fetching emails from the current time onwards
+          const currentTime = new Date();
+          matchingEmail = emails.filter((email) => {
+            const emailDate = parseDate(email.headers.date);
+
+            cy.log(
+              `Comparing email date: ${emailDate} with current time: ${currentTime}`,
             );
-            return cy.wrap(latestEmail);
+            return emailDate >= currentTime;
+          });
+
+          if (matchingEmail.length > 0) {
+            matchingEmail.forEach((email) => {
+              const emailDate = parseDate(email.headers.date);
+
+              if (!latestEmailDate || emailDate > latestEmailDate) {
+                latestEmailDate = emailDate;
+                latestEmail = email;
+              }
+            });
+
+            if (latestEmail) {
+              cy.log(
+                `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
+              );
+              return cy.wrap(latestEmail);
+            }
           }
 
           if (Date.now() - startTime > timeout) {
-            console.error("No matching email found within the timeout period.");
-            console.log("Fetched email details during the period:", emails);
+            cy.log("No matching email found within the timeout period.");
+            console.error("Fetched email details during the period:", emails);
             return cy.wrap(null);
           }
 

@@ -16,28 +16,28 @@ describe(
   "Admin Email Page - Email setting page validations",
   { tags: ["@tag.Settings"] },
   () => {
-    const fromEmail = `sagar.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
+    const fromEmail = `sagar.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
     const POLL_INTERVAL = 5000;
-    const TIMEOUT = 80000;
+    const TIMEOUT = 100000;
     const originUrl = Cypress.config("baseUrl");
 
     let workspaceName: string, applicationName: string;
-    const emailOne = `sagarspec1.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
-    const emailTwo = `sagarspec2.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
-    const emailThree = `sagarspec3.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
-    const emailFour = `sagarspec4.${Math.random().toString(36).substring(2, 10)}@appsmith.com`;
+    const emailOne = `sagarspec1.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
+    const emailTwo = `sagarspec2.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
+    const emailThree = `sagarspec3.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
+    const emailFour = `sagarspec4.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
     const tempPassword = "testPassword";
 
     before(() => {
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.SignupFromAPI(emailOne, tempPassword);
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.SignupFromAPI(emailTwo, tempPassword);
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.SignupFromAPI(emailThree, tempPassword);
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.SignupFromAPI(emailFour, tempPassword);
-      homePage.LogOutviaAPI();
+      cy.LogOut();
     });
 
     it("1. Verify adding new admin user and sign up process", () => {
@@ -62,10 +62,11 @@ describe(
     });
 
     it("2. Verify admin setup smtp and test email works", () => {
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
+      agHelper.CypressReload();
       const testEmailSubject: string = "Test email from Appsmith";
       const testEmailBody: string =
         "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!";
-      agHelper.RefreshPage();
       adminSettings.NavigateToAdminSettings(false);
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
       agHelper.GetNClick(AdminsSettings.emailTab);
@@ -134,19 +135,17 @@ describe(
         });
       agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       cy.waitForServerRestart();
-      cy.waitUntil(() => cy.get(homePage._profileMenu).should("be.visible"));
+      agHelper.WaitUntilEleAppear(homePage._profileMenu);
     });
 
     it("3. To verify forget password email", () => {
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
+      agHelper.CypressReload();
       const resetPassSubject: string =
         CURRENT_REPO === REPO.EE
           ? "Reset your Appsmith password"
           : "Reset your Appsmith password";
-      homePage.LogOutviaAPI();
-      cy.LoginFromAPI(emailOne, tempPassword);
-      agHelper.RefreshPage();
-      homePage.LogOutviaAPI();
-      agHelper.CypressReload();
+      cy.LogOut();
       cy.visit("/");
       agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
       agHelper.GetNClick(SignupPageLocators.forgetPasswordLink, 0, true);
@@ -210,10 +209,7 @@ describe(
             throw new Error("Reset password link not found in the email HTML");
           }
         });
-      cy.visit("/");
-      agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
       cy.LoginFromAPI(emailOne, tempPassword);
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
     });
 
     it("4. To verify invite workspace email", () => {
@@ -222,8 +218,10 @@ describe(
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You’re invited to the workspace"
-          : "You’re invited to the workspace";
-      homePage.LogOutviaAPI();
+          : "You’re invited to the Appsmith workspace";
+      cy.LogOut();
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
+      agHelper.CypressReload();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -236,7 +234,7 @@ describe(
         homePage.NavigateToHome();
         homePage.InviteUserToWorkspace(workspaceName, emailTwo, "Developer");
       });
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.LoginFromAPI(emailTwo, tempPassword);
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       agHelper
@@ -281,7 +279,7 @@ describe(
         CURRENT_REPO === REPO.EE
           ? "You're invited to the app"
           : "You’re invited to the Appsmith workspace.";
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -300,7 +298,7 @@ describe(
 
       inviteModal.OpenShareModal();
       homePage.InviteUserToApplication(emailThree, "Developer");
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.LoginFromAPI(emailThree, tempPassword);
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       agHelper
@@ -348,15 +346,19 @@ describe(
             }
           }
         });
-      homePage.LogOutviaAPI();
+      cy.LogOut();
     });
 
     it("6. To verify application invite email with view right", () => {
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
+      agHelper.CypressReload();
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You're invited to the app"
           : "You’re invited to the Appsmith workspace.";
-
+      cy.LogOut();
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
+      agHelper.CypressReload();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
 
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -375,7 +377,7 @@ describe(
 
       inviteModal.OpenShareModal();
       homePage.InviteUserToApplication(emailFour, "App Viewer");
-      homePage.LogOutviaAPI();
+      cy.LogOut();
       cy.LoginFromAPI(emailFour, tempPassword);
       agHelper
         .waitForEmail({
@@ -422,7 +424,6 @@ describe(
             }
           }
         });
-      homePage.LogOutviaAPI();
     });
   },
 );
