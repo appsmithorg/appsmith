@@ -65,6 +65,7 @@ class ButtonGroupWidget extends BaseWidget<
           placement: "CENTER",
           isVisible: true,
           isDisabled: false,
+          disabledWhenInvalid: false,
           index: 0,
           menuItems: {},
         },
@@ -77,6 +78,7 @@ class ButtonGroupWidget extends BaseWidget<
           widgetId: "",
           isVisible: true,
           isDisabled: false,
+          disabledWhenInvalid: false,
           index: 1,
           menuItems: {},
         },
@@ -89,6 +91,7 @@ class ButtonGroupWidget extends BaseWidget<
           widgetId: "",
           isVisible: true,
           isDisabled: false,
+          disabledWhenInvalid: false,
           index: 2,
           menuItems: {
             menuItem1: {
@@ -99,6 +102,7 @@ class ButtonGroupWidget extends BaseWidget<
               onClick: "",
               isVisible: true,
               isDisabled: false,
+              disabledWhenInvalid: false,
               index: 0,
             },
             menuItem2: {
@@ -109,6 +113,7 @@ class ButtonGroupWidget extends BaseWidget<
               onClick: "",
               isVisible: true,
               isDisabled: false,
+              disabledWhenInvalid: false,
               index: 1,
             },
             menuItem3: {
@@ -123,6 +128,7 @@ class ButtonGroupWidget extends BaseWidget<
               onClick: "",
               isVisible: true,
               isDisabled: false,
+              disabledWhenInvalid: false,
               index: 2,
             },
           },
@@ -518,6 +524,22 @@ class ButtonGroupWidget extends BaseWidget<
                   ],
                 },
                 {
+                  sectionName: "Form settings",
+                  children: [
+                    {
+                      propertyName: "disabledWhenInvalid",
+                      label: "Disabled invalid forms",
+                      helpText:
+                        "Disables this button if the form is invalid, if this button exists directly within a Form widget",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.BOOLEAN },
+                    },
+                  ],
+                },
+                {
                   sectionName: "Events",
                   hidden: (
                     props: ButtonGroupWidgetProps,
@@ -825,6 +847,7 @@ class ButtonGroupWidget extends BaseWidget<
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
+        isFormValid={this.props.isFormValid}
         minHeight={this.isAutoLayoutMode ? this.props.minHeight : undefined}
         minPopoverWidth={minPopoverWidth}
         orientation={this.props.orientation}
@@ -839,6 +862,7 @@ class ButtonGroupWidget extends BaseWidget<
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
   isDisabled: boolean;
+  isFormValid?: boolean;
   borderRadius?: string;
   boxShadow?: string;
   buttonVariant: ButtonVariant;
@@ -850,6 +874,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       index: number;
       isVisible?: boolean;
       isDisabled?: boolean;
+      disabledWhenInvalid?: boolean;
       label?: string;
       buttonType?: string;
       buttonColor?: string;
@@ -865,6 +890,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
           index: number;
           isVisible?: boolean;
           isDisabled?: boolean;
+          disabledWhenInvalid?: boolean;
           label?: string;
           backgroundColor?: string;
           textColor?: string;

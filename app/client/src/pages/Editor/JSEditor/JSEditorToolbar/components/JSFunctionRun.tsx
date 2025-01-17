@@ -1,9 +1,6 @@
 import React, { useCallback } from "react";
 import { truncate } from "lodash";
 
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { JSFunctionRun as OldJSFunctionRun } from "./old/JSFunctionRun";
 import type { JSCollection } from "entities/JSCollection";
 import {
   Button,
@@ -37,9 +34,6 @@ interface Props {
  */
 export const JSFunctionRun = (props: Props) => {
   const { onSelect } = props;
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
 
   // Callback function to handle function selection from the dropdown menu
   const onFunctionSelect = useCallback(
@@ -51,11 +45,6 @@ export const JSFunctionRun = (props: Props) => {
     [onSelect],
   );
 
-  if (!isActionRedesignEnabled) {
-    return <OldJSFunctionRun {...props} />;
-  }
-
-  // Render the new version of the component
   return (
     <Flex gap="spaces-2">
       <Menu>

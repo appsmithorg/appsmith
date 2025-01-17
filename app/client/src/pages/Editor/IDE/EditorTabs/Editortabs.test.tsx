@@ -15,7 +15,6 @@ const FeatureFlags = {
 };
 
 describe("EditorTabs render checks", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   const page = PageFactory.build();
 
   const renderComponent = (url: string, state: Partial<AppState>) =>
