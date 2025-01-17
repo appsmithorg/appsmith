@@ -13,10 +13,6 @@ import { PageFactory } from "test/factories/PageFactory";
 import { screen, waitFor } from "@testing-library/react";
 import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
-
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE URL rendering of Queries", () => {
@@ -28,7 +24,6 @@ describe("IDE URL rendering of Queries", () => {
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/queries`,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -51,7 +46,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/queries`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -73,7 +67,6 @@ describe("IDE URL rendering of Queries", () => {
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/queries/add`,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -102,7 +95,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/queries/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -148,7 +140,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -205,7 +196,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -250,7 +240,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -292,7 +281,6 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -347,7 +335,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -402,7 +389,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -448,7 +434,7 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/${page.slug}-${page.pageId}/edit/queries/${anQuery.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
+
           sagasToRun: sagasToRunForTests,
         },
       );
@@ -492,7 +478,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -548,7 +533,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -597,7 +581,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -646,7 +629,7 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
+
           sagasToRun: sagasToRunForTests,
         },
       );
@@ -691,7 +674,6 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
