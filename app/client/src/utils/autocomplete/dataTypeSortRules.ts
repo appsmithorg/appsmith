@@ -3,7 +3,7 @@ import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataTy
 export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
   STRING: ["selectedRow", "data", "text", "selectedOptionValue", "value"],
   NUMBER: ["selectedRow", "pageOffset", "pageSize", "data", "text"],
-  OBJECT: ["FormData"],
+  OBJECT: ["formData"],
   ARRAY: ["selectedOptionValues", "selectedValues"],
   FUNCTION: ["run()"],
   BOOLEAN: ["isValid", "selectedRow", "data", "isChecked", "isSwitchedOn"],

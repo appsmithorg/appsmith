@@ -28,8 +28,8 @@ enum RuleWeight {
   JSLibrary,
   DataTreeFunction,
   DataTreeMatch,
+  DataTreeEntityNameMatch,
   RecentEntityMatch,
-  DataTreeEntityNameMatch, // Moved up to reduce weight from 8 to 5
   TypeMatch,
   PriorityMatch,
   ScopeMatch,
