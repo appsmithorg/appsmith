@@ -51,7 +51,9 @@ export const getDifferenceInJSCollection = (
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
-      const preExisted = jsAction.actions.find((js) => js.name === action.name);
+      const preExisted = (jsAction.actions || []).find(
+        (js) => js.name === action.name,
+      );
 
       if (preExisted) {
         if (preExisted.actionConfiguration.body !== action.body) {
@@ -139,17 +141,6 @@ export const getDifferenceInJSCollection = (
       };
 
       toBeAddedActions.push(obj);
-    }
-  }
-
-  if (toBearchivedActions.length > 0) {
-    for (let i = 0; i < toBearchivedActions.length; i++) {
-      const action = toBearchivedActions[i];
-      const deleteArchived = jsAction.actions.findIndex((js) => {
-        action.id === js.id;
-      });
-
-      jsAction.actions.splice(deleteArchived, 1);
     }
   }
 

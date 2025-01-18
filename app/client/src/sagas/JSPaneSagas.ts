@@ -207,6 +207,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+
+      // Initialize actions array if undefined
+      if (!jsActionTobeUpdated.actions) {
+        jsActionTobeUpdated.actions = [];
+      }
+
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
 
       if (data.nameChangedActions.length) {
