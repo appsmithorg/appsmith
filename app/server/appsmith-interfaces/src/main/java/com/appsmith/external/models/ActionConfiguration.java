@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.annotations.JsonAdapter;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,6 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.data.annotation.Transient;
 import org.springframework.http.HttpMethod;
 import reactor.netty.http.HttpProtocol;
 
@@ -71,12 +71,15 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String body;
+
     // For form-data input instead of json use the following
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> bodyFormData;
+
     // For route parameters extracted from rapid-api
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> routeParameters;
+
     // All the following adapters are registered so that we can serialize between enum HttpMethod,
     // and what is now the class HttpMethod
     @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
@@ -87,6 +90,7 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     HttpProtocol httpVersion;
+
     // Paginated API fields
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String next;
@@ -144,6 +148,7 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
         }
     }
 
+    @Transient
     public Integer getTimeoutInMillisecond() {
         return (timeoutInMillisecond == null || timeoutInMillisecond <= 0)
                 ? DEFAULT_ACTION_EXECUTION_TIMEOUT_MS

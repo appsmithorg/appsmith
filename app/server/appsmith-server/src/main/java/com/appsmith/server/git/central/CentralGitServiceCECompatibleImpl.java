@@ -11,7 +11,7 @@ import com.appsmith.server.git.utils.GitProfileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
@@ -35,7 +35,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             GitArtifactHelperResolver gitArtifactHelperResolver,
             GitHandlingServiceResolver gitHandlingServiceResolver,
             GitPrivateRepoHelper gitPrivateRepoHelper,
-            GitDeployKeysRepository gitDeployKeysRepository,
+            GitDeployKeysRepositoryCake gitDeployKeysRepository,
             DatasourceService datasourceService,
             DatasourcePermission datasourcePermission,
             WorkspaceService workspaceService,

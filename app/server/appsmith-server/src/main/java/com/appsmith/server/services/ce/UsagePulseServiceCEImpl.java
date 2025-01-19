@@ -9,7 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
-import com.appsmith.server.repositories.UsagePulseRepository;
+import com.appsmith.server.repositories.cakes.UsagePulseRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -27,7 +27,7 @@ import static java.lang.Boolean.TRUE;
 @RequiredArgsConstructor
 public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
-    private final UsagePulseRepository repository;
+    private final UsagePulseRepositoryCake repository;
 
     private final SessionUserService sessionUserService;
 

@@ -5,8 +5,11 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Component
 public class CustomDatasourceStorageStructureRepositoryCEImpl
@@ -14,7 +17,9 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
         implements CustomDatasourceStorageStructureRepositoryCE {
 
     @Override
-    public Mono<Integer> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+    @Transactional
+    @Modifying
+    public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
@@ -22,7 +27,7 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     }
 
     @Override
-    public Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
+    public Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
             String datasourceId, String environmentId) {
         final BridgeQuery<DatasourceStorageStructure> q = Bridge.<DatasourceStorageStructure>equal(
                         DatasourceStorageStructure.Fields.datasourceId, datasourceId)

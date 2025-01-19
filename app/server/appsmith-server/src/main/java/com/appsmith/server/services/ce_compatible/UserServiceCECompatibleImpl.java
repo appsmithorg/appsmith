@@ -4,9 +4,10 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PACConfigurationService;
@@ -23,23 +24,25 @@ import org.springframework.stereotype.Service;
 public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements UserServiceCECompatible {
     public UserServiceCECompatibleImpl(
             Validator validator,
-            UserRepository repository,
+            UserRepository repositoryDirect,
+            UserRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserDataService userDataService,
             TenantService tenantService,
             UserUtils userUtils,
-            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            EmailVerificationTokenRepositoryCake emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 workspaceService,
                 analyticsService,

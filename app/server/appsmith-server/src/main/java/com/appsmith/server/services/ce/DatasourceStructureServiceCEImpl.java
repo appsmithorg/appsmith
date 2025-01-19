@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.server.repositories.DatasourceStorageStructureRepository;
+import com.appsmith.server.repositories.cakes.DatasourceStorageStructureRepositoryCake;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class DatasourceStructureServiceCEImpl implements DatasourceStructureServiceCE {
 
-    protected final DatasourceStorageStructureRepository repository;
+    protected final DatasourceStorageStructureRepositoryCake repository;
 
     @Override
     public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(
