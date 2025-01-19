@@ -25,6 +25,7 @@ describe(
       apiPage.ResponseStatusCheck("PE-RST-5000");
     });
 
+    // Cypress issue: https://github.com/cypress-io/cypress/issues/8267
     it("3. Validate keyboard navigation e.g. Cmd + Enter should trigger the Run button", function () {
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].randomTrumpApi,
@@ -32,9 +33,12 @@ describe(
         "ThirdAPI",
       );
       agHelper.GetNClick(ApiEditor.dataSourceField, 0, true);
-      cy.get(ApiEditor.dataSourceField).type("{cmd}{enter}", {
-        release: false,
-      });
+      cy.get(ApiEditor.dataSourceField).type(
+        this.isMac ? "{cmd}{enter}" : "{ctrl}{enter}",
+        {
+          release: false,
+        },
+      );
       assertHelper.AssertNetworkStatus("@postExecute");
     });
   },
