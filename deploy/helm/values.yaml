@@ -323,6 +323,13 @@ persistence:
   ## Fine tuning for volumeClaimTemplates
   ##
   reclaimPolicy: Retain
+
+  ## @param persistence.pvNameOverride Override the PV name
+  ## Useful when deploying multiple releases across different namespaces with the same name
+  ## since PersistentVolumes are cluster-scoped resources
+  ##
+  pvNameOverride: ""
+
   existingClaim:
     enabled:
     name:
