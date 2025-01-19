@@ -6,12 +6,16 @@ import { reduxForm } from "redux-form";
 import { Flex } from "@appsmith/ads";
 import { useGoogleSheetsSetDefaultProperty } from "./hooks/useGoogleSheetsSetDefaultProperty";
 import { useFormData } from "./hooks/useFormData";
+import { test } from "./test";
 
 const UQIEditorForm = () => {
   const {
-    editorConfig,
+    //editorConfig,
     plugin: { uiComponent },
   } = usePluginActionContext();
+
+  // TODO: remove test file before merging
+  const editorConfig = test;
 
   // Set default values for Google Sheets
   useGoogleSheetsSetDefaultProperty();

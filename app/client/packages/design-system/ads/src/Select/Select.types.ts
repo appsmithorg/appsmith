@@ -1,6 +1,7 @@
 import type { SelectProps as RCSelectProps } from "rc-select";
 import type { Sizes } from "../__config__/types";
 import type { OptionProps } from "rc-select/lib/Option";
+import type { OptGroupProps } from "rc-select/lib/OptGroup";
 
 export type SelectSizes = Extract<Sizes, "sm" | "md">;
 
@@ -13,3 +14,4 @@ export type SelectProps = RCSelectProps & {
 };
 
 export type SelectOptionProps = OptionProps;
+export type SelectOptionGroupProps = OptGroupProps;
