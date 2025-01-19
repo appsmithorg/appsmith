@@ -76,6 +76,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: true,
         affectedJSObjects: { ids: [], isAllAffected: false },
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
@@ -121,6 +122,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: false,
         affectedJSObjects: { ids: [], isAllAffected: false },
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
@@ -175,6 +177,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: false,
         affectedJSObjects,
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
