@@ -154,13 +154,50 @@ export interface CellWrappingProperties {
   allowCellWrapping: boolean;
 }
 
-export interface ButtonCellProperties {
-  buttonVariant: ButtonVariant;
+export interface BaseButtonProperties {
+  buttonVariant?: ButtonVariant;
   buttonColor?: string;
+}
+
+export interface ButtonCellProperties extends BaseButtonProperties {
   buttonLabel?: string;
   isCompact?: boolean;
   iconName?: IconName;
   iconAlign?: Alignment;
+}
+
+export interface GroupButtonMenuItem extends BaseButtonProperties {
+  id: string;
+  label?: string;
+  onClick?: string;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  backgroundColor?: string;
+  textColor?: string;
+  iconColor?: string;
+  buttonType?: "SIMPLE" | "MENU";
+  menuItems?: Record<string, GroupButtonMenuItem>;
+}
+
+export interface GroupButtonConfig extends BaseButtonProperties {
+  id: string;
+  label?: string;
+  onClick?: string;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  buttonType: "SIMPLE" | "MENU";
+  menuItems?: Record<string, GroupButtonMenuItem>;
+}
+
+export interface ButtonGroupCellProperties extends BaseButtonProperties {
+  groupButtons?: Record<string, GroupButtonConfig>;
+  orientation?: "horizontal" | "vertical";
+  buttonVariant?: ButtonVariant;
+  isDisabled?: boolean;
 }
 
 export interface MenuButtonCellProperties {
@@ -226,6 +263,7 @@ export interface CellLayoutProperties
     InlineEditingCellProperties,
     CellWrappingProperties,
     ButtonCellProperties,
+    ButtonGroupCellProperties,
     URLCellProperties,
     MenuButtonCellProperties,
     SelectCellProperties,
@@ -365,6 +403,9 @@ export interface ColumnProperties
     ColumnEditabilityProperties,
     CurrencyColumnProperties,
     EditActionColumnProperties {
+  // Button group properties
+  groupButtons?: Record<string, GroupButtonConfig>;
+  orientation?: "horizontal" | "vertical";
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];
   buttonLabel?: string;

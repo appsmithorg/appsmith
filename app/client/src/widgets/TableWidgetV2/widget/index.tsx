@@ -92,12 +92,14 @@ import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
+import { ButtonVariantTypes } from "components/constants";
 import {
   DefaultAutocompleteDefinitions,
   sanitizeKey,
 } from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
+import { ButtonGroupCell } from "../component/cellComponents/ButtonGroupCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
 import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
@@ -2063,7 +2065,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 isVisible: true,
                 label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
                 dynamicTrigger: column.onClick || "",
-                variant: cellProperties.buttonVariant,
+                variant:
+                  cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
                 borderRadius:
                   cellProperties.borderRadius || this.props.borderRadius,
                 boxShadow: cellProperties.boxShadow,
@@ -2086,6 +2089,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.BUTTON_GROUP:
+        return (
+          <ButtonGroupCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            buttonVariant={
+              cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY
+            }
+            compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
+            groupButtons={cellProperties.groupButtons}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isDisabled={!!cellProperties.isDisabled}
+            isHidden={isHidden}
+            orientation={cellProperties.orientation || "horizontal"}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}

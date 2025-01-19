@@ -147,6 +147,7 @@ export enum ColumnTypes {
   SWITCH = "switch",
   CURRENCY = "currency",
   HTML = "html",
+  BUTTON_GROUP = "buttonGroup",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -168,6 +169,7 @@ export const ActionColumnTypes = [
   ColumnTypes.MENU_BUTTON,
   ColumnTypes.EDIT_ACTIONS,
   ColumnTypes.HTML,
+  ColumnTypes.BUTTON_GROUP,
 ];
 
 export const FilterableColumnTypes = [
