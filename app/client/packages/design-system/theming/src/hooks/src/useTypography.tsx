@@ -4,17 +4,27 @@ import { createStyleObject } from "@capsizecss/core";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 
 import type {
+  FontFamily,
   Typography,
   TypographyVariantMetric,
   TokenScaleConfig,
 } from "../../token";
-import { TYPOGRAPHY_VARIANTS } from "../../token/src/types";
+import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "../../token/src/types";
 import { objectKeys } from "@appsmith/utils";
+
+const getFontMetrics = (fontFamily?: FontFamily) => {
+  return !Boolean(fontFamily) ||
+    fontFamily == null ||
+    fontFamily === "System Default"
+    ? appleSystem
+    : FONT_METRICS[fontFamily];
+};
 
 export const getTypography = (
   typography: TokenScaleConfig,
   userDensity = 1,
   userSizing = 1,
+  fontFamily?: FontFamily,
 ) => {
   const { userDensityRatio = 1, userSizingRatio = 1, V, ...rest } = typography;
   const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
@@ -28,7 +38,7 @@ export const getTypography = (
       const typographyStyle = createStyleObject({
         capHeight: currentValue,
         lineGap: currentValue,
-        fontMetrics: appleSystem,
+        fontMetrics: getFontMetrics(fontFamily),
       });
 
       metrics.push({
@@ -53,12 +63,13 @@ export const getTypography = (
 
 export const useTypography = (
   config: TokenScaleConfig,
+  fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
 ) => {
   const typography = useMemo(() => {
-    return getTypography(config, userDensity, userSizing);
-  }, [config, userDensity, userSizing]);
+    return getTypography(config, userDensity, userSizing, fontFamily);
+  }, [config, userDensity, userSizing, fontFamily]);
 
   return {
     typography,

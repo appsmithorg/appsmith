@@ -48,7 +48,7 @@ function ThemeFontControl(props: ThemeFontControlProps) {
               <FontText className="flex items-center justify-center">
                 Aa
               </FontText>
-              <div className="leading-normal">{option}</div>
+              <div className="leading-normal">{option === 'Rubik' ? "YekanBakh" : option}</div>
             </div>
           </Option>
         ))}

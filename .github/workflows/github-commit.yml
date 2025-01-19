@@ -1,0 +1,74 @@
+name: Appsmith Build Test Github
+
+# This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
+# The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
+# This workflow does NOT run tests.
+# This workflow is automatically triggered when a release is created on GitHub.
+
+on:
+  # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
+  push:
+    branches: ["release"]
+
+jobs:
+  prelude:
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.get_version.outputs.tag }}
+
+    steps:
+      - name: Environment details
+        run: |
+          echo ${{ secrets.DOCKER_HUB_USERNAME2 }}
+          echo "PWD: $PWD"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+
+  client-build:
+    needs:
+      - prelude
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          # npm dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Create the bundle
+        env:
+          REACT_APP_ENVIRONMENT: "PRODUCTION"
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY2 }}"
+          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY2 }}"
+          REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID2 }}"
+          REACT_APP_VERSION_EDITION: "Community"
+        run: |
+          yarn build
+          ls -l build

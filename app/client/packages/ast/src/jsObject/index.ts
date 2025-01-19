@@ -93,8 +93,9 @@ export const parseJSObject = (code: string) => {
       )
         return;
 
-      JSObjectProperties = node.declaration
-        .properties as NodeWithLocation<PropertyNode>[];
+      JSObjectProperties = (
+        node.declaration as { properties: NodeWithLocation<PropertyNode>[] }
+      ).properties;
     },
   });
 

@@ -338,6 +338,119 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
       {
+        sectionName: "Font",
+        children: [
+          {
+            propertyName: "fontFamily",
+            label: "Font family",
+            helpText: "Controls the font family being used",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "System Default",
+                value: "System Default",
+              },
+              {
+                label: "Nunito Sans",
+                value: "Nunito Sans",
+              },
+              {
+                label: "Poppins",
+                value: "Poppins",
+              },
+              {
+                label: "Inter",
+                value: "Inter",
+              },
+              {
+                label: "Montserrat",
+                value: "Montserrat",
+              },
+              {
+                label: "Noto Sans",
+                value: "Noto Sans",
+              },
+              {
+                label: "Open Sans",
+                value: "Open Sans",
+              },
+              {
+                label: "Roboto",
+                value: "Roboto",
+              },
+              {
+                label: "Rubik",
+                value: "Rubik",
+              },
+              {
+                label: "Ubuntu",
+                value: "Ubuntu",
+              },
+              {
+                label: "YekanBakh",
+                value: "YekanBakh",
+              },
+              {
+                label: "VazirMatn",
+                value: "VazirMatn"
+              },
+            ],
+            defaultValue: "System Default",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "fontSize",
+            label: "Font size",
+            helpText: "Controls the size of the font used",
+            controlType: "DROP_DOWN",
+            defaultValue: "1rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+        ],
+      }      
+      ,{
         sectionName: "Icon",
         children: [
           {
