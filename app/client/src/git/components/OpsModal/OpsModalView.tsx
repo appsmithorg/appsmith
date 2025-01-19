@@ -10,11 +10,13 @@ import {
   Tab,
   Tabs,
   TabsList,
+  Tooltip,
 } from "@appsmith/ads";
 import styled from "styled-components";
 // import ReconnectSSHError from "../components/ReconnectSSHError";
 import { GitOpsTab } from "git/constants/enums";
 import noop from "lodash/noop";
+import { isEllipsisActive } from "utils/helpers";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -24,6 +26,14 @@ const StyledModalContent = styled(ModalContent)`
     left: calc(50% - 320px);
     max-height: calc(100vh - 200px);
   }
+`;
+
+const HeaderText = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 580px;
+  display: block;
 `;
 
 interface OpsModalViewProps {
@@ -69,11 +79,21 @@ function OpsModalView({
     [toggleOpsModal],
   );
 
+  const headerRef = React.useRef<HTMLSpanElement>(null);
+
   return (
     <>
       <Modal onOpenChange={toggleOpsModal} open={isOpsModalOpen}>
         <StyledModalContent data-testid="t--git-ops-modal">
-          <ModalHeader>{repoName}</ModalHeader>
+          <ModalHeader>
+            <Tooltip
+              content={repoName}
+              isDisabled={!isEllipsisActive(headerRef.current)}
+              placement="topLeft"
+            >
+              <HeaderText ref={headerRef}>{repoName}</HeaderText>
+            </Tooltip>
+          </ModalHeader>
           {/* {isGitConnected && <ReconnectSSHError />} */}
           <Tabs onValueChange={handleTabKeyChange} value={opsModalTab}>
             <TabsList>
