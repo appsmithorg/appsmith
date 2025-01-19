@@ -5,6 +5,7 @@ import type { PullInitPayload } from "git/store/actions/pullActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
+import { GitOpsTab } from "git/constants/enums";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -26,6 +27,15 @@ export default function* pullSaga(
 
     if (response && isValidResponse) {
       yield put(gitArtifactActions.pullSuccess({ artifactDef }));
+
+      // Close the modal after successful pull
+      yield put(
+        gitArtifactActions.toggleOpsModal({
+          artifactDef,
+          open: false,
+          tab: GitOpsTab.Deploy, // Default tab when reopening
+        }),
+      );
 
       const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentBranch: string = yield select(
