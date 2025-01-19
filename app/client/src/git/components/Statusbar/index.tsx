@@ -40,8 +40,8 @@ export default function Statusbar({
   message,
   onHide,
 }: StatusbarProps) {
-  const intervalRef = useRef<number | null>(null);
-  const timeoutRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [percentage, setPercentage] = useState(0);
 
   // Effect for incrementing percentage when not completed

@@ -400,7 +400,17 @@ const ControlledCurrentValueViewer = memo(
             </CodeWrapper>
           );
         } else {
-          const reactJsonProps = {
+          const reactJsonProps: {
+            theme: "summerfruit" | "rjv-default";
+            name: null;
+            enableClipboard: boolean;
+            displayObjectSize: boolean;
+            displayDataTypes: boolean;
+            style: { fontSize: string };
+            collapsed: number;
+            collapseStringsAfterLength: number;
+            shouldCollapse: (field: { name: string | number }) => boolean;
+          } = {
             theme:
               props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
             name: null,
@@ -412,11 +422,8 @@ const ControlledCurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength,
-            // TODO: Fix this the next time the file is edited
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            shouldCollapse: (field: any) => {
-              const index = field.name * 1;
-
+            shouldCollapse: (field: { name: string | number }) => {
+              const index = typeof field.name === "string" ? parseInt(field.name, 10) : field.name;
               return index >= 2;
             },
           };
@@ -499,6 +506,7 @@ function PopoverContent(props: PopoverContentProps) {
       ? popupContext.value
       : true,
   );
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
     props;
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
@@ -524,14 +532,27 @@ function PopoverContent(props: PopoverContentProps) {
   };
 
   useEffect(() => {
-    dispatch(
-      setEvalPopupState(props.dataTreePath, {
-        type: openExpectedDataType,
-        example: openExpectedExample,
-        value: openEvaluatedValue,
-      }),
-    );
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      dispatch(
+        setEvalPopupState(props.dataTreePath, {
+          type: openExpectedDataType,
+          example: openExpectedExample,
+          value: openEvaluatedValue,
+        }),
+      );
+    }, 0);
   }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const getErrorMessage = (error: Error) => {
     return error

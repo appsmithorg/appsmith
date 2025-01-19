@@ -55,8 +55,6 @@ class HTMLDocumentBuilderControl extends BaseControl<
     return (
       <Button
         kind="secondary"
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         onClick={() => this.onConfigure()}
         size="sm"
       >

@@ -5,6 +5,7 @@ import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluatio
 import type { DropdownOption } from "@appsmith/ads-old";
 import type { ViewTypes } from "./utils";
 import type { FeatureFlag } from "ee/entities/FeatureFlag";
+import { FormDataPaths } from "workers/Evaluation/formEval";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,

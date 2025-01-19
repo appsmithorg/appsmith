@@ -150,7 +150,7 @@ export function getSetterConfig(
           //path = primaryColumns.action.isRequired
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const path = (setterBody as any).path.replace(placeHolder, accesskey);
+          const path = (setterBody as { path: string }).path.replace(placeHolder, accesskey);
           const setterPathArray = path.split(".");
 
           setterPathArray.pop();
