@@ -1,0 +1,19 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as Stories from "./SegmentHeader.stories";
+
+<Meta of={Stories} />
+
+# Segment Header
+
+This component is designed as a companion to the `EntityExplorer` component.
+It's primary use is to display the tabs that are used to navigate between different actions of the entity explorer.
+This is particularly useful when IDE is in split screen mode and entity explorer is in a collapsed state.
+
+## Anatomy
+
+It's a flex container that accepts an arbitrary number of children.
+
+### Default implementation
+
+<Canvas of={Stories.Basic} />
