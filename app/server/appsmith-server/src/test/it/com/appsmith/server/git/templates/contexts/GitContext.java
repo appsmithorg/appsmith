@@ -15,12 +15,18 @@ import java.util.List;
 public class GitContext implements TestTemplateInvocationContext, ParameterResolver {
 
     private final String fileName;
-
     private final Class<? extends ArtifactExchangeJson> artifactExchangeJsonType;
     private final ArtifactType artifactType;
+    private final AutoCommitExpectations autoCommitExpectations;
 
     public GitContext(
         ExtensionContext extensionContext, String fileName, Class<? extends ArtifactExchangeJson> artifactExchangeJsonType, ArtifactType artifactType) {
+        this(extensionContext, fileName, artifactExchangeJsonType, artifactType, null);
+    }
+
+    public GitContext(
+        ExtensionContext extensionContext, String fileName, Class<? extends ArtifactExchangeJson> artifactExchangeJsonType, ArtifactType artifactType,
+        AutoCommitExpectations autoCommitExpectations) {
         this.artifactType = artifactType;
         ExtensionContext.Store contextStore = extensionContext.getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
         contextStore.put(ArtifactExchangeJson.class, artifactExchangeJsonType);
@@ -28,6 +34,7 @@ public class GitContext implements TestTemplateInvocationContext, ParameterResol
         contextStore.put("artifactType", artifactType);
         this.fileName = fileName;
         this.artifactExchangeJsonType = artifactExchangeJsonType;
+        this.autoCommitExpectations = autoCommitExpectations;
     }
 
     @Override
@@ -66,5 +73,9 @@ public class GitContext implements TestTemplateInvocationContext, ParameterResol
 
     public ArtifactType getArtifactType() {
         return artifactType;
+    }
+
+    public AutoCommitExpectations getAutoCommitExpectations() {
+        return autoCommitExpectations;
     }
 }

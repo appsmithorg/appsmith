@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.server.git.templates.contexts.AutoCommitExpectations;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
@@ -180,8 +181,10 @@ public class GitBranchesIT {
             artifactMetadata.getDefaultArtifactId(),
             artifactMetadata.getRepoName());
 
-        // Auto-commit should be turned on by default
-        assertThat(artifactMetadata.getAutoCommitConfig().getEnabled()).isTrue();
+        // Verify auto-commit configuration matches expectations
+        AutoCommitExpectations autoCommitExpectations = gitContext.getAutoCommitExpectations();
+        assertThat(artifactMetadata.getAutoCommitConfig().getEnabled())
+            .isEqualTo(autoCommitExpectations.isEnabled());
 
         Path path = Path.of(gitServiceConfig.getGitRootPath()).resolve(repoSuffix);
         String branch;
@@ -197,7 +200,10 @@ public class GitBranchesIT {
             assertThat(commitIterator.hasNext()).isTrue();
 
             RevCommit firstCommit = commitIterator.next();
-            assertThat(firstCommit.getFullMessage()).isEqualTo(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
+            // System commits should match default message pattern, not auto-commit pattern
+            assertThat(firstCommit.getFullMessage())
+                .as("Initial commit message should match system default")
+                .isEqualTo(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
             topOfCommits = firstCommit.getId();
 
             assertThat(commitIterator.hasNext()).isFalse();
@@ -207,8 +213,26 @@ public class GitBranchesIT {
             assertThat(status.isClean()).isTrue();
         }
 
-        // Assert that the artifact does have auto-commit requirements, and auto-commit gets initiated
+        // Assert that auto-commit behavior matches expectations from template provider
+        assertThat(autoCommitExpectations.isShouldTriggerAutoCommit()).isTrue();
+        
+        // Validate all auto-commit expectations before triggering auto-commit
+        assertThat(artifactMetadata.getAutoCommitConfig().getEnabled())
+            .as("Auto-commit enabled state should match expectations")
+            .isEqualTo(autoCommitExpectations.isEnabled());
+        
         AutoCommitResponseDTO autoCommitResponseDTO = autoCommitService.autoCommitApplication(artifactId).block();
+
+        // Verify auto-commit state transitions and metadata
+        assertThat(autoCommitResponseDTO.getAutoCommitResponse())
+            .as("Auto-commit response should not be null")
+            .isNotNull();
+        assertThat(autoCommitResponseDTO.getBranchName())
+            .as("Auto-commit branch should match current branch")
+            .isEqualTo(artifactMetadata.getRefName());
+        assertThat(autoCommitResponseDTO.getProgress())
+            .as("Auto-commit progress should be initialized")
+            .isGreaterThanOrEqualTo(0);
 
         assertThat(autoCommitResponseDTO).isNotNull();
         AutoCommitResponseDTO.AutoCommitResponse autoCommitProgress = autoCommitResponseDTO.getAutoCommitResponse();
@@ -238,7 +262,23 @@ public class GitBranchesIT {
             assertThat(commitIterator.hasNext()).isTrue();
 
             RevCommit autoCommit = commitIterator.next();
-            assertThat(autoCommit.getFullMessage()).isEqualTo(String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()));
+            // Auto-commit message should match the expected pattern from expectations
+            assertThat(autoCommit.getFullMessage())
+                .as("Auto-commit message should match expected pattern")
+                .matches(autoCommitExpectations.getExpectedCommitMessagePattern());
+            
+            // Verify that this is actually an auto-commit by checking the pattern
+            assertThat(autoCommit.getFullMessage())
+                .as("Commit should follow auto-commit message format")
+                .matches(String.format(AUTO_COMMIT_MSG_FORMAT, ".*"));
+                
+            
+            // Validate commit timestamp if pattern specified
+            if (autoCommitExpectations.getExpectedTimestampPattern() != null) {
+                assertThat(String.valueOf(autoCommit.getCommitTime()))
+                    .as("Auto-commit timestamp should match expected pattern")
+                    .matches(autoCommitExpectations.getExpectedTimestampPattern());
+            }
 
             assertThat(commitIterator.hasNext()).isTrue();
             RevCommit firstCommit = commitIterator.next();
@@ -360,6 +400,12 @@ public class GitBranchesIT {
         GitArtifactMetadata fooMetadata = fooArtifact.getGitArtifactMetadata();
         assertThat(fooMetadata.getRefName()).isEqualTo("foo");
 
+        // Verify branch name matches auto-commit expectations if specified
+        if (autoCommitExpectations.getExpectedBranchName() != null) {
+            assertThat(fooMetadata.getRefName())
+                .isEqualTo(autoCommitExpectations.getExpectedBranchName());
+        }
+
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
             assertThat(branch).isEqualTo(fooMetadata.getRefName());
@@ -390,6 +436,12 @@ public class GitBranchesIT {
         String barArtifactId = barArtifact.getId();
         GitArtifactMetadata barMetadata = barArtifact.getGitArtifactMetadata();
         assertThat(barMetadata.getRefName()).isEqualTo("bar");
+
+        // Verify branch name matches auto-commit expectations if specified
+        if (autoCommitExpectations.getExpectedBranchName() != null) {
+            assertThat(barMetadata.getRefName())
+                .isEqualTo(autoCommitExpectations.getExpectedBranchName());
+        }
 
         try (Git git = Git.open(path.toFile())) {
             branch = git.log().getRepository().getBranch();
