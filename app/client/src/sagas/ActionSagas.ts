@@ -32,7 +32,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   fixActionPayloadForMongoQuery,
@@ -100,8 +100,6 @@ import {
   ActionCreationSourceTypeEnum,
   isAPIAction,
   isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
   SlashCommand,
 } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -127,7 +125,6 @@ import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
@@ -1198,12 +1195,7 @@ function* handleCreateNewQueryFromActionCreator(
   yield put(setShowQueryCreateNewModal(true));
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
-  // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Wait for a query to be created
   const createdQuery: ReduxAction<BaseAction> = yield take(

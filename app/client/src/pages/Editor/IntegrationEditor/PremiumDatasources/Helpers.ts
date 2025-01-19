@@ -74,11 +74,12 @@ export const getContactFormModalTitle = (
   integrationName: string,
   isBusinessOrEnterprise?: boolean,
 ) => {
-  return `${isBusinessOrEnterprise ? "Integration to " : ""}${integrationName} ${isBusinessOrEnterprise ? `- ${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`;
+  return `${integrationName} ${isBusinessOrEnterprise ? `${createMessage(PREMIUM_DATASOURCES.COMING_SOON_SUFFIX)}` : ""}`;
 };
 
 export const getContactFormModalDescription = (
   email: string,
+  integrationName: string,
   isBusinessOrEnterprise?: boolean,
 ) => {
   const validRelevantEmail = isRelevantEmail(email);
@@ -86,8 +87,14 @@ export const getContactFormModalDescription = (
   return isBusinessOrEnterprise
     ? createMessage(PREMIUM_DATASOURCES.COMING_SOON_DESCRIPTION)
     : validRelevantEmail
-      ? createMessage(PREMIUM_DATASOURCES.RELEVANT_EMAIL_DESCRIPTION)
-      : createMessage(PREMIUM_DATASOURCES.NON_RELEVANT_EMAIL_DESCRIPTION);
+      ? createMessage(
+          PREMIUM_DATASOURCES.RELEVANT_EMAIL_DESCRIPTION,
+          integrationName,
+        )
+      : createMessage(
+          PREMIUM_DATASOURCES.NON_RELEVANT_EMAIL_DESCRIPTION,
+          integrationName,
+        );
 };
 
 export const shouldLearnMoreButtonBeVisible = (

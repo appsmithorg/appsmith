@@ -28,9 +28,12 @@ describe(
       //typing {{}}
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.TypeTextIntoField("Label", "{{");
-      agHelper.GetElementsNAssertTextPresence(locators._hints, "appsmith");
-      agHelper.GetNClickByContains(locators._hints, "appsmith");
-      propPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
+      agHelper.GetElementsNAssertTextPresence(
+        locators._hints,
+        "Button1.isVisible",
+      );
+      agHelper.GetNClickByContains(locators._hints, "Button1.isVisible");
+      propPane.ValidatePropertyFieldValue("Label", "{{Button1.isVisible}}");
     });
 
     it("2. [Bug]-[2040]: undefined binding on / command dropdown", () => {
@@ -46,10 +49,8 @@ describe(
 
     it("3. Should add Autocomplete Suggestions on Tab press", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.TypeTextIntoField("Label", "{{");
-      agHelper.GetElementsNAssertTextPresence(locators._hints, "appsmith");
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      propPane.TypeTextIntoField("Label", "{{J");
+      agHelper.GetElementsNAssertTextPresence(locators._hints, "JSObject1");
       cy.get("body").tab();
       propPane.ValidatePropertyFieldValue("Label", "{{JSObject1}}");
     });

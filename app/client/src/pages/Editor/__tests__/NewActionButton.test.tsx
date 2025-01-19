@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { Datasource } from "entities/Datasource";
 import { apiPluginHasUrl } from "../DataSourceEditor/NewActionButton";
 

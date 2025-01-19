@@ -2576,23 +2576,23 @@ export const REQUEST_NEW_INTEGRATIONS = {
   REQUEST_NEW_BUTTON: () => "Request a new integration",
   REQUEST_BUTTON: () => "Request integration",
   CANCEL_BUTTON: () => "Cancel",
-  REQUEST_MODAL_HEADING: () => "Request a new integration",
+  REQUEST_MODAL_HEADING: () => "Request new integration",
   REQUEST_MODAL_INTEGRATION: {
-    LABEL: () => "Integration",
+    LABEL: () => "Integration name",
     PLACEHOLDER: () => "E.g. Zendesk, JIRA, Slack, others",
     NAME: "integration",
     ERROR: () => "Please enter integration name",
   },
   REQUEST_MODAL_USECASE: {
-    LABEL: () => "Tell us more about your case",
+    LABEL: () => "How would this integration help you?",
     PLACEHOLDER: () =>
-      "E.g. I want to create an app to manage my customers’ account.",
+      "For example, organizing client data or automating reports.",
     NAME: "useCase",
   },
   REQUEST_MODAL_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith will use this email exclusively to follow up on your integration request.",
+      "We’ll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
@@ -2600,10 +2600,10 @@ export const REQUEST_NEW_INTEGRATIONS = {
 };
 
 export const PREMIUM_DATASOURCES = {
-  RELEVANT_EMAIL_DESCRIPTION: () =>
-    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Schedule a call now to see how Appsmith can transform your workflows!",
-  NON_RELEVANT_EMAIL_DESCRIPTION: () =>
-    "Unblock advanced integrations. Let our team guide you in selecting the plan that fits your needs. Give us your email and the Appsmith team will reach out to you soon.",
+  RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
+    `Ready to connect with ${integrationName}? This feature is part of our premium plans. Schedule a call with our team to explore the right plan for your needs. We’re excited to help you get started!`,
+  NON_RELEVANT_EMAIL_DESCRIPTION: (integrationName: string) =>
+    `Ready to connect with ${integrationName}? This feature is part of our premium plans. We'll help you find a plan that fits your needs. Simply share your email, and we'll be in touch soon.`,
   LEARN_MORE: () => "Learn more about Premium",
   SCHEDULE_CALL: () => "Schedule a call",
   SUBMIT: () => "Submit",
@@ -2612,15 +2612,15 @@ export const PREMIUM_DATASOURCES = {
   FORM_EMAIL: {
     LABEL: () => "Email",
     DESCRIPTION: () =>
-      "Appsmith will use this email to follow up on your integration interest.",
+      "We’ll use this email solely to follow up on your request.",
     NAME: "email",
     ERROR: () => "Please enter email",
   },
   PREMIUM_TAG: () => "Premium",
   SOON_TAG: () => "Soon",
-  COMING_SOON_SUFFIX: () => "Coming soon",
+  COMING_SOON_SUFFIX: () => "is coming soon",
   COMING_SOON_DESCRIPTION: () =>
-    "The Appsmith Team is actively working on it. We’ll let you know when this integration is live. ",
+    "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
 };
 

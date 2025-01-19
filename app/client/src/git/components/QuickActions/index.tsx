@@ -12,6 +12,7 @@ import useOps from "git/hooks/useOps";
 import useBranches from "git/hooks/useBranches";
 import useConnected from "git/hooks/useConnected";
 import useProtectedMode from "git/hooks/useProtectedMode";
+import useInit from "git/hooks/useInit";
 
 function QuickActions() {
   const isConnected = useConnected();
@@ -29,6 +30,7 @@ function QuickActions() {
   const { toggleSettingsModal } = useSettings();
   const { toggleConnectModal } = useConnect();
   const { currentBranch, isBranchPopupOpen, toggleBranchPopup } = useBranches();
+  const { isInitialized } = useInit();
 
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? true;
@@ -46,6 +48,7 @@ function QuickActions() {
       isConnected={isConnected}
       isDiscardLoading={isDiscardLoading}
       isFetchStatusLoading={isFetchStatusLoading}
+      isInitialized={isInitialized}
       isProtectedMode={isProtectedMode}
       isPullFailing={isPullFailing}
       isPullLoading={isPullLoading}

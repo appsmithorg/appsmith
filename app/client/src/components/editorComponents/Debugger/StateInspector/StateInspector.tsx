@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import {
+  EntityGroupsList,
   Flex,
-  List,
-  ListItem,
   type ListItemProps,
   SearchInput,
   Text,
@@ -51,37 +50,23 @@ export const StateInspector = () => {
             value={searchTerm}
           />
         </Flex>
-        <Flex
-          flexDirection="column"
-          gap="spaces-3"
-          overflowY="auto"
-          pl="spaces-3"
-          pr="spaces-3"
-        >
-          {filteredItemGroups.map((item) => (
-            <Styled.Group
-              flexDirection="column"
-              gap="spaces-2"
-              key={item.group}
-            >
-              <Styled.GroupName
-                className="overflow-hidden overflow-ellipsis whitespace-nowrap flex-shrink-0"
-                kind="body-s"
-              >
-                {item.group}
-              </Styled.GroupName>
-              <List>
-                {item.items.map((eachItem) => (
-                  <ListItem key={eachItem.title} {...eachItem} />
-                ))}
-              </List>
-            </Styled.Group>
-          ))}
-        </Flex>
+        <EntityGroupsList
+          flexProps={{
+            pl: "spaces-3",
+            pr: "spaces-3",
+          }}
+          groups={filteredItemGroups.map((item) => {
+            return {
+              groupTitle: item.group,
+              items: item.items,
+              className: "",
+            };
+          })}
+        />
       </Flex>
       {selectedItem ? (
         <Flex
-          className="mp-mask"
+          className="as-mask"
           data-testid="t--selected-entity-details"
           flex="1"
           flexDirection="column"

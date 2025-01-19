@@ -27,7 +27,7 @@ import {
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { AppState } from "ee/reducers";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { getModuleInstanceNavigationData } from "ee/utils/moduleInstanceNavigationData";

@@ -91,8 +91,8 @@ export const Styles = css<{ kind?: LinkKind }>`
 
   :focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline) !important;
-    outline-offset: var(--ads-v2-offset-outline) !important;
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
     border-radius: var(--ads-v2-border-radius);
   }
 `;

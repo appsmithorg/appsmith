@@ -210,7 +210,6 @@ export const StyledButton = styled.button<{
   UNSAFE_width?: string;
   disabled?: boolean;
   isIconButton?: boolean;
-  isFocusVisible?: boolean;
 }>`
   ${Variables}
   /* Kind style */
@@ -270,14 +269,11 @@ export const StyledButton = styled.button<{
       }
     }
 
-    ${({ isFocusVisible }) =>
-      isFocusVisible &&
-      css`
-        :focus-visible {
-          outline: var(--ads-v2-border-width-outline) solid
-            var(--ads-v2-color-outline) !important;
-          outline-offset: var(--ads-v2-offset-outline) !important;
-        }
-      `}
+    /* Focus styles */
+    &:focus-visible {
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
+    }
   }
 `;

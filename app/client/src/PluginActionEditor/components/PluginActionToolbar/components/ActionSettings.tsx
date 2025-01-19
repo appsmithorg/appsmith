@@ -1,11 +1,11 @@
 import React from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
-import FormControl from "./FormControl";
+import FormControl from "pages/Editor/FormControl";
 import log from "loglevel";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Text } from "@appsmith/ads";
-import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited

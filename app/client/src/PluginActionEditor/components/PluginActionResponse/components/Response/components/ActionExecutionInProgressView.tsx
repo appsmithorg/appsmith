@@ -7,8 +7,8 @@ import {
 import ActionAPI from "api/ActionAPI";
 import { Button, Spinner, Text } from "@appsmith/ads";
 import styled from "styled-components";
-import type { EditorTheme } from "./CodeEditor/EditorConfig";
-import LoadingOverlayScreen from "./LoadingOverlayScreen";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 
 const Wrapper = styled.div`
   position: relative;
