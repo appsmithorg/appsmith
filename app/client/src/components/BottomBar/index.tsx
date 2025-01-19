@@ -43,14 +43,12 @@ export default function BottomBar() {
   return (
     <Container>
       <Wrapper>
-        {!isPreviewMode && (
-          <SwitchEnvironment
-            editorId={appId}
-            onChangeEnv={onChangeEnv}
-            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
-            viewMode={isPreviewMode}
-          />
-        )}
+        <SwitchEnvironment
+          editorId={appId}
+          onChangeEnv={onChangeEnv}
+          startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
+          viewMode={isPreviewMode}
+        />
         {isGitEnabled && <GitActions />}
       </Wrapper>
       {!isPreviewMode && (
