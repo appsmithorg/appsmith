@@ -38,3 +38,6 @@ export const getFirstDatasourceId = (state: AppState) => {
 
 export const getLoadingTokenForDatasourceId = (state: AppState) =>
   state.entities.datasources.loadingTokenForDatasourceId;
+
+export const getDatasourcesLoadingState = (state: AppState) =>
+  state.entities.datasources.loading;
