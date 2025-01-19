@@ -1999,4 +1999,118 @@ export class AggregateHelper {
       cy.spy(win.console, "warn").as("warn");
     });
   }
+
+  public waitForEmail({
+    pollInterval,
+    timeout,
+    targetSubject,
+    targetEmail,
+  }: {
+    pollInterval: number;
+    timeout: number;
+    targetSubject: string;
+    targetEmail?: string;
+  }): Cypress.Chainable<any> {
+    const startTime = Date.now();
+    let latestEmailDate: Date | null = null;
+    let latestEmail: any = null;
+
+    function parseDate(dateString: string): Date {
+      return new Date(dateString.replace(/ \([A-Za-z\s]*\)$/, ""));
+    }
+
+    function fetchEmail(): Cypress.Chainable<any> {
+      return cy
+        .request("http://localhost:5001/api/v1/maildev-emails")
+        .then((res) => {
+          if (res.status !== 200) {
+            throw new Error(`Request failed with status ${res.status}`);
+          }
+
+          const emails: Array<{
+            headers: { subject: string; date: string; to: string[] };
+            text: string;
+          }> = res.body;
+
+          // Fetch emails from less than 5 minutes ago
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000); // T-5 minutes
+          cy.log(`Checking emails from T-5 minutes: ${fiveMinutesAgo}`);
+
+          let matchingEmail = emails.filter((email) => {
+            const emailDate = parseDate(email.headers.date);
+
+            cy.log(
+              `Comparing email date: ${emailDate} with T-5 minutes: ${fiveMinutesAgo}`,
+            );
+            return emailDate >= fiveMinutesAgo;
+          });
+
+          if (matchingEmail.length > 0) {
+            matchingEmail.forEach((email) => {
+              const emailDate = parseDate(email.headers.date);
+
+              if (!latestEmailDate || emailDate > latestEmailDate) {
+                latestEmailDate = emailDate;
+                latestEmail = email;
+              }
+            });
+
+            if (latestEmail) {
+              cy.log(
+                `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
+              );
+              return cy.wrap(latestEmail);
+            }
+          }
+
+          // Continue fetching emails from the current time onwards
+          const currentTime = new Date();
+          matchingEmail = emails.filter((email) => {
+            const emailDate = parseDate(email.headers.date);
+
+            cy.log(
+              `Comparing email date: ${emailDate} with current time: ${currentTime}`,
+            );
+            return emailDate >= currentTime;
+          });
+
+          if (matchingEmail.length > 0) {
+            matchingEmail.forEach((email) => {
+              const emailDate = parseDate(email.headers.date);
+
+              if (!latestEmailDate || emailDate > latestEmailDate) {
+                latestEmailDate = emailDate;
+                latestEmail = email;
+              }
+            });
+
+            if (latestEmail) {
+              cy.log(
+                `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
+              );
+              return cy.wrap(latestEmail);
+            }
+          }
+
+          if (Date.now() - startTime > timeout) {
+            cy.log("No matching email found within the timeout period.");
+            console.error("Fetched email details during the period:", emails);
+            return cy.wrap(null);
+          }
+
+          return cy.wait(pollInterval).then(fetchEmail);
+        });
+    }
+
+    return fetchEmail().then((email) => {
+      if (!email) {
+        throw new Error(
+          `Timeout: No email with subject "${targetSubject}" found${
+            targetEmail ? ` for recipient "${targetEmail}"` : ""
+          }.`,
+        );
+      }
+      return email;
+    });
+  }
 }

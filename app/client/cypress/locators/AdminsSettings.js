@@ -70,4 +70,12 @@ export default {
   businessTag: ".business-tag",
   upgradeBanner: ".upgrade-banner",
   upgradeButton: "[data-testid='t--button-upgrade']",
+  smtpAppsmithMailHostInput: "[name='APPSMITH_MAIL_HOST']",
+  smtpAppsmithMailPortInput: "[name='APPSMITH_MAIL_PORT']",
+  smtpAppsmithMailFromInput: "[name='APPSMITH_MAIL_FROM']",
+  smtpAppsmithMailReplyToInput: "[name='APPSMITH_REPLY_TO']",
+  smtpAppsmithMailUserNameInput: "[name='APPSMITH_MAIL_USERNAME']",
+  smtpAppsmithMailPasswordInput: "[name='APPSMITH_MAIL_PASSWORD']",
+  smtpAppsmithMailTestButton: "[data-testid='admin-settings-button']",
+  addEmailGhostInput: "[data-testid='admin-settings-tag-input'] .bp3-input-ghost",
 };
