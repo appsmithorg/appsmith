@@ -7,10 +7,10 @@ import type {
 } from "deep-diff";
 import { isEmpty, partition } from "lodash";
 
-export function groupDifferencesByType(differences: Diff<unknown>[]): {
-  edits: DiffEdit<unknown, unknown>[];
-  additions: DiffNew<unknown>[];
-  deletions: DiffDeleted<unknown>[];
+export function groupDifferencesByType(differences: Array<Diff<unknown>>): {
+  edits: Array<DiffEdit<unknown, unknown>>;
+  additions: Array<DiffNew<unknown>>;
+  deletions: Array<DiffDeleted<unknown>>;
 } {
   if (isEmpty(differences)) return { edits: [], additions: [], deletions: [] };
 

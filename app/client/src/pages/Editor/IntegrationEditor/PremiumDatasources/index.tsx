@@ -75,6 +75,7 @@ export default function PremiumDatasources(props: {
           <ContactForm
             closeModal={() => setSelectedIntegration("")}
             integrationName={selectedIntegration}
+            onSubmit={() => {}}
           />
         </ModalContentWrapper>
       </Modal>

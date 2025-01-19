@@ -64,7 +64,7 @@ const ActionContainer = styled.div`
 
 interface LandingPageProps {
   // To have a get started button click function for non super user form
-  onGetStarted?: (proficiency?: string, useCase?: string) => void;
+  onGetStarted?: ((proficiency?: string | undefined, useCase?: string | undefined) => void) | undefined;
   // Property to determine whether the user is super admin or not
   isSuperUser: boolean;
 }

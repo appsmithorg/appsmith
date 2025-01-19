@@ -102,11 +102,13 @@ interface RequestIntegrationFormValues {
 type RequestIntegrationFormProps = RequestIntegrationFormValues & {
   formSyncErrors?: FormErrors<string, string>;
   closeModal: () => void;
+  onSubmit?: () => void;
 } & InjectedFormProps<
     RequestIntegrationFormValues,
     {
       formSyncErrors?: FormErrors<string, string>;
       closeModal: () => void;
+      onSubmit?: () => void;
     }
   >;
 
@@ -146,6 +148,7 @@ export default connect((state: AppState) => {
     {
       formSyncErrors?: FormErrors<string, string>;
       closeModal: () => void;
+      onSubmit?: () => void;
     }
   >({
     validate,

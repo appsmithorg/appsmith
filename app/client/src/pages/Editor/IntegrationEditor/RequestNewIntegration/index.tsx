@@ -35,7 +35,7 @@ function RequestModal({ children }: { children: ReactNode }) {
         <ModalHeader>
           {createMessage(REQUEST_NEW_INTEGRATIONS.REQUEST_MODAL_HEADING)}
         </ModalHeader>
-        <Form closeModal={() => setOpen(false)} />
+        <Form closeModal={() => setOpen(false)} onSubmit={() => {}} />
       </ModalContentWrapper>
     </Modal>
   );
