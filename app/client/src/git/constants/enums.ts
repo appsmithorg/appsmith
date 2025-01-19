@@ -1,7 +1,7 @@
 export enum GitArtifactType {
-  Application = "Application",
-  Package = "Package",
-  Workflow = "Workflow",
+  Application = "applications",
+  Package = "packages",
+  Workflow = "workflows",
 }
 
 export enum GitOpsTab {

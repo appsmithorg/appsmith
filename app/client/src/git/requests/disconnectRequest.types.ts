@@ -1,6 +1,6 @@
 import type { ApiResponse } from "api/types";
-import type { ApplicationPayload } from "entities/Application";
+import type { GitArtifact } from "git/store/types";
 
-export interface DisconnectResponseData extends ApplicationPayload {}
+export type DisconnectResponseData = GitArtifact;
 
 export type DisconnectResponse = ApiResponse<DisconnectResponseData>;

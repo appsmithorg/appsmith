@@ -31,7 +31,7 @@ export const useGitContext = () => {
 
 interface GitContextProviderProps {
   // artifact
-  artifactType: keyof typeof GitArtifactType | null;
+  artifactType: GitArtifactType | null;
   baseArtifactId: string | null;
   artifact: ApplicationPayload | null;
   artifacts: ApplicationPayload[] | null;

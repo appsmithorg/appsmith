@@ -5,8 +5,9 @@ import type {
   UpdateProtectedBranchesResponse,
 } from "./updateProtectedBranchesRequest.types";
 import type { AxiosPromise } from "axios";
+import type { GitArtifactType } from "git/constants/enums";
 
-export default async function updateProtectedBranchesRequest(
+async function updateProtectedBranchesRequestOld(
   baseApplicationId: string,
   params: UpdateProtectedBranchesRequestParams,
 ): AxiosPromise<UpdateProtectedBranchesResponse> {
@@ -14,4 +15,32 @@ export default async function updateProtectedBranchesRequest(
     `${GIT_BASE_URL}/branch/app/${baseApplicationId}/protected`,
     params,
   );
+}
+
+async function updateProtectedBranchesRequestNew(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: UpdateProtectedBranchesRequestParams,
+): AxiosPromise<UpdateProtectedBranchesResponse> {
+  return Api.post(
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected`,
+    params,
+  );
+}
+
+export default async function updateProtectedBranchesRequest(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: UpdateProtectedBranchesRequestParams,
+  isNew: boolean,
+): AxiosPromise<UpdateProtectedBranchesResponse> {
+  if (isNew) {
+    return updateProtectedBranchesRequestNew(
+      artifactType,
+      baseArtifactId,
+      params,
+    );
+  } else {
+    return updateProtectedBranchesRequestOld(baseArtifactId, params);
+  }
 }

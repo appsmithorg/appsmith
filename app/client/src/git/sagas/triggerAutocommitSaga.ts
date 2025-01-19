@@ -27,6 +27,7 @@ import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 const AUTOCOMMIT_POLL_DELAY = 1000;
 const AUTOCOMMIT_WHITELISTED_STATES = [
@@ -56,8 +57,17 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
   const { artifactDef, artifactId } = params;
   let triggerResponse: TriggerAutocommitResponse | undefined;
 
+  const isGitApiContractsEnabled: boolean = yield select(
+    selectGitApiContractsEnabled,
+  );
+
   try {
-    triggerResponse = yield call(triggerAutocommitRequest, artifactId);
+    triggerResponse = yield call(
+      triggerAutocommitRequest,
+      artifactDef.artifactType,
+      artifactId,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(triggerResponse);
 
     if (triggerResponse && isValidResponse) {
@@ -88,9 +98,12 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
         yield put(
           gitArtifactActions.fetchAutocommitProgressInit({ artifactDef }),
         );
+
         progressResponse = yield call(
           fetchAutocommitProgressRequest,
+          artifactDef.artifactType,
           artifactDef.baseArtifactId,
+          isGitApiContractsEnabled,
         );
         const isValidResponse: boolean =
           yield validateResponse(progressResponse);

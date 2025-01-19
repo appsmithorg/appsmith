@@ -1,13 +1,15 @@
 import { call, put, select, take } from "redux-saga/effects";
 import type { CheckoutBranchInitPayload } from "../store/actions/checkoutBranchActions";
 import { GitArtifactType } from "../constants/enums";
-import checkoutBranchRequest from "../requests/checkoutBranchRequest";
-import type {
-  CheckoutBranchRequestParams,
-  CheckoutBranchResponse,
-} from "../requests/checkoutBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import type {
+  CheckoutRefRequestParams,
+  CheckoutRefResponse,
+} from "git/requests/checkoutRefRequest.types";
 
 // internal dependencies
 import { builderURL } from "ee/RouteBuilder";
@@ -19,21 +21,30 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
+import checkoutRefRequest from "git/requests/checkoutRefRequest";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
 ) {
   const { artifactDef, artifactId, branchName } = action.payload;
-  let response: CheckoutBranchResponse | undefined;
+  let response: CheckoutRefResponse | undefined;
 
   try {
-    const params: CheckoutBranchRequestParams = {
-      branchName,
+    const params: CheckoutRefRequestParams = {
+      refType: "branch",
+      refName: branchName,
     };
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
 
-    response = yield call(checkoutBranchRequest, artifactId, params);
+    response = yield call(
+      checkoutRefRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

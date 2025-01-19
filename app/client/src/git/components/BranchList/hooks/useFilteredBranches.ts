@@ -1,8 +1,8 @@
-import type { Branch } from "entities/GitSync";
+import type { GitBranch } from "git/types";
 import { useEffect, useState } from "react";
 
 export function useFilteredBranches(
-  branches: Array<Branch>,
+  branches: Array<GitBranch>,
   searchText: string,
 ) {
   const lowercaseSearchText = searchText.toLowerCase();
@@ -10,15 +10,15 @@ export function useFilteredBranches(
 
   useEffect(
     function setFilteredBranchesEffect() {
-      const matched = branches.filter((b: Branch) =>
+      const matched = branches.filter((b) =>
         lowercaseSearchText
           ? b.branchName.toLowerCase().includes(lowercaseSearchText)
           : true,
       );
       const branchNames = [
-        ...matched.filter((b: Branch) => b.default),
-        ...matched.filter((b: Branch) => !b.default),
-      ].map((b: Branch) => b.branchName);
+        ...matched.filter((b) => b.default),
+        ...matched.filter((b) => !b.default),
+      ].map((b) => b.branchName);
 
       setFilteredBranches(branchNames);
     },

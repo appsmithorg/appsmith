@@ -3,9 +3,10 @@ import fetchStatusRequest from "git/requests/fetchStatusRequest";
 import type { FetchStatusResponse } from "git/requests/fetchStatusRequest.types";
 import type { FetchStatusInitPayload } from "git/store/actions/fetchStatusActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
 export default function* fetchStatusSaga(
@@ -15,7 +16,18 @@ export default function* fetchStatusSaga(
   let response: FetchStatusResponse | undefined;
 
   try {
-    response = yield call(fetchStatusRequest, artifactId);
+    const params = { compareRemote: true };
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      fetchStatusRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

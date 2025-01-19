@@ -33,8 +33,8 @@ import LocalBranchList from "./LocalBranchList";
 import { useFilteredBranches } from "./hooks/useFilteredBranches";
 import useActiveHoverIndex from "./hooks/useActiveHoverIndex";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
-import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
+import type { GitBranch } from "git/types";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -229,7 +229,7 @@ export function Header({
 }
 
 interface BranchListViewProps {
-  branches: FetchBranchesResponseData | null;
+  branches: GitBranch[] | null;
   checkoutBranch: (branch: string) => void;
   checkoutDestBranch: string | null;
   createBranch: (branch: string) => void;

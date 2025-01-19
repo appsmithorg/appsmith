@@ -5,10 +5,35 @@ import type {
 } from "./updateLocalProfileRequest.types";
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
+import type { GitArtifactType } from "git/constants/enums";
 
-export default async function updateLocalProfileRequest(
+async function updateLocalProfileRequestOld(
   baseApplicationId: string,
   params: UpdateLocalProfileRequestParams,
 ): AxiosPromise<UpdateLocalProfileResponse> {
   return Api.put(`${GIT_BASE_URL}/profile/app/${baseApplicationId}`, params);
+}
+
+async function updateLocalProfileRequestNew(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: UpdateLocalProfileRequestParams,
+): AxiosPromise<UpdateLocalProfileResponse> {
+  return Api.put(
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/profile`,
+    params,
+  );
+}
+
+export default async function updateLocalProfileRequest(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: UpdateLocalProfileRequestParams,
+  isNew: boolean,
+): AxiosPromise<UpdateLocalProfileResponse> {
+  if (isNew) {
+    return updateLocalProfileRequestNew(artifactType, baseArtifactId, params);
+  } else {
+    return updateLocalProfileRequestOld(baseArtifactId, params);
+  }
 }

@@ -16,6 +16,7 @@ import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { GitErrorCodes } from "git/constants/enums";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* gitImportSaga(
   action: PayloadAction<GitImportInitPayload>,
@@ -26,7 +27,16 @@ export default function* gitImportSaga(
   let response: GitImportResponse | undefined;
 
   try {
-    response = yield call(gitImportRequest, workspaceId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      gitImportRequest,
+      workspaceId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

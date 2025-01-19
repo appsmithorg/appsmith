@@ -1,9 +1,9 @@
 import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitAsyncErrorPayload } from "../types";
-import type { CheckoutBranchRequestParams } from "git/requests/checkoutBranchRequest.types";
 
-export interface CheckoutBranchInitPayload extends CheckoutBranchRequestParams {
+export interface CheckoutBranchInitPayload {
   artifactId: string;
+  branchName: string;
 }
 
 export const checkoutBranchInitAction =

@@ -13,10 +13,10 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import { GIT_REMOTE_BRANCH_PREFIX } from "git/constants/misc";
 import { useAppsmithEnterpriseUrl } from "git/hooks/useAppsmithEnterpriseUrl";
-import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import xor from "lodash/xor";
 import noop from "lodash/noop";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
+import type { GitBranch } from "git/types";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -50,7 +50,7 @@ const StyledLink = styled(Link)`
 `;
 
 interface ProtectedBranchesViewProps {
-  branches: FetchBranchesResponseData | null;
+  branches: GitBranch[] | null;
   defaultBranch: string | null;
   isProtectedBranchesLicensed: boolean;
   isUpdateProtectedBranchesLoading: boolean;

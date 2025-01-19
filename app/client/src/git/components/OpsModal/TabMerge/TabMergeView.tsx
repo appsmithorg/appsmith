@@ -31,10 +31,10 @@ import MergeStatus from "./MergeStatus";
 import ConflictError from "git/components/ConflictError";
 import MergeSuccessIndicator from "./MergeSuccessIndicator";
 import { noop } from "lodash";
-import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 import type { GitApiError } from "git/store/types";
+import type { GitBranch } from "git/types";
 
 const Container = styled.div`
   min-height: 360px;
@@ -64,7 +64,7 @@ interface BranchOption {
 }
 
 interface TabMergeViewProps {
-  branches: FetchBranchesResponseData | null;
+  branches: GitBranch[] | null;
   clearMergeStatus: () => void;
   currentBranch: string | null;
   fetchBranches: () => void;
