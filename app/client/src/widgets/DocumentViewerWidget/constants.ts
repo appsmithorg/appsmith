@@ -17,6 +17,7 @@ export const Renderers = {
   DOCX_VIEWER: "DOCX_VIEWER",
   XLSX_VIEWER: "XLSX_VIEWER",
   ERROR: "ERROR",
+  PDF_VIEWER: "PDF_VIEWER",
 };
 
 export type Renderer = (typeof Renderers)[keyof typeof Renderers];
