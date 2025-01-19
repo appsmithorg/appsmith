@@ -38,6 +38,19 @@ import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
+  [FieldType.APP_NAME_FIELD]: {
+    label: () => "Enter App Name",
+    defaultText: "",
+    exampleText: "navigateTo('', {}, 'SAME_WINDOW', 'MyApp')",
+    options: () => null,
+    getter: (value: string) => {
+      return textGetter(value, 3);
+    },
+    setter: (value, currentValue) => {
+      return textSetter(value, currentValue, 3);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
   [FieldType.ACTION_SELECTOR_FIELD]: {
     label: (props: FieldProps) => props.label || "",
     options: (props: FieldProps) => props.integrationOptions,

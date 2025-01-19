@@ -57,8 +57,9 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.PAGE_SELECTOR_FIELD,
       FieldType.QUERY_PARAMS_FIELD,
       FieldType.NAVIGATION_TARGET_FIELD,
+      FieldType.APP_NAME_FIELD,
     ],
-    defaultParams: `"", {}, 'SAME_WINDOW'`,
+    defaultParams: `"", {}, 'SAME_WINDOW', ""`,
     icon: "page-line",
   },
   [AppsmithFunction.showAlert]: {
