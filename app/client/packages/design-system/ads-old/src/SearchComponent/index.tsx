@@ -63,10 +63,11 @@ const SearchInputWrapper = styled(InputGroup)<{
       text-overflow: ellipsis;
       width: 100%;
     }
+
     input:focus {
-      border: 1.2px solid var(--ads-old-color-fern-green);
-      box-sizing: border-box;
-      width: 100%;
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
     }
 
     input:active {

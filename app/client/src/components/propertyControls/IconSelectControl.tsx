@@ -52,10 +52,10 @@ const StyledButton = styled(Button)`
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 
-  &:focus {
+  &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
-    border: 1px solid var(--ads-v2-color-border-emphasis);
+    outline-offset: var(--ads-v2-offset-outline);
   }
 `;
 
