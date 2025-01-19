@@ -38,6 +38,7 @@ const items = [
   {
     startIcon: <Icon name="file-list-2-line" size={"md"} />,
     title: "Action item 3",
+    isSelected: true,
   },
   {
     startIcon: <Icon name="file-list-2-line" size={"md"} />,
@@ -210,17 +211,33 @@ export const ListItemInlineDescStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemInlineDescStory.storyName = "List item inline description";
 ListItemInlineDescStory.argTypes = ListItemArgTypes;
 ListItemInlineDescStory.args = {
-  title: "Action item 1",
+  title:
+    "Action_item_1_with_a_very_long_name_that_should_show_ellipsis_in_the_same_line",
   description: "inline",
 };
 
-export const ListItemBlockDescStory = ListItemTemplate.bind({}) as StoryObj;
-ListItemBlockDescStory.storyName = "List item block description";
-ListItemBlockDescStory.argTypes = ListItemArgTypes;
-ListItemBlockDescStory.args = {
+export const ListItemBlockDescWithIconStory = ListItemTemplate.bind(
+  {},
+) as StoryObj;
+ListItemBlockDescWithIconStory.storyName =
+  "List item block description with icon";
+ListItemBlockDescWithIconStory.argTypes = ListItemArgTypes;
+ListItemBlockDescWithIconStory.args = {
   startIcon: <Icon name="file-list-2-line" size={"md"} />,
   title: "Action item 1",
   description: "block",
+  descriptionType: "block",
+};
+
+export const ListItemBlockDescWithoutIconStory = ListItemTemplate.bind(
+  {},
+) as StoryObj;
+ListItemBlockDescWithoutIconStory.storyName =
+  "List item block description without icon";
+ListItemBlockDescWithoutIconStory.argTypes = ListItemArgTypes;
+ListItemBlockDescWithoutIconStory.args = {
+  title: "Action item 1",
+  description: "Action item 1 block description",
   descriptionType: "block",
 };
 

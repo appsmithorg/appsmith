@@ -67,9 +67,7 @@ export class ApiPage {
     "')]";
   private _bodyTypeSelect = `//div[@data-testid="t--api-body-tab-switch"]`;
   private _bodyTypeToSelect = (subTab: string) =>
-    "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
-    subTab +
-    "')]";
+    ".rc-select-item-option:contains(" + subTab + ")";
   private _rightPaneTab = (tab: string) =>
     "//span[contains(text(), '" + tab + "')]/parent::button";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
@@ -103,6 +101,7 @@ export class ApiPage {
   private runOnPageLoadJSObject =
     "input[name^='execute-on-page-load'][type='checkbox']";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
+  public splitPaneContextMenuTrigger = ".entity-context-menu";
 
   CreateApi(
     apiName = "",

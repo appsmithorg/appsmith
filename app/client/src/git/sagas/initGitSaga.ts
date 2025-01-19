@@ -35,4 +35,6 @@ export default function* initGitForEditorSaga(
       );
     }
   }
+
+  yield put(gitArtifactActions.initGitForEditorSuccess({ artifactDef }));
 }

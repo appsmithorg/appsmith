@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { DefaultPlugin, Plugin } from "api/PluginApi";
+import type { DefaultPlugin, Plugin } from "entities/Plugin";
 import type {
   PluginFormPayloadWithId,
   PluginFormsPayload,

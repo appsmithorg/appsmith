@@ -129,7 +129,7 @@ import {
   findDatatype,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";

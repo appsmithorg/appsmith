@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
 import { JSFunctionRun } from "./components/JSFunctionRun";
-import type { JSActionDropdownOption } from "./types";
+import type { JSActionDropdownOption, OnUpdateSettingsProps } from "./types";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
-import { JSHeader } from "./JSHeader";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
-import type { JSFunctionSettingsProps } from "./components/old/JSFunctionSettings";
 import { convertJSActionsToDropdownOptions } from "./utils";
 import { JSObjectNameEditor } from "./JSObjectNameEditor";
 
@@ -33,7 +29,7 @@ interface Props {
   onSelect: DropdownOnSelect;
   jsActions: JSAction[];
   selected: JSActionDropdownOption;
-  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  onUpdateSettings: (props: OnUpdateSettingsProps) => void;
   showNameEditor?: boolean;
   showSettings: boolean;
 }
@@ -41,22 +37,11 @@ interface Props {
 /**
  * JSEditorToolbar component.
  *
- * This component renders a toolbar for the JS editor. It conditionally renders
- * different components based on the `release_actions_redesign_enabled` feature flag.
+ * This component renders a toolbar for the JS editor.
  *
  */
 export const JSEditorToolbar = (props: Props) => {
-  // Check if the action redesign feature flag is enabled
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const [isOpen, setIsOpen] = useState(false);
-
-  // If the action redesign is not enabled, render the JSHeader component
-  if (!isActionRedesignEnabled) {
-    return <JSHeader {...props} />;
-  }
 
   // Render the IDEToolbar with JSFunctionRun and JSFunctionSettings components
   return (

@@ -7,22 +7,15 @@ import pluralize from "pluralize";
 import { Callout, Tooltip, type CalloutLinkProps } from "@appsmith/ads";
 
 import type { ActionResponse } from "api/ActionAPI";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 import { scrollbarWidth } from "utils/helpers";
 
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  openPluginActionSettings,
-  setPluginActionEditorSelectedTab,
-} from "PluginActionEditor/store";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { openPluginActionSettings } from "../../../../store";
 import {
   createMessage,
   PREPARED_STATEMENT_WARNING,
@@ -38,6 +31,7 @@ import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 
 import * as Styled from "./styles";
 import { checkForPreparedStatement, parseActionResponse } from "./utils";
+import ActionExecutionInProgressView from "./components/ActionExecutionInProgressView";
 
 interface ResponseProps {
   action: Action;
@@ -50,10 +44,6 @@ interface ResponseProps {
 }
 
 export function Response(props: ResponseProps) {
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const {
     action,
     actionResponse,
@@ -147,11 +137,7 @@ export function Response(props: ResponseProps) {
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = useMemo(() => {
     const navigateToSettings = () => {
-      if (isActionRedesignEnabled) {
-        dispatch(openPluginActionSettings(true));
-      } else {
-        dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
-      }
+      dispatch(openPluginActionSettings(true));
     };
 
     return [
@@ -160,7 +146,7 @@ export function Response(props: ResponseProps) {
         children: createMessage(PREPARED_STATEMENT_WARNING.LINK),
       },
     ];
-  }, [dispatch, isActionRedesignEnabled]);
+  }, [dispatch]);
 
   const handleContentTypeChange = useEventCallback((e?: Event) => {
     if (e?.target && e.target instanceof HTMLElement) {

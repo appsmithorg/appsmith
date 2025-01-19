@@ -36,6 +36,7 @@ interface SelectFieldProps {
   disabled?: boolean;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
+  testId?: string;
 }
 
 export function SelectField(props: SelectFieldProps) {
@@ -58,6 +59,7 @@ export function SelectField(props: SelectFieldProps) {
       selected={props.selected}
       showLabelOnly={props.showLabelOnly}
       size={props.size}
+      testId={props.testId}
     />
   );
 }

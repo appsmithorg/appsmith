@@ -25,11 +25,6 @@ export { default as IDEToolbar } from "./Structure/Toolbar";
 export { default as IDEBottomView } from "./Components/BottomView";
 
 /**
- * IDESidebar is used inside the IDE to have a navigation menu on the left side of the screen.
- * It switches between different editor states
- */
-export { default as IDESidebar } from "./Components/Sidebar";
-/**
  * IDESidePaneWrapper is used as a wrapper for side panes, which provides a border and optional padding
  * and enforces 100% width and height to the parent.
  */
@@ -48,6 +43,7 @@ export {
   EditableName,
   RenameMenuItem,
   useIsRenaming,
+  useValidateEntityName,
 } from "./Components/EditableName";
 
 /* ====================================================
@@ -56,5 +52,3 @@ export {
 =======================================================**/
 
 export { ViewHideBehaviour, ViewDisplayMode } from "./Interfaces/View";
-export { Condition } from "./enums";
-export type { IDESidebarButton } from "./Components/Sidebar";

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
 import { isEnvironmentConfigured } from "ee/utils/Environments";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,

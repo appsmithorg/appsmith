@@ -4,7 +4,6 @@ import Entity, { EntityClassNames } from "../Entity";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
@@ -20,6 +19,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import WidgetContextMenu from "./WidgetContextMenu";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 

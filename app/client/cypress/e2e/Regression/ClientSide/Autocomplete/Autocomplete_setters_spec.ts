@@ -92,9 +92,6 @@ describe(
 
     it("3. function arguments hint shows up", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", "{{", true, false);
-      agHelper.GetNClickByContains(locators._hints, "appsmith", 0, false);
-      agHelper.AssertElementVisibility(locators._evalValuePopover);
       propPane.EnterJSContext("onClick", "{{showAlert", true, false);
       agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");
       agHelper.AssertElementAbsence(locators._evalValuePopover);

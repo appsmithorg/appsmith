@@ -1,5 +1,6 @@
 import React from "react";
-import { ExplorerContainerBorder, Flex } from "../../..";
+import { Flex } from "../../../Flex";
+import { ExplorerContainerBorder } from "./ExplorerContainer.constants";
 import type { ExplorerContainerProps } from "./ExplorerContainer.types";
 
 export const ExplorerContainer = (props: ExplorerContainerProps) => {
