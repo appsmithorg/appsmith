@@ -6,7 +6,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 // please refer to issue, https://github.com/appsmithorg/appsmith/issues/7415 for more details.
 describe(
   "Unique react keys",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   function () {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();

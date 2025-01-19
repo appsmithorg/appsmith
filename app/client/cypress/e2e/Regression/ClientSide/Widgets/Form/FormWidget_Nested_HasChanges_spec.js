@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form Widget",
-  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Form", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("formHasChangesDsl");

@@ -22,7 +22,7 @@ let dsName: any, query: string;
 describe(
   "Bug #14299 - The data from the query does not show up on the widget",
   {
-    tags: ["@tag.Widget", "@tag.Datasource", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.All", "@tag.Datasource", "@tag.Git", "@tag.AccessControl"],
   },
   function () {
     before("Create Postgress DS & set theme", () => {

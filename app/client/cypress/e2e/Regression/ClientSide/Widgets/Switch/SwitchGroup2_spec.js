@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Switch Group Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Switch", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Switch", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("SwitchGroupWidgetDsl");

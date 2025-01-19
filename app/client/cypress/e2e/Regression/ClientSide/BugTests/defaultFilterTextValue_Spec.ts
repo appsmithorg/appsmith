@@ -4,7 +4,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe(
   "Select widget filterText",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("defaultFilterText");

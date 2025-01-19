@@ -6,7 +6,7 @@ import {
 
 describe(
   "16108 - Verify Table URL column bugs",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2WithUrlColumnDsl");

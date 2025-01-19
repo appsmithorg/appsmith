@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing validation functionality",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   () => {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();
@@ -79,7 +79,7 @@ describe(
 
     describe(
       "5. should check validation property for plain text column",
-      { tags: ["@tag.Widget", "@tag.Table"] },
+      { tags: ["@tag.All", "@tag.Table"] },
       () => {
         it("a. Regex", () => {
           cy.openPropertyPane("tablewidgetv2");
@@ -132,7 +132,7 @@ describe(
 
     describe(
       "6. should check validation property for number column",
-      { tags: ["@tag.Widget", "@tag.Table"] },
+      { tags: ["@tag.All", "@tag.Table"] },
       () => {
         it("a. Min", () => {
           cy.openPropertyPane("tablewidgetv2");
@@ -208,7 +208,7 @@ describe(
 
     describe(
       "8. should check the editable cell actions when there is a validation error",
-      { tags: ["@tag.Widget", "@tag.Table"] },
+      { tags: ["@tag.All", "@tag.Table"] },
       () => {
         it("a. save should only work when there is no error", () => {
           cy.openPropertyPane("tablewidgetv2");

@@ -11,7 +11,7 @@ const locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSON Form Widget Form Bindings",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

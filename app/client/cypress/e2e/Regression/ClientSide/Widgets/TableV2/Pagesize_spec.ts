@@ -4,7 +4,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Table widget v2",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   function () {
     it("1. should test that pageSize is computed properly for all the row sizes", function () {
       PageList.AddNewPage();

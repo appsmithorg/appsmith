@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "FilePicker Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Filepicker", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FILEPICKER);

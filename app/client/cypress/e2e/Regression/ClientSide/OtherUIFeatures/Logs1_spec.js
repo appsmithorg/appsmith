@@ -21,7 +21,7 @@ const generateTestLogString = () => {
 
 describe(
   "Debugger logs",
-  { tags: ["@tag.Widget", "@tag.IDE", "@tag.PropertyPane", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.IDE", "@tag.PropertyPane", "@tag.Binding"] },
   function () {
     this.beforeEach(() => {
       logString = generateTestLogString();

@@ -17,7 +17,7 @@ let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSONForm Select field - filterText update action trigger ",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

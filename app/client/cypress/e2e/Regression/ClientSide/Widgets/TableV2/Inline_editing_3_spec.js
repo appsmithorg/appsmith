@@ -10,7 +10,7 @@ import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Table", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -4,7 +4,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Form", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("formSelectTreeselectDsl");

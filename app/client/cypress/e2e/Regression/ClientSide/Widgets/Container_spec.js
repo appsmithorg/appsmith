@@ -12,7 +12,7 @@ const boxShadowOptions = {
 describe(
   "Container Widget Functionality",
   {
-    tags: ["@tag.Widget", "@tag.Container", "@tag.AutoHeight", "@tag.Binding"],
+    tags: ["@tag.All", "@tag.Container", "@tag.AutoHeight", "@tag.Binding"],
   },
   function () {
     before(() => {

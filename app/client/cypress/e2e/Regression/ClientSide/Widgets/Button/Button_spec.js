@@ -12,7 +12,7 @@ const iconAlignmentProperty = ".t--property-control-position";
 
 describe(
   "Button Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Button", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("newFormDsl");

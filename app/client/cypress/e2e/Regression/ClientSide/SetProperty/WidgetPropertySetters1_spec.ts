@@ -123,7 +123,7 @@ Object.values(setterMethodsToTest).forEach(
   ) => {
     describe(
       `${index + 1}. ${name} method test`,
-      { tags: ["@tag.Widget", "@tag.JS"] },
+      { tags: ["@tag.All", "@tag.JS"] },
       () => {
         beforeEach("Adding new pag & DragDrop widget", () => {
           PageList.AddNewPage();
@@ -156,7 +156,7 @@ Object.values(setterMethodsToTest).forEach(
 
 describe(
   "Linting warning for setter methods",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   function () {
     it("Lint error when setter is used in a data field", function () {
       entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);

@@ -1,6 +1,6 @@
 describe(
   "List widget v2 Evaluated Popup",
-  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.List", "@tag.Binding"] },
   () => {
     it("1. List widget V2 with currentItem", () => {
       cy.dragAndDropToCanvas("listwidgetv2", {

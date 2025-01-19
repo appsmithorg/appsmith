@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "CUrrency Input widget Tests",
-  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
+  { tags: ["@tag.All", "@tag.CurrencyInput"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 100);

@@ -15,7 +15,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Checkbox Tests",
-  { tags: ["@tag.Widget", "@tag.Checkbox"] },
+  { tags: ["@tag.All", "@tag.Checkbox"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("checkboxgroupwidget", 550, 100);

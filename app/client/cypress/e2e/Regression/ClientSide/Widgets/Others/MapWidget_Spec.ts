@@ -31,7 +31,7 @@ const location = [
 
 describe(
   "Map Widget",
-  { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Maps", "@tag.Visual", "@tag.Binding"] },
   function () {
     it("1.Drag Map Widget and Verify the Map Widget with Initial Location", () => {
       //Add map and verify

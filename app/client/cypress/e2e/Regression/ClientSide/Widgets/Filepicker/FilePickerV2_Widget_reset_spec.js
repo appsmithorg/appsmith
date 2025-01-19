@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "File Picker Widget V2 Functionality",
-  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Filepicker", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("filePickerV2_reset_check_dsl");

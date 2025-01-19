@@ -7,7 +7,7 @@ import {
 
 describe(
   "Map chart Widget",
-  { tags: ["@tag.Widget", "@tag.Maps", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Maps", "@tag.Binding"] },
   function () {
     it("1.Drag two Map Widget and Verify the Map Widget is loading", () => {
       //Add map and verify

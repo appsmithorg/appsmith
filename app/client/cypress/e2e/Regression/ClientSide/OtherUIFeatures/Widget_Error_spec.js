@@ -8,7 +8,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 
 describe(
   "Widget error state",
-  { tags: ["@tag.Widget", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Binding"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

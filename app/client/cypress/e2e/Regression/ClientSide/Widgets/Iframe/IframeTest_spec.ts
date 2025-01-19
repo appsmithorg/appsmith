@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Iframe widget Tests",
-  { tags: ["@tag.Widget", "@tag.Iframe", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Iframe", "@tag.Binding"] },
   function () {
     before(() => {
       homePage.ImportApp("IframeWidgetPostMessage.json");

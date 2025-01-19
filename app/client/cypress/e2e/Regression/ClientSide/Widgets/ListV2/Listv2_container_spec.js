@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Listv2 - Container widget",
-  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       cy.addDsl(simpleListDSL);

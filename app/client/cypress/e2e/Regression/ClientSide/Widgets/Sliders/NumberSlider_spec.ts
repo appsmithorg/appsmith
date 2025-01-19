@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Number Slider spec",
-  { tags: ["@tag.Widget", "@tag.Slider", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Slider", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);

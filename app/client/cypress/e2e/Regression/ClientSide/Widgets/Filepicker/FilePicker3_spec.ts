@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Verify file picker widget",
-  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Filepicker", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("filepickerDsl");

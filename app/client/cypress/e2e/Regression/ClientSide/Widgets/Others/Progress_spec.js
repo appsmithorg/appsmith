@@ -11,7 +11,7 @@ import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Progress Widget",
-  { tags: ["@tag.Widget", "@tag.Progress", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.Progress", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.PROGRESS);

@@ -6,7 +6,7 @@ import EditorNavigation, {
 
 describe(
   "Widget property navigation",
-  { tags: ["@tag.Widget", "@tag.excludeForAirgap", "@tag.Binding"] },
+  { tags: ["@tag.All", "@tag.excludeForAirgap", "@tag.Binding"] },
   () => {
     it("1. Collapsed field navigation", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO);
