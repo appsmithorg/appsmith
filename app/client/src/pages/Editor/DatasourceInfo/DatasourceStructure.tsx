@@ -20,8 +20,8 @@ import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -66,13 +66,13 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const onSelect = () => {

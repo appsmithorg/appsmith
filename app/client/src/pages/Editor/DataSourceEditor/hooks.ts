@@ -19,9 +19,9 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -141,7 +141,7 @@ export const useShowPageGenerationOnHeader = (
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isGACEnabled,
@@ -151,7 +151,7 @@ export const useShowPageGenerationOnHeader = (
     isEnabled: isGACEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const canGeneratePage = canCreateDatasourceActions && canCreatePages;

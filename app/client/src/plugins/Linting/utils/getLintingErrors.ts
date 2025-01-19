@@ -44,8 +44,9 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Linter } from "eslint-linter-browserify";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { EditorNames, getEditorType } from "ee/hooks";
 import type { AppsmithEntity } from "ee/entities/DataTree/types";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -80,7 +81,7 @@ export function generateLintingGlobalData(
   linterType = LINTER_TYPE.JSHINT,
 ) {
   const asyncFunctions: string[] = [];
-  let editorType = EditorNames.APPLICATION;
+  let ideType: IDEType = IDE_TYPE.App;
   let globalData: Record<string, boolean | "readonly" | "writable"> = {};
 
   if (linterType === LINTER_TYPE.JSHINT) {
@@ -139,7 +140,7 @@ export function generateLintingGlobalData(
         } else if (dataValueEntityType === ENTITY_TYPE.APPSMITH) {
           const appsmithEntity: AppsmithEntity = dataValue;
 
-          editorType = getEditorType(appsmithEntity.URL.pathname);
+          ideType = getIDETypeByUrl(appsmithEntity.URL.pathname);
         }
       }
     }
@@ -156,7 +157,7 @@ export function generateLintingGlobalData(
     );
   }
 
-  return { globalData, asyncFunctions, editorType };
+  return { globalData, asyncFunctions, ideType };
 }
 
 function sanitizeESLintErrors(
@@ -371,13 +372,13 @@ export default function getLintingErrors({
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const {
     asyncFunctions,
-    editorType,
     globalData: lintingGlobalData,
+    ideType,
   } = generateLintingGlobalData(data, linterType);
   const lintingOptions = lintOptions(
     lintingGlobalData,
     asyncFunctions,
-    editorType,
+    ideType,
     linterType,
   );
 

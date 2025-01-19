@@ -8,6 +8,8 @@ import {
   queryListURL,
   saasEditorApiIdURL,
 } from "ee/RouteBuilder";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { ActionEntityContextMenuItemsEnum } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 export const getQueryEntityItemUrl = (
   item: EntityItem,
@@ -53,4 +55,24 @@ export const getQueryUrl = (
   return add
     ? queryAddURL({ basePageId: item.params.basePageId })
     : queryListURL({ basePageId: item.params.basePageId });
+};
+
+export const getMenuItemsForActionEntityByParentType = (
+  parentEntityType: ActionParentEntityTypeInterface,
+) => {
+  const defaultMenuItems = [
+    ActionEntityContextMenuItemsEnum.RENAME,
+    ActionEntityContextMenuItemsEnum.DELETE,
+    ActionEntityContextMenuItemsEnum.SHOW_BINDING,
+    ActionEntityContextMenuItemsEnum.COPY,
+    ActionEntityContextMenuItemsEnum.MOVE,
+    ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
+  ];
+
+  switch (parentEntityType) {
+    case "PAGE":
+      return defaultMenuItems;
+    default:
+      return defaultMenuItems;
+  }
 };

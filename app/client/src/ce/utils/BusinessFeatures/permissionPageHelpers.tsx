@@ -43,7 +43,7 @@ import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "ee/
 
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "ee/utils/permissionHelpers";
-import { EditorNames } from "ee/hooks";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
@@ -167,16 +167,16 @@ export const getHasAuditLogsReadPermission = (
 
 export const hasCreateDSActionPermissionInApp = ({
   dsPermissions,
-  editorType,
+  ideType,
   isEnabled,
   pagePermissions,
 }: {
   dsPermissions?: string[];
-  editorType?: string;
+  ideType?: IDEType;
   isEnabled: boolean;
   pagePermissions?: string[];
 }) => {
-  return !editorType || editorType === EditorNames.APPLICATION
+  return !ideType || ideType === IDE_TYPE.App
     ? getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
         getHasCreateActionPermission(isEnabled, pagePermissions)
     : getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);

@@ -41,7 +41,7 @@ describe("DataSidePane", () => {
     }) as AppState;
 
     render(<DataSidePane />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      url: "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       initialState: state,
     });
 
@@ -80,7 +80,7 @@ describe("DataSidePane", () => {
     };
 
     render(<DataSidePane dsUsageSelector={usageSelector} />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      url: "/app/untitled-application-1/page1-2/edit/datasource/users-ds-id",
       initialState: state,
     });
 

@@ -10,6 +10,7 @@ import {
   saveActionName,
 } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 
 export const createNewQueryBasedOnParentEntity = (
   entityId: string,
@@ -43,12 +44,12 @@ export const createNewJSCollectionBasedOnParentEntity = (
   return createNewJSCollection(entityId, from);
 };
 
-export const saveActionNameBasedOnParentEntity = (
+export const saveActionNameBasedOnIdeType = (
   id: string,
   name: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
+  ideType: IDEType = IDE_TYPE.App,
 ) => {
   return saveActionName({ id, name });
 };
@@ -63,9 +64,9 @@ export const saveJSObjectNameBasedOnParentEntity = (
   return saveJSObjectName({ id, name });
 };
 
-export const createNewApiActionBasedOnEditorType = (
+export const createNewApiActionBasedOnIdeType = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  editorType: string,
+  ideType: IDEType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   editorId: string,
   parentEntityId: string,

@@ -117,7 +117,8 @@ describe("DatasourceViewModeSchema Component", () => {
     const mockHistoryPush = jest.fn();
     const mockHistoryReplace = jest.fn();
     const mockHistoryLocation = {
-      pathname: "/",
+      pathname:
+        "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       search: "",
       hash: "",
       state: {},

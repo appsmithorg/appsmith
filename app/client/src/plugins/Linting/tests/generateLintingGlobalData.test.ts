@@ -7,7 +7,6 @@ jest.mock("ee/hooks", () => {
 
   return {
     ...actualModule, // Spread the original module exports
-    getEditorType: jest.fn(() => "TestEditorType"), // Override `getEditorType`
   };
 });
 
@@ -52,8 +51,6 @@ describe("generateLintingGlobalData", () => {
       "JSObject1.myFun2",
       "JSObject1.test",
     ]);
-
-    expect(result.editorType).toEqual("TestEditorType");
   });
 
   it("should handle an empty input and return default values", () => {

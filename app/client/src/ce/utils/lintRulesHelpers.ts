@@ -1,5 +1,7 @@
+import type { IDEType } from "ee/entities/IDE/constants";
+
 interface ContextType {
-  editorType: string;
+  ideType: IDEType;
 }
 
 /**
