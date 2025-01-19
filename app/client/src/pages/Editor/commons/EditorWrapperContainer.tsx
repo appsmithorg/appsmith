@@ -10,21 +10,27 @@ import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
+  hasBottomBar?: boolean;
 }
 
 const Wrapper = styled.div<{
   isProtectedMode: boolean;
+  hasBottomBar?: boolean;
 }>`
   display: flex;
   height: calc(
-    100vh - ${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px -
+    100vh - ${IDE_HEADER_HEIGHT}px -
+      ${(props) => (props.hasBottomBar ? BOTTOM_BAR_HEIGHT : 0)}px -
       ${(props) =>
         props.isProtectedMode ? PROTECTED_CALLOUT_HEIGHT + "px" : "0px"}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
+function EditorWrapperContainer({
+  children,
+  hasBottomBar = true,
+}: EditorWrapperContainerProps) {
   const isCombinedPreviewMode = useSelector(selectCombinedPreviewMode);
   const isProtectedMode = useGitProtectedMode();
 
@@ -34,6 +40,7 @@ function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
         [`relative w-full overflow-x-hidden`]: true,
         "select-none": !isCombinedPreviewMode,
       })}
+      hasBottomBar={hasBottomBar}
       isProtectedMode={isProtectedMode}
     >
       {children}

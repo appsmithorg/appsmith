@@ -51,6 +51,8 @@ import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewe
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "ee/selectors/tenantSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import BottomBar from "components/BottomBar";
+import useShowEnvSwitcher from "hooks/useShowEnvSwitcher";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -117,6 +119,7 @@ function AppViewer(props: Props) {
 
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
+  const showEnvSwitcher = useShowEnvSwitcher({ viewMode: true });
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -233,6 +236,7 @@ function AppViewer(props: Props) {
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
+          {showEnvSwitcher && <BottomBar />}
           <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
             {!hideWatermark && (
               <a
