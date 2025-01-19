@@ -188,7 +188,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             -e APPSMITH_RATE_LIMIT=1000 \
-            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
+            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway --add-host=mockdb.appsmith.com:host-gateway \
             cicontainer
 
       - name: Use Node.js
