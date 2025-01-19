@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   appSettings,
+  assertHelper,
   deployMode,
   draggableWidgets,
   entityExplorer,
@@ -50,7 +51,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -58,7 +58,8 @@ describe(
           false,
         );
       });
-      agHelper.RefreshPage();
+      agHelper.CypressReload();
+      agHelper.WaitUntilEleAppear(locators._modalWrapper);
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
       agHelper.AssertText(locators._modalButtonText, "text", "Close", 1);
@@ -66,7 +67,9 @@ describe(
 
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
-      agHelper.RefreshPage();
+      agHelper.CypressReload();
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
+      agHelper.WaitUntilEleAppear(locators._modalWrapper);
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
       agHelper.AssertText(locators._modalButtonText, "text", "Close", 1);
@@ -92,6 +95,8 @@ describe(
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Modal2 is not defined", 0, 1);
       deployMode.NavigateBacktoEditor();
+      agHelper.CypressReload();
+      agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));
 
       const jsObjectBody = `export default {
         myFun1 () {
@@ -113,7 +118,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -139,12 +143,13 @@ describe(
       EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       propPane.EnterJSContext("onClick", `{{closeModal(Modal2.name);}}`, true);
-      agHelper.RefreshPage();
+      agHelper.CypressReload();
       agHelper.ClickButton("Submit");
       agHelper.GetNClick(locators._modalButtonText, 0, true, 0);
       agHelper.ValidateToastMessage("Modal2 is not defined", 0, 1);
 
       deployMode.DeployApp();
+      agHelper.CypressReload();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.GetNClick(locators._modalButtonText, 0, true, 0);
@@ -174,7 +179,6 @@ describe(
       EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.myFun1()}}`,
@@ -182,17 +186,17 @@ describe(
           false,
         );
       });
-      agHelper.RefreshPage();
+      agHelper.CypressReload();
       agHelper.ClickButton("Submit");
       agHelper.GetNClick(locators._modalButtonText, 0, true, 0);
       agHelper.ValidateToastMessage("Modal2 is not defined", 0, 1);
 
       deployMode.DeployApp();
+      agHelper.CypressReload();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.GetNClick(locators._modalButtonText, 0, true, 0);
       agHelper.ValidateToastMessage("Modal2 is not defined", 0, 1);
-      deployMode.NavigateBacktoEditor();
     });
   },
 );
