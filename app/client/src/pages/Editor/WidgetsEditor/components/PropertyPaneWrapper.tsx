@@ -1,6 +1,7 @@
 import React from "react";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
+import { PropertyPaneResizableHandle } from "./PropertyPaneResizableHandle";
 
 /**
  * PropertyPaneWrapper
@@ -11,7 +12,9 @@ import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/Creat
 function PropertyPaneWrapper() {
   return (
     <>
-      <PropertyPaneSidebar />
+      <PropertyPaneResizableHandle>
+        <PropertyPaneSidebar />
+      </PropertyPaneResizableHandle>
       <CreateNewQueryModal />
     </>
   );

@@ -14,7 +14,7 @@ const ResizeHandle = styled.div<{ isExpanded?: boolean }>`
   top: 0;
   width: ${2 * WIDGET_PADDING}px;
   height: 100%;
-  cursor: pointer;
+  cursor: ${(props) => (props.isExpanded ? "e-resize" : "w-resize")};
   transition: background-color 0.1s ease-in;
   z-index: 999;
 
@@ -30,22 +30,20 @@ const ResizableContainer = styled.div<{ width: number }>`
   transition: width 0.2s ease-in-out;
 `;
 
-interface RightPaneResizableHandleProps {
+interface PropertyPaneResizableHandleProps {
   children: React.ReactNode;
 }
 
-const MAX_WIDTH = 500;
-
-export function RightPaneResizableHandle({
+export function PropertyPaneResizableHandle({
   children,
-}: RightPaneResizableHandleProps) {
+}: PropertyPaneResizableHandleProps) {
   const dispatch = useDispatch();
   const width = useSelector(getPropertyPaneWidth);
 
   const handleClick = React.useCallback(() => {
     const newWidth =
       width === DEFAULT_PROPERTY_PANE_WIDTH
-        ? Math.min(EXPANDED_PROPERTY_PANE_WIDTH, MAX_WIDTH)
+        ? EXPANDED_PROPERTY_PANE_WIDTH
         : DEFAULT_PROPERTY_PANE_WIDTH;
 
     dispatch(setPropertyPaneWidthAction(newWidth));
