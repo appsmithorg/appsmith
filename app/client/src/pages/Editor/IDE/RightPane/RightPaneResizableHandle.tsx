@@ -1,18 +1,18 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import type { CallbackResponseType } from "utils/hooks/useResize";
 import useResize, { DIRECTION } from "utils/hooks/useResize";
-import { Colors } from "constants/Colors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 
-const ResizeHandle = styled.div`
+const ResizeHandle = styled.div<{ isResizing?: boolean }>`
   position: absolute;
   left: -${WIDGET_PADDING}px;
   top: 0;
   width: ${2 * WIDGET_PADDING}px;
   height: 100%;
   cursor: ew-resize;
-  transition: background-color 0.1s ease-in;
+  transition: ${(props) =>
+    props.isResizing ? "none" : "background-color 0.1s ease-in"};
 
   &:hover {
     background-color: var(--ads-v2-color-bg-muted);
@@ -39,24 +39,26 @@ export function RightPaneResizableHandle({
   const afterResizeCallback = React.useCallback(
     (data: CallbackResponseType) => {
       const newWidth = Math.max(data.width, MIN_WIDTH);
-      setWidth(newWidth);
 
-      if (paneRef.current) {
-        paneRef.current.style.width = `${newWidth}px`;
-      }
+      // Only update React state, DOM updates are handled by useResize
+      setWidth(newWidth);
     },
-    [],
+    [MIN_WIDTH],
   );
 
-  const { setMouseDown } = useResize(
+  const { mouseDown, setMouseDown } = useResize(
     paneRef,
     DIRECTION.horizontal,
     afterResizeCallback,
   );
 
+  const handleMouseDown = useCallback(() => {
+    setMouseDown(true);
+  }, [setMouseDown]);
+
   return (
     <ResizableContainer ref={paneRef} width={width}>
-      <ResizeHandle onMouseDown={() => setMouseDown(true)} />
+      <ResizeHandle isResizing={mouseDown} onMouseDown={handleMouseDown} />
       {children}
     </ResizableContainer>
   );
