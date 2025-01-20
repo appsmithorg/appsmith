@@ -47,8 +47,9 @@ class SelectComponent extends React.Component<
   spanRef = React.createRef<HTMLSpanElement>();
 
   state = {
-    // used to show focused item for keyboard up down key interection
-    activeItemIndex: -1,
+    // used to show focused item for keyboard up down key interaction
+    // initialize to 0 to highlight first item by default
+    activeItemIndex: 0,
     isOpen: false,
   };
 
@@ -94,6 +95,12 @@ class SelectComponent extends React.Component<
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
+    // If activeItem is null and we have options, default to first item
+    if (!activeItem && this.props.options.length > 0) {
+      this.setState({ activeItemIndex: 0 });
+      return;
+    }
+
     // Update state.activeItemIndex if activeItem is different from the current value
     if (
       activeItem?.value !==
@@ -105,7 +112,9 @@ class SelectComponent extends React.Component<
         activeItem?.label,
       ]);
 
-      this.setState({ activeItemIndex });
+      if (activeItemIndex !== -1) {
+        this.setState({ activeItemIndex });
+      }
     }
   };
 
@@ -437,13 +446,30 @@ class SelectComponent extends React.Component<
               onClose: this.handleCloseList,
               // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
               onOpening: () => {
-                if (!this.props.selectedIndex) {
-                  return this.handleActiveItemChange(null);
+                // If there's no selected index or it's invalid, highlight the first item by default
+                if (
+                  typeof this.props.selectedIndex === "undefined" ||
+                  this.props.selectedIndex < 0
+                ) {
+                  return this.props.options.length > 0
+                    ? this.handleActiveItemChange(this.props.options[0])
+                    : undefined;
                 }
 
-                return this.handleActiveItemChange(
-                  this.props.options[this.props.selectedIndex],
-                );
+                // If there's a selected item, highlight it (with bounds checking)
+                if (
+                  this.props.selectedIndex < this.props.options.length &&
+                  this.props.options[this.props.selectedIndex]
+                ) {
+                  return this.handleActiveItemChange(
+                    this.props.options[this.props.selectedIndex],
+                  );
+                }
+
+                // Fallback to first item if selected index is out of bounds
+                return this.props.options.length > 0
+                  ? this.handleActiveItemChange(this.props.options[0])
+                  : undefined;
               },
               modifiers: {
                 preventOverflow: {
