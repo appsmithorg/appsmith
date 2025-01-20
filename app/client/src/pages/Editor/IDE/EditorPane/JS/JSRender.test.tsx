@@ -9,10 +9,6 @@ import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
-
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE Render: JS", () => {
@@ -24,7 +20,6 @@ describe("IDE Render: JS", () => {
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -49,7 +44,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -73,7 +67,6 @@ describe("IDE Render: JS", () => {
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -98,7 +91,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -137,7 +129,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js1.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -194,7 +185,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js2.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -241,7 +231,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js3.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -283,7 +272,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js4.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -334,7 +322,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${Main_JS.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 

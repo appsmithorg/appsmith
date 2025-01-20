@@ -3,7 +3,6 @@ import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
 
 const defaultFlags = {
-  release_side_by_side_ide_enabled: true,
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
   release_git_modularisation_enabled: true,
 };

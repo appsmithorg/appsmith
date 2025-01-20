@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
-import {
-  getIDEViewMode,
-  getIsSideBySideEnabled,
-  getListViewActiveState,
-} from "selectors/ideSelectors";
+import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
@@ -29,7 +25,6 @@ import { useEventCallback } from "usehooks-ts";
 import { EditableTab } from "./EditableTab";
 
 const EditorTabs = () => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
@@ -96,8 +91,6 @@ const EditorTabs = () => {
   const handleNewTabClick = useEventCallback(() => {
     dispatch(setListViewActiveState(false));
   });
-
-  if (!isSideBySideEnabled) return null;
 
   if (segment === EditorEntityTab.UI) return null;
 

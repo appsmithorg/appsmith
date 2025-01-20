@@ -36,9 +36,9 @@ export default class PartialImportExport {
     },
   };
 
-  OpenExportModal() {
+  OpenExportModal(entityName = "Home") {
     this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Home",
+      entityNameinLeftSidebar: entityName,
       action: "Export",
       entityType: EntityItems.Page,
     });
@@ -49,18 +49,17 @@ export default class PartialImportExport {
     );
   }
 
-  OpenImportModal() {
+  OpenImportModal(entityName = "Page1") {
     AppSidebar.navigate(AppSidebarButton.Editor);
 
     this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Page1",
+      entityNameinLeftSidebar: entityName,
       action: "Import",
       entityType: EntityItems.Page,
     });
 
     this.agHelper.AssertElementVisibility(this.locators.import.importModal);
   }
-
   ExportAndCompareDownloadedFile(
     sectionName: keyof typeof exportedPropertiesToUIEntitiesMap,
     sectionIndex: number,
