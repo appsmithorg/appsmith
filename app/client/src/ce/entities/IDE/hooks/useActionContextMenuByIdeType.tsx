@@ -1,6 +1,6 @@
 import React from "react";
 import type { Action } from "entities/Action";
-import { IDE_TYPE, type IDEType } from "../constants";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "../../FeatureFlag";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
