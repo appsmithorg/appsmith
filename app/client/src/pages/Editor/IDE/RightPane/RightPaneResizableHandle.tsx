@@ -1,21 +1,21 @@
-import React, { useEffect, useCallback, useRef, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import type { CallbackResponseType } from "utils/hooks/useResize";
-import useResize, { DIRECTION } from "utils/hooks/useResize";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
+import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 
-const ResizeHandle = styled.div<{ isResizing?: boolean }>`
+const EXPANDED_PROPERTY_PANE_WIDTH = 500;
+
+const ResizeHandle = styled.div<{ isExpanded?: boolean }>`
   position: absolute;
   left: -${WIDGET_PADDING}px;
   top: 0;
   width: ${2 * WIDGET_PADDING}px;
   height: 100%;
-  cursor: ew-resize;
-  transition: ${(props) =>
-    props.isResizing ? "none" : "background-color 0.1s ease-in"};
+  cursor: pointer;
+  transition: background-color 0.1s ease-in;
   z-index: 999;
 
   &:hover {
@@ -27,57 +27,35 @@ const ResizableContainer = styled.div<{ width: number }>`
   position: relative;
   height: 100%;
   width: ${(props) => props.width}px;
+  transition: width 0.2s ease-in-out;
 `;
 
 interface RightPaneResizableHandleProps {
   children: React.ReactNode;
 }
 
-const MIN_WIDTH = 288;
 const MAX_WIDTH = 500;
 
 export function RightPaneResizableHandle({
   children,
 }: RightPaneResizableHandleProps) {
-  const paneRef = useRef<HTMLDivElement>(null);
-  const PropertyPaneWidth = useSelector(getPropertyPaneWidth);
-  const [width, setWidth] = useState(PropertyPaneWidth); // Default width
-
   const dispatch = useDispatch();
+  const width = useSelector(getPropertyPaneWidth);
 
-  useEffect(
-    function syncWidth() {
-      setWidth(PropertyPaneWidth);
-    },
-    [PropertyPaneWidth],
-  );
+  const handleClick = React.useCallback(() => {
+    const newWidth =
+      width === DEFAULT_PROPERTY_PANE_WIDTH
+        ? Math.min(EXPANDED_PROPERTY_PANE_WIDTH, MAX_WIDTH)
+        : DEFAULT_PROPERTY_PANE_WIDTH;
 
-  const afterResizeCallback = React.useCallback(
-    (data: CallbackResponseType) => {
-      const newWidth = Math.max(
-        Math.min(width - data.width, MAX_WIDTH),
-        MIN_WIDTH,
-      );
+    dispatch(setPropertyPaneWidthAction(newWidth));
+  }, [dispatch, width]);
 
-      setWidth(newWidth);
-      dispatch(setPropertyPaneWidthAction(newWidth));
-    },
-    [dispatch, width],
-  );
-
-  const { mouseDown, setMouseDown } = useResize(
-    paneRef,
-    DIRECTION.horizontal,
-    afterResizeCallback,
-  );
-
-  const handleMouseDown = useCallback(() => {
-    setMouseDown(true);
-  }, [setMouseDown]);
+  const isExpanded = width === EXPANDED_PROPERTY_PANE_WIDTH;
 
   return (
-    <ResizableContainer ref={paneRef} width={width}>
-      <ResizeHandle isResizing={mouseDown} onMouseDown={handleMouseDown} />
+    <ResizableContainer width={width}>
+      <ResizeHandle isExpanded={isExpanded} onClick={handleClick} />
       {children}
     </ResizableContainer>
   );
