@@ -1,9 +1,5 @@
 import type { IDEType, EditorState } from "ee/entities/IDE/constants";
-import {
-  defaultActionMenuItems,
-  IDE_TYPE,
-  IDEBasePaths,
-} from "ee/entities/IDE/constants";
+import { IDE_TYPE, IDEBasePaths } from "ee/entities/IDE/constants";
 import { matchPath } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import {
@@ -76,13 +72,4 @@ export const getEditableTabPermissions = ({
     isFeatureEnabled,
     entity?.userPermissions || [],
   );
-};
-
-export const getMenuItemsForActionEntityByIdeType = (ideType: IDEType) => {
-  switch (ideType) {
-    case IDE_TYPE.App:
-      return defaultActionMenuItems;
-    default:
-      return defaultActionMenuItems;
-  }
 };
