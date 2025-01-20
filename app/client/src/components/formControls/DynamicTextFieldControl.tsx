@@ -25,7 +25,7 @@ import { Flex } from "@appsmith/ads";
 const Wrapper = styled.div`
   min-width: 380px;
   width: 100%;
-  min-height: 200px;
+  min-height: 260px;
   height: 100%;
   display: flex;
 `;

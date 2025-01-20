@@ -21,9 +21,7 @@
           "placeholderText": "All models will be fetched.",
           "fetchOptionsConditionally": true,
           "setFirstOptionAsDefault": true,
-          "alternateViewTypes": [
-            "json"
-          ],
+          "alternateViewTypes": ["json"],
           "conditionals": {
             "enable": "{{true}}",
             "fetchDynamicValues": {
@@ -72,9 +70,7 @@
           "configProperty": "actionConfiguration.formData.messages.data",
           "controlType": "ARRAY_FIELD",
           "addMoreButtonLabel": "Add message",
-          "alternateViewTypes": [
-            "json"
-          ],
+          "alternateViewTypes": ["json"],
           "schema": [
             {
               "label": "Role",

@@ -69,10 +69,6 @@ const StyledSpinner = styled(Spinner)`
   width: 5vw;
 `;
 
-const FieldWrapper = styled.div`
-  margin-top: 15px;
-`;
-
 const FormRender = (props: Props) => {
   const { editorConfig, formData, formEvaluationState, formName, uiComponent } =
     props;
@@ -179,13 +175,9 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          // TODO: Remove classname once action redesign epic is done
-          <FieldWrapper
-            className="uqi-form-wrapper"
-            key={`${configProperty}_${idx}`}
-          >
+          <div className="uqi-form-wrapper" key={`${configProperty}_${idx}`}>
             <FormControl config={modifiedSection} formName={formName} />
-          </FieldWrapper>
+          </div>
         );
       } catch (e) {
         log.error(e);
@@ -245,7 +237,7 @@ const FormRender = (props: Props) => {
               const { configProperty } = formControlOrSection;
 
               return (
-                <FieldWrapper
+                <div
                   className="uqi-form-wrapper"
                   key={`${configProperty}_${idx}`}
                 >
@@ -253,7 +245,7 @@ const FormRender = (props: Props) => {
                     config={formControlOrSection}
                     formName={formName}
                   />
-                </FieldWrapper>
+                </div>
               );
             } catch (e) {
               log.error(e);
