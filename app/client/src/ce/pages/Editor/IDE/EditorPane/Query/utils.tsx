@@ -1,4 +1,9 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
+import React from "react";
+import {
+  IDE_TYPE,
+  type EntityItem,
+  type IDEType,
+} from "ee/entities/IDE/constants";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
@@ -8,8 +13,9 @@ import {
   queryListURL,
   saasEditorApiIdURL,
 } from "ee/RouteBuilder";
-import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
-import { ActionEntityContextMenuItemsEnum } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import type { Action } from "entities/Action";
+import EntityContextMenu from "pages/Editor/IDE/EditorPane/Query/ListItem/EntityContextMenu";
+import { AppQueryContextMenuItems } from "pages/Editor/IDE/EditorPane/Query/ListItem/AppQueryContextMenuItems";
 
 export const getQueryEntityItemUrl = (
   item: EntityItem,
@@ -57,22 +63,17 @@ export const getQueryUrl = (
     : queryListURL({ basePageId: item.params.basePageId });
 };
 
-export const getMenuItemsForActionEntityByParentType = (
-  parentEntityType: ActionParentEntityTypeInterface,
+export const getQueryContextMenuByIdeType = (
+  ideType: IDEType,
+  action: Action,
 ) => {
-  const defaultMenuItems = [
-    ActionEntityContextMenuItemsEnum.RENAME,
-    ActionEntityContextMenuItemsEnum.DELETE,
-    ActionEntityContextMenuItemsEnum.SHOW_BINDING,
-    ActionEntityContextMenuItemsEnum.COPY,
-    ActionEntityContextMenuItemsEnum.MOVE,
-    ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
-  ];
-
-  switch (parentEntityType) {
-    case "PAGE":
-      return defaultMenuItems;
-    default:
-      return defaultMenuItems;
+  switch (ideType) {
+    case IDE_TYPE.App: {
+      return (
+        <EntityContextMenu
+          menuContent={<AppQueryContextMenuItems action={action} />}
+        />
+      );
+    }
   }
 };

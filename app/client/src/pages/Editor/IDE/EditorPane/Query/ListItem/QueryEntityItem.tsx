@@ -20,14 +20,12 @@ import { saveActionNameBasedOnIdeType } from "ee/actions/helpers";
 import { useNameEditorState } from "pages/Editor/IDE/EditorPane/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { useLocation } from "react-router";
-import {
-  getActionContextMenuByIdeType,
-  getIDETypeByUrl,
-} from "ee/entities/IDE/utils";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { getQueryContextMenuByIdeType } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const action = useSelector((state: AppState) =>
@@ -48,7 +46,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
 
   const validateName = useValidateEntityName({});
   const dispatch = useDispatch();
-  const contextMenu = getActionContextMenuByIdeType(ideType, action);
+  const contextMenu = getQueryContextMenuByIdeType(ideType, action);
 
   const actionPermissions = action.userPermissions || [];
 
