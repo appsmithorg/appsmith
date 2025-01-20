@@ -6,6 +6,7 @@ import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "../LeftPane";
 import MainPane from "../MainPane";
 import RightPane from "../RightPane";
+import { RightPaneResizeWrapper } from "./RightPaneResizeWrapper";
 import ProtectedCallout from "../ProtectedCallout";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import styled from "styled-components";
@@ -70,7 +71,9 @@ export const StaticLayout = React.memo(() => {
             <MainPane id="app-body" />
           </LayoutContainer>
           <LayoutContainer name={Areas.PropertyPane}>
-            <RightPane />
+            <RightPaneResizeWrapper>
+              <RightPane />
+            </RightPaneResizeWrapper>
           </LayoutContainer>
         </GridContainer>
       </EditorWrapperContainer>
