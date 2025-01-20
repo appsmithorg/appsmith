@@ -20,19 +20,16 @@ import { saveActionNameBasedOnIdeType } from "ee/actions/helpers";
 import { useNameEditorState } from "pages/Editor/IDE/EditorPane/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { useLocation } from "react-router";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import {
+  getActionContextMenuByIdeType,
+  getIDETypeByUrl,
+} from "ee/entities/IDE/utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
-import { useActionContextMenuByIdeType } from "ee/entities/IDE/hooks/useActionContextMenuByIdeType";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 
-export const QueryEntityItem = ({
-  item,
-  parentEntityId,
-}: {
-  parentEntityId: string;
-  item: EntityItemProps;
-}) => {
+export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const action = useSelector((state: AppState) =>
     getActionByBaseId(state, item.key),
   ) as Action;
@@ -44,13 +41,14 @@ export const QueryEntityItem = ({
   const location = useLocation();
   const ideType = getIDETypeByUrl(location.pathname);
   const activeActionBaseId = useActiveActionBaseId();
+  const { parentEntityId } = useParentEntityInfo(ideType);
 
   const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =
     useNameEditorState();
 
   const validateName = useValidateEntityName({});
   const dispatch = useDispatch();
-  const contextMenu = useActionContextMenuByIdeType(ideType, action);
+  const contextMenu = getActionContextMenuByIdeType(ideType, action);
 
   const actionPermissions = action.userPermissions || [];
 

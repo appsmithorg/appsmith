@@ -1,19 +1,21 @@
-import { useDispatch, useSelector } from "react-redux";
-import { getPageList } from "ee/selectors/entitiesSelector";
-import { usePluginActionContext } from "PluginActionEditor";
-import React, { useCallback } from "react";
-import { copyActionRequest } from "actions/pluginActionActions";
+import React from "react";
 import { MenuSub, MenuSubContent, MenuSubTrigger } from "@appsmith/ads";
-import { CONTEXT_COPY, createMessage } from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
+import { getPageList } from "selectors/editorSelectors";
 import { PageMenuItem } from "./PageMenuItem";
+import { useCallback } from "react";
+import type { Action } from "entities/Action";
+import { copyActionRequest } from "actions/pluginActionActions";
+import { CONTEXT_COPY, createMessage } from "ee/constants/messages";
 
 interface Props {
+  action: Action;
   disabled?: boolean;
+  hideIcon?: boolean;
 }
 
-export const Copy = ({ disabled }: Props) => {
+export const Copy = ({ action, disabled, hideIcon }: Props) => {
   const menuPages = useSelector(getPageList);
-  const { action } = usePluginActionContext();
   const dispatch = useDispatch();
 
   const copyActionToPage = useCallback(
@@ -30,10 +32,13 @@ export const Copy = ({ disabled }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger disabled={disabled} startIcon="duplicate">
+      <MenuSubTrigger
+        disabled={disabled}
+        {...(!hideIcon && { startIcon: "duplicate" })}
+      >
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
-      <MenuSubContent>
+      <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
         {menuPages.map((page) => {
           return (
             <PageMenuItem

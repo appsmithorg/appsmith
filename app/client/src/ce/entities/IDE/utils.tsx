@@ -1,3 +1,4 @@
+import React from "react";
 import type { IDEType, EditorState } from "ee/entities/IDE/constants";
 import {
   defaultActionMenuItems,
@@ -15,6 +16,9 @@ import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Action } from "entities/Action";
+import EntityContextMenu from "pages/Editor/IDE/EditorPane/Query/ListItem/EntityContextMenu";
+import { AppQueryContextMenuItems } from "pages/Editor/IDE/EditorPane/Query/ListItem/AppQueryContextMenuItems";
 
 export interface SaveEntityName {
   params: {
@@ -84,5 +88,20 @@ export const getMenuItemsForActionEntityByIdeType = (ideType: IDEType) => {
       return defaultActionMenuItems;
     default:
       return defaultActionMenuItems;
+  }
+};
+
+export const getActionContextMenuByIdeType = (
+  ideType: IDEType,
+  action: Action,
+) => {
+  switch (ideType) {
+    case IDE_TYPE.App: {
+      return (
+        <EntityContextMenu
+          menuContent={<AppQueryContextMenuItems action={action} />}
+        />
+      );
+    }
   }
 };

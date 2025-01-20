@@ -1,4 +1,3 @@
-import { useHandleDeleteClick } from "PluginActionEditor/hooks";
 import React, { useCallback, useState } from "react";
 import {
   CONFIRM_CONTEXT_DELETE,
@@ -6,19 +5,38 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { MenuItem } from "@appsmith/ads";
+import { useDispatch } from "react-redux";
+import { deleteAction } from "actions/pluginActionActions";
+import type { Action } from "entities/Action";
 
 interface Props {
+  action: Action;
   disabled?: boolean;
+  hideIcon?: boolean;
 }
 
-export const Delete = ({ disabled }: Props) => {
-  const { handleDeleteClick } = useHandleDeleteClick();
+export const Delete = ({ action, disabled, hideIcon }: Props) => {
+  const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const handleDeleteClick = useCallback(
+    ({ onSuccess }: { onSuccess?: () => void }) => {
+      dispatch(
+        deleteAction({
+          id: action?.id ?? "",
+          name: action?.name ?? "",
+          onSuccess,
+        }),
+      );
+    },
+    [action.id, action.name, dispatch],
+  );
 
   const handleSelect = useCallback(
     (e?: Event) => {
       e?.preventDefault();
       confirmDelete ? handleDeleteClick({}) : setConfirmDelete(true);
+      e?.stopPropagation();
     },
     [confirmDelete, handleDeleteClick],
   );
@@ -29,10 +47,10 @@ export const Delete = ({ disabled }: Props) => {
 
   return (
     <MenuItem
-      className="t--apiFormDeleteBtn error-menuitem"
+      className="t--apiFormDeleteBtn single-select error-menuitem"
       disabled={disabled}
       onSelect={handleSelect}
-      startIcon="trash"
+      {...(!hideIcon && { startIcon: "trash" })}
     >
       {menuLabel}
     </MenuItem>

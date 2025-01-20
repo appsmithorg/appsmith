@@ -77,12 +77,7 @@ const ListQuery = () => {
                 items: items,
                 className: "",
                 renderList: (item: EntityItem) => {
-                  return (
-                    <ActionEntityItem
-                      item={item}
-                      parentEntityId={parentEntityId}
-                    />
-                  );
+                  return <ActionEntityItem item={item} />;
                 },
               };
             })}
