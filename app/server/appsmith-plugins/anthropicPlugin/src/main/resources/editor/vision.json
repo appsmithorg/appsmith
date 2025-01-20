@@ -21,7 +21,9 @@
           "placeholderText": "All models will be fetched.",
           "fetchOptionsConditionally": true,
           "setFirstOptionAsDefault": true,
-          "alternateViewTypes": ["json"],
+          "alternateViewTypes": [
+            "json"
+          ],
           "conditionals": {
             "enable": "{{true}}",
             "fetchDynamicValues": {
@@ -44,11 +46,7 @@
           "controlType": "INPUT_TEXT",
           "initialValue": "256",
           "isRequired": true,
-          "dataType": "NUMBER",
-          "customStyles": {
-            "width": "270px",
-            "minWidth": "270px"
-          }
+          "dataType": "NUMBER"
         }
       ]
     },
@@ -74,7 +72,9 @@
           "configProperty": "actionConfiguration.formData.messages.data",
           "controlType": "ARRAY_FIELD",
           "addMoreButtonLabel": "Add message",
-          "alternateViewTypes": ["json"],
+          "alternateViewTypes": [
+            "json"
+          ],
           "schema": [
             {
               "label": "Role",
@@ -130,11 +130,7 @@
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER",
           "initialValue": "1",
-          "isRequired": false,
-          "customStyles": {
-            "width": "270px",
-            "minWidth": "270px"
-          }
+          "isRequired": false
         }
       ]
     }
