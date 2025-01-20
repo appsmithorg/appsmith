@@ -175,9 +175,11 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          <div className="uqi-form-wrapper" key={`${configProperty}_${idx}`}>
-            <FormControl config={modifiedSection} formName={formName} />
-          </div>
+          <FormControl
+            config={modifiedSection}
+            formName={formName}
+            key={`${configProperty}_${idx}`}
+          />
         );
       } catch (e) {
         log.error(e);
@@ -237,15 +239,11 @@ const FormRender = (props: Props) => {
               const { configProperty } = formControlOrSection;
 
               return (
-                <div
-                  className="uqi-form-wrapper"
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
                   key={`${configProperty}_${idx}`}
-                >
-                  <FormControl
-                    config={formControlOrSection}
-                    formName={formName}
-                  />
-                </div>
+                />
               );
             } catch (e) {
               log.error(e);
