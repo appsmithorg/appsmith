@@ -84,7 +84,7 @@ export const QueryEntityItem = ({
       actionType: action?.pluginType === PluginType.DB ? "Query" : "API",
       isMock: !!datasource?.isMock,
     });
-  }, [url, location.pathname, action.name]);
+  }, [url, location.pathname, action, datasource, pluginGroups]);
 
   return (
     <EntityItem

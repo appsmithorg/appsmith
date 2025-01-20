@@ -26,6 +26,7 @@ import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
+import { objectKeys } from "@appsmith/utils";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,7 +59,7 @@ const ListQuery = () => {
       px="spaces-3"
       py="spaces-3"
     >
-      {Object.keys(itemGroups).length === 0 && <BlankState />}
+      {objectKeys(itemGroups).length === 0 && <BlankState />}
 
       {itemGroups.length > 0 ? (
         <SearchAndAdd
