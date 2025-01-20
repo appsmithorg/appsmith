@@ -25,7 +25,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import { getQueryContextMenuByIdeType } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryContextMenuByIdeType } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryContextMenuByIdeType";
 
 export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const action = useSelector((state: AppState) =>

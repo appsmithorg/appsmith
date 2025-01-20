@@ -7,7 +7,7 @@ import {
 import { PluginType } from "entities/Plugin";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 
 export function setSelectedDatasource(id?: string) {
   if (id) {
