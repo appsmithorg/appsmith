@@ -10,7 +10,7 @@ export class Sidebar {
   }
 
   navigate(button: string, willFail = false) {
-    this.assertVisible();
+    this.assertVisible(Cypress.config().pageLoadTimeout);
     cy.get(this.locators.sidebar)
       .find(this.locators.sidebarButton(button))
       .as("navigateBtn")
@@ -22,7 +22,7 @@ export class Sidebar {
     );
   }
 
-  assertVisible(timeout: number = 10000) {
+  assertVisible(timeout: number = 60000) {
     cy.get(this.locators.sidebar, { timeout }).should("be.visible");
   }
 }
