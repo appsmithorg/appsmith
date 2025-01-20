@@ -31,10 +31,32 @@ describe("Usage pulse", () => {
   });
 
   describe("sendPulseAndScheduleNext", () => {
-    it("should not send pulse when airgapped", () => {
-      //set isAirgapped to true
+    let sendPulseSpy: jest.SpyInstance;
+    let scheduleNextActivityListenersSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      sendPulseSpy = jest
+        .spyOn(UsagePulse, "sendPulse")
+        .mockImplementation(() => {});
+      scheduleNextActivityListenersSpy = jest
+        .spyOn(UsagePulse, "scheduleNextActivityListeners")
+        .mockImplementation(() => {});
+      UsagePulse.isAirgapped = false;
+    });
+
+    it("should not send pulse or schedule next when airgapped", () => {
       UsagePulse.isAirgapped = true;
       UsagePulse.sendPulseAndScheduleNext();
+
+      expect(sendPulseSpy).not.toHaveBeenCalled();
+      expect(scheduleNextActivityListenersSpy).not.toHaveBeenCalled();
+    });
+
+    it("should send pulse and schedule next activity listeners when not airgapped", () => {
+      UsagePulse.sendPulseAndScheduleNext();
+
+      expect(sendPulseSpy).toHaveBeenCalledTimes(1);
+      expect(scheduleNextActivityListenersSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
