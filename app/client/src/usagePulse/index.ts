@@ -27,6 +27,7 @@ class UsagePulse {
   static isTelemetryEnabled: boolean;
   static isAnonymousUser: boolean;
   static isFreePlan: boolean;
+  static isAirgapped = isAirgapped();
 
   /*
    * Function to check if the given URL is trakable or not.
@@ -144,9 +145,7 @@ class UsagePulse {
    * registers listeners to wait for the user to go to a trackable url
    */
   static async sendPulseAndScheduleNext() {
-    const _isAirgapped = isAirgapped();
-
-    if (_isAirgapped) {
+    if (UsagePulse.isAirgapped) {
       return;
     }
 

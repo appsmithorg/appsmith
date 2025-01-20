@@ -29,4 +29,12 @@ describe("Usage pulse", () => {
       });
     });
   });
+
+  describe("sendPulseAndScheduleNext", () => {
+    it("should not send pulse when airgapped", () => {
+      //set isAirgapped to true
+      UsagePulse.isAirgapped = true;
+      UsagePulse.sendPulseAndScheduleNext();
+    });
+  });
 });
