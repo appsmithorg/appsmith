@@ -3,6 +3,7 @@ import { MenuItem } from "@appsmith/ads";
 import type { Action } from "entities/Action";
 import { useDispatch } from "react-redux";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import { CONTEXT_RENAME, createMessage } from "ee/constants/messages";
 
 interface Props {
   action: Action;
@@ -21,7 +22,7 @@ export const Rename = ({ action, disabled }: Props) => {
 
   return (
     <MenuItem disabled={disabled} onSelect={setRename}>
-      Rename
+      {createMessage(CONTEXT_RENAME)}
     </MenuItem>
   );
 };

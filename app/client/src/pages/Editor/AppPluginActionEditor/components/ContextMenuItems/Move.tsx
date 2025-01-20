@@ -43,10 +43,7 @@ export const Move = ({ action, disabled, hideIcon }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger
-        disabled={disabled}
-        {...(!hideIcon && { startIcon: "swap-horizontal" })}
-      >
+      <MenuSubTrigger {...(!hideIcon && { startIcon: "swap-horizontal" })}>
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
@@ -54,6 +51,7 @@ export const Move = ({ action, disabled, hideIcon }: Props) => {
           menuPages.map((page) => {
             return (
               <PageMenuItem
+                disabled={disabled}
                 key={page.basePageId}
                 onSelect={moveActionToPage}
                 page={page}

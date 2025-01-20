@@ -32,16 +32,14 @@ export const Copy = ({ action, disabled, hideIcon }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger
-        disabled={disabled}
-        {...(!hideIcon && { startIcon: "duplicate" })}
-      >
+      <MenuSubTrigger {...(!hideIcon && { startIcon: "duplicate" })}>
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
         {menuPages.map((page) => {
           return (
             <PageMenuItem
+              disabled={disabled}
               key={page.basePageId}
               onSelect={copyActionToPage}
               page={page}
