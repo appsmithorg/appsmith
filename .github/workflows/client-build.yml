@@ -135,12 +135,14 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        run: yarn install --immutable
+        run: |
+          /usr/bin/time -v yarn install --immutable 2> install_mem.txt
 
       # Type checking before starting the build
       - name: Run type check
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        run: yarn run check-types
+        run: |
+          /usr/bin/time -v yarn run check-types 2> typecheck_mem.txt
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
@@ -174,7 +176,7 @@ jobs:
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_EDITION="Community" \
-            yarn build
+            /usr/bin/time -v yarn build 2> build_mem.txt
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
@@ -221,6 +223,54 @@ jobs:
           git lfs migrate import --everything --yes
           git lfs pull ./build.tar
           mv ./build.tar ../../../../../build.tar
+
+      # Gather and report memory usage information
+      - name: Gather memory usage info
+        if: github.event_name == 'pull_request'
+        id: gather_memory
+        run: |
+          # Parse peak memory usage from each stage
+          echo "Memory usage summary:" > memory_summary.txt
+          echo "===================" >> memory_summary.txt
+          
+          # Function to extract peak memory
+          get_peak_memory() {
+            grep "Maximum resident set size" "$1" | awk '{print $6}'
+          }
+          
+          # Get peak memory for each stage
+          PEAK_INSTALL=$(get_peak_memory install_mem.txt)
+          PEAK_TYPECHECK=$(get_peak_memory typecheck_mem.txt)
+          PEAK_BUILD=$(get_peak_memory build_mem.txt)
+          
+          # Find overall peak
+          echo "$PEAK_INSTALL" > all_peaks.txt
+          echo "$PEAK_TYPECHECK" >> all_peaks.txt
+          echo "$PEAK_BUILD" >> all_peaks.txt
+          OVERALL_PEAK=$(sort -n all_peaks.txt | tail -1)
+          
+          # Create summary
+          echo "Install Dependencies Peak: $PEAK_INSTALL kB" >> memory_summary.txt
+          echo "Type Checking Peak: $PEAK_TYPECHECK kB" >> memory_summary.txt
+          echo "Build Peak: $PEAK_BUILD kB" >> memory_summary.txt
+          echo "Overall Peak: $OVERALL_PEAK kB" >> memory_summary.txt
+          
+          cat memory_summary.txt
+
+      # Post memory usage as PR comment
+      - name: Comment PR with memory usage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const memoryStats = fs.readFileSync('memory_summary.txt', 'utf8');
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Client Build Memory Usage Report\n\`\`\`\n${memoryStats}\n\`\`\``
+            });
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
