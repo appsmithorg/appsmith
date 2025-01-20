@@ -33,7 +33,7 @@ interface RightPaneResizableHandleProps {
   children: React.ReactNode;
 }
 
-const MIN_WIDTH = 200;
+const MIN_WIDTH = 288;
 const MAX_WIDTH = 500;
 
 export function RightPaneResizableHandle({
@@ -59,11 +59,8 @@ export function RightPaneResizableHandle({
         MIN_WIDTH,
       );
 
+      setWidth(newWidth);
       dispatch(setPropertyPaneWidthAction(newWidth));
-
-      if (paneRef.current) {
-        paneRef.current.style.width = `${newWidth}px`;
-      }
     },
     [dispatch, width],
   );
