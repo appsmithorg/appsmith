@@ -232,29 +232,29 @@ jobs:
           # Parse peak memory usage from each stage
           echo "Memory usage summary:" > memory_summary.txt
           echo "===================" >> memory_summary.txt
-          
+
           # Function to extract peak memory
           get_peak_memory() {
             grep "Maximum resident set size" "$1" | awk '{print $6}'
           }
-          
+
           # Get peak memory for each stage
           PEAK_INSTALL=$(get_peak_memory install_mem.txt)
           PEAK_TYPECHECK=$(get_peak_memory typecheck_mem.txt)
           PEAK_BUILD=$(get_peak_memory build_mem.txt)
-          
+
           # Find overall peak
           echo "$PEAK_INSTALL" > all_peaks.txt
           echo "$PEAK_TYPECHECK" >> all_peaks.txt
           echo "$PEAK_BUILD" >> all_peaks.txt
           OVERALL_PEAK=$(sort -n all_peaks.txt | tail -1)
-          
+
           # Create summary
           echo "Install Dependencies Peak: $PEAK_INSTALL kB" >> memory_summary.txt
           echo "Type Checking Peak: $PEAK_TYPECHECK kB" >> memory_summary.txt
           echo "Build Peak: $PEAK_BUILD kB" >> memory_summary.txt
           echo "Overall Peak: $OVERALL_PEAK kB" >> memory_summary.txt
-          
+
           cat memory_summary.txt
 
       # Post memory usage as PR comment
