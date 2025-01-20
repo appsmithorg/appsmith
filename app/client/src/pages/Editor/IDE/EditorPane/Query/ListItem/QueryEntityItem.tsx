@@ -11,10 +11,7 @@ import { type Action, type StoredDatasource } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasDeleteActionPermission,
-  getHasManageActionPermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Datasource } from "entities/Datasource";
 import history, { NavigationMethod } from "utils/history";
@@ -25,9 +22,9 @@ import { useValidateEntityName } from "IDE";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { QueryEntityContextMenu } from "./QueryEntityContextMenu";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
+import { useActionContextMenuByIdeType } from "ee/entities/IDE/hooks/useActionContextMenuByIdeType";
 
 export const QueryEntityItem = ({
   item,
@@ -53,15 +50,11 @@ export const QueryEntityItem = ({
 
   const validateName = useValidateEntityName({});
   const dispatch = useDispatch();
+  const contextMenu = useActionContextMenuByIdeType(ideType, action);
 
   const actionPermissions = action.userPermissions || [];
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canDeleteAction = getHasDeleteActionPermission(
-    isFeatureEnabled,
-    actionPermissions,
-  );
 
   const canManageAction = getHasManageActionPermission(
     isFeatureEnabled,
@@ -92,17 +85,6 @@ export const QueryEntityItem = ({
       isMock: !!datasource?.isMock,
     });
   }, [url, location.pathname, action.name]);
-
-  const contextMenu = (
-    <QueryEntityContextMenu
-      canDeleteAction={canDeleteAction}
-      canManageAction={canManageAction}
-      id={action.id}
-      name={action.name}
-      parentEntityId={parentEntityId}
-      pluginType={action.pluginType}
-    />
-  );
 
   return (
     <EntityItem

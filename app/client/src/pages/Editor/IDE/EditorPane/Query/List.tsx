@@ -8,9 +8,7 @@ import {
 } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
-import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
@@ -27,26 +25,21 @@ import { ActionEntityItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem"
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const itemGroups = useSelector(selectQuerySegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
-  const pagePermissions = useSelector(getPagePermissions);
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const location = useLocation();
   const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId } = useParentEntityInfo(ideType);
+  const canCreateActions = useCreateActionsPermissions(ideType);
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
     itemGroups,
-  );
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
   );
 
   const { openAddQuery } = useQueryAdd();
