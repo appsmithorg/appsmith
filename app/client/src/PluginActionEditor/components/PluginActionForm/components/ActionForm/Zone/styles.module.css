@@ -20,6 +20,12 @@
    This section can be removed once the condition below each is resolved
   */
 
+  /*  1. Margin is removed from FieldWrapper component in FormRender file */
+
+  & :global(.uqi-form-wrapper) {
+    margin: 0;
+  }
+
   /* reset ads select min width */
 
   & :global(.ads-v2-select > .rc-select-selector) {

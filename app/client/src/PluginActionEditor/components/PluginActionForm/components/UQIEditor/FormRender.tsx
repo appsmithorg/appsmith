@@ -69,6 +69,10 @@ const StyledSpinner = styled(Spinner)`
   width: 5vw;
 `;
 
+const FieldWrapper = styled.div`
+  margin-top: 15px;
+`;
+
 const FormRender = (props: Props) => {
   const { editorConfig, formData, formEvaluationState, formName, uiComponent } =
     props;
@@ -175,11 +179,13 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          <FormControl
-            config={modifiedSection}
-            formName={formName}
+          // TODO: Remove classname once DB configs are migrated
+          <FieldWrapper
+            className="uqi-form-wrapper"
             key={`${configProperty}_${idx}`}
-          />
+          >
+            <FormControl config={modifiedSection} formName={formName} />
+          </FieldWrapper>
         );
       } catch (e) {
         log.error(e);
@@ -239,11 +245,15 @@ const FormRender = (props: Props) => {
               const { configProperty } = formControlOrSection;
 
               return (
-                <FormControl
-                  config={formControlOrSection}
-                  formName={formName}
+                <FieldWrapper
+                  className="uqi-form-wrapper"
                   key={`${configProperty}_${idx}`}
-                />
+                >
+                  <FormControl
+                    config={formControlOrSection}
+                    formName={formName}
+                  />
+                </FieldWrapper>
               );
             } catch (e) {
               log.error(e);
