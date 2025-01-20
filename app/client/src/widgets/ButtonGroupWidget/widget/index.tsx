@@ -528,7 +528,7 @@ class ButtonGroupWidget extends BaseWidget<
                   children: [
                     {
                       propertyName: "disabledWhenInvalid",
-                      label: "Disabled invalid forms",
+                      label: "Disable when form is invalid",
                       helpText:
                         "Disables this button if the form is invalid, if this button exists directly within a Form widget",
                       controlType: "SWITCH",
