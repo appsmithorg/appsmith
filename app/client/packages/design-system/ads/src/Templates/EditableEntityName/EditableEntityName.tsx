@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
 import { Spinner, Tooltip } from "@appsmith/ads";
 
-import { Icon, useEditableText } from "@appsmith/ads";
+import { useEditableText } from "@appsmith/ads";
 
 import * as Styled from "./EditableEntityName.styles";
 
 interface EditableTextProps {
-  iconName: string;
+  icon: React.ReactNode;
   inputTestId?: string;
   isEditing: boolean;
   isLoading?: boolean;
@@ -17,7 +17,7 @@ interface EditableTextProps {
 }
 
 export const EditableEntityName = ({
-  iconName,
+  icon,
   inputTestId,
   isEditing,
   isLoading = false,
@@ -40,7 +40,12 @@ export const EditableEntityName = ({
       onKeyUp: handleKeyUp,
       onChange: handleTitleChange,
       autoFocus: true,
-      style: { paddingTop: 0, paddingBottom: 0, left: -1, top: -1 },
+      style: {
+        paddingTop: 4,
+        paddingBottom: 4,
+        left: -1,
+        top: -5,
+      },
     }),
     [handleKeyUp, handleTitleChange, inputTestId],
   );
@@ -50,9 +55,7 @@ export const EditableEntityName = ({
       {isLoading ? (
         <Spinner size="sm" />
       ) : (
-        <Styled.IconContainer>
-          <Icon name={iconName} />
-        </Styled.IconContainer>
+        <Styled.IconContainer>{icon}</Styled.IconContainer>
       )}
       <Tooltip content={validationError} visible={Boolean(validationError)}>
         <Styled.Text

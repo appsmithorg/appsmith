@@ -5,13 +5,14 @@ export const Root = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  justify-content: start;
   align-items: center;
-  gap: var(--ads-v2-spaces-1);
+  gap: var(--ads-v2-spaces-2);
 `;
 
 export const Text = styled(ADSText)`
   min-width: 3ch;
-  padding: 0 var(--ads-v2-spaces-1);
+  bottom: -0.5px;
 `;
 
 export const IconContainer = styled.div`

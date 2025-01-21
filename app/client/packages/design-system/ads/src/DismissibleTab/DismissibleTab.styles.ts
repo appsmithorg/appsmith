@@ -35,8 +35,6 @@ export const Tab = styled.div`
   }
 
   & > .tab-close {
-    position: relative;
-    right: -2px;
     visibility: hidden;
   }
 
