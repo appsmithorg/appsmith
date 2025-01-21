@@ -20,9 +20,8 @@ import {
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { Spinner } from "@appsmith/ads";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
-import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { createNewApiActionBasedOnIdeType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import {
   DatasourceContainer,
@@ -48,6 +47,8 @@ import {
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { IDEType } from "ee/entities/IDE/constants";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -62,8 +63,8 @@ interface CreateAPIOrSaasPluginsProps {
   plugins: Plugin[];
   createDatasourceFromForm: typeof createDatasourceFromForm;
   createTempDatasourceFromForm: typeof createTempDatasourceFromForm;
-  createNewApiActionBasedOnEditorType: (
-    editorType: string,
+  createNewApiActionBasedOnIdeType: (
+    ideType: IDEType,
     editorId: string,
     parentEntityId: string,
     parentEntityType: ActionParentEntityTypeInterface,
@@ -87,9 +88,9 @@ export const API_ACTION = {
 function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
   const { authApiPlugin, isCreating, isOnboardingScreen, pageId, plugins } =
     props;
-  const editorType = useEditorType(location.pathname);
+  const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
-    useParentEntityInfo(editorType);
+    useParentEntityInfo(ideType);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -114,8 +115,8 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source,
     });
-    props.createNewApiActionBasedOnEditorType(
-      editorType,
+    props.createNewApiActionBasedOnIdeType(
+      ideType,
       editorId,
       // Set parentEntityId as (parentEntityId or if it is onboarding screen then set it as pageId) else empty string
       parentEntityId || (isOnboardingScreen && pageId) || "",
@@ -347,7 +348,7 @@ const mapStateToProps = (
 const mapDispatchToProps = {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
-  createNewApiActionBasedOnEditorType,
+  createNewApiActionBasedOnIdeType,
 };
 
 export default connect(

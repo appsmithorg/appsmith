@@ -12,7 +12,7 @@ import { ADD_PATH } from "ee/constants/routes/appRoutes";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
-import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSUrl";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { setListViewActiveState } from "actions/ideActions";

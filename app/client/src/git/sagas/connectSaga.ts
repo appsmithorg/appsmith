@@ -22,6 +22,7 @@ import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -36,7 +37,17 @@ export default function* connectSaga(
       gitProfile: action.payload.gitProfile,
     };
 
-    response = yield call(connectRequest, artifactDef.baseArtifactId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      connectRequest,
+      artifactDef.artifactType,
+      artifactDef.baseArtifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 

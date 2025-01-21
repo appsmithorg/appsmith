@@ -15,7 +15,7 @@ import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissi
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryUrl";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
