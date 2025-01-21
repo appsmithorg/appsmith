@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { Text as ADSText, Button as ADSButton } from "@appsmith/ads";
+import { Button as ADSButton } from "../Button";
 
 export const Tab = styled.div`
   position: relative;
@@ -35,18 +35,15 @@ export const Tab = styled.div`
   }
 
   & > .tab-close {
-    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
 
   &:hover > .tab-close,
+  &:focus-within > .tab-close,
   &.active > .tab-close {
-    visibility: visible;
+    opacity: 1;
   }
-`;
-
-export const Text = styled(ADSText)`
-  min-width: 3ch;
-  padding: 0 var(--ads-v2-spaces-1);
 `;
 
 export const CloseButton = styled(ADSButton)`

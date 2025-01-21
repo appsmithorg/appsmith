@@ -13,7 +13,6 @@ interface EditableDismissibleTabProps {
   name: string;
   onClick: () => void;
   onClose: () => void;
-  onDoubleClick: () => void;
   onExitEditing: () => void;
   onNameSave: (name: string) => void;
   validateName: (name: string) => string | null;

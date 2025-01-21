@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Text as ADSText } from "@appsmith/ads";
+import { Text as ADSText } from "../../Text";
 
 export const Root = styled.div`
   display: flex;

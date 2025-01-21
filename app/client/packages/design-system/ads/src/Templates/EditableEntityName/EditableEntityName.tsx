@@ -59,6 +59,7 @@ export const EditableEntityName = ({
       )}
       <Tooltip content={validationError} visible={Boolean(validationError)}>
         <Styled.Text
+          aria-invalid={Boolean(validationError)}
           inputProps={inputProps}
           inputRef={inputRef}
           isEditable={isEditing}

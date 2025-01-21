@@ -2,7 +2,7 @@ import React from "react";
 
 import clsx from "classnames";
 
-import { Icon } from "@appsmith/ads";
+import { Icon } from "../Icon";
 
 import * as Styled from "./DismissibleTab.styles";
 import { DATA_TEST_ID } from "./constants";
@@ -39,7 +39,9 @@ export const DismissibleTab = ({
         isIconButton
         kind="tertiary"
         onClick={onClose}
+        role="tab"
         size="sm"
+        tabIndex={0}
       >
         <Icon name="close-line" />
       </Styled.CloseButton>
