@@ -124,7 +124,7 @@ Return  the proper Storage Class
 {{/*
 Get the PV name, using override if specified
 */}}
-{{- define "appsmith.pvname" -}}
+{{- define "appsmith.pvName" -}}
 {{- .Values.persistence.pvNameOverride | default (include "appsmith.fullname" .) -}}
 {{- end -}}
 
