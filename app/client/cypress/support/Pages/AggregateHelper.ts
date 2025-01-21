@@ -2002,9 +2002,9 @@ export class AggregateHelper {
 
   public waitForEmail({
     pollInterval,
-    timeout,
-    targetSubject,
     targetEmail,
+    targetSubject,
+    timeout,
   }: {
     pollInterval: number;
     timeout: number;
