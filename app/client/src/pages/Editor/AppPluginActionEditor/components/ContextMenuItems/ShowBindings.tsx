@@ -27,7 +27,11 @@ export const ShowBindings = ({ action, disabled }: Props) => {
   }, [action.id, action.name]);
 
   return (
-    <MenuItem disabled={disabled} onSelect={handleSelect}>
+    <MenuItem
+      disabled={disabled}
+      onSelect={handleSelect}
+      startIcon="binding-new"
+    >
       {createMessage(CONTEXT_SHOW_BINDING)}
     </MenuItem>
   );

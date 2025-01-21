@@ -21,7 +21,11 @@ export const Rename = ({ disabled, jsAction }: Props) => {
   }, [dispatch, jsAction.id]);
 
   return (
-    <MenuItem disabled={disabled} onSelect={setRename}>
+    <MenuItem
+      disabled={disabled}
+      onSelect={setRename}
+      startIcon="input-cursor-move"
+    >
       {createMessage(CONTEXT_RENAME)}
     </MenuItem>
   );

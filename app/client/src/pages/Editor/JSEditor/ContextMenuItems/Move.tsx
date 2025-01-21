@@ -16,10 +16,9 @@ import type { JSCollection } from "entities/JSCollection";
 interface Props {
   jsAction: JSCollection;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Move = ({ disabled, hideIcon, jsAction }: Props) => {
+export const Move = ({ disabled, jsAction }: Props) => {
   const dispatch = useDispatch();
 
   const currentPageId = useSelector(getCurrentPageId);
@@ -42,7 +41,7 @@ export const Move = ({ disabled, hideIcon, jsAction }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger {...(!hideIcon && { startIcon: "swap-horizontal" })}>
+      <MenuSubTrigger startIcon="swap-horizontal">
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">

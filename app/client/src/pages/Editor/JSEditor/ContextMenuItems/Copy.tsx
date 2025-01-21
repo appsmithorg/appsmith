@@ -11,10 +11,9 @@ import type { JSCollection } from "entities/JSCollection";
 interface Props {
   jsAction: JSCollection;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Copy = ({ disabled, hideIcon, jsAction }: Props) => {
+export const Copy = ({ disabled, jsAction }: Props) => {
   const menuPages = useSelector(getPageList);
   const dispatch = useDispatch();
 
@@ -32,7 +31,7 @@ export const Copy = ({ disabled, hideIcon, jsAction }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger {...(!hideIcon && { startIcon: "duplicate" })}>
+      <MenuSubTrigger startIcon="duplicate">
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">

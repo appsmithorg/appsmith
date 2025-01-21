@@ -12,10 +12,9 @@ import type { JSCollection } from "entities/JSCollection";
 interface Props {
   jsAction: JSCollection;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Delete = ({ disabled, hideIcon, jsAction }: Props) => {
+export const Delete = ({ disabled, jsAction }: Props) => {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -46,7 +45,7 @@ export const Delete = ({ disabled, hideIcon, jsAction }: Props) => {
       className="t--apiFormDeleteBtn single-select error-menuitem"
       disabled={disabled}
       onSelect={handleSelect}
-      {...(!hideIcon && { startIcon: "trash" })}
+      startIcon="trash"
     >
       {menuLabel}
     </MenuItem>

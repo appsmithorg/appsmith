@@ -16,10 +16,9 @@ import type { Action } from "entities/Action";
 interface Props {
   action: Action;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Move = ({ action, disabled, hideIcon }: Props) => {
+export const Move = ({ action, disabled }: Props) => {
   const dispatch = useDispatch();
 
   const currentPageId = useSelector(getCurrentPageId);
@@ -43,7 +42,7 @@ export const Move = ({ action, disabled, hideIcon }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger {...(!hideIcon && { startIcon: "swap-horizontal" })}>
+      <MenuSubTrigger startIcon="swap-horizontal">
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">

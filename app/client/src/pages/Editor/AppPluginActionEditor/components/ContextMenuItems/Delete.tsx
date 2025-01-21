@@ -12,10 +12,9 @@ import type { Action } from "entities/Action";
 interface Props {
   action: Action;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Delete = ({ action, disabled, hideIcon }: Props) => {
+export const Delete = ({ action, disabled }: Props) => {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -50,7 +49,7 @@ export const Delete = ({ action, disabled, hideIcon }: Props) => {
       className="t--apiFormDeleteBtn single-select error-menuitem"
       disabled={disabled}
       onSelect={handleSelect}
-      {...(!hideIcon && { startIcon: "trash" })}
+      startIcon="trash"
     >
       {menuLabel}
     </MenuItem>

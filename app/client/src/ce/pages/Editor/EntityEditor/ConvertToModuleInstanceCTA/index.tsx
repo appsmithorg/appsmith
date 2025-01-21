@@ -5,7 +5,6 @@ export interface ConvertToModuleInstanceCTAProps {
   moduleType: MODULE_TYPE;
   canDeleteEntity: boolean;
   canCreateModuleInstance: boolean;
-  hideIcon?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

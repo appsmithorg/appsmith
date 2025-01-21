@@ -11,10 +11,9 @@ import { CONTEXT_COPY, createMessage } from "ee/constants/messages";
 interface Props {
   action: Action;
   disabled?: boolean;
-  hideIcon?: boolean;
 }
 
-export const Copy = ({ action, disabled, hideIcon }: Props) => {
+export const Copy = ({ action, disabled }: Props) => {
   const menuPages = useSelector(getPageList);
   const dispatch = useDispatch();
 
@@ -32,7 +31,7 @@ export const Copy = ({ action, disabled, hideIcon }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger {...(!hideIcon && { startIcon: "duplicate" })}>
+      <MenuSubTrigger startIcon="duplicate">
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">

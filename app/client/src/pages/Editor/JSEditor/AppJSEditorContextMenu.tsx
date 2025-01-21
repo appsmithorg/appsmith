@@ -9,6 +9,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { JSCollection } from "entities/JSCollection";
 import { Copy, Delete, Move, Prettify } from "./ContextMenuItems";
 import { RenameMenuItem } from "IDE";
+import { MenuSeparator } from "@appsmith/ads";
 
 interface AppJSEditorContextMenuProps {
   jsCollection: JSCollection;
@@ -36,6 +37,7 @@ export function AppJSEditorContextMenu({
       <Copy disabled={!isChangePermitted} jsAction={jsCollection} />
       <Move disabled={!isChangePermitted} jsAction={jsCollection} />
       <Prettify disabled={!isChangePermitted} jsAction={jsCollection} />
+      <MenuSeparator />
       <Delete disabled={!isDeletePermitted} jsAction={jsCollection} />
     </JSEditorContextMenu>
   );

@@ -14,6 +14,7 @@ import {
   Rename,
   ShowBindings,
 } from "pages/Editor/JSEditor/ContextMenuItems";
+import { MenuSeparator } from "@appsmith/ads";
 
 export interface Props {
   jsAction: JSCollection;
@@ -39,10 +40,11 @@ export function AppJSContextMenuItems(props: Props) {
     <>
       <Rename disabled={!canManageAction} jsAction={jsAction} />
       <ShowBindings jsAction={jsAction} />
-      <ConvertToModule action={jsAction} hideIcon />
-      <Copy disabled={!canManageAction} hideIcon jsAction={jsAction} />
-      <Move disabled={!canManageAction} hideIcon jsAction={jsAction} />
-      <Delete disabled={!canDeleteAction} hideIcon jsAction={jsAction} />
+      <ConvertToModule action={jsAction} />
+      <Copy disabled={!canManageAction} jsAction={jsAction} />
+      <Move disabled={!canManageAction} jsAction={jsAction} />
+      <MenuSeparator />
+      <Delete disabled={!canDeleteAction} jsAction={jsAction} />
     </>
   );
 }

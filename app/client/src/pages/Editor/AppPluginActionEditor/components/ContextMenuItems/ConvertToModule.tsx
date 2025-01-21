@@ -15,10 +15,9 @@ import type { JSCollection } from "entities/JSCollection";
 
 interface Props {
   action: Action | JSCollection;
-  hideIcon?: boolean;
 }
 
-export const ConvertToModule = ({ action, hideIcon }: Props) => {
+export const ConvertToModule = ({ action }: Props) => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -42,7 +41,6 @@ export const ConvertToModule = ({ action, hideIcon }: Props) => {
     canDeleteEntity: canDeleteAction,
     entityId: action.id,
     moduleType: MODULE_TYPE.QUERY,
-    hideIcon: hideIcon,
   };
 
   return <ConvertToModuleInstanceCTA {...convertToModuleProps} />;
