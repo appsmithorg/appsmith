@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Button } from "@appsmith/ads";
@@ -137,7 +137,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
             kind="tertiary"
             onClick={() => this.setState({ popOutVisible: true })}
             size="sm"
-            startIcon="expand"
+            startIcon="external-link-line"
           />
         </div>
         {this.state.popOutVisible && (

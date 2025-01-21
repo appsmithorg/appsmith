@@ -1,36 +1,33 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { Rnd } from "react-rnd";
 import styled from "styled-components";
 import { Button } from "@appsmith/ads";
 import type { EventOrValueHandler } from "redux-form";
 import type { ChangeEvent } from "react";
 import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
-import type { EditorProps } from "../editorComponents/CodeEditor";
+import type {
+  CodeEditorExpected,
+  EditorProps,
+} from "../editorComponents/CodeEditor";
 import type { EditorTheme } from "../editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "../editorComponents/CodeEditor/EditorConfig";
+import type { AdditionalDynamicDataTree } from "../../utils/autocomplete/customTreeTypeDefCreator";
 
 const Backdrop = styled.div`
   position: fixed;
-  inset: 0;
-  background: var(--ads-v2-color-black-750);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.2s ease-in-out;
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
 `;
 
 const PopoutContainer = styled.div`
@@ -65,7 +62,7 @@ const HeaderTitle = styled.div`
 
 const EditorContainer = styled.div`
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
   padding: var(--ads-v2-spaces-3);
 `;
 
@@ -73,12 +70,12 @@ export interface PopoutResizableEditorProps extends Partial<EditorProps> {
   widgetName: string;
   label: string;
   value: string;
-  onChange: EventOrValueHandler<ChangeEvent<any>>;
+  onChange: EventOrValueHandler<ChangeEvent<unknown>>;
   theme: EditorTheme;
   onClose: () => void;
-  additionalAutocomplete?: any; // Match InputTextControl prop name
+  additionalAutocomplete?: AdditionalDynamicDataTree; // Match InputTextControl prop name
   dataTreePath?: string;
-  expected?: any;
+  expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
 }
 
@@ -109,25 +106,25 @@ export default function PopoutResizableEditor(
     return null;
   }
 
-  return (
+  return createPortal(
     <Backdrop onClick={handleClose}>
       <Rnd
-        onClick={(e: React.MouseEvent<HTMLElement>) => e.stopPropagation()}
+        bounds="window"
         default={{
           x: Math.max((window.innerWidth - 600) / 2, 0),
           y: Math.max((window.innerHeight - 400) / 2, 0),
           width: 600,
           height: 400,
         }}
-        minWidth={400}
-        minHeight={300}
-        bounds="window"
         dragHandleClassName="popout-header"
+        minHeight={300}
+        minWidth={400}
+        onClick={(e: React.MouseEvent<HTMLElement>) => e.stopPropagation()}
       >
         <PopoutContainer>
           <Header className="popout-header">
             <HeaderTitle>
-              {widgetName} - {label}
+              {widgetName} / {label}
             </HeaderTitle>
             <Button
               isIconButton
@@ -156,6 +153,7 @@ export default function PopoutResizableEditor(
           </EditorContainer>
         </PopoutContainer>
       </Rnd>
-    </Backdrop>
+    </Backdrop>,
+    document.body,
   );
 }

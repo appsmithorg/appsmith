@@ -194,6 +194,7 @@
     "react-rating": "^2.0.5",
     "react-redux": "^7.2.4",
     "react-responsive": "^9.0.0-beta.3",
+    "react-rnd": "^10.4.14",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^5.0.1",
