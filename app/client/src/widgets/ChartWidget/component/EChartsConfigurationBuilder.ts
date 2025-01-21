@@ -9,9 +9,10 @@ import {
 
 import { Colors } from "constants/Colors";
 import { EChartsLayoutBuilder } from "./LayoutBuilders/EChartsLayoutBuilder";
+import { objectKeys } from "@appsmith/utils";
 
 export class EChartsConfigurationBuilder {
-  fontFamily: string = "Nunito Sans";
+  fontFamily: string = "";
   fontSize = 14;
 
   #seriesConfigurationForPieChart(
@@ -59,58 +60,60 @@ export class EChartsConfigurationBuilder {
      */
     const configs: unknown[] = [];
 
-    Object.keys(allSeriesData).forEach((seriesID, index) => {
-      const seriesData = allSeriesData[seriesID];
-      let color = seriesData.color;
+    objectKeys(allSeriesData).forEach(
+      (seriesID: string | number, index: number) => {
+        const seriesData = allSeriesData[seriesID];
+        let color = seriesData.color;
 
-      if (index == 0 && (!color || color.length == 0)) {
-        color = props.primaryColor;
-      }
+        if (index == 0 && (!color || color.length == 0)) {
+          color = props.primaryColor;
+        }
 
-      let seriesName = messages.Undefined;
+        let seriesName = messages.Undefined;
 
-      if (seriesData.seriesName && seriesData.seriesName.length > 0) {
-        seriesName = seriesData.seriesName;
-      }
+        if (seriesData.seriesName && seriesData.seriesName.length > 0) {
+          seriesName = seriesData.seriesName;
+        }
 
-      let config: Record<string, unknown> = {
-        label: { show: props.showDataPointLabel, position: "top" },
-        name: seriesName,
-        itemStyle: { color: color },
-      };
+        let config: Record<string, unknown> = {
+          label: { show: props.showDataPointLabel, position: "top" },
+          name: seriesName,
+          itemStyle: { color: color },
+        };
 
-      switch (props.chartType) {
-        case "BAR_CHART":
-          config = { ...config, type: "bar" };
+        switch (props.chartType) {
+          case "BAR_CHART":
+            config = { ...config, type: "bar" };
 
-          // The series label should be on the right for bar chart
-          (config.label as Record<string, unknown>).position = "right";
-          break;
-        case "COLUMN_CHART":
-          config = { ...config, type: "bar" };
-          break;
-        case "LINE_CHART":
-          config = { ...config, type: "line" };
-          break;
-        case "AREA_CHART":
-          config = {
-            ...config,
-            type: "line",
-            areaStyle: {},
-          };
-          break;
-        case "PIE_CHART":
-          config = this.#seriesConfigurationForPieChart(
-            seriesID,
-            seriesData,
-            props.showDataPointLabel,
-            layoutConfig,
-          );
-          break;
-      }
+            // The series label should be on the right for bar chart
+            (config.label as Record<string, unknown>).position = "right";
+            break;
+          case "COLUMN_CHART":
+            config = { ...config, type: "bar" };
+            break;
+          case "LINE_CHART":
+            config = { ...config, type: "line" };
+            break;
+          case "AREA_CHART":
+            config = {
+              ...config,
+              type: "line",
+              areaStyle: {},
+            };
+            break;
+          case "PIE_CHART":
+            config = this.#seriesConfigurationForPieChart(
+              String(seriesID),
+              seriesData,
+              props.showDataPointLabel,
+              layoutConfig,
+            );
+            break;
+        }
 
-      configs.push(config);
-    });
+        configs.push(config);
+      },
+    );
 
     return configs;
   }
