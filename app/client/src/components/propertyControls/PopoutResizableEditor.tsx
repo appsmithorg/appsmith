@@ -70,7 +70,7 @@ export interface PopoutResizableEditorProps extends Partial<EditorProps> {
   widgetName: string;
   label: string;
   value: string;
-  onChange: EventOrValueHandler<ChangeEvent<unknown>>;
+  onChange: EventOrValueHandler<ChangeEvent<HTMLTextAreaElement>>;
   theme: EditorTheme;
   onClose: () => void;
   additionalAutocomplete?: AdditionalDynamicDataTree; // Match InputTextControl prop name
