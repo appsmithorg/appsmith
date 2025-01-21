@@ -54,7 +54,7 @@ describe("emptyChartData", () => {
   };
 
   describe("font family", () => {
-    it("uses theme font family with Nunito Sans fallback", () => {
+    it("Does not use any font family as a fallback", () => {
       const widget = new ChartWidget(defaultProps);
       const view = widget.renderChartWithData();
 
@@ -69,7 +69,7 @@ describe("emptyChartData", () => {
       ).renderChartWithData();
 
       expect(viewWithoutFont.props.children.props.fontFamily).toEqual(
-        "Nunito Sans",
+        undefined,
       );
     });
   });
