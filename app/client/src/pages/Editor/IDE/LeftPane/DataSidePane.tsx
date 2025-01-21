@@ -21,7 +21,6 @@ import {
   DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "ee/constants/messages";
 import PaneHeader from "./PaneHeader";
-import { useEditorType } from "ee/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -31,6 +30,7 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
@@ -51,7 +51,6 @@ interface DataSidePaneProps {
 
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
-  const editorType = useEditorType(history.location.pathname);
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
@@ -60,12 +59,12 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const dsUsageMap = useSelector((state) => dsUsageSelector(state, editorType));
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
+  const dsUsageMap = useSelector((state) => dsUsageSelector(state, ideType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
-
-  const location = useLocation();
 
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
