@@ -9,7 +9,7 @@ import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
 import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 
 export const TabSelectors: Record<

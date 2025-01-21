@@ -11,9 +11,10 @@ import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { PluginType } from "entities/Plugin";
 import type { Action } from "entities/Action";
+import type { JSCollection } from "entities/JSCollection";
 
 interface Props {
-  action: Action;
+  action: Action | JSCollection;
   hideIcon?: boolean;
 }
 

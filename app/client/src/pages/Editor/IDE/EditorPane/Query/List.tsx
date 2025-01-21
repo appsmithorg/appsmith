@@ -38,17 +38,18 @@ const ListQuery = () => {
   const { editorId, parentEntityId } = useParentEntityInfo(ideType);
   const canCreateActions = useCreateActionsPermissions(ideType);
 
+  const showWorkflows = useSelector(getShowWorkflowFeature);
+
+  const isNewADSTemplatesEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_ads_entity_item_enabled,
+  );
+
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
     itemGroups,
   );
 
   const { openAddQuery } = useQueryAdd();
-  const showWorkflows = useSelector(getShowWorkflowFeature);
-
-  const isNewADSTemplatesEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_ads_entity_item_enabled,
-  );
 
   return (
     <Flex
@@ -68,7 +69,12 @@ const ListQuery = () => {
           showAddButton={canCreateActions}
         />
       ) : null}
-      <Flex flexDirection={"column"} gap="spaces-4" overflowY="auto">
+      <Flex
+        data-testid="t--ide-list"
+        flexDirection={"column"}
+        gap="spaces-4"
+        overflowY="auto"
+      >
         {isNewADSTemplatesEnabled ? (
           <EntityGroupsList
             groups={filteredItemGroups.map(({ group, items }) => {

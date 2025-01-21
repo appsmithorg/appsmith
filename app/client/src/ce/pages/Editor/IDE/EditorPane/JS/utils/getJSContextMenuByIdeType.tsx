@@ -1,18 +1,18 @@
 import React from "react";
 import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
-import type { Action } from "entities/Action";
-import { AppQueryContextMenuItems } from "pages/Editor/IDE/EditorPane/Query/ListItem/AppQueryContextMenuItems";
 import EntityContextMenu from "pages/Editor/IDE/EditorPane/components/EntityContextMenu";
+import { AppJSContextMenuItems } from "pages/Editor/IDE/EditorPane/JS/ListItem/AppJSContextMenuItems";
+import type { JSCollection } from "entities/JSCollection";
 
-export const getQueryContextMenuByIdeType = (
+export const getJSContextMenuByIdeType = (
   ideType: IDEType,
-  action: Action,
+  jsAction: JSCollection,
 ) => {
   switch (ideType) {
     case IDE_TYPE.App: {
       return (
         <EntityContextMenu
-          menuContent={<AppQueryContextMenuItems action={action} />}
+          menuContent={<AppJSContextMenuItems jsAction={jsAction} />}
         />
       );
     }

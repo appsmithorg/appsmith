@@ -122,7 +122,6 @@ function Files() {
               isActive={entity.id === activeActionBaseId}
               key={entity.id}
               parentEntityId={parentEntityId}
-              parentEntityType={parentEntityType}
               searchKeyword={""}
               step={2}
             />
@@ -141,7 +140,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId, parentEntityType],
+    [files, activeActionBaseId, parentEntityId],
   );
 
   const handleClick = useCallback(

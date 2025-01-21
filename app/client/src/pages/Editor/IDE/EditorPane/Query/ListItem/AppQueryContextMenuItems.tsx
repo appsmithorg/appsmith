@@ -15,11 +15,11 @@ import {
   ShowBindings,
 } from "pages/Editor/AppPluginActionEditor/components/ContextMenuItems";
 
-export interface EntityContextMenuProps {
+export interface Props {
   action: Action;
 }
 
-export function AppQueryContextMenuItems(props: EntityContextMenuProps) {
+export function AppQueryContextMenuItems(props: Props) {
   const { action } = props;
   const actionPermissions = action.userPermissions || [];
 
@@ -38,7 +38,7 @@ export function AppQueryContextMenuItems(props: EntityContextMenuProps) {
   return (
     <>
       <Rename action={action} disabled={!canManageAction} />
-      <ShowBindings action={action} disabled={false} />
+      <ShowBindings action={action} />
       <ConvertToModule action={action} hideIcon />
       <Copy action={action} disabled={!canManageAction} hideIcon />
       <Move action={action} disabled={!canManageAction} hideIcon />

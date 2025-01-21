@@ -54,12 +54,12 @@ export const saveActionNameBasedOnIdeType = (
   return saveActionName({ id, name });
 };
 
-export const saveJSObjectNameBasedOnParentEntity = (
+export const saveJSObjectNameBasedOnIdeType = (
   id: string,
   name: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
+  ideType: IDEType = IDE_TYPE.App,
 ) => {
   return saveJSObjectName({ id, name });
 };
