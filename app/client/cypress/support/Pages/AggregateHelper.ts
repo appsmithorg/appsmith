@@ -2011,8 +2011,7 @@ export class AggregateHelper {
     targetSubject: string;
     targetEmail?: string;
   }): Cypress.Chainable<any> {
-    const startTime = Date.now();
-    let latestEmailDate: Date | null = null;
+    const endTime = Date.now() + timeout; // Calculate the end time based on timeout duration
     let latestEmail: any = null;
 
     function parseDate(dateString: string): Date {
@@ -2028,104 +2027,41 @@ export class AggregateHelper {
           }
 
           const emails: Array<{
-            headers: { subject: string; date: string; to: string[] };
+            headers: { subject: string; date: string; to: string };
             text: string;
           }> = res.body;
 
-          console.log(
-            "Fetched email subjects:",
-            emails.map((email) => email.headers.subject),
-          );
+          const matchingEmails = emails.filter((email) => {
+            const subjectMatch = email.headers.subject
+              .trim()
+              .toLowerCase()
+              .includes(targetSubject.trim().toLowerCase());
 
-          let matchingEmail;
-
-          if (targetEmail) {
-            console.log(
-              "Filtering emails with targetSubject:",
-              targetSubject,
-              "and targetEmail:",
-              targetEmail,
-            );
-            matchingEmail = emails.filter((email) => {
-              console.log(
-                "Comparing subject:",
-                email.headers.subject.trim(),
-                "to targetSubject:",
-                targetSubject.trim(),
-              );
-              console.log(
-                "Substring match:",
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()),
-              );
-
-              const toAddresses = email.headers.to.split(" "); // Split the email.to into an array of addresses
-              console.log("Email 'to' addresses:", toAddresses);
-
+            if (targetEmail) {
+              const emailTo = email.headers.to.trim().toLowerCase();
               return (
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()) &&
-                toAddresses.some(
-                  (to) => to.toLowerCase() === targetEmail.toLowerCase(),
-                ) // Case-insensitive matching
+                subjectMatch && emailTo === targetEmail.trim().toLowerCase()
               );
-            });
-            console.log("Matching emails with targetEmail:", matchingEmail);
-          } else {
-            console.log("Filtering emails with targetSubject:", targetSubject);
-            matchingEmail = emails.filter((email) => {
-              console.log(
-                "Comparing subject:",
-                email.headers.subject.trim(),
-                "to targetSubject:",
-                targetSubject.trim(),
-              );
-              console.log(
-                "Substring match:",
-                email.headers.subject
-                  .trim()
-                  .toLowerCase()
-                  .includes(targetSubject.trim().toLowerCase()),
-              );
-              return email.headers.subject
-                .trim()
-                .toLowerCase()
-                .includes(targetSubject.trim().toLowerCase());
-            });
-            console.log("Matching emails without targetEmail:", matchingEmail);
-          }
+            }
 
-          if (matchingEmail.length > 0) {
-            matchingEmail.forEach((email) => {
+            return subjectMatch;
+          });
+
+          if (matchingEmails.length > 0) {
+            latestEmail = matchingEmails.reduce((latest, email) => {
               const emailDate = parseDate(email.headers.date);
+              const latestDate = parseDate(
+                latest?.headers?.date || "1970-01-01",
+              );
 
-              if (emailDate <= (latestEmailDate || new Date(0))) {
-                console.log(
-                  `Subject matched but date not updated: ${email.headers.subject}, Email Date: ${emailDate}, Latest Date: ${latestEmailDate}`,
-                );
-              }
+              return emailDate > latestDate ? email : latest;
+            }, null);
 
-              if (!latestEmailDate || emailDate > latestEmailDate) {
-                latestEmailDate = emailDate;
-                latestEmail = email;
-              }
-            });
-          }
-
-          if (latestEmail) {
-            console.log(
-              `Found email: ${latestEmail.headers.subject}, Date: ${latestEmailDate}`,
-            );
             return cy.wrap(latestEmail);
           }
 
-          if (Date.now() - startTime > timeout) {
+          if (Date.now() > endTime) {
             console.error("No matching email found within the timeout period.");
-            console.log("Fetched email details during the period:", emails);
             return cy.wrap(null);
           }
 
