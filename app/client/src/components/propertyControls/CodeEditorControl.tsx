@@ -1,8 +1,9 @@
 import type { ChangeEvent } from "react";
-import React from "react";
+import React, { useState } from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { EventOrValueHandler } from "redux-form";
+import { Button } from "@appsmith/ads";
 import {
   EditorModes,
   EditorSize,
@@ -12,8 +13,13 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
+import PopoutResizableEditor from "./PopoutResizableEditor";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
+  state = {
+    popOutVisible: false,
+  };
+
   render() {
     const {
       controlConfig,
@@ -33,20 +39,45 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (expected) props.expected = expected;
 
     return (
-      <LazyCodeEditor
-        additionalDynamicData={this.props.additionalAutoComplete}
-        hinting={[bindingHintHelper, slashCommandHintHelper]}
-        input={{ value: propertyValue, onChange: this.onChange }}
-        maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
-        mode={EditorModes.TEXT_WITH_BINDING}
-        positionCursorInsideBinding
-        size={EditorSize.EXTENDED}
-        tabBehaviour={TabBehaviour.INDENT}
-        theme={this.props.theme}
-        useValidationMessage={useValidationMessage}
-        {...props}
-        AIAssisted
-      />
+      <div className="relative">
+        <div className="flex items-center">
+          <div className="flex-grow">
+            <LazyCodeEditor
+              additionalDynamicData={this.props.additionalAutoComplete}
+              hinting={[bindingHintHelper, slashCommandHintHelper]}
+              input={{ value: propertyValue, onChange: this.onChange }}
+              maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
+              mode={EditorModes.TEXT_WITH_BINDING}
+              positionCursorInsideBinding
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={this.props.theme}
+              useValidationMessage={useValidationMessage}
+              {...props}
+              AIAssisted
+            />
+          </div>
+          <Button
+            className="ml-1"
+            isIconButton
+            kind="tertiary"
+            onClick={() => this.setState({ popOutVisible: true })}
+            size="sm"
+            startIcon="expand"
+          />
+        </div>
+        {this.state.popOutVisible && (
+          <PopoutResizableEditor
+            {...props}
+            label={this.props.propertyName}
+            onChange={this.onChange}
+            onClose={() => this.setState({ popOutVisible: false })}
+            theme={this.props.theme}
+            value={this.props.propertyValue}
+            widgetName={this.props.widgetProperties.widgetName}
+          />
+        )}
+      </div>
     );
   }
 

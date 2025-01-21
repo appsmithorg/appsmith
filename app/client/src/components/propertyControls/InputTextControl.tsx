@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
+import { Button } from "@appsmith/ads";
 import { StyledDynamicInput } from "./StyledControls";
 import type { InputType } from "components/constants";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -17,6 +18,7 @@ import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import PopoutResizableEditor from "./PopoutResizableEditor";
 
 export function InputText(props: {
   label: string;
@@ -89,6 +91,10 @@ class InputTextControl extends BaseControl<InputControlProps> {
   static contextType = CollapseContext;
   context!: React.ContextType<typeof CollapseContext>;
 
+  state = {
+    popOutVisible: false,
+  };
+
   render() {
     const {
       additionalAutoComplete,
@@ -107,20 +113,52 @@ class InputTextControl extends BaseControl<InputControlProps> {
     const isOpen = this.context;
 
     return (
-      <InputText
-        additionalAutocomplete={additionalAutoComplete}
-        dataTreePath={dataTreePath}
-        expected={expected}
-        hideEvaluatedValue={hideEvaluatedValue}
-        isEditorHidden={!isOpen}
-        label={label}
-        onBlur={onBlur}
-        onChange={this.onTextChange}
-        onFocus={onFocus}
-        placeholder={placeholderText}
-        theme={this.props.theme}
-        value={propertyValue !== undefined ? propertyValue : defaultValue}
-      />
+      <div className="relative">
+        <div className="flex items-center">
+          <div className="flex-grow">
+            <InputText
+              additionalAutocomplete={additionalAutoComplete}
+              dataTreePath={dataTreePath}
+              expected={expected}
+              hideEvaluatedValue={hideEvaluatedValue}
+              isEditorHidden={!isOpen}
+              label={label}
+              onBlur={onBlur}
+              onChange={this.onTextChange}
+              onFocus={onFocus}
+              placeholder={placeholderText}
+              theme={this.props.theme}
+              value={propertyValue !== undefined ? propertyValue : defaultValue}
+            />
+          </div>
+          <Button
+            className="ml-1"
+            isIconButton
+            kind="tertiary"
+            onClick={() => this.setState({ popOutVisible: true })}
+            size="sm"
+            startIcon="expand"
+          />
+        </div>
+        {this.state.popOutVisible && (
+          <PopoutResizableEditor
+            additionalAutocomplete={this.props.additionalAutoComplete}
+            dataTreePath={this.props.dataTreePath}
+            expected={this.props.expected}
+            hideEvaluatedValue={this.props.hideEvaluatedValue}
+            label={this.props.propertyName}
+            onChange={this.onTextChange}
+            onClose={() => this.setState({ popOutVisible: false })}
+            theme={this.props.theme || EditorTheme.LIGHT}
+            value={
+              this.props.propertyValue !== undefined
+                ? this.props.propertyValue
+                : this.props.defaultValue
+            }
+            widgetName={this.props.widgetProperties.widgetName}
+          />
+        )}
+      </div>
     );
   }
 
