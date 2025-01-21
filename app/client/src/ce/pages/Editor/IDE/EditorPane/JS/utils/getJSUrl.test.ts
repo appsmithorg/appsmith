@@ -1,27 +1,8 @@
-import { getJSEntityItemUrl, getJSUrl } from "./utils";
+import { getJSUrl } from "./getJSUrl";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { PluginType } from "entities/Plugin";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { EditorState } from "ee/entities/IDE/constants";
-
-describe("getJSEntityItemUrl", () => {
-  urlBuilder.setCurrentBasePageId("0123456789abcdef00000000");
-  it("returns a JS url", () => {
-    const url = getJSEntityItemUrl(
-      {
-        title: "TestTitle",
-        key: "abc",
-        type: PluginType.JS,
-      },
-      "0123456789abcdef00000000",
-    );
-
-    expect(url).toEqual(
-      "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc",
-    );
-  });
-});
 
 describe("getJSUrl", () => {
   urlBuilder.setCurrentBasePageId("0123456789abcdef00000000");
