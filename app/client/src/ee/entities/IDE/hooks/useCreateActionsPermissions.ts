@@ -1,1 +1,1 @@
-export * from "ce/entities/IDE/hooks/useCreateActionsPermissions";
+export { useCreateActionsPermissions } from "ce/entities/IDE/hooks/useCreateActionsPermissions";
