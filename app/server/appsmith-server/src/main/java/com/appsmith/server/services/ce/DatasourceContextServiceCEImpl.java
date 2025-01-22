@@ -452,9 +452,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     @Override
     public <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage, Function<DatasourceContext<?>, Mono<T>> task) {
-
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasourceStorage)
-                .flatMap(this::getDatasourceContext)
+                .flatMap(ds -> {
+                    return pluginService
+                            .findById(datasourceStorage.getPluginId())
+                            .flatMap(plugin -> getDatasourceContext(datasourceStorage, plugin));
+                })
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
