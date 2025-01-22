@@ -1,7 +1,7 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { fireEvent, render } from "@testing-library/react";
-import { Text } from "@appsmith/ads";
+import { Text } from "../..";
 
 import { useEditableText } from "./useEditableText";
 

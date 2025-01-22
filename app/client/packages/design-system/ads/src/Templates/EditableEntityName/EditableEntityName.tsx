@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { Spinner, Tooltip } from "@appsmith/ads";
 
-import { useEditableText } from "@appsmith/ads";
+import { Spinner, Tooltip } from "../..";
+import { useEditableText } from "../../__hooks__";
 
 import * as Styled from "./EditableEntityName.styles";
 

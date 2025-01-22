@@ -3,7 +3,7 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import styled from "styled-components";
 
-import { Icon } from "@appsmith/ads";
+import { Icon } from "../..";
 import { EditableEntityName } from ".";
 
 const EntityIcon = styled.div`

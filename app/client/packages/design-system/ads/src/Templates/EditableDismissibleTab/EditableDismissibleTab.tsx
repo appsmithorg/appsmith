@@ -2,7 +2,8 @@ import React from "react";
 import { noop } from "lodash";
 import { useBoolean } from "usehooks-ts";
 
-import { DismissibleTab, EditableEntityName } from "@appsmith/ads";
+import { DismissibleTab } from "../..";
+import { EditableEntityName } from "..";
 
 interface EditableDismissibleTabProps {
   dataTestId?: string;

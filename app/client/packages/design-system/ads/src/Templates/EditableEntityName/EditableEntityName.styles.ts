@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Text as ADSText } from "../../Text";
+import { Text as ADSText } from "../..";
 
 export const Root = styled.div`
   display: flex;
