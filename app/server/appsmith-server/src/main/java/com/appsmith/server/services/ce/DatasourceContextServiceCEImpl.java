@@ -384,6 +384,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && !isInErrorState;
     }
 
+    /**
+     * This method is deprecated and should not be used. Use the method {@link #getDatasourceContext(DatasourceStorage, Plugin)}  instead.
+     * such entities as possible candidates for domain mapping.
+     */
+    @Deprecated
     @Override
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage) {
         final String datasourceId = datasourceStorage.getDatasourceId();
@@ -452,9 +457,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     @Override
     public <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage, Function<DatasourceContext<?>, Mono<T>> task) {
-
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasourceStorage)
-                .flatMap(this::getDatasourceContext)
+                .flatMap(ds -> {
+                    return pluginService
+                            .findById(datasourceStorage.getPluginId())
+                            .flatMap(plugin -> getDatasourceContext(datasourceStorage, plugin));
+                })
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
