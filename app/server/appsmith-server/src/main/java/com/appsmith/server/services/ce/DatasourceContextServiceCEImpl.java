@@ -384,6 +384,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && !isInErrorState;
     }
 
+    // This method is deprecated and should not be used. Use the method with Plugin parameter instead.
+    // As EE implementation requires plugin parameter to determine if the plugin is external saas or not.
+    @Deprecated
     @Override
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage) {
         final String datasourceId = datasourceStorage.getDatasourceId();
