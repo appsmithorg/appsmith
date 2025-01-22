@@ -547,7 +547,7 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 export interface BUFFERED_ACTION {
   hasDebouncedHandleUpdate: boolean;
   hasBufferedAction: boolean;
-  actionDataPayloadConsolidated: actionDataPayload;
+  actionDataPayloadConsolidated: actionDataPayload[];
 }
 
 export function evalQueueBuffer() {
@@ -684,7 +684,7 @@ export function* evalAndLintingHandler(
     forceEvaluation: boolean;
     requiresLogging: boolean;
     affectedJSObjects: AffectedJSObjects;
-    actionDataPayloadConsolidated: actionDataPayload;
+    actionDataPayloadConsolidated: actionDataPayload[];
   }>,
 ) {
   const span = startRootSpan("evalAndLintingHandler");
