@@ -70,6 +70,8 @@ import static com.appsmith.git.constants.CommonConstants.DELIMITER_PATH;
 import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.MAIN_CONTAINER;
 import static com.appsmith.git.constants.CommonConstants.WIDGETS;
+import static com.appsmith.git.constants.ce.CommonConstantsCE.FILE_FORMAT_VERSION;
+import static com.appsmith.git.constants.ce.CommonConstantsCE.fileFormatVersion;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
@@ -189,6 +191,10 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         copyProperties(applicationJson, applicationMetadata, keys);
         final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
         ObjectNode metadata = objectMapper.valueToTree(applicationMetadata);
+
+        // put file format version;
+        metadata.put(FILE_FORMAT_VERSION, fileFormatVersion);
+
         GitResourceIdentity metadataIdentity =
                 new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
         resourceMap.put(metadataIdentity, metadata);
@@ -717,7 +723,6 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         artifactExchangeJson.setContextList(pageList);
 
         // widgets
-
         pageList.parallelStream().forEach(newPage -> {
             Map<String, org.json.JSONObject> widgetsData = resourceMap.entrySet().stream()
                     .filter(entry -> {
@@ -730,13 +735,23 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                                     .getFilePath()
                                     .replaceFirst(
                                             PAGE_DIRECTORY
+                                                    + DELIMITER_PATH
                                                     + newPage.getUnpublishedPage()
                                                             .getName()
                                                     + DELIMITER_PATH
                                                     + WIDGETS
                                                     + DELIMITER_PATH,
                                             MAIN_CONTAINER + DELIMITER_PATH),
-                            entry -> (org.json.JSONObject) entry.getValue()));
+                            entry -> {
+                                try {
+                                    return new org.json.JSONObject(objectMapper.writeValueAsString(entry.getValue()));
+                                } catch (JsonProcessingException jsonProcessingException) {
+                                    log.error(
+                                            "Error while deserializing widget with file path {}",
+                                            entry.getKey().getFilePath());
+                                    throw new RuntimeException(jsonProcessingException);
+                                }
+                            }));
 
             Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
             org.json.JSONObject mainContainer;

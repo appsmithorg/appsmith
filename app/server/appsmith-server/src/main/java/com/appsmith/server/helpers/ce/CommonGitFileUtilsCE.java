@@ -630,8 +630,9 @@ public class CommonGitFileUtilsCE {
      */
     protected void copyMetadataToArtifactExchangeJson(
             GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson) {
+        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
         GitResourceIdentity metadataIdentity =
-                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, METADATA + JSON_EXTENSION, "");
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
         Object metadata = gitResourceMap.getGitResourceMap().get(metadataIdentity);
 
         Gson gson = new Gson();
