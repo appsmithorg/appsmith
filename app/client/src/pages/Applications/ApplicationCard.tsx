@@ -477,26 +477,38 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return viewerURL({ basePageId, params: viewerParams });
   }, [props.application.defaultBasePageId, viewerParams]);
 
-  const launchApp = useCallback(() => {
-    setURLParams();
-    dispatch(getCurrentUser());
-  }, []);
+  const launchApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(viewModeURL);
+      dispatch(getCurrentUser());
+    },
+    [dispatch, setURLParams, viewModeURL],
+  );
 
-  const editApp = useCallback(() => {
-    setURLParams();
-    dispatch(getCurrentUser());
-  }, []);
+  const editApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(editModeURL);
+      dispatch(getCurrentUser());
+    },
+    [dispatch, editModeURL, setURLParams],
+  );
 
-  const launchMobileApp = useCallback(() => {
-    setURLParams();
-    history.push(
-      viewerURL({
-        basePageId: props.application.defaultBasePageId,
-        params: viewerParams,
-      }),
-    );
-    dispatch(getCurrentUser());
-  }, [dispatch, props.application.defaultBasePageId, viewerParams]);
+  const launchMobileApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(viewModeURL);
+      dispatch(getCurrentUser());
+    },
+    [dispatch, props.application.defaultBasePageId, setURLParams, viewerParams],
+  );
 
   return (
     <Card
