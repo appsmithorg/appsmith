@@ -1,18 +1,12 @@
 import {
-  setAllEntityCollapsibleStates,
-  setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
-  setExplorerSwitchIndex,
   setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 import {
-  getAllEntityCollapsibleStates,
   getAllPropertySectionState,
-  getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
-  getExplorerSwitchIndex,
   getFocusableInputField,
   getPropertyPanelState,
   getWidgetSelectedPropertyTabIndex,
@@ -24,7 +18,6 @@ import {
 } from "selectors/ui";
 
 import { setDatasourceViewMode } from "actions/datasourceActions";
-import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   setJsPaneConfigSelectedTab,
   setJsPaneDebuggerState,
@@ -32,18 +25,12 @@ import {
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
-  setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
 import { PluginPackageName } from "entities/Plugin";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTab,
   getJsPaneDebuggerState,
@@ -51,7 +38,6 @@ import {
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
-  getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import { getLastQueryTab } from "ee/selectors/appIDESelectors";
@@ -82,6 +68,8 @@ import {
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
+import { getIDETabs } from "selectors/ideSelectors";
+import { setIDETabs } from "actions/ideActions";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -249,31 +237,10 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     },
     {
       type: FocusElementConfigType.Redux,
-      name: FocusElement.EntityExplorerWidth,
-      selector: getExplorerWidth,
-      setter: updateExplorerWidthAction,
-      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.EntityCollapsibleState,
-      selector: getAllEntityCollapsibleStates,
-      setter: setAllEntityCollapsibleStates,
+      name: FocusElement.IDETabs,
+      selector: getIDETabs,
+      setter: setIDETabs,
       defaultValue: {},
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.SubEntityCollapsibleState,
-      selector: getAllSubEntityCollapsibleStates,
-      setter: setAllSubEntityCollapsibleStates,
-      defaultValue: {},
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.ExplorerSwitchIndex,
-      selector: getExplorerSwitchIndex,
-      setter: setExplorerSwitchIndex,
-      defaultValue: 0,
     },
     {
       type: FocusElementConfigType.Redux,
@@ -281,13 +248,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getCodeEditorHistory,
       setter: setCodeEditorHistory,
       defaultValue: {},
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.PropertyPaneWidth,
-      selector: getPropertyPaneWidth,
-      setter: setPropertyPaneWidthAction,
-      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
 };
