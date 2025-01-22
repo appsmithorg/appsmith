@@ -155,7 +155,7 @@ import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
-import type { UpdateActionProps } from "workers/Evaluation/handlers/updateActionData";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

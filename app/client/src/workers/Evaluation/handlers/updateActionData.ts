@@ -5,13 +5,8 @@ import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { UpdateActionProps } from "./types";
 
-export interface UpdateActionProps {
-  entityName: string;
-  dataPath: string;
-  data: unknown;
-  dataPathRef?: string;
-}
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
 

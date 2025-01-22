@@ -18,7 +18,7 @@ import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { ICacheProps } from "../common/AppComputationCache/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
-import type { UpdateActionProps } from "./handlers/updateActionData";
+import type { UpdateActionProps } from "./handlers/types";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
