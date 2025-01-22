@@ -1,4 +1,5 @@
-import { PluginType, PaginationType } from "entities/Action";
+import { PaginationType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type {
   WidgetEntity,
   WidgetEntityConfig,

@@ -990,9 +990,3 @@ export const getGsheetToken = (state: AppState) =>
 
 export const getGsheetProjectID = (state: AppState) =>
   state.entities.datasources.gsheetProjectID;
-
-export const combinedPreviewModeSelector = createSelector(
-  previewModeSelector,
-  protectedModeSelector,
-  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
-);

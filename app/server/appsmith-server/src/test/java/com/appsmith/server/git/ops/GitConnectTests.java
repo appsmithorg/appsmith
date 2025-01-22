@@ -84,7 +84,7 @@ public class GitConnectTests {
         gitConnectDTO.setRemoteUrl(null);
         gitConnectDTO.setGitProfile(new GitProfile());
         Mono<Application> applicationMono = centralGitService
-                .connectArtifactToGit("testID", gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                .connectArtifactToGit("testID", ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -108,7 +108,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(new GitProfile());
 
         Mono<Application> applicationMono = centralGitService
-                .connectArtifactToGit("testID", gitConnectDTO, null, ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                .connectArtifactToGit("testID", ArtifactType.APPLICATION, gitConnectDTO, null, GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -151,7 +151,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(gitProfile);
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -171,7 +171,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(new GitProfile());
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -251,7 +251,7 @@ public class GitConnectTests {
 
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -289,7 +289,7 @@ public class GitConnectTests {
                         Mockito.anyString());
         Mockito.doReturn(Mono.just(Paths.get("")))
                 .when(commonGitFileUtils)
-                .saveArtifactToLocalRepoWithAnalytics(any(Path.class), any(), Mockito.anyString());
+                .saveArtifactToLocalRepoNew(any(Path.class), any(), Mockito.anyString());
         Mockito.doReturn(Mono.just(true)).when(commonGitFileUtils).checkIfDirectoryIsEmpty(any(Path.class));
         Mockito.doReturn(Mono.just(Paths.get("textPath")))
                 .when(commonGitFileUtils)
@@ -325,14 +325,14 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(gitProfile);
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                 })
                 .verifyComplete();
     }
@@ -361,7 +361,7 @@ public class GitConnectTests {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         gitArtifactMetadata.setRemoteUrl("git@github.com:test/testRepo.git");
-        gitArtifactMetadata.setBranchName("defaultBranchNameFromRemote");
+        gitArtifactMetadata.setRefName("defaultBranchNameFromRemote");
         gitArtifactMetadata.setRepoName("testRepo");
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         testApplication.setName("localGitProfile");
@@ -375,7 +375,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(gitProfile);
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -421,7 +421,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(gitProfile);
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
@@ -470,7 +470,7 @@ public class GitConnectTests {
         gitConnectDTO.setGitProfile(gitProfile);
         Mono<Application> applicationMono = centralGitService
                 .connectArtifactToGit(
-                        application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION, GitType.FILE_SYSTEM)
+                        application1.getId(), ArtifactType.APPLICATION, gitConnectDTO, "baseUrl", GitType.FILE_SYSTEM)
                 .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)

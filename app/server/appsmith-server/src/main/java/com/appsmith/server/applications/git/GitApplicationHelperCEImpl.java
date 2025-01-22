@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -120,7 +121,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName) {
         GitArtifactMetadata sourceBranchGitData = sourceArtifact.getGitArtifactMetadata();
-        sourceBranchGitData.setBranchName(branchName);
+        sourceBranchGitData.setRefName(branchName);
         sourceBranchGitData.setIsRepoPrivate(null);
         // Save new artifact in DB and update from the parent branch application
         sourceBranchGitData.setGitAuth(null);
@@ -258,38 +259,22 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         // will be deleted
         Flux<NewPage> newPageFlux = Flux.fromIterable(baseApplication.getPages())
                 .flatMap(page -> newPageService.findById(page.getId(), null))
-                .map(newPage -> {
-                    newPage.setBaseId(newPage.getId());
-                    newPage.setBranchName(null);
-                    return newPage;
-                })
+                .map(GitUtils::resetEntityReferences)
                 .collectList()
                 .flatMapMany(newPageService::saveAll)
                 .cache();
 
-        Flux<NewAction> newActionFlux = newPageFlux.flatMap(newPage -> {
-            return newActionService
-                    .findByPageId(newPage.getId(), Optional.empty())
-                    .map(newAction -> {
-                        newAction.setBaseId(newAction.getId());
-                        newAction.setBranchName(null);
-                        return newAction;
-                    })
-                    .collectList()
-                    .flatMapMany(newActionService::saveAll);
-        });
+        Flux<NewAction> newActionFlux = newPageFlux.flatMap(newPage -> newActionService
+                .findByPageId(newPage.getId(), Optional.empty())
+                .map(GitUtils::resetEntityReferences)
+                .collectList()
+                .flatMapMany(newActionService::saveAll));
 
-        Flux<ActionCollection> actionCollectionFlux = newPageFlux.flatMap(newPage -> {
-            return actionCollectionService
-                    .findByPageId(newPage.getId())
-                    .map(actionCollection -> {
-                        actionCollection.setBaseId(actionCollection.getId());
-                        actionCollection.setBranchName(null);
-                        return actionCollection;
-                    })
-                    .collectList()
-                    .flatMapMany(actionCollectionService::saveAll);
-        });
+        Flux<ActionCollection> actionCollectionFlux = newPageFlux.flatMap(newPage -> actionCollectionService
+                .findByPageId(newPage.getId())
+                .map(GitUtils::resetEntityReferences)
+                .collectList()
+                .flatMapMany(actionCollectionService::saveAll));
 
         return Flux.merge(actionCollectionFlux, newActionFlux).then(Mono.just(baseApplication));
     }
@@ -334,7 +319,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
             Artifact artifact, RefType refType, Boolean isPublishedManually) {
         // TODO: create publish for ref type creation.
         Application application = (Application) artifact;
-        if (RefType.TAG.equals(refType)) {
+        if (RefType.tag.equals(refType)) {
             return Mono.just(application);
         }
 

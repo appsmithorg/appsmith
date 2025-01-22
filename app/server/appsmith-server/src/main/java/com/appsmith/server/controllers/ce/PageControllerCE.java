@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -189,7 +190,7 @@ public class PageControllerCE {
             @RequestBody(required = false) Map<String, List<String>> dependencyMap,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService
-                .updateDependencyMap(defaultPageId, dependencyMap, branchName)
+                .updateDependencyMap(defaultPageId, dependencyMap, RefType.branch, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }

@@ -1,5 +1,5 @@
 import type { Sizes } from "../__config__/types";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 export type ListSizes = Extract<Sizes, "md" | "lg">;
 
@@ -8,10 +8,12 @@ export interface ListItemProps {
   startIcon?: ReactNode;
   /** The control to display at the end. */
   rightControl?: ReactNode;
-  /**  */
+  /** Control the visibility trigger of right control */
   rightControlVisibility?: "hover" | "always";
   /** callback for when the list item is clicked */
-  onClick: () => void;
+  onClick: (e: MouseEvent) => void;
+  /** callback for when the list item is double-clicked */
+  onDoubleClick?: () => void;
   /** Whether the list item is disabled. */
   isDisabled?: boolean;
   /** Whether the list item is selected. */
@@ -37,7 +39,8 @@ export interface ListItemProps {
 }
 
 export interface ListProps {
-  items: ListItemProps[];
   className?: string;
   id?: string;
+  children: ReactNode | ReactNode[];
+  groupTitle?: string;
 }

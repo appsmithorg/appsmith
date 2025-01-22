@@ -3,26 +3,37 @@ import fetchStatusRequest from "git/requests/fetchStatusRequest";
 import type { FetchStatusResponse } from "git/requests/fetchStatusRequest.types";
 import type { FetchStatusInitPayload } from "git/store/actions/fetchStatusActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
 export default function* fetchStatusSaga(
   action: GitArtifactPayloadAction<FetchStatusInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: FetchStatusResponse | undefined;
 
   try {
-    response = yield call(fetchStatusRequest, baseArtifactId);
+    const params = { compareRemote: true };
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      fetchStatusRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchStatusSuccess({
-          ...basePayload,
+          artifactDef,
           responseData: response.data,
         }),
       );
@@ -33,7 +44,7 @@ export default function* fetchStatusSaga(
 
       yield put(
         gitArtifactActions.fetchStatusError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

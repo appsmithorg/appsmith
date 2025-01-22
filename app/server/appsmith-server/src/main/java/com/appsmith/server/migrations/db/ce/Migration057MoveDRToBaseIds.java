@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -37,10 +37,8 @@ public class Migration057MoveDRToBaseIds {
     @Execution
     public void executeMigration() {
 
-        Query findQuery = query(where(BaseDomain.Fields.deletedAt)
-                .isNull()
-                .and(BranchAwareDomain.Fields.branchName)
-                .exists(false));
+        Query findQuery = query(
+                where(BaseDomain.Fields.deletedAt).isNull().and("branchName").exists(false));
 
         // NewPage
         AggregationUpdate moveNewPageDRUpdateQuery = getUpdateDefinition("defaultResources.pageId");
@@ -72,9 +70,9 @@ public class Migration057MoveDRToBaseIds {
 
     @NotNull private AggregationUpdate getUpdateDefinition(String oldBaseIdPath) {
         return AggregationUpdate.update()
-                .set(BranchAwareDomain.Fields.baseId)
+                .set(RefAwareDomain.Fields.baseId)
                 .toValueOf(Fields.field(oldBaseIdPath))
-                .set(BranchAwareDomain.Fields.branchName)
+                .set("branchName")
                 .toValueOf(Fields.field("defaultResources.branchName"));
     }
 }

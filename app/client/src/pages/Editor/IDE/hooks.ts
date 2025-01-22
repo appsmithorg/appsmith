@@ -15,7 +15,6 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
@@ -27,13 +26,12 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useGitCurrentBranch } from "../gitSync/hooks/modHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useBoolean } from "usehooks-ts";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -65,9 +63,8 @@ export const useCurrentEditorState = () => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId: baseParentEntityId } =
-    useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId: baseParentEntityId } = useParentEntityInfo(ideType);
 
   /**
    * Callback to handle the segment change
@@ -102,7 +99,8 @@ export const useSegmentNavigation = (): {
 export const useGetPageFocusUrl = (basePageId: string): string => {
   const [focusPageUrl, setFocusPageUrl] = useState(builderURL({ basePageId }));
 
-  const branch = useSelector(getCurrentGitBranch);
+  const branch = useGitCurrentBranch();
+
   const editorStateFocusInfo = useSelector((appState) =>
     getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
   );
@@ -211,12 +209,8 @@ export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
     LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE,
   );
 
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const { setFalse, value } = useBoolean(
-    widgetBindingsExist && isActionRedesignEnabled && !localStorageFlag,
+    widgetBindingsExist && !localStorageFlag,
   );
 
   const dismissNudge = useCallback(() => {

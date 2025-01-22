@@ -831,7 +831,7 @@ public class ExportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application savedApplication = applicationPageService
@@ -867,7 +867,7 @@ public class ExportServiceTests {
                                 ArtifactType.APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
-                                workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
+                                workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .cache();
 
@@ -886,7 +886,7 @@ public class ExportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
 
                     final String branchName =
-                            application.getGitApplicationMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getRefName();
                     pageList.forEach(page -> {
                         assertThat(page.getBranchName()).isEqualTo(branchName);
                     });
@@ -939,7 +939,7 @@ public class ExportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1423,7 +1423,7 @@ public class ExportServiceTests {
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -1442,7 +1442,7 @@ public class ExportServiceTests {
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 
@@ -1482,7 +1482,7 @@ public class ExportServiceTests {
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -1501,7 +1501,7 @@ public class ExportServiceTests {
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 

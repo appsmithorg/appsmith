@@ -1,22 +1,22 @@
-import type {
-  FetchBranchesRequestParams,
-  FetchBranchesResponseData,
-} from "../../requests/fetchBranchesRequest.types";
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
+import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
 
-export interface FetchBranchesInitPayload extends FetchBranchesRequestParams {}
+export interface FetchBranchesInitPayload {
+  artifactId: string;
+  pruneBranches?: boolean;
+}
 
 export const fetchBranchesInitAction =
-  createSingleArtifactAction<FetchBranchesInitPayload>((state) => {
+  createArtifactAction<FetchBranchesInitPayload>((state) => {
     state.apiResponses.branches.loading = true;
     state.apiResponses.branches.error = null;
 
     return state;
   });
 
-export const fetchBranchesSuccessAction = createSingleArtifactAction<
-  GitAsyncSuccessPayload<FetchBranchesResponseData>
+export const fetchBranchesSuccessAction = createArtifactAction<
+  GitAsyncSuccessPayload<FetchRefsResponseData>
 >((state, action) => {
   state.apiResponses.branches.loading = false;
   state.apiResponses.branches.value = action.payload.responseData;
@@ -25,7 +25,7 @@ export const fetchBranchesSuccessAction = createSingleArtifactAction<
 });
 
 export const fetchBranchesErrorAction =
-  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.branches.loading = false;

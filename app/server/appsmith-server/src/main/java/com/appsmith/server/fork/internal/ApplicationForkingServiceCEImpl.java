@@ -268,7 +268,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                         newAction.getId());
                                                 action.setPageId(savedPage.getId());
                                                 action.setBaseId(null);
-                                                action.setBranchName(null);
+                                                action.setRefType(null);
+                                                action.setRefName(null);
                                                 return newAction;
                                             })
                                             .flatMap(newAction -> {
@@ -505,7 +506,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     if ((application.getGitApplicationMetadata() == null)
                             || application
                                     .getGitApplicationMetadata()
-                                    .getBranchName()
+                                    .getRefName()
                                     .equals(application
                                             .getGitApplicationMetadata()
                                             .getDefaultBranchName())) {

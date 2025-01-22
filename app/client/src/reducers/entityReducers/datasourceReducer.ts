@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -125,6 +125,12 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
   ) => {
     return { ...state, loading: true };
+  },
+  [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ loading?: boolean }>,
+  ) => {
+    return { ...state, loading: !!action.payload.loading };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };

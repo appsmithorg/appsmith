@@ -1,10 +1,5 @@
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { CreateBranchInitPayload } from "../store/actions/createBranchActions";
-import createBranchRequest from "../requests/createBranchRequest";
-import type {
-  CreateBranchRequestParams,
-  CreateBranchResponse,
-} from "../requests/createBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
 
@@ -12,41 +7,58 @@ import type { GitArtifactPayloadAction } from "../store/types";
 import { validateResponse } from "sagas/ErrorSagas";
 import { captureException } from "@sentry/react";
 import log from "loglevel";
+import createRefRequest from "git/requests/createRefRequest";
+import type {
+  CreateRefRequestParams,
+  CreateRefResponse,
+} from "git/requests/createRefRequest.types";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
-  let response: CreateBranchResponse | undefined;
+  const { artifactDef, artifactId } = action.payload;
+  let response: CreateRefResponse | undefined;
 
   try {
-    const params: CreateBranchRequestParams = {
-      branchName: action.payload.branchName,
+    const params: CreateRefRequestParams = {
+      refType: "branch",
+      refName: action.payload.branchName,
     };
 
-    response = yield call(createBranchRequest, baseArtifactId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      createRefRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.createBranchSuccess(basePayload));
-      yield put(
-        gitArtifactActions.toggleBranchPopup({
-          ...basePayload,
-          open: false,
-        }),
-      );
       yield put(
         gitArtifactActions.fetchBranchesInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           pruneBranches: true,
         }),
       );
-
       yield put(
         gitArtifactActions.checkoutBranchInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           branchName: action.payload.branchName,
+        }),
+      );
+      yield put(gitArtifactActions.createBranchSuccess({ artifactDef }));
+      yield put(
+        gitArtifactActions.toggleBranchPopup({
+          artifactDef,
+          open: false,
         }),
       );
     }
@@ -56,7 +68,7 @@ export default function* createBranchSaga(
 
       yield put(
         gitArtifactActions.createBranchError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

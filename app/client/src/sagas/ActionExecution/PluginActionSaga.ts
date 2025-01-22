@@ -5,7 +5,6 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
@@ -19,13 +18,10 @@ import {
   updateAction,
   updateActionData,
 } from "actions/pluginActionActions";
-import {
-  handleExecuteJSFunctionSaga,
-  makeUpdateJSCollection,
-} from "sagas/JSPaneSagas";
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -45,7 +41,6 @@ import {
   getJSCollectionFromAllEntities,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
@@ -134,7 +129,7 @@ import {
   findDatatype,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";
@@ -172,6 +167,10 @@ import {
 } from "PluginActionEditor/store";
 import { objectKeys } from "@appsmith/utils";
 import type { Span } from "instrumentation/types";
+import {
+  selectGitConnectModalOpen,
+  selectGitOpsModalOpen,
+} from "selectors/gitModSelectors";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -698,10 +697,13 @@ function* runActionShortcutSaga() {
   if (!baseMatch) return;
 
   // get gitSyncModal status
-  const isGitSyncModalOpen: boolean = yield select(getIsGitSyncModalOpen);
+  const isGitOpsModalOpen: boolean = yield select(selectGitOpsModalOpen);
+  const isGitConnectModalOpen: boolean = yield select(
+    selectGitConnectModalOpen,
+  );
 
   // if git sync modal is open, prevent action from being executed via shortcut keys.
-  if (isGitSyncModalOpen) return;
+  if (isGitOpsModalOpen || isGitConnectModalOpen) return;
 
   const { path } = baseMatch;
   // TODO: Fix this the next time the file is edited
@@ -1665,6 +1667,5 @@ export function* watchPluginActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

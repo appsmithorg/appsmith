@@ -1,12 +1,9 @@
 import type { ActionResponse, PaginationField } from "api/ActionAPI";
 import {
-  type AnyReduxAction,
-  type EvaluationReduxAction,
-  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { JSUpdate } from "utils/JSPaneUtils";
+import type { AnyReduxAction, ReduxAction } from "./ReduxActionTypes";
 import type {
   Action,
   ActionViewMode,
@@ -22,6 +19,7 @@ import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 import type { Span } from "instrumentation/types";
+import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -343,13 +341,6 @@ export const executePageLoadActions = (
   };
 };
 
-export const executeJSUpdates = (
-  payload: Record<string, JSUpdate>,
-): ReduxAction<unknown> => ({
-  type: ReduxActionTypes.EXECUTE_JS_UPDATES,
-  payload,
-});
-
 export const setActionsToExecuteOnPageLoad = (
   actions: Array<{
     executeOnLoad: boolean;
@@ -399,6 +390,7 @@ export interface updateActionDataPayloadType {
   actionDataPayload: actionDataPayload;
   parentSpan?: Span;
 }
+
 export const updateActionData = (
   payload: actionDataPayload,
   parentSpan?: Span,

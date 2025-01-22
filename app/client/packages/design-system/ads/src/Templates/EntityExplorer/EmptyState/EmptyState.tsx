@@ -1,5 +1,8 @@
 import React from "react";
-import { Button, Flex, Icon, Text } from "../../..";
+import { Button } from "../../../Button";
+import { Flex } from "../../../Flex";
+import { Icon } from "../../../Icon";
+import { Text } from "../../../Text";
 import type { EmptyStateProps } from "./EmptyState.types";
 
 const EmptyState = ({ button, description, icon }: EmptyStateProps) => {

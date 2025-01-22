@@ -12,11 +12,10 @@ import {
 } from "redux-saga/effects";
 
 import type {
-  EvaluationReduxAction,
   ReduxAction,
   ReduxActionType,
   AnyReduxAction,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getDataTree,
@@ -95,16 +94,15 @@ import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
 import {
-  executeJSUpdates,
   type actionDataPayload,
   type updateActionDataPayloadType,
 } from "actions/pluginActionActions";
+import { executeJSUpdates } from "actions/jsPaneActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
 import {
   getAffectedJSObjectIdsFromAction,
   parseUpdatesAndDeleteUndefinedUpdates,
@@ -121,6 +119,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
+import type {
+  AffectedJSObjects,
+  EvaluationReduxAction,
+} from "actions/EvaluationReduxActionTypes";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -545,6 +547,7 @@ interface BUFFERED_ACTION {
   hasBufferedAction: boolean;
   actionDataPayloadConsolidated: actionDataPayload[];
 }
+
 export function evalQueueBuffer() {
   let canTake = false;
   let hasDebouncedHandleUpdate = false;

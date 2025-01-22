@@ -24,7 +24,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import type { AppState } from "ee/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import { Text } from "@appsmith/ads";
 

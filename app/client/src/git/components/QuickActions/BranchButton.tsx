@@ -51,7 +51,7 @@ export default function BranchButton({
   isAutocommitPolling = false,
   isBranchPopupOpen = false,
   isProtectedMode = false,
-  isStatusClean = false,
+  isStatusClean = true,
   isTriggerAutocommitLoading = false,
   toggleBranchPopup = noop,
 }: BranchButtonProps) {
@@ -94,15 +94,14 @@ export default function BranchButton({
         placement="topLeft"
       >
         <ButtonContainer
-          className="t--branch-button"
-          data-testid={"t--branch-button-currentBranch"}
+          data-testid={"t--git-quick-actions-branch"}
           isDisabled={isDisabled}
           kind="secondary"
         >
           {isProtectedMode ? (
             <BranchButtonIcon name="protected-icon" />
           ) : (
-            <BranchButtonIcon name={"git-branch"} />
+            <BranchButtonIcon name="git-branch" />
           )}
           <BranchButtonLabel ref={labelTarget}>
             {currentBranch}

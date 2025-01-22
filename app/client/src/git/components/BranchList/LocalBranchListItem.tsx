@@ -89,7 +89,7 @@ export default function LocalBranchListItem({
   return (
     <BranchListItemContainer
       className={className}
-      data-testid="t--branch-list-item"
+      data-testid="t--git-branch-item"
       isActive={isActive}
       isDefault={isDefault}
       isSelected={isSelected}

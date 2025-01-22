@@ -147,7 +147,7 @@ export class DataSources {
     option +
     "']";
   _queryTableResponse =
-    "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td mp-mask']";
+    "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td as-mask']";
   _queryResponseHeader = (header: string) =>
     "//div[@data-guided-tour-id='query-table-response']//div[@class='table']//div[@role ='columnheader']//span[text()='" +
     header +
@@ -170,7 +170,7 @@ export class DataSources {
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _mockDB = (dbName: string) =>
-    "//span[text()='" +
+    "//p[text()='" +
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
@@ -203,7 +203,7 @@ export class DataSources {
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
-    ".t--datasource-name:contains('" + dsName + "')";
+    ".t--plugin-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
   _dsTabSchema = "[data-testid='t--tab-DATASOURCE_TAB']";

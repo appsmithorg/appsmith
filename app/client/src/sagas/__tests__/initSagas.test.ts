@@ -1,7 +1,5 @@
-import {
-  type ReduxAction,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
 import { getInitResponses } from "sagas/InitSagas";

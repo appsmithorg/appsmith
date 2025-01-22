@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction, ReduxActionType } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

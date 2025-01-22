@@ -1,7 +1,7 @@
 import React from "react";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { Link } from "@appsmith/ads";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import styled from "styled-components";

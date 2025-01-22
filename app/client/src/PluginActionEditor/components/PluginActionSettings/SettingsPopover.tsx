@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "@appsmith/ads";
-import ActionSettings from "pages/Editor/ActionSettings";
+import ActionSettings from "../PluginActionToolbar/components/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
 import {

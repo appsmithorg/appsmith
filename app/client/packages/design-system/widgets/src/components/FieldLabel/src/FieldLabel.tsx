@@ -22,7 +22,12 @@ export function FieldLabel(props: LabelProps) {
         className={clsx(styles.label)}
         elementType="label"
       >
-        <Text fontWeight={600} size="caption">
+        <Text
+          fontWeight={600}
+          lineClamp={1}
+          size="caption"
+          title={children?.toString()}
+        >
           {children}
         </Text>
         {Boolean(isRequired) && (

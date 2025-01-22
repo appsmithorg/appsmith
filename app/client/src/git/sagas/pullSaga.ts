@@ -4,7 +4,7 @@ import type { PullResponse } from "git/requests/pullRequest.types";
 import type { PullInitPayload } from "git/store/actions/pullActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import { selectCurrentBranch } from "git/store/selectors/gitSingleArtifactSelectors";
+import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -13,25 +13,34 @@ import { initEditorAction } from "actions/initActions";
 import { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* pullSaga(
   action: GitArtifactPayloadAction<PullInitPayload>,
 ) {
-  const { artifactId, artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: PullResponse | undefined;
 
   try {
-    response = yield call(pullRequest, artifactId);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      pullRequest,
+      artifactDef.artifactType,
+      artifactId,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.pullSuccess(basePayload));
+      yield put(gitArtifactActions.pullSuccess({ artifactDef }));
 
       const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentBranch: string = yield select(
         selectCurrentBranch,
-        basePayload,
+        artifactDef,
       );
 
       yield put(
@@ -51,7 +60,7 @@ export default function* pullSaga(
       //   yield put(setIsGitErrorPopupVisible({ isVisible: true }));
       // }
 
-      yield put(gitArtifactActions.pullError({ ...basePayload, error }));
+      yield put(gitArtifactActions.pullError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

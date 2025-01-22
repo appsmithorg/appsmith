@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
