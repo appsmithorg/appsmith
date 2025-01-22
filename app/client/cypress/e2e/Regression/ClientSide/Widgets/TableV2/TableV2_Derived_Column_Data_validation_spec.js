@@ -7,7 +7,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   apiPage,
-  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
@@ -116,6 +115,7 @@ describe(
       // verify customColumn is visible in the table
       cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
       cy.closePropertyPane();
+      cy.deleteColumn("customColumn1");
     });
 
     it("5. Verify computed value with try-catch blocks handles missing nested properties", function () {
@@ -124,7 +124,7 @@ describe(
       // Set table data with nested object and missing property
       propPane.UpdatePropertyFieldValue(
         "Table data",
-        `{{[{"name": "Rahul", age: {value: 31}}, {"name": "Jacq", age: {}}, {"name": "John"}]}`,
+        `{{[{"name": "Rahul", age: {value: 31}}, {"name": "Jacq", age: {}}, {"name": "John"}]}}`,
       );
 
       cy.editColumn("age");
