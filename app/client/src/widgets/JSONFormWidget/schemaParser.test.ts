@@ -1910,6 +1910,16 @@ describe(".fieldTypeFor", () => {
       { input: "March 14, 2024", expected: FieldType.DATEPICKER },
       { input: "not-a-date", expected: FieldType.TEXT_INPUT },
       { input: "99/99/9999", expected: FieldType.TEXT_INPUT },
+      {
+        input: "2021-12-30T10:36:12.1212+05:30",
+        expected: FieldType.DATEPICKER,
+      },
+      { input: "December 30, 2021 10:36 AM", expected: FieldType.DATEPICKER },
+      { input: "2021-12-30 10:36", expected: FieldType.DATEPICKER },
+      { input: "2021-12-30 10:36:12 AM", expected: FieldType.DATEPICKER },
+      { input: "30/12/2021 10:36", expected: FieldType.DATEPICKER },
+      { input: "30 December, 2021", expected: FieldType.DATEPICKER },
+      { input: "10:36 AM 30 December, 2021", expected: FieldType.DATEPICKER },
     ];
 
     testCases.forEach(({ expected, input }) => {
