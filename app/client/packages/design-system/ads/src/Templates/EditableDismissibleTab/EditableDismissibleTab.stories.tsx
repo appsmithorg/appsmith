@@ -47,7 +47,6 @@ export const Basic: Story = {
     name: "Hello",
 
     onNameSave: console.log,
-    onExitEditing: console.log,
     validateName: (name: string) =>
       name.length < 3 ? "Name must be at least 3 characters" : null,
   },
