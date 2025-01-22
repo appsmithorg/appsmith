@@ -1,5 +1,6 @@
+import React from "react";
 import type { Datasource } from "entities/Datasource";
-import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
+import DatasourceFormRenderer from "pages/Editor/DataSourceEditor/DatasourceFormRenderer";
 
 export interface Props {
   currentEnv: string;
@@ -16,5 +17,12 @@ export function EnvConfigSection({
   datasource,
   viewMode,
 }: Props) {
-  return renderDatasourceSection(config, currentEnv, datasource, viewMode);
+  return (
+    <DatasourceFormRenderer
+      currentEnvironment={currentEnv}
+      datasource={datasource}
+      section={config}
+      viewMode={viewMode}
+    />
+  );
 }
