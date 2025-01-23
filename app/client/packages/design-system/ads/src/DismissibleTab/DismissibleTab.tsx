@@ -7,14 +7,7 @@ import { Icon } from "..";
 import * as Styled from "./DismissibleTab.styles";
 import { DATA_TEST_ID } from "./constants";
 
-export interface DismissibleTabProps {
-  children: React.ReactNode;
-  dataTestId?: string;
-  isActive: boolean;
-  onClick: () => void;
-  onClose: (e: React.MouseEvent) => void;
-  onDoubleClick?: () => void;
-}
+import type { DismissibleTabProps } from "./DismissibleTab.types";
 
 export const DismissibleTab = ({
   children,

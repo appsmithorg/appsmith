@@ -5,16 +5,7 @@ import { useEditableText } from "../../__hooks__";
 
 import * as Styled from "./EditableEntityName.styles";
 
-interface EditableTextProps {
-  icon: React.ReactNode;
-  inputTestId?: string;
-  isEditing: boolean;
-  isLoading?: boolean;
-  name: string;
-  onExitEditing: () => void;
-  onNameSave: (name: string) => void;
-  validateName: (name: string) => string | null;
-}
+import type { EditableEntityNameProps } from "./EditableEntityName.types";
 
 export const EditableEntityName = ({
   icon,
@@ -25,7 +16,7 @@ export const EditableEntityName = ({
   onExitEditing,
   onNameSave,
   validateName,
-}: EditableTextProps) => {
+}: EditableEntityNameProps) => {
   const [
     inputRef,
     editableName,
