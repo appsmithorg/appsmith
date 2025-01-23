@@ -1,17 +1,16 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "noEmit": false,
-    "declaration": true,
-    "composite": true,
     "target": "es2015",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "downlevelIteration": true,
+    "noEmit": false,
+    "declaration": true,
+    "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["./src/**/*", "./src/**/*.json"]
+  "include": ["./src/**/*", "./src/**/*.json"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"]
 }

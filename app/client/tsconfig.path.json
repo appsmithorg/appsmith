@@ -1,6 +1,114 @@
 {
   "compilerOptions": {
     "paths": {
+      "Datasource/*": [
+        "src/Datasource/*"
+      ],
+      "IDE/*": [
+        "src/IDE/*"
+      ],
+      "PluginActionEditor/*": [
+        "src/PluginActionEditor/*"
+      ],
+      "WidgetProvider/*": [
+        "src/WidgetProvider/*"
+      ],
+      "WidgetQueryGenerators/*": [
+        "src/WidgetQueryGenerators/*"
+      ],
+      "actions/*": [
+        "src/actions/*"
+      ],
+      "api/*": [
+        "src/api/*"
+      ],
+      "assets/*": [
+        "src/assets/*"
+      ],
+      "ce/*": [
+        "src/ce/*"
+      ],
+      "components/*": [
+        "src/components/*"
+      ],
+      "constants/*": [
+        "src/constants/*"
+      ],
+      "ee/*": [
+        "src/ee/*"
+      ],
+      "enterprise/*": [
+        "src/enterprise/*"
+      ],
+      "entities/*": [
+        "src/entities/*"
+      ],
+      "git/*": [
+        "src/git/*"
+      ],
+      "globalStyles/*": [
+        "src/globalStyles/*"
+      ],
+      "icons/*": [
+        "src/icons/*"
+      ],
+      "instrumentation/*": [
+        "src/instrumentation/*"
+      ],
+      "layoutSystems/*": [
+        "src/layoutSystems/*"
+      ],
+      "mockResponses/*": [
+        "src/mockResponses/*"
+      ],
+      "mocks/*": [
+        "src/mocks/*"
+      ],
+      "modules/*": [
+        "src/modules/*"
+      ],
+      "navigation/*": [
+        "src/navigation/*"
+      ],
+      "pages/*": [
+        "src/pages/*"
+      ],
+      "plugins/*": [
+        "src/plugins/*"
+      ],
+      "polyfills/*": [
+        "src/polyfills/*"
+      ],
+      "reducers/*": [
+        "src/reducers/*"
+      ],
+      "reflow/*": [
+        "src/reflow/*"
+      ],
+      "sagas/*": [
+        "src/sagas/*"
+      ],
+      "selectors/*": [
+        "src/selectors/*"
+      ],
+      "templates/*": [
+        "src/templates/*"
+      ],
+      "theme/*": [
+        "src/theme/*"
+      ],
+      "usagePulse/*": [
+        "src/usagePulse/*"
+      ],
+      "utils/*": [
+        "src/utils/*"
+      ],
+      "widgets/*": [
+        "src/widgets/*"
+      ],
+      "workers/*": [
+        "src/workers/*"
+      ],
       "@appsmith/*": [
         "../packages/*"
       ],
@@ -45,9 +153,6 @@
       ],
       "@appsmith/headless/*": [
         "../packages/design-system/headless/*"
-      ],
-      "ee/*": [
-        "ee/*"
       ],
       "test/*": [
         "../test/*"

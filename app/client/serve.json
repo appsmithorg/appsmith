@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    { "source": "/api/*", "destination": "/api" },
+    { "source": "/oauth2/*", "destination": "/oauth2" },
+    { "source": "/login/*", "destination": "/login" },
+    { "source": "/rts/*", "destination": "/rts" },
+    { "source": "/**", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

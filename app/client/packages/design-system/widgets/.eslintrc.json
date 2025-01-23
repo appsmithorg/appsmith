@@ -1,10 +1,19 @@
 {
   "extends": ["../../../.eslintrc.base.json", "plugin:storybook/recommended"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "overrides": [
     {
       "files": ["**/*.stories.*"],
       "rules": {
         "import/no-anonymous-default-export": "off"
+      }
+    },
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "parserOptions": {
+        "project": "./tsconfig.json"
       }
     }
   ]

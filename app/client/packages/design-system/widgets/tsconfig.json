@@ -1,4 +1,20 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["./src/**/*"]
+  "compilerOptions": {
+    "outDir": "./lib",
+    "rootDir": "./src",
+    "noEmit": false,
+    "declaration": true,
+    "composite": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "downlevelIteration": true,
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-modules"
+      }
+    ]
+  },
+  "include": ["./src/**/*", "./src/types/*.d.ts"]
 }

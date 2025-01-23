@@ -2,21 +2,23 @@
   "name": "@shared/dsl",
   "private": true,
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test:unit": "jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
-    "test:jest": "jest --watch",
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
+    "test:unit": "yarn g:jest",
+    "test:jest": "jest --watch",
     "start": "rollup -c",
-    "build": "rollup -c"
+    "build": "yarn tsc --project tsconfig.build.json && rollup -c rollup.config.js",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^22.0.0",
     "@types/lodash": "^4.14.120",
     "normalizr": "^3.6.2",
     "rollup": "^2.79.2",
-    "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
     "typescript": "^5.5.4"

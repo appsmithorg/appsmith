@@ -1,12 +1,17 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+      "DOM",
+      "ES6",
+      "DOM.Iterable",
+      "ScriptHost",
+      "ES2016.Array.Include",
+      "es2020.string",
+      "esnext",
+      "WebWorker",
+    ], 
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,13 +23,18 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "importHelpers": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "verbatimModuleSyntax": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "baseUrl": ".",
     "experimentalDecorators": true,
-    "useDefineForClassFields": true
+    "outDir": "./out/js/src",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./typings"
+    ]
   },
   "include": [
     "src",

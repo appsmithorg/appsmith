@@ -8,7 +8,8 @@
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "test:unit": "yarn g:jest",
-    "build:icons": "npx tsx ./src/scripts/build-icons.ts"
+    "build:icons": "npx tsx ./src/scripts/build-icons.ts",
+    "build": "yarn tsc --project tsconfig.build.json"
   },
   "dependencies": {
     "@appsmith/wds-headless": "workspace:^",
@@ -37,7 +38,9 @@
     "@types/fs-extra": "^11.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/react-transition-group": "^4.4.11",
-    "eslint-plugin-storybook": "^0.6.10"
+    "eslint-plugin-storybook": "^0.6.10",
+    "typescript": "^5.0.4",
+    "typescript-plugin-css-modules": "^5.0.1"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"

@@ -5,16 +5,12 @@
       "absoluteRuntime": false,
       "development": true,
       "importSource": "@emotion/react"
-    }],
-    ["@babel/preset-typescript", {
-      "isTSX": true,
-      "allExtensions": true,
-      "onlyRemoveTypeImports": true,
-      "allowNamespaces": true,
-      "optimizeConstEnums": true
     }]
   ],
   "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-transform-class-properties", { "loose": false }],
+    "@babel/plugin-transform-classes",
     ["@babel/plugin-transform-typescript", {
       "onlyRemoveTypeImports": true,
       "allowNamespaces": true,
@@ -29,14 +25,6 @@
         "utils": "./src/utils/",
         "test/*": ["../test/*"],
         "underscore": "lodash",
-        "constants": "./src/constants/",
-        "components": "./src/components/",
-        "selectors": "./src/selectors/",
-        "reducers": "./src/reducers/",
-        "actions": "./src/actions/",
-        "api": "./src/api/",
-        "assets": "./src/assets/",
-        "sagas": "./src/sagas/",
         "entities": "./src/entities/"
       }
     }],
