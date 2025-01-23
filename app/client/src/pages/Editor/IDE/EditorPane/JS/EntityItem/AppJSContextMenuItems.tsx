@@ -7,7 +7,6 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollection } from "entities/JSCollection";
 import {
-  ConvertToModule,
   Copy,
   Delete,
   Move,
@@ -40,7 +39,6 @@ export function AppJSContextMenuItems(props: Props) {
     <>
       <Rename disabled={!canManageJSAction} jsAction={jsAction} />
       <ShowBindings jsAction={jsAction} />
-      <ConvertToModule jsAction={jsAction} />
       <Copy disabled={!canManageJSAction} jsAction={jsAction} />
       <Move disabled={!canManageJSAction} jsAction={jsAction} />
       <MenuSeparator />
