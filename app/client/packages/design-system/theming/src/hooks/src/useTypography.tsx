@@ -63,9 +63,9 @@ export const getTypography = (
 
 export const useTypography = (
   config: TokenScaleConfig,
-  fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
+  fontFamily?: FontFamily,
 ) => {
   const typography = useMemo(() => {
     return getTypography(config, userDensity, userSizing, fontFamily);
