@@ -15,7 +15,7 @@ import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem/old/ListItem";
+import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/old/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";

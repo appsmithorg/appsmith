@@ -16,7 +16,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
-import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem/old/ListItem";
+import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/old/ListItem";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
