@@ -1,7 +1,20 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { Hotkey, useHotkeys } from "@blueprintjs/core";
+import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { redoAction, undoAction } from "actions/pageActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import { getSelectedText, isMacOrIOS } from "utils/helpers";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -11,26 +24,8 @@ import {
   groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { getSelectedText, isMacOrIOS } from "utils/helpers";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
-
-import { runActionViaShortcut } from "actions/pluginActionActions";
-import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
-import { redoAction, undoAction } from "actions/pageActions";
-
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
-
 import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
@@ -106,291 +101,268 @@ interface Props {
   toggleDebugger: () => void;
 }
 
-@HotkeysTarget
-class GlobalHotKeys extends React.Component<Props> {
-  public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
-    const multipleWidgetsSelected =
-      this.props.selectedWidgets && this.props.selectedWidgets.length;
-    const singleWidgetSelected =
-      this.props.selectedWidget &&
-      this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID;
+function GlobalHotKeys(props: Props) {
+  const stopPropagationIfWidgetSelected = useCallback(
+    (e: KeyboardEvent): boolean => {
+      const selectedText = getSelectedText();
 
-    if (
-      (singleWidgetSelected || multipleWidgetsSelected) &&
-      !getSelectedText()
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
+      if (selectedText) {
+        return false;
+      }
 
       return true;
+    },
+    [],
+  );
+
+  const shouldStopPropagation = useMemo((): boolean => {
+    const selectedText = getSelectedText();
+
+    if (selectedText) {
+      return false;
     }
 
-    return false;
-  }
+    return true;
+  }, []);
 
-  public onOnmnibarHotKeyDown(
-    e: KeyboardEvent,
-    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
-  ) {
-    e.preventDefault();
+  const onOnmnibarHotKeyDown = useCallback(
+    (
+      e: KeyboardEvent,
+      categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+    ) => {
+      e.preventDefault();
 
-    // don't open omnibar if preview mode is on
-    if (this.props.isPreviewMode) return;
+      if (props.isPreviewMode) return;
 
-    const category = filterCategories[categoryId];
+      props.setGlobalSearchCategory(filterCategories[categoryId]);
 
-    this.props.setGlobalSearchCategory(category);
-    this.props.hideInstaller();
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "HOTKEY_COMBO",
-      category: category.title,
-    });
-  }
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "HOTKEY_COMBO",
+        category: categoryId,
+      });
+    },
+    [props.isPreviewMode, props.setGlobalSearchCategory],
+  );
 
-  public renderHotkeys() {
-    const { isOpened: isWalkthroughOpened } = this.context ?? {};
-    const { isProtectedMode } = this.props;
-
-    // If walkthrough is open disable shortcuts
-    if (isWalkthroughOpened || isProtectedMode) return <Hotkeys />;
-
-    return (
-      <Hotkeys>
-        <Hotkey
-          combo="mod + f"
-          global
-          label="Search entities"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            const widgetSearchInput =
-              document.getElementById(WIDGETS_SEARCH_ID);
-
-            if (widgetSearchInput) {
-              widgetSearchInput.focus();
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          }}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + p"
-          global
-          label="Navigate"
-          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + plus"
-          global
-          label="Create new"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
+  const hotkeys = React.useMemo(
+    () => [
+      {
+        combo: "mod+f",
+        global: true,
+        label: "Search entities",
+        onKeyDown: (e: KeyboardEvent) => {
+          onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.NAVIGATION);
+        },
+        stopPropagation: shouldStopPropagation,
+      },
+      {
+        combo: "mod+p",
+        global: true,
+        label: "Navigate",
+        onKeyDown: (e: KeyboardEvent) => {
+          onOnmnibarHotKeyDown(e);
+        },
+        stopPropagation: shouldStopPropagation,
+      },
+      {
+        combo: "mod+plus",
+        global: true,
+        label: "Create new",
+        onKeyDown: (e: KeyboardEvent) => {
+          onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION);
+        },
+        stopPropagation: shouldStopPropagation,
+      },
+      {
+        combo: "mod+k",
+        global: true,
+        label: "Show omnibar",
+        onKeyDown: (e: KeyboardEvent) => {
+          onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT);
+        },
+        stopPropagation: shouldStopPropagation,
+      },
+      {
+        combo: "mod+d",
+        global: true,
+        group: "Canvas",
+        label: "Open Debugger",
+        onKeyDown: props.toggleDebugger,
+        preventDefault: true,
+      },
+      {
+        combo: "mod+c",
+        global: true,
+        group: "Canvas",
+        label: "Copy widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            props.copySelectedWidget();
           }
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + k"
-          global
-          label="Show omnibar"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
+        },
+      },
+      {
+        combo: "mod+v",
+        global: true,
+        group: "Canvas",
+        label: "Paste Widget",
+        onKeyDown: () => {
+          if (matchBuilderPath(window.location.pathname)) {
+            props.pasteCopiedWidget(props.getMousePosition() || { x: 0, y: 0 });
           }
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + d"
-          global
-          group="Canvas"
-          label="Open Debugger"
-          onKeyDown={this.props.toggleDebugger}
-          preventDefault
-        />
-        <Hotkey
-          combo="mod + c"
-          global
-          group="Canvas"
-          label="Copy widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.copySelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="mod + v"
-          global
-          group="Canvas"
-          label="Paste Widget"
-          onKeyDown={() => {
-            if (matchBuilderPath(window.location.pathname)) {
-              this.props.pasteCopiedWidget(
-                this.props.getMousePosition() || { x: 0, y: 0 },
-              );
-            }
-          }}
-        />
-        <Hotkey
-          combo="backspace"
-          global
-          group="Canvas"
-          label="Delete widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
-              this.props.deleteSelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="del"
-          global
-          group="Canvas"
-          label="Delete widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.deleteSelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="mod + x"
-          global
-          group="Canvas"
-          label="Cut Widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.cutSelectedWidget();
-            }
-          }}
-        />
-
-        <Hotkey
-          combo="mod + a"
-          global
-          group="Canvas"
-          label="Select all Widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (matchBuilderPath(window.location.pathname)) {
-              this.props.selectAllWidgetsInit();
-              e.preventDefault();
-            }
-          }}
-        />
-        <Hotkey
-          combo="esc"
-          global
-          group="Canvas"
-          label="Deselect all Widget"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            this.props.resetSnipingMode();
-
-            if (matchBuilderPath(window.location.pathname)) {
-              this.props.deselectAllWidgets();
-              this.props.closeProppane();
-              this.props.closeTableFilterProppane();
-            }
-
+        },
+      },
+      {
+        combo: "backspace",
+        global: true,
+        group: "Canvas",
+        label: "Delete widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
+            props.deleteSelectedWidget();
+          }
+        },
+      },
+      {
+        combo: "del",
+        global: true,
+        group: "Canvas",
+        label: "Delete widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            props.deleteSelectedWidget();
+          }
+        },
+      },
+      {
+        combo: "mod+x",
+        global: true,
+        group: "Canvas",
+        label: "Cut Widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            props.cutSelectedWidget();
+          }
+        },
+      },
+      {
+        combo: "mod+a",
+        global: true,
+        group: "Canvas",
+        label: "Select all Widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (matchBuilderPath(window.location.pathname)) {
+            props.selectAllWidgetsInit();
             e.preventDefault();
-          }}
-        />
-        <Hotkey
-          combo="v"
-          global
-          label="Edit Mode"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            this.props.resetSnipingMode();
-            e.preventDefault();
-          }}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + enter"
-          global
-          label="Execute Action"
-          onKeyDown={this.props.executeAction}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          combo="mod + z"
-          global
-          label="Undo change in canvas"
-          onKeyDown={this.props.undo}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          combo="mod + shift + z"
-          global
-          label="Redo change in canvas"
-          onKeyDown={this.props.redo}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          combo="mod + y"
-          global
-          label="Redo change in canvas"
-          onKeyDown={this.props.redo}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          combo="mod + g"
-          global
-          group="Canvas"
-          label="Cut Widgets for grouping"
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.groupSelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="mod + s"
-          global
-          label="Save progress"
-          onKeyDown={() => {
-            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
-              kind: "info",
-            });
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          combo="alt + p"
-          global
-          label="Preview Mode"
-          onKeyDown={() => {
-            this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
-          }}
-        />
-        <GitHotKeys />
-      </Hotkeys>
-    );
-  }
+          }
+        },
+      },
+      {
+        combo: "esc",
+        global: true,
+        group: "Canvas",
+        label: "Deselect all Widget",
+        onKeyDown: (e: KeyboardEvent) => {
+          props.resetSnipingMode();
 
-  render() {
-    return <div>{this.props.children}</div>;
-  }
+          if (matchBuilderPath(window.location.pathname)) {
+            props.deselectAllWidgets();
+            props.closeProppane();
+            props.closeTableFilterProppane();
+          }
+
+          e.preventDefault();
+        },
+      },
+      {
+        combo: "v",
+        global: true,
+        label: "Edit Mode",
+        onKeyDown: (e: KeyboardEvent) => {
+          props.resetSnipingMode();
+          e.preventDefault();
+        },
+      },
+      {
+        combo: "mod+enter",
+        global: true,
+        label: "Execute Action",
+        onKeyDown: props.executeAction,
+        preventDefault: true,
+        stopPropagation: true,
+      },
+      {
+        combo: "mod+z",
+        global: true,
+        label: "Undo change in canvas",
+        onKeyDown: props.undo,
+        preventDefault: true,
+        stopPropagation: true,
+      },
+      {
+        combo: "mod+shift+z",
+        global: true,
+        label: "Redo change in canvas",
+        onKeyDown: props.redo,
+        preventDefault: true,
+        stopPropagation: true,
+      },
+      {
+        combo: "mod+y",
+        global: true,
+        label: "Redo change in canvas",
+        onKeyDown: props.redo,
+        preventDefault: true,
+        stopPropagation: true,
+      },
+      {
+        combo: "mod+g",
+        global: true,
+        group: "Canvas",
+        label: "Cut Widgets for grouping",
+        onKeyDown: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            props.groupSelectedWidget();
+          }
+        },
+      },
+      {
+        combo: "mod+s",
+        global: true,
+        label: "Save progress",
+        onKeyDown: () => {
+          toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+            kind: "info",
+          });
+        },
+        preventDefault: true,
+        stopPropagation: true,
+      },
+      {
+        combo: "alt+p",
+        global: true,
+        label: "Preview Mode",
+        onKeyDown: () => {
+          props.setPreviewModeInitAction(!props.isPreviewMode);
+        },
+      },
+    ],
+    [onOnmnibarHotKeyDown, stopPropagationIfWidgetSelected, props],
+  );
+
+  // Register hotkeys using the useHotkeys hook
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeys);
+
+  return (
+    <div
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
+      style={{ height: "100%" }}
+    >
+      {props.children}
+      <GitHotKeys />
+    </div>
+  );
 }
 
 const mapStateToProps = (state: AppState) => {
@@ -405,8 +377,6 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),

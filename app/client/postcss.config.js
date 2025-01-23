@@ -1,12 +1,7 @@
 module.exports = {
   plugins: [
     require("postcss-import"),
-    [
-      require("postcss-nesting"),
-      {
-        noIsPseudoSelector: true,
-      },
-    ],
+    require("@tailwindcss/nesting")(require("postcss-nesting")),
     require("postcss-at-rules-variables"),
     require("postcss-each"),
     require("postcss-url"),

@@ -1,5 +1,5 @@
-import React from "react";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import React, { useMemo } from "react";
+import { useHotkeys } from "@blueprintjs/core";
 
 interface Props {
   handleUpKey: () => void;
@@ -9,78 +9,67 @@ interface Props {
   children: React.ReactNode;
 }
 
-@HotkeysTarget
-class GlobalSearchHotKeys extends React.Component<Props> {
-  get hotKeysConfig() {
-    return [
+function BranchListHotKeys(props: Props) {
+  const hotkeys = useMemo(
+    () => [
       {
         combo: "up",
-        onKeyDown: () => {
-          this.props.handleUpKey();
-        },
+        onKeyDown: props.handleUpKey,
+        global: false,
         allowInInput: true,
         group: "Branches",
         label: "Move up the list",
       },
       {
         combo: "down",
-        onKeyDown: this.props.handleDownKey,
+        onKeyDown: props.handleDownKey,
+        global: false,
         allowInInput: true,
         group: "Branches",
         label: "Move down the list",
       },
       {
         combo: "return",
-        onKeyDown: this.props.handleSubmitKey,
+        onKeyDown: props.handleSubmitKey,
+        global: false,
         allowInInput: true,
         group: "Branches",
         label: "Submit",
       },
       {
-        combo: "ESC",
-        onKeyDown: this.props.handleEscKey,
+        combo: "esc",
+        onKeyDown: props.handleEscKey,
+        global: false,
         allowInInput: true,
         group: "Branches",
         label: "ESC",
       },
-    ];
-  }
+    ],
+    [
+      props.handleUpKey,
+      props.handleDownKey,
+      props.handleSubmitKey,
+      props.handleEscKey,
+    ],
+  );
 
-  renderHotkeys() {
-    return (
-      <Hotkeys>
-        {this.hotKeysConfig.map(
-          ({ allowInInput, combo, group, label, onKeyDown }, index) => (
-            <Hotkey
-              allowInInput={allowInInput}
-              combo={combo}
-              global={false}
-              group={group}
-              key={index}
-              label={label}
-              onKeyDown={onKeyDown}
-            />
-          ),
-        )}
-      </Hotkeys>
-    );
-  }
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeys);
 
-  render() {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          flexDirection: "column",
-          minHeight: 0,
-          overflow: "auto",
-        }}
-      >
-        {this.props.children}
-      </div>
-    );
-  }
+  return (
+    <div
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
+      style={{
+        display: "flex",
+        flex: 1,
+        flexDirection: "column",
+        minHeight: 0,
+        overflow: "auto",
+      }}
+    >
+      {props.children}
+    </div>
+  );
 }
 
-export default GlobalSearchHotKeys;
+export default BranchListHotKeys;
