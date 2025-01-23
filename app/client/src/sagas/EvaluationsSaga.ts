@@ -249,6 +249,7 @@ export function* evaluateTreeSaga(
   forceEvaluation = false,
   requiresLogging = false,
   affectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects,
+  actionDataPayloadConsolidated?: actionDataPayload,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
@@ -291,6 +292,7 @@ export function* evaluateTreeSaga(
     widgetsMeta,
     shouldRespondWithLogs,
     affectedJSObjects,
+    actionDataPayloadConsolidated,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -542,7 +544,7 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
   ids: [],
 };
 
-interface BUFFERED_ACTION {
+export interface BUFFERED_ACTION {
   hasDebouncedHandleUpdate: boolean;
   hasBufferedAction: boolean;
   actionDataPayloadConsolidated: actionDataPayload[];
@@ -674,7 +676,7 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
-function* evalAndLintingHandler(
+export function* evalAndLintingHandler(
   isBlockingCall = true,
   action: ReduxAction<unknown>,
   options: Partial<{
@@ -682,11 +684,17 @@ function* evalAndLintingHandler(
     forceEvaluation: boolean;
     requiresLogging: boolean;
     affectedJSObjects: AffectedJSObjects;
+    actionDataPayloadConsolidated: actionDataPayload[];
   }>,
 ) {
   const span = startRootSpan("evalAndLintingHandler");
-  const { affectedJSObjects, forceEvaluation, requiresLogging, shouldReplay } =
-    options;
+  const {
+    actionDataPayloadConsolidated,
+    affectedJSObjects,
+    forceEvaluation,
+    requiresLogging,
+    shouldReplay,
+  } = options;
 
   const requiresLinting = getRequiresLinting(action);
 
@@ -728,6 +736,7 @@ function* evalAndLintingHandler(
         forceEvaluation,
         requiresLogging,
         affectedJSObjects,
+        actionDataPayloadConsolidated,
       ),
     );
   }
@@ -800,6 +809,13 @@ function* evaluationChangeListenerSaga(): any {
     evalQueueBuffer(),
   );
 
+  yield call(evaluationLoopWithDebounce, evtActionChannel);
+}
+
+export function* evaluationLoopWithDebounce(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evtActionChannel: ActionPattern<Action<any>>,
+) {
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
@@ -834,6 +850,23 @@ function* evaluationChangeListenerSaga(): any {
       hasDebouncedHandleUpdate,
     } = action as unknown as BUFFERED_ACTION;
 
+    // when there are both debounced action updates evaluation and a regular evaluation
+    // we will convert that to a regular evaluation this should help in performance by
+    // not performing a debounced action updates evaluation
+    if (hasDebouncedHandleUpdate && hasBufferedAction) {
+      const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
+      yield call(evalAndLintingHandler, true, action, {
+        actionDataPayloadConsolidated,
+        shouldReplay: get(action, "payload.shouldReplay"),
+        forceEvaluation: shouldForceEval(action),
+        requiresLogging: shouldLog(action),
+        affectedJSObjects,
+      });
+
+      continue;
+    }
+
     if (hasDebouncedHandleUpdate) {
       yield call(
         evalWorker.request,
@@ -856,7 +889,6 @@ function* evaluationChangeListenerSaga(): any {
     }
   }
 }
-
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* evaluateActionSelectorFieldSaga(action: any) {

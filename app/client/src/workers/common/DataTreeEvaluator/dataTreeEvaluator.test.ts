@@ -379,6 +379,67 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
+  describe("actionsToUpdate affects setupTree", () => {
+    beforeEach(async () => {
+      await dataTreeEvaluator.setupFirstTree(
+        unEvalTree as unknown as DataTree,
+        configTree as unknown as ConfigTree,
+        {},
+        {
+          appId: "appId",
+          pageId: "pageId",
+          timestamp: "timestamp",
+          appMode: APP_MODE.PUBLISHED,
+          instanceId: "instanceId",
+        },
+      );
+      dataTreeEvaluator.evalAndValidateFirstTree();
+    });
+    describe("when unevalTree is the same", () => {
+      it("should not call the setupTree when there are actionsToUpdate", () => {
+        const spy = jest.spyOn(dataTreeEvaluator, "setupTree");
+
+        dataTreeEvaluator.setupUpdateTree(
+          unEvalTree as unknown as DataTree,
+          configTree as unknown as ConfigTree,
+          undefined,
+          undefined,
+          [],
+        );
+
+        expect(spy).not.toHaveBeenCalled();
+      });
+      it("should pass in actionsToUpdate as updatedValuePaths to the setupTree", () => {
+        const spy = jest.spyOn(dataTreeEvaluator, "setupTree");
+
+        dataTreeEvaluator.setupUpdateTree(
+          unEvalTree as unknown as DataTree,
+          configTree as unknown as ConfigTree,
+          undefined,
+          undefined,
+          [
+            {
+              entityName: "JSAction1",
+              dataPath: "data",
+              data: ["Some data"],
+            },
+          ],
+        );
+
+        expect(spy).toHaveBeenCalledWith(
+          expect.anything(),
+          [["JSAction1", "data"]],
+          {
+            dependenciesOfRemovedPaths: [],
+            pathsToSkipFromEval: ["JSAction1.data"],
+            removedPaths: [],
+            translatedDiffs: [],
+          },
+        );
+      });
+    });
+  });
+
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
