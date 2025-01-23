@@ -271,7 +271,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText:
               "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             propertyName: "disabledWhenInvalid",
-            label: "Disabled invalid forms",
+            label: "Disable when form is invalid",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

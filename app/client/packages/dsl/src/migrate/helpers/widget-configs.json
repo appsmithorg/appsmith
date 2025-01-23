@@ -3538,7 +3538,7 @@
           {
             "helpText": "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             "propertyName": "disabledWhenInvalid",
-            "label": "Disabled invalid forms",
+            "label": "Disable when form is invalid",
             "controlType": "SWITCH",
             "isJSConvertible": true,
             "isBindProperty": true,
@@ -46246,7 +46246,7 @@
           {
             "propertyName": "disabledWhenInvalid",
             "helpText": "Disables the submit button when the parent form has a required widget that is not filled",
-            "label": "Disabled invalid forms",
+            "label": "Disable when form is invalid",
             "controlType": "SWITCH",
             "isJSConvertible": true,
             "isBindProperty": true,
@@ -54519,7 +54519,7 @@
           {
             "helpText": "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             "propertyName": "disabledWhenInvalid",
-            "label": "Disabled invalid forms",
+            "label": "Disable when form is invalid",
             "controlType": "SWITCH",
             "isJSConvertible": true,
             "isBindProperty": true,
@@ -60399,7 +60399,7 @@
           {
             "helpText": "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             "propertyName": "disabledWhenInvalid",
-            "label": "Disabled invalid forms",
+            "label": "Disable when form is invalid",
             "controlType": "SWITCH",
             "isJSConvertible": true,
             "isBindProperty": true,
@@ -60705,7 +60705,7 @@
           {
             "helpText": "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             "propertyName": "disabledWhenInvalid",
-            "label": "Disabled invalid forms",
+            "label": "Disable when form is invalid",
             "controlType": "SWITCH",
             "isJSConvertible": true,
             "isBindProperty": true,

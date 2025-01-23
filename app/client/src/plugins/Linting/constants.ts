@@ -3,6 +3,7 @@ import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
 import { noFloatingPromisesLintRule } from "./customRules/no-floating-promises";
 import { getLintRulesBasedOnContext } from "ee/utils/lintRulesHelpers";
+import type { IDEType } from "ee/entities/IDE/constants";
 
 export enum LINTER_TYPE {
   "JSHINT" = "JSHint",
@@ -12,7 +13,7 @@ export enum LINTER_TYPE {
 export const lintOptions = (
   globalData: Record<string, boolean | "readonly" | "writable">,
   asyncFunctions: string[],
-  editorType: string,
+  ideType: IDEType,
   linterType: LINTER_TYPE = LINTER_TYPE.JSHINT,
 ) => {
   if (linterType === LINTER_TYPE.JSHINT) {
@@ -42,7 +43,7 @@ export const lintOptions = (
       loopfunc: true,
     } as LintOptions;
   } else {
-    const extraRules = getLintRulesBasedOnContext({ editorType });
+    const extraRules = getLintRulesBasedOnContext({ ideType });
 
     return {
       languageOptions: {

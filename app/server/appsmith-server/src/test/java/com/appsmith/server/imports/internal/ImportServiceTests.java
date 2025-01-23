@@ -1016,7 +1016,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList).isNotNull();
 
@@ -1138,22 +1138,14 @@ public class ImportServiceTests {
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
                         Mono.just(applicationImportDTO),
-                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()),
-                        themeRepository.findById(applicationImportDTO.getPublishedModeThemeId()))))
+                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()))))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1();
                     Theme editTheme = tuple.getT2();
-                    Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
                     assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getWorkspaceId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
-
-                    assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
-                    assertThat(publishedTheme.getWorkspaceId()).isNullOrEmpty();
-                    assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
@@ -1299,7 +1291,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationImportDTO -> {
                     assertThat(applicationImportDTO.getEditModeThemeId()).isNotEmpty();
-                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -1532,7 +1524,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 
@@ -1860,7 +1852,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
 
                     assertThat(pageList).hasSize(3);
 
@@ -4744,7 +4736,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
 
                     assertThat(pageList).hasSize(3);
 
@@ -5296,7 +5288,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 
