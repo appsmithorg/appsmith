@@ -101,9 +101,9 @@ import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_ME
 import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
 import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
-import static com.appsmith.external.git.constants.ce.GitConstantsCE.README_FILE_NAME;
-import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
-import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_STATUS;
+import static com.appsmith.external.git.constants.GitConstants.README_FILE_NAME;
+import static com.appsmith.external.git.constants.GitSpan.OPS_COMMIT;
+import static com.appsmith.external.git.constants.GitSpan.OPS_STATUS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
