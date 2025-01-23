@@ -62,8 +62,8 @@ export interface MatchEntityFromPath {
   baseApplicationId?: string;
   customSlug?: string;
   applicationSlug?: string;
-  packageId?: string;
-  moduleId?: string;
+  basePackageId?: string;
+  baseModuleId?: string;
   workflowId?: string;
   pageSlug?: string;
   baseApiId?: string;
