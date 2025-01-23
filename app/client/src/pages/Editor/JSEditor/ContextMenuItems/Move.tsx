@@ -36,7 +36,7 @@ export const Move = ({ disabled, jsAction }: Props) => {
           name: jsAction.name,
         }),
       ),
-    [dispatch, jsAction.id, jsAction.name, currentPageId],
+    [dispatch, jsAction.id, jsAction.name],
   );
 
   return (

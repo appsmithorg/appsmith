@@ -33,7 +33,9 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =
     useNameEditorState();
 
-  const validateName = useValidateEntityName({});
+  const validateName = useValidateEntityName({
+    entityName: item.title,
+  });
   const dispatch = useDispatch();
   const contextMenu = getJSContextMenuByIdeType(ideType, jsAction);
 

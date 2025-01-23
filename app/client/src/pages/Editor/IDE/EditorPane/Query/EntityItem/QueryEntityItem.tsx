@@ -44,7 +44,9 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =
     useNameEditorState();
 
-  const validateName = useValidateEntityName({});
+  const validateName = useValidateEntityName({
+    entityName: item.title,
+  });
   const dispatch = useDispatch();
   const contextMenu = getQueryContextMenuByIdeType(ideType, action);
 
