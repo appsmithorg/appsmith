@@ -28,7 +28,7 @@ export const Delete = ({ deleteJSAction, disabled, jsAction }: Props) => {
             name: jsAction?.name ?? "",
           }),
         );
-  }, [jsAction.id, jsAction.name, dispatch]);
+  }, [jsAction.id, jsAction.name, jsAction.isPublic, deleteJSAction, dispatch]);
 
   const handleSelect = useCallback(
     (e?: Event) => {
