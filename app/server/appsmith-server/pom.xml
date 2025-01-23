@@ -388,6 +388,21 @@
             <version>2.14.2.Final</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- R2DBC Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-postgresql</artifactId>
+            <version>0.8.13.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-pool</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
