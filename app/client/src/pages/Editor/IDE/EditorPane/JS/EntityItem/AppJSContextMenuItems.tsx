@@ -26,25 +26,25 @@ export function AppJSContextMenuItems(props: Props) {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canDeleteAction = getHasDeleteActionPermission(
+  const canDeleteJSAction = getHasDeleteActionPermission(
     isFeatureEnabled,
     jsActionPermissions,
   );
 
-  const canManageAction = getHasManageActionPermission(
+  const canManageJSAction = getHasManageActionPermission(
     isFeatureEnabled,
     jsActionPermissions,
   );
 
   return (
     <>
-      <Rename disabled={!canManageAction} jsAction={jsAction} />
+      <Rename disabled={!canManageJSAction} jsAction={jsAction} />
       <ShowBindings jsAction={jsAction} />
-      <ConvertToModule action={jsAction} />
-      <Copy disabled={!canManageAction} jsAction={jsAction} />
-      <Move disabled={!canManageAction} jsAction={jsAction} />
+      <ConvertToModule jsAction={jsAction} />
+      <Copy disabled={!canManageJSAction} jsAction={jsAction} />
+      <Move disabled={!canManageJSAction} jsAction={jsAction} />
       <MenuSeparator />
-      <Delete disabled={!canDeleteAction} jsAction={jsAction} />
+      <Delete disabled={!canDeleteJSAction} jsAction={jsAction} />
     </>
   );
 }

@@ -27,7 +27,7 @@ export const Move = ({ disabled, jsAction }: Props) => {
     return allPages.filter((page) => page.pageId !== currentPageId);
   }, [allPages, currentPageId]);
 
-  const moveActionToPage = useCallback(
+  const moveJSActionToPage = useCallback(
     (destinationPageId: string) =>
       dispatch(
         moveJSCollectionRequest({
@@ -51,7 +51,7 @@ export const Move = ({ disabled, jsAction }: Props) => {
               <PageMenuItem
                 disabled={disabled}
                 key={page.basePageId}
-                onSelect={moveActionToPage}
+                onSelect={moveJSActionToPage}
                 page={page}
               />
             );

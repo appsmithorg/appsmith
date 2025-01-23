@@ -20,7 +20,7 @@ export const ShowBindings = ({ disabled, jsAction }: Props) => {
       payload: {
         entityId: jsAction.id,
         entityName: jsAction.name,
-        entityType: ENTITY_TYPE.ACTION,
+        entityType: ENTITY_TYPE.JSACTION,
         show: true,
       },
     });
