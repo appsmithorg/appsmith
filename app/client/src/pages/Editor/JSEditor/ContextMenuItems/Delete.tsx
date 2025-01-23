@@ -12,19 +12,22 @@ import type { JSCollection } from "entities/JSCollection";
 interface Props {
   jsAction: JSCollection;
   disabled?: boolean;
+  deleteJSAction?: () => void;
 }
 
-export const Delete = ({ disabled, jsAction }: Props) => {
+export const Delete = ({ deleteJSAction, disabled, jsAction }: Props) => {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleDeleteClick = useCallback(() => {
-    dispatch(
-      deleteJSCollection({
-        id: jsAction?.id ?? "",
-        name: jsAction?.name ?? "",
-      }),
-    );
+    jsAction.isPublic && deleteJSAction
+      ? deleteJSAction()
+      : dispatch(
+          deleteJSCollection({
+            id: jsAction?.id ?? "",
+            name: jsAction?.name ?? "",
+          }),
+        );
   }, [jsAction.id, jsAction.name, dispatch]);
 
   const handleSelect = useCallback(
