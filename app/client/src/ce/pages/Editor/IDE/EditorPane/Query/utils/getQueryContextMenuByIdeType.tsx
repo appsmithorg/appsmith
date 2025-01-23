@@ -1,7 +1,7 @@
 import React from "react";
 import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 import type { Action } from "entities/Action";
-import { AppQueryContextMenuItems } from "pages/Editor/IDE/EditorPane/Query/ListItem/AppQueryContextMenuItems";
+import { AppQueryContextMenuItems } from "pages/Editor/IDE/EditorPane/Query/EntityItem/AppQueryContextMenuItems";
 import EntityContextMenu from "pages/Editor/IDE/EditorPane/components/EntityContextMenu";
 
 export const getQueryContextMenuByIdeType = (
