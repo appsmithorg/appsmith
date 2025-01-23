@@ -5,18 +5,7 @@ import { useBoolean } from "usehooks-ts";
 import { DismissibleTab } from "../..";
 import { EditableEntityName } from "..";
 
-interface EditableDismissibleTabProps {
-  dataTestId?: string;
-  icon: React.ReactNode;
-  isActive: boolean;
-  isEditable?: boolean;
-  isLoading: boolean;
-  name: string;
-  onClick: () => void;
-  onClose: () => void;
-  onNameSave: (name: string) => void;
-  validateName: (name: string) => string | null;
-}
+import type { EditableDismissibleTabProps } from "./EditableDismissibleTab.types";
 
 export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
   const {
