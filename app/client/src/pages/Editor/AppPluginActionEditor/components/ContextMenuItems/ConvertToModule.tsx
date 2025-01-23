@@ -20,12 +20,12 @@ export const ConvertToModule = ({ action }: Props) => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateModuleInstance = getHasCreateActionPermission(
+  const isCreatePermitted = getHasCreateActionPermission(
     isFeatureEnabled,
     pagePermissions,
   );
 
-  const canDeleteAction = getHasDeleteActionPermission(
+  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     action.userPermissions,
   );
@@ -36,8 +36,8 @@ export const ConvertToModule = ({ action }: Props) => {
   }
 
   const convertToModuleProps = {
-    canCreateModuleInstance: canCreateModuleInstance,
-    canDeleteEntity: canDeleteAction,
+    canCreateModuleInstance: isCreatePermitted,
+    canDeleteEntity: isDeletePermitted,
     entityId: action.id,
     moduleType: MODULE_TYPE.QUERY,
   };

@@ -19,19 +19,19 @@ export const ConvertToModule = ({ jsAction }: Props) => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateModuleInstance = getHasCreateActionPermission(
+  const isCreatePermitted = getHasCreateActionPermission(
     isFeatureEnabled,
     pagePermissions,
   );
 
-  const canDeleteJSAction = getHasDeleteActionPermission(
+  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     jsAction.userPermissions,
   );
 
   const convertToModuleProps = {
-    canCreateModuleInstance: canCreateModuleInstance,
-    canDeleteEntity: canDeleteJSAction,
+    canCreateModuleInstance: isCreatePermitted,
+    canDeleteEntity: isDeletePermitted,
     entityId: jsAction.id,
     moduleType: MODULE_TYPE.JS,
   };
