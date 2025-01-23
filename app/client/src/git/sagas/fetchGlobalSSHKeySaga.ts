@@ -6,9 +6,10 @@ import type {
 } from "git/requests/generateSSHKeyRequest.types";
 import type { FetchGlobalSSHKeyInitPayload } from "git/store/actions/fetchGlobalSSHKeyActions";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
 export function* fetchGlobalSSHKeySaga(
@@ -21,7 +22,15 @@ export function* fetchGlobalSSHKeySaga(
       keyType: action.payload.keyType,
     };
 
-    response = yield call(fetchGlobalSSHKeyRequest, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      fetchGlobalSSHKeyRequest,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
