@@ -23,8 +23,6 @@ const FieldWrapper = styled.div<{
   width: string;
 }>`
   position: relative;
-  min-width: ${(props) => (props?.width ? props.width : "380px")};
-  max-width: 545px;
   width: ${(props) => (props?.width ? props.width : "")};
 `;
 
@@ -193,6 +191,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         return "text";
     }
   }
+
   getControlType(): ControlType {
     return "INPUT_TEXT";
   }
