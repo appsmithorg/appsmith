@@ -8,8 +8,8 @@ import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { Plugin } from "entities/Plugin";
 
 interface Props {
@@ -25,8 +25,8 @@ const DatasourceInfo = ({
   plugin,
   showEditButton,
 }: Props) => {
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId } = useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId } = useParentEntityInfo(ideType);
 
   // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const editDatasource = () => {

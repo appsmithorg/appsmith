@@ -66,7 +66,7 @@ export const StateInspector = () => {
       </Flex>
       {selectedItem ? (
         <Flex
-          className="mp-mask"
+          className="as-mask"
           data-testid="t--selected-entity-details"
           flex="1"
           flexDirection="column"

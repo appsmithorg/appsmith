@@ -87,7 +87,6 @@ const ListQuery = () => {
                       item={file}
                       key={file.key}
                       parentEntityId={pageId}
-                      parentEntityType={ActionParentEntityType.PAGE}
                     />
                   );
                 })}

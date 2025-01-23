@@ -9,9 +9,9 @@ import { Button, Link, Option, Select, Text } from "@appsmith/ads";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import noop from "lodash/noop";
 import { useAppsmithEnterpriseUrl } from "git/hooks/useAppsmithEnterpriseUrl";
+import type { GitBranch } from "git/types";
 
 const Container = styled.div`
   padding-top: 8px;
@@ -45,7 +45,7 @@ const StyledLink = styled(Link)`
 `;
 
 interface DefaultBranchViewProps {
-  branches: FetchBranchesResponseData | null;
+  branches: GitBranch[] | null;
   isGitProtectedFeatureLicensed: boolean;
   updateDefaultBranch?: (branchName: string) => void;
 }

@@ -80,7 +80,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
 
   return (
     <Select
-      data-testId={props.testId}
+      data-testid={props.testId}
       defaultValue={props.isMultiSelect ? selectedOption : selectedOption[0]}
       isDisabled={props.disabled}
       isMultiSelect={props.isMultiSelect}

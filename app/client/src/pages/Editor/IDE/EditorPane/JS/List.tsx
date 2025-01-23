@@ -70,57 +70,55 @@ const ListJSObjects = () => {
           showAddButton={canCreateActions}
         />
       ) : null}
-      <FilesContextProvider
-        canCreateActions={canCreateActions}
-        editorId={applicationId}
-        parentEntityId={pageId}
-        parentEntityType={ActionParentEntityType.PAGE}
+
+      <Flex
+        data-testid="t--ide-list"
+        flexDirection="column"
+        gap="spaces-4"
+        overflowY="auto"
       >
-        <Flex
-          data-testid="t--ide-list"
-          flexDirection="column"
-          gap="spaces-4"
-          overflowY="auto"
-        >
-          {filteredItemGroups.map(({ group, items }) => {
-            return (
-              <Flex flexDirection={"column"} key={group}>
-                {group !== "NA" ? (
-                  <Flex py="spaces-1">
-                    <Text
-                      className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                      kind="body-s"
-                    >
-                      {group}
-                    </Text>
-                  </Flex>
-                ) : null}
-                <>
-                  {items.map((item) => {
-                    return (
-                      <JSListItem
-                        isActive={item.key === activeActionBaseId}
-                        item={item}
-                        key={item.key}
-                        parentEntityId={pageId}
-                        parentEntityType={ActionParentEntityType.PAGE}
-                      />
-                    );
-                  })}
-                </>
-              </Flex>
-            );
-          })}
-          {filteredItemGroups.length === 0 && searchTerm !== "" ? (
-            <NoSearchResults
-              text={createMessage(
-                EDITOR_PANE_TEXTS.empty_search_result,
-                createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),
-              )}
-            />
-          ) : null}
-        </Flex>
-      </FilesContextProvider>
+        {filteredItemGroups.map(({ group, items }) => {
+          return (
+            <Flex flexDirection={"column"} key={group}>
+              {group !== "NA" ? (
+                <Flex py="spaces-1">
+                  <Text
+                    className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+                    kind="body-s"
+                  >
+                    {group}
+                  </Text>
+                </Flex>
+              ) : null}
+              <FilesContextProvider
+                canCreateActions={canCreateActions}
+                editorId={applicationId}
+                parentEntityId={pageId}
+                parentEntityType={ActionParentEntityType.PAGE}
+              >
+                {items.map((item) => {
+                  return (
+                    <JSListItem
+                      isActive={item.key === activeActionBaseId}
+                      item={item}
+                      key={item.key}
+                      parentEntityId={pageId}
+                    />
+                  );
+                })}
+              </FilesContextProvider>
+            </Flex>
+          );
+        })}
+        {filteredItemGroups.length === 0 && searchTerm !== "" ? (
+          <NoSearchResults
+            text={createMessage(
+              EDITOR_PANE_TEXTS.empty_search_result,
+              createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject),
+            )}
+          />
+        ) : null}
+      </Flex>
     </JSContainer>
   );
 };

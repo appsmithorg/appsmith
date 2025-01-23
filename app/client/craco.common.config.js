@@ -4,19 +4,6 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
-  devServer: {
-    client: {
-      webSocketURL: {
-        hostname: "127.0.0.1",
-        pathname: "/ws",
-        port: 3000,
-        protocol: "ws",
-      },
-    },
-  },
-  babel: {
-    plugins: ["babel-plugin-lodash"],
-  },
   eslint: {
     enable: false,
   },

@@ -211,6 +211,7 @@ export interface ExternalSaasDSAuthentication extends DatasourceAuthentication {
   integrationId: string;
   credentialId: string;
   integrationType: string;
+  providerData?: { key: string; value: string | boolean | number }[];
 }
 
 export enum AuthenticationType {

@@ -125,7 +125,6 @@ import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
@@ -1196,12 +1195,7 @@ function* handleCreateNewQueryFromActionCreator(
   yield put(setShowQueryCreateNewModal(true));
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
-  // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Wait for a query to be created
   const createdQuery: ReduxAction<BaseAction> = yield take(

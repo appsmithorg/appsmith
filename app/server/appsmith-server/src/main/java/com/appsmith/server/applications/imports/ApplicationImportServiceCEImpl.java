@@ -53,6 +53,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.PUBLISHED;
+import static com.appsmith.server.constants.FieldName.UNPUBLISHED;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 import static org.springframework.util.StringUtils.hasText;
@@ -361,11 +363,18 @@ public class ApplicationImportServiceCEImpl
                     application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
                     application.setIsPublic(null);
                     application.setPolicies(null);
-                    Map<String, List<ApplicationPage>> mapOfApplicationPageList = Map.of(
-                            FieldName.PUBLISHED,
-                            application.getPublishedPages(),
-                            FieldName.UNPUBLISHED,
-                            application.getPages());
+
+                    List<ApplicationPage> unPublishedPages = CollectionUtils.isEmpty(application.getPages())
+                            ? new ArrayList<>()
+                            : application.getPages();
+
+                    List<ApplicationPage> publishedPages = CollectionUtils.isEmpty(application.getPublishedPages())
+                            ? new ArrayList<>()
+                            : application.getPublishedPages();
+
+                    Map<String, List<ApplicationPage>> mapOfApplicationPageList =
+                            Map.of(PUBLISHED, publishedPages, UNPUBLISHED, unPublishedPages);
+
                     mappedImportableResourcesDTO
                             .getResourceStoreFromArtifactExchangeJson()
                             .putAll(mapOfApplicationPageList);

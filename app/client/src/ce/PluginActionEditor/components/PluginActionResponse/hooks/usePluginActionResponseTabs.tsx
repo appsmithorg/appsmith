@@ -112,6 +112,7 @@ function usePluginActionResponseTabs() {
   if (
     [
       PluginType.DB,
+      PluginType.AI,
       PluginType.REMOTE,
       PluginType.SAAS,
       PluginType.INTERNAL,
