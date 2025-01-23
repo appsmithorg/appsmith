@@ -7,8 +7,10 @@ import {
   useRef,
   type RefObject,
 } from "react";
+
 import { usePrevious } from "@mantine/hooks";
 import { useEventCallback, useEventListener } from "usehooks-ts";
+
 import { normaliseName } from "./utils";
 
 export function useEditableText(

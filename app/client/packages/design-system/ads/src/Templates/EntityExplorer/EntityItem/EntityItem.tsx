@@ -5,7 +5,7 @@ import { Tooltip } from "../../../Tooltip";
 
 import type { EntityItemProps } from "./EntityItem.types";
 import { EntityEditableName } from "./EntityItem.styles";
-import { useEditableText } from "../Editable";
+import { useEditableText } from "../../../__hooks__/useEditableText";
 import clx from "classnames";
 
 export const EntityItem = (props: EntityItemProps) => {
