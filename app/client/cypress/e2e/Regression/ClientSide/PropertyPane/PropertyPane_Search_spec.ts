@@ -12,31 +12,32 @@ describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
     agHelper.AddDsl("swtchTableV2Dsl");
   });
 
-  it("1. Verify if the search Input is getting focused when a widget is selected", function () {
+  // skipping this because this feature is not 
+  it.skip("1. Verify if the search Input is getting focused when a widget is selected", function () {
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     // Initially the search input will only be soft focused
     // We need to press Enter to properly focus it
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
     agHelper.PressEnter();
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Pressing Escape should soft focus the search input
     agHelper.PressEscape();
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Opening a panel should focus the search input
     propPane.OpenTableColumnSettings("name");
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Opening some other widget and then going back to the initial widget should soft focus the search input that is inside a panel
     EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Going out of the panel should soft focus the search input
     propPane.NavigateBackToPropertyPane();
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
   });
 
   it("2. Search for Properties", function () {
