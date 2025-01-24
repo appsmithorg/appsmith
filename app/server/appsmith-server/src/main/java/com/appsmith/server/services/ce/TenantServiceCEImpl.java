@@ -194,12 +194,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     log.info("Evicting the default tenant from cache and fetching from the database!");
                     return cacheableRepositoryHelper
                             .evictCachedTenant(tenantId)
-                            .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
-                                if (tenant.getTenantConfiguration() == null) {
-                                    tenant.setTenantConfiguration(new TenantConfiguration());
-                                }
-                                return tenant;
-                            }))
+                            .then(cacheableRepositoryHelper
+                                    .fetchDefaultTenant(tenantId)
+                                    .map(tenant -> {
+                                        if (tenant.getTenantConfiguration() == null) {
+                                            tenant.setTenantConfiguration(new TenantConfiguration());
+                                        }
+                                        return tenant;
+                                    }))
                             .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
                             .flatMap(tenant -> repository
