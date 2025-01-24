@@ -17,12 +17,12 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Nudge } from "IDE/Components/Nudge";
 
 interface Props {
-  showNudge: boolean;
-  dismissNudge: () => void;
+  showNudge?: boolean;
+  dismissNudge?: () => void;
 }
 
 export const ScreenModeToggle = (props: Props) => {
-  const { dismissNudge, showNudge } = props;
+  const { dismissNudge, showNudge = false } = props;
   const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
   const isAnimatedIDEEnabled = useSelector((state: AppState) => {
@@ -53,7 +53,7 @@ export const ScreenModeToggle = (props: Props) => {
       to: EditorViewMode.SplitScreen,
     });
 
-    dismissNudge();
+    dismissNudge?.();
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
@@ -98,7 +98,7 @@ export const ScreenModeToggle = (props: Props) => {
     );
   }
 
-  if (showNudge) {
+  if (showNudge && dismissNudge) {
     return (
       <Nudge
         align="center"
