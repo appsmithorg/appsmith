@@ -7,10 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import {
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  CUSTOM_LOADING_STATE_ENABLED,
-} from "../../constants";
+import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -513,7 +510,6 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-        hidden: () => !Widget.getFeatureFlag(CUSTOM_LOADING_STATE_ENABLED),
       },
       {
         propertyName: "customIsLoadingValue",
