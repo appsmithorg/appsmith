@@ -53,7 +53,9 @@ export const ScreenModeToggle = (props: Props) => {
       to: EditorViewMode.SplitScreen,
     });
 
-    dismissNudge?.();
+    if (dismissNudge) {
+      dismissNudge();
+    }
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
