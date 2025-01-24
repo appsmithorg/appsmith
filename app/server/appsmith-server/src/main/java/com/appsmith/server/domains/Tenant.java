@@ -21,6 +21,8 @@ import java.io.Serializable;
 @FieldNameConstants
 public class Tenant extends BaseDomain implements Serializable {
 
+    // TODO : When changing tenant object, update the serialization version number to ensure that in a multi pod
+    // deployment new pods only read the new tenant object and not the old one from redis cache.
     @Serial
     private static final long serialVersionUID = 1459916000401322518L;
 
