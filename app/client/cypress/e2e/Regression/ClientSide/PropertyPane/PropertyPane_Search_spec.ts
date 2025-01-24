@@ -41,6 +41,7 @@ describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
   });
 
   it("2. Search for Properties", function () {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Search for a property inside CONTENT tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
