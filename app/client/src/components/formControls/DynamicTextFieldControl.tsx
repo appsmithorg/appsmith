@@ -23,7 +23,7 @@ import { getSqlEditorModeFromPluginName } from "components/editorComponents/Code
 import { Flex } from "@appsmith/ads";
 
 const Wrapper = styled.div`
-  min-width: 380px;
+  min-width: 260px;
   width: 100%;
   min-height: 200px;
   height: 100%;
@@ -55,7 +55,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      isActionRedesignEnabled,
       placeholderText,
       pluginName,
       responseType,
@@ -78,9 +77,7 @@ class DynamicTextControl extends BaseControl<
             mode={mode}
             name={this.props.configProperty}
             placeholder={placeholderText}
-            showLineNumbers={
-              isActionRedesignEnabled || this.props.showLineNumbers
-            }
+            showLineNumbers
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
@@ -98,7 +95,6 @@ export interface DynamicTextFieldProps extends ControlProps {
   evaluationSubstitutionType: EvaluationSubstitutionType;
   mutedHinting?: boolean;
   pluginName: string;
-  isActionRedesignEnabled: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {

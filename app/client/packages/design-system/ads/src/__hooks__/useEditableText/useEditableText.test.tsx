@@ -1,8 +1,9 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks";
-import { useEditableText } from "./useEditableText";
 import { fireEvent, render } from "@testing-library/react";
-import { Text } from "../../..";
+import { Text } from "../..";
+
+import { useEditableText } from "./useEditableText";
 
 describe("useEditableText", () => {
   const mockExitEditing = jest.fn();
