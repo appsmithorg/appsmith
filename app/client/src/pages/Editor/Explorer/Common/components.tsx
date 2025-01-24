@@ -3,6 +3,10 @@ import Entity, { EntityClassNames } from "../Entity";
 
 export const MIN_PAGES_HEIGHT = 60;
 
+export const RelativeContainer = styled.div`
+  position: relative;
+`;
+
 export const StyledEntity = styled(Entity)<{ entitySize?: number }>`
   &.page.fullWidth {
     width: 100%;
