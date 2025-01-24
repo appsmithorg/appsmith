@@ -186,7 +186,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
-                    log.error("Error fetching default tenant from redis!", e);
+                    e.printStackTrace();
+                    log.error("Error fetching default tenant from redis : {}", e.getMessage());
                     // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
                     // the db. This handles the case for deserialization errors. This prevents the entire instance to
                     // go down if tenant cache is corrupted.
