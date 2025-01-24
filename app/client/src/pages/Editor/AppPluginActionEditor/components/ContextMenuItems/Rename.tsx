@@ -1,23 +1,24 @@
 import React, { useCallback } from "react";
 import { MenuItem } from "@appsmith/ads";
+import type { Action } from "entities/Action";
 import { useDispatch } from "react-redux";
-import { setRenameEntity } from "actions/ideActions";
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { CONTEXT_RENAME, createMessage } from "ee/constants/messages";
 
 interface Props {
+  action: Action;
   disabled?: boolean;
-  entityId: string;
 }
 
-export const RenameMenuItem = ({ disabled, entityId }: Props) => {
+export const Rename = ({ action, disabled }: Props) => {
   const dispatch = useDispatch();
 
   const setRename = useCallback(() => {
     // We add a delay to avoid having the focus stuck in the menu trigger
     setTimeout(() => {
-      dispatch(setRenameEntity(entityId));
+      dispatch(initExplorerEntityNameEdit(action.id));
     }, 100);
-  }, [dispatch, entityId]);
+  }, [dispatch, action.id]);
 
   return (
     <MenuItem
