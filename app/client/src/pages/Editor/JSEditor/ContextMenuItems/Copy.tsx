@@ -2,7 +2,7 @@ import React from "react";
 import { MenuSub, MenuSubContent, MenuSubTrigger } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getPageList } from "selectors/editorSelectors";
-import { PageMenuItem } from "pages/Editor/AppPluginActionEditor/components/ContextMenuItems/PageMenuItem";
+import { PageMenuItem } from "./PageMenuItem";
 import { useCallback } from "react";
 import { CONTEXT_COPY, createMessage } from "ee/constants/messages";
 import { copyJSCollectionRequest } from "actions/jsActionActions";

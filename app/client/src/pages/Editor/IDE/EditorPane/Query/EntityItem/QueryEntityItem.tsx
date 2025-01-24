@@ -84,21 +84,33 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     });
   }, [url, location.pathname, action, datasource, pluginGroups]);
 
+  const nameEditorConfig = useMemo(() => {
+    return {
+      canEdit: canManageAction,
+      isEditing: editingEntity === action.id,
+      isLoading: updatingEntity === action.id,
+      onEditComplete: exitEditMode,
+      onNameSave: (newName: string) =>
+        dispatch(saveActionNameBasedOnIdeType(action.id, newName, ideType)),
+      validateName: (newName: string) => validateName(newName, item.title),
+    };
+  }, [
+    canManageAction,
+    editingEntity,
+    exitEditMode,
+    ideType,
+    item.title,
+    action.id,
+    updatingEntity,
+  ]);
+
   return (
     <EntityItem
       className="action t--action-entity"
       id={action.id}
       isSelected={activeActionBaseId === action.id}
       key={action.id}
-      nameEditorConfig={{
-        canEdit: canManageAction,
-        isEditing: editingEntity === action.id,
-        isLoading: updatingEntity === action.id,
-        onEditComplete: exitEditMode,
-        onNameSave: (newName: string) =>
-          dispatch(saveActionNameBasedOnIdeType(action.id, newName, ideType)),
-        validateName: (newName) => validateName(newName, item.title),
-      }}
+      nameEditorConfig={nameEditorConfig}
       onClick={switchToAction}
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}

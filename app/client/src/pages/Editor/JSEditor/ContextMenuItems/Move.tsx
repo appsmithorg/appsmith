@@ -9,7 +9,7 @@ import {
   MenuSubTrigger,
 } from "@appsmith/ads";
 import { CONTEXT_MOVE, createMessage } from "ee/constants/messages";
-import { PageMenuItem } from "pages/Editor/AppPluginActionEditor/components/ContextMenuItems/PageMenuItem";
+import { PageMenuItem } from "./PageMenuItem";
 import { moveJSCollectionRequest } from "actions/jsActionActions";
 import type { JSCollection } from "entities/JSCollection";
 

@@ -11,9 +11,9 @@ export const getJSContextMenuByIdeType = (
   switch (ideType) {
     case IDE_TYPE.App: {
       return (
-        <EntityContextMenu
-          menuContent={<AppJSContextMenuItems jsAction={jsAction} />}
-        />
+        <EntityContextMenu>
+          <AppJSContextMenuItems jsAction={jsAction} />
+        </EntityContextMenu>
       );
     }
   }

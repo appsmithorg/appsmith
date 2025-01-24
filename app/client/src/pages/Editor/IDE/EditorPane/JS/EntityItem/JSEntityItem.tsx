@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { EntityItem } from "@appsmith/ads";
 import type { EntityItem as EntityItemProps } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
@@ -68,23 +68,36 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
     }
   }, [parentEntityId, jsAction.baseId, jsAction.name, location.pathname]);
 
+  const nameEditorConfig = useMemo(() => {
+    return {
+      canEdit: canManageJSAction && !Boolean(jsAction.isMainJSCollection),
+      isEditing: editingEntity === jsAction.id,
+      isLoading: updatingEntity === jsAction.id,
+      onEditComplete: exitEditMode,
+      onNameSave: (newName: string) =>
+        dispatch(saveJSObjectNameBasedOnIdeType(jsAction.id, newName, ideType)),
+      validateName: (newName: string) => validateName(newName, item.title),
+    };
+  }, [
+    canManageJSAction,
+    editingEntity,
+    exitEditMode,
+    ideType,
+    item.title,
+    jsAction.id,
+    jsAction.isMainJSCollection,
+    dispatch,
+    updatingEntity,
+    validateName,
+  ]);
+
   return (
     <EntityItem
       className="t--jsaction"
       id={jsAction.id}
       isSelected={activeActionBaseId === jsAction.id}
       key={jsAction.id}
-      nameEditorConfig={{
-        canEdit: canManageJSAction && !Boolean(jsAction?.isMainJSCollection),
-        isEditing: editingEntity === jsAction.id,
-        isLoading: updatingEntity === jsAction.id,
-        onEditComplete: exitEditMode,
-        onNameSave: (newName: string) =>
-          dispatch(
-            saveJSObjectNameBasedOnIdeType(jsAction.id, newName, ideType),
-          ),
-        validateName: (newName) => validateName(newName, item.title),
-      }}
+      nameEditorConfig={nameEditorConfig}
       onClick={navigateToJSCollection}
       onDoubleClick={() => enterEditMode(jsAction.id)}
       rightControl={contextMenu}

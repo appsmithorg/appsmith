@@ -84,7 +84,7 @@ const ListJSObjects = () => {
           <EntityGroupsList
             groups={filteredItemGroups.map(({ group, items }) => {
               return {
-                groupTitle: group === "NA" ? "Local" : group,
+                groupTitle: group === "NA" ? "" : group,
                 items: items,
                 className: "",
                 renderList: (item: EntityItem) => {

@@ -1,5 +1,4 @@
 import React from "react";
-import JSEditorContextMenu from "./JSEditorContextMenu";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
@@ -10,6 +9,7 @@ import type { JSCollection } from "entities/JSCollection";
 import { Copy, Delete, Move, Prettify } from "./ContextMenuItems";
 import { RenameMenuItem } from "IDE";
 import { MenuSeparator } from "@appsmith/ads";
+import EntityContextMenu from "../IDE/EditorPane/components/EntityContextMenu";
 
 interface AppJSEditorContextMenuProps {
   jsCollection: JSCollection;
@@ -29,7 +29,7 @@ export function AppJSEditorContextMenu({
   );
 
   return (
-    <JSEditorContextMenu>
+    <EntityContextMenu>
       <RenameMenuItem
         disabled={!isChangePermitted}
         entityId={jsCollection.id}
@@ -39,7 +39,7 @@ export function AppJSEditorContextMenu({
       <Prettify disabled={!isChangePermitted} jsAction={jsCollection} />
       <MenuSeparator />
       <Delete disabled={!isDeletePermitted} jsAction={jsCollection} />
-    </JSEditorContextMenu>
+    </EntityContextMenu>
   );
 }
 

@@ -8,7 +8,7 @@ import {
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 interface Props {
-  menuContent?: React.ReactNode[] | React.ReactNode;
+  children?: React.ReactNode[] | React.ReactNode;
 }
 
 const EntityContextMenu = (props: Props) => {
@@ -26,6 +26,7 @@ const EntityContextMenu = (props: Props) => {
           >
             <Button
               className={EntityClassNames.CONTEXT_MENU}
+              data-testid="t--more-action-trigger"
               isIconButton
               kind="tertiary"
               startIcon="more-2-fill"
@@ -40,7 +41,7 @@ const EntityContextMenu = (props: Props) => {
         style={{ maxHeight: "unset" }}
         width="220px"
       >
-        {props.menuContent}
+        {props.children}
       </MenuContent>
     </Menu>
   );
