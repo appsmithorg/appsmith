@@ -53,9 +53,6 @@
             }
           ],
           "initialValue": "https://www.googleapis.com/auth/drive.file",
-          "customStyles": {
-            "width": "340px"
-          },
           "hidden": {
             "flagValue": "release_gs_all_sheets_options_enabled",
             "comparison": "FEATURE_FLAG",
@@ -73,9 +70,6 @@
             }
           ],
           "initialValue": "https://www.googleapis.com/auth/drive.file",
-          "customStyles": {
-            "width": "340px"
-          },
           "hidden": {
             "flagValue": "release_gs_all_sheets_options_enabled",
             "comparison": "FEATURE_FLAG",

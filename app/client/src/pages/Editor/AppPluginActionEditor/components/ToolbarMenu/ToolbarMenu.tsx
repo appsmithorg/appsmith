@@ -10,10 +10,7 @@ import {
   usePluginActionContext,
   DocsMenuItem as Docs,
 } from "PluginActionEditor";
-import { ConvertToModuleCTA } from "../ConvertToModule";
-import { Move } from "./Move";
-import { Copy } from "./Copy";
-import { Delete } from "./Delete";
+import { ConvertToModule, Copy, Delete, Move } from "../ContextMenuItems";
 import { RenameMenuItem } from "IDE";
 
 export const ToolbarMenu = () => {
@@ -32,12 +29,12 @@ export const ToolbarMenu = () => {
   return (
     <>
       <RenameMenuItem disabled={!isChangePermitted} entityId={action.id} />
-      <ConvertToModuleCTA />
-      <Copy disabled={!isChangePermitted} />
-      <Move disabled={!isChangePermitted} />
+      <ConvertToModule action={action} />
+      <Copy action={action} disabled={!isChangePermitted} />
+      <Move action={action} disabled={!isChangePermitted} />
       <Docs />
       <MenuSeparator />
-      <Delete disabled={!isDeletePermitted} />
+      <Delete action={action} disabled={!isDeletePermitted} />
     </>
   );
 };

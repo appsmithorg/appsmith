@@ -70,7 +70,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             // appending to existing app, theme should not change
             return Mono.empty().then();
         }
-
         return importableArtifactMono.flatMap(importableArtifact -> {
             Mono<Theme> editModeThemeMono = updateExistingAppThemeFromJSON(
                     importableArtifact,
@@ -82,6 +81,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                     .flatMap(editModeTheme -> {
                         String editModeThemeId = editModeTheme.getId();
                         importableArtifact.setUnpublishedThemeId(editModeThemeId);
+
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
 
