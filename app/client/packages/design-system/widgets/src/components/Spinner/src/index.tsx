@@ -1,10 +1,14 @@
 import React from "react";
 
-import { Icon } from "../../Icon";
+import { Icon, type IconProps } from "../../Icon";
 import styles from "./styles.module.css";
 
-const Spinner = () => {
-  return <Icon className={styles.spinner} name="loader" size="xSmall" />;
+interface SpinnerProps {
+  size?: Exclude<IconProps["size"], "large">;
+}
+
+const Spinner = ({ size = "medium" }: SpinnerProps) => {
+  return <Icon className={styles.spinner} name="loader" size={size} />;
 };
 
 Spinner.displayName = "Spinner";

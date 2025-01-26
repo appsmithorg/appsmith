@@ -1062,6 +1062,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
+  const isInternal = pluginType === PluginType.INTERNAL;
   const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
 
   if (!parentEntityId) return;
@@ -1080,7 +1081,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
     );
   }
 
-  if (isQuery) {
+  if (isQuery || isInternal) {
     history.push(
       queryEditorIdURL({
         baseParentEntityId,

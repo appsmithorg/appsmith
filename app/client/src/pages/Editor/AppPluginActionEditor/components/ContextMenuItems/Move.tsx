@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { usePluginActionContext } from "PluginActionEditor";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import React, { useCallback, useMemo } from "react";
@@ -12,14 +11,15 @@ import {
 } from "@appsmith/ads";
 import { CONTEXT_MOVE, createMessage } from "ee/constants/messages";
 import { PageMenuItem } from "./PageMenuItem";
+import type { Action } from "entities/Action";
 
 interface Props {
+  action: Action;
   disabled?: boolean;
 }
 
-export const Move = ({ disabled }: Props) => {
+export const Move = ({ action, disabled }: Props) => {
   const dispatch = useDispatch();
-  const { action } = usePluginActionContext();
 
   const currentPageId = useSelector(getCurrentPageId);
   const allPages = useSelector(getPageList);
@@ -42,14 +42,15 @@ export const Move = ({ disabled }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger disabled={disabled} startIcon="swap-horizontal">
+      <MenuSubTrigger startIcon="swap-horizontal">
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
-      <MenuSubContent>
+      <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
         {menuPages.length ? (
           menuPages.map((page) => {
             return (
               <PageMenuItem
+                disabled={disabled}
                 key={page.basePageId}
                 onSelect={moveActionToPage}
                 page={page}

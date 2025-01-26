@@ -10,6 +10,7 @@ import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -19,6 +20,11 @@ import java.io.Serializable;
 @Document
 @FieldNameConstants
 public class Tenant extends BaseDomain implements Serializable {
+
+    // When changing tenant object, update the serialization version number to ensure that in a multi pod
+    // deployment, new pods only read the new tenant object and not the old one from redis cache.
+    @Serial
+    private static final long serialVersionUID = 1459916000401322518L;
 
     @Unique String slug;
 

@@ -34,7 +34,7 @@ export interface InlineButtonsProps<T>
   /** Size of buttons
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: Exclude<keyof typeof SIZES, "large">;
 }
 
 export interface InlineButtonsItem
