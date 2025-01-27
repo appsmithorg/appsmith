@@ -245,22 +245,38 @@ jobs:
             fi
           }
 
+          # Function to convert kB to GB with 2 decimal places
+          convert_to_gb() {
+            local kb=$1
+            if [ "$kb" = "0" ]; then
+              echo "0.00"
+            else
+              echo "scale=2; $kb / 1048576" | bc
+            fi
+          }
+
           # Get peak memory for each stage
           PEAK_INSTALL=$(get_peak_memory install_mem.txt)
           PEAK_TYPECHECK=$(get_peak_memory typecheck_mem.txt)
           PEAK_BUILD=$(get_peak_memory build_mem.txt)
+
+          # Convert to GB
+          PEAK_INSTALL_GB=$(convert_to_gb $PEAK_INSTALL)
+          PEAK_TYPECHECK_GB=$(convert_to_gb $PEAK_TYPECHECK)
+          PEAK_BUILD_GB=$(convert_to_gb $PEAK_BUILD)
 
           # Find overall peak (excluding zero values)
           echo "$PEAK_INSTALL" > memory_stats/all_peaks.txt
           echo "$PEAK_TYPECHECK" >> memory_stats/all_peaks.txt
           echo "$PEAK_BUILD" >> memory_stats/all_peaks.txt
           OVERALL_PEAK=$(sort -n memory_stats/all_peaks.txt | grep -v "^0$" | tail -1 || echo "0")
+          OVERALL_PEAK_GB=$(convert_to_gb $OVERALL_PEAK)
 
           # Create summary
-          echo "Install Dependencies Peak: $PEAK_INSTALL kB" >> memory_stats/memory_summary.txt
-          echo "Type Checking Peak: $PEAK_TYPECHECK kB" >> memory_stats/memory_summary.txt
-          echo "Build Peak: $PEAK_BUILD kB" >> memory_stats/memory_summary.txt
-          echo "Overall Peak: $OVERALL_PEAK kB" >> memory_stats/memory_summary.txt
+          echo "Install Dependencies Peak: $PEAK_INSTALL_GB GB ($PEAK_INSTALL kB)" >> memory_stats/memory_summary.txt
+          echo "Type Checking Peak: $PEAK_TYPECHECK_GB GB ($PEAK_TYPECHECK kB)" >> memory_stats/memory_summary.txt
+          echo "Build Peak: $PEAK_BUILD_GB GB ($PEAK_BUILD kB)" >> memory_stats/memory_summary.txt
+          echo "Overall Peak: $OVERALL_PEAK_GB GB ($OVERALL_PEAK kB)" >> memory_stats/memory_summary.txt
 
           cat memory_stats/memory_summary.txt
 
