@@ -8,5 +8,5 @@ export interface SelectProps
    *
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
+  size?: Exclude<keyof typeof SIZES, "xSmall" | "large">;
 }

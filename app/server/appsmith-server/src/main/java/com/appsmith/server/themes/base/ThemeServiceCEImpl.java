@@ -263,12 +263,18 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
                                                     editModeTheme.getId(),
                                                     applicationPermission.getEditPermission()))
                                     .thenReturn(editModeTheme);
-                        } else { // a customized theme is set as edit mode theme, copy that theme for published mode
-                            return saveThemeForApplication(
-                                    application.getPublishedModeThemeId(),
-                                    editModeTheme,
-                                    application,
-                                    ApplicationMode.PUBLISHED);
+                        } else {
+                            // Unlike other entities themes doesn't have a concept of published and unpublished,
+                            // hence while publishing the themes, contents from unpublished needs to be copied to
+                            // published theme and for that the theme needs to exist.
+                            // In cases of import and new application published theme should be null,
+                            // hence the need of default themeId
+                            Mono<String> publishedThemeIdMono = Mono.justOrEmpty(application.getPublishedModeThemeId())
+                                    .switchIfEmpty(getDefaultThemeId());
+
+                            // a customized theme is set as edit mode theme, copy that theme for published mode
+                            return publishedThemeIdMono.flatMap(publishedThemeId -> saveThemeForApplication(
+                                    publishedThemeId, editModeTheme, application, ApplicationMode.PUBLISHED));
                         }
                     });
                 });

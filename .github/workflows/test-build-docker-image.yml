@@ -4,9 +4,9 @@ run-name: >
   ${{ github.workflow }} with TED:${{ inputs.ted_tag || 'latest' }}
 
 on:
-  # This workflow will run everyday at 7:00AM, 1:00PM IST on weekdays
+  # This workflow will run everyday at 7:00AM, 11:00AM and 3:00PM IST on weekdays
   schedule:
-    - cron: "30 1-12/6 * * 1-5"
+    - cron: "30 1-11/4 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
     inputs:

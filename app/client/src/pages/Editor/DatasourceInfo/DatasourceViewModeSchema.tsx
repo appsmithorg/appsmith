@@ -47,11 +47,11 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface Props {
   datasource: Datasource;
@@ -82,7 +82,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
@@ -93,7 +93,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const applicationId: string = useSelector(getCurrentApplicationId);

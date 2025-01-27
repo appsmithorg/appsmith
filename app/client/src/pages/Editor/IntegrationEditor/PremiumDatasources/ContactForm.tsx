@@ -84,6 +84,7 @@ const PremiumDatasourceContactForm = (
         <Text renderAs="p">
           {getContactFormModalDescription(
             props.email || "",
+            props.integrationName,
             !isFreePlanInstance,
           )}
         </Text>

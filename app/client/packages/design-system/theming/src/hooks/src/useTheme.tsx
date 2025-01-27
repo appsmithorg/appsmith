@@ -1,16 +1,14 @@
 import Color from "colorjs.io";
 import { useMemo } from "react";
 import { TokensAccessor, defaultTokens, tokensConfigs } from "../../token";
-import {
-  useSizing,
-  useSpacing,
-  useTypography,
-  useIconSizing,
-  useIconDensity,
-} from "./";
 
 import type { ColorMode } from "../../color";
 import type { TokenSource } from "../../token";
+import { useSizing } from "./useSizing";
+import { useSpacing } from "./useSpacing";
+import { useTypography } from "./useTypography";
+import { useIconSizing } from "./useIconSizing";
+import { useIconDensity } from "./useIconDensity";
 
 const tokensAccessor = new TokensAccessor({
   ...(defaultTokens as TokenSource),

@@ -5,23 +5,31 @@ const common = require("./craco.common.config.js");
 module.exports = merge(common, {
   devServer: {
     client: {
+      webSocketURL: {
+        hostname: "127.0.0.1",
+        pathname: "/ws",
+        port: 3000,
+        protocol: "ws",
+      },
       overlay: {
         warnings: false,
         errors: false,
       },
     },
   },
-  optimization: {
-    minimize: false,
-  },
-  cache: {
-    type: "filesystem",
-    memoryCacheUnaffected: true,
-  },
-  experiments: {
-    cacheUnaffected: true,
-  },
   webpack: {
+    configure: {
+      optimization: {
+        minimize: false,
+      },
+      cache: {
+        type: "filesystem",
+        memoryCacheUnaffected: true,
+      },
+      experiments: {
+        cacheUnaffected: true,
+      },
+    },
     plugins: [
       new WorkboxPlugin.InjectManifest({
         swSrc: "./src/serviceWorker.ts",
