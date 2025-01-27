@@ -21,43 +21,14 @@ import {
 import { countFields } from "../helper";
 import SchemaParser from "../schemaParser";
 
-interface FieldStateItem {
-  isRequired?: boolean;
-  isVisible?: boolean;
-  isDisabled?: boolean;
-  isValid?: boolean;
-  filterText?: string;
-}
-
-type MetaFieldState = FieldState<FieldStateItem>;
-
-type PathList = Array<{ key: string }>;
-interface ComputedSchema {
-  status: ComputedSchemaStatus;
-  schema: Schema;
-  dynamicPropertyPathList?: PathList;
-  modifiedSchemaItems: Record<string, SchemaItem>;
-  removedSchemaItems: string[];
-}
-
-interface ComputeSchemaProps {
-  currSourceData?: JSON;
-  prevSourceData?: JSON;
-  prevSchema?: Schema;
-  widgetName: {
-    maxAllowedFields?: number;
-    [key: string]: any;
-  };
-  currentDynamicPropertyPathList?: PathList;
-  fieldThemeStylesheets: FieldThemeStylesheet;
-  prevDynamicPropertyPathList?: PathList;
-}
-
-export enum ComputedSchemaStatus {
-  LIMIT_EXCEEDED = "LIMIT_EXCEEDED",
-  UNCHANGED = "UNCHANGED",
-  UPDATED = "UPDATED",
-}
+import {
+  ComputedSchema,
+  ComputeSchemaProps,
+  ComputedSchemaStatus,
+  FieldStateItem,
+  MetaFieldState,
+  PathList,
+} from "./types";
 
 // propertyPath -> "schema[0].children[0].fieldType"
 // returns parentPropertyPath -> "schema[0].children[0]"
@@ -287,7 +258,7 @@ export const computeSchema = ({
 
   const count = countFields(currSourceData);
   // Use configurable maxAllowedFields with fallback to MAX_ALLOWED_FIELDS constant
-  const fieldLimit = widgetName?.maxAllowedFields || MAX_ALLOWED_FIELDS;
+  const fieldLimit = maxAllowedFields || MAX_ALLOWED_FIELDS;
 
   if (count > fieldLimit) {
     AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {

@@ -576,6 +576,7 @@ class JSONFormWidget extends BaseWidget<
       prevSchema: this.props?.schema,
       prevSourceData,
       widgetName: this.props.widgetName,
+      maxAllowedFields: this.props.maxAllowedFields,
       fieldThemeStylesheets: this.props.childStylesheet,
     });
     const {

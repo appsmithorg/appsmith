@@ -587,9 +587,8 @@ describe(".computeSchema", () => {
 
     const response = computeSchema({
       currSourceData: sourceData,
-      widgetName: {
-        maxAllowedFields: 60,
-      },
+      widgetName: "TestWidget",
+      maxAllowedFields: 60,
       fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
@@ -610,9 +609,8 @@ describe(".computeSchema", () => {
 
     const response = computeSchema({
       currSourceData: sourceData,
-      widgetName: {
-        maxAllowedFields: 5,
-      },
+      widgetName: "TestWidget",
+      maxAllowedFields: 5,
       fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
