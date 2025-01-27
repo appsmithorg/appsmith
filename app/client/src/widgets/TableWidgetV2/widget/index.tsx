@@ -166,6 +166,14 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
     return tableData;
   });
 
+interface InfiniteScrollState {
+  data: Array<Record<string, unknown>>; // Accumulated data
+  isLoading: boolean; // Whether data is currently being fetched
+  isInitialLoadComplete: boolean; // Whether the initial fixed amount of data has been loaded
+}
+
+const INITIAL_TABLE_SIZE = 50; // Fixed amount of data to populate
+
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
   memoisedAddNewRow: addNewRowToTable;
@@ -173,6 +181,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
+  infiniteScrollState: InfiniteScrollState = {
+    data: this.props.filteredTableData,
+    isLoading: false,
+    isInitialLoadComplete: false,
+  };
+  isInfiniteScroll = true; // should be from property pane
 
   static type = "TABLE_WIDGET_V2";
 
@@ -1014,6 +1028,18 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("filters", []);
       }
+
+      if (this.isInfiniteScroll) {
+        this.updateInfiniteScrollState();
+
+        // Fetch more data if the initial fixed amount is not yet reached
+        if (
+          !this.infiniteScrollState.isInitialLoadComplete &&
+          this.infiniteScrollState.data.length < INITIAL_TABLE_SIZE
+        ) {
+          this.fetchMoreData();
+        }
+      }
     }
 
     /*
@@ -1066,6 +1092,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.pushResetRowSelectionPropertiesUpdates(prevProps);
     commitBatchMetaUpdates();
   }
+
+  updateInfiniteScrollState = () => {
+    const { tableData } = this.props;
+
+    // Append new data to the existing infinite scroll data
+    this.infiniteScrollState.data = [
+      ...this.infiniteScrollState.data,
+      ...tableData,
+    ];
+
+    // Check if the initial fixed amount of data has been loaded
+    if (this.infiniteScrollState.data.length >= INITIAL_TABLE_SIZE) {
+      this.infiniteScrollState.isInitialLoadComplete = true;
+    }
+
+    this.infiniteScrollState.isLoading = false;
+  };
+
+  fetchMoreData = async () => {
+    // Trigger the next page fetch with the infinite scroll page size
+    this.handleNextPageClick();
+  };
 
   pushResetPageNoUpdates = (prevProps: TableWidgetProps) => {
     const { onPageSizeChange, pageSize, pushBatchMetaUpdates } = this.props;
@@ -1269,6 +1317,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } =
       this.getPaddingAdjustedDimensions();
+    // Use infinite scroll data if enabled
     const finalTableData = this.memoisedAddNewRow(
       transformedData,
       this.props.isAddRowInProgress,

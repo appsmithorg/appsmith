@@ -1,17 +1,17 @@
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { Ref } from "react";
-import React from "react";
+import React, { useRef } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, EmptyRow, Row } from "./Row";
+import { VariableSizeList, areEqual } from "react-window";
+import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
-import type SimpleBar from "simplebar-react";
+import { EmptyRow, EmptyRows, Row } from "./Row";
 
 export type BodyContextType = {
   accentColor: string;
@@ -52,12 +52,15 @@ export const BodyContext = React.createContext<BodyContextType>({
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
   const { data, index, style } = rowProps;
 
-  if (index < data.length) {
-    const row = data[index];
+  if (index < data.rows.length) {
+    const row = data.rows[index];
 
     return (
       <Row
         className="t--virtual-row"
+        data={{
+          onHeightChange: data.handleRowHeightChange,
+        }}
         index={index}
         key={index}
         row={row}
@@ -83,9 +86,24 @@ interface BodyPropsType {
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+    const listRef = useRef<VariableSizeList>(null);
+    const rowHeights = useRef<Record<number, number>>({});
+
+    const getRowHeight = (index: number) => {
+      // Default height if not measured yet
+      return rowHeights.current[index] || props.tableSizes.ROW_HEIGHT;
+    };
+
+    const handleRowHeightChange = (index: number, height: number) => {
+      if (rowHeights.current[index] !== height) {
+        rowHeights.current[index] = height;
+        listRef.current?.resetAfterIndex(index);
+      }
+    };
+
     return (
       <div className="simplebar-content-wrapper">
-        <FixedSizeList
+        <VariableSizeList
           className="virtual-list simplebar-content"
           height={
             props.height -
@@ -94,13 +112,17 @@ const TableVirtualBodyComponent = React.forwardRef(
           }
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
+          itemData={{
+            rows: props.rows,
+            handleRowHeightChange,
+          }}
+          itemSize={getRowHeight}
           outerRef={ref}
+          ref={listRef}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
           {rowRenderer}
-        </FixedSizeList>
+        </VariableSizeList>
       </div>
     );
   },
@@ -110,7 +132,7 @@ const TableBodyComponent = (props: BodyPropsType) => {
   return (
     <div {...props.getTableBodyProps()} className="tbody body">
       {props.rows.map((row, index) => {
-        return <Row index={index} key={index} row={row} />;
+        return <Row data={{}} index={index} key={index} row={row} />;
       })}
       {props.pageSize > props.rows.length && (
         <EmptyRows rowCount={props.pageSize - props.rows.length} />
