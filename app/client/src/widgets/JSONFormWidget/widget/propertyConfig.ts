@@ -142,6 +142,7 @@ export const onGenerateFormClick = ({
     prevSchema: widgetProperties.schema,
     prevSourceData,
     widgetName: widgetProperties.widgetName,
+    maxAllowedFields: widgetProperties.maxAllowedFields,
   });
 
   if (status === ComputedSchemaStatus.LIMIT_EXCEEDED) {
@@ -413,6 +414,22 @@ export const contentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "maxAllowedFields",
+        label: "Max allowed fields",
+        helpText:
+          "Sets the maximum number of fields to generate in the JSONFormWidget (default is 50). Exceeding 50 can lead to performance issues.",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+          },
+        },
+        placeholderText: "50",
       },
     ],
     expandedByDefault: false,

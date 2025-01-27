@@ -47,6 +47,8 @@ interface ComputeSchemaProps {
   widgetName: string;
   currentDynamicPropertyPathList?: PathList;
   fieldThemeStylesheets: FieldThemeStylesheet;
+  maxAllowedFields: number;
+  hasMaxFieldsChanged?: boolean;
   prevDynamicPropertyPathList?: PathList;
 }
 
@@ -267,13 +269,18 @@ export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
   fieldThemeStylesheets,
+  hasMaxFieldsChanged,
+  maxAllowedFields,
   prevSchema = {},
   prevSourceData,
   widgetName,
 }: ComputeSchemaProps): ComputedSchema => {
   // Hot path - early exit
+  const shouldExitEarly =
+    !hasMaxFieldsChanged &&
+    (isEmpty(currSourceData) || equal(prevSourceData, currSourceData));
 
-  if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
+  if (shouldExitEarly) {
     return {
       status: ComputedSchemaStatus.UNCHANGED,
       schema: prevSchema,
@@ -292,10 +299,12 @@ export const computeSchema = ({
       updatedValue: currSourceData,
       metaInfo: {
         limitExceeded: true,
-        currentLimit: MAX_ALLOWED_FIELDS,
+        currentLimit: maxAllowedFields,
       },
     });
+  }
 
+  if (count > maxAllowedFields) {
     return {
       status: ComputedSchemaStatus.LIMIT_EXCEEDED,
       schema: prevSchema,
