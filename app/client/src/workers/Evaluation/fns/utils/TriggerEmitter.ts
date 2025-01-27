@@ -4,7 +4,7 @@ import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import type { UpdatedPathsMap } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import ExecutionMetaData from "./ExecutionMetaData";
-import type { UpdateActionProps } from "workers/Evaluation/handlers/updateActionData";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
 import { handleActionsDataUpdate } from "workers/Evaluation/handlers/updateActionData";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import type { Patch } from "workers/Evaluation/JSObject/Collection";

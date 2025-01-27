@@ -3,8 +3,14 @@
    License: none (public domain)
 */
 
-html,
-body,
+html {
+  font-family: var(--appsmith-theme-fontFamily, system-ui);
+}
+
+body {
+  font-family: inherit;
+}
+
 div,
 span,
 applet,

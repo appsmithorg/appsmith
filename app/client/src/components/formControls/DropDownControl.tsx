@@ -1,7 +1,6 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import styled from "styled-components";
 import type { ControlType } from "constants/PropertyControlConstants";
 import { get, isEmpty, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
@@ -18,13 +17,6 @@ import {
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
-
-const DropdownSelect = styled.div<{
-  width: string;
-}>`
-  /* font-size: 14px; */
-  width: ${(props) => (props?.width ? props?.width : "270px")};
-`;
 
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -93,11 +85,10 @@ class DropDownControl extends BaseControl<Props> {
     };
 
     return (
-      <DropdownSelect
+      <div
         className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
-        width={styles.width}
       >
         <Field
           component={renderDropdown}
@@ -105,7 +96,7 @@ class DropDownControl extends BaseControl<Props> {
           props={{ ...this.props, width: styles.width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
-      </DropdownSelect>
+      </div>
     );
   }
 

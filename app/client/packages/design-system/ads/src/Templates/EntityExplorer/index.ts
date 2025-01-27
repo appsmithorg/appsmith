@@ -6,6 +6,6 @@ export { EmptyState } from "./EmptyState";
 export { NoSearchResults } from "./NoSearchResults";
 export * from "./ExplorerContainer";
 export * from "./EntityItem";
-export { useEditableText } from "./Editable";
+export { useEditableText } from "../../__hooks__/useEditableText";
 export * from "./EntityGroupsList";
 export * from "./EntityListTree";

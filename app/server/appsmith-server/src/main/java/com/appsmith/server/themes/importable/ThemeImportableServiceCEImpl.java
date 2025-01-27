@@ -71,31 +71,21 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             return Mono.empty().then();
         }
         return importableArtifactMono.flatMap(importableArtifact -> {
-            Mono<Theme> editModeTheme = updateExistingAppThemeFromJSON(
+            Mono<Theme> editModeThemeMono = updateExistingAppThemeFromJSON(
                     importableArtifact,
                     importableArtifact.getUnpublishedThemeId(),
                     artifactExchangeJson.getUnpublishedTheme(),
                     mappedImportableResourcesDTO);
 
-            Mono<Theme> publishedModeTheme = updateExistingAppThemeFromJSON(
-                    importableArtifact,
-                    importableArtifact.getPublishedThemeId(),
-                    artifactExchangeJson.getPublishedTheme(),
-                    mappedImportableResourcesDTO);
-
-            return Mono.zip(editModeTheme, publishedModeTheme)
-                    .flatMap(importedThemesTuple -> {
-                        String editModeThemeId = importedThemesTuple.getT1().getId();
-                        String publishedModeThemeId =
-                                importedThemesTuple.getT2().getId();
-
+            return editModeThemeMono
+                    .flatMap(editModeTheme -> {
+                        String editModeThemeId = editModeTheme.getId();
                         importableArtifact.setUnpublishedThemeId(editModeThemeId);
-                        importableArtifact.setPublishedThemeId(publishedModeThemeId);
+
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
 
                         Application application = new Application();
-                        application.setPublishedModeThemeId(publishedModeThemeId);
                         application.setUnpublishedThemeId(editModeThemeId);
                         application.setId(importableArtifact.getId());
 

@@ -44,11 +44,7 @@
           "controlType": "INPUT_TEXT",
           "initialValue": "256",
           "isRequired": true,
-          "dataType": "NUMBER",
-          "customStyles": {
-            "width": "270px",
-            "minWidth": "270px"
-          }
+          "dataType": "NUMBER"
         }
       ]
     },
@@ -63,11 +59,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "initialValue": "",
-          "isRequired": false,
-          "customStyles": {
-            "width": "590px",
-            "minWidth": "400px"
-          }
+          "isRequired": false
         },
         {
           "label": "Messages",
@@ -118,11 +110,7 @@
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER",
           "initialValue": "1",
-          "isRequired": false,
-          "customStyles": {
-            "width": "270px",
-            "minWidth": "270px"
-          }
+          "isRequired": false
         }
       ]
     }

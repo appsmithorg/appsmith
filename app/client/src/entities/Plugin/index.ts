@@ -81,6 +81,7 @@ export interface Plugin {
   generateCRUDPageComponent?: string;
   // We need to know if the plugin requires a datasource (Eg Workflows plugin does not require a datasource to create queries)
   requiresDatasource: boolean;
+  pluginName?: string;
 }
 
 export interface DefaultPlugin {

@@ -70,10 +70,14 @@ export const Semantic: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="100%">
-      {Object.keys(SIZES)
+      {objectKeys(SIZES)
         .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
-          <ToolbarButtons items={itemList} key={size} size={size} />
+          <ToolbarButtons
+            items={itemList}
+            key={size}
+            size={size as Exclude<keyof typeof SIZES, "large">}
+          />
         ))}
     </Flex>
   ),

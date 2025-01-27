@@ -7,10 +7,10 @@ import { APPLICATION_BASE_URL } from "./constants";
 import Api from "api/Api";
 
 export default async function generateSSHKeyRequest(
-  baseApplicationId: string,
+  baseArtifactId: string,
   params: GenerateSSHKeyRequestParams,
 ): AxiosPromise<GenerateSSHKeyResponse> {
-  const url = `${APPLICATION_BASE_URL}/ssh-keypair/${baseApplicationId}?keyType=${params.keyType}`;
+  const url = `${APPLICATION_BASE_URL}/ssh-keypair/${baseArtifactId}?keyType=${params.keyType}`;
 
   return Api.post(url);
 }
