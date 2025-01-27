@@ -436,12 +436,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Switching to the branch "
-                                            + branchName);
+                                    log.info(
+                                            "{}: Switching to the branch {}",
+                                            Thread.currentThread().getName(),
+                                            branchName);
+
                                     // We can safely assume that repo has been already initialised either in commit or
-                                    // clone flow and
-                                    // can directly
-                                    // open the repo
+                                    // clone flow and can directly open the repo
                                     if (StringUtils.equalsIgnoreCase(
                                             branchName, git.getRepository().getBranch())) {
                                         return TRUE;
@@ -611,8 +612,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath
-                                            + ", branch " + branchName);
+                                    log.info(
+                                            "{}: Get status for repo {}, {}",
+                                            Thread.currentThread().getName(),
+                                            repoPath,
+                                            branchName);
+
                                     Status status = git.status().call();
                                     GitStatusDTO response = new GitStatusDTO();
 
