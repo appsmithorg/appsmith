@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,9 +81,9 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
-            @RequestHeader(required = false, defaultValue = "branch") RefType refType,
-            @RequestHeader(required = false) String refName,
-            @RequestHeader(required = false) String branchName) {
+            @RequestParam(required = false, defaultValue = "branch") RefType refType,
+            @RequestParam(required = false) String refName,
+            @RequestParam(required = false) String branchName) {
 
         if (!StringUtils.hasLength(refName)) {
             refName = branchName;
