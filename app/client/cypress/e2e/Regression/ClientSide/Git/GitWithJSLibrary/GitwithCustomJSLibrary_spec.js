@@ -1,5 +1,4 @@
 import HomePage from "../../../../../locators/HomePage";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
   homePage,
@@ -67,41 +66,41 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.AssertLibraryinExplorer("uuidjs");
       // verify no uncommitted changes are there
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.bottomBarCommitButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
-      cy.get(gitSyncLocators.commitButton).should("be.disabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      cy.get(gitSync.locators.quickActionsCommitBtn).click();
+      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
+      gitSync.CloseOpsModal();
       AppSidebar.navigate(AppSidebarButton.Editor);
       // swtich to master, verify no uncommitted changes
       cy.switchGitBranch("master");
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.bottomBarCommitButton).click();
-      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
-      cy.get(gitSyncLocators.commitButton).should("be.disabled");
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      cy.get(gitSync.locators.quickActionsCommitBtn).click();
+      cy.get(gitSync.locators.opsCommitInput).should("be.disabled");
+      cy.get(gitSync.locators.opsCommitBtn).should("be.disabled");
+      gitSync.CloseOpsModal();
     });
 
     it("3. Merge custom js lib changes from child branch to master, verify changes are merged", () => {
       cy.switchGitBranch(tempBranch);
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("jspdf", "jspdf");
       //cy.commitAndPush();
 
       cy.get(HomePage.publishButton).click();
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      gitSync.CloseOpsModal();
       cy.merge(mainBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       AppSidebar.navigate(AppSidebarButton.Editor);
       // verify custom js library is present in master branch
       cy.switchGitBranch(mainBranch);
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.AssertLibraryinExplorer("jspdf");
     });

@@ -1,14 +1,31 @@
+import React from "react";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
-import React, { useCallback } from "react";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { Link } from "@appsmith/ads";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import styled from "styled-components";
+import { getTypographyByKey } from "@appsmith/ads-old";
+import { useEventCallback } from "usehooks-ts";
 
 export enum DebuggerLinkUI {
   ENTITY_TYPE,
   ENTITY_NAME,
 }
+
+const EntityNameLink = styled(Link)`
+  ${getTypographyByKey("h6")}
+  letter-spacing: -0.195px;
+  color: var(--ads-v2-color-fg-emphasis);
+  cursor: pointer;
+  text-decoration-line: underline;
+  flex-shrink: 0;
+  width: max-content;
+
+  > span {
+    ${getTypographyByKey("h6")}
+  }
+`;
 
 export type EntityLinkProps = {
   uiComponent: DebuggerLinkUI;
@@ -21,19 +38,16 @@ export type EntityLinkProps = {
 
 export function DebuggerEntityLink(props: {
   name: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onClick: any;
+  onClick: () => void;
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) {
-  const handleClick = useCallback(
-    (e) => {
-      e.stopPropagation();
-      props.onClick();
-    },
-    [props.onClick],
-  );
+  const { onClick } = props;
+
+  const handleClick = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick();
+  });
 
   switch (props.uiComponent) {
     case DebuggerLinkUI.ENTITY_TYPE:
@@ -48,12 +62,12 @@ export function DebuggerEntityLink(props: {
       );
     case DebuggerLinkUI.ENTITY_NAME:
       return (
-        <Link
-          className="debugger-entity-link t--debugger-log-entity-link"
+        <EntityNameLink
+          className="t--debugger-log-entity-link"
           onClick={handleClick}
         >
           {props.name}
-        </Link>
+        </EntityNameLink>
       );
     default:
       return null;

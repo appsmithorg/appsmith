@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction, ReduxActionType } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";

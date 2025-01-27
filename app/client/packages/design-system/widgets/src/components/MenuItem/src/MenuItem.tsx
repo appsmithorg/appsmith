@@ -6,12 +6,16 @@ import {
 import { Icon, Text, listBoxItemStyles } from "@appsmith/wds";
 
 import type { MenuItemProps } from "./types";
+import clsx from "clsx";
 
 export function MenuItem(props: MenuItemProps) {
-  const { children, icon, ...rest } = props;
+  const { children, className, icon, ...rest } = props;
 
   return (
-    <HeadlessMenuItem {...rest} className={listBoxItemStyles.listBoxItem}>
+    <HeadlessMenuItem
+      {...rest}
+      className={clsx(listBoxItemStyles.listBoxItem, className)}
+    >
       {composeRenderProps(children, (children, { hasSubmenu }) => (
         <>
           {icon && <Icon name={icon} />}

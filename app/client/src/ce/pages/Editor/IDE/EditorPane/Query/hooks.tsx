@@ -15,7 +15,7 @@ import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissi
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryUrl";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
@@ -28,7 +28,11 @@ import type { UseRoutes } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "@appsmith/ads";
+import {
+  type EntityGroupProps,
+  type ListItemProps,
+  type EntityItemProps,
+} from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -71,9 +75,10 @@ export type GroupedAddOperations = Array<{
   operations: ActionOperation[];
 }>;
 
-export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
+export const useGroupedAddQueryOperations = () => {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const pagePermissions = useSelector(getPagePermissions);
+  const { getListItems } = useAddQueryListItems();
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -91,6 +96,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   );
 
   const groups: GroupedAddOperations = [];
+  const groupedItems: EntityGroupProps<ListItemProps | EntityItemProps>[] = [];
 
   /** From existing Datasource **/
 
@@ -108,7 +114,35 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
     operations: fromNewBlankAPI,
   });
 
-  return groups;
+  groups.map((group) => {
+    const items = getListItems(group.operations);
+    const lastItem = items[items.length - 1];
+
+    if (group.title === "Datasources" && lastItem?.title === "New datasource") {
+      items.splice(items.length - 1);
+
+      const addConfig = {
+        icon: lastItem.startIcon,
+        onClick: lastItem.onClick,
+        title: lastItem.title,
+      };
+
+      groupedItems.push({
+        groupTitle: group.title,
+        className: group.className,
+        items,
+        addConfig,
+      });
+    } else {
+      groupedItems.push({
+        groupTitle: group.title || "",
+        className: group.className,
+        items,
+      });
+    }
+  });
+
+  return groupedItems;
 };
 
 const PluginActionEditor = lazy(async () =>
@@ -120,13 +154,6 @@ const PluginActionEditor = lazy(async () =>
   ),
 );
 
-const ApiEditor = lazy(async () =>
-  retryPromise(
-    async () =>
-      import(/* webpackChunkName: "APIEditor" */ "pages/Editor/APIEditor"),
-  ),
-);
-
 const AddQuery = lazy(async () =>
   retryPromise(
     async () =>
@@ -135,30 +162,20 @@ const AddQuery = lazy(async () =>
       ),
   ),
 );
-const QueryEditor = lazy(async () =>
-  retryPromise(
-    async () =>
-      import(/* webpackChunkName: "QueryEditor" */ "pages/Editor/QueryEditor"),
-  ),
-);
 
 const QueryEmpty = lazy(async () =>
   retryPromise(
     async () =>
       import(
-        /* webpackChunkName: "QueryEmpty" */ "pages/Editor/QueryEditor/QueriesBlankState"
+        /* webpackChunkName: "QueryEmpty" */ "../../../../../../PluginActionEditor/components/PluginActionForm/components/UQIEditor/QueriesBlankState"
       ),
   ),
 );
 
 export const useQueryEditorRoutes = (path: string): UseRoutes => {
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const skeleton = useMemo(() => <Skeleton />, []);
 
-  const newComponents = useMemo(
+  return useMemo(
     () => [
       {
         key: "AddQuery",
@@ -203,82 +220,6 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
     ],
     [path, skeleton],
   );
-
-  const oldComponents = useMemo(
-    () => [
-      {
-        key: "ApiEditor",
-        component: (args: object) => {
-          return (
-            <Suspense fallback={skeleton}>
-              <ApiEditor {...args} />
-            </Suspense>
-          );
-        },
-        exact: true,
-        path: [
-          BUILDER_PATH + API_EDITOR_ID_PATH,
-          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
-          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
-        ],
-      },
-      {
-        key: "AddQuery",
-        exact: true,
-        component: () => (
-          <Suspense fallback={skeleton}>
-            <AddQuery />
-          </Suspense>
-        ),
-        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
-      },
-      {
-        key: "SAASEditor",
-        component: (args: object) => {
-          return (
-            <Suspense fallback={skeleton}>
-              <QueryEditor {...args} />
-            </Suspense>
-          );
-        },
-        exact: true,
-        path: [
-          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
-        ],
-      },
-      {
-        key: "QueryEditor",
-        component: (args: object) => {
-          return (
-            <Suspense fallback={skeleton}>
-              <QueryEditor {...args} />
-            </Suspense>
-          );
-        },
-        exact: true,
-        path: [path + "/:baseQueryId"],
-      },
-      {
-        key: "QueryEmpty",
-        component: () => (
-          <Suspense fallback={skeleton}>
-            <QueryEmpty />
-          </Suspense>
-        ),
-        exact: true,
-        path: [path],
-      },
-    ],
-    [path, skeleton],
-  );
-
-  if (isActionRedesignEnabled) {
-    return newComponents;
-  }
-
-  return oldComponents;
 };
 
 export const useAddQueryListItems = () => {
@@ -319,7 +260,7 @@ export const useAddQueryListItems = () => {
 
       return {
         startIcon: icon,
-        wrapperClassName: className,
+        className: className,
         title,
         description:
           fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE

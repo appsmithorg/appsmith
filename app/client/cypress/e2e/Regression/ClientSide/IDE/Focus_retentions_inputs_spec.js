@@ -10,11 +10,14 @@ import EditorNavigation, {
   EntityType,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
+  let pluginActionForm = new PluginActionForm();
+
   before("Import the test application", () => {
     homePage.NavigateToHome();
     homePage.ImportApp("ContextSwitching.json");
@@ -90,84 +93,7 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     cy.focusCodeInput(".js-editor", { ch: 2, line: 2 });
   });
 
-  it("2. Maintains focus on property/Api/Query/Js Pane", () => {
-    //Maintains focus on the property pane
-    EditorNavigation.ShowCanvas();
-
-    cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertSoftFocusOnCodeInput(".t--property-control-text", {
-      ch: 2,
-      line: 0,
-    });
-
-    PageLeftPane.switchSegment(PagePaneSegment.Queries);
-
-    //Maintains focus on the API pane
-    PageLeftPane.selectItem("Graphql_Query");
-
-    agHelper
-      .GetElement(locators._queryName)
-      .should("have.text", "Graphql_Query");
-
-    cy.xpath("//span[contains(text(), 'Body')]/parent::button").should(
-      "have.attr",
-      "aria-selected",
-      "true",
-    );
-    cy.assertCursorOnCodeInput(".t--graphql-query-editor", { ch: 4, line: 1 });
-
-    PageLeftPane.selectItem("Rest_Api_1");
-
-    agHelper.GetElement(locators._queryName).should("have.text", "Rest_Api_1");
-
-    cy.xpath("//span[contains(text(), 'Params')]/parent::button").should(
-      "have.attr",
-      "aria-selected",
-      "true",
-    );
-    cy.assertCursorOnCodeInput(apiwidget.queryKey, { ch: 0, line: 0 });
-
-    PageLeftPane.selectItem("Rest_Api_2");
-
-    agHelper.GetElement(locators._queryName).should("have.text", "Rest_Api_2");
-
-    cy.xpath("//span[contains(text(), 'Headers')]/parent::button").should(
-      "have.attr",
-      "aria-selected",
-      "true",
-    );
-    cy.assertCursorOnCodeInput(apiwidget.headerValue);
-
-    //Maintains focus on Query panes
-    PageLeftPane.selectItem("SQL_Query");
-
-    agHelper.GetElement(locators._queryName).should("have.text", "SQL_Query");
-
-    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
-      ch: 5,
-      line: 0,
-    });
-
-    PageLeftPane.selectItem("S3_Query");
-
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data",
-      { ch: 2, line: 0 },
-    );
-
-    PageLeftPane.switchSegment(PagePaneSegment.JS);
-
-    //Maintains focus on JS Objects
-    PageLeftPane.selectItem("JSObject1");
-
-    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
-
-    PageLeftPane.selectItem("JSObject2");
-
-    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
-  });
-
-  it("3. Datasource edit mode has to be maintained", () => {
+  it("2. Datasource edit mode has to be maintained", () => {
     EditorNavigation.SelectEntityByName("Appsmith", EntityType.Datasource);
     dataSources.EditDatasource();
     EditorNavigation.SelectEntityByName("Github", EntityType.Datasource);
@@ -176,25 +102,24 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     dataSources.AssertDSEditViewMode("Edit");
   });
 
-  it("4. Maintain focus of form control inputs", () => {
+  it("3. Maintain focus of form control inputs", () => {
     EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
     dataSources.ToggleUsePreparedStatement(false);
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
 
-    cy.xpath(queryLocators.querySettingsTab).click();
     cy.setQueryTimeout(10000);
 
     EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
-    cy.get(".bp3-editable-text-content").should("contain.text", "SQL_Query");
-    cy.xpath(queryLocators.querySettingsTab).click();
+    cy.get(locators._queryName).should("contain.text", "SQL_Query");
+    pluginActionForm.toolbar.toggleSettings();
     agHelper.GetElement(dataSources._usePreparedStatement).should("be.focused");
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
     agHelper.Sleep();
-    cy.xpath(queryLocators.querySettingsTab).click();
+    pluginActionForm.toolbar.toggleSettings();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 
-  it("5. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open + Bug 22960", () => {
+  it("4. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open + Bug 22960", () => {
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });

@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -231,6 +231,7 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
     });
   }
 }
+
 // v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
@@ -292,6 +293,7 @@ export function* fetchAppAndPagesSaga(
         payload: {
           workspaceId: response.data.workspaceId,
           editorId: response.data.application?.id,
+          mode: request.mode,
         },
       });
 

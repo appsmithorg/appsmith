@@ -23,6 +23,7 @@ export const defaultConfig: WidgetDefaultProps = {
   version: 1,
   widgetName: "Zone",
   isVisible: true,
+  useAsForm: false,
   blueprint: {
     operations: [
       {

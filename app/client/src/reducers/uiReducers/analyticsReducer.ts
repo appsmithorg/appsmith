@@ -2,7 +2,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 
 export type SegmentState = "INIT_SUCCESS" | "INIT_UNCERTAIN";
-
 export const initialState: AnalyticsReduxState = {
   telemetry: {},
 };
@@ -33,5 +32,4 @@ export const handlers = {
     },
   }),
 };
-
 export default createReducer(initialState, handlers);

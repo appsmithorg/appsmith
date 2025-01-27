@@ -1,4 +1,4 @@
-import type { FieldProps } from "@appsmith/wds";
+import type { FieldProps, SIZES } from "@appsmith/wds";
 import type { ReactNode } from "react";
 import type { TextFieldProps as AriaTextFieldProps } from "react-aria-components";
 
@@ -8,4 +8,7 @@ export interface TextAreaProps extends AriaTextFieldProps, FieldProps {
   suffix?: ReactNode;
   prefix?: ReactNode;
   rows?: number;
+  fieldClassName?: string;
+  inputClassName?: string;
+  size?: Exclude<keyof typeof SIZES, "xSmall">;
 }

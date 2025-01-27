@@ -19,7 +19,7 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Color } from "constants/Colors";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
@@ -68,6 +68,7 @@ function CustomComponent(props: CustomComponentProps) {
       ...props.theme?.colors,
       borderRadius: props.theme?.borderRadius?.appBorderRadius,
       boxShadow: props.theme?.boxShadow?.appBoxShadow,
+      fontFamily: props.theme?.fontFamily?.appFont,
     };
   }, [props.theme]);
 
@@ -311,7 +312,7 @@ export const mapStateToProps = (
   state: AppState,
   ownProps: CustomComponentProps,
 ) => {
-  const isPreviewMode = combinedPreviewModeSelector(state);
+  const isPreviewMode = selectCombinedPreviewMode(state);
 
   return {
     needsOverlay:

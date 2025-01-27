@@ -2,10 +2,10 @@ package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -20,7 +20,7 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @Setter
 @ToString
 @FieldNameConstants
-public class NewActionCE extends BranchAwareDomain {
+public class NewActionCE extends RefAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
@@ -61,7 +61,7 @@ public class NewActionCE extends BranchAwareDomain {
         super.sanitiseToExportDBObject();
     }
 
-    public static class Fields extends BranchAwareDomain.Fields {
+    public static class Fields extends RefAwareDomain.Fields {
         public static final String unpublishedAction_datasource_id =
                 dotted(unpublishedAction, ActionDTO.Fields.datasource, Datasource.Fields.id);
         public static final String unpublishedAction_name = dotted(unpublishedAction, ActionDTO.Fields.name);

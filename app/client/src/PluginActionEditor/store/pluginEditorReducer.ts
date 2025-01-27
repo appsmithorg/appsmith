@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -26,7 +26,6 @@ export interface PluginActionEditorState {
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
   selectedConfigTab?: string;
-  formData: Record<string, { label: string; value: string }>;
   debugger: PluginEditorDebuggerState;
   settingsOpen?: boolean;
 }
@@ -38,7 +37,6 @@ const initialState: PluginActionEditorState = {
   isDeleting: {},
   isDirty: {},
   runErrorMessage: {},
-  formData: {},
   debugger: {
     open: false,
     responseTabHeight: ActionExecutionResizerHeight,
@@ -135,21 +133,6 @@ export const handlers = {
 
     set(state, ["isRunning", id], false);
     set(state, ["runErrorMessage", id], error.message);
-  },
-  /**
-   * This redux action sets the extra form data field for an action. This is used to select the
-   * appropriate body type tab selection in the Rest API plugin based on the content-type.
-   * This redux action can be extended to other functionalities as well in the future.
-   */
-  [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
-    state: PluginActionEditorState,
-    action: ReduxAction<{
-      values: Record<string, { label: string; value: string }>;
-    }>,
-  ) => {
-    const { values } = action.payload;
-
-    set(state, ["formData"], values);
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,

@@ -2,14 +2,15 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.operations.FileOperations;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -20,14 +21,15 @@ import org.springframework.stereotype.Component;
 public class CommonGitFileUtils extends CommonGitFileUtilsCE {
 
     public CommonGitFileUtils(
-            ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils,
+            ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            JsonSchemaVersions jsonSchemaVersions) {
+            JsonSchemaVersions jsonSchemaVersions,
+            ObjectMapper objectMapper) {
         super(
                 applicationGitFileUtils,
                 fileUtils,
@@ -36,6 +38,7 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
                 sessionUserService,
                 newActionService,
                 actionCollectionService,
-                jsonSchemaVersions);
+                jsonSchemaVersions,
+                objectMapper);
     }
 }

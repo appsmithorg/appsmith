@@ -6,7 +6,7 @@ import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { IDESidebar, Condition } from "IDE";
+import { IDESidebar, Condition } from "@appsmith/ads";
 import {
   BottomButtons,
   EditorState,
@@ -26,11 +26,11 @@ function Sidebar() {
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
 
-  // Updates the top button config based on datasource existence
-  const topButtons = React.useMemo(() => {
+  // Updates the bottom button config based on datasource existence
+  const bottomButtons = React.useMemo(() => {
     return datasourcesExist
-      ? TopButtons
-      : TopButtons.map((button) => {
+      ? BottomButtons
+      : BottomButtons.map((button) => {
           if (button.state === EditorState.DATA) {
             return {
               ...button,
@@ -64,11 +64,11 @@ function Sidebar() {
 
   return (
     <IDESidebar
-      bottomButtons={BottomButtons}
+      bottomButtons={bottomButtons}
       editorState={appState}
       id={"t--app-sidebar"}
       onClick={onClick}
-      topButtons={topButtons}
+      topButtons={TopButtons}
     />
   );
 }

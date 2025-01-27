@@ -137,8 +137,8 @@ const GitPullRequest = importRemixIcon(
 const GitRepository = importRemixIcon(
   async () => import("remixicon-react/GitRepositoryLineIcon"),
 );
-const GlobalLineIcon = importRemixIcon(
-  async () => import("remixicon-react/GlobalLineIcon"),
+const GlobalLineIcon = importSvg(
+  async () => import("../__assets__/icons/ads/globe-simple.svg"),
 );
 const GuideIcon = importRemixIcon(
   async () => import("remixicon-react/GuideFillIcon"),
@@ -572,6 +572,10 @@ const AppsLineIcon = importRemixIcon(
   async () => import("remixicon-react/AppsLineIcon"),
 );
 
+const ProtectedIcon = importRemixIcon(
+  async () => import("remixicon-react/ShieldKeyholeLineIcon"),
+);
+
 const CornerDownLeftLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/corner-down-left-line.svg"),
 );
@@ -770,6 +774,9 @@ const PackageIcon = importSvg(
 );
 const ModuleIcon = importSvg(
   async () => import("../__assets__/icons/ads/module.svg"),
+);
+const CreateModuleIcon = importSvg(
+  async () => import("../__assets__/icons/ads/create-module.svg"),
 );
 const WorkflowsIcon = importSvg(
   async () => import("../__assets__/icons/ads/workflows.svg"),
@@ -1033,6 +1040,10 @@ const DashboardLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/dashboard-line.svg"),
 );
 
+const DatasourceConfigIcon = importSvg(
+  async () => import("../__assets__/icons/ads/datasource-config.svg"),
+);
+
 // v3 icons
 const JsSquareV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/js-square-v3-icon.svg"),
@@ -1072,6 +1083,14 @@ const InputCursorMoveIcon = importSvg(
   async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
 );
 
+const DebugIcon = importSvg(
+  async () => import("../__assets__/icons/ads/debug.svg"),
+);
+
+const ClearIcon = importSvg(
+  async () => import("../__assets__/icons/ads/clear.svg"),
+);
+
 const ContentTypeTable = importSvg(
   async () => import("../__assets__/icons/ads/content-type-table.svg"),
 );
@@ -1082,6 +1101,58 @@ const ContentTypeJson = importSvg(
 
 const ContentTypeRaw = importSvg(
   async () => import("../__assets__/icons/ads/content-type-raw.svg"),
+);
+
+const CloudIconV2 = importSvg(
+  async () => import("../__assets__/icons/ads/cloudy-line.svg"),
+);
+
+const NotionIcon = importSvg(
+  async () => import("../__assets__/icons/ads/notion.svg"),
+);
+
+const ZendeskIcon = importSvg(
+  async () => import("../__assets__/icons/ads/zendesk.svg"),
+);
+
+const GoogleDriveIcon = importSvg(
+  async () => import("../__assets__/icons/ads/google-drive.svg"),
+);
+
+const SalesforceIcon = importSvg(
+  async () => import("../__assets__/icons/ads/salesforce.svg"),
+);
+
+const MdFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/md-file.svg"),
+);
+const PdfFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/pdf-file.svg"),
+);
+const TxtFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/txt-file.svg"),
+);
+
+const CsvFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/csv-file.svg"),
+);
+const DocFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/doc-file.svg"),
+);
+const JsonFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/json-file.svg"),
+);
+const PptFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/ppt-file.svg"),
+);
+const RtfFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/rtf-file.svg"),
+);
+const TsvFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/tsv-file.svg"),
+);
+const XlsFileIcon = importSvg(
+  async () => import("../__assets__/icons/ads/xls-file.svg"),
 );
 
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
@@ -1149,6 +1220,7 @@ const ICON_LOOKUP = {
   "check-line": CheckLineIcon,
   "chevron-left": ChevronLeft,
   "chevron-right": ChevronRight,
+  clear: ClearIcon,
   "close-circle": CloseCircleIcon,
   "close-circle-control": CloseCircleIcon,
   "close-circle-line": CloseCircleLineIcon,
@@ -1157,6 +1229,7 @@ const ICON_LOOKUP = {
   "close-modal": CloseLineIcon,
   "close-x": CloseLineIcon,
   "cloud-off-line": CloudOfflineIcon,
+  "cloud-v2": CloudIconV2,
   "collapse-control": CollapseIcon,
   "column-freeze": ColumnFreeze,
   "column-unfreeze": SubtractIcon,
@@ -1170,12 +1243,15 @@ const ICON_LOOKUP = {
   "contract-right-line": ContractRight,
   "copy-control": CopyIcon,
   "copy2-control": Copy2Icon,
+  "create-module": CreateModuleIcon,
   "cut-control": CutIcon,
   "dashboard-line": DashboardLineIcon,
   "database-2-line": Database2Line,
+  "datasource-config": DatasourceConfigIcon,
   "datasource-v3": DatasourceV3Icon,
   "datasources-2": Datasources2,
   "decrease-control": DecreaseIcon,
+  debug: DebugIcon,
   "delete-bin-line": DeleteBinLineIcon,
   "delete-blank": DeleteBin7,
   "delete-column": DeleteColumnIcon,
@@ -1379,6 +1455,7 @@ const ICON_LOOKUP = {
   "warning-triangle": WarningTriangleIcon,
   "widgets-v3": WidgetsV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
+  "protected-icon": ProtectedIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,
@@ -1469,6 +1546,20 @@ const ICON_LOOKUP = {
   widget: WidgetIcon,
   workflows: WorkflowsIcon,
   workspace: WorkspaceIcon,
+  notion: NotionIcon,
+  "md-file": MdFileIcon,
+  "pdf-file": PdfFileIcon,
+  "txt-file": TxtFileIcon,
+  "csv-file": CsvFileIcon,
+  "doc-file": DocFileIcon,
+  "json-file": JsonFileIcon,
+  "ppt-file": PptFileIcon,
+  "rtf-file": RtfFileIcon,
+  "tsv-file": TsvFileIcon,
+  "xls-file": XlsFileIcon,
+  zendesk: ZendeskIcon,
+  "google-drive": GoogleDriveIcon,
+  salesforce: SalesforceIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

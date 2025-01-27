@@ -1,20 +1,22 @@
 import React, { useEffect } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody } from "@appsmith/ads";
+import {
+  EntityGroupsList,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 
 import { CREATE_A_NEW_ITEM, createMessage } from "ee/constants/messages";
-import GroupedList from "pages/Editor/IDE/EditorPane/components/GroupedList";
-import {
-  useAddQueryListItems,
-  useGroupedAddQueryOperations,
-} from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useGroupedAddQueryOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { getShowCreateNewModal } from "selectors/ideSelectors";
 import { setShowQueryCreateNewModal } from "actions/ideActions";
+import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 
 const CreateNewQueryModal: React.FC = () => {
   const dispatch = useDispatch();
-  const groupedActionOperations = useGroupedAddQueryOperations();
-  const { getListItems } = useAddQueryListItems();
+  const itemGroups = useGroupedAddQueryOperations();
   const showCreateNewModal = useSelector(getShowCreateNewModal);
 
   const onCloseHandler = (open: boolean) => {
@@ -35,12 +37,10 @@ const CreateNewQueryModal: React.FC = () => {
       <ModalContent className="!w-[400px] action-creator-create-new-modal">
         <ModalHeader>{createMessage(CREATE_A_NEW_ITEM, "query")}</ModalHeader>
         <ModalBody>
-          <GroupedList
-            groups={groupedActionOperations.map((group) => ({
-              groupTitle: group.title,
-              className: group.className,
-              items: getListItems(group.operations),
-            }))}
+          <EntityGroupsList
+            groups={itemGroups}
+            showDivider
+            visibleItems={DEFAULT_GROUP_LIST_SIZE}
           />
         </ModalBody>
       </ModalContent>

@@ -107,7 +107,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     NewPageService newPageService;
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     @SpyBean

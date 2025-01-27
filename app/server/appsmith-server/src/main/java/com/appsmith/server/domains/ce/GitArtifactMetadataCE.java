@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.AutoCommitConfig;
@@ -20,9 +21,18 @@ import java.util.Map;
 @Data
 @FieldNameConstants
 public class GitArtifactMetadataCE implements AppsmithDomain {
+
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
+
+    @Transient
+    @JsonView(Views.Internal.class)
+    RefType refType;
+
+    @Transient
+    @JsonView(Views.Internal.class)
+    String refName;
 
     // Git default branch corresponding to the remote git repo to which the application is connected to
     @JsonView(Views.Public.class)
@@ -117,6 +127,27 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     public void setDefaultApplicationId(String defaultApplicationId) {
         this.defaultApplicationId = defaultApplicationId;
         this.defaultArtifactId = defaultApplicationId;
+    }
+
+    public RefType getRefType() {
+        return refType == null ? RefType.branch : refType;
+    }
+
+    public void setRefType(RefType refType) {
+        this.refType = refType == null ? RefType.branch : refType;
+    }
+
+    /**
+     * this returns the branchName instead of reference name
+     * @return returns the ref name.
+     */
+    public String getRefName() {
+        return this.refName == null ? this.branchName : this.refName;
+    }
+
+    public void setRefName(String refName) {
+        this.branchName = refName;
+        this.refName = refName;
     }
 
     public static class Fields {}

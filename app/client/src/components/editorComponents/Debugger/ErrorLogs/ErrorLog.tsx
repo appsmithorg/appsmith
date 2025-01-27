@@ -10,10 +10,11 @@ import type { Log } from "entities/AppsmithConsole";
 import { setResponsePaneScrollPosition } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getScrollPosition } from "selectors/debuggerSelectors";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
-  height: 100%;
+  height: calc(100% - ${BOTTOM_BAR_HEIGHT}px);
 `;
 
 const ListWrapper = styled.div`
@@ -21,7 +22,6 @@ const ListWrapper = styled.div`
   overflow: auto;
   ${thinScrollbar};
   height: 100%;
-  padding-bottom: 37px;
 `;
 
 // This component is used to render the error logs in the debugger.

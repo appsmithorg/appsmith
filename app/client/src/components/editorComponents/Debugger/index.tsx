@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import DebuggerTabs from "./DebuggerTabs";
 import { setErrorCount } from "actions/debuggerActions";
 import { getMessageCount, showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Tooltip } from "@appsmith/ads";
+import { Tooltip, Button } from "@appsmith/ads";
 import useDebuggerTriggerClick from "./hooks/useDebuggerTriggerClick";
-import * as Styled from "./styles";
 
 function Debugger() {
   // Debugger render flag
@@ -32,19 +31,24 @@ export function DebuggerTrigger() {
         }`
       : `No errors`;
 
+  const countContent =
+    messageCounters.errors !== 0
+      ? messageCounters.errors > 99
+        ? "(99+)"
+        : `(${messageCounters.errors})`
+      : "";
+
   return (
     <Tooltip content={tooltipContent}>
-      <Styled.DebuggerTriggerButton
+      <Button
         className="t--debugger-count"
         kind={messageCounters.errors > 0 ? "error" : "tertiary"}
         onClick={onClick}
         size="md"
-        startIcon={
-          messageCounters.errors ? "close-circle" : "close-circle-line"
-        }
+        startIcon="debug"
       >
-        {messageCounters.errors > 99 ? "99+" : messageCounters.errors}
-      </Styled.DebuggerTriggerButton>
+        Debug {countContent}
+      </Button>
     </Tooltip>
   );
 }

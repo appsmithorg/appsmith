@@ -12,10 +12,10 @@ import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
-  evalWorker,
   executeTriggerRequestSaga,
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
+import { evalWorker } from "utils/workerInstances";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
@@ -23,7 +23,7 @@ import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/u
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;

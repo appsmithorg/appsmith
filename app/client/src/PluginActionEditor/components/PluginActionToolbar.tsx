@@ -43,6 +43,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           showArrow={false}
         >
           <Button
+            data-testid="t--run-action"
             isDisabled={blockExecution}
             isLoading={isRunning}
             kind="primary"
@@ -56,6 +57,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
         <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
           <MenuTrigger>
             <Button
+              data-testid="t--more-action-trigger"
               isIconButton
               kind="tertiary"
               size="sm"
@@ -66,7 +68,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             key={action.id}
             loop
             style={{ zIndex: 100 }}
-            width="200px"
+            width="204px"
           >
             {props.menuContent}
           </MenuContent>

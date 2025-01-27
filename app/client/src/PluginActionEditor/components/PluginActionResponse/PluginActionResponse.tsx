@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
@@ -9,18 +9,15 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constant
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { usePluginActionResponseTabs } from "./hooks";
 import { usePluginActionContext } from "../../PluginActionContext";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import useShowSchema from "./hooks/useShowSchema";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { hasFailed } from "./utils";
+import { useDefaultTab } from "ee/PluginActionEditor/components/PluginActionResponse/hooks/useDefaultTab";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
-  const { actionResponse, plugin } = usePluginActionContext();
+  const { actionResponse } = usePluginActionContext();
 
   const tabs = usePluginActionResponseTabs();
-  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
-
-  const showSchema = useShowSchema(plugin?.id || "") && pluginRequireDatasource;
 
   // TODO combine API and Query Debugger state
   const { open, responseTabHeight, selectedTab } = useSelector(
@@ -29,6 +26,11 @@ function PluginActionResponse() {
 
   const { responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
+
+  const executionFailed = useMemo(
+    () => (actionResponse ? hasFailed(actionResponse) : false),
+    [actionResponse],
+  );
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
@@ -55,18 +57,20 @@ function PluginActionResponse() {
   );
 
   useEffect(
-    function openSchemaTabWhenNoTabIsSelected() {
-      if (showSchema && !selectedTab) {
+    function openResponseTabOnError() {
+      if (executionFailed) {
         dispatch(
           setPluginActionEditorDebuggerState({
             open: true,
-            selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
           }),
         );
       }
     },
-    [showSchema, selectedTab, dispatch],
+    [executionFailed, dispatch],
   );
+
+  useDefaultTab();
 
   const toggleHide = useCallback(
     () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),

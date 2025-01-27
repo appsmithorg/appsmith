@@ -15,7 +15,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "ee/actions/applicationActions";
@@ -80,16 +80,18 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { ConsolidatedPageLoadApi } from "api";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {
   endSpan,
   startNestedSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
+import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -101,6 +103,7 @@ export interface ReduxURLChangeAction {
   type: typeof URL_CHANGE_ACTIONS;
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
+
 export interface DeployConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
   tenantConfig: ApiResponse;
@@ -114,6 +117,7 @@ export interface DeployConsolidatedApi {
   currentTheme: ApiResponse<AppTheme[]>;
   themes: ApiResponse<AppTheme>;
 }
+
 export interface EditConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
   tenantConfig: ApiResponse;
@@ -133,8 +137,11 @@ export interface EditConsolidatedApi {
   pluginFormConfigs: ApiResponse<PluginFormPayload>[];
   unpublishedActions: ApiResponse<Action[]>;
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
+  packagePullStatus: ApiResponse<PACKAGE_PULL_STATUS>;
 }
+
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
+
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],

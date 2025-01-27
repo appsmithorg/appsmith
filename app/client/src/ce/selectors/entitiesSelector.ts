@@ -15,25 +15,26 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import {
-  isStoredDatasource,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  MAIN_CONTAINER_WIDGET_NAME,
+} from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
   JSCollectionDataState,
 } from "ee/reducers/entityReducers/jsActionsReducer";
-import type {
-  DefaultPlugin,
-  GenerateCRUDEnabledPluginMap,
-  Plugin,
-} from "api/PluginApi";
+import {
+  type DefaultPlugin,
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";
@@ -51,7 +52,7 @@ import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUt
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { Module } from "ee/constants/ModuleConstants";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+// import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
@@ -59,10 +60,16 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
+import {
+  EditorEntityTab,
+  type EntityItem,
+  type GenericEntityItem,
+  type IDEType,
+} from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
   JsFileIconV2,
+  WidgetIconByType,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
@@ -119,7 +126,8 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
 
       if (
         plugin.type === PluginType.SAAS ||
-        plugin.type === PluginType.REMOTE
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.EXTERNAL_SAAS
       ) {
         return PluginCategory.SAAS;
       }
@@ -159,47 +167,48 @@ export const getDatasourceStructureById = (
   return state.entities.datasources.structure[id];
 };
 
+// ! git mod - the following function is not getting used
 /**
  * Selector to indicate if the widget name should be shown/drawn on canvas
  */
-export const getShouldShowWidgetName = createSelector(
-  (state: AppState) => state.ui.widgetDragResize.isResizing,
-  (state: AppState) => state.ui.widgetDragResize.isDragging,
-  (state: AppState) => state.ui.editor.isPreviewMode,
-  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  getAnvilSpaceDistributionStatus,
-  // cannot import other selectors, breaks the app
-  (state) => {
-    const gitMetaData =
-      state.ui.applications.currentApplication?.gitApplicationMetadata;
-    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
-    const currentBranch = gitMetaData?.branchName;
-    const { protectedBranches = [] } = state.ui.gitSync;
+// export const getShouldShowWidgetName = createSelector(
+//   (state: AppState) => state.ui.widgetDragResize.isResizing,
+//   (state: AppState) => state.ui.widgetDragResize.isDragging,
+//   (state: AppState) => state.ui.editor.isPreviewMode,
+//   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+//   getAnvilSpaceDistributionStatus,
+//   // cannot import other selectors, breaks the app
+//   (state) => {
+//     const gitMetaData =
+//       state.ui.applications.currentApplication?.gitApplicationMetadata;
+//     const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+//     const currentBranch = gitMetaData?.branchName;
+//     const { protectedBranches = [] } = state.ui.gitSync;
 
-    if (!isGitConnected || !currentBranch) {
-      return false;
-    } else {
-      return protectedBranches.includes(currentBranch);
-    }
-  },
-  (
-    isResizing,
-    isDragging,
-    isPreviewMode,
-    isAutoCanvasResizing,
-    isDistributingSpace,
-    isProtectedMode,
-  ) => {
-    return (
-      !isResizing &&
-      !isDragging &&
-      !isPreviewMode &&
-      !isAutoCanvasResizing &&
-      !isDistributingSpace &&
-      !isProtectedMode
-    );
-  },
-);
+//     if (!isGitConnected || !currentBranch) {
+//       return false;
+//     } else {
+//       return protectedBranches.includes(currentBranch);
+//     }
+//   },
+//   (
+//     isResizing,
+//     isDragging,
+//     isPreviewMode,
+//     isAutoCanvasResizing,
+//     isDistributingSpace,
+//     isProtectedMode,
+//   ) => {
+//     return (
+//       !isResizing &&
+//       !isDragging &&
+//       !isPreviewMode &&
+//       !isAutoCanvasResizing &&
+//       !isDistributingSpace &&
+//       !isProtectedMode
+//     );
+//   },
+// );
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
@@ -979,6 +988,18 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
+  const items: GenericEntityItem[] = Object.values(widgets)
+    .filter((widget) => widget.widgetName !== MAIN_CONTAINER_WIDGET_NAME)
+    .map((widget) => ({
+      icon: WidgetIconByType(widget.type),
+      title: widget.widgetName,
+      key: widget.widgetId,
+    }));
+
+  return items;
+});
+
 export const getPageList = createSelector(
   (state: AppState) => state.entities.pageList.pages,
   (pages) => pages,
@@ -1049,9 +1070,6 @@ export const getExistingActionNames = createSelector(
     }
   },
 );
-
-export const getEditingEntityName = (state: AppState) =>
-  state.ui.explorer.entity.editingEntityName;
 
 export const getExistingJSCollectionNames = createSelector(
   getJSCollections,
@@ -1645,11 +1663,13 @@ export const getQuerySegmentItems = createSelector(
           ? "AI Queries"
           : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
       } else {
-        group = datasourceIdToNameMap[action.config.datasource.id];
+        group =
+          action.config.datasource?.name ??
+          datasourceIdToNameMap[action.config.datasource?.id];
       }
 
       return {
-        icon: ActionUrlIcon(iconUrl),
+        icon: ActionUrlIcon(iconUrl, "16", "16"),
         title: action.config.name,
         key: action.config.baseId,
         type: action.config.pluginType,
@@ -1682,16 +1702,17 @@ export const getSelectedTableName = (state: AppState) =>
 export const getDatasourceUsageCountForApp = createSelector(
   getActions,
   getDatasources,
-  (state: AppState, editorType: string) => editorType,
-  (actions, datasources, editorType) => {
+  (state: AppState, ideType: IDEType) => ideType,
+  (actions, datasources, ideType) => {
     const actionCount = countBy(actions, "config.datasource.id");
     const actionDsMap: Record<string, string> = {};
 
     datasources.forEach((ds) => {
-      actionDsMap[ds.id] = `No queries in this ${editorType}`;
+      actionDsMap[ds.id] = `No queries in this ${ideType.toLowerCase()}`;
     });
     Object.keys(actionCount).forEach((dsId) => {
-      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${editorType}`;
+      actionDsMap[dsId] =
+        `${actionCount[dsId]} queries in this ${ideType.toLowerCase()}`;
     });
 
     return actionDsMap;

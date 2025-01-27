@@ -50,7 +50,7 @@ describe(
           expect($noRecMsg).to.eq("No data records to show"),
         );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
     });
 
     it("2. Creating all queries- binarytype", () => {

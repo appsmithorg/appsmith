@@ -15,10 +15,10 @@ import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types"
 import type { WorkerRequest } from "ee/workers/common/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { ICacheProps } from "../common/AppComputationCache/types";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
+import type { UpdateActionProps } from "./handlers/types";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,6 +52,7 @@ export interface EvalTreeRequestData {
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
   affectedJSObjects: AffectedJSObjects;
+  actionDataPayloadConsolidated?: UpdateActionProps[];
 }
 
 export interface EvalTreeResponseData {
@@ -68,7 +69,7 @@ export interface EvalTreeResponseData {
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];
-  webworkerTelemetry?: Record<string, WebworkerSpanData | SpanAttributes>;
+  webworkerTelemetry?: Record<string, WebworkerSpanData | Attributes>;
   updates: string;
 }
 

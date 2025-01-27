@@ -97,7 +97,7 @@ describe(
       propPane.ToggleJSMode("Table data", false);
 
       oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
-        searchableColumn: "gender",
+        searchableColumn: "email",
       });
 
       propPane.MoveToTab("Style");
@@ -105,11 +105,11 @@ describe(
       propPane.MoveToTab("Content");
 
       oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
-        searchableColumn: "status",
+        searchableColumn: "imdb_id",
       });
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
-      agHelper.RenameWithInPane("myinvalidds", false);
+      agHelper.RenameDatasource("myinvalidds");
 
       agHelper.ClearNType(dataSources._host(), "127.0.0.1");
       agHelper.ClearNType(dataSources._port, "8000");
@@ -136,7 +136,7 @@ describe(
       [1, 2].forEach((I) => {
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("Mongo");
-        agHelper.RenameWithInPane(`dummy${I}`, false);
+        agHelper.RenameDatasource(`dummy${I}`);
 
         agHelper.ClearNType(dataSources._host(), "127.0.0.1");
         agHelper.ClearNType(dataSources._port, "8000");

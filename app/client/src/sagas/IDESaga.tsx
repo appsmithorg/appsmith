@@ -15,10 +15,10 @@ import {
   queryListURL,
 } from "ee/RouteBuilder";
 import type { EntityItem } from "ee/entities/IDE/constants";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
 import log from "loglevel";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
@@ -120,6 +120,7 @@ export enum RedirectAction {
   LIST = "LIST", // Navigate to a creation URL
   ITEM = "ITEM", // Navigate to this item
 }
+
 interface RedirectActionDescription {
   action: RedirectAction;
   payload?: EntityItem;

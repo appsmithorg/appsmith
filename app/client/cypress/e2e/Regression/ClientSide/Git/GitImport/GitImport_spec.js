@@ -1,4 +1,3 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
@@ -85,7 +84,7 @@ describe(
           gitSync.CreateGitBranch(repoName);
         });
 
-        agHelper.AssertElementExist(gitSync._bottomBarPull);
+        agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
       });
     });
 
@@ -129,11 +128,11 @@ describe(
         cy.log(interception.response.body.data);
         cy.wait(1000);
       });
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
 
       cy.wait(3000); //for uncommited changes to appear if any!
       cy.get("body").then(($body) => {
-        if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
+        if ($body.find(gitSync.locators.quickActionsCommitCount).length > 0) {
           gitSync.CommitAndPush();
         }
       });
@@ -179,12 +178,12 @@ describe(
       // deploy the app and validate data binding
       cy.wait(2000);
       cy.get(homePageLocators.publishButton).click();
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-      cy.get(gitSyncLocators.commitButton).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      cy.get(gitSync.locators.opsCommitInput).type("Initial Commit");
+      cy.get(gitSync.locators.opsCommitBtn).click();
       cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
-      agHelper.AssertElementExist(gitSync._bottomBarPull);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      agHelper.AssertElementExist(gitSync.locators.quickActionsPullBtn);
+      gitSync.CloseOpsModal();
       cy.wait(2000);
       gitSync.MergeToMaster();
       cy.wait(2000);
@@ -230,7 +229,7 @@ describe(
       cy.wait(3000);
       gitSync.CommitAndPush();
       cy.merge(newBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
+      gitSync.CloseOpsModal();
       cy.wait(2000);
       cy.switchGitBranch(newBranch);
       cy.wait(4000);

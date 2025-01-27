@@ -4,15 +4,12 @@
   "runQuery": "//span[text()='Run']/ancestor::button",
   "saveQuery": ".t--save-query",
   "deleteQuery": ".t--delete-query",
-  "queryMoreAction": "[data-testid=more-action-trigger]",
+  "queryMoreAction": "[data-testid=t--more-action-trigger]",
   "deleteUsingContext": ".t--apiFormDeleteBtn",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
-  "queryNameField": ".t--action-name-edit-field input",
-  "settings": "span:contains('Settings')",
-  "query": "//span[text()='Query']/parent::button[@role='tab']",
   "switch": ".t--form-control-SWITCH input",
-  "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td']",
+  "queryResponse": "(//div[@class='table']//div[@class='tr'])[2]//div[@class='td as-mask']",
   "querySelect": "//div[contains(@class, 't--template-menu')]//div[text()='Select']",
   "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
   "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
@@ -23,6 +20,5 @@
   "copyURLicon": "//button/span[@icon='link']",
   "snipeableTable": "//input[@type='search']",
   "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
-  "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
-  "querySettingsTab": "//span[contains(text(), 'Settings')]/parent::button"
+  "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']"
 }

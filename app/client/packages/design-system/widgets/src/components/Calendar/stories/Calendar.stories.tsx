@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Calendar } from "../src";
-import { today, getLocalTimeZone } from "@internationalized/date";
+import { parseDate } from "@internationalized/date";
 
 const meta: Meta<typeof Calendar> = {
   component: Calendar,
@@ -19,34 +19,34 @@ type Story = StoryObj<typeof Calendar>;
 
 export const Default: Story = {
   args: {
-    defaultValue: today(getLocalTimeZone()),
+    defaultValue: parseDate("2024-01-01"),
   },
 };
 
 export const WithMinDate: Story = {
   args: {
-    defaultValue: today(getLocalTimeZone()),
-    minValue: today(getLocalTimeZone()),
+    defaultValue: parseDate("2024-01-01"),
+    minValue: parseDate("2024-01-01"),
   },
 };
 
 export const WithMaxDate: Story = {
   args: {
-    defaultValue: today(getLocalTimeZone()),
-    maxValue: today(getLocalTimeZone()).add({ days: 10 }),
+    defaultValue: parseDate("2024-01-01"),
+    maxValue: parseDate("2024-01-11"),
   },
 };
 
 export const Disabled: Story = {
   args: {
-    defaultValue: today(getLocalTimeZone()),
+    defaultValue: parseDate("2024-01-01"),
     isDisabled: true,
   },
 };
 
 export const ReadOnly: Story = {
   args: {
-    defaultValue: today(getLocalTimeZone()),
+    defaultValue: parseDate("2024-01-01"),
     isReadOnly: true,
   },
 };
