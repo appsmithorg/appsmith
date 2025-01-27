@@ -28,7 +28,7 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": ["./typings", "./node_modules/@types"],
+    "typeRoots": ["./typings", "./node_modules/@types", "./src/types"],
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,

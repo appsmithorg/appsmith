@@ -21,7 +21,7 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 import type { PluginType } from "entities/Plugin";
 import localStorage from "utils/localStorage";
 import { EDITOR_PATHS } from "ee/entities/IDE/utils";
-import type { Match } from "path-to-regexp";
+import type { Match, TokensToRegexpOptions } from "path-to-regexp";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
