@@ -487,9 +487,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const launchApp = useCallback(
     (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
       if (e.ctrlKey || e.metaKey) {
         window.open(viewModeURL, "_blank");
 
@@ -505,9 +502,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editApp = useCallback(
     (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
       if (e.ctrlKey || e.metaKey) {
         window.open(editModeURL, "_blank");
 
@@ -521,16 +515,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
     [dispatch, editModeURL, setURLParams],
   );
 
-  const launchMobileApp = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setURLParams();
-      history.push(viewModeURL);
-      dispatch(getCurrentUser());
-    },
-    [setURLParams, viewModeURL, dispatch],
-  );
+  const launchMobileApp = useCallback(() => {
+    setURLParams();
+    history.push(viewModeURL);
+    dispatch(getCurrentUser());
+  }, [setURLParams, viewModeURL, dispatch]);
 
   return (
     <Card
@@ -555,7 +544,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       {hasEditPermission && !isMenuOpen && (
         <Button
           className="t--application-edit-link"
-          href={editModeURL}
           onClick={editApp}
           renderAs="a"
           size="md"
@@ -567,7 +555,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       {!isMenuOpen && (
         <Button
           className="t--application-view-link"
-          href={viewModeURL}
           kind="secondary"
           onClick={launchApp}
           renderAs="a"
