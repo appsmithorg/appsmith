@@ -1,4 +1,5 @@
-import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
+import pickBy from "lodash/pickBy";
+import identity from "lodash/identity";
 import type { ConsolidatedApiParams } from "./types";
 
 export class ConsolidatedApiUtils {
@@ -7,14 +8,18 @@ export class ConsolidatedApiUtils {
   private static EDIT_URL = `${this.BASE_URL}/edit`;
 
   static getViewUrl = (requestParams: ConsolidatedApiParams) => {
-    const queryParams = getQueryStringfromObject(requestParams);
+    // Remove undefined values from the requestParams object
+    const queryParamsObject = pickBy(requestParams, identity);
+    const queryParams = new URLSearchParams(queryParamsObject);
 
-    return `${this.VIEW_URL}${queryParams}`;
+    return `${this.VIEW_URL}?${queryParams}`;
   };
 
   static getEditUrl = (requestParams: ConsolidatedApiParams) => {
-    const queryParams = getQueryStringfromObject(requestParams);
+    // Remove undefined values from the requestParams object
+    const queryParamsObject = pickBy(requestParams, identity);
+    const queryParams = new URLSearchParams(queryParamsObject);
 
-    return `${this.EDIT_URL}${queryParams}`;
+    return `${this.EDIT_URL}?${queryParams}`;
   };
 }
