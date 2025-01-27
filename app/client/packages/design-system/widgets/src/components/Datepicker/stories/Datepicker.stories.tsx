@@ -4,7 +4,7 @@ import { Button, Flex, SIZES } from "@appsmith/wds";
 import { parseDate } from "@internationalized/date";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { DatePicker } from "../src";
+import { DatePicker, type DatePickerProps, type DateValue } from "../src";
 /**
  * A date picker allows a user to select a date.
  */
@@ -44,7 +44,10 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
       {objectKeys(SIZES)
-        .filter((size) => !["xSmall", "large"].includes(size))
+        .filter(
+          (size): size is NonNullable<DatePickerProps<DateValue>["size"]> =>
+            !["xSmall", "large"].includes(size),
+        )
         .map((size) => (
           <DatePicker key={size} popoverClassName="sb-unstyled" size={size} />
         ))}

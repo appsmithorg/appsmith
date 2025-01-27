@@ -10,5 +10,5 @@ export interface TimeFieldProps<T extends TimeValue>
     FieldProps {
   suffix?: ReactNode;
   prefix?: ReactNode;
-  size?: Omit<keyof typeof SIZES, "xSmall">;
+  size?: Exclude<keyof typeof SIZES, "xSmall">;
 }

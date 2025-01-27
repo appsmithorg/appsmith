@@ -1,6 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Flex, BUTTON_VARIANTS, COLORS, SIZES } from "@appsmith/wds";
+import {
+  Button,
+  Flex,
+  BUTTON_VARIANTS,
+  COLORS,
+  SIZES,
+  type ButtonProps,
+} from "@appsmith/wds";
 import { objectKeys } from "@appsmith/utils";
 
 /**
@@ -59,15 +66,21 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-6">
       <Flex alignItems="start" gap="spacing-4">
-        {Object.keys(SIZES)
-          .filter((size) => !["large"].includes(size))
+        {objectKeys(SIZES)
+          .filter(
+            (size): size is NonNullable<ButtonProps["size"]> =>
+              !["large"].includes(size),
+          )
           .map((size) => (
             <Button icon="star" key={size} size={size} />
           ))}
       </Flex>
       <Flex alignItems="start" gap="spacing-4">
-        {Object.keys(SIZES)
-          .filter((size) => !["large"].includes(size))
+        {objectKeys(SIZES)
+          .filter(
+            (size): size is NonNullable<ButtonProps["size"]> =>
+              !["large"].includes(size),
+          )
           .map((size) => (
             <Button icon="star" key={size} size={size}>
               {size}
@@ -75,8 +88,11 @@ export const Sizes: Story = {
           ))}
       </Flex>
       <Flex alignItems="start" gap="spacing-4">
-        {Object.keys(SIZES)
-          .filter((size) => !["large"].includes(size))
+        {objectKeys(SIZES)
+          .filter(
+            (size): size is NonNullable<ButtonProps["size"]> =>
+              !["large"].includes(size),
+          )
           .map((size) => (
             <Button icon="star" iconPosition="end" key={size} size={size}>
               {size}
@@ -84,8 +100,11 @@ export const Sizes: Story = {
           ))}
       </Flex>
       <Flex alignItems="start" gap="spacing-4">
-        {Object.keys(SIZES)
-          .filter((size) => !["large"].includes(size))
+        {objectKeys(SIZES)
+          .filter(
+            (size): size is NonNullable<ButtonProps["size"]> =>
+              !["large"].includes(size),
+          )
           .map((size) => (
             <Button key={size} size={size}>
               {size}

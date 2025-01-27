@@ -85,6 +85,7 @@ import {
   mergeInitAction,
   mergeSuccessAction,
   resetMergeStateAction,
+  resetMergeSuccessAction,
 } from "./actions/mergeActions";
 import {
   pollAutocommitProgressStopAction,
@@ -192,6 +193,7 @@ export const gitArtifactSlice = createSlice({
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
     resetMergeState: resetMergeStateAction,
+    resetMergeSuccessState: resetMergeSuccessAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,

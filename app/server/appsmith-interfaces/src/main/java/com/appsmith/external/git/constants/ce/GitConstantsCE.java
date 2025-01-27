@@ -9,6 +9,8 @@ public class GitConstantsCE {
     public static final String ACTION_LIST = "actionList";
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
 
+    public static final String README_FILE_NAME = "README.md";
+
     public static final String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     public static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     public static final String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
