@@ -518,7 +518,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
                 gitArtifactMetadata.getRefName(),
-                "organizationId",
+                "workspaceId",
                 artifact.getWorkspaceId(),
                 "repoUrl",
                 gitArtifactMetadata.getRemoteUrl(),
