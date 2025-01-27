@@ -80,6 +80,7 @@ interface TabMergeViewProps {
   mergeStatus: FetchMergeStatusResponseData | null;
   protectedBranches: FetchProtectedBranchesResponseData | null;
   resetMergeState: () => void;
+  resetMergeSuccessState: () => void;
 }
 
 export default function TabMergeView({
@@ -99,6 +100,7 @@ export default function TabMergeView({
   mergeStatus = null,
   protectedBranches = null,
   resetMergeState = noop,
+  resetMergeSuccessState = noop,
 }: TabMergeViewProps) {
   const [selectedBranchOption, setSelectedBranchOption] =
     useState<BranchOption>();
@@ -208,9 +210,15 @@ export default function TabMergeView({
       // when user selects a branch to merge
       if (currentBranch && selectedBranchOption?.value) {
         fetchMergeStatus(currentBranch, selectedBranchOption?.value);
+        resetMergeSuccessState();
       }
     },
-    [currentBranch, selectedBranchOption?.value, fetchMergeStatus],
+    [
+      currentBranch,
+      selectedBranchOption?.value,
+      fetchMergeStatus,
+      resetMergeSuccessState,
+    ],
   );
 
   useEffect(
