@@ -117,7 +117,7 @@ export const getConsolidatedApiPrefetchRequest = (
       branchName,
     });
 
-    const request = new Request(`${origin}${requestUrl}`, { method: "GET" });
+    const request = new Request(`${origin}/${requestUrl}`, { method: "GET" });
 
     return request;
   }
@@ -130,7 +130,7 @@ export const getConsolidatedApiPrefetchRequest = (
       branchName,
     });
 
-    const request = new Request(`${origin}${requestUri}`, { method: "GET" });
+    const request = new Request(`${origin}/${requestUri}`, { method: "GET" });
 
     return request;
   }
