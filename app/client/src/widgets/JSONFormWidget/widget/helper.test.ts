@@ -469,7 +469,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
 });
 
 describe(".computeSchema", () => {
-  it("returns LIMIT_EXCEEDED state when source data exceeds limit", () => {
+  it("returns LIMIT_EXCEEDED state when source data exceeds default limit", () => {
     const sourceData = {
       number: 10,
       text: "text",
@@ -547,6 +547,76 @@ describe(".computeSchema", () => {
     expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
     expect(response.dynamicPropertyPathList).toBeUndefined();
     expect(response.schema).toEqual({});
+  });
+
+  it("respects custom maxAllowedFields when higher than default", () => {
+    const sourceData = {
+      number: 10,
+      text: "text",
+      object1: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+      object2: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+    };
+
+    const response = computeSchema({
+      currSourceData: sourceData,
+      widgetName: {
+        maxAllowedFields: 60,
+      },
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
+    });
+
+    expect(response.status).not.toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
+  });
+
+  it("respects custom maxAllowedFields when lower than default", () => {
+    const sourceData = {
+      name: "John",
+      age: 30,
+      email: "john@example.com",
+      address: {
+        street: "123 Main St",
+        city: "Springfield",
+        country: "USA"
+      }
+    };
+
+    const response = computeSchema({
+      currSourceData: sourceData,
+      widgetName: {
+        maxAllowedFields: 5,
+      },
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
   });
 
   it("returns UNCHANGED status no source data is passed", () => {

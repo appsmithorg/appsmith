@@ -44,7 +44,10 @@ interface ComputeSchemaProps {
   currSourceData?: JSON;
   prevSourceData?: JSON;
   prevSchema?: Schema;
-  widgetName: string;
+  widgetName: {
+    maxAllowedFields?: number;
+    [key: string]: any;
+  };
   currentDynamicPropertyPathList?: PathList;
   fieldThemeStylesheets: FieldThemeStylesheet;
   prevDynamicPropertyPathList?: PathList;
@@ -283,8 +286,10 @@ export const computeSchema = ({
   }
 
   const count = countFields(currSourceData);
+  // Use configurable maxAllowedFields with fallback to MAX_ALLOWED_FIELDS constant
+  const fieldLimit = widgetName?.maxAllowedFields || MAX_ALLOWED_FIELDS;
 
-  if (count > MAX_ALLOWED_FIELDS) {
+  if (count > fieldLimit) {
     AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
       widgetType: "JSON_FORM_WIDGET",
       widgetName,
@@ -292,7 +297,7 @@ export const computeSchema = ({
       updatedValue: currSourceData,
       metaInfo: {
         limitExceeded: true,
-        currentLimit: MAX_ALLOWED_FIELDS,
+        currentLimit: fieldLimit,
       },
     });
 

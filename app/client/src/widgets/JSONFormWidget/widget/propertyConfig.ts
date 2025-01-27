@@ -316,6 +316,36 @@ export const contentConfig = [
     sectionName: "General",
     children: [
       {
+        propertyName: "maxAllowedFields",
+        label: "Max allowed fields",
+        helpText: "Sets the maximum number of fields to generate in the JSONFormWidget (default is 50). Exceeding 50 can lead to performance issues.",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+            default: 50,
+            fn: (value: unknown) => {
+              const num = Number(value);
+              if (num > 50) {
+                return {
+                  isValid: true,
+                  parsed: num,
+                  messages: ["Warning: Values above 50 can lead to performance issues"],
+                };
+              }
+              return {
+                isValid: true,
+                parsed: num,
+              };
+            },
+          },
+        },
+        placeholderText: "50",
+      },
+      {
         propertyName: "title",
         label: "Title",
         helpText: "Sets the title of the form",
