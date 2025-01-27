@@ -40,6 +40,6 @@ export const PlusButtonContainer = styled.div<{ $isStuck?: boolean }>`
     `}
 `;
 
-export const PlusButton = styled(Button)<{ $isStuck?: boolean }>`
+export const PlusButton = styled(Button)`
   min-width: 24px;
 `;
