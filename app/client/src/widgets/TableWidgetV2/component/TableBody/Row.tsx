@@ -1,5 +1,5 @@
 import type { CSSProperties, Key } from "react";
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
@@ -12,9 +12,30 @@ interface RowType {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
+  data: {
+    onHeightChange?: (index: number, height: number) => void;
+  };
 }
 
 export function Row(props: RowType) {
+  const { data, index } = props;
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = rowRef.current;
+
+    if (!element || !data || !data.onHeightChange) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const newHeight = entries[0].contentRect.height;
+
+      data.onHeightChange!(index, newHeight);
+    });
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [index, data]);
   const {
     accentColor,
     borderRadius,
@@ -61,6 +82,7 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
+      ref={rowRef}
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
