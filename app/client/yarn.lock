@@ -11192,15 +11192,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/path-to-regexp@npm:1.7.0":
-  version: 1.7.0
-  resolution: "@types/path-to-regexp@npm:1.7.0"
-  dependencies:
-    path-to-regexp: "*"
-  checksum: 36d8df1bf27b13f8e7021153e2a3b56f97a12744534f9fc35debf8324f883458e7757b8fdd84974dc942e749752968ae34df1ea966da60c463545717541cc524
-  languageName: node
-  linkType: hard
-
 "@types/pixelmatch@npm:*":
   version: 5.2.6
   resolution: "@types/pixelmatch@npm:5.2.6"
@@ -13207,7 +13198,6 @@ __metadata:
     "@types/node-fetch": ^2.6.11
     "@types/node-forge": ^0.10.0
     "@types/object-hash": ^2.2.1
-    "@types/path-to-regexp": 1.7.0
     "@types/pluralize": ^0.0.33
     "@types/prismjs": ^1.16.1
     "@types/react": ^17.0.2

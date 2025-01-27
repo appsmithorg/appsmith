@@ -3,7 +3,7 @@
 // Definitions by: Devin AI
 // Minimum TypeScript Version: 4.0
 
-declare module 'path-to-regexp' {
+declare module "path-to-regexp" {
   interface Key {
     name: string | number;
     prefix: string;
@@ -31,8 +31,16 @@ declare module 'path-to-regexp' {
   function match<T>(path: string, options?: Options): MatchFunction<T>;
   function parse(path: string): Key[];
   function compile(path: string): (params: object) => string;
-  function tokensToRegExp(tokens: Key[], keys?: Key[], options?: Options): RegExp;
-  function pathToRegexp(path: string | RegExp | Array<string | RegExp>, keys?: Key[], options?: Options): RegExp;
+  function tokensToRegExp(
+    tokens: Key[],
+    keys?: Key[],
+    options?: Options,
+  ): RegExp;
+  function pathToRegexp(
+    path: string | RegExp | Array<string | RegExp>,
+    keys?: Key[],
+    options?: Options,
+  ): RegExp;
 
   export = pathToRegexp;
 }
