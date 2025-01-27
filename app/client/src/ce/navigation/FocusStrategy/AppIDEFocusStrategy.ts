@@ -62,7 +62,7 @@ function shouldSetState(
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
-    prevFocusEntityInfo.entity === FocusEntity.PROPERTY_PANE &&
+    prevFocusEntityInfo.entity === FocusEntity.WIDGET &&
     (currFocusEntityInfo.entity === FocusEntity.WIDGET_LIST ||
       currFocusEntityInfo.entity === FocusEntity.CANVAS) &&
     isSamePage

@@ -127,7 +127,7 @@ export function useWidgetSelectionBlockListener() {
   useEffect(() => {
     const inUIMode = [
       FocusEntity.CANVAS,
-      FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET,
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
 

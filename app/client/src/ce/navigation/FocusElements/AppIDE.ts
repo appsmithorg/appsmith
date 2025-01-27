@@ -72,15 +72,6 @@ import { getIDETabs } from "selectors/ideSelectors";
 import { setIDETabs } from "actions/ideActions";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
-  [FocusEntity.DATASOURCE_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedDatasource,
-      selector: getSelectedDatasourceId,
-      setter: setSelectedDatasource,
-      defaultValue: getFirstDatasourceId,
-    },
-  ],
   [FocusEntity.DATASOURCE]: [
     {
       type: FocusElementConfigType.Redux,
@@ -88,6 +79,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getDsViewModeValues,
       setter: setDatasourceViewMode,
       defaultValue: { datasourceId: "", viewMode: true },
+    },
+  ],
+  [FocusEntity.DATASOURCE_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedDatasource,
+      selector: getSelectedDatasourceId,
+      setter: setSelectedDatasource,
+      defaultValue: getFirstDatasourceId,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
@@ -114,6 +114,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
         responseTabHeight: ActionExecutionResizerHeight,
         selectedTab: undefined,
       },
+    },
+  ],
+  [FocusEntity.JS_OBJECT_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedJSObject,
+      selector: identifyEntityFromPath,
+      setter: setSelectedJSObject,
+      defaultValue: getLastJSTab,
     },
   ],
   [FocusEntity.QUERY]: [
@@ -150,7 +159,16 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       },
     },
   ],
-  [FocusEntity.PROPERTY_PANE]: [
+  [FocusEntity.QUERY_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedQuery,
+      selector: identifyEntityFromPath,
+      setter: setSelectedQuery,
+      defaultValue: getLastQueryTab,
+    },
+  ],
+  [FocusEntity.WIDGET]: [
     {
       type: FocusElementConfigType.Redux,
       name: FocusElement.PropertyPanelContext,
@@ -187,33 +205,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: "",
     },
   ],
-  [FocusEntity.DEBUGGER]: [
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.DebuggerContext,
-      selector: getDebuggerContext,
-      setter: setDebuggerContext,
-      defaultValue: DefaultDebuggerContext,
-    },
-  ],
-  [FocusEntity.QUERY_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedQuery,
-      selector: identifyEntityFromPath,
-      setter: setSelectedQuery,
-      defaultValue: getLastQueryTab,
-    },
-  ],
-  [FocusEntity.JS_OBJECT_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedJSObject,
-      selector: identifyEntityFromPath,
-      setter: setSelectedJSObject,
-      defaultValue: getLastJSTab,
-    },
-  ],
   [FocusEntity.WIDGET_LIST]: [
     {
       type: FocusElementConfigType.Redux,
@@ -226,6 +217,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
           NavigationMethod.ContextSwitching,
         ),
       defaultValue: getDefaultSelectedWidgetIds,
+    },
+  ],
+  [FocusEntity.DEBUGGER]: [
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.DebuggerContext,
+      selector: getDebuggerContext,
+      setter: setDebuggerContext,
+      defaultValue: DefaultDebuggerContext,
     },
   ],
   [FocusEntity.EDITOR]: [

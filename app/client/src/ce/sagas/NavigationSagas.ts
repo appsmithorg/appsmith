@@ -145,7 +145,7 @@ function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   let widgets: string[] = [];
   let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
 
-  if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
+  if (entityInfo.entity === FocusEntity.WIDGET) {
     widgets = entityInfo.id.split(",");
 
     if (widgets.length) {
