@@ -4,10 +4,10 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "ee/RouteBuilder";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 
 export function setSelectedDatasource(id?: string) {
   if (id) {

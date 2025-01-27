@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
-import {
-  getIDEViewMode,
-  getIsSideBySideEnabled,
-  getListViewActiveState,
-} from "selectors/ideSelectors";
+import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
@@ -14,10 +10,13 @@ import {
 } from "ee/entities/IDE/constants";
 
 import Container from "./Container";
-import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
+import {
+  useCurrentEditorState,
+  useIDETabClickHandlers,
+  useShowSideBySideNudge,
+} from "../hooks";
 import { SCROLL_AREA_OPTIONS, TabSelectors } from "./constants";
 import { AddButton } from "./AddButton";
-import { Announcement } from "../EditorPane/components/Announcement";
 import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { List } from "./List";
@@ -30,7 +29,6 @@ import { useEventCallback } from "usehooks-ts";
 import { EditableTab } from "./EditableTab";
 
 const EditorTabs = () => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
@@ -38,6 +36,7 @@ const EditorTabs = () => {
   const entities = useSelector(tabsConfig.listSelector, shallowEqual);
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
   const isListViewActive = useSelector(getListViewActiveState);
+  const [showNudge, dismissNudge] = useShowSideBySideNudge();
 
   const location = useLocation();
   const dispatch = useDispatch();
@@ -98,8 +97,6 @@ const EditorTabs = () => {
     dispatch(setListViewActiveState(false));
   });
 
-  if (!isSideBySideEnabled) return null;
-
   if (segment === EditorEntityTab.UI) return null;
 
   return (
@@ -155,16 +152,13 @@ const EditorTabs = () => {
         </ScrollArea>
         {files.length > 0 ? <AddButton /> : null}
         {/* Switch screen mode button */}
-        <ScreenModeToggle />
+        <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
       </Container>
 
       {/* Overflow list */}
       {isListViewActive && ideViewMode === EditorViewMode.SplitScreen && (
         <List />
       )}
-
-      {/* Announcement modal */}
-      {ideViewMode === EditorViewMode.SplitScreen && <Announcement />}
     </>
   );
 };

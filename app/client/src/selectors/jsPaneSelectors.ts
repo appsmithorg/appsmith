@@ -1,5 +1,5 @@
 import type { AppState } from "ee/reducers";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { selectJSSegmentEditorTabs } from "ee/selectors/appIDESelectors";

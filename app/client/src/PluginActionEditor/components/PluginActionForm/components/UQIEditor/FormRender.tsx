@@ -7,7 +7,7 @@ import {
 } from "ee/constants/messages";
 import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
-import { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "entities/Plugin";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
@@ -179,7 +179,7 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          // TODO: Remove classname once action redesign epic is done
+          // TODO: Remove classname once DB configs are migrated
           <FieldWrapper
             className="uqi-form-wrapper"
             key={`${configProperty}_${idx}`}

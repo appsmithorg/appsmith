@@ -2,7 +2,7 @@ import React from "react";
 import { IDEHeaderSwitcher } from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
-import { PagesSection } from "../EditorPane/PagesSection";
+import { PagesSection } from "../EditorPane/Pages/PagesSection";
 import { useBoolean } from "usehooks-ts";
 import { useSelector } from "react-redux";
 import { getCurrentPageId, getPageById } from "selectors/editorSelectors";

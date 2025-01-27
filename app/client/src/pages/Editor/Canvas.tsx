@@ -92,7 +92,7 @@ const Canvas = (props: CanvasProps) => {
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={isAnvilLayout ? "" : backgroundForCanvas}
-          className={`relative t--canvas-artboard mp-mask ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative t--canvas-artboard as-mask ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
           data-testid={"t--canvas-artboard"}

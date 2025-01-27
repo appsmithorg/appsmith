@@ -68,6 +68,7 @@ function CustomComponent(props: CustomComponentProps) {
       ...props.theme?.colors,
       borderRadius: props.theme?.borderRadius?.appBorderRadius,
       boxShadow: props.theme?.boxShadow?.appBoxShadow,
+      fontFamily: props.theme?.fontFamily?.appFont,
     };
   }, [props.theme]);
 

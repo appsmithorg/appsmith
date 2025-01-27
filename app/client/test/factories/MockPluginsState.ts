@@ -1,5 +1,5 @@
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 
 export const PluginIDs: Record<PluginPackageName, string> = {
   [PluginPackageName.POSTGRES]: "65e58df196506a506bd7069c",
@@ -7007,7 +7007,6 @@ export default {
             controlType: "INPUT_TEXT",
             configProperty: "actionConfiguration.timeoutInMillisecond",
             dataType: "NUMBER",
-            width: "270px",
           },
         ],
       },
@@ -7073,7 +7072,6 @@ export default {
             controlType: "INPUT_TEXT",
             configProperty: "actionConfiguration.timeoutInMillisecond",
             dataType: "NUMBER",
-            width: "270px",
           },
         ],
       },

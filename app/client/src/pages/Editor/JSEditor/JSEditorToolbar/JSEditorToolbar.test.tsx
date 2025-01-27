@@ -34,17 +34,7 @@ const defaultProps = {
 };
 
 describe("JSEditorToolbar", () => {
-  it("renders JSHeader when action redesign is disabled", () => {
-    mockUseFeatureFlag.mockReturnValue(false);
-    render(<JSEditorToolbar {...defaultProps} />);
-    // Old header shows the name of the JS object
-    // since we don't provide the name via props, it has the placeholder text
-    expect(
-      screen.getByText("Name of the JS Object in camelCase"),
-    ).toBeInTheDocument();
-  });
-
-  it("renders IDEToolbar with JSFunctionRun and JSFunctionSettings when action redesign is enabled", () => {
+  it("renders IDEToolbar with JSFunctionRun and JSFunctionSettings", () => {
     mockUseFeatureFlag.mockReturnValue(true);
     render(<JSEditorToolbar {...defaultProps} />);
 

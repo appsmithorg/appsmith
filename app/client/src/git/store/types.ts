@@ -5,7 +5,6 @@ import type {
   GitSettingsTab,
 } from "../constants/enums";
 import type { FetchGlobalProfileResponseData } from "../requests/fetchGlobalProfileRequest.types";
-import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest.types";
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
@@ -19,6 +18,7 @@ import type {
 } from "git/ee/store/types";
 import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
 import type { ApplicationPayload } from "entities/Application";
+import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -45,7 +45,7 @@ export interface GitArtifactAPIResponsesReduxState
   discard: GitAsyncStateWithoutValue;
   mergeStatus: GitAsyncState<FetchMergeStatusResponseData>;
   merge: GitAsyncStateWithoutValue;
-  branches: GitAsyncState<FetchBranchesResponseData>;
+  branches: GitAsyncState<FetchRefsResponseData>;
   checkoutBranch: GitAsyncStateWithoutValue;
   createBranch: GitAsyncStateWithoutValue;
   deleteBranch: GitAsyncStateWithoutValue;
@@ -63,10 +63,12 @@ export interface GitArtifactAPIResponsesReduxState
 
 export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
+  initializing: boolean;
+  initialized: boolean;
   connectModalOpen: boolean;
   connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
-  disconnectArtifactType: keyof typeof GitArtifactType | null;
+  disconnectArtifactType: GitArtifactType | null;
   disconnectArtifactName: string | null;
   branchPopupOpen: boolean;
   checkoutDestBranch: string | null;
@@ -83,7 +85,7 @@ export interface GitArtifactUIReduxState
 export type GitArtifact = ApplicationPayload;
 
 export interface GitArtifactDef {
-  artifactType: keyof typeof GitArtifactType;
+  artifactType: GitArtifactType;
   baseArtifactId: string;
 }
 export interface GitArtifactReduxState {

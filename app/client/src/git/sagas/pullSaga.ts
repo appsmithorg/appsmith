@@ -13,6 +13,7 @@ import { initEditorAction } from "actions/initActions";
 import { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* pullSaga(
   action: GitArtifactPayloadAction<PullInitPayload>,
@@ -21,7 +22,16 @@ export default function* pullSaga(
   let response: PullResponse | undefined;
 
   try {
-    response = yield call(pullRequest, artifactId);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      pullRequest,
+      artifactDef.artifactType,
+      artifactId,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

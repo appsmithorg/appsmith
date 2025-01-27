@@ -27,7 +27,7 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
 import store from "store";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 
 // TODO: Fix this the next time the file is edited

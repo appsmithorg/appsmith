@@ -33,7 +33,6 @@ import {
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
 } from "ee/constants/messages";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
   useSheetsList,
@@ -62,7 +61,10 @@ import {
 } from "selectors/editorSelectors";
 
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
-import { PluginPackageName } from "entities/Action";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  PluginPackageName,
+} from "entities/Plugin";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginImages } from "ee/selectors/entitiesSelector";
 import { getAssetUrl } from "ee/utils/airgapHelpers";

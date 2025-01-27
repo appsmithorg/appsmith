@@ -54,7 +54,6 @@ export default [
         controlType: "INPUT_TEXT",
         configProperty: "actionConfiguration.timeoutInMillisecond",
         dataType: "NUMBER",
-        width: "270px",
       },
     ],
   },

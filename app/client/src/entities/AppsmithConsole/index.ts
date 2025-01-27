@@ -1,7 +1,7 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type LOG_TYPE from "./logtype";
 import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import type { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 import type {
   ENTITY_TYPE,

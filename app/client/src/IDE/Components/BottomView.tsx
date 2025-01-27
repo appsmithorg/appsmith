@@ -4,7 +4,7 @@ import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
-import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
+import { ViewDisplayMode, ViewHideBehaviour } from "../Interfaces/View";
 import { Button } from "@appsmith/ads";
 import classNames from "classnames";
 

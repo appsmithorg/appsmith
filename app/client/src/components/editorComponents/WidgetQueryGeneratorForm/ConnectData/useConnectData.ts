@@ -7,7 +7,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isValidGsheetConfig } from "../utils";
 import { useContext, useMemo } from "react";
 import { WidgetQueryGeneratorFormContext } from "../index";
-import { PluginPackageName } from "../../../../entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { useFormConfig } from "../common/useFormConfig";
 
 export function useConnectData() {

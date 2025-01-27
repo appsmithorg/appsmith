@@ -19,7 +19,12 @@ export default meta;
 const EntityGroupTemplate = <T,>(props: EntityGroupProps<T>) => {
   const { addConfig, className, groupTitle, items } = props;
 
-  return <EntityGroup group={{ addConfig, className, groupTitle, items }} />;
+  return (
+    <EntityGroup
+      group={{ addConfig, className, groupTitle, items }}
+      visibleItems={5}
+    />
+  );
 };
 
 export const SingleGroupWithAddNLazyLoad = EntityGroupTemplate.bind(
@@ -83,7 +88,7 @@ SingleGroupWithAddNLazyLoad.args = {
 const EntityGroupsListTemplate = <T,>(props: EntityGroupsListProps<T>) => {
   const { groups } = props;
 
-  return <EntityGroupsList groups={groups} showDivider />;
+  return <EntityGroupsList groups={groups} showDivider visibleItems={5} />;
 };
 
 export const MultipleGroupsWithAddNLazyLoad = EntityGroupsListTemplate.bind(
