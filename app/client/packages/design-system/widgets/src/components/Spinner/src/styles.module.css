@@ -1,7 +1,5 @@
 .spinner {
   animation: spin 1s linear infinite;
-  height: 1.5em;
-  width: 1.5em;
 }
 
 @keyframes spin {

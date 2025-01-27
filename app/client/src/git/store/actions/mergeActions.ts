@@ -40,3 +40,9 @@ export const resetMergeStateAction = createArtifactAction((state) => {
 
   return state;
 });
+
+export const resetMergeSuccessAction = createArtifactAction((state) => {
+  state.ui.mergeSuccess = false;
+
+  return state;
+});

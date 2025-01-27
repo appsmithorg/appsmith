@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import Entity, { EntityClassNames } from "../Entity";
 
-export const ENTITY_HEIGHT = 36;
 export const MIN_PAGES_HEIGHT = 60;
 
 export const RelativeContainer = styled.div`
