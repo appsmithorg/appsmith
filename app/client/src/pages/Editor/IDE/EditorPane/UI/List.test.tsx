@@ -13,7 +13,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
-import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
+import ListWidgets from "./List";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -51,7 +51,9 @@ jest
   .spyOn(explorerSelector, "getExplorerWidth")
   .mockImplementation(() => DEFAULT_ENTITY_EXPLORER_WIDTH);
 
-describe("Entity Explorer tests", () => {
+const setFocusSearchInput = jest.fn();
+
+describe("Widget List in Explorer tests", () => {
   beforeAll(() => {
     runSagaMiddleware();
   });
@@ -83,13 +85,13 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <WidgetsEditorEntityExplorer />
+        <ListWidgets setFocusSearchInput={setFocusSearchInput} />
       </MockPageDSL>,
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const widgetsTree: Element = await component.findByText(
-      "Widgets",
+      children[0].widgetName,
       {
         selector: "div.t--entity-name",
       },
@@ -128,7 +130,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <WidgetsEditorEntityExplorer />
+          <ListWidgets setFocusSearchInput={setFocusSearchInput} />
         </MockPageDSL>,
       );
       // TODO: Fix this the next time the file is edited
@@ -169,7 +171,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <WidgetsEditorEntityExplorer />
+          <ListWidgets setFocusSearchInput={setFocusSearchInput} />
         </MockPageDSL>,
       );
       // TODO: Fix this the next time the file is edited
@@ -226,7 +228,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <WidgetsEditorEntityExplorer />
+          <ListWidgets setFocusSearchInput={setFocusSearchInput} />
         </MockPageDSL>,
       );
 
@@ -320,7 +322,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <WidgetsEditorEntityExplorer />
+          <ListWidgets setFocusSearchInput={setFocusSearchInput} />
         </MockPageDSL>,
       );
       // TODO: Fix this the next time the file is edited

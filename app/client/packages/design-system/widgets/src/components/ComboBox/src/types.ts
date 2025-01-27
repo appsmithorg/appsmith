@@ -8,7 +8,7 @@ export interface ComboBoxProps
    *
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
+  size?: Exclude<keyof typeof SIZES, "xSmall" | "large">;
 
   /** The content to display as the placeholder. */
   placeholder?: string;

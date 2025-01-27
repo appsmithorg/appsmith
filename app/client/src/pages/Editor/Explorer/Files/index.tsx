@@ -140,7 +140,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId, parentEntityType],
+    [files, activeActionBaseId, parentEntityId],
   );
 
   const handleClick = useCallback(

@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import EntityAddButton from "../Entity/AddButton";
+import {
+  AddButtonWrapper,
+  EntityClassNames,
+} from "pages/Editor/Explorer/Entity";
+import EntityAddButton from "pages/Editor/Explorer/Entity/AddButton";
 import styled from "styled-components";
 import { useParams } from "react-router";
 import { useDispatch } from "react-redux";

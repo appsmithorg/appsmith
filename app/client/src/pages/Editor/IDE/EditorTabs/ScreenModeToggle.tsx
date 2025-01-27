@@ -15,9 +15,14 @@ import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Nudge } from "IDE/Components/Nudge";
-import { useShowSideBySideNudge } from "../hooks";
 
-export const ScreenModeToggle = () => {
+interface Props {
+  showNudge?: boolean;
+  dismissNudge?: () => void;
+}
+
+export const ScreenModeToggle = (props: Props) => {
+  const { dismissNudge, showNudge = false } = props;
   const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
   const isAnimatedIDEEnabled = useSelector((state: AppState) => {
@@ -43,14 +48,14 @@ export const ScreenModeToggle = () => {
     }
   }, [dispatch, isAnimatedIDEEnabled]);
 
-  const [showNudge, dismissNudge] = useShowSideBySideNudge();
-
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
 
-    dismissNudge();
+    if (dismissNudge) {
+      dismissNudge();
+    }
 
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
@@ -95,7 +100,7 @@ export const ScreenModeToggle = () => {
     );
   }
 
-  if (showNudge) {
+  if (showNudge && dismissNudge) {
     return (
       <Nudge
         align="center"

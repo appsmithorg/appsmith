@@ -19,7 +19,7 @@ export interface ModalProps
   /** size of the modal
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "xSmall">;
+  size?: Exclude<keyof typeof SIZES, "xSmall">;
   /** The children of the component. */
   children: ReactNode;
   /** Additional props to be passed to the overlay */
