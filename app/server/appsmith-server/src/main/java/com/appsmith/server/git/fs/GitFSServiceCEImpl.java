@@ -319,7 +319,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path readmePath = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
                 jsonTransformationDTO.getBaseArtifactId(),
-                jsonTransformationDTO.getRepoName());
+                jsonTransformationDTO.getRepoName(),
+                readmeFileName);
         try {
             return gitArtifactHelper
                     .intialiseReadMe(artifact, readmePath, originHeader)
@@ -686,16 +687,25 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
-    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO, GitRefDTO gitRefDTO) {
+    public Mono<String> createGitReference(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, GitArtifactMetadata baseGitData, GitRefDTO gitRefDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        String remoteUrl = baseGitData.getRemoteUrl();
+        String publicKey = baseGitData.getGitAuth().getPublicKey();
+        String privateKey = baseGitData.getGitAuth().getPrivateKey();
 
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        return fsGitHandler.createAndCheckoutReference(repoSuffix, gitRefDTO);
+        // TODO: add the checkout to the current branch as well.
+        return fsGitHandler
+                .createAndCheckoutReference(repoSuffix, gitRefDTO)
+                .then(fsGitHandler.pushApplication(
+                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName()));
     }
 
     @Override
