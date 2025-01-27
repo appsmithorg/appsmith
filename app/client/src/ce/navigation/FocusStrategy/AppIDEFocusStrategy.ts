@@ -90,11 +90,9 @@ export const createEditorFocusInfoKey = (
   basePageId: string,
   branch: string | null = null,
 ) => {
-  const r = branch
+  return branch
     ? `EDITOR_STATE.${basePageId}#${branch}`
     : `EDITOR_STATE.${basePageId}`;
-
-  return r;
 };
 
 export const createEditorFocusInfo = (basePageId: string, branch?: string) => ({
@@ -185,17 +183,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
         prevFocusEntityInfo.params.basePageId !==
           currentFocusEntityInfo.params.basePageId)
     ) {
-      entities.push({
-        entityInfo: {
-          entity: FocusEntity.EDITOR,
-          id: `EDITOR.${prevFocusEntityInfo.params.basePageId}`,
-          appState: EditorState.EDITOR,
-          params: prevFocusEntityInfo.params,
-        },
-        key: branch
-          ? `EDITOR_STATE.${prevFocusEntityInfo.params.basePageId}#${branch}`
-          : `EDITOR_STATE.${prevFocusEntityInfo.params.basePageId}`,
-      });
+      if (prevFocusEntityInfo.params.basePageId) {
+        entities.push(
+          createEditorFocusInfo(prevFocusEntityInfo.params.basePageId, branch),
+        );
+      }
     }
 
     // Do not store focus of parents based on url change
