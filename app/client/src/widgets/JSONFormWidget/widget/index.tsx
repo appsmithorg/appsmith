@@ -10,7 +10,11 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
-import { ActionUpdateDependency, ROOT_SCHEMA_KEY } from "../constants";
+import {
+  ActionUpdateDependency,
+  MAX_ALLOWED_FIELDS,
+  ROOT_SCHEMA_KEY,
+} from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
@@ -848,7 +852,7 @@ class JSONFormWidget extends BaseWidget<
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
-        maxAllowedFields={this.props.maxAllowedFields}
+        maxAllowedFields={this.props.maxAllowedFields || MAX_ALLOWED_FIELDS}
         onConnectData={this.onConnectData}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
