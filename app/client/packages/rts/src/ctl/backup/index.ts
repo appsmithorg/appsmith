@@ -19,7 +19,7 @@ export async function run(args: string[]) {
 
   await utils.ensureSupervisorIsRunning();
 
-  const state: BackupState = new BackupState(args);
+  const state: BackupState = new BackupState(args, url);
 
   const chain: Link[] = [
     new linkClasses.BackupFolderLink(state),

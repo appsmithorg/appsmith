@@ -9,7 +9,7 @@ export class MongoDumpLink implements Link {
   constructor(private readonly state: BackupState) {}
 
   async doBackup() {
-    const url = utils.getDburl();
+    const url = this.state.dbUrl;
 
     if (url.startsWith("mongodb")) {
       console.log("Exporting database");
