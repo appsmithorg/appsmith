@@ -49,9 +49,9 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForEditMode(
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String baseApplicationId,
             @RequestParam(name = "defaultPageId", required = false) String basePageId,
-            @RequestHeader(required = false, defaultValue = "branch") RefType refType,
-            @RequestHeader(required = false) String refName,
-            @RequestHeader(required = false) String branchName) {
+            @RequestParam(required = false, defaultValue = "branch") RefType refType,
+            @RequestParam(required = false) String refName,
+            @RequestParam(required = false) String branchName) {
 
         if (!StringUtils.hasLength(refName)) {
             refName = branchName;

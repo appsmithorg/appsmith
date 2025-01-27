@@ -10,6 +10,7 @@ import {
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
 } from "../constants/routes/appRoutes";
+import { ConsolidatedApiUtils } from "api/services/ConsolidatedPageLoadApi/url";
 
 interface TMatchResult {
   basePageId?: string;
@@ -104,36 +105,32 @@ export const getConsolidatedApiPrefetchRequest = (
   const { appMode, baseApplicationId, basePageId, branchName, origin } =
     applicationProps;
 
-  const headers = new Headers();
-  const searchParams = new URLSearchParams();
-
   if (!basePageId) {
     return null;
   }
 
-  searchParams.append("defaultPageId", basePageId);
-
-  if (baseApplicationId) {
-    searchParams.append("applicationId", baseApplicationId);
-  }
-
-  // Add the branch name to the headers
-  if (branchName) {
-    headers.append("Branchname", branchName);
-  }
-
   // If the URL matches the builder path
   if (appMode === APP_MODE.EDIT) {
-    const requestUrl = `${origin}/api/${"v1/consolidated-api/edit"}?${searchParams.toString()}`;
-    const request = new Request(requestUrl, { method: "GET", headers });
+    const requestUrl = ConsolidatedApiUtils.getEditUrl({
+      applicationId: baseApplicationId,
+      defaultPageId: basePageId,
+      branchName,
+    });
+
+    const request = new Request(`${origin}${requestUrl}`, { method: "GET" });
 
     return request;
   }
 
   // If the URL matches the viewer path
   if (appMode === APP_MODE.PUBLISHED) {
-    const requestUrl = `${origin}/api/v1/consolidated-api/view?${searchParams.toString()}`;
-    const request = new Request(requestUrl, { method: "GET", headers });
+    const requestUri = ConsolidatedApiUtils.getViewUrl({
+      applicationId: baseApplicationId,
+      defaultPageId: basePageId,
+      branchName,
+    });
+
+    const request = new Request(`${origin}${requestUri}`, { method: "GET" });
 
     return request;
   }

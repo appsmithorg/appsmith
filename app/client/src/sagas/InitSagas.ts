@@ -221,6 +221,7 @@ function* executeActionDuringUserDetailsInitialisation(
 export function* getInitResponses({
   applicationId,
   basePageId,
+  branch,
   mode,
   shouldInitialiseUserDetails,
 }: {
@@ -228,13 +229,13 @@ export function* getInitResponses({
   basePageId?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): any {
+  branch?: string;
+}) {
   const params = pickBy(
     {
       applicationId,
       defaultPageId: basePageId,
+      branchName: branch,
     },
     identity,
   );

@@ -152,6 +152,7 @@ import {
   selectCombinedPreviewMode,
   selectGitApplicationCurrentBranch,
 } from "selectors/gitModSelectors";
+import { identity, pickBy } from "lodash";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -400,9 +401,9 @@ export function* fetchPublishedPageResourcesSaga(
   action: ReduxAction<FetchPublishedPageResourcesPayload>,
 ) {
   try {
-    const { basePageId, pageId } = action.payload;
+    const { basePageId, branch: branchName, pageId } = action.payload;
 
-    const params = { defaultPageId: basePageId };
+    const params = pickBy({ defaultPageId: basePageId, branchName }, identity);
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
