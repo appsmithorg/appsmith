@@ -194,7 +194,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                         .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
                         .switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
-                    log.error("Error fetching default tenant from redis!", e);
+                    e.printStackTrace();
+                    log.error("Error fetching default tenant from redis : {}", e.getMessage());
                     // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
                     // the db. This handles the case for deserialization errors. This prevents the entire instance to
                     // go down if tenant cache is corrupted.
@@ -202,12 +203,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                     log.info("Evicting the default tenant from cache and fetching from the database!");
                     return cacheableRepositoryHelper
                             .evictCachedTenant(tenantId)
-                            .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
-                                if (tenant.getTenantConfiguration() == null) {
-                                    tenant.setTenantConfiguration(new TenantConfiguration());
-                                }
-                                return tenant;
-                            }))
+                            .then(cacheableRepositoryHelper
+                                    .fetchDefaultTenant(tenantId)
+                                    .map(tenant -> {
+                                        if (tenant.getTenantConfiguration() == null) {
+                                            tenant.setTenantConfiguration(new TenantConfiguration());
+                                        }
+                                        return tenant;
+                                    }))
                             .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
                             .flatMap(tenant -> currentUserMono

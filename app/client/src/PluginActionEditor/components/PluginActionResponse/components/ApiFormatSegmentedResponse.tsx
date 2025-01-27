@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { isArray, isString } from "lodash";
 import { isHtml } from "../utils";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { SegmentedControlContainer } from "pages/Editor/QueryEditor/EditorJSONtoForm";
 import { Flex, SegmentedControl } from "@appsmith/ads";
 import type { ActionResponse } from "api/ActionAPI";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
@@ -11,6 +10,16 @@ import { ResponseDisplayFormats } from "../../../constants/CommonApiConstants";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { ResponseFormatTabs } from "./ResponseFormatTabs";
+
+const SegmentedControlContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  overflow-y: clip;
+  overflow-x: scroll;
+`;
 
 const ResponseBodyContainer = styled.div`
   overflow-y: clip;

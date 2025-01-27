@@ -1,10 +1,10 @@
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 import { builderURL } from "ee/RouteBuilder";
 import {
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
   SKIP_TO_APPLICATION,
   createMessage,
 } from "ee/constants/messages";
-import { EditorNames } from "ee/hooks";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 
@@ -36,7 +36,7 @@ function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
     editorURL,
     editorId: appId,
     parentEntityId: pageId,
-    editorType: EditorNames.APPLICATION,
+    ideType: IDE_TYPE.App,
   };
 }
 

@@ -15,6 +15,7 @@ import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -25,6 +26,11 @@ import java.io.Serializable;
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Tenant extends BaseDomain implements Serializable {
+
+    // When changing tenant object, update the serialization version number to ensure that in a multi pod
+    // deployment, new pods only read the new tenant object and not the old one from redis cache.
+    @Serial
+    private static final long serialVersionUID = 1459916000401322518L;
 
     @Column(unique = true)
     String slug;

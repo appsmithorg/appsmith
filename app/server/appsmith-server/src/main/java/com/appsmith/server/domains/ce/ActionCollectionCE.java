@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,6 +27,7 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @Setter
 @ToString
 @FieldNameConstants
+@MappedSuperclass
 public class ActionCollectionCE extends RefAwareDomain {
     // Default resources from RefAwareDomain will be used to store branchName, defaultApplicationId and
     // defaultActionCollectionId

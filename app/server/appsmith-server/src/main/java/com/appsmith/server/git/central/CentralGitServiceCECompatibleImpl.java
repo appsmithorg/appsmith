@@ -19,7 +19,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -43,7 +42,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             ImportService importService,
             ExportService exportService,
             GitAutoCommitHelper gitAutoCommitHelper,
-            TransactionalOperator transactionalOperator,
+            // TransactionalOperator transactionalOperator,
             ObservationRegistry observationRegistry) {
         super(
                 gitRedisUtils,
@@ -62,7 +61,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
                 importService,
                 exportService,
                 gitAutoCommitHelper,
-                transactionalOperator,
+                // transactionalOperator,
                 observationRegistry);
     }
 }

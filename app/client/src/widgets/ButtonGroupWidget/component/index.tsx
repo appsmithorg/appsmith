@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 import React, { createRef } from "react";
 import { sortBy } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 import {
   Alignment,
   Icon,
@@ -45,7 +46,7 @@ interface ButtonData {
 const getButtonData = (
   groupButtons: Record<string, GroupButtonProps>,
 ): ButtonData[] => {
-  const buttonData = Object.keys(groupButtons).reduce(
+  const buttonData = objectKeys(groupButtons).reduce(
     (acc: ButtonData[], id) => {
       return [
         ...acc,
@@ -344,7 +345,7 @@ interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const { buttonId, menuItems, onItemClicked } = props;
 
-  let items = Object.keys(menuItems)
+  let items = objectKeys(menuItems)
     .map((itemKey) => menuItems[itemKey])
     .filter((item) => item.isVisible === true);
 
@@ -490,7 +491,7 @@ class ButtonGroupComponent extends React.Component<
 
   // Get widths of menu buttons
   getMenuButtonWidths = () =>
-    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+    objectKeys(this.props.groupButtons).reduce((acc, id) => {
       if (this.props.groupButtons[id].buttonType === "MENU") {
         return {
           ...acc,
@@ -503,7 +504,7 @@ class ButtonGroupComponent extends React.Component<
 
   // Create refs of menu buttons
   createMenuButtonRefs = () =>
-    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+    objectKeys(this.props.groupButtons).reduce((acc, id) => {
       if (this.props.groupButtons[id].buttonType === "MENU") {
         return {
           ...acc,
@@ -540,6 +541,7 @@ class ButtonGroupComponent extends React.Component<
       buttonVariant,
       groupButtons,
       isDisabled,
+      isFormValid,
       minPopoverWidth,
       orientation,
       widgetId,
@@ -547,7 +549,7 @@ class ButtonGroupComponent extends React.Component<
     const { loadedBtnId } = this.state;
     const isHorizontal = orientation === "horizontal";
 
-    let items = Object.keys(groupButtons)
+    let items = objectKeys(groupButtons)
       .map((itemKey) => groupButtons[itemKey])
       .filter((item) => item.isVisible === true);
 
@@ -574,7 +576,11 @@ class ButtonGroupComponent extends React.Component<
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
-            button.isDisabled || isDisabled || !!loadedBtnId || isLoading;
+            button.isDisabled ||
+            isDisabled ||
+            !!loadedBtnId ||
+            isLoading ||
+            (button.disabledWhenInvalid && isFormValid === false);
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
@@ -703,6 +709,7 @@ interface GroupButtonProps {
   index: number;
   isVisible?: boolean;
   isDisabled?: boolean;
+  disabledWhenInvalid?: boolean;
   label?: string;
   buttonType?: string;
   buttonColor?: string;
@@ -718,6 +725,7 @@ interface GroupButtonProps {
       index: number;
       isVisible?: boolean;
       isDisabled?: boolean;
+      disabledWhenInvalid?: boolean;
       label?: string;
       backgroundColor?: string;
       textColor?: string;
@@ -746,6 +754,7 @@ export interface ButtonGroupComponentProps {
   widgetId: string;
   buttonMinWidth?: number;
   minHeight?: number;
+  isFormValid?: boolean;
 }
 
 export interface ButtonGroupComponentState {

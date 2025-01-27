@@ -28,17 +28,14 @@ const PrimaryBox = styled.div`
 const SecondaryBox = styled.div`
   display: flex;
   flex-direction: row;
-  width: min-content;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
 
   & > div {
+    flex: 1;
     margin-right: 8px;
     margin-bottom: 8px;
-  }
-
-  & > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > div {
-    width: 20vw !important;
   }
 
   & > .t--form-control-DROP_DOWN,

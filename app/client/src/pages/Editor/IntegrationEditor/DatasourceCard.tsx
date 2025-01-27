@@ -58,9 +58,9 @@ import {
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { openGeneratePageModal } from "../GeneratePage/store/generatePageActions";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -179,7 +179,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
@@ -190,7 +190,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const canEditDatasource = getHasManageDatasourcePermission(

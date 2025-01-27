@@ -10,12 +10,7 @@ import { PageFactory } from "test/factories/PageFactory";
 import { APIFactory } from "test/factories/Actions/API";
 import type { AppState } from "ee/reducers";
 
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
-
 describe("EditorTabs render checks", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   const page = PageFactory.build();
 
   const renderComponent = (url: string, state: Partial<AppState>) =>
@@ -25,7 +20,6 @@ describe("EditorTabs render checks", () => {
       </Route>,
       {
         url,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
