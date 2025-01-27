@@ -66,6 +66,12 @@ export default function useMerge() {
     }
   }, [artifactDef, dispatch]);
 
+  const resetMergeSuccessState = useCallback(() => {
+    if (artifactDef) {
+      dispatch(gitArtifactActions.resetMergeSuccessState({ artifactDef }));
+    }
+  }, [artifactDef, dispatch]);
+
   return {
     isMergeLoading: mergeState?.loading ?? false,
     mergeError: mergeState?.error ?? null,
@@ -77,5 +83,6 @@ export default function useMerge() {
     clearMergeStatus,
     isMergeSuccess: isMergeSuccess ?? false,
     resetMergeState,
+    resetMergeSuccessState,
   };
 }
