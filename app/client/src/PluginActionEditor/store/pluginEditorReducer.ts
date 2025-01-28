@@ -103,10 +103,17 @@ export const handlers = {
   },
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: PluginActionEditorState,
-    action: ReduxAction<{ id: string }>,
+    action: ReduxAction<{
+      skipOpeningDebugger: boolean;
+      id: string;
+    }>,
   ) => {
     set(state, ["isRunning", action.payload.id], true);
-    set(state, ["debugger", "selectedTab"], DEBUGGER_TAB_KEYS.RESPONSE_TAB);
+
+    if (!action.payload.skipOpeningDebugger) {
+      set(state, ["debugger", "selectedTab"], DEBUGGER_TAB_KEYS.RESPONSE_TAB);
+    }
+
     set(state, ["debugger", "open"], true);
   },
   [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
