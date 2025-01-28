@@ -155,21 +155,36 @@ function renderDropdown(
       }) || [];
   }
 
+  const defaultType = "others";
+  const defaultGroupConfig: DropDownGroupedOptionsInterface = {
+    label: "Others",
+    children: [],
+  };
+
   if (
     !!props.optionGroupConfig &&
     typeof props.optionGroupConfig === "object"
   ) {
     optionGroupConfig = props.optionGroupConfig;
     options.forEach((opt) => {
-      if (opt.hasOwnProperty("type") && !!opt.type) {
-        if (optionGroupConfig.hasOwnProperty(opt.type)) {
-          const groupConfig = optionGroupConfig[opt.type];
-          const groupChildren = groupConfig?.children || [];
+      let type = defaultType;
+      let groupConfig: DropDownGroupedOptionsInterface;
 
-          groupChildren.push(opt);
-          groupConfig["children"] = groupChildren;
-        }
+      if (opt.hasOwnProperty("type") && !!opt.type) {
+        type = opt.type;
       }
+
+      if (optionGroupConfig.hasOwnProperty(type)) {
+        groupConfig = optionGroupConfig[type];
+      } else {
+        groupConfig = defaultGroupConfig;
+      }
+
+      const groupChildren = groupConfig?.children || [];
+
+      groupChildren.push(opt);
+      groupConfig["children"] = groupChildren;
+      optionGroupConfig[type] = groupConfig;
     });
     groupedOptions = [];
     objectKeys(optionGroupConfig).forEach(
