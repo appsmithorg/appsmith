@@ -7,7 +7,6 @@ import {
   gitSync,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  EditorViewMode,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
