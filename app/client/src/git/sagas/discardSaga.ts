@@ -6,9 +6,10 @@ import discardRequest from "git/requests/discardRequest";
 import type { DiscardResponse } from "git/requests/discardRequest.types";
 import type { DiscardInitPayload } from "git/store/actions/discardActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
 import log from "loglevel";
-import { call, delay, put } from "redux-saga/effects";
+import { call, delay, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
 export default function* discardSaga(
@@ -19,7 +20,16 @@ export default function* discardSaga(
   let response: DiscardResponse | undefined;
 
   try {
-    response = yield call(discardRequest, artifactId);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      discardRequest,
+      artifactDef.artifactType,
+      artifactId,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {

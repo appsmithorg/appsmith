@@ -324,8 +324,8 @@ function ReconnectDatasourceModal() {
    */
   const {
     editorId,
-    editorType,
     editorURL,
+    ideType,
     missingDsCredentialsDescription, // pageId or moduleId
     parentEntityId, // appId or packageId from query params
     skipMessage,
@@ -354,7 +354,7 @@ function ReconnectDatasourceModal() {
         workspaceId: orgId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
-        editorType,
+        ideType,
       });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
