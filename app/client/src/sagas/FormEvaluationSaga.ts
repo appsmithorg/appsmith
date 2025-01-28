@@ -1,8 +1,16 @@
 import type { ActionPattern } from "redux-saga/effects";
-import { call, take, select, put, actionChannel } from "redux-saga/effects";
+import {
+  call,
+  take,
+  select,
+  put,
+  actionChannel,
+  all,
+  takeLatest,
+} from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import log from "loglevel";
+import log, { info } from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
@@ -162,6 +170,22 @@ export function* fetchDynamicValuesSaga(
   });
 }
 
+function* fetchPaginatedDynamicValuesSaga(
+  action: ReduxAction<{
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+  }>,
+) {
+  try {
+    const { payload } = action;
+
+    info("AYush ready to fetch next data", payload);
+  } catch (e) {}
+}
+
 function* fetchDynamicValueSaga(
   value: ConditionalOutput,
   dynamicFetchedValues: DynamicValues,
@@ -314,4 +338,13 @@ export default function* formEvaluationChangeListener() {
       Sentry.captureException(e);
     }
   }
+}
+
+export function* formEvaluationSagas() {
+  yield all([
+    takeLatest(
+      ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT,
+      fetchPaginatedDynamicValuesSaga,
+    ),
+  ]);
 }
