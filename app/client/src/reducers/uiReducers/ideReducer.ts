@@ -53,8 +53,11 @@ const ideReducer = createImmerReducer(initialState, {
       action.payload.tabs,
     );
   },
-  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
-    return klona(initialState);
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: IDEState): IDEState => {
+    return klona({
+      ...initialState,
+      tabs: state.tabs,
+    });
   },
   [ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL]: (
     state: IDEState,

@@ -230,17 +230,17 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   ],
   [FocusEntity.EDITOR]: [
     {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedEntity,
-      selector: getSelectedEntityUrl,
-      setter: setSelectedEntityUrl,
-    },
-    {
       type: FocusElementConfigType.Redux,
       name: FocusElement.IDETabs,
       selector: getIDETabs,
       setter: setIDETabs,
       defaultValue: {},
+    },
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedEntity,
+      selector: getSelectedEntityUrl,
+      setter: setSelectedEntityUrl,
     },
     {
       type: FocusElementConfigType.Redux,
