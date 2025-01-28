@@ -7,7 +7,7 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { getDynamicFetchedValues } from "selectors/formSelectors";
+import { getFormConfigConditionalOutput } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
   FormDataPaths,
@@ -19,6 +19,10 @@ import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
 import { fetchFormDynamicValNextPage } from "actions/evaluationActions";
+import type {
+  ConditionalOutput,
+  DynamicValues,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -296,10 +300,12 @@ function renderDropdown(
   }
 
   function handlePopupScroll(e: React.UIEvent<HTMLDivElement>) {
+    if (!props.nextPageNeeded) return;
+
     const target = e.target as HTMLDivElement;
 
     if (target.scrollHeight - target.scrollTop === target.clientHeight) {
-      props.fetchFormTriggerNextPage();
+      props.fetchFormTriggerNextPage(props.paginationPayload);
     }
   }
 
@@ -364,6 +370,14 @@ export interface DropDownControlProps extends ControlProps {
   isLoading: boolean;
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
+  nextPageNeeded?: boolean;
+  paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+  };
 }
 
 interface ReduxDispatchProps {
@@ -374,7 +388,13 @@ interface ReduxDispatchProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => void;
-  fetchFormTriggerNextPage: () => void;
+  fetchFormTriggerNextPage: (paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+  }) => void;
 }
 
 type Props = DropDownControlProps & ReduxDispatchProps;
@@ -386,25 +406,82 @@ const mapStateToProps = (
   isLoading: boolean;
   options: SelectOptionProps[];
   formValues: Partial<Action>;
+  nextPageNeeded: boolean;
+  paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+  };
 } => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
+  let conditionalOutput: ConditionalOutput;
+  let nextPageNeeded = false;
+  let paginationPayload;
 
   try {
     if (ownProps.fetchOptionsConditionally) {
-      const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
+      conditionalOutput = getFormConfigConditionalOutput(state, ownProps);
+      const dynamicFetchedValues = !!conditionalOutput.fetchDynamicValues
+        ? conditionalOutput.fetchDynamicValues
+        : ({} as DynamicValues);
+
+      const { data } = dynamicFetchedValues;
+
+      if (data.hasOwnProperty("content") && data.hasOwnProperty("startIndex")) {
+        //isResponsePaginated = true;
+        const { content, count, startIndex, total } = data;
+
+        options = content;
+
+        if (startIndex + count < total) {
+          // next page is needed
+          nextPageNeeded = true;
+
+          const modifiedDFV: DynamicValues = {
+            ...dynamicFetchedValues,
+            evaluatedConfig: {
+              ...dynamicFetchedValues.evaluatedConfig,
+              params: {
+                ...dynamicFetchedValues.evaluatedConfig.params,
+                parameters: {
+                  ...dynamicFetchedValues.evaluatedConfig.params.parameters,
+                  startIndex: startIndex + count + 1,
+                },
+              },
+            },
+          };
+
+          paginationPayload = {
+            value: { ...conditionalOutput, fetchDynamicValues: modifiedDFV },
+            dynamicFetchedValues: modifiedDFV,
+            actionId: "6796f36d4f98bc0e66296bc6",
+            datasourceId: "",
+            pluginId: "6796ebbd4f98bc0e66296b98",
+          };
+        }
+      } else {
+        options = dynamicFetchedValues.data.content;
+      }
 
       isLoading = dynamicFetchedValues.isLoading;
-      options = dynamicFetchedValues.data.content;
     }
   } catch (e) {
     // Printing error to console
     // eslint-disable-next-line no-console
     console.error(e);
   } finally {
-    return { isLoading, options, formValues };
+    return {
+      isLoading,
+      options,
+      formValues,
+      nextPageNeeded,
+      paginationPayload,
+    };
   }
 };
 
@@ -416,8 +493,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },
-  fetchFormTriggerNextPage: () => {
-    dispatch(fetchFormDynamicValNextPage());
+  fetchFormTriggerNextPage: (paginationPayload) => {
+    dispatch(fetchFormDynamicValNextPage(paginationPayload));
   },
 });
 
