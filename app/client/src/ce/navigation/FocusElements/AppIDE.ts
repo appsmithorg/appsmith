@@ -228,14 +228,7 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: DefaultDebuggerContext,
     },
   ],
-  [FocusEntity.EDITOR]: [
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getIDETabs,
-      setter: setIDETabs,
-      defaultValue: {},
-    },
+  [FocusEntity.PAGE]: [
     {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedEntity,
@@ -247,6 +240,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.CodeEditorHistory,
       selector: getCodeEditorHistory,
       setter: setCodeEditorHistory,
+      defaultValue: {},
+    },
+  ],
+  [FocusEntity.EDITOR]: [
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.IDETabs,
+      selector: getIDETabs,
+      setter: setIDETabs,
       defaultValue: {},
     },
   ],

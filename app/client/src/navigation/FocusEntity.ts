@@ -30,6 +30,7 @@ export enum FocusEntity {
   QUERY_MODULE_INSTANCE = "QUERY_MODULE_INSTANCE",
   JS_MODULE_INSTANCE = "JS_MODULE_INSTANCE",
   JS_OBJECT_ADD = "JS_OBJECT_ADD",
+  PAGE = "PAGE",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
