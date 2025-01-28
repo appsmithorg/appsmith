@@ -10,7 +10,11 @@ import {
 } from "ee/entities/IDE/constants";
 
 import Container from "./Container";
-import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
+import {
+  useCurrentEditorState,
+  useIDETabClickHandlers,
+  useShowSideBySideNudge,
+} from "../hooks";
 import { SCROLL_AREA_OPTIONS, TabSelectors } from "./constants";
 import { AddButton } from "./AddButton";
 import { useLocation } from "react-router";
@@ -32,6 +36,7 @@ const EditorTabs = () => {
   const entities = useSelector(tabsConfig.listSelector, shallowEqual);
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
   const isListViewActive = useSelector(getListViewActiveState);
+  const [showNudge, dismissNudge] = useShowSideBySideNudge();
 
   const location = useLocation();
   const dispatch = useDispatch();
@@ -147,7 +152,7 @@ const EditorTabs = () => {
         </ScrollArea>
         {files.length > 0 ? <AddButton /> : null}
         {/* Switch screen mode button */}
-        <ScreenModeToggle />
+        <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
       </Container>
 
       {/* Overflow list */}

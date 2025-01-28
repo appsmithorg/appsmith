@@ -3,10 +3,7 @@ import type { RouteComponentProps } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
-import {
-  getCurrentPageId,
-  getJSCollectionDataByBaseId,
-} from "selectors/editorSelectors";
+import { getJSCollectionDataByBaseId } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
@@ -27,7 +24,6 @@ type Props = RouteComponentProps<{
 
 function JSEditor(props: Props) {
   const { baseCollectionId } = props.match.params;
-  const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
   const jsCollectionData = useSelector((state) =>
     getJSCollectionDataByBaseId(state, baseCollectionId),
@@ -40,10 +36,8 @@ function JSEditor(props: Props) {
       return null;
     }
 
-    return (
-      <AppJSEditorContextMenu jsCollection={jsCollection} pageId={pageId} />
-    );
-  }, [jsCollection, pageId]);
+    return <AppJSEditorContextMenu jsCollection={jsCollection} />;
+  }, [jsCollection]);
 
   if (isCreating) {
     return (
