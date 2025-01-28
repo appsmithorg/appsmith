@@ -112,8 +112,8 @@ export const getConsolidatedApiPrefetchRequest = (
   // If the URL matches the builder path
   if (appMode === APP_MODE.EDIT) {
     const requestUrl = ConsolidatedApiUtils.getEditUrl({
-      applicationId: baseApplicationId,
       defaultPageId: basePageId,
+      applicationId: baseApplicationId,
       branchName,
     });
 
@@ -127,8 +127,8 @@ export const getConsolidatedApiPrefetchRequest = (
   // If the URL matches the viewer path
   if (appMode === APP_MODE.PUBLISHED) {
     const requestUri = ConsolidatedApiUtils.getViewUrl({
-      applicationId: baseApplicationId,
       defaultPageId: basePageId,
+      applicationId: baseApplicationId,
       branchName,
     });
 
