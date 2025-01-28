@@ -10,7 +10,7 @@ import {
 } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import log, { info } from "loglevel";
+import log, { error, info } from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
@@ -180,10 +180,22 @@ function* fetchPaginatedDynamicValuesSaga(
   }>,
 ) {
   try {
-    const { payload } = action;
+    const { actionId, datasourceId, dynamicFetchedValues, pluginId, value } =
+      action.payload;
 
-    info("AYush ready to fetch next data", payload);
-  } catch (e) {}
+    yield call(
+      fetchDynamicValueSaga,
+      value,
+      dynamicFetchedValues,
+      actionId,
+      datasourceId,
+      pluginId,
+    );
+
+    info("AYush ready to fetch next data", action.payload);
+  } catch (e) {
+    error("SOme issues", e, action);
+  }
 }
 
 function* fetchDynamicValueSaga(
