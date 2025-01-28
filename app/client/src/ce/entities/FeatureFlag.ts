@@ -36,8 +36,6 @@ export const FEATURE_FLAG = {
   release_ide_animations_enabled: "release_ide_animations_enabled",
   release_ide_datasource_selector_enabled:
     "release_ide_datasource_selector_enabled",
-  release_table_custom_loading_state_enabled:
-    "release_table_custom_loading_state_enabled",
   release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
   ab_request_new_integration_enabled: "ab_request_new_integration_enabled",
   release_evaluation_scope_cache: "release_evaluation_scope_cache",
@@ -86,7 +84,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_persist_branch_enabled: false,
   release_ide_animations_enabled: false,
   release_ide_datasource_selector_enabled: false,
-  release_table_custom_loading_state_enabled: false,
   release_custom_widget_ai_builder: false,
   ab_request_new_integration_enabled: false,
   release_evaluation_scope_cache: false,

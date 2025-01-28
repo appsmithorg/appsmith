@@ -155,6 +155,7 @@ import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -637,6 +638,7 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
     affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
+    actionDataPayloadConsolidated?: UpdateActionProps[],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -677,7 +679,7 @@ export default class DataTreeEvaluator {
 
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
-    if (differences.length === 0) {
+    if (differences.length === 0 && !actionDataPayloadConsolidated?.length) {
       return {
         removedPaths: [],
         unEvalUpdates: [],
@@ -724,7 +726,12 @@ export default class DataTreeEvaluator {
     this.dependencies = dependencies;
     this.inverseDependencies = inverseDependencies;
 
-    const pathsChangedSet = new Set<string[]>();
+    const pathsChangedSet = new Set<string[]>(
+      actionDataPayloadConsolidated?.map(({ dataPath, entityName }) => [
+        entityName,
+        dataPath,
+      ]) || [],
+    );
 
     for (const diff of differences) {
       if (isArray(diff.path)) {
@@ -735,16 +742,23 @@ export default class DataTreeEvaluator {
     const updatedValuePaths = [...pathsChangedSet];
 
     this.updateEvalTreeWithChanges({ differences });
-
     const setupUpdateTreeOutput = profileFn(
       "setupTree",
       undefined,
       webworkerTelemetry,
       () => {
+        const pathsToSkipFromEval =
+          actionDataPayloadConsolidated
+            ?.map(({ dataPath, entityName }) => {
+              return [entityName, dataPath];
+            })
+            .map((path: string[]) => path.join(".")) || [];
+
         return this.setupTree(updatedUnEvalTreeJSObjects, updatedValuePaths, {
           dependenciesOfRemovedPaths,
           removedPaths,
           translatedDiffs,
+          pathsToSkipFromEval,
         });
       },
     );

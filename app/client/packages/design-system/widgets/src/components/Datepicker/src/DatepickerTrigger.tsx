@@ -9,7 +9,7 @@ import dateInputStyles from "./styles.module.css";
 
 interface DatepickerTriggerProps {
   isLoading?: boolean;
-  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
+  size?: Exclude<keyof typeof SIZES, "xSmall" | "large">;
   isDisabled?: boolean;
 }
 

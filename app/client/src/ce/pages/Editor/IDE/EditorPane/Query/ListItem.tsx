@@ -1,25 +1,7 @@
 import React from "react";
-import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
+import { QueryEntityItem } from "pages/Editor/IDE/EditorPane/Query/EntityItem/QueryEntityItem";
 import type { EntityItem } from "ee/entities/IDE/constants";
 
-export interface QueryListItemProps {
-  item: EntityItem;
-  isActive: boolean;
-  parentEntityId: string;
-}
-
-export const QueryListItem = (props: QueryListItemProps) => {
-  const { isActive, item, parentEntityId } = props;
-
-  return (
-    <ExplorerActionEntity
-      baseId={item.key}
-      isActive={isActive}
-      key={item.key}
-      parentEntityId={parentEntityId}
-      searchKeyword={""}
-      step={1}
-      type={item.type}
-    />
-  );
+export const ActionEntityItem = (props: { item: EntityItem }) => {
+  return <QueryEntityItem {...props} />;
 };
