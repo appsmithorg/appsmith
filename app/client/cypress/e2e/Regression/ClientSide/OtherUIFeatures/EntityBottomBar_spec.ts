@@ -150,7 +150,7 @@ describe(
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
       );
-      // clean up
+      // clean up - sample
       _.dataSources.DeleteQuery("Query1");
       cy.get("@dsName").then(($dsName) => {
         _.dataSources.DeleteDatasourceFromWithinDS($dsName as any);
