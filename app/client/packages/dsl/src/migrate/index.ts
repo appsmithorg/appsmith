@@ -91,10 +91,9 @@ import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-
 import { migrateChartwidgetCustomEchartConfig } from "./migrations/087-migrate-chart-widget-customechartdata";
 import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custom-widget-dynamic-height";
 import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "./migrations/089-migrage-table-widget-v2-currentRow-binding";
-import { migrateTableWidgetV2ValidationTryCatch } from "./migrations/090-migrate-table-widget-v2-validation-try-catch";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 92;
+export const LATEST_DSL_VERSION = 91;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -625,11 +624,6 @@ const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
      * What we missed was that, the auto-commit does not handle clientVersion, which lead to this bug: https://github.com/appsmithorg/appsmith/issues/38511
      * We are bumping this version to make sure that the auto-commit will handle this version bump.
      */
-    currentDSL.version = 91;
-  }
-
-  if (currentDSL.version === 91) {
-    currentDSL = migrateTableWidgetV2ValidationTryCatch(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
