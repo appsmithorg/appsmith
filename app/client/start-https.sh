@@ -294,6 +294,14 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         location /api {
             proxy_pass $backend;
+
+            gzip off; # Etag stripped from upstream if gzip is off. 
+            # Ref1: https://forum.nginx.org/read.php?2,242807,242810#msg-242810
+            # Ref2: https://www.ruby-forum.com/t/reverse-proxy-deleting-etag-header-from-response/246209/2
+            # Delete the Cache-Control header set in the server block above.
+            add_header Cache-Control '' always;
+            # Proxy pass the Cache-Control header from the upstream.
+            proxy_pass_header Cache-Control;
         }
 
         location /oauth2 {

@@ -11,7 +11,9 @@ import com.appsmith.server.services.ConsolidatedAPIService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,7 @@ import java.util.Objects;
 
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @RestController
@@ -78,13 +81,13 @@ public class ConsolidatedAPIController {
 
     @JsonView(Views.Public.class)
     @GetMapping("/view")
-    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
+    public Mono<ResponseEntity<ResponseDTO<ConsolidatedAPIResponseDTO>>> getAllDataForFirstPageLoadForViewMode(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
             @RequestParam(required = false, defaultValue = "branch") RefType refType,
             @RequestParam(required = false) String refName,
-            @RequestParam(required = false) String branchName) {
-
+            @RequestParam(required = false) String branchName,
+            @RequestHeader(required = false, name = "if-none-match") String ifNoneMatch) {
         if (!StringUtils.hasLength(refName)) {
             refName = branchName;
         }
@@ -100,8 +103,37 @@ public class ConsolidatedAPIController {
         return consolidatedAPIService
                 .getConsolidatedInfoForPageLoad(
                         defaultPageId, applicationId, refType, refName, ApplicationMode.PUBLISHED)
-                .map(consolidatedAPIResponseDTO ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
+                .map(consolidatedAPIResponseDTO -> {
+                    long startTime = System.currentTimeMillis();
+
+                    String responseHash = consolidatedAPIService.computeConsolidatedAPIResponseEtag(
+                            consolidatedAPIResponseDTO, defaultPageId, applicationId);
+                    long endTime = System.currentTimeMillis();
+                    long duration = endTime - startTime;
+                    log.debug("Time taken to compute ETag: {} ms", duration);
+
+                    // if defaultPageId and applicationId are both null, then don't compute ETag
+                    if (isBlank(responseHash)) {
+                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+                        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+                    }
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("ETag", responseHash);
+                    headers.add("Cache-Control", "private, must-revalidate");
+
+                    if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
+                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED.value(), null, null);
+                        return new ResponseEntity<>(responseDTO, headers, HttpStatus.NOT_MODIFIED);
+                    }
+
+                    ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                            new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+
+                    return new ResponseEntity<>(responseDTO, headers, HttpStatus.OK);
+                })
                 .tag("pageId", Objects.toString(defaultPageId))
                 .tag("applicationId", Objects.toString(applicationId))
                 .tag("refType", Objects.toString(refType))

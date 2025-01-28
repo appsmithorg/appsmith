@@ -130,6 +130,15 @@ parts.push(`
     import file_server
   }
 
+  handle /api/v1/consolidated-api/view {
+    reverse_proxy {
+      to 127.0.0.1:8080
+      header_up -Forwarded
+      header_up X-Appsmith-Request-Id {http.request.uuid}
+      header_down +Etag
+    }
+  }
+
   @backend path /api/* /oauth2/* /login/*
   handle @backend {
     import reverse_proxy 8080
