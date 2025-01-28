@@ -16,9 +16,9 @@ describe("useGetPageFocusUrl", () => {
   const pages = PageFactory.buildList(4);
 
   pages[0].isDefault = true;
-  const page1FocusHistory = createEditorFocusInfo(pages[0].pageId);
-  const page2FocusHistory = createEditorFocusInfo(pages[1].pageId);
-  const page3FocusHistory = createEditorFocusInfo(pages[2].pageId);
+  const page1FocusHistory = createEditorFocusInfo(pages[0].pageId, null);
+  const page2FocusHistory = createEditorFocusInfo(pages[1].pageId, null);
+  const page3FocusHistory = createEditorFocusInfo(pages[2].pageId, null);
 
   const focusHistory = {
     [page1FocusHistory.key]: {
