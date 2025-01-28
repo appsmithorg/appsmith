@@ -2027,10 +2027,16 @@ export class AggregateHelper {
           }
 
           const emails: Array<{
-            headers: { subject: string; date: string; to: string };
+            headers: {
+              subject: string;
+              date: string;
+              to: string;
+              from: string;
+            };
             text: string;
           }> = res.body;
 
+          // Filter emails matching the criteria
           const matchingEmails = emails.filter((email) => {
             const subjectMatch = email.headers.subject
               .trim()
@@ -2057,6 +2063,15 @@ export class AggregateHelper {
               return emailDate > latestDate ? email : latest;
             }, null);
 
+            // Log email addresses (from and to) with a separator
+            if (latestEmail) {
+              cy.log("===== Email Details =====");
+              cy.log(`From: ${latestEmail.headers.from}`);
+              cy.log(`To: ${latestEmail.headers.to}`);
+              cy.log(`Subject: ${latestEmail.headers.subject}`);
+              cy.log("=========================");
+            }
+
             return cy.wrap(latestEmail);
           }
 
@@ -2071,11 +2086,17 @@ export class AggregateHelper {
 
     return fetchEmail().then((email) => {
       if (!email) {
-        throw new Error(
-          `Timeout: No email with subject "${targetSubject}" found${
-            targetEmail ? ` for recipient "${targetEmail}"` : ""
-          }.`,
-        );
+        const errorMessage = `Timeout: No email with subject "${targetSubject}" found${
+          targetEmail ? ` for recipient "${targetEmail}"` : ""
+        }.`;
+
+        // Log the error message
+        cy.log("===== Error =====");
+        cy.log(errorMessage);
+        cy.log("=================");
+
+        // Throw the error after logging
+        throw new Error(errorMessage);
       }
       return email;
     });
