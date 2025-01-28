@@ -11,6 +11,10 @@ import {
   LINT_REDUX_ACTIONS,
   LOG_REDUX_ACTIONS,
 } from "ee/actions/evaluationActionsList";
+import type {
+  ConditionalOutput,
+  DynamicValues,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 
 export const shouldTriggerEvaluation = (action: ReduxAction<unknown>) => {
   return (
@@ -127,9 +131,17 @@ export const shouldForceEval = (action: ReduxAction<unknown>) => {
   return !!FORCE_EVAL_ACTIONS[action.type];
 };
 
-export const fetchFormDynamicValNextPage = () => {
-  return {
-    type: ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT,
-    paylod: {},
-  };
+export const fetchFormDynamicValNextPage = (payload?: {
+  value: ConditionalOutput;
+  dynamicFetchedValues: DynamicValues;
+  actionId: string;
+  datasourceId: string;
+  pluginId: string;
+}) => {
+  if (payload) {
+    return {
+      type: ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT,
+      payload,
+    };
+  }
 };
