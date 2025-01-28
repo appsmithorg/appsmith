@@ -18,6 +18,7 @@ import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
+import { info } from "loglevel";
 
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -293,6 +294,14 @@ function renderDropdown(
     }
   }
 
+  function handlePopupScroll(e) {
+    const { target } = e;
+
+    if (target.scrollHeight - target.scrollTop === target.clientHeight) {
+      info("load more data ayush");
+    }
+  }
+
   return (
     <Select
       allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
@@ -303,6 +312,7 @@ function renderDropdown(
       isMultiSelect={props?.isMultiSelect}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
+      onPopupScroll={handlePopupScroll}
       onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
       showSearch={props.isSearchable}
