@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import {
@@ -71,20 +71,6 @@ const Template = (props: StoryProps) => {
     setTabs(nextTabs);
     setActiveTabId(tabId);
   };
-
-  useEffect(
-    function scrollAddedTabIntoView() {
-      const activeTabElement = document.querySelector(".editor-tab.active");
-
-      if (activeTabElement) {
-        activeTabElement.scrollIntoView({
-          inline: "nearest",
-          behavior: "smooth",
-        });
-      }
-    },
-    [activeTabId],
-  );
 
   return (
     <div style={{ width: containerWidth }}>

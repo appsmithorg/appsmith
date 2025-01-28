@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
+import { usePrevious } from "@mantine/hooks";
 
 import { ScrollArea } from "../ScrollArea";
 
@@ -23,23 +24,37 @@ export const DismissibleTabBar = ({
   disableAdd = false,
   onTabAdd,
 }: DismissibleTabBarProps) => {
-  const [isStuck, setIsStuck] = useState(false);
+  const [isLeftStuck, setIsLeftStuck] = useState(false);
+  const [isRightStuck, setIsRightStuck] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const sentinelLeftRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRightRef = useRef<HTMLDivElement | null>(null);
+
+  const totalChildren = React.Children.count(children);
+  const prevTotalChildren = usePrevious(totalChildren) ?? totalChildren;
 
   const handleAdd = disableAdd ? noop : onTabAdd;
 
   useEffect(function observeSticky() {
-    if (!containerRef.current || !sentinelRef.current) return;
+    if (
+      !containerRef.current ||
+      !sentinelLeftRef.current ||
+      !sentinelRightRef.current
+    )
+      return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsStuck(false);
-        } else {
-          setIsStuck(true);
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === sentinelLeftRef.current) {
+            setIsLeftStuck(!entry.isIntersecting);
+          }
+
+          if (entry.target === sentinelRightRef.current) {
+            setIsRightStuck(!entry.isIntersecting);
+          }
+        });
       },
       {
         root: containerRef.current,
@@ -47,13 +62,28 @@ export const DismissibleTabBar = ({
       },
     );
 
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinelLeftRef.current);
+    observer.observe(sentinelRightRef.current);
 
     return () => observer.disconnect();
   }, []);
 
+  useEffect(
+    function scrollAddedTabIntoView() {
+      const element = sentinelRightRef.current;
+
+      if (element && totalChildren > prevTotalChildren) {
+        element.scrollIntoView({
+          inline: "center",
+          behavior: "smooth",
+        });
+      }
+    },
+    [totalChildren, prevTotalChildren],
+  );
+
   return (
-    <Styled.Root>
+    <Styled.Root $showLeftBorder={isLeftStuck}>
       <ScrollArea
         data-testid="t--editor-tabs"
         options={SCROLL_AREA_OPTIONS}
@@ -62,13 +92,14 @@ export const DismissibleTabBar = ({
         style={SCROLL_AREA_STYLE}
       >
         <Styled.TabsContainer data-testid="t--tabs-container" role="tablist">
+          <Styled.StickySentinel ref={sentinelLeftRef} />
           {children}
-          <Styled.StickySentinel ref={sentinelRef} />
+          <Styled.StickySentinel ref={sentinelRightRef} />
         </Styled.TabsContainer>
       </ScrollArea>
-      <Styled.PlusButtonContainer $isStuck={isStuck}>
+      <Styled.PlusButtonContainer $showLeftBorder={isRightStuck}>
         <Styled.PlusButton
-          disabled={disableAdd}
+          isDisabled={disableAdd}
           isIconButton
           kind="tertiary"
           onClick={handleAdd}

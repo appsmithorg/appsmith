@@ -1,14 +1,27 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Button } from "..";
 
-export const Root = styled.div`
+export const animatedLeftBorder = (showLeftBorder: boolean) => css`
+  transition: border-color 0.5s ease;
+  border-left: 1px solid transparent;
+
+  border-left-color: ${showLeftBorder
+    ? "var(--ads-v2-color-border-muted)"
+    : "transparent"};
+`;
+
+export const Root = styled.div<{
+  $showLeftBorder?: boolean;
+}>`
   display: flex;
   align-items: center;
   overflow: hidden;
   white-space: nowrap;
   position: relative;
   height: 32px;
+
+  ${({ $showLeftBorder }) => animatedLeftBorder($showLeftBorder ?? false)};
 `;
 
 export const TabsContainer = styled.div`
@@ -21,9 +34,10 @@ export const TabsContainer = styled.div`
 
 export const StickySentinel = styled.div`
   width: 1px;
+  height: 100%;
 `;
 
-export const PlusButtonContainer = styled.div<{ $isStuck?: boolean }>`
+export const PlusButtonContainer = styled.div<{ $showLeftBorder?: boolean }>`
   position: sticky;
   right: 0;
   border: none;
@@ -33,11 +47,7 @@ export const PlusButtonContainer = styled.div<{ $isStuck?: boolean }>`
   align-items: center;
   justify-content: center;
 
-  ${({ $isStuck }) =>
-    $isStuck &&
-    `
-      border-left: 1px solid var(--ads-v2-color-border-muted);
-    `}
+  ${({ $showLeftBorder }) => animatedLeftBorder($showLeftBorder ?? false)};
 `;
 
 export const PlusButton = styled(Button)`
