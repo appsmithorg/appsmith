@@ -172,8 +172,10 @@ function renderDropdown(
       }
     });
     groupedOptions = [];
-    objectKeys(optionGroupConfig).forEach((key) =>
-      groupedOptions.push(optionGroupConfig[key]),
+    objectKeys(optionGroupConfig).forEach(
+      (key) =>
+        optionGroupConfig[key].children.length > 0 &&
+        groupedOptions.push(optionGroupConfig[key]),
     );
   }
 
