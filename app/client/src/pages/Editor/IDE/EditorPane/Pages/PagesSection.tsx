@@ -13,11 +13,11 @@ import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { AppState } from "ee/reducers";
 import { createNewPageFromEntities } from "actions/pageActions";
-import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
+import AddPageContextMenu from "./AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { PageElement } from "./PageElement";
 import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
