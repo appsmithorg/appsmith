@@ -13,5 +13,7 @@ export type SelectProps = RCSelectProps & {
   isLoading?: boolean;
 };
 
-export type SelectOptionProps = OptionProps;
+export type SelectOptionProps = OptionProps & {
+  type?: string; // used for grouping the options
+};
 export type SelectOptionGroupProps = OptGroupProps;
