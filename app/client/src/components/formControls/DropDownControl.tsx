@@ -18,7 +18,7 @@ import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
-import { info } from "loglevel";
+import { fetchFormDynamicValNextPage } from "actions/evaluationActions";
 
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -112,7 +112,8 @@ function renderDropdown(
     input?: WrappedFieldInputProps;
     meta?: Partial<WrappedFieldMetaProps>;
     width: string;
-  } & DropDownControlProps,
+  } & DropDownControlProps &
+    ReduxDispatchProps,
 ): JSX.Element {
   let selectedValue: string | string[];
 
@@ -294,11 +295,11 @@ function renderDropdown(
     }
   }
 
-  function handlePopupScroll(e) {
-    const { target } = e;
+  function handlePopupScroll(e: React.UIEvent<HTMLDivElement>) {
+    const target = e.target as HTMLDivElement;
 
     if (target.scrollHeight - target.scrollTop === target.clientHeight) {
-      info("load more data ayush");
+      props.fetchFormTriggerNextPage();
     }
   }
 
@@ -373,6 +374,7 @@ interface ReduxDispatchProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => void;
+  fetchFormTriggerNextPage: () => void;
 }
 
 type Props = DropDownControlProps & ReduxDispatchProps;
@@ -395,7 +397,7 @@ const mapStateToProps = (
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
 
       isLoading = dynamicFetchedValues.isLoading;
-      options = dynamicFetchedValues.data;
+      options = dynamicFetchedValues.data.content;
     }
   } catch (e) {
     // Printing error to console
@@ -413,6 +415,9 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
+  },
+  fetchFormTriggerNextPage: () => {
+    dispatch(fetchFormDynamicValNextPage());
   },
 });
 
