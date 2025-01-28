@@ -1,12 +1,11 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ToggleButton } from "../../../ToggleButton";
-import { ScrollArea } from "../../../ScrollArea";
-import { Tab, Tabs, TabsList } from "../../../Tab";
-import { Button } from "../../../Button";
+import { ScrollArea } from "../..";
+import { Tab, Tabs, TabsList } from "../..";
+import { Button } from "../..";
 
-import { SegmentHeader } from ".";
+import { EntityTabsHeader, EntityListButton } from ".";
 
 const SCROLL_AREA_OPTIONS = {
   overflow: {
@@ -15,9 +14,9 @@ const SCROLL_AREA_OPTIONS = {
   },
 } as const;
 
-const meta: Meta<typeof SegmentHeader> = {
-  title: "ADS/Templates/Entity Explorer/Segment Header",
-  component: SegmentHeader,
+const meta: Meta<typeof EntityTabsHeader> = {
+  title: "ADS/Templates/Entity Tabs Header",
+  component: EntityTabsHeader,
 };
 
 export default meta;
@@ -30,8 +29,8 @@ const Template = ({ width }: Args) => {
   // TODO: replace SegmentHeader children with proper components when ready
   return (
     <div style={{ width }}>
-      <SegmentHeader>
-        <ToggleButton icon="hamburger" size="md" />
+      <EntityTabsHeader>
+        <EntityListButton />
         <ScrollArea
           data-testid="t--editor-tabs"
           options={SCROLL_AREA_OPTIONS}
@@ -58,7 +57,7 @@ const Template = ({ width }: Args) => {
           startIcon="maximize-v3"
           style={{ marginLeft: "auto", minWidth: 24 }}
         />
-      </SegmentHeader>
+      </EntityTabsHeader>
     </div>
   );
 };
