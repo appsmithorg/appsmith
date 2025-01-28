@@ -351,7 +351,7 @@ function ReconnectDatasourceModal() {
         environmentName: currentEnvDetails.name,
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
-        orgId: datasourceWorkspaceId,
+        workspaceId: datasourceWorkspaceId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
         ideType,
@@ -404,14 +404,14 @@ function ReconnectDatasourceModal() {
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && datasourceWorkspaceId && environmentsFetched) {
+    if (isModalOpen && importWorkspaceId && environmentsFetched) {
       dispatch(
         initDatasourceConnectionDuringImportRequest({
-          workspaceId: datasourceWorkspaceId as string,
+          workspaceId: importWorkspaceId as string,
         }),
       );
     }
-  }, [datasourceWorkspaceId, isModalOpen, environmentsFetched]);
+  }, [importWorkspaceId, isModalOpen, environmentsFetched]);
 
   useEffect(() => {
     if (isModalOpen) {
