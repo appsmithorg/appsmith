@@ -126,3 +126,10 @@ const FORCE_EVAL_ACTIONS = {
 export const shouldForceEval = (action: ReduxAction<unknown>) => {
   return !!FORCE_EVAL_ACTIONS[action.type];
 };
+
+export const fetchFormTriggerNextPage = () => {
+  return {
+    type: ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT,
+    paylod: {},
+  };
+};
