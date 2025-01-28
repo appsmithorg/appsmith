@@ -14,7 +14,7 @@ import homePageLocators from "../../../../locators/HomePage";
 
 describe(
   "Admin Email Page - Email setting page validations",
-  { tags: ["@tag.Settings"] },
+  { tags: ["@tag.Settings", "@tag.Email"] },
   () => {
     const fromEmail = `sagar.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
     const POLL_INTERVAL = 5000;
