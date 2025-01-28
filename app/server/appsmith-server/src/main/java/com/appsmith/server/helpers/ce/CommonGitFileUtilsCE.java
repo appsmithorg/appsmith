@@ -198,7 +198,7 @@ public class CommonGitFileUtilsCE {
                 final Map<String, Object> data = Map.of(
                         artifactConstant,
                         repoPath.getParent().getFileName().toString(),
-                        FieldName.WORKSPACE_ID,
+                        "organizationId",
                         repoPath.getParent().getParent().getFileName().toString(),
                         FieldName.FLOW_NAME,
                         stopwatch.getFlow(),
@@ -676,7 +676,7 @@ public class CommonGitFileUtilsCE {
                     final Map<String, Object> data = Map.of(
                             constantsMap.get(FieldName.ID),
                             baseArtifactId,
-                            FieldName.WORKSPACE_ID,
+                            "organizationId",
                             workspaceId,
                             FieldName.FLOW_NAME,
                             stopwatch.getFlow(),

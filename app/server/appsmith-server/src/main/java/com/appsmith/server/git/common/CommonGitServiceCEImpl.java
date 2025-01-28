@@ -518,7 +518,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
                 gitArtifactMetadata.getRefName(),
-                "workspaceId",
+                "organizationId",
                 artifact.getWorkspaceId(),
                 "repoUrl",
                 gitArtifactMetadata.getRemoteUrl(),
@@ -2096,9 +2096,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
             analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
         }
         analyticsProps.putAll(Map.of(
-                FieldName.WORKSPACE_ID,
+                "organizationId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
-                "workspaceId",
+                "orgId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
                 "branchApplicationId",
                 defaultIfNull(artifact.getId(), ""),
