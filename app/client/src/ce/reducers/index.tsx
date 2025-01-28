@@ -36,7 +36,6 @@ import type { GlobalSearchReduxState } from "reducers/uiReducers/globalSearchRed
 import type { ActionSelectorReduxState } from "reducers/uiReducers/actionSelectorReducer";
 import type { ReleasesState } from "reducers/uiReducers/releasesReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { WebsocketReducerState } from "reducers/uiReducers/websocketReducer";
 import type { DebuggerReduxState } from "reducers/uiReducers/debuggerReducer";
 import type { TourReducerState } from "reducers/uiReducers/tourReducer";
 import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
@@ -45,7 +44,6 @@ import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActions
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
-import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalReducer";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
@@ -80,6 +78,8 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
+import type { GitArtifactRootReduxState, GitGlobalReduxState } from "git";
+import { gitReducer } from "git/store";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -89,6 +89,7 @@ export const reducerObject = {
   settings: SettingsReducer,
   tenant: tenantReducer,
   linting: lintErrorReducer,
+  git: gitReducer,
 };
 
 export interface AppState {
@@ -121,14 +122,12 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
-    websocket: WebsocketReducerState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
     jsPane: JsPaneReduxState;
     canvasSelection: CanvasSelectionState;
     jsObjectName: JSObjectNameReduxState;
     gitSync: GitSyncReducerState;
-    appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
@@ -182,4 +181,8 @@ export interface AppState {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tenant: TenantReduxState<any>;
+  git: {
+    global: GitGlobalReduxState;
+    artifacts: GitArtifactRootReduxState;
+  };
 }

@@ -9,6 +9,19 @@ import type {
 import type BaseControl from "components/propertyControls/BaseControl";
 import { isArray } from "lodash";
 import type { AdditionalDynamicDataTree } from "./autocomplete/customTreeTypeDefCreator";
+
+/**
+ * PropertyPaneControlFactory
+ *
+ * This classes manages all the available controls for the property pane.
+ * It maintains a map of control types to their respective builders.
+ * The control builders are responsible for creating the actual controls.
+ *
+ * Key functionalities:
+ * 1. Register control builders, methods, and computed value functions
+ * 2. Create controls based on control data and preferences
+ * 3. Retrieve available control types
+ */
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
   static controlMethods: Map<ControlType, ControlMethods> = new Map();

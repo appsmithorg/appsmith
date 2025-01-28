@@ -1,5 +1,7 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.git.constants.ce.RefType;
+
 public interface Context {
 
     String getId();
@@ -8,7 +10,9 @@ public interface Context {
 
     Layout getLayout();
 
-    String getBranchName();
+    RefType getRefType();
+
+    String getRefName();
 
     String getUnpublishedName();
 }

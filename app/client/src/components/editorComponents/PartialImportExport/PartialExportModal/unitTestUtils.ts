@@ -10038,12 +10038,12 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run query on page load",
+                label: "Run the query on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
               },
               {
-                label: "Request confirmation before running query",
+                label: "Request confirmation before running this query",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
                 tooltipText:
@@ -10074,12 +10074,12 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run query on page load",
+                label: "Run the query on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
               },
               {
-                label: "Request confirmation before running query",
+                label: "Request confirmation before running this query",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
                 tooltipText:
@@ -10110,12 +10110,12 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run API on page load",
+                label: "Run the API on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
               },
               {
-                label: "Request confirmation before running API",
+                label: "Request confirmation before running this API",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
                 tooltipText:
@@ -10165,7 +10165,6 @@ export const defaultAppState = {
                 controlType: "INPUT_TEXT",
                 configProperty: "actionConfiguration.timeoutInMillisecond",
                 dataType: "NUMBER",
-                width: "270px",
               },
             ],
           },
@@ -10176,12 +10175,12 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run API on page load",
+                label: "Run the API on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
               },
               {
-                label: "Request confirmation before running API",
+                label: "Request confirmation before running this API",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
                 tooltipText:
@@ -10231,7 +10230,6 @@ export const defaultAppState = {
                 controlType: "INPUT_TEXT",
                 configProperty: "actionConfiguration.timeoutInMillisecond",
                 dataType: "NUMBER",
-                width: "270px",
               },
             ],
           },
@@ -12764,8 +12762,6 @@ export const defaultAppState = {
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
           ab_one_click_learning_popover_enabled: false,
-          release_side_by_side_ide_enabled: false,
-          release_global_add_pane_enabled: false,
           license_git_unlimited_repo_enabled: false,
           ask_ai_js: false,
           license_connection_pool_size_enabled: false,

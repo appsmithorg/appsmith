@@ -1,6 +1,7 @@
 package com.appsmith.server.newpages.base;
 
 import com.appsmith.external.enums.WorkspaceResourceContext;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -163,7 +164,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             newPage.setGitSyncId(newPage.getApplicationId() + "_" + UUID.randomUUID());
         }
         newPage.setBaseId(object.getId());
-        newPage.setBranchName(object.getBranchName());
+        newPage.setRefType(object.getRefType());
+        newPage.setRefName(object.getRefName());
 
         // Save page and update the defaultPageId after insertion
         return super.create(newPage)
@@ -506,12 +508,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
+    public Mono<NewPage> findByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
+            String basePageId,
+            AclPermission permission,
+            List<String> projectedFieldNames) {
 
         if (!StringUtils.hasText(basePageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        } else if (!StringUtils.hasText(branchName)) {
+        } else if (!StringUtils.hasText(refName)) {
             return repository
                     .findById(basePageId, permission, projectedFieldNames)
                     .name(GET_PAGE_WITHOUT_BRANCH)
@@ -520,16 +526,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)));
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, projectedFieldNames)
+                .findPageByRefTypeAndRefNameAndBasePageId(refType, refName, basePageId, permission, projectedFieldNames)
                 .name(GET_PAGE_WITH_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId + ", " + branchName)));
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId + ", " + refName)));
     }
 
     @Override
-    public Mono<NewPage> findByBranchNameAndBasePageIdAndApplicationMode(
-            String branchName, String basePageId, ApplicationMode mode) {
+    public Mono<NewPage> findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+            RefType refType, String refName, String basePageId, ApplicationMode mode) {
 
         AclPermission permission;
         if (ApplicationMode.EDIT.equals(mode)) {
@@ -538,15 +544,19 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = pagePermission.getReadPermission();
         }
 
-        return this.findByBranchNameAndBasePageId(
-                        branchName, basePageId, permission, List.of(NewPage.Fields.id, NewPage.Fields.applicationId))
+        return this.findByRefTypeAndRefNameAndBasePageId(
+                        refType,
+                        refName,
+                        basePageId,
+                        permission,
+                        List.of(NewPage.Fields.id, NewPage.Fields.applicationId))
                 .name(getQualifiedSpanName(GET_PAGE, mode))
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
-    public Mono<String> findBranchedPageId(String branchName, String basePageId, AclPermission permission) {
-        if (!StringUtils.hasText(branchName)) {
+    public Mono<String> findRefPageId(RefType refType, String refName, String basePageId, AclPermission permission) {
+        if (!StringUtils.hasText(refName)) {
             if (!StringUtils.hasText(basePageId)) {
                 return Mono.error(
                         new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, basePageId));
@@ -554,9 +564,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(basePageId);
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, null)
+                .findPageByRefTypeAndRefNameAndBasePageId(refType, refName, basePageId, permission, null)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, basePageId + ", " + branchName)))
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, basePageId + ", " + refName)))
                 .map(NewPage::getId);
     }
 
@@ -616,11 +626,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName) {
+    public Mono<String> updateDependencyMap(
+            String pageId, Map<String, List<String>> dependencyMap, RefType refType, String refName) {
         Mono<Integer> updateResult;
-        if (branchName != null) {
-            updateResult = findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
-                    .flatMap(branchPageId -> repository.updateDependencyMap(branchPageId, dependencyMap));
+        if (refName != null) {
+            updateResult = findRefPageId(refType, refName, pageId, AclPermission.MANAGE_PAGES)
+                    .flatMap(refPageId -> repository.updateDependencyMap(refPageId, dependencyMap));
         } else {
             updateResult = repository.updateDependencyMap(pageId, dependencyMap);
         }

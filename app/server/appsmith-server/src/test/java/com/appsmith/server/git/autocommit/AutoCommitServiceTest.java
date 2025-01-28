@@ -2,6 +2,7 @@ package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -78,7 +79,7 @@ public class AutoCommitServiceTest {
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     @MockBean
@@ -141,7 +142,7 @@ public class AutoCommitServiceTest {
 
         application.setPages(List.of(applicationPage));
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
-        gitArtifactMetadata.setBranchName(BRANCH_NAME);
+        gitArtifactMetadata.setRefName(BRANCH_NAME);
         gitArtifactMetadata.setDefaultBranchName(DEFAULT_BRANCH_NAME);
         gitArtifactMetadata.setRepoName(REPO_NAME);
         gitArtifactMetadata.setDefaultApplicationId(DEFAULT_APP_ID);
@@ -201,12 +202,13 @@ public class AutoCommitServiceTest {
         baseRepoSuffix = Paths.get(WORKSPACE_ID, DEFAULT_APP_ID, REPO_NAME);
 
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
-                        anyString(), anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
         // create page-dto
         PageDTO pageDTO = createPageDTO();
@@ -224,8 +226,9 @@ public class AutoCommitServiceTest {
                 .when(gitExecutor)
                 .pushApplication(baseRepoSuffix, REPO_URL, PUBLIC_KEY, PRIVATE_KEY, BRANCH_NAME);
 
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(), anyString())).thenReturn(Mono.just(FALSE));
 
@@ -253,7 +256,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -480,12 +483,13 @@ public class AutoCommitServiceTest {
     public void testAutoCommit_whenNoGitMetadata_returnsNonGitApp() {
         testApplication.setGitApplicationMetadata(null);
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findById(anyString(), any(AclPermission.class));
 
-        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
-                        anyString(), anyString(), any(AclPermission.class)))
-                .thenReturn(Mono.just(testApplication));
+        Mockito.doReturn(Mono.just(testApplication))
+                .when(applicationService)
+                .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
@@ -541,7 +545,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -615,7 +619,7 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -644,7 +648,7 @@ public class AutoCommitServiceTest {
                         .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED))
                 .verifyComplete();
 
-        testApplication.getGitApplicationMetadata().setBranchName("another-branch-name");
+        testApplication.getGitApplicationMetadata().setRefName("another-branch-name");
 
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));

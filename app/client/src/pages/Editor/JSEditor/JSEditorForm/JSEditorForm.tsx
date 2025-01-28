@@ -1,7 +1,5 @@
 import React from "react";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   type BlockCompletion,
   CodeEditorBorder,
@@ -12,7 +10,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import { OldJSEditorForm } from "./old/JSEditorForm";
 import type { OnUpdateSettingsProps } from "../JSEditorToolbar";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { Flex } from "@appsmith/ads";
@@ -33,31 +30,8 @@ interface Props {
 }
 
 export const JSEditorForm = (props: Props) => {
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
-  if (!isActionRedesignEnabled) {
-    return (
-      <OldJSEditorForm
-        actions={props.actions}
-        blockCompletions={props.blockCompletions}
-        changePermitted={props.changePermitted}
-        currentJSCollection={props.currentJSCollection}
-        customGutter={props.customGutter}
-        executing={props.executing}
-        onChange={props.onChange}
-        onUpdateSettings={props.onUpdateSettings}
-        onValueChange={props.onValueChange}
-        showSettings={props.showSettings}
-        theme={props.theme}
-        value={props.value}
-      />
-    );
-  }
-
   return (
-    <Flex flex="1" overflow="scroll">
+    <Flex flex="1" overflowY="scroll">
       <LazyCodeEditor
         AIAssisted
         blockCompletions={props.blockCompletions}

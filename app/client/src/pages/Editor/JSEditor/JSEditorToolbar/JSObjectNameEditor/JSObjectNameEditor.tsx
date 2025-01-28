@@ -1,13 +1,10 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Text as ADSText, Flex } from "@appsmith/ads";
 import styled from "styled-components";
-import { useBoolean } from "usehooks-ts";
 import { noop } from "lodash";
 import { useParams } from "react-router";
 import type { AppState } from "ee/reducers";
@@ -15,8 +12,7 @@ import {
   getJsCollectionByBaseId,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { JSObjectNameEditor as OldJSObjectNameEditor } from "./old/JSObjectNameEditor";
-import { EditableName } from "IDE";
+import { EditableName, useIsRenaming } from "IDE";
 
 export interface SaveActionNameParams {
   id: string;
@@ -86,11 +82,9 @@ export const JSObjectNameEditor = ({
 
   const name = currentJSObjectConfig?.name || "";
 
-  const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
-  } = useBoolean(false);
+  const { enterEditMode, exitEditMode, isEditing } = useIsRenaming(
+    currentJSObjectConfig?.id || "",
+  );
 
   const handleDoubleClick = disabled ? noop : enterEditMode;
 
@@ -103,10 +97,6 @@ export const JSObjectNameEditor = ({
       }
     },
     [currentJSObjectConfig, saveJSObjectName],
-  );
-
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   const icon = useMemo(() => {
@@ -122,17 +112,11 @@ export const JSObjectNameEditor = ({
     );
   }, [currentPlugin]);
 
-  if (!isActionRedesignEnabled) {
-    return (
-      <OldJSObjectNameEditor
-        disabled={disabled}
-        saveJSObjectName={saveJSObjectName}
-      />
-    );
-  }
-
   return (
-    <NameWrapper onDoubleClick={handleDoubleClick}>
+    <NameWrapper
+      data-testid="t--js-object-name-editor"
+      onDoubleClick={handleDoubleClick}
+    >
       <EditableName
         exitEditing={exitEditMode}
         icon={icon}

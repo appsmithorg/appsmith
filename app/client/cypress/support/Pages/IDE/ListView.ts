@@ -4,7 +4,7 @@ class ListView {
   public locators = {
     list: "[data-testid='t--ide-list']",
     listItem: "[data-testid='t--ide-list-item']",
-    addItem: "button.t--add-item",
+    addItem: "[data-testid='t--add-item']",
   };
 
   public assertListVisibility() {

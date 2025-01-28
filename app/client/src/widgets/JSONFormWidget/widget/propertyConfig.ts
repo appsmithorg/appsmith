@@ -360,7 +360,7 @@ export const contentConfig = [
         propertyName: "disabledWhenInvalid",
         helpText:
           "Disables the submit button when the parent form has a required widget that is not filled",
-        label: "Disabled invalid forms",
+        label: "Disable when form is invalid",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

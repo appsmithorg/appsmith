@@ -281,6 +281,49 @@ export default {
       return [];
     }
 
+    const getTextFromHTML = (html) => {
+      if (!html) return "";
+
+      if (typeof html === "object") {
+        html = JSON.stringify(html);
+      }
+
+      try {
+        const tempDiv = document.createElement("div");
+
+        tempDiv.innerHTML = html;
+
+        return tempDiv.textContent || tempDiv.innerText || "";
+      } catch (e) {
+        return "";
+      }
+    };
+
+    /**
+     * Since getTextFromHTML is an expensive operation, we need to avoid calling it unnecessarily
+     * This optimization ensures that getTextFromHTML is only called when required
+     */
+    const columnsWithHTML = Object.values(props.primaryColumns).filter(
+      (column) => column.columnType === "html",
+    );
+    const htmlColumnAliases = new Set(
+      columnsWithHTML.map((column) => column.alias),
+    );
+
+    const isFilteringByColumnThatHasHTML = props.filters?.some((filter) =>
+      htmlColumnAliases.has(filter.column),
+    );
+    const isSortingByColumnThatHasHTML =
+      props.sortOrder?.column && htmlColumnAliases.has(props.sortOrder.column);
+
+    const shouldExtractHTMLText = !!(
+      props.searchText ||
+      isFilteringByColumnThatHasHTML ||
+      isSortingByColumnThatHasHTML
+    );
+    const getKeyForExtractedTextFromHTML = (columnAlias) =>
+      `__htmlExtractedText_${columnAlias}__`;
+
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
@@ -315,6 +358,12 @@ export default {
             ...processedTableData[index],
             [column.alias]: computedValue,
           };
+
+          if (shouldExtractHTMLText && column.columnType === "html") {
+            processedTableData[index][
+              getKeyForExtractedTextFromHTML(column.alias)
+            ] = getTextFromHTML(computedValue);
+          }
         });
       });
     }
@@ -446,25 +495,42 @@ export default {
 
       sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
+          let [processedA, processedB] = [a, b];
+
+          if (!selectColumnKeysWithSortByLabel.length) {
+            const originalA = (props.tableData ??
+              transformedTableDataForSorting)[a.__originalIndex__];
+            const originalB = (props.tableData ??
+              transformedTableDataForSorting)[b.__originalIndex__];
+
+            [processedA, processedB] = [
+              { ...a, ...originalA },
+              { ...b, ...originalB },
+            ];
+          }
+
           if (
-            isEmptyOrNil(a[sortByColumnOriginalId]) ||
-            isEmptyOrNil(b[sortByColumnOriginalId])
+            isEmptyOrNil(processedA[sortByColumnOriginalId]) ||
+            isEmptyOrNil(processedB[sortByColumnOriginalId])
           ) {
             /* push null, undefined and "" values to the bottom. */
-            return isEmptyOrNil(a[sortByColumnOriginalId]) ? 1 : -1;
+            return isEmptyOrNil(processedA[sortByColumnOriginalId]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
               case "currency":
                 return sortByOrder(
-                  Number(a[sortByColumnOriginalId]) >
-                    Number(b[sortByColumnOriginalId]),
+                  Number(processedA[sortByColumnOriginalId]) >
+                    Number(processedB[sortByColumnOriginalId]),
                 );
               case "date":
                 try {
                   return sortByOrder(
-                    moment(a[sortByColumnOriginalId], inputFormat).isAfter(
-                      moment(b[sortByColumnOriginalId], inputFormat),
+                    moment(
+                      processedA[sortByColumnOriginalId],
+                      inputFormat,
+                    ).isAfter(
+                      moment(processedB[sortByColumnOriginalId], inputFormat),
                     ),
                   );
                 } catch (e) {
@@ -487,10 +553,27 @@ export default {
                     );
                   }
                 }
+              case "html": {
+                const htmlExtractedTextA =
+                  processedA[
+                    getKeyForExtractedTextFromHTML(sortByColumnOriginalId)
+                  ];
+                const htmlExtractedTextB =
+                  processedB[
+                    getKeyForExtractedTextFromHTML(sortByColumnOriginalId)
+                  ];
+
+                return sortByOrder(
+                  (htmlExtractedTextA ??
+                    getTextFromHTML(processedA[sortByColumnOriginalId])) >
+                    (htmlExtractedTextB ??
+                      getTextFromHTML(processedB[sortByColumnOriginalId])),
+                );
+              }
               default:
                 return sortByOrder(
-                  a[sortByColumnOriginalId].toString().toLowerCase() >
-                    b[sortByColumnOriginalId].toString().toLowerCase(),
+                  processedA[sortByColumnOriginalId].toString().toLowerCase() >
+                    processedB[sortByColumnOriginalId].toString().toLowerCase(),
                 );
             }
           }
@@ -676,6 +759,9 @@ export default {
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
+      const originalRow = (props.tableData ?? sortedTableData)[
+        row.__originalIndex__
+      ];
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
@@ -761,29 +847,56 @@ export default {
         });
       }
 
+      const displayTextValues = columnWithDisplayText.reduce((acc, column) => {
+        let displayText;
+
+        if (_.isArray(column.displayText)) {
+          displayText = column.displayText[row.__originalIndex__];
+        } else {
+          displayText = column.displayText;
+        }
+
+        acc[column.alias] = displayText;
+
+        return acc;
+      }, {});
+
+      let htmlValues = {};
+
+      /*
+       * We don't want html tags and inline styles to match in search
+       */
+      if (shouldExtractHTMLText) {
+        htmlValues = columnsWithHTML.reduce((acc, column) => {
+          const value = row[column.alias];
+
+          acc[column.alias] = _.isNil(value)
+            ? ""
+            : row[getKeyForExtractedTextFromHTML(column.alias)] ??
+              getTextFromHTML(value);
+
+          return acc;
+        }, {});
+      }
+
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
-        ...columnWithDisplayText.reduce((acc, column) => {
-          let displayText;
-
-          if (_.isArray(column.displayText)) {
-            displayText = column.displayText[row.__originalIndex__];
-          } else {
-            displayText = column.displayText;
-          }
-
-          acc[column.alias] = displayText;
-
-          return acc;
-        }, {}),
+        ...displayTextValues,
+        ...htmlValues,
       };
 
       if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
+        const combinedRowContent = [
+          ...Object.values(_.omit(displayedRow, hiddenColumns)),
+          ...Object.values(
+            _.omit(originalRow, [...hiddenColumns, ...htmlColumnAliases]),
+          ),
+        ]
           .join(", ")
-          .toLowerCase()
-          .includes(searchKey);
+          .toLowerCase();
+
+        isSearchKeyFound = combinedRowContent.includes(searchKey);
       }
 
       if (!isSearchKeyFound) {
@@ -811,10 +924,24 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
-            filterResult = conditionFunction(
-              displayedRow[props.filters[i].column],
-              props.filters[i].value,
-            );
+            /*
+             * We don't want html tags and inline styles to match in filter conditions
+             */
+            const isHTMLColumn = htmlColumnAliases.has(props.filters[i].column);
+            const originalColValue = isHTMLColumn
+              ? originalRow[
+                  getKeyForExtractedTextFromHTML(props.filters[i].column)
+                ] ?? getTextFromHTML(originalRow[props.filters[i].column])
+              : originalRow[props.filters[i].column];
+            const displayedColValue = isHTMLColumn
+              ? displayedRow[
+                  getKeyForExtractedTextFromHTML(props.filters[i].column)
+                ] ?? getTextFromHTML(displayedRow[props.filters[i].column])
+              : displayedRow[props.filters[i].column];
+
+            filterResult =
+              conditionFunction(originalColValue, props.filters[i].value) ||
+              conditionFunction(displayedColValue, props.filters[i].value);
           }
         } catch (e) {
           filterResult = false;

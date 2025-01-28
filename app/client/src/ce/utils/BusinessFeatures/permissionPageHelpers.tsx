@@ -5,6 +5,9 @@ import { hasCreateWorkspacePermission as hasCreateWorkspacePermission_EE } from 
 import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_CE } from "ce/utils/permissionHelpers";
 import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
+import { hasReadDatasourcePermission as hasReadDatasourcePermission_CE } from "ce/utils/permissionHelpers";
+import { hasReadDatasourcePermission as hasReadDatasourcePermission_EE } from "ee/utils/permissionHelpers";
+
 import { hasManageDatasourcePermission as hasManageDatasourcePermission_CE } from "ce/utils/permissionHelpers";
 import { hasManageDatasourcePermission as hasManageDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
@@ -40,7 +43,7 @@ import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "ee/
 
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "ee/utils/permissionHelpers";
-import { EditorNames } from "ee/hooks";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
@@ -56,6 +59,14 @@ export const getHasCreateDatasourcePermission = (
 ) => {
   if (isEnabled) return hasCreateDatasourcePermission_EE(permissions);
   else return hasCreateDatasourcePermission_CE(permissions);
+};
+
+export const getHasReadDatasourcePermission = (
+  isEnabled: boolean,
+  permissions?: string[],
+) => {
+  if (isEnabled) return hasReadDatasourcePermission_EE(permissions);
+  else return hasReadDatasourcePermission_CE(permissions);
 };
 
 export const getHasManageDatasourcePermission = (
@@ -156,16 +167,16 @@ export const getHasAuditLogsReadPermission = (
 
 export const hasCreateDSActionPermissionInApp = ({
   dsPermissions,
-  editorType,
+  ideType,
   isEnabled,
   pagePermissions,
 }: {
   dsPermissions?: string[];
-  editorType?: string;
+  ideType?: IDEType;
   isEnabled: boolean;
   pagePermissions?: string[];
 }) => {
-  return !editorType || editorType === EditorNames.APPLICATION
+  return !ideType || ideType === IDE_TYPE.App
     ? getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
         getHasCreateActionPermission(isEnabled, pagePermissions)
     : getHasCreateDatasourceActionPermission(isEnabled, dsPermissions);

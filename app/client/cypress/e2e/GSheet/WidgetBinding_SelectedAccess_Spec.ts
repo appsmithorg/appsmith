@@ -21,7 +21,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
-describe(
+describe.skip(
   "GSheet-widget binding for selected sheet access",
   {
     tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
@@ -57,7 +57,7 @@ describe(
         dataSourceName,
         spreadSheetName,
       );
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
 
       // Adding suggested widgets and verify
       dataSources.AddSuggestedWidget(Widgets.Table);

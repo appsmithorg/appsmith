@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from "react";
+import { lazy, Suspense, useCallback, useMemo } from "react";
+import React from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -14,7 +15,7 @@ import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissi
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryUrl";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
@@ -23,19 +24,21 @@ import {
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "ee/entities/IDE/constants";
-import QueryEditor from "pages/Editor/QueryEditor";
-import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "@appsmith/ads";
+import {
+  type EntityGroupProps,
+  type ListItemProps,
+  type EntityItemProps,
+} from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
-import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { setListViewActiveState } from "actions/ideActions";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "widgets/Skeleton";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -52,18 +55,16 @@ export const useQueryAdd = () => {
       return;
     }
 
-    let url = "";
+    const url = getQueryUrl(currentEntityInfo);
 
-    url = getQueryUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo]);
+  }, [currentEntityInfo, dispatch, ideViewMode]);
 
   const closeAddQuery = useCallback(() => {
-    let url = "";
+    const url = getQueryUrl(currentEntityInfo, false);
 
-    url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo, ideViewMode]);
+  }, [currentEntityInfo]);
 
   return { openAddQuery, closeAddQuery };
 };
@@ -74,9 +75,10 @@ export type GroupedAddOperations = Array<{
   operations: ActionOperation[];
 }>;
 
-export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
+export const useGroupedAddQueryOperations = () => {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const pagePermissions = useSelector(getPagePermissions);
+  const { getListItems } = useAddQueryListItems();
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -94,6 +96,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   );
 
   const groups: GroupedAddOperations = [];
+  const groupedItems: EntityGroupProps<ListItemProps | EntityItemProps>[] = [];
 
   /** From existing Datasource **/
 
@@ -111,50 +114,112 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
     operations: fromNewBlankAPI,
   });
 
-  return groups;
+  groups.map((group) => {
+    const items = getListItems(group.operations);
+    const lastItem = items[items.length - 1];
+
+    if (group.title === "Datasources" && lastItem?.title === "New datasource") {
+      items.splice(items.length - 1);
+
+      const addConfig = {
+        icon: lastItem.startIcon,
+        onClick: lastItem.onClick,
+        title: lastItem.title,
+      };
+
+      groupedItems.push({
+        groupTitle: group.title,
+        className: group.className,
+        items,
+        addConfig,
+      });
+    } else {
+      groupedItems.push({
+        groupTitle: group.title || "",
+        className: group.className,
+        items,
+      });
+    }
+  });
+
+  return groupedItems;
 };
 
+const PluginActionEditor = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "PluginActionEditor" */ "pages/Editor/AppPluginActionEditor"
+      ),
+  ),
+);
+
+const AddQuery = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "AddQuery" */ "pages/Editor/IDE/EditorPane/Query/Add"
+      ),
+  ),
+);
+
+const QueryEmpty = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "QueryEmpty" */ "../../../../../../PluginActionEditor/components/PluginActionForm/components/UQIEditor/QueriesBlankState"
+      ),
+  ),
+);
+
 export const useQueryEditorRoutes = (path: string): UseRoutes => {
-  return [
-    {
-      key: "ApiEditor",
-      component: ApiEditor,
-      exact: true,
-      path: [
-        BUILDER_PATH + API_EDITOR_ID_PATH,
-        BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
-        BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
-      ],
-    },
-    {
-      key: "AddQuery",
-      exact: true,
-      component: AddQuery,
-      path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
-    },
-    {
-      key: "SAASEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [
-        BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
-        BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
-        BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
-      ],
-    },
-    {
-      key: "QueryEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [path + "/:baseQueryId"],
-    },
-    {
-      key: "QueryEmpty",
-      component: QueriesBlankState,
-      exact: true,
-      path: [path],
-    },
-  ];
+  const skeleton = useMemo(() => <Skeleton />, []);
+
+  return useMemo(
+    () => [
+      {
+        key: "AddQuery",
+        exact: true,
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <AddQuery />
+          </Suspense>
+        ),
+        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
+      },
+      {
+        key: "PluginActionEditor",
+        component: () => {
+          return (
+            <Suspense fallback={skeleton}>
+              <PluginActionEditor />
+            </Suspense>
+          );
+        },
+        path: [
+          BUILDER_PATH + API_EDITOR_ID_PATH,
+          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+          path + "/:baseQueryId",
+        ],
+        exact: true,
+      },
+      {
+        key: "QueryEmpty",
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <QueryEmpty />
+          </Suspense>
+        ),
+        exact: true,
+        path: [path],
+      },
+    ],
+    [path, skeleton],
+  );
 };
 
 export const useAddQueryListItems = () => {
@@ -195,7 +260,7 @@ export const useAddQueryListItems = () => {
 
       return {
         startIcon: icon,
-        wrapperClassName: className,
+        className: className,
         title,
         description:
           fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE

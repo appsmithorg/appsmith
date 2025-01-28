@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -291,8 +292,8 @@ public class CommonGitServiceCETest {
 
         return stringifiedFile
                 .map(data -> gson.fromJson(data, ApplicationJson.class))
-                .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
+                .flatMap(applicationJson -> jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                        applicationJson, null, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -690,7 +691,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                     assertThat(gitArtifactMetadata1.getGitAuth().getPrivateKey())
                             .isNotNull();
                     assertThat(gitArtifactMetadata1.getGitAuth().getPublicKey()).isNotNull();
@@ -769,7 +770,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                 })
                 .verifyComplete();
     }
@@ -792,7 +793,7 @@ public class CommonGitServiceCETest {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         gitArtifactMetadata.setRemoteUrl("git@github.com:test/testRepo.git");
-        gitArtifactMetadata.setBranchName("defaultBranchNameFromRemote");
+        gitArtifactMetadata.setRefName("defaultBranchNameFromRemote");
         gitArtifactMetadata.setRepoName("testRepo");
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         testApplication.setName("localGitProfile");
@@ -880,7 +881,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                     assertThat(gitArtifactMetadata1.getGitAuth().getPrivateKey())
                             .isNotNull();
                     assertThat(gitArtifactMetadata1.getGitAuth().getPublicKey()).isNotNull();
@@ -1087,7 +1088,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     GitArtifactMetadata gitArtifactMetadata1 = application.getGitApplicationMetadata();
                     assertThat(gitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitArtifactMetadata1.getRefName()).isEqualTo("defaultBranchName");
                     assertThat(gitArtifactMetadata1.getGitAuth().getPrivateKey())
                             .isNotNull();
                     assertThat(gitArtifactMetadata1.getGitAuth().getPublicKey()).isNotNull();
@@ -1187,7 +1188,7 @@ public class CommonGitServiceCETest {
         gitArtifactMetadata.setRepoName("repoName");
         gitArtifactMetadata.setDefaultApplicationId("TestId");
         gitArtifactMetadata.setDefaultBranchName("defaultBranchFromRemote");
-        gitArtifactMetadata.setBranchName("defaultBranch");
+        gitArtifactMetadata.setRefName("defaultBranch");
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         testApplication.setName("detachRemote_validData");
         testApplication.setWorkspaceId(workspaceId);
@@ -1224,7 +1225,8 @@ public class CommonGitServiceCETest {
                     action.setDatasource(datasource);
 
                     action.setBaseId("branchedActionId");
-                    action.setBranchName("testBranch");
+                    action.setRefType(RefType.branch);
+                    action.setRefName("testBranch");
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;
@@ -1489,7 +1491,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("feature1");
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                 })
                 .verifyComplete();
@@ -1555,7 +1557,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("feature1");
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                 })
                 .verifyComplete();
@@ -1727,8 +1729,8 @@ public class CommonGitServiceCETest {
         application1 = applicationService.save(application1).block();
 
         GitMergeDTO gitMergeDTO = new GitMergeDTO();
-        gitMergeDTO.setSourceBranch(application1.getGitApplicationMetadata().getBranchName());
-        gitMergeDTO.setDestinationBranch(application.getGitApplicationMetadata().getBranchName());
+        gitMergeDTO.setSourceBranch(application1.getGitApplicationMetadata().getRefName());
+        gitMergeDTO.setDestinationBranch(application.getGitApplicationMetadata().getRefName());
 
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMergeAble(true);
@@ -1775,7 +1777,7 @@ public class CommonGitServiceCETest {
         applicationService.save(application).block();
 
         GitMergeDTO gitMergeDTO = new GitMergeDTO();
-        gitMergeDTO.setSourceBranch(application.getGitApplicationMetadata().getBranchName());
+        gitMergeDTO.setSourceBranch(application.getGitApplicationMetadata().getRefName());
         gitMergeDTO.setDestinationBranch(DEFAULT_BRANCH);
 
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
@@ -1823,7 +1825,7 @@ public class CommonGitServiceCETest {
         applicationService.save(application1).block();
 
         GitMergeDTO gitMergeDTO = new GitMergeDTO();
-        gitMergeDTO.setSourceBranch(application1.getGitApplicationMetadata().getBranchName());
+        gitMergeDTO.setSourceBranch(application1.getGitApplicationMetadata().getRefName());
         gitMergeDTO.setDestinationBranch(DEFAULT_BRANCH);
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
@@ -1920,7 +1922,7 @@ public class CommonGitServiceCETest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
-                    assertThat(application1.getGitApplicationMetadata().getBranchName())
+                    assertThat(application1.getGitApplicationMetadata().getRefName())
                             .isEqualTo("branchNotInLocal");
                     assertThat(application1.getGitApplicationMetadata().getDefaultArtifactId())
                             .isEqualTo(gitConnectedApplication.getId());
@@ -2025,8 +2027,10 @@ public class CommonGitServiceCETest {
                     // names should be same as the name from the application JSON
                     assertThat(editModeThemeInBranchedApp.getDisplayName())
                             .isEqualTo(editModeCustomTheme.getDisplayName());
+                    // While checking out from remote, it's also published.
+                    // When published, the resources are copied from unpublished field to published filed.
                     assertThat(viewModeThemeInBranchedApp.getDisplayName())
-                            .isEqualTo(viewModeCustomTheme.getDisplayName());
+                            .isEqualTo(editModeCustomTheme.getDisplayName());
                 })
                 .verifyComplete();
     }
@@ -2625,7 +2629,7 @@ public class CommonGitServiceCETest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultArtifactId());
                     assertThat(gitData.getDefaultArtifactId()).isEqualTo(parentApplication.getId());
-                    assertThat(gitData.getBranchName()).isEqualTo(createGitBranchDTO.getBranchName());
+                    assertThat(gitData.getRefName()).isEqualTo(createGitBranchDTO.getBranchName());
                     assertThat(gitData.getDefaultBranchName()).isNotEmpty();
                     assertThat(gitData.getRemoteUrl()).isNotEmpty();
                     assertThat(gitData.getBrowserSupportedRemoteUrl()).isNotEmpty();
@@ -2979,9 +2983,9 @@ public class CommonGitServiceCETest {
                     Application branchedApplication = applicationTuple.getT1();
                     Application application = applicationTuple.getT2();
                     String srcBranchName =
-                            application.getGitApplicationMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getRefName();
                     String otherBranchName =
-                            branchedApplication.getGitApplicationMetadata().getBranchName();
+                            branchedApplication.getGitApplicationMetadata().getRefName();
                     String defaultApplicationId =
                             branchedApplication.getGitApplicationMetadata().getDefaultArtifactId();
 
@@ -3060,9 +3064,9 @@ public class CommonGitServiceCETest {
                     Application branchedApplication = applicationTuple.getT1();
                     Application application = applicationTuple.getT2();
                     String srcBranchName =
-                            application.getGitApplicationMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getRefName();
                     String otherBranchName =
-                            branchedApplication.getGitApplicationMetadata().getBranchName();
+                            branchedApplication.getGitApplicationMetadata().getRefName();
                     String defaultApplicationId =
                             branchedApplication.getGitApplicationMetadata().getDefaultArtifactId();
 
@@ -3287,7 +3291,7 @@ public class CommonGitServiceCETest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultArtifactId());
                     assertThat(gitData.getDefaultArtifactId()).isEqualTo(application1.getId());
-                    assertThat(gitData.getBranchName()).isEqualTo(createGitBranchDTO.getBranchName());
+                    assertThat(gitData.getRefName()).isEqualTo(createGitBranchDTO.getBranchName());
                     assertThat(gitData.getDefaultBranchName()).isNotEmpty();
                     assertThat(gitData.getRemoteUrl()).isNotEmpty();
                     assertThat(gitData.getBrowserSupportedRemoteUrl()).isNotEmpty();
@@ -3478,7 +3482,7 @@ public class CommonGitServiceCETest {
                     Application application = applicationImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testRepo");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("defaultBranch");
@@ -3531,7 +3535,7 @@ public class CommonGitServiceCETest {
                     Application application = applicationImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testGitRepo (1)");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("defaultBranch");
@@ -3599,7 +3603,7 @@ public class CommonGitServiceCETest {
                     Application application = applicationImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testGitImportRepo");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("defaultBranch");
@@ -3685,7 +3689,7 @@ public class CommonGitServiceCETest {
                 .assertNext(application -> {
                     assertThat(application.getName()).isEqualTo("testGitImportRepoCancelledMidway");
                     assertThat(application.getGitApplicationMetadata()).isNotNull();
-                    assertThat(application.getGitApplicationMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata().getRefName())
                             .isEqualTo("defaultBranch");
                     assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("defaultBranch");
@@ -3845,7 +3849,7 @@ public class CommonGitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(false));
 
-        application.getGitApplicationMetadata().setBranchName("not-present-branch");
+        application.getGitApplicationMetadata().setRefName("not-present-branch");
         Mockito.doReturn(Mono.just(application))
                 .when(applicationService)
                 .findByBranchNameAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
@@ -4065,7 +4069,7 @@ public class CommonGitServiceCETest {
                 .assertNext(applicationList -> {
                     Set<String> branchNames = new HashSet<>();
                     applicationList.forEach(application1 -> branchNames.add(
-                            application1.getGitApplicationMetadata().getBranchName()));
+                            application1.getGitApplicationMetadata().getRefName()));
                     assertThat(branchNames).doesNotContain(TO_BE_DELETED_BRANCH);
                 })
                 .verifyComplete();
@@ -4187,7 +4191,7 @@ public class CommonGitServiceCETest {
         String appName = "app_" + UUID.randomUUID().toString();
         Application application = createApplicationConnectedToGit(appName, "develop");
 
-        assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
+        assertThat(application.getGitApplicationMetadata().getRefName()).isEqualTo("develop");
         assertThat(application.getId())
                 .isEqualTo(application.getGitApplicationMetadata().getDefaultArtifactId());
 
@@ -4221,7 +4225,7 @@ public class CommonGitServiceCETest {
         StepVerifier.create(checkoutBranchMono)
                 .assertNext(app -> {
                     assertThat(app.getId()).isEqualTo(application.getId());
-                    assertThat(app.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
+                    assertThat(app.getGitApplicationMetadata().getRefName()).isEqualTo("develop");
                     assertThat(app.getGitApplicationMetadata().getGitAuth()).isNotNull();
                 })
                 .verifyComplete();
@@ -4364,7 +4368,7 @@ public class CommonGitServiceCETest {
 
             // set the git app meta data
             GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
-            gitArtifactMetadata.setBranchName(s);
+            gitArtifactMetadata.setRefName(s);
             gitArtifactMetadata.setDefaultBranchName(defaultBranchName);
             gitArtifactMetadata.setDefaultApplicationId(defaultAppId);
             createdApp.setGitApplicationMetadata(gitArtifactMetadata);

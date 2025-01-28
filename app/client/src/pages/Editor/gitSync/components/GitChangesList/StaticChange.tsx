@@ -15,7 +15,6 @@ const TitleText = styled(Text)`
 export enum StaticChangeKind {
   SETTINGS = "SETTINGS",
   THEME = "THEME",
-  PACKAGES = "PACKAGES",
   MODULES = "MODULES",
   REMOTE_AHEAD = "REMOTE_AHEAD",
   REMOTE_BEHIND = "REMOTE_BEHIND",
@@ -49,24 +48,17 @@ const allStaticChangeDefs: Record<
   [StaticChangeKind.SETTINGS]: (status: GitStatusData) => ({
     condition: status.modified.includes("application.json"),
     message: "Application settings modified",
-    iconName: "settings-2-line",
+    iconName: "settings-v3",
   }),
   [StaticChangeKind.THEME]: (status: GitStatusData) => ({
     condition: status.modified.includes("theme.json"),
     message: "Theme modified",
     iconName: "sip-line",
   }),
-  [StaticChangeKind.PACKAGES]: (status: GitStatusData) => ({
-    condition: (status.modifiedPackages ?? 0) > 0,
-    message: `${status.modifiedPackages ?? 0} ${
-      (status.modifiedPackages ?? 0) > 0 ? "packages" : "package"
-    } modified`,
-    iconName: "package",
-  }),
   [StaticChangeKind.MODULES]: (status: GitStatusData) => ({
-    condition: (status.modifiedModules ?? 0) > 0,
-    message: `${status.modifiedModules ?? 0} ${
-      (status.modifiedModules ?? 0) > 0 ? "modules" : "module"
+    condition: (status.modifiedSourceModules ?? 0) > 0,
+    message: `${status.modifiedSourceModules ?? 0} ${
+      (status.modifiedSourceModules ?? 0) > 0 ? "modules" : "module"
     } modified`,
     iconName: "package",
   }),

@@ -40,7 +40,7 @@ import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
@@ -149,12 +149,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
           defaultValue: API_EDITOR_TABS.HEADERS,
         },
       },
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.InputField,
-      selector: getFocusableInputField,
-      setter: setFocusableInputField,
     },
     {
       type: FocusElementConfigType.Redux,

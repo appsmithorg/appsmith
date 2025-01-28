@@ -32,6 +32,7 @@ public class ObservationHelperImpl implements ObservationHelper {
             return Span.NOOP;
         } else {
             TraceContext traceContext = tracer.traceContextBuilder()
+                    .sampled(true)
                     .traceId(contextMap.get(TRACE_ID))
                     .spanId(contextMap.get(SPAN_ID))
                     .build();

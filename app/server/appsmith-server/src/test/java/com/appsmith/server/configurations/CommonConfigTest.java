@@ -22,12 +22,11 @@ public class CommonConfigTest {
     @Test
     public void objectMapper_BeanCreated_WithPublicJsonViewAsDefault() throws JsonProcessingException {
         UserData userData = new UserData();
-        userData.setRole("new_role");
         userData.setProficiency("abcd"); // this is public field
         userData.setUserId("userId"); // this is internal field
         userData.setUserPermissions(null);
 
         String value = objectMapper.writeValueAsString(userData);
-        JSONAssert.assertEquals("{\"proficiency\":\"abcd\",\"role\":\"new_role\"}", value, true);
+        JSONAssert.assertEquals("{\"proficiency\":\"abcd\"}", value, true);
     }
 }

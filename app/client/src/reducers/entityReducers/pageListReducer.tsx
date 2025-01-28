@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -16,10 +16,19 @@ import { sortBy } from "lodash";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
 import type { Page } from "entities/Page";
+import type { SupportedLayouts } from "./types";
+
+// exporting it as well so that existing imports are not affected
+// TODO: remove this once all imports are updated
+export type { SupportedLayouts };
 
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  generatePage: {
+    modalOpen: false,
+    params: {},
+  },
   baseApplicationId: "",
   applicationId: "",
   currentBasePageId: "",
@@ -235,6 +244,27 @@ export const pageListReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.SET_GENERATE_PAGE_MODAL_OPEN]: (
+    state: PageListReduxState,
+    action: ReduxAction<GeneratePageModalParams>,
+  ) => {
+    return {
+      ...state,
+      generatePage: {
+        modalOpen: true,
+        params: action.payload || {},
+      },
+    };
+  },
+  [ReduxActionTypes.SET_GENERATE_PAGE_MODAL_CLOSE]: (
+    state: PageListReduxState,
+  ) => ({
+    ...state,
+    generatePage: {
+      ...state.generatePage,
+      modalOpen: false,
+    },
+  }),
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
     state: PageListReduxState,
   ) => {
@@ -288,15 +318,13 @@ export const pageListReducer = createReducer(initialState, {
   },
 });
 
-export type SupportedLayouts =
-  | "DESKTOP"
-  | "TABLET_LARGE"
-  | "TABLET"
-  | "MOBILE"
-  | "FLUID";
-
 export interface AppLayoutConfig {
   type: SupportedLayouts;
+}
+
+export interface GeneratePageModalParams {
+  datasourceId?: string;
+  new_page?: boolean;
 }
 
 export interface PageListReduxState {
@@ -309,6 +337,10 @@ export interface PageListReduxState {
   defaultPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
+  generatePage?: {
+    modalOpen: boolean;
+    params?: GeneratePageModalParams;
+  };
   loading: Record<string, boolean>;
 }
 

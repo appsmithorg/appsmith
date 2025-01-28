@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -36,7 +37,8 @@ class TextClassificationServiceImplTest {
                         INSTRUCTIONS, Map.of(DATA, "Some instructions")));
         actionConfiguration.setFormData(formData);
 
-        Query query = textClassificationService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query = textClassificationService.createQuery(
+                actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Some text", query.getInput());
@@ -56,7 +58,8 @@ class TextClassificationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textClassificationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textClassificationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

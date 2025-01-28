@@ -31,14 +31,6 @@ const ResizerHandler = styled.div<{ resizing: boolean }>`
   }
 `;
 
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
 const EDITOR_WIDTH_KEY = "CUSTOM_WIDGET_BUILDER_EDITOR_WIDTH";
 
 export default function CustomWidgetBuilder() {
@@ -83,8 +75,7 @@ export default function CustomWidgetBuilder() {
       ) : (
         <div className={styles.content}>
           <div className={styles.contentLeft} ref={previewRef}>
-            {resizing && <Overlay />}
-            <Preview width={editorWidth} />
+            <Preview className={styles.preview} width={editorWidth} />
           </div>
           <div
             className={`w-2 h-full -ml-2 group  cursor-ew-resize ${tailwindLayers.resizer}`}
@@ -96,6 +87,7 @@ export default function CustomWidgetBuilder() {
               className={classNames({
                 "transform transition": true,
               })}
+              data-resizing={resizing ? "" : undefined}
               resizing={resizing}
             />
           </div>

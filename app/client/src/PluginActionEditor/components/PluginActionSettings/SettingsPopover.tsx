@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "@appsmith/ads";
-import ActionSettings from "pages/Editor/ActionSettings";
+import ActionSettings from "../PluginActionToolbar/components/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
 import {
-  API_EDITOR_TAB_TITLES,
   createMessage,
-  LEARN_MORE,
+  API_EDITOR_TAB_TITLES,
+  MORE_ON_QUERY_SETTINGS,
 } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -20,21 +20,13 @@ import { ToolbarSettingsPopover } from "IDE";
 export interface SettingsProps {
   formName: string;
   docsLink?: DocsLink;
+  dataTestId?: string;
 }
 
-/* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
-
-  .t--form-control-INPUT_TEXT,
-  .t--form-control-DROP_DOWN {
-    > div {
-      min-width: unset;
-      width: 100%;
-    }
-  }
 `;
 
 const LearnMoreLink = styled(Link)`
@@ -75,6 +67,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
 
   return (
     <ToolbarSettingsPopover
+      dataTestId={props.dataTestId || "t--toolbar-settings-popover-trigger"}
       handleOpenChange={handleOpenChange}
       isOpen={isOpen}
       title={createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
@@ -92,7 +85,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
             kind="secondary"
             onClick={handleLearnMoreClick}
           >
-            {createMessage(LEARN_MORE)}
+            {createMessage(MORE_ON_QUERY_SETTINGS)}
           </LearnMoreLink>
         )}
       </SettingsWrapper>

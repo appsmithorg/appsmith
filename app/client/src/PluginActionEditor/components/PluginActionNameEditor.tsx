@@ -1,18 +1,17 @@
 import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { usePluginActionContext } from "../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ActionUrlIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Text as ADSText, Flex } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 import styled from "styled-components";
-import { useBoolean } from "usehooks-ts";
 import { noop } from "lodash";
-import { EditableName } from "IDE";
+import { EditableName, useIsRenaming } from "IDE";
 
 export interface SaveActionNameParams {
   id: string;
@@ -49,26 +48,16 @@ export const IconContainer = styled.div`
   }
 `;
 
-export const Text = styled(ADSText)`
-  min-width: 3ch;
-  padding: 0 var(--ads-v2-spaces-1);
-  font-weight: 500;
-`;
-
 const PluginActionNameEditor = ({
   saveActionName,
 }: PluginActionNameEditorProps) => {
   const { action, plugin } = usePluginActionContext();
 
   const isLoading = useSelector(
-    (state) => getSavingStatusForActionName(state, action?.id || "").isSaving,
+    (state) => getSavingStatusForActionName(state, action.id).isSaving,
   );
 
-  const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
-  } = useBoolean(false);
+  const { enterEditMode, exitEditMode, isEditing } = useIsRenaming(action.id);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
@@ -80,15 +69,20 @@ const PluginActionNameEditor = ({
 
   const handleDoubleClick = isChangePermitted ? enterEditMode : noop;
 
+  const dispatch = useDispatch();
+
   const handleNameSave = useCallback(
     (name: string) => {
-      saveActionName({ id: action.id, name });
+      dispatch(saveActionName({ id: action.id, name }));
     },
     [action.id, saveActionName],
   );
 
   return (
-    <NameWrapper onDoubleClick={handleDoubleClick}>
+    <NameWrapper
+      data-testid="t--plugin-action-name-editor"
+      onDoubleClick={handleDoubleClick}
+    >
       <EditableName
         exitEditing={exitEditMode}
         icon={<IconContainer>{icon}</IconContainer>}

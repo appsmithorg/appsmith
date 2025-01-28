@@ -4,12 +4,12 @@ export default [
     id: 1,
     children: [
       {
-        label: "Run API on page load",
+        label: "Run the API on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
       },
       {
-        label: "Request confirmation before running API",
+        label: "Request confirmation before running this API",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
         tooltipText:
@@ -21,7 +21,6 @@ export default [
         configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
-        width: "270px",
       },
     ],
   },

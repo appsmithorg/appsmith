@@ -11,27 +11,28 @@ import {
 } from "ee/selectors/entitiesSelector";
 
 import type { Datasource } from "entities/Datasource";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
+import {
+  fetchDatasourceStructure,
+  setDatasourceViewModeFlag,
+} from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useLocation } from "react-router";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import { getQueryParams } from "utils/URLUtils";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import {
+  getGeneratePageModalParams,
+  getIsGeneratingTemplatePage,
+} from "selectors/pageListSelectors";
 import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
 import type { DropdownOption } from "@appsmith/ads-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "@appsmith/ads";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
-  GENERATE_PAGE_FORM_TITLE,
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
 } from "ee/constants/messages";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
   useSheetsList,
@@ -60,7 +61,10 @@ import {
 } from "selectors/editorSelectors";
 
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
-import { PluginPackageName } from "entities/Action";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  PluginPackageName,
+} from "entities/Plugin";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginImages } from "ee/selectors/entitiesSelector";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
@@ -70,6 +74,7 @@ import equal from "fast-deep-equal";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { closeGeneratePageModal } from "../../store/generatePageActions";
 
 //  ---------- Styles ----------
 
@@ -77,20 +82,7 @@ const TooltipWrapper = styled.div`
   margin-left: 6px;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  border: none;
-`;
-
 const FormWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const DescWrapper = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
 `;
@@ -218,7 +210,7 @@ const DatasourceOptionSelectedView = (props: any) => {
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
-  const querySearch = useLocation().search;
+  const params = useSelector(getGeneratePageModalParams);
 
   const basePageId = useSelector(getCurrentBasePageId);
   const pageId = useSelector(getCurrentPageId);
@@ -539,10 +531,9 @@ function GeneratePageForm() {
   ]);
 
   useEffect(() => {
-    if (querySearch) {
-      const queryParams = getQueryParams();
-      const datasourceId = queryParams.datasourceId;
-      const generateNewPage = queryParams.new_page;
+    if (params?.datasourceId || params?.new_page) {
+      const datasourceId = params.datasourceId;
+      const generateNewPage = params.new_page;
 
       if (datasourceId) {
         if (generateNewPage || numberOfEntities > 0) {
@@ -552,15 +543,9 @@ function GeneratePageForm() {
         }
 
         setDatasourceIdToBeSelected(datasourceId);
-        delete queryParams.datasourceId;
-        delete queryParams.new_page;
-        const redirectURL =
-          window.location.pathname + getQueryStringfromObject(queryParams);
-
-        history.replace(redirectURL);
       }
     }
-  }, [numberOfEntities, querySearch, setDatasourceIdToBeSelected]);
+  }, [numberOfEntities, params, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
@@ -577,6 +562,7 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
+    dispatch(closeGeneratePageModal());
   };
 
   const generatePageAction = (data: GeneratePagePayload) => {
@@ -602,6 +588,7 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
+    dispatch(closeGeneratePageModal());
   };
 
   const handleFormSubmit = () => {
@@ -625,6 +612,8 @@ function GeneratePageForm() {
     });
 
     history.push(redirectURL);
+    dispatch(setDatasourceViewModeFlag(false));
+    dispatch(closeGeneratePageModal());
   };
 
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
@@ -682,250 +671,247 @@ function GeneratePageForm() {
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
 
   return (
-    <div>
-      <Wrapper>
-        <DescWrapper>
-          <Text kind="heading-m">{GENERATE_PAGE_FORM_TITLE()}</Text>
-        </DescWrapper>
-      </Wrapper>
-      <FormWrapper>
+    <FormWrapper>
+      <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+        <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
+        <Select
+          data-testid="t--datasource-dropdown"
+          getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
+          onChange={(value) => {
+            if (value === CONNECT_NEW_DATASOURCE_OPTION_ID) {
+              routeToCreateNewDatasource();
+            } else {
+              onSelectDataSource(
+                value,
+                dataSourceOptions.find((ds) => ds.value === value),
+              );
+            }
+          }}
+          style={{ width: DROPDOWN_DIMENSION.WIDTH }}
+          value={
+            selectedDatasource?.label !== DEFAULT_DROPDOWN_OPTION?.label
+              ? {
+                  key: selectedDatasource?.value,
+                  label: (
+                    <DatasourceOptionSelectedView
+                      iconType={GeneratePageSelectedViewIconEnum.PLUGIN_ICON}
+                      option={selectedDatasource}
+                      pluginImages={pluginImages}
+                    />
+                  ),
+                }
+              : selectedDatasource
+          }
+          // TODO: This needs to be fixed. Removed for cypress tests to pass
+          virtual={false}
+        >
+          {dataSourceOptions.map((option) => {
+            const isConnectNewDataSourceBtn =
+              CONNECT_NEW_DATASOURCE_OPTION_ID ===
+              (option as DropdownOption).id;
+            const isSupportedForTemplate = (option as DropdownOption)?.data
+              ?.isSupportedForTemplate;
+            const isNotSupportedDatasource =
+              !isSupportedForTemplate && !isConnectNewDataSourceBtn;
+
+            return (
+              <Option
+                disabled={isNotSupportedDatasource}
+                key={option.value}
+                value={option.value}
+              >
+                <DataSourceOption
+                  dataTestid="t--datasource-dropdown-option"
+                  extraProps={{ routeToCreateNewDatasource }}
+                  key={(option as DropdownOption).id}
+                  option={option}
+                  optionWidth={DROPDOWN_DIMENSION.WIDTH}
+                />
+              </Option>
+            );
+          })}
+        </Select>
+      </SelectWrapper>
+      {selectedDatasource.value ? (
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
+          <Label>
+            Select {pluginField.TABLE} from&nbsp;
+            <Bold>{selectedDatasource.label}</Bold>
+          </Label>
+
           <Select
-            data-testid="t--datasource-dropdown"
-            onChange={(value) => {
-              if (value === CONNECT_NEW_DATASOURCE_OPTION_ID) {
-                routeToCreateNewDatasource();
-              } else {
-                onSelectDataSource(
-                  value,
-                  dataSourceOptions.find((ds) => ds.value === value),
-                );
-              }
-            }}
-            style={{ width: DROPDOWN_DIMENSION.WIDTH }}
+            data-testid="t--table-dropdown"
+            getPopupContainer={(triggerNode) =>
+              triggerNode.parentNode.parentNode
+            }
+            isDisabled={!!tableDropdownErrorMsg}
+            isLoading={fetchingDatasourceConfigs}
+            isValid={!tableDropdownErrorMsg}
+            onChange={(value) =>
+              onSelectTable(
+                value,
+                datasourceTableOptions.find(
+                  (table) => table.value === value,
+                ) as DatasourceTableDropdownOption,
+              )
+            }
             value={
-              selectedDatasource?.label !== DEFAULT_DROPDOWN_OPTION?.label
+              selectedTable?.label !== DEFAULT_DROPDOWN_OPTION?.label
                 ? {
-                    key: selectedDatasource?.value,
+                    key: selectedTable?.value,
                     label: (
                       <DatasourceOptionSelectedView
-                        iconType={GeneratePageSelectedViewIconEnum.PLUGIN_ICON}
-                        option={selectedDatasource}
-                        pluginImages={pluginImages}
+                        iconType={GeneratePageSelectedViewIconEnum.ADS_ICON}
+                        option={selectedTable}
                       />
                     ),
                   }
-                : selectedDatasource
+                : selectedTable
             }
             // TODO: This needs to be fixed. Removed for cypress tests to pass
             virtual={false}
           >
-            {dataSourceOptions.map((option) => {
-              const isConnectNewDataSourceBtn =
-                CONNECT_NEW_DATASOURCE_OPTION_ID ===
-                (option as DropdownOption).id;
-              const isSupportedForTemplate = (option as DropdownOption)?.data
-                ?.isSupportedForTemplate;
-              const isNotSupportedDatasource =
-                !isSupportedForTemplate && !isConnectNewDataSourceBtn;
-
+            {datasourceTableOptions.map((table) => {
               return (
-                <Option
-                  disabled={isNotSupportedDatasource}
-                  key={option.value}
-                  value={option.value}
-                >
-                  <DataSourceOption
-                    dataTestid="t--datasource-dropdown-option"
-                    extraProps={{ routeToCreateNewDatasource }}
-                    key={(option as DropdownOption).id}
-                    option={option}
-                    optionWidth={DROPDOWN_DIMENSION.WIDTH}
-                  />
+                <Option key={table.value} value={table.value}>
+                  <OptionWrapper>
+                    <StyledIconWrapper>
+                      <Icon
+                        color={table?.iconColor}
+                        name={table.icon as string}
+                        size={table.iconSize}
+                      />
+                    </StyledIconWrapper>
+                    <Text renderAs="p">{table.label}</Text>
+                  </OptionWrapper>
                 </Option>
               );
             })}
           </Select>
+          {tableDropdownErrorMsg && (
+            <ErrorMsg className="ads-dropdown-errorMsg">
+              {tableDropdownErrorMsg}
+            </ErrorMsg>
+          )}
         </SelectWrapper>
-        {selectedDatasource.value ? (
-          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-            <Label>
-              Select {pluginField.TABLE} from&nbsp;
-              <Bold>{selectedDatasource.label}</Bold>
-            </Label>
-
-            <Select
-              data-testid="t--table-dropdown"
-              isDisabled={!!tableDropdownErrorMsg}
-              isLoading={fetchingDatasourceConfigs}
-              isValid={!tableDropdownErrorMsg}
-              onChange={(value) =>
-                onSelectTable(
-                  value,
-                  datasourceTableOptions.find(
-                    (table) => table.value === value,
-                  ) as DatasourceTableDropdownOption,
-                )
-              }
-              value={
-                selectedTable?.label !== DEFAULT_DROPDOWN_OPTION?.label
-                  ? {
-                      key: selectedTable?.value,
-                      label: (
-                        <DatasourceOptionSelectedView
-                          iconType={GeneratePageSelectedViewIconEnum.ADS_ICON}
-                          option={selectedTable}
-                        />
-                      ),
-                    }
-                  : selectedTable
-              }
-              // TODO: This needs to be fixed. Removed for cypress tests to pass
-              virtual={false}
-            >
-              {datasourceTableOptions.map((table) => {
-                return (
-                  <Option key={table.value} value={table.value}>
-                    <OptionWrapper>
-                      <StyledIconWrapper>
-                        <Icon
-                          color={table?.iconColor}
-                          name={table.icon as string}
-                          size={table.iconSize}
-                        />
-                      </StyledIconWrapper>
-                      <Text renderAs="p">{table.label}</Text>
-                    </OptionWrapper>
-                  </Option>
-                );
-              })}
-            </Select>
-            {tableDropdownErrorMsg && (
-              <ErrorMsg className="ads-dropdown-errorMsg">
-                {tableDropdownErrorMsg}
-              </ErrorMsg>
-            )}
-          </SelectWrapper>
-        ) : null}
-        {showEditDatasourceBtn && (
-          <div>
-            <Button kind="primary" onClick={goToEditDatasource} size="md">
-              Edit datasource
-            </Button>
+      ) : null}
+      {showEditDatasourceBtn && (
+        <div>
+          <Button kind="primary" onClick={goToEditDatasource} size="md">
+            Edit datasource
+          </Button>
+        </div>
+      )}
+      {!isGoogleSheetPlugin ? (
+        <>
+          {showSearchableColumn && (
+            <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+              <Row>
+                Select a searchable {pluginField.COLUMN} from the selected&nbsp;
+                {pluginField.TABLE}
+                <TooltipWrapper>
+                  <Tooltip content="Only string values are allowed for searchable column">
+                    <Icon name="question-line" size="md" />
+                  </Tooltip>
+                </TooltipWrapper>
+              </Row>
+              <Select
+                data-testid="t--table-dropdown"
+                getPopupContainer={(triggerNode) =>
+                  triggerNode.parentNode.parentNode
+                }
+                isDisabled={selectedTableColumnOptions.length === 0}
+                onChange={(value) =>
+                  onSelectColumn(
+                    value,
+                    selectedTableColumnOptions.find(
+                      (column) => column.value === value,
+                    ),
+                  )
+                }
+                value={
+                  selectedColumn?.label !== DEFAULT_DROPDOWN_OPTION?.label
+                    ? {
+                        key: selectedColumn?.value,
+                        label: (
+                          <DatasourceOptionSelectedView
+                            iconType={GeneratePageSelectedViewIconEnum.ADS_ICON}
+                            option={selectedColumn}
+                          />
+                        ),
+                      }
+                    : selectedColumn
+                }
+                virtual={false}
+              >
+                {selectedTableColumnOptions.map((column) => {
+                  return (
+                    <Option key={column.value} value={column.value}>
+                      <OptionWrapper>
+                        <StyledIconWrapper>
+                          <Icon
+                            color={column?.iconColor}
+                            name={column.icon as string}
+                            size={column.iconSize}
+                          />
+                        </StyledIconWrapper>
+                        <Text renderAs="p">{column.label}</Text>
+                        <Text
+                          className="datasource-sub-text"
+                          color="var(--ads-v2-color-fg-muted)"
+                          renderAs="span"
+                        >
+                          {column.subText}
+                        </Text>
+                      </OptionWrapper>
+                    </Option>
+                  );
+                })}
+              </Select>
+              <HelperMsg>
+                {selectedTableColumnOptions.length === 0
+                  ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
+                  : "* Optional"}
+              </HelperMsg>
+            </SelectWrapper>
+          )}
+          <div className="mt-4">
+            <GeneratePageSubmitBtn
+              disabled={submitButtonDisable}
+              isLoading={!!isGeneratingTemplatePage}
+              onSubmit={handleFormSubmit}
+              showSubmitButton={!!showSubmitButton}
+            />
           </div>
-        )}
-        {!isGoogleSheetPlugin ? (
-          <>
-            {showSearchableColumn && (
-              <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-                <Row>
-                  Select a searchable {pluginField.COLUMN} from the
-                  selected&nbsp;
-                  {pluginField.TABLE}
-                  <TooltipWrapper>
-                    <Tooltip content="Only string values are allowed for searchable column">
-                      <Icon name="question-line" size="md" />
-                    </Tooltip>
-                  </TooltipWrapper>
-                </Row>
-                <Select
-                  data-testid="t--table-dropdown"
-                  isDisabled={selectedTableColumnOptions.length === 0}
-                  onChange={(value) =>
-                    onSelectColumn(
-                      value,
-                      selectedTableColumnOptions.find(
-                        (column) => column.value === value,
-                      ),
-                    )
-                  }
-                  value={
-                    selectedColumn?.label !== DEFAULT_DROPDOWN_OPTION?.label
-                      ? {
-                          key: selectedColumn?.value,
-                          label: (
-                            <DatasourceOptionSelectedView
-                              iconType={
-                                GeneratePageSelectedViewIconEnum.ADS_ICON
-                              }
-                              option={selectedColumn}
-                            />
-                          ),
-                        }
-                      : selectedColumn
-                  }
-                  virtual={false}
-                >
-                  {selectedTableColumnOptions.map((column) => {
-                    return (
-                      <Option key={column.value} value={column.value}>
-                        <OptionWrapper>
-                          <StyledIconWrapper>
-                            <Icon
-                              color={column?.iconColor}
-                              name={column.icon as string}
-                              size={column.iconSize}
-                            />
-                          </StyledIconWrapper>
-                          <Text renderAs="p">{column.label}</Text>
-                          <Text
-                            className="datasource-sub-text"
-                            color="var(--ads-v2-color-fg-muted)"
-                            renderAs="span"
-                          >
-                            {column.subText}
-                          </Text>
-                        </OptionWrapper>
-                      </Option>
-                    );
-                  })}
-                </Select>
-                <HelperMsg>
-                  {selectedTableColumnOptions.length === 0
-                    ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
-                    : "* Optional"}
-                </HelperMsg>
-              </SelectWrapper>
-            )}
-            <div className="mt-4">
-              <GeneratePageSubmitBtn
-                disabled={submitButtonDisable}
-                isLoading={!!isGeneratingTemplatePage}
-                onSubmit={handleFormSubmit}
-                showSubmitButton={!!showSubmitButton}
-              />
-            </div>
-          </>
-        ) : (
-          <GoogleSheetForm
-            generatePageAction={generatePageAction}
-            googleSheetPluginId={selectedDatasourcePluginId}
-            renderSubmitButton={({
-              disabled,
-              isLoading,
-              onSubmit,
-            }: {
-              onSubmit: () => void;
-              disabled: boolean;
-              isLoading: boolean;
-            }) => (
-              <GeneratePageSubmitBtn
-                disabled={disabled}
-                isLoading={!!isGeneratingTemplatePage || isLoading}
-                onSubmit={onSubmit}
-                showSubmitButton={!!showSubmitButton}
-              />
-            )}
-            selectedDatasource={selectedDatasource}
-            selectedSpreadsheet={selectedTable}
-            sheetColumnsHeaderProps={sheetColumnsHeaderProps}
-            sheetsListProps={sheetsListProps}
-            spreadSheetsProps={spreadSheetsProps}
-          />
-        )}
-      </FormWrapper>
-    </div>
+        </>
+      ) : (
+        <GoogleSheetForm
+          generatePageAction={generatePageAction}
+          googleSheetPluginId={selectedDatasourcePluginId}
+          renderSubmitButton={({
+            disabled,
+            isLoading,
+            onSubmit,
+          }: {
+            onSubmit: () => void;
+            disabled: boolean;
+            isLoading: boolean;
+          }) => (
+            <GeneratePageSubmitBtn
+              disabled={disabled}
+              isLoading={!!isGeneratingTemplatePage || isLoading}
+              onSubmit={onSubmit}
+              showSubmitButton={!!showSubmitButton}
+            />
+          )}
+          selectedDatasource={selectedDatasource}
+          selectedSpreadsheet={selectedTable}
+          sheetColumnsHeaderProps={sheetColumnsHeaderProps}
+          sheetsListProps={sheetsListProps}
+          spreadSheetsProps={spreadSheetsProps}
+        />
+      )}
+    </FormWrapper>
   );
 }
 

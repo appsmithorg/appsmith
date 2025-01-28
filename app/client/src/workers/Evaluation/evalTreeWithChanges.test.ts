@@ -1,7 +1,7 @@
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import { DataTreeDiffEvent } from "ee/workers/Evaluation/evaluationUtils";
 import { RenderModes } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import produce from "immer";

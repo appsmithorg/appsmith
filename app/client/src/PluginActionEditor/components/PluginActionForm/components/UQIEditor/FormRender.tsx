@@ -7,7 +7,7 @@ import {
 } from "ee/constants/messages";
 import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
-import { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "entities/Plugin";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
@@ -22,7 +22,8 @@ import {
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import FormControl from "pages/Editor/FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "@appsmith/ads";
+import { Spinner, Text } from "@appsmith/ads";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import { Section, Zone } from "../ActionForm";
 
@@ -170,7 +171,7 @@ const FormRender = (props: Props) => {
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
       if (Object.hasOwn(section, "children")) {
-        return rederNodeWithChildren(section, formName);
+        return renderNodeWithChildren(section, formName);
       }
 
       try {
@@ -178,7 +179,7 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          // TODO: Remove classname once action redesign epic is done
+          // TODO: Remove classname once DB configs are migrated
           <FieldWrapper
             className="uqi-form-wrapper"
             key={`${configProperty}_${idx}`}
@@ -201,7 +202,7 @@ const FormRender = (props: Props) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rederNodeWithChildren = (section: any, formName: string) => {
+  const renderNodeWithChildren = (section: any, formName: string) => {
     if (!Object.hasOwn(section, "children")) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -211,7 +212,7 @@ const FormRender = (props: Props) => {
 
     switch (section.controlType) {
       case "SECTION_V2":
-        return <Section>{children}</Section>;
+        return <Section isFullWidth={section.isFullWidth}>{children}</Section>;
 
       case "SINGLE_COLUMN_ZONE":
       case "DOUBLE_COLUMN_ZONE": {
@@ -265,7 +266,13 @@ const FormRender = (props: Props) => {
     };
 
   if (!editorConfig || editorConfig.length < 0) {
-    return <ErrorComponent errorMessage={createMessage(UNEXPECTED_ERROR)} />;
+    return (
+      <CenteredWrapper>
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          {createMessage(UNEXPECTED_ERROR)}
+        </Text>
+      </CenteredWrapper>
+    );
   }
 
   return renderConfig();

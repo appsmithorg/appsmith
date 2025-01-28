@@ -1,5 +1,4 @@
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
 
 export enum AppsmithWorkers {
   LINT_WORKER = "LINT_WORKER",
@@ -13,5 +12,5 @@ export enum WorkerErrorTypes {
 export interface WorkerRequest<TData, TActions> {
   method: TActions;
   data: TData;
-  webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes>;
+  webworkerTelemetry: Record<string, WebworkerSpanData | Attributes>;
 }

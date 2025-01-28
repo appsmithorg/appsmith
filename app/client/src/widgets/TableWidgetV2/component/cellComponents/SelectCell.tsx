@@ -11,6 +11,7 @@ import {
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
+import type { ColumnTypes } from "widgets/TableWidget/component/Constants";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -61,7 +62,7 @@ type SelectProps = BaseCellComponentProps & {
   alias: string;
   accentColor: string;
   autoOpen: boolean;
-  columnType: string;
+  columnType: ColumnTypes;
   borderRadius: string;
   options?: DropdownOption[];
   onFilterChange: (
@@ -203,7 +204,7 @@ export const SelectCell = (props: SelectProps) => {
 
     return selectedOption
       ? selectedOption[TableSelectColumnOptionKeys.LABEL]
-      : "";
+      : value;
   }, [value, options]);
 
   if (isEditable && isCellEditable && isCellEditMode) {

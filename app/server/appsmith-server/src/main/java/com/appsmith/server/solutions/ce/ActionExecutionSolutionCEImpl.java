@@ -34,6 +34,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -44,6 +45,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -72,6 +74,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -119,7 +122,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
     private final TenantService tenantService;
+    private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
+    private final FeatureFlagService featureFlagService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -147,7 +152,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             EnvironmentPermission environmentPermission,
             ConfigService configService,
             TenantService tenantService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper,
+            FeatureFlagService featureFlagService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -167,6 +174,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.configService = configService;
         this.tenantService = tenantService;
         this.commonConfig = commonConfig;
+        this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
+        this.featureFlagService = featureFlagService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -245,15 +254,27 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         Mono<String> instanceIdMono = configService.getInstanceId();
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
 
-        return Mono.zip(instanceIdMono, defaultTenantIdMono).map(tuple -> {
-            String instanceId = tuple.getT1();
-            String tenantId = tuple.getT2();
-            executeActionDTO.setActionId(newAction.getId());
-            executeActionDTO.setWorkspaceId(newAction.getWorkspaceId());
-            executeActionDTO.setInstanceId(instanceId);
-            executeActionDTO.setTenantId(tenantId);
-            return executeActionDTO;
-        });
+        Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
+                actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
+
+        return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
+                        instanceIdMono, defaultTenantIdMono)
+                .map(tuple -> {
+                    String instanceId = tuple.getT1();
+                    String tenantId = tuple.getT2();
+                    populatedExecuteActionDTO.setActionId(newAction.getId());
+                    populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        populatedExecuteActionDTO.setDatasourceId(
+                                newAction.getPublishedAction().getDatasource().getId());
+                    } else {
+                        populatedExecuteActionDTO.setDatasourceId(
+                                newAction.getUnpublishedAction().getDatasource().getId());
+                    }
+                    populatedExecuteActionDTO.setInstanceId(instanceId);
+                    populatedExecuteActionDTO.setTenantId(tenantId);
+                    return populatedExecuteActionDTO;
+                }));
     }
 
     /**
@@ -710,13 +731,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
+                    Map<String, Boolean> features = featureFlagService.getCachedTenantFeatureFlags() != null
+                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                            : Collections.emptyMap();
+
+                    // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
+                    // Once thoroughly tested, this flag can be removed
                     return ((PluginExecutor<Object>) pluginExecutor)
-                            .executeParameterizedWithMetrics(
+                            .executeParameterizedWithMetricsAndFlags(
                                     resourceContext.getConnection(),
                                     executeActionDTO,
                                     datasourceStorage1.getDatasourceConfiguration(),
                                     actionDTO.getActionConfiguration(),
-                                    observationRegistry)
+                                    observationRegistry,
+                                    features)
                             .map(actionExecutionResult -> {
                                 ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                 if (actionExecutionRequest == null) {

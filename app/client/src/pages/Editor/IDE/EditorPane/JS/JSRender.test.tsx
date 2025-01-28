@@ -1,5 +1,4 @@
-import localStorage from "utils/localStorage";
-import { render } from "test/testUtils";
+import { render, waitFor } from "test/testUtils";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import IDE from "pages/Editor/IDE/index";
@@ -10,28 +9,22 @@ import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
-
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE Render: JS", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
-    it("Renders Fullscreen Blank State", () => {
-      const { getByRole, getByText } = render(
+    it("Renders Fullscreen Blank State", async () => {
+      const { findByText, getByRole, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
-          featureFlags: FeatureFlags,
         },
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state));
+      await findByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state));
 
       // Left pane text
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state_description));
@@ -51,7 +44,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -68,19 +60,18 @@ describe("IDE Render: JS", () => {
       });
     });
 
-    it("Renders Fullscreen Add in Blank State", () => {
-      const { getByTestId, getByText } = render(
+    it("Renders Fullscreen Add in Blank State", async () => {
+      const { findByText, getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
-          featureFlags: FeatureFlags,
         },
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.js_create_tab_title));
+      await findByText(createMessage(EDITOR_PANE_TEXTS.js_create_tab_title));
 
       // Left pane description
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state_description));
@@ -100,7 +91,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -117,7 +107,7 @@ describe("IDE Render: JS", () => {
   });
 
   describe("JS Edit Render", () => {
-    it("Renders JS routes in Full screen", () => {
+    it("Renders JS routes in Full screen", async () => {
       const page = PageFactory.build();
       const js1 = JSObjectFactory.build({
         pageId: page.pageId,
@@ -132,19 +122,27 @@ describe("IDE Render: JS", () => {
         },
       });
 
-      const { container, getAllByText, getByRole, getByTestId } = render(
+      const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js1.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
-      // There will be 3 JSObject1 text (Left pane list, editor tab and Editor form)
-      expect(getAllByText("JSObject1").length).toEqual(3);
+      await waitFor(
+        async () => {
+          const elements = getAllByText("JSObject1"); // Use the common test ID or selector
+
+          expect(elements).toHaveLength(2); // Wait until there are exactly 2 elements
+        },
+        { timeout: 3000, interval: 500 },
+      );
+
+      // There will be 2 JSObject1 text (Left pane list and editor tab)
+      expect(getAllByText("JSObject1").length).toEqual(2);
       // Left pane active state
       expect(
         getByTestId("t--entity-item-JSObject1").classList.contains("active"),
@@ -153,13 +151,12 @@ describe("IDE Render: JS", () => {
       expect(
         getByTestId("t--ide-tab-jsobject1").classList.contains("active"),
       ).toBe(true);
-      // Check if the form is rendered
-      expect(container.querySelector(".js-editor-tab")).not.toBeNull();
-      // Check if the code and settings tabs is visible
-      getByRole("tab", { name: /code/i });
-      getByRole("tab", { name: /settings/i });
-      // Check if run button is visible
+      // Check toolbar elements
+      getByRole("button", { name: /myFun1/i });
       getByRole("button", { name: /run/i });
+      getByTestId("t--js-settings-trigger");
+      getByTestId("t--more-action-trigger");
+
       // Check if the Add new button is shown
       getByTestId("t--add-item");
     });
@@ -181,14 +178,13 @@ describe("IDE Render: JS", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { container, getAllByText, getByRole, getByTestId } = render(
+      const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js2.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -197,19 +193,17 @@ describe("IDE Render: JS", () => {
       getByTestId("t--widgets-editor");
 
       // Check if js is rendered in side by side
-      expect(getAllByText("JSObject2").length).toBe(2);
+      expect(getAllByText("JSObject2").length).toBe(1);
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-jsobject2").classList.contains("active"),
       ).toBe(true);
 
-      // Check if the form is rendered
-      expect(container.querySelector(".js-editor-tab")).not.toBeNull();
-      // Check if the code and settings tabs is visible
-      getByRole("tab", { name: /code/i });
-      getByRole("tab", { name: /settings/i });
-      // Check if run button is visible
+      // Check toolbar elements
+      getByRole("button", { name: /myFun1/i });
       getByRole("button", { name: /run/i });
+      getByTestId("t--more-action-trigger");
+
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
     });
@@ -237,7 +231,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js3.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -279,7 +272,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js4.baseId}/add`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 
@@ -330,7 +322,6 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${Main_JS.baseId}`,
           initialState: state,
-          featureFlags: FeatureFlags,
         },
       );
 

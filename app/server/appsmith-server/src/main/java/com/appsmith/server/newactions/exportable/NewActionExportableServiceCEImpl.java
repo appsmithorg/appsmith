@@ -1,5 +1,6 @@
 package com.appsmith.server.newactions.exportable;
 
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -70,6 +71,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                     List<NewAction> actionList = tuple.getT1();
                     Set<String> dbNamesUsedInActions = tuple.getT2();
                     Set<String> updatedActionSet = new HashSet<>();
+                    Set<String> updatedIdentities = new HashSet<>();
                     actionList.forEach(newAction -> {
                         ActionDTO unpublishedActionDTO = newAction.getUnpublishedAction();
                         ActionDTO publishedActionDTO = newAction.getPublishedAction();
@@ -85,9 +87,12 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                                 actionDTO,
                                 exportingMetaDTO.getArtifactLastCommittedAt());
 
-                        String contextListPath = artifactBasedExportableService.getContextListPath();
-                        boolean isContextUpdated = ImportExportUtils.isContextNameInUpdatedList(
-                                artifactExchangeJson, contextNameAtIdReference, contextListPath);
+                        String contextGitSyncId = mappedExportableResourcesDTO
+                                .getContextNameToGitSyncIdMap()
+                                .get(contextNameAtIdReference);
+                        boolean isContextUpdated = artifactExchangeJson
+                                .getModifiedResources()
+                                .isResourceUpdatedNew(GitResourceType.CONTEXT_CONFIG, contextGitSyncId);
                         Instant newActionUpdatedAt = newAction.getUpdatedAt();
                         boolean isNewActionUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
@@ -98,10 +103,16 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                                 || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(newActionUpdatedAt);
                         if (isNewActionUpdated && newActionName != null) {
                             updatedActionSet.add(newActionName);
+                            updatedIdentities.add(newAction.getGitSyncId());
                         }
                         newAction.sanitiseToExportDBObject();
                     });
                     artifactExchangeJson.getModifiedResources().putResource(FieldName.ACTION_LIST, updatedActionSet);
+                    artifactExchangeJson
+                            .getModifiedResources()
+                            .getModifiedResourceIdentifiers()
+                            .get(GitResourceType.QUERY_CONFIG)
+                            .addAll(updatedIdentities);
                     artifactExchangeJson.setActionList(actionList);
 
                     // This is where we're removing global datasources that are unused in this application

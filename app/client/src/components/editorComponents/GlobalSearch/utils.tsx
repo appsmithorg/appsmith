@@ -6,7 +6,7 @@ import {
 } from "ee/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
@@ -28,7 +28,7 @@ import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
 } from "ee/actions/helpers";
-import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
+import { openCurlImportModal } from "pages/Editor/CurlImport/store/curlImportActions";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -229,8 +229,6 @@ export const getItemPage = (item: SearchItem): string => {
       return "";
   }
 };
-
-export const algoliaHighlightTag = "ais-highlight-0000000000";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

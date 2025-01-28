@@ -126,7 +126,7 @@ function AppSettings() {
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {
       id: "t--general-settings-header",
-      icon: "settings-2-line",
+      icon: "settings-v3",
       isSelected: selectedTab.type === AppSettingsTabs.General,
       name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {

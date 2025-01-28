@@ -4,6 +4,7 @@ import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.CreatorContextType;
@@ -25,6 +26,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -171,7 +173,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView({Views.Internal.class})
-    private String branchName;
+    private RefType refType;
+
+    @Transient
+    @JsonView({Views.Internal.class})
+    private String refName;
 
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**
@@ -199,11 +205,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Override
     @JsonView({Views.Internal.class})
     public String getValidName() {
-        if (this.fullyQualifiedName == null) {
-            return this.name;
-        } else {
+        if (StringUtils.hasText(this.fullyQualifiedName)) {
             return this.fullyQualifiedName;
         }
+
+        return this.name;
     }
 
     @Override

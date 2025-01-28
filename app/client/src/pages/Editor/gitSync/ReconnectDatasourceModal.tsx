@@ -60,7 +60,7 @@ import {
 } from "@appsmith/ads";
 import { isEnvironmentConfigured } from "ee/utils/Environments";
 import { keyBy } from "lodash";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,
@@ -324,8 +324,8 @@ function ReconnectDatasourceModal() {
    */
   const {
     editorId,
-    editorType,
     editorURL,
+    ideType,
     missingDsCredentialsDescription, // pageId or moduleId
     parentEntityId, // appId or packageId from query params
     skipMessage,
@@ -354,7 +354,7 @@ function ReconnectDatasourceModal() {
         workspaceId: orgId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
-        editorType,
+        ideType,
       });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
@@ -613,7 +613,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
-        data-testId="reconnect-datasource-modal"
+        data-testid="reconnect-datasource-modal"
         onClick={handleClose}
         onEscapeKeyDown={onClose}
         onInteractOutside={handleClose}

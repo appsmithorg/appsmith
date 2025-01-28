@@ -1,9 +1,5 @@
 import type { WidgetType } from "constants/WidgetConstants";
-import type {
-  AnyReduxAction,
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { AnyReduxAction, ReduxAction } from "./ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -31,6 +27,9 @@ import type {
   PageAction,
 } from "../constants/AppsmithActionConstants/ActionConstants";
 import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
+import type { ApiResponse } from "api/ApiResponses";
+import type { EvaluationReduxAction } from "./EvaluationReduxActionTypes";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -653,22 +652,26 @@ export const fetchPageDSLs = (payload?: any) => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
   payload,
 });
+
 export interface SetupPageActionPayload {
   id: string;
   isFirstLoad?: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
+  packagePullStatus?: ApiResponse<PACKAGE_PULL_STATUS>;
 }
 
-export const setupPageAction = (
-  pageId: string,
+export const setupPageAction = ({
+  id,
   isFirstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
-): ReduxAction<SetupPageActionPayload> => ({
+  packagePullStatus,
+  pageWithMigratedDsl,
+}: SetupPageActionPayload) => ({
   type: ReduxActionTypes.SETUP_PAGE_INIT,
   payload: {
-    id: pageId,
+    id,
     isFirstLoad,
     pageWithMigratedDsl,
+    packagePullStatus,
   },
 });
 

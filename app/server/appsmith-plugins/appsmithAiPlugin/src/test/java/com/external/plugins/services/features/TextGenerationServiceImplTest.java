@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -27,7 +28,8 @@ class TextGenerationServiceImplTest {
         formData.put(TEXT_GENERATION, Map.of(INPUT, Map.of(DATA, "Hello, World!")));
         actionConfiguration.setFormData(formData);
 
-        Query query = textGenerationService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query =
+                textGenerationService.createQuery(actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Hello, World!", query.getInput());
@@ -45,7 +47,8 @@ class TextGenerationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textGenerationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textGenerationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }
@@ -62,7 +65,8 @@ class TextGenerationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textGenerationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textGenerationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

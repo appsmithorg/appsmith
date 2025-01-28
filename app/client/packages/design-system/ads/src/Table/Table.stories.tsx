@@ -150,32 +150,32 @@ export const TableStory: Story = {
       {
         title: "Column 1",
         dataIndex: "col1",
-        width: 100,
+        width: 110,
       },
       {
         title: "Column 2",
         dataIndex: "col2",
-        width: 100,
+        width: 110,
       },
       {
         title: "Column 3",
         dataIndex: "col3",
-        width: 100,
+        width: 110,
       },
       {
         title: "Column 4",
         dataIndex: "col4",
-        width: 100,
+        width: 110,
       },
       {
         title: "Column 5",
         dataIndex: "col5",
-        width: 100,
+        width: 110,
       },
       {
         title: "Column 6",
         dataIndex: "col6",
-        width: 100,
+        width: 110,
         ellipsis: {
           showTitle: false,
         },
@@ -188,7 +188,7 @@ export const TableStory: Story = {
       {
         title: "Column 7",
         dataIndex: "col7",
-        width: 100,
+        width: 110,
       },
     ],
     data: [
@@ -198,7 +198,7 @@ export const TableStory: Story = {
         col3: "Row 1, Column 3",
         col4: "Row 1, Column 4",
         col5: "Row 1, Column 5",
-        col6: "Row 1, Column 6, Row 1, Column 6, Row 1, Column 6, Row 1, Column 6, Row 1, Column 6",
+        col6: "Row 1, Column 6",
         col7: "Row 1, Column 7",
         col8: "Row 1, Column 8",
         col9: "Row 1, Column 9",
@@ -430,5 +430,16 @@ export const TableColumnStory: ColumnStory = {
         },
       },
     },
+  },
+};
+
+/**
+ * Sorting in the table can be enabled by passing the `isSortable` prop. For primitive data types, sorting will work automatically.
+ * To enable sorting for objects, the `sortBy` prop must also be passed in columns data. The value of the `sortBy` property will be used as the key for sorting.
+ */
+export const SortableTable: Story = {
+  args: {
+    ...TableStory.args,
+    isSortable: true,
   },
 };

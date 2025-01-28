@@ -23,6 +23,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -267,7 +268,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                         newAction.getId());
                                                 action.setPageId(savedPage.getId());
                                                 action.setBaseId(null);
-                                                action.setBranchName(null);
+                                                action.setRefType(null);
+                                                action.setRefName(null);
                                                 return newAction;
                                             })
                                             .flatMap(newAction -> {
@@ -309,12 +311,16 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                     actionDTO.setSource(
                                                                             ActionCreationSourceTypeEnum
                                                                                     .FORK_APPLICATION);
-                                                                    return layoutActionService.createAction(
-                                                                            actionDTO,
+
+                                                                    CreateActionMetaDTO createActionMetaDTO =
+                                                                            new CreateActionMetaDTO();
+                                                                    createActionMetaDTO.setIsJsAction(Boolean.FALSE);
+                                                                    createActionMetaDTO.setEventContext(
                                                                             new AppsmithEventContext(
                                                                                     AppsmithEventContextType
-                                                                                            .CLONE_PAGE),
-                                                                            Boolean.FALSE);
+                                                                                            .CLONE_PAGE));
+                                                                    return layoutActionService.createAction(
+                                                                            actionDTO, createActionMetaDTO);
                                                                 })
                                                                 .map(ActionDTO::getId),
                                                         Mono.justOrEmpty(originalActionId));
@@ -500,7 +506,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     if ((application.getGitApplicationMetadata() == null)
                             || application
                                     .getGitApplicationMetadata()
-                                    .getBranchName()
+                                    .getRefName()
                                     .equals(application
                                             .getGitApplicationMetadata()
                                             .getDefaultBranchName())) {

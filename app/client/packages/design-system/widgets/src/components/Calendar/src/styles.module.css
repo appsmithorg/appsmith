@@ -1,0 +1,79 @@
+.calendar {
+  padding: var(--outer-spacing-3);
+}
+
+.calendar table {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.calendar thead tr {
+  display: flex;
+  justify-content: space-around;
+  padding-block-start: var(--inner-spacing-1);
+}
+
+.calendar tbody tr {
+  display: flex;
+  justify-content: space-between;
+}
+
+.calendar thead th {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizing-9);
+  block-size: var(--sizing-9);
+}
+
+.calendar tbody td {
+  padding: var(--inner-spacing-1);
+}
+
+.calendar tbody [role="button"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizing-9);
+  block-size: var(--sizing-9);
+  border-radius: var(--border-radius-elevation-3);
+  border: var(--border-width-2) solid transparent;
+  text-align: center;
+}
+
+.calendar tbody [role="button"][data-disabled] {
+  opacity: var(--opacity-disabled);
+}
+
+.calendar tbody [role="button"][data-hovered] {
+  background-color: var(--color-bg-accent-subtle-hover);
+  cursor: pointer;
+}
+
+.calendar tbody [role="button"][data-pressed] {
+  background-color: var(--color-bg-accent-subtle-active);
+}
+
+.calendar tbody [role="button"][data-selected] {
+  background-color: var(--color-bg-accent);
+  color: var(--color-fg-on-accent);
+}
+
+.calendar tbody [role="button"][data-focus-visible] {
+  --box-shadow-offset: 2px;
+
+  box-shadow:
+    0 0 0 var(--box-shadow-offset) var(--color-bg),
+    0 0 0 calc(var(--box-shadow-offset) + var(--border-width-2))
+      var(--color-bd-focus);
+}
+
+.monthYearDropdown {
+  display: flex;
+  gap: var(--inner-spacing-1);
+}
+
+.monthDropdown button {
+  width: 14ch;
+}

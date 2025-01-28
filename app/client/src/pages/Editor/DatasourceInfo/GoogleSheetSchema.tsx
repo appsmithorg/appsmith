@@ -48,10 +48,10 @@ import Entity from "../Explorer/Entity";
 import DatasourceField from "./DatasourceField";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface Props {
   datasourceId: string;
@@ -360,7 +360,7 @@ function GoogleSheetSchema(props: Props) {
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
@@ -371,7 +371,7 @@ function GoogleSheetSchema(props: Props) {
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const refreshSpreadSheetButton = (option: DropdownOption) => (
@@ -399,7 +399,7 @@ function GoogleSheetSchema(props: Props) {
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
-        <StructureContainer data-testId="datasource-schema-container">
+        <StructureContainer data-testid="t--datasource-schema-container">
           {datasource && (
             <DatasourceStructureHeader
               datasource={datasource}

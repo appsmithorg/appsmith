@@ -167,9 +167,9 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
         if (metadata == null) {
             return 1;
         }
+
         JsonNode json = objectMapper.valueToTree(metadata);
-        int fileFormatVersion = json.get(CommonConstants.FILE_FORMAT_VERSION).asInt();
-        return fileFormatVersion;
+        return json.get(CommonConstants.FILE_FORMAT_VERSION).asInt();
     }
 
     @Override

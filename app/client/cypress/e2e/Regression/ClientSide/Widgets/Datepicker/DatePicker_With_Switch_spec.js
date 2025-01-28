@@ -28,11 +28,14 @@ describe(
       cy.closePropertyPane();
     });
     // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
-    it.skip("Date Widget with Reset widget being switch widget", function () {
+    it("Date Widget with Reset widget being switch widget", function () {
       EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
 
+      cy.get(formWidgetsPage.datePickerInput).click();
+      _.agHelper.GetNClick(widgetsPage.todayText);
       cy.get(formWidgetsPage.defaultDate).click();
-      cy.SetDateToToday();
+      _.agHelper.GetNClick(".ads-v2-datepicker__calender-today");
+      cy.get(formWidgetsPage.defaultDate).click();
       cy.setDate(1, "ddd MMM DD YYYY");
       const nextDay = dayjs().format("DD/MM/YYYY");
       cy.log(nextDay);
@@ -51,18 +54,10 @@ describe(
       cy.get(widgetsPage.switchWidgetInactive).should("be.visible");
     });
 
-    it.skip("DatePicker-Date change and validate switch widget status", function () {
+    it("DatePicker-Date change and validate switch widget status", function () {
       cy.get(widgetsPage.datepickerInput).click({ force: true });
-      cy.SetDateToToday();
-      cy.get(widgetsPage.switchWidgetActive).should("be.visible");
-      cy.get(".t--toast-action span")
-        .last()
-        .invoke("text")
-        .then((text) => {
-          const toasttext = text;
-          cy.log(toasttext);
-          expect(text.trim()).to.equal(toasttext.trim());
-        });
+      _.agHelper.GetNClick(widgetsPage.todayText);
+      _.agHelper.AssertClassExists(".bp3-switch", "t--switch-widget-active");
     });
   },
 );

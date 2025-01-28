@@ -22,6 +22,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -129,6 +130,7 @@ function MultiSelectField({
     fieldName: name,
     fieldType,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,

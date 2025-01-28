@@ -1,9 +1,7 @@
-import { generateTemplateFormURL } from "ee/RouteBuilder";
 import {
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   createMessage,
 } from "ee/constants/messages";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
 import { getPlugin } from "ee/selectors/entitiesSelector";
@@ -18,18 +16,14 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
 import { useShowPageGenerationOnHeader } from "pages/Editor/DataSourceEditor/hooks";
 import React from "react";
-import { useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentBasePageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
-import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { EditorNames } from "./";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -39,7 +33,7 @@ export interface HeaderActionProps {
 }
 
 export const useHeaderActions = (
-  editorType: string,
+  ideType: IDEType,
   {
     datasource,
     isPluginAuthorized,
@@ -47,7 +41,7 @@ export const useHeaderActions = (
     showReconnectButton = false,
   }: HeaderActionProps,
 ) => {
-  const basePageId = useSelector(getCurrentBasePageId);
+  const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const releaseDragDropBuildingBlocks = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
@@ -78,7 +72,7 @@ export const useHeaderActions = (
     ? false
     : !!isPluginAllowedToPreviewData;
 
-  if (editorType === EditorNames.APPLICATION) {
+  if (ideType === IDE_TYPE.App) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
       isEnabled: isFeatureEnabled,
       dsPermissions: datasource?.userPermissions ?? [],
@@ -97,13 +91,10 @@ export const useHeaderActions = (
       }
 
       AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
-      history.push(
-        generateTemplateFormURL({
-          basePageId,
-          params: {
-            datasourceId: (datasource as Datasource).id,
-            new_page: true,
-          },
+      dispatch(
+        openGeneratePageModal({
+          datasourceId: (datasource as Datasource).id,
+          new_page: true,
         }),
       );
     };
@@ -144,16 +135,4 @@ export const useHeaderActions = (
   }
 
   return {};
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const useParentEntityInfo = (editorType: string) => {
-  const appId = useSelector(getCurrentApplicationId);
-  const basePageId = useSelector(getCurrentBasePageId);
-
-  return {
-    editorId: appId || "",
-    parentEntityId: basePageId || "",
-    parentEntityType: ActionParentEntityType.PAGE,
-  };
 };

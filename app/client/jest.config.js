@@ -12,12 +12,30 @@ module.exports = {
   ],
   roots: ["<rootDir>/src"],
   transform: {
-    "^.+\\.(png|js|ts|tsx)$": "ts-jest",
+    "^.+\\.(png|js|ts|tsx)$": [
+      "ts-jest",
+      {
+        isolatedModules: true,
+        diagnostics: {
+          ignoreCodes: [1343],
+        },
+        astTransformers: {
+          before: [
+            {
+              path: "node_modules/ts-jest-mock-import-meta",
+              options: {
+                metaObjectReplacement: { url: "https://www.url.com" },
+              },
+            },
+          ],
+        },
+      },
+    ],
   },
   testEnvironment: "jsdom",
   testTimeout: 9000,
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
-  testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx|ts|js)?$",
+  testRegex: "\\.(test|spec)\\.(tsx|ts|js)?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
@@ -52,22 +70,9 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "@appsmith/ads": "<rootDir>/node_modules/@appsmith/ads",
     "^canvas$": "jest-canvas-mock",
+    "^entities/(.*)$": "<rootDir>/src/entities/$1", // Match 'entities/*'
   },
   globals: {
-    "ts-jest": {
-      isolatedModules: true,
-      diagnostics: {
-        ignoreCodes: [1343],
-      },
-      astTransformers: {
-        before: [
-          {
-            path: "node_modules/ts-jest-mock-import-meta",
-            options: { metaObjectReplacement: { url: "https://www.url.com" } },
-          },
-        ],
-      },
-    },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
         dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
@@ -81,23 +86,10 @@ module.exports = {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
       },
-      newRelic: {
-        enableNewRelic: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__"),
-        accountId: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__"),
-        applicationId: parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__"),
-        browserAgentlicenseKey: parseConfig(
-          "__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__",
-        ),
-        browserAgentEndpoint: parseConfig(
-          "__APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT__",
-        ),
-        otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
-        otlpServiceName: parseConfig(
-          "__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__",
-        ),
-        otlpEndpoint: parseConfig(
-          "__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__",
-        ),
+      observability: {
+        deploymentName: "jest-run",
+        serviceInstanceId: "appsmith-0",
+        tracingUrl: "",
       },
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
@@ -105,11 +97,6 @@ module.exports = {
       mixpanel: {
         enabled: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         apiKey: parseConfig("__APPSMITH_MIXPANEL_KEY__"),
-      },
-      algolia: {
-        apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
-        apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
-        indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
       },
       logLevel:
         CONFIG_LOG_LEVEL_INDEX > -1

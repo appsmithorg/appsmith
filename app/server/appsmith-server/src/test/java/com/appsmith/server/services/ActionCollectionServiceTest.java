@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -26,6 +27,8 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -62,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -73,6 +77,8 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Slf4j
@@ -88,7 +94,7 @@ public class ActionCollectionServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     LayoutActionService layoutActionService;
 
     @Autowired
@@ -706,53 +712,76 @@ public class ActionCollectionServiceTest {
                 .verifyComplete();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutOnlyOnce() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+    private ActionDTO createAction(String actionName, String body, boolean isValid) {
+        ActionDTO testAction = new ActionDTO();
+        testAction.setName(actionName);
+        testAction.setActionConfiguration(new ActionConfiguration());
+        testAction.getActionConfiguration().setBody(body);
+        testAction.getActionConfiguration().setIsValid(isValid);
+        return testAction;
+    }
 
+    private ActionCollectionDTO createActionCollection(String collectionName, String body, PluginType pluginType) {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setName(collectionName);
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setApplicationId(testApp.getId());
         actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
-        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setBody(body);
+        actionCollectionDTO.setPluginType(pluginType);
+        return actionCollectionDTO;
+    }
 
-        // Create actions
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("mockBody");
-        action1.getActionConfiguration().setIsValid(false);
+    private JSONArray createDynamicList(String key, String value) {
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of(key, value)));
+        return temp2;
+    }
 
-        ActionDTO action2 = new ActionDTO();
-        action2.setName("testAction2");
-        action2.setActionConfiguration(new ActionConfiguration());
-        action2.getActionConfiguration().setBody("mockBody");
-        action2.getActionConfiguration().setIsValid(false);
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutOnlyOnceAndAssertCyclicDependencyError() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        ActionDTO action3 = new ActionDTO();
-        action3.setName("testAction3");
-        action3.setActionConfiguration(new ActionConfiguration());
-        action3.getActionConfiguration().setBody("mockBody");
-        action3.getActionConfiguration().setIsValid(false);
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
+
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
+        ActionDTO action2 = createAction("testAction2", "mockBody", false);
+        ActionDTO action3 = createAction("testAction3", "mockBody", false);
 
         actionCollectionDTO.setActions(List.of(action1, action2, action3));
 
+        Layout layout = testPage.getLayouts().get(0);
+        ArrayList dslList = (ArrayList) layout.getDsl().get("children");
+        JSONObject tableDsl = (JSONObject) dslList.get(0);
+        tableDsl.put("tableData", "{{testCollection1.testAction1.data}}");
+        tableDsl.put("dynamicBindingPathList", createDynamicList("key", "tableData"));
+        tableDsl.put("dynamicPropertyPathList", createDynamicList("key", "tableData"));
+        layout.getDsl().put("widgetName", "MainContainer");
+
+        testPage.setLayouts(List.of(layout));
+        PageDTO updatedPage =
+                newPageService.updatePage(testPage.getId(), testPage).block();
+
+        // Create Js object
         ActionCollectionDTO createdActionCollectionDTO =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
         assert createdActionCollectionDTO != null;
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
 
-        applicationPageService.publish(testApp.getId(), true).block();
-
-        actionCollectionDTO.getActions().get(0).getActionConfiguration().setBody("updatedBody");
+        // Update JS object to create cyclic dependency
+        actionCollectionDTO.getActions().stream()
+                .filter(action -> "testAction1".equals(action.getName()))
+                .findFirst()
+                .ifPresent(action ->
+                        action.getActionConfiguration().setBody("function () {\n  return Table1.tableData;\n}"));
 
         final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
                 layoutCollectionService.updateUnpublishedActionCollection(
@@ -766,6 +795,224 @@ public class ActionCollectionServiceTest {
                     // collection as expected
                     Mockito.verify(updateLayoutService, Mockito.times(2))
                             .updatePageLayoutsByPageId(Mockito.anyString());
+
+                    assertEquals(1, actionCollectionDTO1.getErrorReports().size());
+                    assertEquals(
+                            AppsmithError.CYCLICAL_DEPENDENCY_ERROR.getAppErrorCode(),
+                            actionCollectionDTO1.getErrorReports().get(0).getCode());
+
+                    // Iterate over each action and assert that errorReports is null as action collection already has
+                    // error reports
+                    // it's not required in each action
+                    actionCollectionDTO
+                            .getActions()
+                            .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testUpdateUnpublishedActionCollection_createNewActionsWithSameNameAsExisting_returnsDuplicateActionNameError() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
+
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        ActionDTO action2 = createAction("testAction1", "mockBody", false);
+        ActionDTO action3 = createAction("testAction2", "mockBody", false);
+
+        actionCollectionDTO.setActions(
+                List.of(createdActionCollectionDTO.getActions().get(0), action2, action3));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO).verifyErrorSatisfies(error -> {
+            assertTrue(error instanceof AppsmithException);
+            String expectedMessage = "testAction1 already exists. Please use a different name";
+            assertEquals(expectedMessage, error.getMessage());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testUpdateUnpublishedActionCollection_createMultipleActionsWithSameName_returnsDuplicateActionNameError() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        // Update JS object to create an action with same name as previously created action
+        ActionDTO action2 = createAction("testAction2", "mockBody", false);
+        ActionDTO action3 = createAction("testAction2", "mockBody", false);
+
+        actionCollectionDTO.setActions(
+                List.of(createdActionCollectionDTO.getActions().get(0), action2, action3));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO).verifyErrorSatisfies(error -> {
+            assertTrue(error instanceof AppsmithException);
+            String expectedMessage = "testAction2 already exists. Please use a different name";
+            assertEquals(expectedMessage, error.getMessage());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testLayoutOnLoadActions_withTwoWidgetsAndSameBinding_callsCorrectActions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
+
+        // Create actions
+        ActionDTO action1 = createAction("myFunction", "return [{\"key\": \"value\"}];", true);
+        ActionDTO action2 = createAction("myFunction2", "mockBody", false);
+
+        actionCollectionDTO.setActions(List.of(action1, action2));
+
+        // Create Layout with Table and Text Widgets
+        Layout layout = testPage.getLayouts().get(0);
+        layout.getDsl().put("widgetName", "MainContainer");
+        ArrayList dslList = (ArrayList) layout.getDsl().get("children");
+        JSONObject tableDsl = (JSONObject) dslList.get(0);
+        tableDsl.put("tableData", "{{testCollection1.myFunction.data}}");
+        tableDsl.put("dynamicBindingPathList", createDynamicList("key", "tableData"));
+        tableDsl.put("dynamicPropertyPathList", createDynamicList("key", "tableData"));
+
+        JSONObject textDsl = new JSONObject();
+        textDsl.put("widgetName", "Text1");
+        textDsl.put("type", "TEXT_WIDGET");
+        textDsl.put("text", "{{testCollection1.myFunction.data}} + {{testCollection1.myFunction2.data}}");
+        textDsl.put("dynamicBindingPathList", createDynamicList("key", "text"));
+        textDsl.put("dynamicPropertyPathList", createDynamicList("key", "text"));
+
+        layout.setLayoutOnLoadActions(List.of());
+
+        dslList.add(textDsl);
+
+        testPage.setLayouts(List.of(layout));
+
+        PageDTO updatedPage =
+                newPageService.updatePage(testPage.getId(), testPage).block();
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTOMono =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        Mono<PageDTO> pageWithMigratedDSLMono =
+                applicationPageService.getPageAndMigrateDslByBranchedPageId(testPage.getId(), false, false);
+
+        StepVerifier.create(updatedActionCollectionDTOMono.zipWhen(actionCollectionDTO1 -> {
+                    return pageWithMigratedDSLMono;
+                }))
+                .assertNext(tuple -> {
+                    ActionCollectionDTO actionCollectionDTO1 = tuple.getT1();
+                    assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
+                    Mockito.verify(updateLayoutService, Mockito.times(2))
+                            .updatePageLayoutsByPageId(Mockito.anyString());
+                    actionCollectionDTO1
+                            .getActions()
+                            .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
+
+                    PageDTO pageWithMigratedDSL = tuple.getT2();
+                    List<Set<DslExecutableDTO>> layoutOnLoadActions =
+                            pageWithMigratedDSL.getLayouts().get(0).getLayoutOnLoadActions();
+                    List<Set<String>> actualNames = layoutOnLoadActions.stream()
+                            .map(set ->
+                                    set.stream().map(DslExecutableDTO::getName).collect(Collectors.toSet()))
+                            .collect(Collectors.toList());
+                    List<Set<String>> expectedNames =
+                            List.of(Set.of("testCollection1.myFunction", "testCollection1.myFunction2"));
+                    assertEquals(expectedNames, actualNames, "layoutOnLoadActions should contain the expected names");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateUnpublishedActionCollection_createSingleAction_fetchesPageFromDBOnlyOnce() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("export default {\n\t\n}");
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        // Update JS object to create an action with same name as previously created action
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+
+        actionCollectionDTO.setActions(List.of(action1));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO)
+                .assertNext(actionCollectionDTO1 -> {
+                    assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
+                    Mockito.verify(layoutActionService, Mockito.times(1))
+                            .createAction(
+                                    Mockito.any(),
+                                    Mockito.argThat(createActionMetaDTO ->
+                                            createActionMetaDTO != null && createActionMetaDTO.getNewPage() != null));
                 })
                 .verifyComplete();
     }

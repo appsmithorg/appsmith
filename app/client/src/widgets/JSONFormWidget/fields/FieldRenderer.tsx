@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 import FormContext from "../FormContext";
 import type { SchemaItem } from "../constants";
 import { FIELD_MAP } from "../constants";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 interface FieldRendererProps {
   fieldName: ControllerRenderProps["name"];
@@ -30,6 +31,7 @@ function FieldRenderer({
 
   const FieldComponent = FIELD_MAP[fieldType];
 
+  useUnmountFieldValidation({ fieldName });
   useEffect(() => {
     /**
      * When a component is hidden, the field is removed from the form and the component unmounts.

@@ -92,6 +92,7 @@ const DatasourceContainer = styled.div`
   position: relative;
   align-items: center;
   height: 36px;
+  gap: var(--ads-v2-spaces-4);
   .t--datasource-editor {
     background-color: var(--ads-v2-color-bg);
     .cm-s-duotone-light.CodeMirror {
@@ -100,10 +101,6 @@ const DatasourceContainer = styled.div`
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }
-  }
-
-  .t--store-as-datasource {
-    margin-left: 10px;
   }
 `;
 
@@ -158,7 +155,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
   position: absolute;
   z-index: 100000;
   max-width: 300px;
-  bottom: 125%;
+  top: 125%;
   left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
   margin-left: -60px;
 
@@ -168,14 +165,14 @@ const StyledTooltip = styled.span<{ width?: number }>`
   &::after {
     content: "";
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     height: 10px;
     width: 10px;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: var(--ads-v2-color-bg-emphasis-max) transparent transparent
+    border-color: transparent transparent var(--ads-v2-color-bg-emphasis-max)
       transparent;
   }
 
@@ -596,7 +593,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               </Text>
             </StyledTooltip>
           )}
-        {displayValue && (
+        {displayValue && shouldSave && (
           <StoreAsDatasource
             datasourceId={
               datasourceObject && "id" in datasourceObject

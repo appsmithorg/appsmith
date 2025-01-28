@@ -29,7 +29,7 @@ describe(
         dataSourceName = "Postgres " + guid;
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("PostgreSQL");
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
         dataSources.FillPostgresDSForm(
           "Production",
           false,
@@ -79,7 +79,7 @@ describe(
           "public.users",
         );
         dataSources.SelectTableFromPreviewSchemaList("public.users");
-        dataSources.VerifyColumnSchemaOnQueryEditor("id", 1);
+        dataSources.VerifyColumnSchemaOnQueryEditor("id", 0);
       },
     );
 

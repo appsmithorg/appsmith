@@ -1,10 +1,11 @@
-import evaluate, {
+import {
+  evaluateSync,
   createEvaluationContext,
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
@@ -54,29 +55,29 @@ describe("evaluateSync", () => {
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
-    const response = evaluate(js, {}, false);
+    const response = evaluateSync(js, {}, false);
 
     expect(response.result).toBe("Hello!");
   });
   it("evaluate string post unescape in v1", () => {
     const js = '[1, 2, 3].join("\\\\n")';
-    const response = evaluate(js, {}, false);
+    const response = evaluateSync(js, {}, false);
 
     expect(response.result).toBe("1\n2\n3");
   });
   it("evaluate string without unescape in v2", () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
-    const response = evaluate(js, {}, false);
+    const response = evaluateSync(js, {}, false);
 
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
     // @ts-expect-error: Types are not available
-    expect(() => evaluate(undefined, {})).toThrow(TypeError);
+    expect(() => evaluateSync(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
-    const response1 = evaluate("wrongJS", {}, false);
+    const response1 = evaluateSync("wrongJS", {}, false);
 
     expect(response1).toStrictEqual({
       result: undefined,
@@ -100,7 +101,7 @@ describe("evaluateSync", () => {
         },
       ],
     });
-    const response2 = evaluate("{}.map()", {}, false);
+    const response2 = evaluateSync("{}.map()", {}, false);
 
     expect(response2).toStrictEqual({
       result: undefined,
@@ -130,21 +131,21 @@ describe("evaluateSync", () => {
   });
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
-    const response = evaluate(js, dataTree, false);
+    const response = evaluateSync(js, dataTree, false);
 
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
     const js = "setImmediate(() => {}, 100)";
-    const response = evaluate(js, dataTree, false);
+    const response = evaluateSync(js, dataTree, false);
 
     expect(response).toStrictEqual({
       result: undefined,
       errors: [
         {
           errorMessage: {
-            name: "ReferenceError",
-            message: "setImmediate is not defined",
+            name: "TypeError",
+            message: "setImmediate is not a function",
           },
           errorType: "PARSE",
           kind: {
@@ -166,51 +167,51 @@ describe("evaluateSync", () => {
   });
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";
-    const response = evaluate(js, dataTree, false);
+    const response = evaluateSync(js, dataTree, false);
 
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, false, {}, callbackData);
+    const response = evaluateSync(js, dataTree, false, {}, callbackData);
 
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, false);
+    let response = evaluateSync(js, dataTree, false);
 
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, false);
+    response = evaluateSync(js, dataTree, false);
     expect(response.errors.length).toBe(0);
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, false, undefined, undefined);
+    let response = evaluateSync(js, dataTree, false, undefined, undefined);
 
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, false, undefined, undefined);
+    response = evaluateSync(js, dataTree, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, false, undefined, undefined);
+    let response = evaluateSync(js, dataTree, false, undefined, undefined);
 
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, false, undefined, undefined);
+    response = evaluateSync(js, dataTree, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, false, { thisContext });
+    const response = evaluateSync(js, dataTree, false, { thisContext });
 
     expect(response.result).toBe("test");
     // there should not be any error when accessing "this" variables
@@ -220,7 +221,7 @@ describe("evaluateSync", () => {
   it("has access to additional global context", () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, false, { globalContext });
+    const response = evaluateSync(js, dataTree, false, { globalContext });
 
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);

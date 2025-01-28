@@ -14,7 +14,7 @@ import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canv
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
 import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { AppState } from "..";
 
 export const entityReducerObject = {

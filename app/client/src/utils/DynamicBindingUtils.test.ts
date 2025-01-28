@@ -1,5 +1,5 @@
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import equal from "fast-deep-equal/es6";
 import {
   combineDynamicBindings,

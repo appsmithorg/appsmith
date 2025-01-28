@@ -8,8 +8,8 @@ import {
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
@@ -74,10 +74,10 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
 
 export const getLastQueryTab = createSelector(
   selectQuerySegmentEditorTabs,
-  getCurrentPageId,
-  (tabs, pageId) => {
+  getCurrentBasePageId,
+  (tabs, basePageId) => {
     if (tabs.length) {
-      const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+      const url = getQueryEntityItemUrl(tabs[tabs.length - 1], basePageId);
       const urlWithoutQueryParams = url.split("?")[0];
 
       return identifyEntityFromPath(urlWithoutQueryParams);

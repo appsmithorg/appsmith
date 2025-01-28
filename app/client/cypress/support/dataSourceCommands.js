@@ -307,9 +307,8 @@ Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
 Cypress.Commands.add("datasourceCardStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "display", "flex")
-    .and("have.css", "justify-content", "space-between")
     .and("have.css", "align-items", "center")
-    .and("have.css", "height", "64px")
+    .and("have.css", "gap", "12px")
     .realHover()
     .should("have.css", "background-color", backgroundColorGray1)
     .and("have.css", "cursor", "pointer");
@@ -324,9 +323,8 @@ Cypress.Commands.add("datasourceImageStyle", (tag) => {
 Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "display", "flex")
-    .and("have.css", "align-items", "center")
-    .and("have.css", "gap", "13px")
-    .and("have.css", "padding-left", "13.5px");
+    .and("have.css", "align-items", "flex-start")
+    .and("have.css", "gap", "normal");
 });
 
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
@@ -343,8 +341,7 @@ Cypress.Commands.add("datasourceNameStyle", (tag) => {
     .should("have.css", "color", backgroundColorBlack)
     .and("have.css", "font-size", "16px")
     .and("have.css", "font-weight", "400")
-    .and("have.css", "line-height", "24px")
-    .and("have.css", "letter-spacing", "-0.24px");
+    .and("have.css", "line-height", "20px");
 });
 
 Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
@@ -352,6 +349,5 @@ Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
     .should("have.css", "color", backgroundColorGray8)
     .and("have.css", "font-size", "13px")
     .and("have.css", "font-weight", "400")
-    .and("have.css", "line-height", "17px")
-    .and("have.css", "letter-spacing", "-0.24px");
+    .and("have.css", "line-height", "17px");
 });

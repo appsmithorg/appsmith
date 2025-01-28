@@ -13,15 +13,10 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
     ceKey: string;
   };
-  newRelic: {
-    enableNewRelic: boolean;
-    accountId: string;
-    applicationId: string;
-    browserAgentlicenseKey: string;
-    browserAgentEndpoint: string;
-    otlpLicenseKey: string;
-    otlpServiceName: string;
-    otlpEndpoint: string;
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+    tracingUrl: string;
   };
   fusioncharts: {
     licenseKey: string;
@@ -31,12 +26,6 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
   };
   cloudHosting: boolean;
-  algolia: {
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
-  };
   logLevel: "debug" | "error";
   appVersion: {
     id: string;
@@ -46,7 +35,6 @@ export interface INJECTED_CONFIGS {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
   disableIframeWidgetSandbox: boolean;
@@ -86,24 +74,10 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         : false,
       apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
     },
-    algolia: {
-      apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
-      apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
-      indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
-      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
-    },
-    newRelic: {
-      enableNewRelic: !!process.env.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
-      accountId: process.env.APPSMITH_NEW_RELIC_ACCOUNT_ID || "",
-      applicationId: process.env.APPSMITH_NEW_RELIC_APPLICATION_ID || "",
-      browserAgentlicenseKey:
-        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY || "",
-      browserAgentEndpoint:
-        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT || "",
-      otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
-      otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
-      otlpServiceName:
-        process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT || "",
+    observability: {
+      deploymentName: "self-hosted",
+      serviceInstanceId: "appsmith-0",
+      tracingUrl: "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -123,7 +97,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
@@ -150,7 +123,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     // This code might be called both from the main thread and a web worker
     typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
   const ENV_CONFIG = getConfigsFromEnvVars();
-  // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
     ENV_CONFIG.sentry.dsn,
     APPSMITH_FEATURE_CONFIGS?.sentry.dsn,
@@ -171,34 +143,17 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.mixpanel.apiKey,
     APPSMITH_FEATURE_CONFIGS?.mixpanel.apiKey,
   );
-  const newRelicAccountId = getConfig(
-    ENV_CONFIG.newRelic.accountId,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.accountId,
+  const observabilityDeploymentName = getConfig(
+    ENV_CONFIG.observability.deploymentName,
+    APPSMITH_FEATURE_CONFIGS?.observability.deploymentName,
   );
-  const newRelicApplicationId = getConfig(
-    ENV_CONFIG.newRelic.applicationId,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.applicationId,
+  const observabilityServiceInstanceId = getConfig(
+    ENV_CONFIG.observability.serviceInstanceId,
+    APPSMITH_FEATURE_CONFIGS?.observability.serviceInstanceId,
   );
-  const newRelicBrowserLicenseKey = getConfig(
-    ENV_CONFIG.newRelic.browserAgentlicenseKey,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentlicenseKey,
-  );
-  const newRelicBrowserAgentEndpoint = getConfig(
-    ENV_CONFIG.newRelic.browserAgentEndpoint,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentEndpoint,
-  );
-  const newRelicOtlpLicenseKey = getConfig(
-    ENV_CONFIG.newRelic.otlpLicenseKey,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
-  );
-
-  const newRelicOtlpServiceName = getConfig(
-    ENV_CONFIG.newRelic.otlpServiceName,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpServiceName,
-  );
-  const newRelicOtlpEndpoint = getConfig(
-    ENV_CONFIG.newRelic.otlpEndpoint,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpEndpoint,
+  const observabilityFrontendTracingUrl = getConfig(
+    ENV_CONFIG.observability.tracingUrl,
+    APPSMITH_FEATURE_CONFIGS?.observability.tracingUrl,
   );
   const fusioncharts = getConfig(
     ENV_CONFIG.fusioncharts.licenseKey,
@@ -215,23 +170,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const smartLook = getConfig(
     ENV_CONFIG.smartLook.id,
     APPSMITH_FEATURE_CONFIGS?.smartLook.id,
-  );
-
-  const algoliaAPIID = getConfig(
-    ENV_CONFIG.algolia.apiId,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiId,
-  );
-  const algoliaAPIKey = getConfig(
-    ENV_CONFIG.algolia.apiKey,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiKey,
-  );
-  const algoliaIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.indexName,
-  );
-  const algoliaSnippetIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.snippetIndex,
   );
 
   const segmentCEKey = getConfig(
@@ -260,29 +198,15 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: segment.value,
       ceKey: segmentCEKey.value,
     },
-    newRelic: {
-      enableNewRelic:
-        ENV_CONFIG.newRelic.enableNewRelic ||
-        APPSMITH_FEATURE_CONFIGS?.newRelic.enableNewRelic ||
-        false,
-      accountId: newRelicAccountId.value,
-      applicationId: newRelicApplicationId.value,
-      browserAgentlicenseKey: newRelicBrowserLicenseKey.value,
-      browserAgentEndpoint: newRelicBrowserAgentEndpoint.value,
-      otlpLicenseKey: newRelicOtlpLicenseKey.value,
-      otlpEndpoint: newRelicOtlpEndpoint.value,
-      otlpServiceName: newRelicOtlpServiceName.value,
+    observability: {
+      deploymentName: observabilityDeploymentName.value,
+      serviceInstanceId: observabilityServiceInstanceId.value,
+      serviceName: "appsmith-client",
+      tracingUrl: observabilityFrontendTracingUrl.value,
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,
       licenseKey: fusioncharts.value,
-    },
-    algolia: {
-      enabled: true,
-      apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
-      indexName: algoliaIndex.value || "omnibar_docusaurus_index",
-      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     googleRecaptchaSiteKey: {
       enabled: googleRecaptchaSiteKey.enabled,
@@ -311,10 +235,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:
       ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS?.mailEnabled || false,
-    cloudServicesBaseUrl:
-      ENV_CONFIG.cloudServicesBaseUrl ||
-      APPSMITH_FEATURE_CONFIGS?.cloudServicesBaseUrl ||
-      "",
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||

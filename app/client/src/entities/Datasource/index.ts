@@ -66,6 +66,7 @@ export interface DatasourceKeys {
   name: string;
   type: string;
   columnNames: string[];
+  fromColumns: string[];
 }
 
 export interface DatasourceStructure {
@@ -139,7 +140,7 @@ export enum DatasourceConnectionMode {
 
 export interface DatasourceConfiguration {
   url: string;
-  authentication?: DatasourceAuthentication;
+  authentication?: ExternalSaasDSAuthentication | DatasourceAuthentication;
   properties?: Property[];
   headers?: Property[];
   queryParameters?: Property[];
@@ -204,4 +205,15 @@ export enum DatasourceStructureContext {
   DATASOURCE_VIEW_MODE = "datasource-view-mode",
   // this does not exist yet, but in case it does in the future.
   API_EDITOR = "api-editor",
+}
+
+export interface ExternalSaasDSAuthentication extends DatasourceAuthentication {
+  integrationId: string;
+  credentialId: string;
+  integrationType: string;
+  providerData?: { key: string; value: string | boolean | number }[];
+}
+
+export enum AuthenticationType {
+  EXTERNAL_SAAS_AUTHENTICATION = "externalSaasAuth",
 }

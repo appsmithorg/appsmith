@@ -1,15 +1,12 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector } from "redux-form";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "../../../../constants/CommonApiConstants";
-import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "ee/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -19,22 +16,22 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes } from "@appsmith/ads-old";
-import {
-  getPostBodyFormat,
-  updatePostBodyContentType,
-} from "../../../../store";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
-import { Select, Option } from "@appsmith/ads";
+import SelectField from "components/editorComponents/form/fields/SelectField";
+import { getFormValues } from "redux-form";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { Action } from "entities/Action";
+import { get } from "lodash";
 
 const PostBodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 12px 0px 0px;
   background-color: var(--ads-v2-color-bg);
   height: 100%;
   gap: var(--ads-v2-spaces-4);
+
   .ads-v2-select {
     max-width: 250px;
     width: 100%;
@@ -44,6 +41,7 @@ const PostBodyContainer = styled.div`
 const JSONEditorFieldWrapper = styled.div`
   /* margin: 0 30px;
   width: 65%; */
+
   .CodeMirror {
     height: auto;
     min-height: 250px;
@@ -61,11 +59,8 @@ const NoBodyMessage = styled.div`
 `;
 
 interface PostDataProps {
-  displayFormat: { label: string; value: string };
   dataTreePath: string;
   theme?: EditorTheme;
-  apiId: string;
-  updateBodyContentType: (contentType: string, apiId: string) => void;
 }
 
 type Props = PostDataProps;
@@ -77,9 +72,13 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const [selectedTab, setSelectedTab] = React.useState(
-    props.displayFormat?.value,
+  const formValues = useSelector(getFormValues(API_EDITOR_FORM_NAME)) as Action;
+  const postBodyFormat = get(
+    formValues,
+    "actionConfiguration.formData.apiContentType",
+    POST_BODY_FORMAT_OPTIONS.NONE,
   );
+
   const { dataTreePath, theme } = props;
 
   const tabComponentsMap = (key: string) => {
@@ -172,50 +171,18 @@ function PostBodyData(props: Props) {
     value: el.key,
   }));
 
-  const postBodyDataOnChangeFn = (key: string) => {
-    setSelectedTab(key);
-    props?.updateBodyContentType(key, props.apiId);
-  };
-
   return (
     <PostBodyContainer>
-      <Select
-        data-testid="t--api-body-tab-switch"
-        defaultValue={selectedTab}
-        onSelect={(value) => postBodyDataOnChangeFn(value)}
-        value={selectedTab}
-      >
-        {options.map((option) => (
-          <Option key={option.value} value={option.value}>
-            {option.label}
-          </Option>
-        ))}
-      </Select>
-      {tabComponentsMap(selectedTab)}
+      <SelectField
+        name="actionConfiguration.formData.apiContentType"
+        options={options}
+        placeholder="Select Body Type"
+        showLabelOnly
+        testId="t--api-body-tab-switch"
+      />
+      {tabComponentsMap(postBodyFormat)}
     </PostBodyContainer>
   );
 }
 
-const selector = formValueSelector(API_EDITOR_FORM_NAME);
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any) => ({
-  updateBodyContentType: (contentType: string, apiId: string) =>
-    dispatch(updatePostBodyContentType(contentType, apiId)),
-});
-
-export default connect((state: AppState) => {
-  const apiId = selector(state, "id");
-  const postBodyFormat = getPostBodyFormat(state, apiId);
-  // Defaults to NONE when format is not set
-  const displayFormat = postBodyFormat || {
-    label: POST_BODY_FORMAT_OPTIONS.NONE,
-    value: POST_BODY_FORMAT_OPTIONS.NONE,
-  };
-
-  return {
-    displayFormat,
-    apiId,
-  };
-}, mapDispatchToProps)(PostBodyData);
+export default PostBodyData;

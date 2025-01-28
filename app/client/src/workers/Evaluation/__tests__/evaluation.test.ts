@@ -8,10 +8,10 @@ import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "ee/entities/DataTree/types";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
@@ -27,6 +27,17 @@ jest.mock("klona/full", () => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   klona: (arg: any) => {
     klonaFullSpy(arg);
+
+    return klona.klona(arg);
+  },
+}));
+const klonaJsonSpy = jest.fn();
+
+jest.mock("klona/json", () => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  klona: (arg: any) => {
+    klonaJsonSpy(arg);
 
     return klona.klona(arg);
   },
@@ -581,7 +592,8 @@ describe("DataTreeEvaluator", () => {
     );
     evaluator.evalAndValidateFirstTree();
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(41);
+    expect(klonaFullSpy).toBeCalledTimes(15);
+    expect(klonaJsonSpy).toBeCalledTimes(28);
   });
 
   it("Evaluates a binding in first run", () => {
@@ -1102,6 +1114,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(7);
+    expect(klonaFullSpy).toBeCalledTimes(4);
+    expect(klonaJsonSpy).toBeCalledTimes(4);
   });
 });

@@ -1,5 +1,5 @@
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 
 export const configTree = {
   MainContainer: {

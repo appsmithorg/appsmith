@@ -1,16 +1,22 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  type TakeEffect,
+} from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import { reset } from "redux-form";
 import type {
-  CreateUserRequest,
-  CreateUserResponse,
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
@@ -43,7 +49,6 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   flushErrorsAndRedirect,
   safeCrashAppRequest,
@@ -56,22 +61,11 @@ import {
   getFeatureFlagsFetched,
 } from "selectors/usersSelectors";
 import {
-  initAppLevelSocketConnection,
-  initPageLevelSocketConnection,
-} from "actions/websocketActions";
-import {
   getEnableStartSignposting,
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ee/configs";
-import { getSegmentState } from "selectors/analyticsSelectors";
-import {
-  segmentInitUncertain,
-  segmentInitSuccess,
-} from "actions/analyticsActions";
-import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
@@ -88,75 +82,12 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
-export function* createUserSaga(
-  action: ReduxActionWithPromise<CreateUserRequest>,
-) {
-  const { email, password, reject, resolve } = action.payload;
-
-  try {
-    const request: CreateUserRequest = { email, password };
-    const response: CreateUserResponse = yield callAPI(
-      UserApi.createUser,
-      request,
-    );
-    //TODO(abhinav): DRY this
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (!isValidResponse) {
-      const errorMessage = getResponseErrorMessage(response);
-
-      yield call(reject, { _error: errorMessage });
-    } else {
-      //@ts-expect-error: response is of type unknown
-      const { email, id, name } = response.data;
-
-      yield put({
-        type: ReduxActionTypes.CREATE_USER_SUCCESS,
-        payload: {
-          email,
-          name,
-          id,
-        },
-      });
-      yield call(resolve);
-    }
-  } catch (error) {
-    yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.CREATE_USER_ERROR,
-      payload: {
-        error,
-      },
-    });
-    Sentry.captureException("Sign up failed", {
-      level: Severity.Error,
-      extra: {
-        error: error,
-      },
-    });
-  }
-}
-
-export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
-  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
-
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  const segmentState: SegmentState | undefined = yield select(getSegmentState);
-  const appsmithConfig = getAppsmithConfigs();
-
-  if (
-    currentUser?.enableTelemetry &&
-    appsmithConfig.segment.enabled &&
-    !segmentState
-  ) {
-    yield race([
-      take(ReduxActionTypes.SEGMENT_INITIALIZED),
-      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
-    ]);
-  }
-}
+import type { SessionRecordingConfig } from "utils/Analytics/mixpanel";
+import {
+  segmentInitSuccess,
+  segmentInitUncertain,
+} from "actions/analyticsActions";
+import { getSegmentState } from "selectors/analyticsSelectors";
 
 export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
@@ -190,59 +121,134 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
-function* intializeSmartLook(currentUser: User) {
-  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
-    yield AnalyticsUtil.identifyUser(currentUser);
+function* getSessionRecordingConfig() {
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+  // This is a tenant level flag to kill session recordings
+  // If this is true, we do not do any session recordings
+  if (featureFlags.kill_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // This is a user level flag to control session recordings for a user
+  // If this is false, we do not do any session recordings
+  if (!featureFlags.config_user_session_recordings_enabled) {
+    return {
+      enabled: false,
+      mask: false,
+    };
+  }
+
+  // Now we know that both tenant and user level flags are not blocking session recordings
+  return {
+    enabled: true,
+    // Check if we need to mask the session recordings from feature flags
+    mask: featureFlags.config_mask_session_recordings_enabled,
+  };
+}
+
+function* initTrackers(currentUser: User) {
+  try {
+    const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+
+    if (!isFFFetched) {
+      yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+    }
+
+    const sessionRecordingConfig: SessionRecordingConfig = yield call(
+      getSessionRecordingConfig,
+    );
+
+    yield call(AnalyticsUtil.initialize, currentUser, sessionRecordingConfig);
+    yield put(segmentInitSuccess());
+  } catch (e) {
+    log.error(e);
+    yield put(segmentInitUncertain());
+  }
+}
+
+function* waitForInitialization() {
+  const currentUser: User = yield select(getCurrentUser);
+  // Dependents for starting tracking
+  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+  const isSegmentInitialized: string | undefined =
+    yield select(getSegmentState);
+
+  const waits: TakeEffect[] = [];
+
+  // FF is required to know if GAC is enabled for the user
+  if (!isFFFetched) {
+    yield fork(fetchFeatureFlagsInit);
+    waits.push(take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS));
+  }
+
+  // If the user is anonymous, we need to wait for the editor or viewer to initialize
+  if (currentUser?.isAnonymous) {
+    waits.push(
+      take([
+        ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      ]),
+    );
+
+    // If the user is anonymous, we need to wait for the segment to initialize
+    // As it will provide the anonymous id
+    if (isSegmentInitialized === undefined) {
+      waits.push(
+        take([
+          ReduxActionTypes.SEGMENT_INITIALIZED,
+          ReduxActionTypes.SEGMENT_INIT_UNCERTAIN,
+        ]),
+      );
+    }
+  }
+
+  // Only wait for actions that are still pending
+  yield all(waits);
+}
+
+function* restartUserTracking() {
+  const currentUser: User = yield select(getCurrentUser);
+  const { enableTelemetry } = currentUser;
+  const isAirgappedInstance = isAirgapped();
+
+  if (!isAirgappedInstance) {
+    // We need to stop and start tracking activity to ensure that the tracking
+    // from previous session is not carried forward
+    yield call(UsagePulse.stopTrackingActivity);
+
+    // Wait for any items that are required for tracking
+    yield call(waitForInitialization);
+
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+    const isGACEnabled = featureFlags?.license_gac_enabled;
+
+    const isFreeLicense = !isGACEnabled;
+
+    yield call(
+      UsagePulse.startTrackingActivity,
+      enableTelemetry && getAppsmithConfigs().segment.enabled,
+      currentUser?.isAnonymous ?? false,
+      isFreeLicense,
+    );
   }
 }
 
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
-  const isAirgappedInstance = isAirgapped();
+
+  yield fork(restartUserTracking);
 
   if (enableTelemetry) {
-    // parallelize sentry and smart look initialization
-
-    yield fork(intializeSmartLook, currentUser);
-    const initializeSentry = initializeAnalyticsAndTrackers();
-
-    if (initializeSentry instanceof Promise) {
-      const sentryInialized: boolean = yield initializeSentry;
-
-      if (sentryInialized) {
-        yield put(segmentInitSuccess());
-      } else {
-        yield put(segmentInitUncertain());
-      }
-    }
+    yield fork(initTrackers, currentUser);
+  } else {
+    yield put(segmentInitSuccess());
   }
-
-  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
-
-  if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
-    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
-  }
-
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-
-  const isGACEnabled = featureFlags?.license_gac_enabled;
-
-  const isFreeLicense = !isGACEnabled;
-
-  if (!isAirgappedInstance) {
-    // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
-    UsagePulse.stopTrackingActivity();
-    UsagePulse.startTrackingActivity(
-      enableTelemetry && getAppsmithConfigs().segment.enabled,
-      currentUser?.isAnonymous ?? false,
-      isFreeLicense,
-    );
-  }
-
-  yield put(initAppLevelSocketConnection());
-  yield put(initPageLevelSocketConnection());
 
   if (currentUser.emptyInstance) {
     history.replace(SETUP);
@@ -425,14 +431,13 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, proficiency, role, useCase } =
+    const { email, intercomConsentGiven, name, proficiency, useCase } =
       action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
       proficiency,
-      role,
       useCase,
       intercomConsentGiven,
     });

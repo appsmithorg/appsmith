@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
@@ -15,6 +15,7 @@ const initialState: IDEState = {
   tabs: {},
   isListViewActive: false,
   showCreateModal: false,
+  renameEntity: "",
   ideCanvasSideBySideHover: {
     navigated: false,
     widgetTypes: [],
@@ -110,6 +111,14 @@ const ideReducer = createImmerReducer(initialState, {
   ) => {
     state.isListViewActive = action.payload;
   },
+  [ReduxActionTypes.SET_RENAME_ENTITY]: (
+    state: IDEState,
+    action: {
+      payload: string;
+    },
+  ) => {
+    state.renameEntity = action.payload;
+  },
 });
 
 export interface IDEState {
@@ -117,6 +126,7 @@ export interface IDEState {
   isListViewActive: boolean;
   tabs: ParentEntityIDETabs;
   showCreateModal: boolean;
+  renameEntity: string;
   ideCanvasSideBySideHover: IDECanvasSideBySideHover;
 }
 

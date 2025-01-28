@@ -1,16 +1,3 @@
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-
-const WebsocketActions = {
-  WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
-  WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",
-  INIT_APP_LEVEL_SOCKET_CONNECTION: "INIT_APP_LEVEL_SOCKET_CONNECTION",
-  INIT_PAGE_LEVEL_SOCKET_CONNECTION: "INIT_PAGE_LEVEL_SOCKET_CONNECTION",
-  SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED: "SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED",
-  SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED:
-    "SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED",
-};
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -307,18 +294,6 @@ const EvaluationActionErrorTypes = {
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
 };
 
-const AppCollabActionTypes = {
-  APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
-    "APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS",
-  APP_COLLAB_LIST_EDITORS: "APP_COLLAB_LIST_EDITORS",
-  APP_COLLAB_RESET_EDITORS: "APP_COLLAB_RESET_EDITORS",
-  APP_COLLAB_SET_EDITORS_POINTER_DATA: "APP_COLLAB_SET_EDITORS_POINTER_DATA",
-  APP_COLLAB_UNSET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_UNSET_EDITORS_POINTER_DATA",
-  APP_COLLAB_RESET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_RESET_EDITORS_POINTER_DATA",
-};
-
 const OmniSearchActionTypes = {
   SET_SEARCH_FILTER_CONTEXT: "SET_SEARCH_FILTER_CONTEXT",
   SET_GLOBAL_SEARCH_QUERY: "SET_GLOBAL_SEARCH_QUERY",
@@ -349,8 +324,6 @@ const SnippingModeActionTypes = {
 };
 
 const UserAuthActionTypes = {
-  CREATE_USER_INIT: "CREATE_USER_INIT",
-  CREATE_USER_SUCCESS: "CREATE_USER_SUCCESS",
   RESET_USER_PASSWORD_INIT: "RESET_USER_PASSWORD_INIT",
   RESET_USER_PASSWORD_SUCCESS: "RESET_USER_PASSWORD_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -370,7 +343,6 @@ const UserAuthActionTypes = {
   GET_OAUTH_ACCESS_TOKEN_SUCCESS: "GET_OAUTH_ACCESS_TOKEN_SUCCESS",
 };
 const UserAuthActionErrorTypes = {
-  CREATE_USER_ERROR: "CREATE_USER_ERROR",
   RESET_USER_PASSWORD_ERROR: "RESET_USER_PASSWORD_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
@@ -417,8 +389,6 @@ const OnboardingActionTypes = {
   UNDO_END_FIRST_TIME_USER_ONBOARDING: "UNDO_END_FIRST_TIME_USER_ONBOARDING",
   SET_SIGNPOSTING_OVERLAY: "SET_SIGNPOSTING_OVERLAY",
   SIGNPOSTING_MARK_ALL_READ: "SIGNPOSTING_MARK_ALL_READ",
-  SIGNPOSTING_STEP_UPDATE_INIT: "SIGNPOSTING_STEP_UPDATE_INIT",
-  SIGNPOSTING_STEP_UPDATE: "SIGNPOSTING_STEP_UPDATE",
   SIGNPOSTING_SHOW_TOOLTIP: "SIGNPOSTING_SHOW_TOOLTIP",
   SHOW_ANONYMOUS_DATA_POPUP: "SHOW_ANONYMOUS_DATA_POPUP",
   FIRST_TIME_USER_ONBOARDING_INIT: "FIRST_TIME_USER_ONBOARDING_INIT",
@@ -500,6 +470,7 @@ const IDEActionTypes = {
   CLOSE_QUERY_ACTION_TAB_SUCCESS: "CLOSE_QUERY_ACTION_TAB_SUCCESS",
   SET_IS_LIST_VIEW_ACTIVE: "SET_IS_LIST_VIEW_ACTIVE",
   OPEN_PLUGIN_ACTION_SETTINGS: "OPEN_PLUGIN_ACTION_SETTINGS",
+  SET_RENAME_ENTITY: "SET_RENAME_ENTITY",
 };
 
 const IDEActionErrorTypes = {
@@ -720,6 +691,9 @@ const IDEDebuggerActionTypes = {
   SET_API_PANE_DEBUGGER_STATE: "SET_API_PANE_DEBUGGER_STATE",
   SET_JS_PANE_DEBUGGER_STATE: "SET_JS_PANE_DEBUGGER_STATE",
   SET_CANVAS_DEBUGGER_STATE: "SET_CANVAS_DEBUGGER_STATE",
+  SHOW_DEBUGGER_LOGS: "SHOW_DEBUGGER_LOGS",
+  SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM:
+    "SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM",
 };
 
 const ThemeActionTypes = {
@@ -793,7 +767,6 @@ const ActionActionTypes = {
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
-  SET_EXTRA_FORMDATA: "SET_EXTRA_FORMDATA",
   MOVE_ACTION_INIT: "MOVE_ACTION_INIT",
   MOVE_ACTION_SUCCESS: "MOVE_ACTION_SUCCESS",
   COPY_ACTION_INIT: "COPY_ACTION_INIT",
@@ -811,7 +784,6 @@ const ActionActionTypes = {
   TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS:
     "TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS",
   TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT: "TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT",
-  UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
 const ActionActionErrorTypes = {
@@ -883,6 +855,8 @@ const DatasourceEditorActionTypes = {
   CREATE_DATASOURCE_INIT: "CREATE_DATASOURCE_INIT",
   CREATE_DATASOURCE_SUCCESS: "CREATE_DATASOURCE_SUCCESS",
   CREATE_DATASOURCE_FROM_FORM_INIT: "CREATE_DATASOURCE_FROM_FORM_INIT",
+  CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING:
+    "CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING",
   CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS:
     "CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS",
   UPDATE_DATASOURCE_INIT: "UPDATE_DATASOURCE_INIT",
@@ -1072,6 +1046,17 @@ const CurlImportActionErrorTypes = {
   SUBMIT_CURL_FORM_ERROR: "SUBMIT_CURL_FORM_ERROR",
 };
 
+const GeneratePageActionTypes = {
+  SET_GENERATE_PAGE_MODAL_OPEN: "SET_GENERATE_PAGE_MODAL_OPEN",
+  SET_GENERATE_PAGE_MODAL_CLOSE: "SET_GENERATE_PAGE_MODAL_CLOSE",
+  SUBMIT_GENERATE_PAGE_FORM_INIT: "SUBMIT_GENERATE_PAGE_FORM_INIT",
+  SUBMIT_GENERATE_PAGE_FORM_SUCCESS: "SUBMIT_GENERATE_PAGE_FORM_SUCCESS",
+};
+
+const GeneratePageActionErrorTypes = {
+  SUBMIT_GENERATE_PAGE_FORM_ERROR: "SUBMIT_GENERATE_PAGE_FORM_ERROR",
+};
+
 const BatchUpdateActionTypes = {
   BATCHED_UPDATE: "BATCHED_UPDATE",
   EXECUTE_BATCH: "EXECUTE_BATCH",
@@ -1203,8 +1188,6 @@ const AppThemeActionErrorTypes = {
 };
 
 const AppSettingsActionTypes = {
-  OPEN_APP_SETTINGS_PANE: "OPEN_APP_SETTINGS_PANE",
-  CLOSE_APP_SETTINGS_PANE: "CLOSE_APP_SETTINGS_PANE",
   UPDATE_APP_SETTINGS_PANE_SELECTED_TAB:
     "UPDATE_APP_SETTINGS_PANE_SELECTED_TAB",
 };
@@ -1271,19 +1254,19 @@ export const ReduxActionTypes = {
   ...AdminSettingsActionTypes,
   ...AnalyticsActionTypes,
   ...AIActionTypes,
-  ...AppCollabActionTypes,
   ...ApplicationActionTypes,
   ...AppThemeActionsTypes,
   ...AppViewActionTypes,
   ...AppSettingsActionTypes,
   ...BatchUpdateActionTypes,
   ...BuildingBlocksActionTypes,
-  ...DatasourceEditorActionTypes,
   ...CurlImportActionTypes,
+  ...DatasourceEditorActionTypes,
   ...ErrorManagementActionTypes,
   ...ExplorerActionTypes,
   ...EvaluationActionTypes,
   ...FeatureFlagActionTypes,
+  ...GeneratePageActionTypes,
   ...GitActionTypes,
   ...HelpActionTypes,
   ...IDEActionTypes,
@@ -1306,14 +1289,10 @@ export const ReduxActionTypes = {
   ...ThemeActionTypes,
   ...UserAuthActionTypes,
   ...UserProfileActionTypes,
-  ...WebsocketActions,
   ...WidgetCanvasActionTypes,
   ...WidgetOperationsActionTypes,
   ...WorkspaceActionTypes,
 } as const;
-
-export type ReduxActionType =
-  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
   ...ActionActionErrorTypes,
@@ -1326,6 +1305,7 @@ export const ReduxActionErrorTypes = {
   ...DatasourceEditorActionErrorTypes,
   ...EvaluationActionErrorTypes,
   ...FeatureFlagActionErrorTypes,
+  ...GeneratePageActionErrorTypes,
   ...GitActionErrorTypes,
   ...IDEActionErrorTypes,
   ...ImportExportActionErrorTypes,
@@ -1360,11 +1340,6 @@ export const toastMessageErrorTypes = {
 export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
-export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
-  payload: T;
-}
-
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
@@ -1382,47 +1357,3 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
-
-export interface BufferedReduxAction<T> extends ReduxAction<T> {
-  affectedJSObjects: AffectedJSObjects;
-}
-
-export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
-
-export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
-  meta: M;
-}
-
-export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
-  onSuccess?: ReduxAction<S>;
-  onError?: ReduxAction<E>;
-  onSuccessCallback?: (response: S) => void;
-  onErrorCallback?: (error: E) => void;
-}
-
-export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
-
-export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<AnyReduxAction>;
-  affectedJSObjects?: AffectedJSObjects;
-}
-
-export interface PromisePayload {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reject: any;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolve: any;
-}
-
-export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
-  payload: T & PromisePayload;
-}
-
-export interface ReduxActionErrorPayload {
-  message: string;
-  source?: string;
-  code?: ERROR_CODES;
-  stackTrace?: string;
-}

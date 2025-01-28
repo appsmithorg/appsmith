@@ -41,28 +41,30 @@ describe("DataSidePane", () => {
     }) as AppState;
 
     render(<DataSidePane />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      url: "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       initialState: state,
     });
 
     expect(screen.getByText("Databases")).toBeInTheDocument();
-    expect(screen.getByText("Products")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
 
-    const usersDSParentElement =
-      screen.getByText("Users").parentElement?.parentElement;
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
 
-    expect(usersDSParentElement).toHaveTextContent("2 queries in this app");
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "Products",
+    );
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "No queries in this app",
+    );
 
-    const productsDSParentElement =
-      screen.getByText("Products").parentElement?.parentElement;
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain("Users");
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain(
+      "2 queries in this app",
+    );
 
-    expect(productsDSParentElement).toHaveTextContent("No queries in this app");
-
-    const ortdersDSParentElement =
-      screen.getByText("Orders").parentElement?.parentElement;
-
-    expect(ortdersDSParentElement).toHaveTextContent("1 queries in this app");
+    expect(screen.getAllByRole("listitem")[2].textContent).toContain("Orders");
+    expect(screen.getAllByRole("listitem")[2].textContent).toContain(
+      "1 queries in this app",
+    );
   });
 
   it("it uses the selector dsUsageSelector passed as prop", () => {
@@ -78,26 +80,27 @@ describe("DataSidePane", () => {
     };
 
     render(<DataSidePane dsUsageSelector={usageSelector} />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      url: "/app/untitled-application-1/page1-2/edit/datasource/users-ds-id",
       initialState: state,
     });
 
     expect(screen.getByText("Databases")).toBeInTheDocument();
-    expect(screen.getByText("Products")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
 
-    const usersDSParentElement =
-      screen.getByText("Users").parentElement?.parentElement;
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
 
-    expect(usersDSParentElement).toHaveTextContent(
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "Products",
+    );
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "Rendering description for products",
+    );
+
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain("Users");
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain(
       "Rendering description for users",
     );
 
-    const productsDSParentElement =
-      screen.getByText("Products").parentElement?.parentElement;
-
-    expect(productsDSParentElement).toHaveTextContent(
-      "Rendering description for products",
-    );
+    // No description for orders as not passed in by the selector
+    expect(screen.getAllByRole("listitem")[2].textContent).toEqual("Orders");
   });
 });

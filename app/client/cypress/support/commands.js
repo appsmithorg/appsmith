@@ -2,6 +2,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import EditorNavigation, {
   EntityType,
@@ -19,6 +20,8 @@ const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
 
+dayjs.extend(advancedFormat);
+
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
@@ -33,6 +36,7 @@ const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import { PluginActionForm } from "./Pages/PluginActionForm";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -45,11 +49,13 @@ const homePageTS = ObjectsRegistry.HomePage;
 const table = ObjectsRegistry.Table;
 
 const chainStart = Symbol();
+const pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
+    window.localStorage.setItem("NUDGE_SHOWN_SPLIT_PANE", "true");
   });
 };
 
@@ -524,9 +530,17 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
   return eDate;
 });
 
-Cypress.Commands.add("setDate", (date) => {
-  const expDate = dayjs().add(date, "days").format("dddd, MMMM DD");
-  cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`).click();
+Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
+  if (ver == "v2") {
+    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
+    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`)
+      .first()
+      .click();
+  } else if (ver == "v1") {
+    const expDate = dayjs().add(date, "days").format(dateFormate);
+    const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
+    cy.get(sel).click();
+  }
 });
 
 Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
@@ -802,7 +816,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -827,7 +841,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -927,9 +941,6 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
   cy.request({
     method: "POST",
     url: "api/v1/users",
-    headers: {
-      "content-type": "application/json",
-    },
     followRedirect: false,
     form: true,
     body: {
@@ -1041,7 +1052,7 @@ cy.all = function (...commands) {
 };
 
 Cypress.Commands.add("getEntityName", () => {
-  let entityName = cy.get(apiwidget.ApiName).invoke("text");
+  let entityName = agHelper.GetObjectName();
   return entityName;
 });
 
@@ -1064,9 +1075,9 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
-  cy.get(queryLocators.settings).click();
+  pluginActionForm.toolbar.toggleSettings();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-  cy.xpath(queryLocators.query).click();
+  pluginActionForm.toolbar.toggleSettings();
 });
 
 Cypress.Commands.add("isInViewport", (element) => {

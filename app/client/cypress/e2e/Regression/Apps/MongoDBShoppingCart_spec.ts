@@ -1,4 +1,5 @@
 const appPage = require("../../../locators/PgAdminlocators.json");
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   assertHelper,

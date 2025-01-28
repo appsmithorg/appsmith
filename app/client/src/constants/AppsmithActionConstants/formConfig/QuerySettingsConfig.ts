@@ -4,12 +4,12 @@ export default [
     id: 1,
     children: [
       {
-        label: "Run query on page load",
+        label: "Run the query on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
       },
       {
-        label: "Request confirmation before running query",
+        label: "Request confirmation before running this query",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
         tooltipText:
@@ -21,7 +21,6 @@ export default [
         configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
-        width: "270px",
       },
     ],
   },

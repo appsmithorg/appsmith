@@ -11,7 +11,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type {
   ReduxAction,
   ReduxActionWithMeta,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -35,7 +35,6 @@ import {
   getActionByBaseId,
 } from "ee/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
-import { PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -57,12 +56,15 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
-  generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
 } from "ee/RouteBuilder";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginType,
+  UIComponentTypes,
+} from "entities/Plugin";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
@@ -85,6 +87,7 @@ import {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -398,6 +401,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(pluginType)
   )
     return;
@@ -464,25 +468,7 @@ function* handleDatasourceCreatedSaga(
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
 
-  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
-  // then we check if the current plugin is supported for generate page with data functionality
-  // and finally isDBCreated ensures that datasource is not in temporary state and
-  // user has explicitly saved the datasource, before redirecting back to generate page
   if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
-    isDBCreated
-  ) {
-    history.push(
-      generateTemplateFormURL({
-        basePageId,
-        params: {
-          datasourceId: updatedDatasource.id,
-        },
-      }),
-    );
-  } else if (
     !currentApplicationIdForCreateNewApp ||
     (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
   ) {
@@ -498,6 +484,20 @@ function* handleDatasourceCreatedSaga(
       }),
     );
   }
+
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+        isDBCreated,
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 }
 
 function* handleNameChangeSaga(

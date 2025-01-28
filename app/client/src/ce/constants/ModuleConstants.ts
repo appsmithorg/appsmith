@@ -1,4 +1,4 @@
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 
 type ID = string;
 
@@ -31,4 +31,10 @@ export interface ModuleMetadata {
   datasourceId?: string;
   pluginId: string;
   pluginType: PluginType;
+}
+
+export enum PACKAGE_PULL_STATUS {
+  UPGRADABLE = "UPGRADABLE",
+  UPGRADED = "UPGRADED",
+  UPGRADING = "UPGRADING",
 }

@@ -476,6 +476,10 @@ class PhoneInputWidget extends BaseInputWidget<
           path: "isDisabled",
           type: "boolean",
         },
+        setText: {
+          path: "defaultText",
+          type: "string",
+        },
       },
     };
   }

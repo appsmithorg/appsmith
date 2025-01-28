@@ -68,7 +68,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "Stores");
 
       agHelper.ActionContextMenuWithInPane({
@@ -79,7 +79,7 @@ describe(
 
     it("2. Validate Select record from Postgress datasource & verify query response", () => {
       dataSources.CreateQueryForDS(dsName, "SELECT * FROM Stores LIMIT 10");
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(5, "2112");
       dataSources.AssertQueryTableResponse(6, "Mike's Liquors");
       // Commenting this deletion of query to make the generate crud work on the new page instead of the current page
@@ -375,7 +375,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
 
       agHelper.ActionContextMenuWithInPane({
@@ -399,9 +399,7 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(
-        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
-      );
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

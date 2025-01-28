@@ -77,7 +77,9 @@ public interface ExecutionMethod {
         return Mono.just(true);
     }
 
-    WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
+    default WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
+        return null;
+    }
 
     default JsonNode transformExecutionResponse(
             JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
@@ -101,5 +103,10 @@ public interface ExecutionMethod {
         conversionMap.put(DataType.LONG, DataType.DOUBLE);
         conversionMap.put(DataType.FLOAT, DataType.DOUBLE);
         return conversionMap;
+    }
+
+    default WebClient.RequestHeadersSpec<?> getExecutionClientWithFlags(
+            WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
+        return getExecutionClient(webClient, methodConfig);
     }
 }

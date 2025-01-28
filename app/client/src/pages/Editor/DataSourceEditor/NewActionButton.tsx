@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import {
   Button,
   Menu,
@@ -155,7 +155,7 @@ function NewActionButton(props: NewActionButtonProps) {
       </MenuTrigger>
       <MenuContent
         align={"end"}
-        data-testId={"t--page-selection"}
+        data-testid={"t--page-selection"}
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"bottom"}
       >

@@ -380,12 +380,12 @@ function BindDataButton(props: BindDataButtonProps) {
           size="sm"
           startIcon="binding-new"
         >
-          Bind Data
+          Display on UI
         </Button>
       </MenuTrigger>
       <MenuContent
         align={"end"}
-        data-testId={"t--widget-selection"}
+        data-testid={"t--widget-selection"}
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"top"}
         width="235px"

@@ -20,15 +20,11 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     id: string;
   };
-  newRelic: {
-    enableNewRelic: boolean;
-    accountId: string;
-    applicationId: string;
-    browserAgentlicenseKey: string;
-    browserAgentEndpoint: string;
-    otlpLicenseKey: string;
-    otlpServiceName: string;
-    otlpEndpoint: string;
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+    serviceName: string;
+    tracingUrl: string;
   };
   segment: {
     enabled: boolean;
@@ -38,13 +34,6 @@ export interface AppsmithUIConfigs {
   fusioncharts: {
     enabled: boolean;
     licenseKey: string;
-  };
-  algolia: {
-    enabled: boolean;
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
   };
 
   mixpanel: {
@@ -58,8 +47,6 @@ export interface AppsmithUIConfigs {
   appVersion: AppVersionData;
   intercomAppID: string;
   mailEnabled: boolean;
-
-  cloudServicesBaseUrl: string;
 
   googleRecaptchaSiteKey: {
     enabled: boolean;

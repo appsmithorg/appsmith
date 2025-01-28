@@ -1,4 +1,5 @@
 import appPage from "../../../locators/CMSApplocators";
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   deployMode,

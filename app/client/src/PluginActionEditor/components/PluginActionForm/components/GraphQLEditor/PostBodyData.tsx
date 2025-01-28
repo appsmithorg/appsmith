@@ -15,7 +15,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 const PostBodyContainer = styled.div`
   &&&& .CodeMirror {
     height: auto;
-    min-height: 250px;
+    min-height: 150px;
   }
 `;
 
@@ -43,7 +43,7 @@ function PostBodyData(props: Props) {
 
   return (
     <PostBodyContainer>
-      <Section isFullWidth>
+      <Section isFullWidth withoutPadding>
         <Zone layout="single_column">
           <div className="t--graphql-query-editor">
             <StyledFormLabel>Query</StyledFormLabel>

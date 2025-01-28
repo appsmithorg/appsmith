@@ -130,7 +130,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       rawText: "",
-      parsedText: "",
+      text: "",
       currencyCode: undefined,
     });
   }
@@ -139,7 +139,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     return _.merge(super.getDefaultPropertiesMap(), {
       currencyCode: "defaultCurrencyCode",
       rawText: "defaultText",
-      parsedText: "defaultText",
+      text: "defaultText",
     });
   }
 
@@ -153,9 +153,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
     if (
-      prevProps.text !== this.props.parsedText &&
+      prevProps.text !== this.props.text &&
       !this.props.isFocused &&
-      this.props.parsedText === String(this.props.defaultText)
+      this.props.text === String(this.props.defaultText)
     ) {
       this.formatText();
     }
@@ -192,7 +192,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       Sentry.captureException(e);
     }
 
-    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue));
+    this.props.updateWidgetMetaProperty("text", String(formattedValue));
 
     this.props.updateWidgetMetaProperty("rawText", value, {
       triggerPropertyName: "onTextChanged",
@@ -214,13 +214,13 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
     try {
       if (isFocused) {
-        const text = this.props.parsedText || "";
+        const text = this.props.text || "";
         const deFormattedValue = text.replace(
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
 
-        this.props.updateWidgetMetaProperty("parsedText", deFormattedValue);
+        this.props.updateWidgetMetaProperty("text", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
           dynamicString: this.props.onFocus,
@@ -229,13 +229,13 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           },
         });
       } else {
-        if (this.props.parsedText) {
+        if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            this.props.parsedText,
+            this.props.text,
           );
 
-          this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+          this.props.updateWidgetMetaProperty("text", formattedValue);
         }
 
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
@@ -249,7 +249,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
-      this.props.updateWidgetMetaProperty("parsedText", this.props.parsedText);
+      this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 
     super.onFocusChange(!!isFocused);
@@ -294,13 +294,13 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   };
 
   isTextFormatted = () => {
-    return this.props.parsedText.includes(getLocaleThousandSeparator());
+    return this.props.text.includes(getLocaleThousandSeparator());
   };
 
   formatText() {
-    if (!!this.props.parsedText && !this.isTextFormatted()) {
+    if (!!this.props.text && !this.isTextFormatted()) {
       try {
-        const floatVal = parseFloat(this.props.parsedText);
+        const floatVal = parseFloat(this.props.text);
 
         const formattedValue = Intl.NumberFormat(getLocale(), {
           style: "decimal",
@@ -308,7 +308,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           maximumFractionDigits: this.props.decimals,
         }).format(floatVal);
 
-        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
+        this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);

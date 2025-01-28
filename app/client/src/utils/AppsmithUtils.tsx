@@ -1,118 +1,14 @@
-import { getAppsmithConfigs } from "ee/configs";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "ee/constants/messages";
-import * as Sentry from "@sentry/react";
-import type { Property } from "api/ActionAPI";
 import type { AppIconName } from "@appsmith/ads-old";
 import { AppIconCollection } from "@appsmith/ads-old";
 import _, { isPlainObject } from "lodash";
-import * as log from "loglevel";
+import log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-
-export const initializeAnalyticsAndTrackers = async () => {
-  const appsmithConfigs = getAppsmithConfigs();
-
-  try {
-    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
-      window.Sentry = Sentry;
-      Sentry.init({
-        ...appsmithConfigs.sentry,
-        beforeSend(event) {
-          const exception = extractSentryException(event);
-
-          if (exception?.type === "ChunkLoadError") {
-            // Only log ChunkLoadErrors after the 2 retires
-            if (!exception.value?.includes("failed after 2 retries")) {
-              return null;
-            }
-          }
-
-          // Handle Non-Error rejections
-          if (exception?.value?.startsWith("Non-Error")) {
-            // TODO: Fix this the next time the file is edited
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const serializedData: any = event.extra?.__serialized__;
-
-            if (!serializedData) return null; // if no data is attached, ignore error
-
-            const actualErrorMessage = serializedData.error
-              ? serializedData.error.message
-              : serializedData.message;
-
-            if (!actualErrorMessage) return null; // If no message is attached, ignore error
-
-            // Now modify the original error
-            exception.value = actualErrorMessage;
-            event.message = actualErrorMessage;
-          }
-
-          return event;
-        },
-        beforeBreadcrumb(breadcrumb) {
-          if (
-            breadcrumb.category === "console" &&
-            breadcrumb.level !== "error"
-          ) {
-            return null;
-          }
-
-          if (breadcrumb.category === "sentry.transaction") {
-            return null;
-          }
-
-          if (breadcrumb.category === "redux.action") {
-            if (
-              breadcrumb.data &&
-              breadcrumb.data.type === "SET_EVALUATED_TREE"
-            ) {
-              breadcrumb.data = undefined;
-            }
-          }
-
-          return breadcrumb;
-        },
-      });
-    }
-  } catch (e) {
-    log.error(e);
-  }
-
-  try {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
-      const { id } = appsmithConfigs.smartLook;
-
-      AnalyticsUtil.initializeSmartLook(id);
-    }
-
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
-      if (appsmithConfigs.segment.apiKey) {
-        // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
-      } else if (appsmithConfigs.segment.ceKey) {
-        // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
-      }
-    }
-  } catch (e) {
-    Sentry.captureException(e);
-    log.error(e);
-  }
-};
-
-export const mapToPropList = (map: Record<string, string>): Property[] => {
-  return _.map(map, (value, key) => {
-    return { key: key, value: value };
-  });
-};
 
 export const INTERACTION_ANALYTICS_EVENT = "INTERACTION_ANALYTICS_EVENT";
 
@@ -571,12 +467,4 @@ export function getDatatype(value: unknown) {
   } else if (value === undefined) {
     return DataType.UNDEFINED;
   }
-}
-
-function extractSentryException(event: Sentry.Event) {
-  if (!event.exception) return null;
-
-  const value = event.exception.values ? event.exception.values[0] : null;
-
-  return value;
 }

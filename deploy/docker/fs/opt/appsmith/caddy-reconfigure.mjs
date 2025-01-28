@@ -146,7 +146,10 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      key {http.request.client_ip}
+      # This key is designed to work irrespective of any load balancers running on the Appsmith container.
+      # We use "+" as the separator here since we don't expect it in any of the placeholder values here, and has no
+      # significance in header value syntax.
+      key {header.Forwarded}+{header.X-Forwarded-For}+{remote_host}
       events ${RATE_LIMIT}
       window 1s
     }
@@ -200,7 +203,7 @@ if (CUSTOM_DOMAIN !== "") {
 }
 
 if (!process.argv.includes("--no-finalize-index-html")) {
-  finalizeIndexHtml()
+  finalizeHtmlFiles()
 }
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
@@ -208,7 +211,7 @@ fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync(AppsmithCaddy, ["fmt", "--overwrite", CaddyfilePath])
 spawnSync(AppsmithCaddy, ["reload", "--config", CaddyfilePath])
 
-function finalizeIndexHtml() {
+function finalizeHtmlFiles() {
   let info = null;
   try {
     info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
@@ -221,14 +224,17 @@ function finalizeIndexHtml() {
     APPSMITH_VERSION_ID: info?.version ?? "",
     APPSMITH_VERSION_SHA: info?.commitSha ?? "",
     APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
+    APPSMITH_HOSTNAME: process.env.HOSTNAME ?? "appsmith-0"
   }
 
-  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replaceAll(
-    /\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"}}/g,
-    (_, name) => (process.env[name] || extraEnv[name] || "")
-  )
+  for (const file of ["index.html", "404.html"]) {
+    const content = fs.readFileSync("/opt/appsmith/editor/" + file, "utf8").replaceAll(
+      /\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"}}/g,
+      (_, name) => (process.env[name] || extraEnv[name] || "")
+    )
 
-  fs.writeFileSync(process.env.WWW_PATH + "/index.html", content)
+    fs.writeFileSync(process.env.WWW_PATH + "/" + file, content)
+  }
 }
 
 function isCertExpired(path) {
@@ -236,4 +242,3 @@ function isCertExpired(path) {
   console.log(path, cert)
   return new Date(cert.validTo) < new Date()
 }
-

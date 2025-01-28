@@ -27,7 +27,8 @@ type columnTypeValues =
   | "Button"
   | "Menu button"
   | "Icon button"
-  | "Select";
+  | "Select"
+  | "HTML";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -853,5 +854,9 @@ export class Table {
     cy.get(selector).eq(1).should("be.enabled");
     this.agHelper.GetHoverNClick(selector, 1, true);
     verify && cy.get(selector).eq(1).should("be.disabled");
+  }
+
+  public GetTableDataSelector(rowNum: number, colNum: number): string {
+    return `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   }
 }

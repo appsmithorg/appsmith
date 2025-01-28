@@ -1,6 +1,6 @@
 import React from "react";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { AnimatedLayout, UnanimatedLayout } from "./Layout";
+import { AnimatedLayout, StaticLayout } from "./Layout";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -22,7 +22,7 @@ function IDE() {
     return <AnimatedLayout />;
   }
 
-  return <UnanimatedLayout />;
+  return <StaticLayout />;
 }
 
 IDE.displayName = "AppIDE";

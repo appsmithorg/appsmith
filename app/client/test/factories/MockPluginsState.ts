@@ -1,5 +1,5 @@
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 
 export const PluginIDs: Record<PluginPackageName, string> = {
   [PluginPackageName.POSTGRES]: "65e58df196506a506bd7069c",
@@ -6952,12 +6952,12 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run API on page load",
+            label: "Run the API on page load",
             configProperty: "executeOnLoad",
             controlType: "SWITCH",
           },
           {
-            label: "Request confirmation before running API",
+            label: "Request confirmation before running this API",
             configProperty: "confirmBeforeExecute",
             controlType: "SWITCH",
             tooltipText:
@@ -7007,7 +7007,6 @@ export default {
             controlType: "INPUT_TEXT",
             configProperty: "actionConfiguration.timeoutInMillisecond",
             dataType: "NUMBER",
-            width: "270px",
           },
         ],
       },
@@ -7018,12 +7017,12 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run API on page load",
+            label: "Run the API on page load",
             configProperty: "executeOnLoad",
             controlType: "SWITCH",
           },
           {
-            label: "Request confirmation before running API",
+            label: "Request confirmation before running this API",
             configProperty: "confirmBeforeExecute",
             controlType: "SWITCH",
             tooltipText:
@@ -7073,7 +7072,6 @@ export default {
             controlType: "INPUT_TEXT",
             configProperty: "actionConfiguration.timeoutInMillisecond",
             dataType: "NUMBER",
-            width: "270px",
           },
         ],
       },
@@ -7084,12 +7082,12 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run query on page load",
+            label: "Run the query on page load",
             configProperty: "executeOnLoad",
             controlType: "SWITCH",
           },
           {
-            label: "Request confirmation before running query",
+            label: "Request confirmation before running this query",
             configProperty: "confirmBeforeExecute",
             controlType: "SWITCH",
             tooltipText:
@@ -7113,12 +7111,12 @@ export default {
         id: 1,
         children: [
           {
-            label: "Run query on page load",
+            label: "Run the query on page load",
             configProperty: "executeOnLoad",
             controlType: "SWITCH",
           },
           {
-            label: "Request confirmation before running query",
+            label: "Request confirmation before running this query",
             configProperty: "confirmBeforeExecute",
             controlType: "SWITCH",
             tooltipText:

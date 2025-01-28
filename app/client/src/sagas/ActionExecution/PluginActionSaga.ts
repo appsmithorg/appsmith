@@ -5,11 +5,9 @@ import {
   put,
   select,
   take,
-  takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
-import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -20,13 +18,10 @@ import {
   updateAction,
   updateActionData,
 } from "actions/pluginActionActions";
-import {
-  handleExecuteJSFunctionSaga,
-  makeUpdateJSCollection,
-} from "sagas/JSPaneSagas";
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
 import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -46,7 +41,6 @@ import {
   getJSCollectionFromAllEntities,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
@@ -62,6 +56,7 @@ import {
   isString,
   set,
   unset,
+  zipObject,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
@@ -102,7 +97,7 @@ import log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "ee/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import { evaluateActionBindings, evalWorker } from "sagas/EvaluationsSaga";
+import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -134,7 +129,8 @@ import {
   findDatatype,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginType } from "entities/Plugin";
+import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";
@@ -150,14 +146,12 @@ import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
 } from "ee/selectors/environmentSelectors";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
 import {
   endSpan,
   setAttributesToSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import {
   getActionExecutionAnalytics,
   getActionProperties,
@@ -172,6 +166,12 @@ import {
   isActionSaving,
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
+import { objectKeys } from "@appsmith/utils";
+import type { Span } from "instrumentation/types";
+import {
+  selectGitConnectModalOpen,
+  selectGitOpsModalOpen,
+} from "selectors/gitModSelectors";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -284,6 +284,10 @@ function* readBlob(blobUrl: string): any {
  * - binds dataype to payload
  *
  * @param value
+ * @param executeActionRequest
+ * @param index
+ * @param isArray
+ * @param arrDatatype
  */
 
 function* resolvingBlobUrls(
@@ -308,7 +312,7 @@ function* resolvingBlobUrls(
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
 
-    Object.keys(value).forEach((propertyName) => {
+    objectKeys(value).forEach((propertyName) => {
       if (isBlobUrl(value[propertyName])) {
         blobUrlPaths.push(propertyName);
       }
@@ -392,6 +396,9 @@ function updateBlobDataFromUrls(
  *   { key: "this.params.age", value: 26 },
  * ]
  * @param bindings
+ * @param formData
+ * @param executeActionRequest
+ * @param filePickerInstrumentation
  * @param executionParams
  */
 function* evaluateActionParams(
@@ -415,15 +422,14 @@ function* evaluateActionParams(
 
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
+  const evaluatedParams = zipObject(bindings, values);
 
   // Maintain a blob data map to resolve blob urls of large files as array buffer
   const blobDataMap: Record<string, Blob> = {};
 
-  let recordFilePickerInstrumentation = false;
-
   // if json bindings have filepicker reference, we need to init the instrumentation object
   // which we will send post execution
-  recordFilePickerInstrumentation = bindings.some((binding) =>
+  const recordFilePickerInstrumentation = bindings.some((binding) =>
     binding.includes(".files"),
   );
 
@@ -466,6 +472,7 @@ function* evaluateActionParams(
           );
           useBlobMaps = true;
           unset(newVal, "blobUrlPaths");
+          evaluatedParams[key] = "blob";
         }
 
         tempArr.push(newVal);
@@ -477,6 +484,7 @@ function* evaluateActionParams(
           filePickerInstrumentation["totalSize"] += size;
           filePickerInstrumentation["fileSizes"].push(size);
           filePickerInstrumentation["fileTypes"].push(type);
+          evaluatedParams[key] = "file";
         }
 
         if ((j + 1) % BATCH_CHUNK_SIZE === 0) {
@@ -499,6 +507,7 @@ function* evaluateActionParams(
         filePickerInstrumentation["totalSize"] += value.size;
         filePickerInstrumentation["fileSizes"].push(value.size);
         filePickerInstrumentation["fileTypes"].push(value.type);
+        evaluatedParams[key] = "file";
       }
     }
 
@@ -508,9 +517,11 @@ function* evaluateActionParams(
       if (!!value && value.hasOwnProperty("blobUrlPaths")) {
         updateBlobDataFromUrls(value.blobUrlPaths, value, blobMap, blobDataMap);
         unset(value, "blobUrlPaths");
+        evaluatedParams[key] = "blob";
       }
 
       value = JSON.stringify(value);
+      evaluatedParams[key] = value;
     }
 
     // If there are no blob urls in the value, we can directly add it to the formData
@@ -543,6 +554,8 @@ function* evaluateActionParams(
       formData.append(path, blobData),
     );
   }
+
+  return evaluatedParams;
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -598,15 +611,6 @@ export default function* executePluginActionTriggerSaga(
         ? "PREV"
         : undefined;
 
-  AppsmithConsole.info({
-    text: "Execution started from widget request",
-    source: {
-      type: ENTITY_TYPE.ACTION,
-      name: pluginActionNameToDisplay,
-      id: actionId,
-    },
-    state: action.actionConfiguration,
-  });
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action,
@@ -624,7 +628,7 @@ export default function* executePluginActionTriggerSaga(
           id: actionId,
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-          text: `Execution failed with status ${payload.statusCode}`,
+          text: `Failed execution in ${payload.duration}(ms)`,
           environmentName: currentEnvDetails.name,
           source: {
             type: ENTITY_TYPE.ACTION,
@@ -633,21 +637,12 @@ export default function* executePluginActionTriggerSaga(
             httpMethod: action?.actionConfiguration?.httpMethod,
             pluginType: action.pluginType,
           },
-          state: payload.request,
-          messages: [
-            {
-              // Need to stringify cause this gets rendered directly
-              // and rendering objects can crash the app
-              message: {
-                name: "PluginExecutionError",
-                message: !isString(payload.body)
-                  ? JSON.stringify(payload.body)
-                  : payload.body,
-              },
-              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-              subType: payload.errorType,
-            },
-          ],
+          state: {
+            error: !isString(payload.body)
+              ? JSON.stringify(payload.body)
+              : payload.body,
+            request: payload.request,
+          },
           pluginErrorDetails: payload.pluginErrorDetails,
         },
       },
@@ -672,8 +667,7 @@ export default function* executePluginActionTriggerSaga(
     AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", actionExecutionAnalytics);
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
-      text: "Executed successfully from widget request",
-      timeTaken: payload.duration,
+      text: `Successfully executed in ${payload.duration}(ms)`,
       source: {
         type: ENTITY_TYPE.ACTION,
         name: pluginActionNameToDisplay,
@@ -704,10 +698,13 @@ function* runActionShortcutSaga() {
   if (!baseMatch) return;
 
   // get gitSyncModal status
-  const isGitSyncModalOpen: boolean = yield select(getIsGitSyncModalOpen);
+  const isGitOpsModalOpen: boolean = yield select(selectGitOpsModalOpen);
+  const isGitConnectModalOpen: boolean = yield select(
+    selectGitConnectModalOpen,
+  );
 
   // if git sync modal is open, prevent action from being executed via shortcut keys.
-  if (isGitSyncModalOpen) return;
+  if (isGitOpsModalOpen || isGitConnectModalOpen) return;
 
   const { path } = baseMatch;
   // TODO: Fix this the next time the file is edited
@@ -783,28 +780,6 @@ export function* runActionSaga(
     (actionObject?.datasource as any)?.id,
   );
   const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
-
-  const datasourceUrl = get(
-    actionObject,
-    "datasource.datasourceConfiguration.url",
-  );
-
-  AppsmithConsole.info({
-    text: "Execution started from user request",
-    source: {
-      type: ENTITY_TYPE.ACTION,
-      name: actionObject.name,
-      id: actionId,
-    },
-    state: {
-      ...actionObject.actionConfiguration,
-      ...(datasourceUrl
-        ? {
-            url: datasourceUrl,
-          }
-        : null),
-    },
-  });
 
   const { paginationField } = reduxAction.payload;
 
@@ -953,9 +928,7 @@ export function* runActionSaga(
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           environmentName: currentEnvDetails.name,
-          text: `Execution failed${
-            payload.statusCode ? ` with status ${payload.statusCode}` : ""
-          }`,
+          text: `Failed execution in ${payload.duration}(ms)`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: pluginActionNameToDisplay,
@@ -963,8 +936,10 @@ export function* runActionSaga(
             httpMethod: actionObject?.actionConfiguration?.httpMethod,
             pluginType: actionObject.pluginType,
           },
-          messages: appsmithConsoleErrorMessageList,
-          state: payload?.request,
+          state: {
+            error: error.message,
+            request: payload.request,
+          },
           pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
@@ -1019,8 +994,7 @@ export function* runActionSaga(
   if (payload.isExecutionSuccess) {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
-      text: "Executed successfully from user request",
-      timeTaken: payload.duration,
+      text: `Successfully executed in ${payload.duration}(ms)`,
       source: {
         type: ENTITY_TYPE.ACTION,
         name: pluginActionNameToDisplay,
@@ -1120,7 +1094,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 
 function* executePageLoadAction(
   pageAction: PageAction,
-  span?: OtlpSpan,
+  span?: Span,
   actionExecutionContext?: ActionExecutionContext,
 ) {
   const currentEnvDetails: { id: string; name: string } = yield select(
@@ -1147,6 +1121,9 @@ function* executePageLoadAction(
     const datasourceId: string = (action?.datasource as any)?.id;
     const datasource: Datasource = yield select(getDatasource, datasourceId);
     const plugin: Plugin = yield select(getPlugin, action?.pluginId);
+    const isAnvilEnabled: boolean = yield select(
+      getIsAnvilEnabledInCurrentApplication,
+    );
 
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: pageAction.pluginType,
@@ -1206,7 +1183,10 @@ function* executePageLoadAction(
 
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
-    if (window.location.pathname.includes(pageAction.id))
+    if (
+      window.location.pathname.includes(pageAction.id) &&
+      !(isAnvilEnabled && pageAction.pluginType === PluginType.AI)
+    )
       yield put(
         setPluginActionEditorDebuggerState({
           open: true,
@@ -1222,7 +1202,7 @@ function* executePageLoadAction(
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
             environmentName: currentEnvDetails.name,
-            text: `Execution failed with status ${payload.statusCode}`,
+            text: `Failed execution in ${payload.duration}(ms)`,
             source: {
               type: ENTITY_TYPE.ACTION,
               name: actionName,
@@ -1230,14 +1210,12 @@ function* executePageLoadAction(
               httpMethod: action?.actionConfiguration?.httpMethod,
               pluginType: action.pluginType,
             },
-            state: payload.request,
-            messages: [
-              {
-                message: error,
-                type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-                subType: payload.errorType,
-              },
-            ],
+            state: {
+              error:
+                payload.pluginErrorDetails?.downstreamErrorMessage ||
+                error.message,
+              request: payload.request,
+            },
             pluginErrorDetails: payload.pluginErrorDetails,
           },
         },
@@ -1362,7 +1340,7 @@ function* executePluginActionSaga(
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
-  parentSpan?: OtlpSpan,
+  parentSpan?: Span,
 ) {
   const actionId = pluginAction.id;
   const baseActionId = pluginAction.baseId;
@@ -1423,7 +1401,7 @@ function* executePluginActionSaga(
     fileSizes: [],
   };
 
-  yield call(
+  const evaluatedBindings: Record<string, unknown> = yield call(
     evaluateActionParams,
     pluginAction.jsonPathKeys,
     formData,
@@ -1432,11 +1410,21 @@ function* executePluginActionSaga(
     params,
   );
 
+  AppsmithConsole.info({
+    text: "Began execution",
+    source: {
+      type: ENTITY_TYPE.ACTION,
+      name: pluginAction.name,
+      id: actionId,
+    },
+    state: { requestParams: { ...params, ...evaluatedBindings } },
+  });
+
   let payload = EMPTY_RESPONSE;
   let response: ActionExecutionResponse;
 
   try {
-    response = yield ActionAPI.executeAction(formData, timeout, parentSpan);
+    response = yield ActionAPI.executeAction(formData, timeout);
 
     const isError = isErrorResponse(response);
 
@@ -1674,22 +1662,6 @@ function* softRefreshActionsSaga() {
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
-function* handleUpdateActionData(
-  action: ReduxAction<updateActionDataPayloadType>,
-) {
-  const { actionDataPayload, parentSpan } = action.payload;
-
-  yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
-    actionDataPayload,
-  );
-
-  if (parentSpan) {
-    endSpan(parentSpan);
-  }
-}
-
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1702,7 +1674,5 @@ export function* watchPluginActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

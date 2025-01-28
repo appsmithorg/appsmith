@@ -1,8 +1,6 @@
 import type { PluginEditorDebuggerState } from "./pluginEditorReducer";
-import {
-  type ReduxAction,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
 
 export const setPluginActionEditorDebuggerState = (
@@ -24,14 +22,6 @@ export const openPluginActionSettings = (payload: boolean) => ({
   payload: {
     settingsOpen: payload,
   },
-});
-
-export const updatePostBodyContentType = (
-  title: string,
-  apiId: string,
-): ReduxAction<{ title: string; apiId: string }> => ({
-  type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
-  payload: { title, apiId },
 });
 
 export const changeApi = (

@@ -1,9 +1,9 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
 import {
   dataSources,
   agHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 describe(
   "Verify setting tab form controls not to have tooltip and tooltip (underline) styles",
@@ -17,6 +17,7 @@ describe(
   },
   function () {
     let guid, datasourceName;
+    let pluginActionForm = new PluginActionForm();
 
     before("Creates a new Mongo datasource", () => {
       dataSources.CreateDataSource("Mongo");
@@ -28,10 +29,10 @@ describe(
     it("1. We make sure the label in the settings tab does not have any underline styles", function () {
       dataSources.CreateQueryForDS(datasourceName);
 
-      cy.xpath(queryLocators.querySettingsTab).click();
+      pluginActionForm.toolbar.toggleSettings();
 
       cy.get(".label-icon-wrapper")
-        .contains("Run query on page load")
+        .contains("Run the query on page load")
         .parent()
         .then(($el) => {
           cy.window().then((win) => {
@@ -45,7 +46,7 @@ describe(
         });
 
       cy.get(".label-icon-wrapper")
-        .contains("Request confirmation before running query")
+        .contains("Request confirmation before running this query")
         .parent()
         .then(($el) => {
           cy.window().then((win) => {

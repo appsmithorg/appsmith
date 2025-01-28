@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -24,6 +25,8 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     AclPermission getArtifactManageProtectedBranchPermission();
 
     AclPermission getArtifactManageDefaultBranchPermission();
+
+    AclPermission getWorkspaceArtifactCreationPermission();
 
     Mono<T> getArtifactById(String artifactId, AclPermission aclPermission);
 
@@ -62,4 +65,12 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     Mono<T> deleteArtifact(String artifactId);
 
     Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson);
+
+    T getNewArtifact(String workspaceId, String repoName);
+
+    Mono<T> publishArtifactPostCommit(Artifact committedArtifact);
+
+    Mono<? extends Artifact> validateAndPublishArtifact(Artifact artifact, boolean publish);
+
+    Mono<T> publishArtifactPostRefCreation(Artifact artifact, RefType refType, Boolean isPublishedManually);
 }
