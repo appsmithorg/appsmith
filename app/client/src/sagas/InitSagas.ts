@@ -1,4 +1,4 @@
-import { get, identity, pickBy } from "lodash";
+import get from "lodash/get";
 import {
   all,
   call,
@@ -231,14 +231,11 @@ export function* getInitResponses({
   shouldInitialiseUserDetails?: boolean;
   branch?: string;
 }) {
-  const params = pickBy(
-    {
-      applicationId,
-      defaultPageId: basePageId,
-      branchName: branch,
-    },
-    identity,
-  );
+  const params = {
+    applicationId,
+    defaultPageId: basePageId,
+    branchName: branch,
+  };
   let response: InitConsolidatedApi | undefined;
 
   try {
