@@ -36,6 +36,7 @@ export default function PremiumDatasources(props: {
   plugins: PremiumIntegration[];
 }) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const handleOnClick = (name: string) => {
     handlePremiumDatasourceClick(name, isGACEnabled);

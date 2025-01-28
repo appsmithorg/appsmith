@@ -43,6 +43,7 @@ const PremiumDatasourceContactForm = (
 ) => {
   const instanceId = useSelector(getInstanceId);
   const appsmithConfigs = getAppsmithConfigs();
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const redirectPricingURL = PRICING_PAGE_URL(
