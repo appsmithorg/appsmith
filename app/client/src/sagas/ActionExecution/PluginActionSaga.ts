@@ -129,7 +129,8 @@ import {
   findDatatype,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "entities/Plugin";
+import { type Plugin, PluginType } from "entities/Plugin";
+import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";
@@ -1120,6 +1121,9 @@ function* executePageLoadAction(
     const datasourceId: string = (action?.datasource as any)?.id;
     const datasource: Datasource = yield select(getDatasource, datasourceId);
     const plugin: Plugin = yield select(getPlugin, action?.pluginId);
+    const isAnvilEnabled: boolean = yield select(
+      getIsAnvilEnabledInCurrentApplication,
+    );
 
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: pageAction.pluginType,
@@ -1179,7 +1183,10 @@ function* executePageLoadAction(
 
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
-    if (window.location.pathname.includes(pageAction.id))
+    if (
+      window.location.pathname.includes(pageAction.id) &&
+      !(isAnvilEnabled && pageAction.pluginType === PluginType.AI)
+    )
       yield put(
         setPluginActionEditorDebuggerState({
           open: true,

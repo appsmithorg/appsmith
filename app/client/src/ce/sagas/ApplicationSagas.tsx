@@ -293,6 +293,7 @@ export function* fetchAppAndPagesSaga(
         payload: {
           workspaceId: response.data.workspaceId,
           editorId: response.data.application?.id,
+          mode: request.mode,
         },
       });
 
