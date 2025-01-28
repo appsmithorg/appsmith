@@ -375,12 +375,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace, user));
     }
 
-    /**
-     * Create workspace needs to first fetch and embed Setting object in OrganizationSetting
-     * for any settings that may have diverged from the default values. Once the
-     * settings have been embedded in all the workspace settings, the library
-     * function is called to store the enhanced workspace object back in the workspace object.
-     */
     @Override
     public Mono<Workspace> create(Workspace workspace) {
         return sessionUserService.getCurrentUser().flatMap(user -> create(workspace, user, Boolean.FALSE));

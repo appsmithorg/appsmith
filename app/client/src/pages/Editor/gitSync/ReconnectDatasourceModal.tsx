@@ -297,7 +297,7 @@ function ReconnectDatasourceModal() {
   const [isTesting, setIsTesting] = useState(false);
   const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
   const dsName = queryDS?.name;
-  const orgId = queryDS?.workspaceId;
+  const worksaceId = queryDS?.workspaceId;
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
     if (!ds || pluginsArray.length === 0) return false;
@@ -351,7 +351,7 @@ function ReconnectDatasourceModal() {
         environmentName: currentEnvDetails.name,
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
-        workspaceId: orgId,
+        orgId: worksaceId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
         ideType,
