@@ -10,16 +10,16 @@ export class ConsolidatedApiUtils {
   static getViewUrl = (requestParams: ConsolidatedApiParams) => {
     // Remove undefined values from the requestParams object
     const queryParamsObject = pickBy(requestParams, identity);
-    const queryParams = new URLSearchParams(queryParamsObject);
+    const queryParamsString = new URLSearchParams(queryParamsObject).toString();
 
-    return `${this.VIEW_URL}?${queryParams}`;
+    return `${this.VIEW_URL}?${queryParamsString}`;
   };
 
   static getEditUrl = (requestParams: ConsolidatedApiParams) => {
     // Remove undefined values from the requestParams object
     const queryParamsObject = pickBy(requestParams, identity);
-    const queryParams = new URLSearchParams(queryParamsObject);
+    const queryParamsString = new URLSearchParams(queryParamsObject).toString();
 
-    return `${this.EDIT_URL}?${queryParams}`;
+    return `${this.EDIT_URL}?${queryParamsString}`;
   };
 }
