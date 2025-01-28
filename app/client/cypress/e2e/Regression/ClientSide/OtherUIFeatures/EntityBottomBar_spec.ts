@@ -102,7 +102,7 @@ describe(
           //Create and run query.
 
           _.dataSources.EnterQuery(
-            "SELECT * FROM users ORDER BY username LIMIT 10;",
+            "SELECT * FROM users ORDER BY email LIMIT 10;",
             1000,
           );
           _.dataSources.RunQuery();
@@ -150,7 +150,7 @@ describe(
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
       );
-      // clean up - sample
+      // clean up
       _.dataSources.DeleteQuery("Query1");
       cy.get("@dsName").then(($dsName) => {
         _.dataSources.DeleteDatasourceFromWithinDS($dsName as any);
