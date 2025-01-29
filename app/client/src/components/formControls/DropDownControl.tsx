@@ -155,8 +155,8 @@ function renderDropdown(
       }) || [];
   }
 
-  const defaultType = "others";
-  const defaultGroupConfig: DropDownGroupedOptionsInterface = {
+  const defaultOptionGroupType = "others";
+  const defaultOptionGroupConfig: DropDownGroupedOptionsInterface = {
     label: "Others",
     children: [],
   };
@@ -167,24 +167,24 @@ function renderDropdown(
   ) {
     optionGroupConfig = props.optionGroupConfig;
     options.forEach((opt) => {
-      let type = defaultType;
+      let optionGroupType = defaultOptionGroupType;
       let groupConfig: DropDownGroupedOptionsInterface;
 
-      if (opt.hasOwnProperty("type") && !!opt.type) {
-        type = opt.type;
+      if (opt.hasOwnProperty("optionGroupType") && !!opt.optionGroupType) {
+        optionGroupType = opt.optionGroupType;
       }
 
-      if (optionGroupConfig.hasOwnProperty(type)) {
-        groupConfig = optionGroupConfig[type];
+      if (optionGroupConfig.hasOwnProperty(optionGroupType)) {
+        groupConfig = optionGroupConfig[optionGroupType];
       } else {
-        groupConfig = defaultGroupConfig;
+        groupConfig = defaultOptionGroupConfig;
       }
 
       const groupChildren = groupConfig?.children || [];
 
       groupChildren.push(opt);
       groupConfig["children"] = groupChildren;
-      optionGroupConfig[type] = groupConfig;
+      optionGroupConfig[optionGroupType] = groupConfig;
     });
     groupedOptions = [];
     objectKeys(optionGroupConfig).forEach(
