@@ -3,6 +3,7 @@ import ReactJson from "react-json-view";
 import {
   EntityGroupsList,
   Flex,
+  type FlexProps,
   type ListItemProps,
   SearchInput,
   Text,
@@ -24,6 +25,11 @@ export const reactJsonProps = {
   indentWidth: 2,
   collapseStringsAfterLength: 30,
 };
+
+const GroupListPadding = {
+  pl: "spaces-3",
+  pr: "spaces-3",
+} as FlexProps;
 
 export const StateInspector = () => {
   const [selectedItem, items, selectedItemCode] = useStateInspectorItems();
@@ -51,10 +57,7 @@ export const StateInspector = () => {
           />
         </Flex>
         <EntityGroupsList
-          flexProps={{
-            pl: "spaces-3",
-            pr: "spaces-3",
-          }}
+          flexProps={GroupListPadding}
           groups={filteredItemGroups.map((item) => {
             return {
               groupTitle: item.group,
@@ -81,9 +84,14 @@ export const StateInspector = () => {
             {selectedItem.icon}
             <Text kind="body-m">{selectedItem.title}</Text>
           </Styled.SelectedItem>
-          <Flex overflowY="auto" px="spaces-3">
+          <Styled.JSONWrapper
+            $fontSize="12px"
+            className="as-mask"
+            overflowY="auto"
+            px="spaces-3"
+          >
             <ReactJson src={selectedItemCode} {...reactJsonProps} />
-          </Flex>
+          </Styled.JSONWrapper>
         </Flex>
       ) : null}
     </Flex>

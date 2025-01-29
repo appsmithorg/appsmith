@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 import { Flex, Text } from "@appsmith/ads";
+import { ReactJSONViewerOverrider } from "../../CodeEditor/PeekOverlayPopup/styles";
 
 const imgSizer = css`
   img {
@@ -20,4 +21,8 @@ export const GroupName = styled(Text)`
 
 export const SelectedItem = styled(Flex)`
   ${imgSizer}
+`;
+
+export const JSONWrapper = styled(Flex)<{ $fontSize: string }>`
+  ${ReactJSONViewerOverrider}
 `;
