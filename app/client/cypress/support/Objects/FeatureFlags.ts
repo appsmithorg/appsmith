@@ -87,6 +87,9 @@ export const featureFlagInterceptForLicenseFlags = () => {
   cy.intercept({
     method: "GET", 
     url: "/api/v1/consolidated-api/*?*",
+    headers: {
+      "x-initiated-from": "main-thread",
+    }
   }, (req) => {
     req.reply((res: any) => {
       if (res.statusCode === 200 || res.statusCode === 304) {
