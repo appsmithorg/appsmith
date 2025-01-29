@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
-import { usePrevious } from "@mantine/hooks";
 
 import { ScrollArea } from "../ScrollArea";
 
@@ -30,9 +29,6 @@ export const DismissibleTabBar = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sentinelLeftRef = useRef<HTMLDivElement | null>(null);
   const sentinelRightRef = useRef<HTMLDivElement | null>(null);
-
-  const totalChildren = React.Children.count(children);
-  const prevTotalChildren = usePrevious(totalChildren) ?? totalChildren;
 
   const handleAdd = disableAdd ? noop : onTabAdd;
 
@@ -69,17 +65,23 @@ export const DismissibleTabBar = ({
   }, []);
 
   useEffect(
-    function scrollAddedTabIntoView() {
-      const element = sentinelRightRef.current;
+    function debouncedScrollActiveTabIntoView() {
+      const timerId = setTimeout(() => {
+        // accessing active tab with a document query is a bit hacky, but it's more performant than keeping a map of refs and cloning children
+        const activeTab = document.querySelector(".editor-tab.active");
 
-      if (element && totalChildren > prevTotalChildren) {
-        element.scrollIntoView({
-          inline: "center",
-          behavior: "smooth",
-        });
-      }
+        if (activeTab) {
+          activeTab.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center",
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timerId);
     },
-    [totalChildren, prevTotalChildren],
+    [children],
   );
 
   return (
