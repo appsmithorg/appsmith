@@ -14,7 +14,7 @@ export type SelectProps = RCSelectProps & {
 };
 
 export type SelectOptionProps = OptionProps & {
-  // used for grouping the optionh
+  // used for grouping the options
   optionGroupType?: string;
 };
 export type SelectOptionGroupProps = OptGroupProps;
