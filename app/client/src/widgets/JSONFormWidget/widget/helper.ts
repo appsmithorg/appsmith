@@ -270,7 +270,7 @@ export const computeSchema = ({
   currSourceData,
   fieldThemeStylesheets,
   hasMaxFieldsChanged,
-  maxAllowedFields,
+  maxAllowedFields = MAX_ALLOWED_FIELDS,
   prevSchema = {},
   prevSourceData,
   widgetName,
