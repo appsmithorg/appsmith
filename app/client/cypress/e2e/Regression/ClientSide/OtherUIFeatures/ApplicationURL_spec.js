@@ -9,7 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Slug URLs", () => {
+describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
   let applicationName;
   let applicationId;
 
