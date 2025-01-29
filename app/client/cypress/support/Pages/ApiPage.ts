@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import {
+import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
@@ -9,6 +9,8 @@ import * as _ from "../Objects/ObjectsCore";
 import ApiEditor from "../../locators/ApiEditor";
 import { PluginActionForm } from "./PluginActionForm";
 import BottomTabs from "./IDE/BottomTabs";
+import PageList from "./PageList";
+import FileTabs from "./IDE/FileTabs";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -102,6 +104,9 @@ export class ApiPage {
     "input[name^='execute-on-page-load'][type='checkbox']";
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public splitPaneContextMenuTrigger = ".entity-context-menu";
+  public moreActionsTrigger = "[data-testid='t--more-action-trigger']";
+  private apiNameInput = ".editor-tab.active > .ads-v2-text input";
+  public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
 
   CreateApi(
     apiName = "",
@@ -508,5 +513,98 @@ export class ApiPage {
     this.agHelper.GetNClick(this.settingsTriggerLocator);
     if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
     else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+  }
+
+  public renameFromEditor(renameVal: string) {
+    cy.get(this.moreActionsTrigger).click();
+    cy.contains("Rename").should("be.visible").click();
+
+    cy.get(this.apiNameInput).clear().type(renameVal, { force: true }).blur();
+
+    PageLeftPane.assertPresence(renameVal);
+  }
+
+  public performActionFromEditor(
+    action: "copy" | "move",
+    apiName: string,
+    sourcePage: string,
+    targetPage: string,
+  ) {
+    // Navigate to the source page and select the API item
+    EditorNavigation.NavigateToPage(sourcePage);
+    PageLeftPane.selectItem(apiName);
+    FileTabs.assertActiveTab(apiName);
+
+    PageList.ShowList();
+    cy.get(PageList.numberOfPages).then(($el) => {
+      // Open the 'More Actions' menu and select the action
+      cy.get(this.moreActionsTrigger).should("be.visible").click(); // Open the 'More Actions' dropdown
+      cy.contains(action === "copy" ? "Copy to page" : "Move to page")
+        .should("be.visible")
+        .trigger("click", { force: true });
+      if (action === "move" && $el.text().includes("All Pages (1)")) {
+        // Handle case where the target page list is empty during move operation
+        cy.get(this.pageList).should("have.text", "No pages");
+      } else if (action === "move" && /All Pages \(\d+\)/.test($el.text())) {
+        cy.get(this.pageList)
+          .should("be.visible")
+          .should("not.have.text", sourcePage)
+          .contains(targetPage)
+          .should("be.visible")
+          .trigger("click", { force: true });
+
+        this.agHelper.ValidateToastMessage(
+          apiName + " action moved to page " + targetPage + " successfully",
+        );
+        PageList.VerifyIsCurrentPage(targetPage); // Verify the target page is active
+        PageLeftPane.assertPresence(apiName); // Assert the API is present on the target page
+        EditorNavigation.NavigateToPage(sourcePage);
+        PageLeftPane.assertAbsence(apiName); // Assert the API is removed from the source page
+      } else {
+        // Select the target page from the page list
+        cy.get(this.pageList)
+          .should("be.visible")
+          .contains(targetPage)
+          .should("be.visible")
+          .trigger("click", { force: true });
+
+        // Validate the toast message and the current page
+        this.agHelper.ValidateToastMessage(
+          `${apiName} action ${action === "copy" ? "copied" : "moved"} to page ${targetPage} successfully`,
+        );
+        PageList.VerifyIsCurrentPage(targetPage); // Verify the target page is active
+
+        // Assert the presence of the API on the target page
+        apiName =
+          action === "copy" && sourcePage === targetPage
+            ? `${apiName}Copy`
+            : apiName;
+        PageLeftPane.assertPresence(apiName);
+
+        if (action === "move") {
+          EditorNavigation.NavigateToPage(sourcePage);
+          PageLeftPane.assertAbsence(apiName); // Assert the API is removed from the source page
+        }
+      }
+    });
+  }
+
+  public deleteAPIFromEditor(apiName: string, sourcePage: string) {
+    // Navigate to the source page and select the API item
+    EditorNavigation.NavigateToPage(sourcePage);
+    PageLeftPane.selectItem(apiName);
+    FileTabs.assertActiveTab(apiName);
+
+    // Open the 'More Actions' menu and select the action
+    cy.get(this.moreActionsTrigger).should("be.visible").click();
+    cy.contains("Delete")
+      .should("be.visible")
+      .trigger("click", { force: true });
+    cy.contains("Are you sure?")
+      .should("be.visible")
+      .trigger("click", { force: true });
+
+    // Validate the absence of the deleted API
+    PageLeftPane.assertAbsence(apiName);
   }
 }

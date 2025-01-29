@@ -36,6 +36,12 @@ class FileTabs {
     });
   }
 
+  assertActiveTab(expectedTabName: string) {
+    cy.get(this.locators.tabName(expectedTabName))
+      .should("exist")
+      .and("have.class", "active");
+  }
+
   closeTab(name: string) {
     const tab = this.locators.tabName(name);
     ObjectsRegistry.AggregateHelper.HoverElement(tab);
