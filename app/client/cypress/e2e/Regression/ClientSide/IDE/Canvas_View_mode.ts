@@ -71,12 +71,15 @@ describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
   it("2. Canvas view mode updates", () => {
     EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      locators._propertyControl + "defaultvalue",
       `{{ JSObject1.inputValue }}`,
     );
     PageLeftPane.switchSegment(PagePaneSegment.JS);
-    cy.get(`.t--widget-input1 input`).should("contain.value", "0");
+    cy.get(`${locators._widget("input1")} input`).should("contain.value", "0");
     jsEditor.EditJSObj(JS_OBJECT_BODY_V2);
-    cy.get(`.t--widget-input1 input`).should("contain.value", "Hello");
+    cy.get(`${locators._widget("input1")} input`).should(
+      "contain.value",
+      "Hello",
+    );
   });
 });
