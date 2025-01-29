@@ -161,37 +161,46 @@ function renderDropdown(
       }) || [];
   }
 
-  const defaultType = "others";
-  const defaultGroupConfig: DropDownGroupedOptionsInterface = {
+  const defaultOptionGroupType = "others";
+  const defaultOptionGroupConfig: DropDownGroupedOptionsInterface = {
     label: "Others",
     children: [],
   };
 
+  // For grouping, 2 components are needed
+  // 1) optionGroupConfig: used to render the label text and allows for future expansions
+  // related to UI of the group label
+  // 2) each option should mention a optionGroupType which will help to group the option inside
+  // the group. If not present or the type is not defined in the optionGroupConfig then it will be
+  // added to the default group mentioned above.
   if (
     !!props.optionGroupConfig &&
     typeof props.optionGroupConfig === "object"
   ) {
     optionGroupConfig = props.optionGroupConfig;
     options.forEach((opt) => {
-      let type = defaultType;
+      let optionGroupType = defaultOptionGroupType;
       let groupConfig: DropDownGroupedOptionsInterface;
 
-      if (opt.hasOwnProperty("type") && !!opt.type) {
-        type = opt.type;
+      if (opt.hasOwnProperty("optionGroupType") && !!opt.optionGroupType) {
+        optionGroupType = opt.optionGroupType;
       }
 
-      if (optionGroupConfig.hasOwnProperty(type)) {
-        groupConfig = optionGroupConfig[type];
+      if (optionGroupConfig.hasOwnProperty(optionGroupType)) {
+        groupConfig = optionGroupConfig[optionGroupType];
       } else {
-        groupConfig = defaultGroupConfig;
+        // if optionGroupType is not defined in optionGroupConfig
+        // use the default group config
+        groupConfig = defaultOptionGroupConfig;
       }
 
       const groupChildren = groupConfig?.children || [];
 
       groupChildren.push(opt);
       groupConfig["children"] = groupChildren;
-      optionGroupConfig[type] = groupConfig;
+      optionGroupConfig[optionGroupType] = groupConfig;
     });
+
     groupedOptions = [];
     objectKeys(optionGroupConfig).forEach(
       (key) =>
