@@ -70,7 +70,7 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
 
     debuggerHelper.OpenDebugger();
     debuggerHelper.ClicklogEntityLink();
-    agHelper.AssertCursorInput(".js-editor", { ch: 20, line: 6 });
+    agHelper.AssertCursorInput(jsEditor._editor, { ch: 20, line: 6 });
 
     jsEditor.DeleteJSObjectFromContextMenu();
   });
