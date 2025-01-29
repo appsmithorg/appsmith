@@ -8,7 +8,11 @@ export const getConsolidatedPageLoadDataView = async (
 ) => {
   const viewUrl = ConsolidatedApiUtils.getViewUrl(params);
 
-  return api.get<InitConsolidatedApi>(viewUrl);
+  return api.get<InitConsolidatedApi>(viewUrl, {
+    headers: {
+      "x-initiated-from": "main-thread",
+    },
+  });
 };
 
 export const getConsolidatedPageLoadDataEdit = async (
@@ -16,5 +20,9 @@ export const getConsolidatedPageLoadDataEdit = async (
 ) => {
   const editUrl = ConsolidatedApiUtils.getEditUrl(params);
 
-  return api.get<InitConsolidatedApi>(editUrl);
+  return api.get<InitConsolidatedApi>(editUrl, {
+    headers: {
+      "x-initiated-from": "main-thread",
+    },
+  });
 };
