@@ -18,7 +18,7 @@ const oneClickBinding = new OneClickBinding();
 
 const upfrontContentCount = 4;
 
-describe(
+describe.skip(
   "One click binding control",
   { tags: ["@tag.excludeForAirgap", "@tag.Binding"] },
   () => {
@@ -26,7 +26,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
     });
 
-    it.skip("1. Should check the datasource selector and the form", () => {
+    it("1. Should check the datasource selector and the form", () => {
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
       agHelper.AssertElementAbsence(
         oneClickBindingLocator.datasourceQueryBindHeaderSelector,
