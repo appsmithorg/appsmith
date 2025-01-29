@@ -31,33 +31,24 @@ export const getConsolidatedDataApi = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  cy.intercept(
-    {
-      method: "GET",
-      url: "/api/v1/consolidated-api/*?*",
-      headers: {
-        "x-initiated-from": "main-thread",
-      },
-    },
-    (req) => {
-      req.reply((res: any) => {
-        if (
-          res.statusCode === 200 ||
-          res.statusCode === 401 ||
-          res.statusCode === 500 ||
-          res.statusCode === 304
-        ) {
-          const originalResponse = res?.body;
-          const updatedResponse = produce(originalResponse, (draft: any) => {
-            draft.data.featureFlags.data = {
-              ...flags,
-            };
-          });
-          return res.send(updatedResponse);
-        }
-      });
-    },
-  ).as("getConsolidatedData");
+  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    req.reply((res: any) => {
+      if (
+        res.statusCode === 200 ||
+        res.statusCode === 401 ||
+        res.statusCode === 500 ||
+        res.statusCode === 304
+      ) {
+        const originalResponse = res?.body;
+        const updatedResponse = produce(originalResponse, (draft: any) => {
+          draft.data.featureFlags.data = {
+            ...flags,
+          };
+        });
+        return res.send(updatedResponse);
+      }
+    });
+  }).as("getConsolidatedData");
   if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
@@ -95,13 +86,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
   ).as("getLicenseFeatures");
 
   cy.intercept(
-    {
-      method: "GET",
-      url: "/api/v1/consolidated-api/*?*",
-      headers: {
-        "x-initiated-from": "main-thread",
-      },
-    },
+    "GET", "/api/v1/consolidated-api/*?*",
     (req) => {
       req.reply((res: any) => {
         if (res.statusCode === 200 || res.statusCode === 304) {
