@@ -3,8 +3,7 @@ import { hookWrapper } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { useGetPageFocusUrl } from "./hooks";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { createPageFocusInfo } from "../../../ce/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { createPageFocusInfo } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 
 const mockUseGitCurrentBranch = jest.fn<string | null, []>(() => null);
 
