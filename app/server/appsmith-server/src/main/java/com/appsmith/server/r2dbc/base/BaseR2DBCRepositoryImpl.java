@@ -1,5 +1,6 @@
 package com.appsmith.server.r2dbc.base;
 
+import org.springframework.data.r2dbc.convert.MappingR2dbcConverter;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.repository.support.SimpleR2dbcRepository;
@@ -26,6 +27,16 @@ public class BaseR2DBCRepositoryImpl<T, ID> extends SimpleR2dbcRepository<T, ID>
                 );
         this.template = template;
         this.domainType = domainType;
+    }
+
+    public BaseR2DBCRepositoryImpl(
+        MappingRelationalEntityInformation<T, ID> entityInformation,
+        R2dbcEntityTemplate entityOperations,
+        MappingR2dbcConverter converter
+    ) {
+        super(entityInformation, entityOperations, converter);
+        this.template = entityOperations;
+        this.domainType = entityInformation.getJavaType();
     }
 
     private static <T, ID> RelationalEntityInformation<T, ID> getEntityInformation(

@@ -2,10 +2,12 @@ package com.appsmith.server.configurations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.util.StringUtils;
@@ -19,6 +21,7 @@ import java.net.URISyntaxException;
  */
 @Configuration
 @Slf4j
+@Import(DataSourceAutoConfiguration.class)
 public class CommonDBConfig {
 
     @Value("${appsmith.db.url}")
