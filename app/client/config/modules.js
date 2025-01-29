@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const paths = require('./paths');
-const chalk = require('react-dev-utils/chalk');
-const resolve = require('resolve');
+const fs = require("fs");
+const path = require("path");
+const paths = require("./paths");
+const chalk = require("react-dev-utils/chalk");
+const resolve = require("resolve");
 
 /**
  * Get additional module paths based on the baseUrl of a compilerOptions object.
@@ -15,19 +15,19 @@ function getAdditionalModulePaths(options = {}) {
   const baseUrl = options.baseUrl;
 
   if (!baseUrl) {
-    return '';
+    return "";
   }
 
   const baseUrlResolved = path.resolve(paths.appPath, baseUrl);
 
   // We don't need to do anything if `baseUrl` is set to `node_modules`. This is
   // the default behavior.
-  if (path.relative(paths.appNodeModules, baseUrlResolved) === '') {
+  if (path.relative(paths.appNodeModules, baseUrlResolved) === "") {
     return null;
   }
 
   // Allow the user set the `baseUrl` to `appSrc`.
-  if (path.relative(paths.appSrc, baseUrlResolved) === '') {
+  if (path.relative(paths.appSrc, baseUrlResolved) === "") {
     return [paths.appSrc];
   }
 
@@ -36,7 +36,7 @@ function getAdditionalModulePaths(options = {}) {
   // not transpiled outside of `src`. We do allow importing them with the
   // absolute path (e.g. `src/Components/Button.js`) but we set that up with
   // an alias.
-  if (path.relative(paths.appPath, baseUrlResolved) === '') {
+  if (path.relative(paths.appPath, baseUrlResolved) === "") {
     return null;
   }
 
@@ -44,8 +44,8 @@ function getAdditionalModulePaths(options = {}) {
   throw new Error(
     chalk.red.bold(
       "Your project's `baseUrl` can only be set to `src` or `node_modules`." +
-        ' Create React App does not support other values at this time.'
-    )
+        " Create React App does not support other values at this time.",
+    ),
   );
 }
 
@@ -63,11 +63,12 @@ function getWebpackAliases(options = {}) {
 
   const baseUrlResolved = path.resolve(paths.appPath, baseUrl);
 
-  if (path.relative(paths.appPath, baseUrlResolved) === '') {
+  if (path.relative(paths.appPath, baseUrlResolved) === "") {
     return {
       src: paths.appSrc,
     };
   }
+  return {};
 }
 
 /**
@@ -84,9 +85,9 @@ function getJestAliases(options = {}) {
 
   const baseUrlResolved = path.resolve(paths.appPath, baseUrl);
 
-  if (path.relative(paths.appPath, baseUrlResolved) === '') {
+  if (path.relative(paths.appPath, baseUrlResolved) === "") {
     return {
-      '^src/(.*)$': '<rootDir>/src/$1',
+      "^src/(.*)$": "<rootDir>/src/$1",
     };
   }
 }
@@ -98,7 +99,7 @@ function getModules() {
 
   if (hasTsConfig && hasJsConfig) {
     throw new Error(
-      'You have both a tsconfig.json and a jsconfig.json. If you are using TypeScript please remove your jsconfig.json file.'
+      "You have both a tsconfig.json and a jsconfig.json. If you are using TypeScript please remove your jsconfig.json file.",
     );
   }
 
@@ -108,9 +109,11 @@ function getModules() {
   // TypeScript project and set up the config
   // based on tsconfig.json
   if (hasTsConfig) {
-    const ts = require(resolve.sync('typescript', {
-      basedir: paths.appNodeModules,
-    }));
+    const ts = require(
+      resolve.sync("typescript", {
+        basedir: paths.appNodeModules,
+      }),
+    );
     config = ts.readConfigFile(paths.appTsConfig, ts.sys.readFile).config;
     // Otherwise we'll check if there is jsconfig.json
     // for non TS projects.
