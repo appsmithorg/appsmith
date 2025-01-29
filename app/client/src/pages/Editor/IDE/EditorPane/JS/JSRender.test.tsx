@@ -159,6 +159,11 @@ describe("IDE Render: JS", () => {
 
       // Check if the Add new button is shown
       getByTestId("t--add-item");
+
+      // check bottom tabs
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
+      getByRole("tab", { name: /linter/i });
     });
 
     it("Renders JS routes in Split Screen", async () => {
@@ -206,6 +211,10 @@ describe("IDE Render: JS", () => {
 
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
+
+      // check bottom tabs
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
     });
 
     it("Renders JS add routes in Full Screen", () => {

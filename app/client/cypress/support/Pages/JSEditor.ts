@@ -78,6 +78,7 @@ export class JSEditor {
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
+  _editor = ".js-editor";
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
@@ -239,6 +240,12 @@ export class JSEditor {
     cy.contains("Rename").should("be.visible").click();
     cy.get(this._jsObjTxt).clear().type(renameVal, { force: true }).blur();
     PageLeftPane.assertPresence(renameVal);
+  }
+
+  public DeleteJSObjectFromContextMenu() {
+    cy.get(this.contextMenuTriggerLocator).click();
+    cy.contains("Delete").should("be.visible").click();
+    cy.contains("Are you sure?").should("be.visible").click();
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {

@@ -189,10 +189,10 @@ public class GitFileUtilsTest {
 
         Mockito.when(fileInterface.saveApplicationToGitRepo(
                         Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
-                .thenReturn(Mono.just(Path.of("orgId", "appId", "repoName")));
+                .thenReturn(Mono.just(Path.of("workspaceId", "appId", "repoName")));
 
         Mono<Path> resultMono = commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
-                Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
+                Path.of("workspaceId/appId/repoName"), validAppJson, "gitFileTest");
 
         StepVerifier.create(resultMono)
                 .assertNext(path -> {
@@ -246,7 +246,7 @@ public class GitFileUtilsTest {
 
         Mono<ApplicationJson> resultMono = commonGitFileUtils
                 .reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-                        "orgId", "appId", "repoName", "branch", ArtifactType.APPLICATION)
+                        "workspaceId", "appId", "repoName", "branch", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
