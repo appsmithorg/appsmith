@@ -480,11 +480,12 @@ function getApiAndQueryOptions(
 
   const apis: ActionDataState = actions.filter(
     (action: ActionData) =>
-      action.config.pluginType === PluginType.API ||
+      action.config.pluginType == PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE ||
       action.config.pluginType === PluginType.INTERNAL ||
-      action.config.pluginType === PluginType.AI,
+      action.config.pluginType === PluginType.AI ||
+      action.config.pluginType === PluginType.EXTERNAL_SAAS,
   );
 
   const queryOptions = actionList.find(
