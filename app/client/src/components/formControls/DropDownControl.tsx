@@ -176,11 +176,11 @@ function renderDropdown(
       let optionGroupType = defaultOptionGroupType;
       let groupConfig: DropDownGroupedOptionsInterface;
 
-      if (opt.hasOwnProperty("optionGroupType") && !!opt.optionGroupType) {
+      if (Object.hasOwn(opt, "optionGroupType") && !!opt.optionGroupType) {
         optionGroupType = opt.optionGroupType;
       }
 
-      if (optionGroupConfig.hasOwnProperty(optionGroupType)) {
+      if (Object.hasOwn(optionGroupConfig, optionGroupType)) {
         groupConfig = optionGroupConfig[optionGroupType];
       } else {
         // if optionGroupType is not defined in optionGroupConfig
