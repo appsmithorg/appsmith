@@ -7081,6 +7081,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-dnd/asap@npm:^4.0.0":
+  version: 4.0.1
+  resolution: "@react-dnd/asap@npm:4.0.1"
+  checksum: 757db3b5c436a95383b74f187f503321092909401ce9665d9cc1999308a44de22809bf8dbe82c9126bd73b72dd6665bbc4a788e864fc3c243c59f65057a4f87f
+  languageName: node
+  linkType: hard
+
+"@react-dnd/invariant@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@react-dnd/invariant@npm:2.0.0"
+  checksum: ef1e989920d70b15c80dccb01af9b598081d76993311aa22d2e9a3ec41d10a88540eeec4b4de7a8b2a2ea52dfc3495ab45e39192c2d27795a9258bd6b79d000e
+  languageName: node
+  linkType: hard
+
+"@react-dnd/shallowequal@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@react-dnd/shallowequal@npm:2.0.0"
+  checksum: b5bbdc795d65945bb7ba2322bed5cf8d4c6fe91dced98c3b10e3d16822c438f558751135ff296f8d1aa1eaa9d0037dacab2b522ca5eb812175123b9996966dcb
+  languageName: node
+  linkType: hard
+
 "@react-spectrum/utils@npm:^3.11.10, @react-spectrum/utils@npm:^3.9.0":
   version: 3.11.10
   resolution: "@react-spectrum/utils@npm:3.11.10"
@@ -10319,13 +10340,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/asap@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@types/asap@npm:2.0.0"
-  checksum: e68d3dc87c0157533d69bab0204edeb5c56328f257ba24e970e6efcd7feabb6f37f17e376cf90e3ffd453a0adad10eaa5fcd6ecc07af5738466abea8bf9d9974
-  languageName: node
-  linkType: hard
-
 "@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.18.0, @types/babel__core@npm:^7.20.5":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -10692,7 +10706,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.0, @types/hoist-non-react-statics@npm:^3.3.1":
+"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
   dependencies:
@@ -10735,13 +10749,6 @@ __metadata:
     "@types/through": "*"
     rxjs: ^7.2.0
   checksum: 5362d0b1cbec3887c9d5a671a0b19c58cf54066456c8967dd7ee799dfcc242cc8cd8959440c0f2fe7768becaf721b45fd30c222e6b9bcca378f45c68af43bab5
-  languageName: node
-  linkType: hard
-
-"@types/invariant@npm:^2.2.30":
-  version: 2.2.34
-  resolution: "@types/invariant@npm:2.2.34"
-  checksum: 2dedddf5dcf70b484220b29ee0eb76b31d1501c54e0bdd787415e37be817b0358bdd66a7dd9e959af80262f8374e02c427459db8a407061406b412fd24cb32e5
   languageName: node
   linkType: hard
 
@@ -11315,10 +11322,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/shallowequal@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@types/shallowequal@npm:1.1.1"
-  checksum: ed724c42d61b42e52306dfeb8c1af913a97f616a2098831a3f0801db3d391f00470dfe47f76fb213a087e4277dbf80857098aa2e56acb700f156befe06f6431f
+"@types/shallowequal@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "@types/shallowequal@npm:1.1.5"
+  checksum: 9f7dde131fa006623836b4204ccb68154ae6d2a91f908c00f52f138f7fdcd198e471489f649d2f34d788fb82e717ac16b773dac280e1ab44a927f14b12f67f6c
   languageName: node
   linkType: hard
 
@@ -13011,6 +13018,7 @@ __metadata:
     "@types/react-window": ^1.8.2
     "@types/redux-form": ^8.1.9
     "@types/redux-mock-store": ^1.0.2
+    "@types/shallowequal": ^1.1.5
     "@types/showdown": ^1.9.4
     "@types/styled-components": ^5.1.26
     "@types/tern": 0.22.0
@@ -13182,8 +13190,8 @@ __metadata:
     react-custom-scrollbars: ^4.2.1
     react-dev-utils: ^12.0.1
     react-device-detect: ^2.2.2
-    react-dnd: ^9.3.4
-    react-dnd-html5-backend: ^9.3.4
+    react-dnd: ^14.0.5
+    react-dnd-html5-backend: ^14.1.0
     react-documents: ^1.0.4
     react-dom: ^17.0.2
     react-full-screen: ^1.1.0
@@ -13490,7 +13498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asap@npm:^2.0.0, asap@npm:^2.0.6, asap@npm:~2.0.3, asap@npm:~2.0.6":
+"asap@npm:^2.0.0, asap@npm:~2.0.3, asap@npm:~2.0.6":
   version: 2.0.6
   resolution: "asap@npm:2.0.6"
   checksum: b296c92c4b969e973260e47523207cd5769abd27c245a68c26dc7a0fe8053c55bb04360237cb51cab1df52be939da77150ace99ad331fb7fb13b3423ed73ff3d
@@ -17099,16 +17107,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dnd-core@npm:^9.5.1":
-  version: 9.5.1
-  resolution: "dnd-core@npm:9.5.1"
+"dnd-core@npm:14.0.1":
+  version: 14.0.1
+  resolution: "dnd-core@npm:14.0.1"
   dependencies:
-    "@types/asap": ^2.0.0
-    "@types/invariant": ^2.2.30
-    asap: ^2.0.6
-    invariant: ^2.2.4
-    redux: ^4.0.4
-  checksum: 6c4f593f033d1aced6b1a8daecdc2a277e82c7f55cb4cae945d9c14e1337134f3404225961ff45cbd5afea3f410ae4f7556861872ef322b71d90ae2a122b4b6c
+    "@react-dnd/asap": ^4.0.0
+    "@react-dnd/invariant": ^2.0.0
+    redux: ^4.1.1
+  checksum: dbc50727f53baad1cb1e0430a2a1b81c5c291389322f90fdc46edeb2fd49cc206ce4fa30a95afb53d88238945228e34866d7465f7ea49285c296baf883551301
   languageName: node
   linkType: hard
 
@@ -28406,28 +28412,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dnd-html5-backend@npm:^9.3.4":
-  version: 9.5.1
-  resolution: "react-dnd-html5-backend@npm:9.5.1"
+"react-dnd-html5-backend@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "react-dnd-html5-backend@npm:14.1.0"
   dependencies:
-    dnd-core: ^9.5.1
-  checksum: c512c961913d30d8290595d8d54a306913f4ddc1a6d7a0ac55ff16616b57ebbf85230dbc4839937ee25dcffbf88266d3e1899271df3272f365d32821dc22d6a2
+    dnd-core: 14.0.1
+  checksum: 6aa8d62c6b2288893b3f216d476d2f84495b40d33578ba9e3a5051dc093a71dc59700e6927ed7ac596ff8d7aa3b3f29404f7d173f844bd6144ed633403dd8e96
   languageName: node
   linkType: hard
 
-"react-dnd@npm:^9.3.4":
-  version: 9.5.1
-  resolution: "react-dnd@npm:9.5.1"
+"react-dnd@npm:^14.0.5":
+  version: 14.0.5
+  resolution: "react-dnd@npm:14.0.5"
   dependencies:
-    "@types/hoist-non-react-statics": ^3.3.1
-    "@types/shallowequal": ^1.1.1
-    dnd-core: ^9.5.1
-    hoist-non-react-statics: ^3.3.0
-    shallowequal: ^1.1.0
+    "@react-dnd/invariant": ^2.0.0
+    "@react-dnd/shallowequal": ^2.0.0
+    dnd-core: 14.0.1
+    fast-deep-equal: ^3.1.3
+    hoist-non-react-statics: ^3.3.2
   peerDependencies:
-    react: ">= 16.8"
-    react-dom: ">= 16.8"
-  checksum: 05bb3acdc3cd64f79182a6f51c1e8a13bbc02939ee3ac28cd0f98eab4b861819467284fd39e11d37ce75a061a397a755f945cd23ba5e5ff10d805be895eb36d6
+    "@types/hoist-non-react-statics": ">= 3.3.1"
+    "@types/node": ">= 12"
+    "@types/react": ">= 16"
+    react: ">= 16.14"
+  peerDependenciesMeta:
+    "@types/hoist-non-react-statics":
+      optional: true
+    "@types/node":
+      optional: true
+    "@types/react":
+      optional: true
+  checksum: 464e231de8c2b79546049a1600b67b1df0b7f762f23c688d3e9aeddbf334b1e64931ef91d0129df3c8be255f0af76e89426729dbcbefe4bdc09b0f665d2da368
   languageName: node
   linkType: hard
 
@@ -29373,13 +29388,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:^3.6.0 || ^4.0.0, redux@npm:^4.0.0, redux@npm:^4.0.1, redux@npm:^4.0.4, redux@npm:^4.0.5":
-  version: 4.0.5
-  resolution: "redux@npm:4.0.5"
+"redux@npm:^3.6.0 || ^4.0.0, redux@npm:^4.0.0, redux@npm:^4.0.1, redux@npm:^4.0.4, redux@npm:^4.0.5, redux@npm:^4.1.1":
+  version: 4.2.1
+  resolution: "redux@npm:4.2.1"
   dependencies:
-    loose-envify: ^1.4.0
-    symbol-observable: ^1.2.0
-  checksum: 23689ba4318bfffd4517c8c8d49c5e9a7df1b864b3cf4a4784e10060652e28054586a4a64053d1252ae5f105da61cda03fe01a422b05a053c8604b1be1689d16
+    "@babel/runtime": ^7.9.2
+  checksum: f63b9060c3a1d930ae775252bb6e579b42415aee7a23c4114e21a0b4ba7ec12f0ec76936c00f546893f06e139819f0e2855e0d55ebfce34ca9c026241a6950dd
   languageName: node
   linkType: hard
 
@@ -31762,13 +31776,6 @@ __metadata:
   bin:
     svgo: ./bin/svgo
   checksum: 42168748a5586d85d447bec2867bc19814a4897f973ff023e6aad4ff19ba7408be37cf3736e982bb78e3f1e52df8785da5dca77a8ebc64c0ebd6fcf9915d2895
-  languageName: node
-  linkType: hard
-
-"symbol-observable@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "symbol-observable@npm:1.2.0"
-  checksum: 48ffbc22e3d75f9853b3ff2ae94a44d84f386415110aea5effc24d84c502e03a4a6b7a8f75ebaf7b585780bda34eb5d6da3121f826a6f93398429d30032971b6
   languageName: node
   linkType: hard
 

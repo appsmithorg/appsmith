@@ -351,6 +351,8 @@ module.exports = function (webpackEnv) {
       extensions: paths.moduleFileExtensions
         .map((ext) => `.${ext}`)
         .filter((ext) => useTypeScript || !ext.includes("ts")),
+      extensionAlias: { ".js": [".js", ".ts", ".tsx", ".jsx"] },
+      fullySpecified: false,
       alias: {
         // Support React Native Web
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -370,6 +372,7 @@ module.exports = function (webpackEnv) {
         fs: false,
         os: false,
         path: false,
+        "react/jsx-runtime": require.resolve("react/jsx-runtime"),
       },
       plugins: [
         // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -377,14 +380,17 @@ module.exports = function (webpackEnv) {
         // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
-        new ModuleScopePlugin(paths.appSrc, [
-          paths.appPackageJson,
-          reactRefreshRuntimeEntry,
-          reactRefreshWebpackPluginRuntimeEntry,
-          babelRuntimeEntry,
-          babelRuntimeEntryHelpers,
-          babelRuntimeRegenerator,
-        ]),
+        new ModuleScopePlugin(
+          [paths.appSrc, path.resolve(paths.appPath, "packages")],
+          [
+            paths.appPackageJson,
+            reactRefreshRuntimeEntry,
+            reactRefreshWebpackPluginRuntimeEntry,
+            babelRuntimeEntry,
+            babelRuntimeEntryHelpers,
+            babelRuntimeRegenerator,
+          ],
+        ),
       ],
     },
     module: {
@@ -456,7 +462,7 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: paths.appSrc,
+              include: [path.resolve("packages"), paths.appSrc],
               loader: require.resolve("babel-loader"),
               options: {
                 customize: require.resolve(
@@ -471,11 +477,11 @@ module.exports = function (webpackEnv) {
                   ],
                 ],
 
-                plugins: [
-                  isEnvDevelopment &&
-                    shouldUseReactRefresh &&
-                    require.resolve("react-refresh/babel"),
-                ].filter(Boolean),
+                // plugins: [
+                //   isEnvDevelopment &&
+                //     shouldUseReactRefresh &&
+                //     require.resolve("react-refresh/babel"),
+                // ].filter(Boolean),
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
@@ -541,16 +547,39 @@ module.exports = function (webpackEnv) {
             // using the extension .module.css
             {
               test: cssModuleRegex,
-              use: getStyleLoaders({
-                importLoaders: 1,
-                sourceMap: isEnvProduction
-                  ? shouldUseSourceMap
-                  : isEnvDevelopment,
-                modules: {
-                  mode: "local",
-                  getLocalIdent: getCSSModuleLocalIdent,
+              use: [
+                ...getStyleLoaders({
+                  importLoaders: 1,
+                  sourceMap: isEnvProduction
+                    ? shouldUseSourceMap
+                    : isEnvDevelopment,
+                  modules: {
+                    mode: "local",
+                    getLocalIdent: getCSSModuleLocalIdent,
+                  },
+                }),
+                {
+                  loader: "postcss-loader",
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        "postcss-nesting",
+                        "postcss-import",
+                        "postcss-at-rules-variables",
+                        "postcss-each",
+                        "postcss-url",
+                        "postcss-modules-values",
+                        [
+                          "cssnano",
+                          {
+                            preset: ["default"],
+                          },
+                        ],
+                      ],
+                    },
+                  },
                 },
-              }),
+              ],
             },
             // Opt-in support for SASS (using .scss or .sass extensions).
             // By default we support SASS Modules with the
@@ -613,6 +642,23 @@ module.exports = function (webpackEnv) {
         },
       ].filter(Boolean),
     },
+    ignoreWarnings: [
+      function ignoreSourcemapsloaderWarnings(warning) {
+        return (
+          (warning.module?.resource.includes("node_modules") &&
+            warning.details?.includes("source-map-loader")) ??
+          false
+        );
+      },
+      function ignorePackageWarnings(warning) {
+        return (
+          warning.module?.resource.includes(
+            "/node_modules/@babel/standalone/babel.js",
+          ) ||
+          warning.module?.resource.includes("/node_modules/sass/sass.dart.js")
+        );
+      },
+    ],
     plugins: [
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
