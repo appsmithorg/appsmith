@@ -15,7 +15,10 @@ public class UsagePulse extends BaseDomain {
     // Hashed user email
     private String user;
     private String instanceId;
-    private String tenantId;
+    private String organizationId;
     private Boolean viewMode;
     private Boolean isAnonymousUser;
+
+    @Deprecated
+    private String tenantId;
 }

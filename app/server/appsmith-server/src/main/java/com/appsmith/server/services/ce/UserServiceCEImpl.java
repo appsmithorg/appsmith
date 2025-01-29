@@ -7,9 +7,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -31,9 +31,9 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import jakarta.validation.Validator;
@@ -77,7 +77,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
-import static com.appsmith.server.constants.FieldName.TENANT;
+import static com.appsmith.server.constants.FieldName.ORGANIZATION;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -97,7 +97,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final CommonConfig commonConfig;
     private final UserDataService userDataService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
@@ -128,7 +128,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
@@ -143,7 +143,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordEncoder = passwordEncoder;
         this.commonConfig = commonConfig;
         this.userDataService = userDataService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.userUtils = userUtils;
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
@@ -154,7 +154,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return tenantService.getDefaultTenantId().flatMap(tenantId -> findByEmailAndTenantId(email, tenantId));
+        return organizationService
+                .getDefaultOrganizationId()
+                .flatMap(organizationId -> findByEmailAndTenantId(email, organizationId));
     }
 
     @Override
@@ -305,9 +307,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
-        Mono<Tenant> tenantMono = tenantService
-                .getDefaultTenant()
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
+        Mono<Organization> organizationMono = organizationService
+                .getDefaultOrganization()
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
 
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
@@ -325,13 +328,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
-                        .zipWith(tenantMono)
+                        .zipWith(organizationMono)
                         .flatMap(tuple -> {
                             User userFromDb = tuple.getT1();
-                            TenantConfiguration tenantConfiguration =
-                                    tuple.getT2().getTenantConfiguration();
-                            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
-                                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+                            OrganizationConfiguration organizationConfiguration =
+                                    tuple.getT2().getOrganizationConfiguration();
+                            boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
+                                    && Boolean.TRUE.equals(
+                                            organizationConfiguration.getIsStrongPasswordPolicyEnabled());
 
                             if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
                                 return isStrongPasswordPolicyEnabled
@@ -397,8 +401,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
             if (userBeforeSave.getTenantId() == null) {
-                return tenantService.getDefaultTenantId().map(tenantId -> {
-                    userBeforeSave.setTenantId(tenantId);
+                return organizationService.getDefaultOrganizationId().map(organizationId -> {
+                    userBeforeSave.setTenantId(organizationId);
                     return userBeforeSave;
                 });
             }
@@ -743,13 +747,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     if (TRUE.equals(user.getEmailVerified())) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
                     }
-                    return tenantService.getTenantConfiguration().flatMap(tenant -> {
+                    return organizationService.getOrganizationConfiguration().flatMap(organization -> {
                         Boolean emailVerificationEnabled =
-                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
-                        // Email verification not enabled at tenant
+                                organization.getOrganizationConfiguration().isEmailVerificationEnabled();
+                        // Email verification not enabled at organization level
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
-                                    new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
+                                    new AppsmithException(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED));
                         }
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())

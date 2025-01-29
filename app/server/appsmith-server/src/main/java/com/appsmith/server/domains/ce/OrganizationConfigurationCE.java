@@ -5,7 +5,7 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class TenantConfigurationCE implements Serializable {
+public class OrganizationConfigurationCE implements Serializable {
 
     private String googleMapsKey;
 
@@ -63,24 +63,25 @@ public class TenantConfigurationCE implements Serializable {
         thirdPartyAuths.add(auth);
     }
 
-    public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
+    public void copyNonSensitiveValues(OrganizationConfiguration organizationConfiguration) {
         license = new License();
         license.setPlan(LicensePlan.FREE);
 
-        if (tenantConfiguration == null) {
+        if (organizationConfiguration == null) {
             return;
         }
 
-        googleMapsKey = ObjectUtils.defaultIfNull(tenantConfiguration.getGoogleMapsKey(), googleMapsKey);
-        isFormLoginEnabled = ObjectUtils.defaultIfNull(tenantConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
-        instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
-        emailVerificationEnabled =
-                ObjectUtils.defaultIfNull(tenantConfiguration.isEmailVerificationEnabled(), emailVerificationEnabled);
+        googleMapsKey = ObjectUtils.defaultIfNull(organizationConfiguration.getGoogleMapsKey(), googleMapsKey);
+        isFormLoginEnabled =
+                ObjectUtils.defaultIfNull(organizationConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
+        instanceName = ObjectUtils.defaultIfNull(organizationConfiguration.getInstanceName(), instanceName);
+        emailVerificationEnabled = ObjectUtils.defaultIfNull(
+                organizationConfiguration.isEmailVerificationEnabled(), emailVerificationEnabled);
 
-        featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
-        migrationStatus = tenantConfiguration.getMigrationStatus();
-        isStrongPasswordPolicyEnabled = tenantConfiguration.getIsStrongPasswordPolicyEnabled();
-        isAtomicPushAllowed = tenantConfiguration.getIsAtomicPushAllowed();
+        featuresWithPendingMigration = organizationConfiguration.getFeaturesWithPendingMigration();
+        migrationStatus = organizationConfiguration.getMigrationStatus();
+        isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
+        isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
     }
 
     public Boolean isEmailVerificationEnabled() {

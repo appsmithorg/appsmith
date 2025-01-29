@@ -447,8 +447,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
         Mono<User> userMono = Mono.just(user);
         if (user.getTenantId() == null) {
-            userMono = cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
-                user.setTenantId(tenantId);
+            userMono = cacheableRepositoryHelper.getDefaultOrganizationId().map(organizationId -> {
+                user.setTenantId(organizationId);
                 return user;
             });
         }
@@ -478,7 +478,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
         Mono<User> userMono = Mono.just(user);
         if (user.getTenantId() == null) {
-            userMono = cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
+            userMono = cacheableRepositoryHelper.getDefaultOrganizationId().map(tenantId -> {
                 user.setTenantId(tenantId);
                 return user;
             });

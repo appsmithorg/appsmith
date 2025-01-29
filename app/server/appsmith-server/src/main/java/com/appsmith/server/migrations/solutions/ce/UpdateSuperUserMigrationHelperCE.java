@@ -3,8 +3,8 @@ package com.appsmith.server.migrations.solutions.ce;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -24,7 +24,7 @@ public class UpdateSuperUserMigrationHelperCE {
             User user,
             PermissionGroup userManagementRole,
             PermissionGroup instanceAdminRole,
-            Tenant tenant,
+            Organization organization,
             PolicySolution policySolution,
             PolicyGenerator policyGenerator) {
         Policy readUserPolicy = Policy.builder()
@@ -45,7 +45,7 @@ public class UpdateSuperUserMigrationHelperCE {
 
     public User createNewUser(
             String email,
-            Tenant tenant,
+            Organization organization,
             PermissionGroup instanceAdminRole,
             MongoTemplate mongoTemplate,
             PolicySolution policySolution,
@@ -53,14 +53,14 @@ public class UpdateSuperUserMigrationHelperCE {
         User user = new User();
         user.setEmail(email);
         user.setIsEnabled(false);
-        user.setTenantId(tenant.getId());
+        user.setTenantId(organization.getId());
         user.setCreatedAt(Instant.now());
         user = mongoTemplate.save(user);
 
         PermissionGroup userManagementPermissionGroup = createUserManagementPermissionGroup(mongoTemplate, user);
 
         Set<Policy> userPolicies = this.generateUserPolicy(
-                user, userManagementPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
+                user, userManagementPermissionGroup, instanceAdminRole, organization, policySolution, policyGenerator);
 
         user.setPolicies(userPolicies);
 

@@ -13,8 +13,8 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -42,9 +42,9 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConsolidatedAPIService;
 import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -96,7 +96,7 @@ public class ConsolidatedAPIServiceImplTest {
     UserDataService mockUserDataService;
 
     @MockBean
-    TenantService mockTenantService;
+    OrganizationService mockTenantService;
 
     @MockBean
     ProductAlertService mockProductAlertService;
@@ -163,9 +163,9 @@ public class ConsolidatedAPIServiceImplTest {
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -185,11 +185,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -223,9 +223,9 @@ public class ConsolidatedAPIServiceImplTest {
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -312,11 +312,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -412,9 +412,9 @@ public class ConsolidatedAPIServiceImplTest {
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -538,11 +538,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -731,9 +731,9 @@ public class ConsolidatedAPIServiceImplTest {
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -760,11 +760,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -903,9 +903,9 @@ public class ConsolidatedAPIServiceImplTest {
         sampleFeatureFlagMap.put("sampleFeatureFlag", true);
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -992,11 +992,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -1095,9 +1095,9 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockUserDataService.updateLastUsedResourceAndWorkspaceList(any(), any(), any()))
                 .thenReturn(Mono.just(new UserData()));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -1250,11 +1250,11 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
-                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertNotNull(consolidatedAPIResponseDTO.getOrganizationConfig());
                     assertEquals(
-                            "sampleTenant",
+                            "sampleOrganization",
                             consolidatedAPIResponseDTO
-                                    .getTenantConfig()
+                                    .getOrganizationConfig()
                                     .getData()
                                     .getDisplayName());
 
@@ -1441,9 +1441,9 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockUserDataService.updateLastUsedResourceAndWorkspaceList(any(), any(), any()))
                 .thenReturn(Mono.just(new UserData()));
 
-        Tenant sampleTenant = new Tenant();
-        sampleTenant.setDisplayName("sampleTenant");
-        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");

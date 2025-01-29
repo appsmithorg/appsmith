@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
@@ -88,10 +88,13 @@ public class Migration059PolicySetToPolicyMap {
 
         // Evict the default tenant from the cache to ensure that the updated tenant object is fetched from the database
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class).block();
-        assert defaultTenant != null : "Default tenant not found";
-        cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
+        tenantQuery.addCriteria(where(Organization.Fields.slug).is(DEFAULT));
+        Organization defaultOrganization =
+                mongoTemplate.findOne(tenantQuery, Organization.class).block();
+        assert defaultOrganization != null : "Default tenant not found";
+        cacheableRepositoryHelper
+                .evictCachedOrganization(defaultOrganization.getId())
+                .block();
     }
 
     private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {

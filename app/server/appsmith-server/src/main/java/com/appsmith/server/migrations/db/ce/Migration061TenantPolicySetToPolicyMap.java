@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import io.mongock.api.annotations.ChangeUnit;
@@ -36,23 +36,25 @@ public class Migration061TenantPolicySetToPolicyMap {
     public void executeMigration() {
         // Fetch default tenant and verify earlier migration has updated the policyMap field
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-        if (defaultTenant == null) {
+        tenantQuery.addCriteria(where(Organization.Fields.slug).is(DEFAULT));
+        Organization defaultOrganization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        if (defaultOrganization == null) {
             log.error(
                     "No default tenant found. Aborting migration to update policy set to map in tenant Migration061TenantPolicySetToPolicyMap.");
             return;
         }
         // Evict the tenant to avoid any cache inconsistencies
-        if (CollectionUtils.isNullOrEmpty(defaultTenant.getPolicyMap())) {
+        if (CollectionUtils.isNullOrEmpty(defaultOrganization.getPolicyMap())) {
             Map<String, Policy> policyMap = new HashMap<>();
-            defaultTenant.getPolicies().forEach(policy -> policyMap.put(policy.getPermission(), policy));
-            defaultTenant.setPolicyMap(policyMap);
-            mongoTemplate.save(defaultTenant);
-            cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
+            defaultOrganization.getPolicies().forEach(policy -> policyMap.put(policy.getPermission(), policy));
+            defaultOrganization.setPolicyMap(policyMap);
+            mongoTemplate.save(defaultOrganization);
+            cacheableRepositoryHelper
+                    .evictCachedOrganization(defaultOrganization.getId())
+                    .block();
         } else {
             log.info(
-                    "Tenant already has policyMap set. Skipping migration to update policy set to map in tenant Migration061TenantPolicySetToPolicyMap.");
+                    "Organization already has policyMap set. Skipping migration to update policy set to map in tenant Migration061TenantPolicySetToPolicyMap.");
         }
     }
 }

@@ -71,7 +71,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                             log.debug(
                                     "License verification completed with status: {}",
                                     TRUE.equals(isValid) ? "valid" : "invalid");
-                            return instanceConfigHelper.updateCacheForTenantFeatureFlags();
+                            return instanceConfigHelper.updateCacheForOrganizationFeatureFlags();
                         }));
 
         try {

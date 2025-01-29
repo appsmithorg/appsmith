@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -32,19 +32,19 @@ public class Migration003AddInstanceNameToTenantConfiguration {
     @Execution
     public void addInstanceNameEnvVarToTenantConfiguration() {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
-        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
+        tenantQuery.addCriteria(where(Organization.Fields.slug).is(DEFAULT));
+        Organization defaultOrganization = mongoTemplate.findOne(tenantQuery, Organization.class);
 
         // Using default name as Appsmith here.
         String instanceName = StringUtils.defaultIfEmpty(
                 System.getenv(String.valueOf(APPSMITH_INSTANCE_NAME)), DEFAULT_INSTANCE_NAME);
 
-        TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
-        if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {
-            defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        OrganizationConfiguration defaultTenantConfiguration = new OrganizationConfiguration();
+        if (Objects.nonNull(defaultOrganization.getOrganizationConfiguration())) {
+            defaultTenantConfiguration = defaultOrganization.getOrganizationConfiguration();
         }
         defaultTenantConfiguration.setInstanceName(instanceName);
-        defaultTenant.setTenantConfiguration(defaultTenantConfiguration);
-        mongoTemplate.save(defaultTenant);
+        defaultOrganization.setOrganizationConfiguration(defaultTenantConfiguration);
+        mongoTemplate.save(defaultOrganization);
     }
 }

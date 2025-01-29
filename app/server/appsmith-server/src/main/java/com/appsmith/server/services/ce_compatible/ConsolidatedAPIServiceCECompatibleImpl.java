@@ -10,9 +10,9 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.ce.ConsolidatedAPIServiceCEImpl;
@@ -25,7 +25,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             SessionUserService sessionUserService,
             UserService userService,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ProductAlertService productAlertService,
             NewPageService newPageService,
             NewActionService newActionService,
@@ -43,7 +43,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 sessionUserService,
                 userService,
                 userDataService,
-                tenantService,
+                organizationService,
                 productAlertService,
                 newPageService,
                 newActionService,

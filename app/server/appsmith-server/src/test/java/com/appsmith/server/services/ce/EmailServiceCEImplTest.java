@@ -5,7 +5,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.doAnswer;
 class EmailServiceCEImplTest {
 
     @Autowired
-    TenantService tenantService;
+    OrganizationService tenantService;
 
     @SpyBean
     EmailSender mockEmailSender;

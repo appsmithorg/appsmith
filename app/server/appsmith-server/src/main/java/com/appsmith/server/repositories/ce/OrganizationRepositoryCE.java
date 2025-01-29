@@ -1,11 +1,11 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.BaseRepository;
 import reactor.core.publisher.Mono;
 
-public interface TenantRepositoryCE extends BaseRepository<Tenant, String>, CustomTenantRepositoryCE {
+public interface OrganizationRepositoryCE extends BaseRepository<Organization, String>, CustomOrganizationRepositoryCE {
     // Use tenantService.getDefaultTenant() instead of this method as it is cached to redis.
     @Deprecated(forRemoval = true)
-    Mono<Tenant> findBySlug(String slug);
+    Mono<Organization> findBySlug(String slug);
 }

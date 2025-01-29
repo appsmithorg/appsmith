@@ -10,9 +10,9 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +38,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             PermissionGroupService permissionGroupService,
             ConfigService configService,
             UserUtils userUtils,
-            TenantService tenantService,
+            OrganizationService tenantService,
             ObjectMapper objectMapper,
             EmailService emailService) {
 

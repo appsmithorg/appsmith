@@ -13,9 +13,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
@@ -50,7 +50,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final UserRepository userRepository;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
-    private final TenantService tenantService;
+    private final OrganizationService tenantService;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
 
@@ -61,7 +61,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             UserRepository userRepository,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
-            TenantService tenantService,
+            OrganizationService tenantService,
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
@@ -148,7 +148,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get the user
         Mono<User> userMono = tenantService
-                .getDefaultTenantId()
+                .getDefaultOrganizationId()
                 .flatMap(tenantId -> userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), tenantId))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))

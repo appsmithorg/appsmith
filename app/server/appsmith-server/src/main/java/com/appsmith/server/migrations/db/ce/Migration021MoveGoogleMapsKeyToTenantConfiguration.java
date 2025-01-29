@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -37,7 +37,7 @@ public class Migration021MoveGoogleMapsKeyToTenantConfiguration {
             mongoTemplate.updateFirst(
                     new Query(where("slug").is("default")),
                     new Update().set("tenantConfiguration.googleMapsKey", mapsEnvValue),
-                    TenantConfiguration.class);
+                    OrganizationConfiguration.class);
             commentEnvInFile(envName, commonConfig.getEnvFilePath());
         }
     }

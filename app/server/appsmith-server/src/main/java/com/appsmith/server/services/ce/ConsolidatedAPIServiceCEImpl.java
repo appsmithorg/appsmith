@@ -26,9 +26,9 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -92,7 +92,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final ProductAlertService productAlertService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
@@ -186,11 +186,11 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         fetches.add(featureFlagsForCurrentUserResponseDTOMonoCache);
 
         /* Get tenant config data */
-        fetches.add(tenantService
-                .getTenantConfiguration()
+        fetches.add(organizationService
+                .getOrganizationConfiguration()
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching tenant config", e))
-                .doOnSuccess(consolidatedAPIResponseDTO::setTenantConfig)
+                .doOnSuccess(consolidatedAPIResponseDTO::setOrganizationConfig)
                 .name(getQualifiedSpanName(TENANT_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 

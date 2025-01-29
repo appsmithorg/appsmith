@@ -19,7 +19,7 @@ public class EqualityTest {
     private final Set<Class<?>> TESTED_CLASSES = Set.of(
             // Note: Adding a class here means that we have a test for its equality in this file.
             ApplicationDetail.class,
-            TenantConfiguration.class,
+            OrganizationConfiguration.class,
             Application.AppLayout.class,
             Application.EmbedSetting.class,
             GitArtifactMetadata.class);
@@ -51,11 +51,11 @@ public class EqualityTest {
 
     @Test
     void testTenantConfiguration() {
-        TenantConfiguration c1 = new TenantConfiguration();
+        OrganizationConfiguration c1 = new OrganizationConfiguration();
         c1.setEmailVerificationEnabled(true);
-        TenantConfiguration c2 = new TenantConfiguration();
+        OrganizationConfiguration c2 = new OrganizationConfiguration();
         c2.setEmailVerificationEnabled(true);
-        TenantConfiguration c3 = new TenantConfiguration();
+        OrganizationConfiguration c3 = new OrganizationConfiguration();
         c3.setEmailVerificationEnabled(false);
         assertThat(c1).isEqualTo(c2).isNotEqualTo(c3);
     }

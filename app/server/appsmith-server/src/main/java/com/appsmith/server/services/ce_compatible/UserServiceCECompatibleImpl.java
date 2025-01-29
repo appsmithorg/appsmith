@@ -9,9 +9,9 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
@@ -31,7 +31,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService tenantService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,

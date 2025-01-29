@@ -18,7 +18,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -54,7 +54,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourcePermission datasourcePermission;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final TenantService tenantService;
+    private final OrganizationService tenantService;
     private final FeatureFlagService featureFlagService;
 
     public Mono<TriggerResultDTO> trigger(
@@ -110,8 +110,10 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
-                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedTenantFeatureFlags() != null
-                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedOrganizationFeatureFlags() != null
+                            ? featureFlagService
+                                    .getCachedOrganizationFeatureFlags()
+                                    .getFeatures()
                             : Collections.emptyMap();
 
                     return datasourceContextService
@@ -165,10 +167,10 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private Mono<TriggerRequestDTO> populateTriggerRequestDto(
             TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
         return tenantService
-                .getDefaultTenantId()
+                .getDefaultOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
-                    triggerRequestDTO.setTenantId(tuple.getT1());
+                    triggerRequestDTO.setOrganizationId(tuple.getT1());
                     triggerRequestDTO.setInstanceId(tuple.getT2());
                     triggerRequestDTO.setWorkspaceId(datasource.getWorkspaceId());
                     return triggerRequestDTO;

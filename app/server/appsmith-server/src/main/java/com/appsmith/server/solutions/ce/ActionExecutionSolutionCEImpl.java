@@ -46,8 +46,8 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -121,7 +121,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final TenantService tenantService;
+    private final OrganizationService tenantService;
     private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
     private final FeatureFlagService featureFlagService;
@@ -151,7 +151,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService,
+            OrganizationService tenantService,
             CommonConfig commonConfig,
             ActionExecutionSolutionHelper actionExecutionSolutionHelper,
             FeatureFlagService featureFlagService) {
@@ -252,7 +252,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
+        Mono<String> defaultTenantIdMono = tenantService.getDefaultOrganizationId();
 
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
@@ -272,7 +272,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 newAction.getUnpublishedAction().getDatasource().getId());
                     }
                     populatedExecuteActionDTO.setInstanceId(instanceId);
-                    populatedExecuteActionDTO.setTenantId(tenantId);
+                    populatedExecuteActionDTO.setOrganizationId(tenantId);
                     return populatedExecuteActionDTO;
                 }));
     }
@@ -731,8 +731,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features = featureFlagService.getCachedTenantFeatureFlags() != null
-                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
+                            ? featureFlagService
+                                    .getCachedOrganizationFeatureFlags()
+                                    .getFeatures()
                             : Collections.emptyMap();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag

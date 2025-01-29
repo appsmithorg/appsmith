@@ -2,10 +2,10 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,11 +19,11 @@ import java.util.Map;
 
 @Slf4j
 @RequestMapping(Url.TENANT_URL)
-public class TenantControllerCE {
+public class OrganizationControllerCE {
 
-    private final TenantService service;
+    private final OrganizationService service;
 
-    public TenantControllerCE(TenantService service) {
+    public OrganizationControllerCE(OrganizationService service) {
         this.service = service;
     }
 
@@ -38,15 +38,16 @@ public class TenantControllerCE {
      */
     @JsonView(Views.Public.class)
     @GetMapping("/current")
-    public Mono<ResponseDTO<Tenant>> getTenantConfig() {
-        log.debug("Attempting to retrieve tenant configuration ... ");
-        return service.getTenantConfiguration()
+    public Mono<ResponseDTO<Organization>> getOrganizationConfig() {
+        log.debug("Attempting to retrieve organization configuration ... ");
+        return service.getOrganizationConfiguration()
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
     @PutMapping("")
-    public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
-        return service.updateDefaultTenantConfiguration(tenantConfiguration)
+    public Mono<ResponseDTO<Organization>> updateOrganizationConfiguration(
+            @RequestBody OrganizationConfiguration organizationConfiguration) {
+        return service.updateDefaultOrganizationConfiguration(organizationConfiguration)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 }

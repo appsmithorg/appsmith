@@ -2,16 +2,16 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.PolicySolution;
@@ -40,7 +40,7 @@ public class SeedMongoData {
             UserRepository userRepository,
             WorkspaceRepository workspaceRepository,
             PluginRepository pluginRepository,
-            TenantRepository tenantRepository,
+            OrganizationRepository tenantRepository,
             PermissionGroupRepository permissionGroupRepository,
             PolicySolution policySolution) {
 
@@ -117,15 +117,15 @@ public class SeedMongoData {
                 })
                 .flatMap(pluginRepository::save);
 
-        Tenant defaultTenant = new Tenant();
-        defaultTenant.setDisplayName("Default");
-        defaultTenant.setSlug("default");
-        defaultTenant.setPricingPlan(PricingPlan.FREE);
+        Organization defaultOrganization = new Organization();
+        defaultOrganization.setDisplayName("Default");
+        defaultOrganization.setSlug("default");
+        defaultOrganization.setPricingPlan(PricingPlan.FREE);
 
         Mono<String> defaultTenantId = tenantRepository
                 .findBySlug("default")
-                .switchIfEmpty(tenantRepository.save(defaultTenant))
-                .map(Tenant::getId)
+                .switchIfEmpty(tenantRepository.save(defaultOrganization))
+                .map(Organization::getId)
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)

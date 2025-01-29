@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class Tenant extends BaseDomain implements Serializable {
+public class Organization extends BaseDomain implements Serializable {
 
     @Unique String slug;
 
@@ -32,7 +32,7 @@ public class Tenant extends BaseDomain implements Serializable {
 
     PricingPlan pricingPlan;
 
-    TenantConfiguration tenantConfiguration;
+    OrganizationConfiguration organizationConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration
 }

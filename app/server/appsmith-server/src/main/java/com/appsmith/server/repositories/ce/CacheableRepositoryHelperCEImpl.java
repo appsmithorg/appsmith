@@ -4,9 +4,9 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_FROM_DB_SPAN;
+import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_ORGANIZATION_FROM_DB_SPAN;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
@@ -127,27 +127,28 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return Mono.error(new AppsmithException(AppsmithError.SERVER_NOT_READY));
     }
 
-    @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #tenantId}")
+    @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #organizationId}")
     @Override
-    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
+    public Mono<Void> evictPermissionGroupsUser(String email, String organizationId) {
         return Mono.empty();
     }
 
     @Override
-    public Mono<String> getDefaultTenantId() {
-        String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
-        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
-            return Mono.just(defaultTenantId);
+    public Mono<String> getDefaultOrganizationId() {
+        String defaultOrganizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
+        if (defaultOrganizationId != null && !defaultOrganizationId.isEmpty()) {
+            return Mono.just(defaultOrganizationId);
         }
 
-        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+        BridgeQuery<Organization> defaultOrganizationCriteria =
+                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
         Query query = new Query();
-        query.addCriteria(defaultTenantCriteria);
+        query.addCriteria(defaultOrganizationCriteria);
 
-        return mongoOperations.findOne(query, Tenant.class).map(defaultTenant -> {
-            String newDefaultTenantId = defaultTenant.getId();
-            inMemoryCacheableRepositoryHelper.setDefaultTenantId(newDefaultTenantId);
-            return newDefaultTenantId;
+        return mongoOperations.findOne(query, Organization.class).map(defaultOrganization -> {
+            String newDefaultOrganizationId = defaultOrganization.getId();
+            inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
+            return newDefaultOrganizationId;
         });
     }
 
@@ -171,35 +172,36 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     }
 
     /**
-     * Returns the default tenant from the cache if present.
-     * If not present in cache, then it fetches the default tenant from the database and adds to redis.
-     * @param tenantId
+     * Returns the default organization from the cache if present.
+     * If not present in cache, then it fetches the default organization from the database and adds to redis.
+     * @param organizationId
      * @return
      */
-    @Cache(cacheName = "tenant", key = "{#tenantId}")
+    @Cache(cacheName = "tenant", key = "{#organizationId}")
     @Override
-    public Mono<Tenant> fetchDefaultTenant(String tenantId) {
-        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
-        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
-        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
+    public Mono<Organization> fetchDefaultOrganization(String organizationId) {
+        BridgeQuery<Organization> defaultOrganizationCriteria =
+                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
+        BridgeQuery<Organization> notDeletedCriteria = notDeleted();
+        BridgeQuery<Organization> andCriteria = Bridge.and(defaultOrganizationCriteria, notDeletedCriteria);
         Query query = new Query();
         query.addCriteria(andCriteria);
-        log.info("Fetching tenant from database as it couldn't be found in the cache!");
+        log.info("Fetching organization from database as it couldn't be found in the cache!");
         return mongoOperations
-                .findOne(query, Tenant.class)
-                .map(tenant -> {
-                    if (tenant.getTenantConfiguration() == null) {
-                        tenant.setTenantConfiguration(new TenantConfiguration());
+                .findOne(query, Organization.class)
+                .map(organization -> {
+                    if (organization.getOrganizationConfiguration() == null) {
+                        organization.setOrganizationConfiguration(new OrganizationConfiguration());
                     }
-                    return tenant;
+                    return organization;
                 })
-                .name(FETCH_TENANT_FROM_DB_SPAN)
+                .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
+    @CacheEvict(cacheName = "tenant", key = "{#organizationId}")
     @Override
-    public Mono<Void> evictCachedTenant(String tenantId) {
+    public Mono<Void> evictCachedOrganization(String organizationId) {
         return Mono.empty().then();
     }
 
