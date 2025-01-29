@@ -161,6 +161,12 @@ function renderDropdown(
     children: [],
   };
 
+  // For grouping, 2 components are needed
+  // 1) optionGroupConfig: used to render the label text and allows for future expansions
+  // related to UI of the group label
+  // 2) each option should mention a optionGroupType which will help to group the option inside
+  // the group. If not present or the type is not defined in the optionGroupConfig then it will be
+  // added to the default group mentioned above.
   if (
     !!props.optionGroupConfig &&
     typeof props.optionGroupConfig === "object"
@@ -177,6 +183,8 @@ function renderDropdown(
       if (optionGroupConfig.hasOwnProperty(optionGroupType)) {
         groupConfig = optionGroupConfig[optionGroupType];
       } else {
+        // if optionGroupType is not defined in optionGroupConfig
+        // use the default group config
         groupConfig = defaultOptionGroupConfig;
       }
 
@@ -186,6 +194,7 @@ function renderDropdown(
       groupConfig["children"] = groupChildren;
       optionGroupConfig[optionGroupType] = groupConfig;
     });
+
     groupedOptions = [];
     objectKeys(optionGroupConfig).forEach(
       (key) =>
