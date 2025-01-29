@@ -500,7 +500,7 @@ export function getCurrentEntityInfo(entity: FocusEntity) {
         segment: EditorEntityTab.UI,
         segmentMode: EditorEntityTabState.Add,
       };
-    case FocusEntity.PROPERTY_PANE:
+    case FocusEntity.WIDGET:
       return {
         segment: EditorEntityTab.UI,
         segmentMode: EditorEntityTabState.Edit,

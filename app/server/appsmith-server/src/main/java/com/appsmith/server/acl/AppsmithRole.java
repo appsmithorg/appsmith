@@ -28,7 +28,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTI
 
 @Getter
 public enum AppsmithRole {
-    ORGANIZATION_ADMIN(
+    WORKSPACE_ADMIN(
             ADMINISTRATOR,
             WORKSPACE_ADMINISTRATOR_DESCRIPTION,
             Set.of(
@@ -40,7 +40,7 @@ public enum AppsmithRole {
                     WORKSPACE_DELETE_DATASOURCES,
                     WORKSPACE_DELETE_APPLICATIONS,
                     DELETE_WORKSPACES)),
-    ORGANIZATION_DEVELOPER(
+    WORKSPACE_DEVELOPER(
             DEVELOPER,
             WORKSPACE_DEVELOPER_DESCRIPTION,
             Set.of(
@@ -54,7 +54,7 @@ public enum AppsmithRole {
                     WORKSPACE_CREATE_DATASOURCE,
                     WORKSPACE_DELETE_DATASOURCES,
                     WORKSPACE_DELETE_APPLICATIONS)),
-    ORGANIZATION_VIEWER(
+    WORKSPACE_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(
