@@ -27,6 +27,6 @@ export const Basic: Story = {
 
     onNameSave: console.log,
     validateName: (name: string) =>
-      name.length < 3 ? "Name must be at least 3 characters" : null,
+      name.length < 1 ? "Please enter a valid name" : null,
   },
 };
