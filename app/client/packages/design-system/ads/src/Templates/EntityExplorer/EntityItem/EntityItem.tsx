@@ -23,15 +23,14 @@ export const EntityItem = (props: EntityItemProps) => {
     return (
       <EditableEntityName
         canEdit={canEdit}
-        gap="var(--ads-v2-spaces-3)"
+        icon={startIcon}
         isEditing={isEditing}
         isFixedWidth
         isLoading={isLoading}
         name={props.title}
-        onEditComplete={onEditComplete}
+        onExitEditing={onEditComplete}
         onNameSave={onNameSave}
-        startIcon={startIcon}
-        textKind="body-m"
+        size="medium"
         validateName={validateName}
       />
     );

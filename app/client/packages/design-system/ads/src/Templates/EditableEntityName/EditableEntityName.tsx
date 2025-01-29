@@ -10,15 +10,14 @@ import type { EditableEntityNameProps } from "./EditableEntityName.types";
 export const EditableEntityName = (props: EditableEntityNameProps) => {
   const {
     canEdit,
-    gap = "var(--ads-v2-spaces-2)",
     inputTestId,
     isEditing,
     isFixedWidth,
     isLoading,
     name,
-    onEditComplete,
+    onExitEditing,
     onNameSave,
-    textKind,
+    size = "small",
     validateName,
   } = props;
 
@@ -33,7 +32,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
   ] = useEditableText(
     inEditMode,
     name,
-    onEditComplete,
+    onExitEditing,
     validateName,
     onNameSave,
   );
@@ -41,11 +40,11 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
   // When in loading state, start icon becomes the loading icon
   const startIcon = useMemo(() => {
     if (isLoading) {
-      return <Spinner size="md" />;
+      return <Spinner size={size === "small" ? "sm" : "md"} />;
     }
 
-    return props.startIcon;
-  }, [isLoading, props.startIcon]);
+    return props.icon;
+  }, [isLoading, props.icon]);
 
   const inputProps = useMemo(
     () => ({
@@ -58,7 +57,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
   );
 
   return (
-    <Styled.Root gap={gap}>
+    <Styled.Root data-size={size}>
       {startIcon}
       <Tooltip
         content={validationError}
@@ -72,7 +71,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
           inputProps={inputProps}
           inputRef={inputRef}
           isEditable={inEditMode}
-          kind={textKind || "body-s"}
+          kind={size === "small" ? "body-s" : "body-m"}
         >
           {editableName}
         </Styled.Text>

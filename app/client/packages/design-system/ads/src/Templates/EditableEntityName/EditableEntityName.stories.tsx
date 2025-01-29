@@ -22,14 +22,13 @@ export const Basic: Story = {
   args: {
     name: "Hello",
     onNameSave: console.log,
-    onEditComplete: console.log,
-    startIcon: JSIcon(),
+    onExitEditing: console.log,
+    icon: JSIcon(),
     canEdit: true,
     inputTestId: "t--editable-name",
     isEditing: true,
     isLoading: false,
     validateName: (name: string) =>
-      name.length < 3 ? "Name must be at least 3 characters" : null,
-    textKind: "body-s",
+      name.length < 1 ? "Please enter a valid name" : null,
   },
 };

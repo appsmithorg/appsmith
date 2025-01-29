@@ -22,7 +22,7 @@ export const Basic: Story = {
   args: {
     isActive: true,
     dataTestId: "t--dismissible-tab",
-    startIcon: JSIcon(),
+    icon: JSIcon(),
     name: "Hello",
 
     onNameSave: console.log,

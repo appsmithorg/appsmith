@@ -1,15 +1,22 @@
 import styled from "styled-components";
 import { Text as ADSText } from "../../Text";
 
-export const Root = styled.div<{ gap: string }>`
+export const Root = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  gap: ${({ gap }) => gap};
   flex: 1;
   min-width: 0;
+
+  &[data-size="small"] {
+    gap: var(--ads-v2-spaces-2);
+  }
+
+  &[data-size="medium"] {
+    gap: var(--ads-v2-spaces-3);
+  }
 `;
 
 export const Text = styled(ADSText)`
