@@ -1,13 +1,13 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { Ref } from "react";
-import React, { useRef } from "react";
+import React from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { VariableSizeList, areEqual } from "react-window";
+import { FixedSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
@@ -52,8 +52,8 @@ export const BodyContext = React.createContext<BodyContextType>({
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
   const { data, index, style } = rowProps;
 
-  if (index < data.rows.length) {
-    const row = data.rows[index];
+  if (index < data.length) {
+    const row = data[index];
 
     return (
       <Row
@@ -81,29 +81,15 @@ interface BodyPropsType {
   height: number;
   width?: number;
   tableSizes: TableSizes;
+  onLoadMore?: () => void;
   innerElementType?: ReactElementType;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
-    const listRef = useRef<VariableSizeList>(null);
-    const rowHeights = useRef<Record<number, number>>({});
-
-    const getRowHeight = (index: number) => {
-      // Default height if not measured yet
-      return rowHeights.current[index] || props.tableSizes.ROW_HEIGHT;
-    };
-
-    const handleRowHeightChange = (index: number, height: number) => {
-      if (rowHeights.current[index] !== height) {
-        rowHeights.current[index] = height;
-        listRef.current?.resetAfterIndex(index);
-      }
-    };
-
     return (
       <div className="simplebar-content-wrapper">
-        <VariableSizeList
+        <FixedSizeList
           className="virtual-list simplebar-content"
           height={
             props.height -
@@ -112,17 +98,13 @@ const TableVirtualBodyComponent = React.forwardRef(
           }
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={{
-            rows: props.rows,
-            handleRowHeightChange,
-          }}
-          itemSize={getRowHeight}
+          itemData={props.rows}
+          itemSize={props.tableSizes.ROW_HEIGHT}
           outerRef={ref}
-          ref={listRef}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
           {rowRenderer}
-        </VariableSizeList>
+        </FixedSizeList>
       </div>
     );
   },
@@ -162,6 +144,7 @@ export const TableBody = React.forwardRef(
       isResizingColumn,
       isSortable,
       multiRowSelection,
+      onLoadMore,
       prepareRow,
       primaryColumnId,
       rows,
@@ -212,13 +195,18 @@ export const TableBody = React.forwardRef(
       >
         {useVirtual ? (
           <TableVirtualBodyComponent
+            onLoadMore={onLoadMore}
             ref={ref}
             rows={rows}
             width={width}
             {...restOfProps}
           />
         ) : (
-          <TableBodyComponent rows={rows} {...restOfProps} />
+          <TableBodyComponent
+            rows={rows}
+            {...restOfProps}
+            onLoadMore={onLoadMore}
+          />
         )}
       </BodyContext.Provider>
     );
