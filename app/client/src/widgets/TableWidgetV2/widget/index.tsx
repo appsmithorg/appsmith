@@ -186,7 +186,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     isLoading: false,
     isInitialLoadComplete: false,
   };
-  isInfiniteScroll = true; // should be from property pane
+  isInfiniteScroll = false; // should be from property pane
 
   static type = "TABLE_WIDGET_V2";
 
