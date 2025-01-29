@@ -2,6 +2,7 @@
 import type { AppState } from "ee/reducers";
 import type { EnvironmentType } from "ee/configs/types";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
+export { getCurrentEnvironmentName } from "ee/selectors/dataTreeCyclicSelectors";
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   true;
@@ -14,8 +15,6 @@ export const getEnvironmentsWithPermission = (
 export const getDefaultEnvironmentId = (state: AppState) => UNUSED_ENV_ID;
 
 export const getCurrentEnvironmentId = (state: AppState) => UNUSED_ENV_ID;
-
-export const getCurrentEnvironmentName = (state: AppState) => "";
 
 export const getCurrentEditingEnvironmentId = (state: AppState) =>
   UNUSED_ENV_ID;
