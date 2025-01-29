@@ -33,7 +33,6 @@ export const getConsolidatedDataApi = (
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
-      cy.log("consolidated api response 2", res.statusCode);
       if (
         res.statusCode === 200 ||
         res.statusCode === 401 ||
@@ -87,7 +86,6 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
-      cy.log("consolidated api response 2", res.statusCode);
       if (res.statusCode === 200) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
