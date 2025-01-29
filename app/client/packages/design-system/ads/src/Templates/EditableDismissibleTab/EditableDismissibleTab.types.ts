@@ -2,7 +2,7 @@ import type React from "react";
 
 export interface EditableDismissibleTabProps {
   dataTestId?: string;
-  icon: React.ReactNode;
+  startIcon: React.ReactNode;
   isActive: boolean;
   isEditable?: boolean;
   isLoading: boolean;

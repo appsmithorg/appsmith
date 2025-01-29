@@ -1,12 +1,8 @@
 import React, { useMemo } from "react";
 import { ListItem } from "../../../List";
-import { Spinner } from "../../../Spinner";
-import { Tooltip } from "../../../Tooltip";
-
 import type { EntityItemProps } from "./EntityItem.types";
-import { EntityEditableName } from "./EntityItem.styles";
-import { useEditableText } from "../../../__hooks__/useEditableText";
 import clx from "classnames";
+import { EditableEntityName } from "../../EditableEntityName";
 
 export const EntityItem = (props: EntityItemProps) => {
   const {
@@ -18,60 +14,37 @@ export const EntityItem = (props: EntityItemProps) => {
     validateName,
   } = props.nameEditorConfig;
 
+  const { startIcon, ...rest } = props;
+
   const inEditMode = canEdit ? isEditing : false;
-
-  const [
-    inputRef,
-    editableName,
-    validationError,
-    handleKeyUp,
-    handleTitleChange,
-  ] = useEditableText(
-    inEditMode,
-    props.title,
-    onEditComplete,
-    validateName,
-    onNameSave,
-  );
-
-  // When in loading state, start icon becomes the loading icon
-  const startIcon = useMemo(() => {
-    if (isLoading) {
-      return <Spinner size="md" />;
-    }
-
-    return props.startIcon;
-  }, [isLoading, props.startIcon]);
-
-  const inputProps = useMemo(
-    () => ({
-      onChange: handleTitleChange,
-      onKeyUp: handleKeyUp,
-    }),
-    [handleKeyUp, handleTitleChange],
-  );
 
   // Use List Item custom title prop to show the editable name
   const customTitle = useMemo(() => {
     return (
-      <Tooltip
-        content={validationError}
-        placement="bottomLeft"
-        showArrow={false}
-        visible={Boolean(validationError)}
-      >
-        <EntityEditableName
-          data-isediting={inEditMode}
-          inputProps={inputProps}
-          inputRef={inputRef}
-          isEditable={inEditMode}
-          kind="body-m"
-        >
-          {editableName}
-        </EntityEditableName>
-      </Tooltip>
+      <EditableEntityName
+        canEdit={canEdit}
+        gap="var(--ads-v2-spaces-3)"
+        isEditing={isEditing}
+        isFixedWidth
+        isLoading={isLoading}
+        name={props.title}
+        onEditComplete={onEditComplete}
+        onNameSave={onNameSave}
+        startIcon={startIcon}
+        textKind="body-m"
+        validateName={validateName}
+      />
     );
-  }, [editableName, inputProps, inputRef, inEditMode, validationError]);
+  }, [
+    canEdit,
+    isEditing,
+    isLoading,
+    onEditComplete,
+    onNameSave,
+    props.title,
+    startIcon,
+    validateName,
+  ]);
 
   // Do not show right control if the visibility is hover and the item is in edit mode
   const rightControl = useMemo(() => {
@@ -84,13 +57,12 @@ export const EntityItem = (props: EntityItemProps) => {
 
   return (
     <ListItem
-      {...props}
+      {...rest}
       className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
       data-testid={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
       rightControl={rightControl}
-      startIcon={startIcon}
     />
   );
 };

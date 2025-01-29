@@ -3,8 +3,6 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { EditableDismissibleTab } from ".";
-import styled from "styled-components";
-
 import { Icon } from "../..";
 
 const meta: Meta<typeof EditableDismissibleTab> = {
@@ -12,27 +10,8 @@ const meta: Meta<typeof EditableDismissibleTab> = {
   component: EditableDismissibleTab,
 };
 
-const EntityIcon = styled.div`
-  height: 18px;
-  width: 18px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg,
-  img {
-    height: 100%;
-    width: 100%;
-  }
-`;
-
 const JSIcon = () => {
-  return (
-    <EntityIcon>
-      <Icon name="js-yellow" size="md" />
-    </EntityIcon>
-  );
+  return <Icon name="js-yellow" size="sm" />;
 };
 
 export default meta;
@@ -43,7 +22,7 @@ export const Basic: Story = {
   args: {
     isActive: true,
     dataTestId: "t--dismissible-tab",
-    icon: JSIcon(),
+    startIcon: JSIcon(),
     name: "Hello",
 
     onNameSave: console.log,
