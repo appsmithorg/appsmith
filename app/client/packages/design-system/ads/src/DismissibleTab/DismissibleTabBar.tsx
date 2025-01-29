@@ -23,23 +23,34 @@ export const DismissibleTabBar = ({
   disableAdd = false,
   onTabAdd,
 }: DismissibleTabBarProps) => {
-  const [isStuck, setIsStuck] = useState(false);
+  const [isLeftIntersecting, setIsLeftIntersecting] = useState(false);
+  const [isRightIntersecting, setIsRightIntersecting] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const sentinelLeftRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRightRef = useRef<HTMLDivElement | null>(null);
 
   const handleAdd = disableAdd ? noop : onTabAdd;
 
   useEffect(function observeSticky() {
-    if (!containerRef.current || !sentinelRef.current) return;
+    if (
+      !containerRef.current ||
+      !sentinelLeftRef.current ||
+      !sentinelRightRef.current
+    )
+      return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsStuck(false);
-        } else {
-          setIsStuck(true);
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === sentinelLeftRef.current) {
+            setIsLeftIntersecting(!entry.isIntersecting);
+          }
+
+          if (entry.target === sentinelRightRef.current) {
+            setIsRightIntersecting(!entry.isIntersecting);
+          }
+        });
       },
       {
         root: containerRef.current,
@@ -47,13 +58,34 @@ export const DismissibleTabBar = ({
       },
     );
 
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinelLeftRef.current);
+    observer.observe(sentinelRightRef.current);
 
     return () => observer.disconnect();
   }, []);
 
+  useEffect(
+    function debouncedScrollActiveTabIntoView() {
+      const timerId = setTimeout(() => {
+        // accessing active tab with a document query is a bit hacky, but it's more performant than keeping a map of refs and cloning children
+        const activeTab = document.querySelector(".editor-tab.active");
+
+        if (activeTab) {
+          activeTab.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center",
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timerId);
+    },
+    [children],
+  );
+
   return (
-    <Styled.Root>
+    <Styled.Root $showLeftBorder={isLeftIntersecting}>
       <ScrollArea
         data-testid="t--editor-tabs"
         options={SCROLL_AREA_OPTIONS}
@@ -62,13 +94,14 @@ export const DismissibleTabBar = ({
         style={SCROLL_AREA_STYLE}
       >
         <Styled.TabsContainer data-testid="t--tabs-container" role="tablist">
+          <Styled.StickySentinel ref={sentinelLeftRef} />
           {children}
-          <Styled.StickySentinel ref={sentinelRef} />
+          <Styled.StickySentinel ref={sentinelRightRef} />
         </Styled.TabsContainer>
       </ScrollArea>
-      <Styled.PlusButtonContainer $isStuck={isStuck}>
+      <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
         <Styled.PlusButton
-          disabled={disableAdd}
+          isDisabled={disableAdd}
           isIconButton
           kind="tertiary"
           onClick={handleAdd}

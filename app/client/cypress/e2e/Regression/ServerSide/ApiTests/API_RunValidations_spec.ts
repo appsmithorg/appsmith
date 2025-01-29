@@ -26,7 +26,7 @@ describe(
     });
 
     // Cypress issue: https://github.com/cypress-io/cypress/issues/8267
-    it("3. Validate keyboard navigation e.g. Cmd + Enter should trigger the Run button", function () {
+    it.skip("3. Validate keyboard navigation e.g. Cmd + Enter should trigger the Run button", function () {
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].randomTrumpApi,
         "WhatTrumpThinks",

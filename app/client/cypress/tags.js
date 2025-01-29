@@ -4,6 +4,7 @@ module.exports = {
     "@tag.Anvil",
     "@tag.Audio",
     "@tag.Auditlogs",
+    "@tag.AppUrl",
     "@tag.Authentication",
     "@tag.AutoHeight",
     "@tag.Binding",
