@@ -34,7 +34,7 @@ const regexMap = {
 /* eslint-disable no-restricted-globals */
 // Note: if you need to filter out some files from precaching,
 
-// do that in craco.build.config.js → workbox webpack plugin options
+// do that in webpack.config.js → workbox webpack plugin options
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toPrecache = (self as any).__WB_MANIFEST;

@@ -26,12 +26,19 @@ const ForkTsCheckerWebpackPlugin =
     : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
-const RetryChunkLoadPlugin = require("webpack-retry-chunk-load-plugin");
+const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
+const FaroSourceMapUploaderPlugin = require("@grafana/faro-webpack-plugin");
 
 const createEnvironmentHash = require("./webpack/persistentCache/createEnvironmentHash");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
+
+// Handle airgap build path
+const isAirgap = process.env.REACT_APP_AIRGAP_ENABLED === "true";
+if (isAirgap) {
+  paths.appBuild = path.resolve("build_airgap");
+}
 
 const reactRefreshRuntimeEntry = require.resolve("react-refresh/runtime");
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
@@ -92,6 +99,9 @@ const hasJsxRuntime = (() => {
 module.exports = function (webpackEnv) {
   const isEnvDevelopment = webpackEnv === "development";
   const isEnvProduction = webpackEnv === "production";
+
+  // Set devtool based on environment
+  const devtool = isEnvProduction ? "source-map" : false;
 
   // Variable used for enabling profiling in Production
   // passed into alias object. Uses a flag if passed into the build command
@@ -195,17 +205,13 @@ module.exports = function (webpackEnv) {
     mode: isEnvProduction ? "production" : isEnvDevelopment && "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: isEnvProduction
-      ? shouldUseSourceMap
-        ? "source-map"
-        : false
-      : isEnvDevelopment && "cheap-module-source-map",
+    devtool: devtool,
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: paths.appIndexJs,
     output: {
-      // The build folder.
-      path: paths.appBuild,
+      // If airgap is enabled, change the build path
+      path: isAirgap ? path.resolve("build_airgap") : paths.appBuild,
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
@@ -478,17 +484,15 @@ module.exports = function (webpackEnv) {
                     },
                   ],
                 ],
-
-                // plugins: [
-                //   isEnvDevelopment &&
-                //     shouldUseReactRefresh &&
-                //     require.resolve("react-refresh/babel"),
-                // ].filter(Boolean),
+                plugins: [
+                  isEnvDevelopment &&
+                    shouldUseReactRefresh &&
+                    require.resolve("react-refresh/babel"),
+                ].filter(Boolean),
+                cacheDirectory: true,
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
-                cacheDirectory: true,
-                // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,
               },

@@ -27,8 +27,6 @@
     "src/ee/utils/serviceWorkerUtils.ts"
   ],
   "ignoreDependencies": [
-    "craco-alias",
-    "craco-babel-loader",
     "babel-plugin-lodash",
     "@types/google.maps",
     "@types/web",
