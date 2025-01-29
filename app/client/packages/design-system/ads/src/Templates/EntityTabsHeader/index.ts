@@ -1,1 +1,5 @@
-export { EntityTabsHeader, EntityListButton } from "./EntityTabsHeader";
+export {
+  EntityTabsHeader,
+  EntityListButton,
+  ToggleScreenModeButton,
+} from "./EntityTabsHeader";

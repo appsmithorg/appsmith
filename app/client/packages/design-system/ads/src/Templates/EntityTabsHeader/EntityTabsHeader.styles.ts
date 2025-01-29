@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Button } from "../..";
 
 export const Root = styled.div`
   display: flex;
@@ -11,4 +12,11 @@ export const Root = styled.div`
   padding: 0 var(--ads-v2-spaces-2);
   width: 100%;
   overflow: hidden;
+`;
+
+export const IconButton = styled(Button)`
+  margin-left: auto;
+  && {
+    min-width: 24px;
+  }
 `;
