@@ -429,11 +429,11 @@ export const contentConfig = [
           type: ValidationTypes.NUMBER,
           params: {
             min: 1,
-            max: 250,
+            max: 200,
             default: MAX_ALLOWED_FIELDS,
           },
         },
-        placeholderText: "1-250",
+        placeholderText: "1-200",
       },
     ],
     expandedByDefault: false,

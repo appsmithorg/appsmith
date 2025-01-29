@@ -573,13 +573,11 @@ class JSONFormWidget extends BaseWidget<
     prevProps?: JSONFormWidgetProps,
     hasMaxFieldsChanged?: boolean,
   ) => {
-    if (!hasMaxFieldsChanged) {
-      if (!this.props.autoGenerateForm) {
-        return {
-          status: ComputedSchemaStatus.UNCHANGED,
-          schema: this.props?.schema || {},
-        };
-      }
+    if (!hasMaxFieldsChanged && !this.props.autoGenerateForm) {
+      return {
+        status: ComputedSchemaStatus.UNCHANGED,
+        schema: this.props?.schema || {},
+      };
     }
 
     const prevSourceData = this.getPreviousSourceData(prevProps);
