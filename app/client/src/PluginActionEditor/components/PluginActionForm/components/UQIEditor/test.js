@@ -18,56 +18,56 @@ export const test = [
               {
                 label: "Find document(s)",
                 value: "FIND",
-                type: "testgp1",
+                optionGroupType: "testgp1",
               },
               {
                 label: "Insert document(s)",
                 value: "INSERT",
-                type: "testgp1",
+                optionGroupType: "testgp1",
               },
               {
                 label: "Update document(s)",
                 value: "UPDATE",
-                type: "testgp2",
+                optionGroupType: "testgp2",
               },
               {
                 label: "Delete document(s)",
                 value: "DELETE",
-                type: "testgp2",
+                optionGroupType: "testgp2",
               },
               {
                 label: "Count",
                 value: "COUNT",
-                type: "testgp2",
+                optionGroupType: "testgp2",
               },
               {
                 label: "Distinct",
                 value: "DISTINCT",
-                type: "testgp3",
+                optionGroupType: "testgp3",
               },
               {
                 label: "Aggregate",
                 value: "AGGREGATE",
-                type: "testgp3",
+                optionGroupType: "testgp3",
               },
               {
                 label: "Raw",
                 value: "RAW",
-                type: "testgp3",
+                optionGroupType: "testgp3",
               },
             ],
             optionGroupConfig: {
               testgp1: {
                 label: "test group 1",
-                type: "testgp1",
+                children: [],
               },
               testgp2: {
                 label: "test group 2",
-                type: "testgp2",
+                children: [],
               },
               testgp3: {
                 label: "test group 3",
-                type: "testgp3",
+                children: [],
               },
             },
           },
