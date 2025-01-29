@@ -24,8 +24,8 @@ export const DismissibleTabBar = ({
   disableAdd = false,
   onTabAdd,
 }: DismissibleTabBarProps) => {
-  const [isLeftStuck, setIsLeftStuck] = useState(false);
-  const [isRightStuck, setIsRightStuck] = useState(false);
+  const [isLeftIntersecting, setIsLeftIntersecting] = useState(false);
+  const [isRightIntersecting, setIsRightIntersecting] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sentinelLeftRef = useRef<HTMLDivElement | null>(null);
@@ -48,11 +48,11 @@ export const DismissibleTabBar = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.target === sentinelLeftRef.current) {
-            setIsLeftStuck(!entry.isIntersecting);
+            setIsLeftIntersecting(!entry.isIntersecting);
           }
 
           if (entry.target === sentinelRightRef.current) {
-            setIsRightStuck(!entry.isIntersecting);
+            setIsRightIntersecting(!entry.isIntersecting);
           }
         });
       },
@@ -83,7 +83,7 @@ export const DismissibleTabBar = ({
   );
 
   return (
-    <Styled.Root $showLeftBorder={isLeftStuck}>
+    <Styled.Root $showLeftBorder={isLeftIntersecting}>
       <ScrollArea
         data-testid="t--editor-tabs"
         options={SCROLL_AREA_OPTIONS}
@@ -97,7 +97,7 @@ export const DismissibleTabBar = ({
           <Styled.StickySentinel ref={sentinelRightRef} />
         </Styled.TabsContainer>
       </ScrollArea>
-      <Styled.PlusButtonContainer $showLeftBorder={isRightStuck}>
+      <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
         <Styled.PlusButton
           isDisabled={disableAdd}
           isIconButton
