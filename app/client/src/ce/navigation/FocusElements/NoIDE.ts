@@ -13,7 +13,7 @@ export default {
   [FocusEntity.DATASOURCE]: [],
   [FocusEntity.JS_OBJECT]: [],
   [FocusEntity.QUERY]: [],
-  [FocusEntity.PROPERTY_PANE]: [],
+  [FocusEntity.WIDGET]: [],
   [FocusEntity.DEBUGGER]: [],
   [FocusEntity.QUERY_LIST]: [],
   [FocusEntity.JS_OBJECT_LIST]: [],

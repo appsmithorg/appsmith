@@ -1,5 +1,5 @@
 import { Tooltip } from "@appsmith/ads";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { modText } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
@@ -19,26 +19,33 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
   const editorState = useCurrentAppState();
   const [shouldShow, setShouldShow] = useState<boolean>(false);
 
-  useEffect(() => {
-    retrieveCodeWidgetNavigationUsed()
-      .then((timesUsed) => {
-        if (timesUsed < 2) {
+  useEffect(
+    function handleMaxTimesTooltipShown() {
+      retrieveCodeWidgetNavigationUsed()
+        .then((timesUsed) => {
+          if (timesUsed < 2) {
+            setShouldShow(true);
+          }
+        })
+        .catch(() => {
           setShouldShow(true);
-        }
-      })
-      .catch(() => {
-        setShouldShow(true);
-      });
-  }, [isWidgetSelectionBlock]);
+        });
+    },
+    [isWidgetSelectionBlock],
+  );
 
-  if (!isWidgetSelectionBlock) return props.children;
-
-  if (editorState !== EditorState.EDITOR) return props.children;
+  const isDisabled = useMemo(() => {
+    return (
+      !shouldShow ||
+      !isWidgetSelectionBlock ||
+      editorState !== EditorState.EDITOR
+    );
+  }, [editorState, isWidgetSelectionBlock, shouldShow]);
 
   return (
     <Tooltip
       content={createMessage(CANVAS_VIEW_MODE_TOOLTIP, `${modText()}`)}
-      isDisabled={!shouldShow}
+      isDisabled={isDisabled}
       placement={"bottom"}
       showArrow={false}
       trigger={"hover"}

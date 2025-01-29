@@ -3,8 +3,7 @@ import { hookWrapper } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { useGetPageFocusUrl } from "./hooks";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { createEditorFocusInfo } from "../../../ce/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { createPageFocusInfo } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 
 const mockUseGitCurrentBranch = jest.fn<string | null, []>(() => null);
 
@@ -16,9 +15,9 @@ describe("useGetPageFocusUrl", () => {
   const pages = PageFactory.buildList(4);
 
   pages[0].isDefault = true;
-  const page1FocusHistory = createEditorFocusInfo(pages[0].pageId);
-  const page2FocusHistory = createEditorFocusInfo(pages[1].pageId);
-  const page3FocusHistory = createEditorFocusInfo(pages[2].pageId);
+  const page1FocusHistory = createPageFocusInfo(pages[0].pageId, null);
+  const page2FocusHistory = createPageFocusInfo(pages[1].pageId, null);
+  const page3FocusHistory = createPageFocusInfo(pages[2].pageId, null);
 
   const focusHistory = {
     [page1FocusHistory.key]: {
@@ -92,7 +91,7 @@ describe("useGetPageFocusUrl", () => {
     const branch = "featureBranch";
 
     mockUseGitCurrentBranch.mockReturnValue(branch);
-    const page1FocusHistoryWithBranch = createEditorFocusInfo(
+    const page1FocusHistoryWithBranch = createPageFocusInfo(
       pages[0].pageId,
       branch,
     );
