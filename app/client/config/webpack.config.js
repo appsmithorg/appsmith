@@ -25,6 +25,8 @@ const ForkTsCheckerWebpackPlugin =
     ? require("react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
     : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
+const RetryChunkLoadPlugin = require("webpack-retry-chunk-load-plugin");
 
 const createEnvironmentHash = require("./webpack/persistentCache/createEnvironmentHash");
 
@@ -660,6 +662,31 @@ module.exports = function (webpackEnv) {
       },
     ],
     plugins: [
+      isEnvProduction &&
+        new RetryChunkLoadPlugin({
+          retryDelay: 3000,
+          maxRetries: 2,
+          lastResortScript: "window.location.href='/404.html';",
+        }),
+      isEnvProduction &&
+        new CompressionPlugin({
+          algorithm: "brotliCompress",
+          filename: "[path][base].br",
+          test: /\.(js|css|html|svg)$/,
+          threshold: 10240,
+          minRatio: 0.8,
+        }),
+      isEnvProduction &&
+        new FaroSourceMapUploaderPlugin({
+          appId: process.env.REACT_APP_FARO_APP_ID,
+          appName: process.env.REACT_APP_FARO_APP_NAME,
+          endpoint: process.env.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT,
+          stackId: process.env.REACT_APP_FARO_STACK_ID,
+          // instructions on how to obtain your API key are in the documentation
+          // https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/sourcemap-upload-plugins/#obtain-an-api-key
+          apiKey: process.env.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY,
+          gzipContents: true,
+        }),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
@@ -758,18 +785,53 @@ module.exports = function (webpackEnv) {
         resourceRegExp: /^\.\/locale$/,
         contextRegExp: /moment$/,
       }),
-      // Generate a service worker script that will precache, and keep up to date,
-      // the HTML & assets that are part of the webpack build.
       isEnvProduction &&
-        fs.existsSync(swSrc) &&
         new WorkboxWebpackPlugin.InjectManifest({
-          swSrc,
-          dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
-          exclude: [/\.map$/, /asset-manifest\.json$/, /LICENSE/],
-          // Bump up the default maximum size (2mb) that's precached,
-          // to make lazy-loading failure scenarios less likely.
-          // See https://github.com/cra-template/pwa/issues/13#issuecomment-722667270
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+          swSrc: "./src/serviceWorker.ts",
+          mode: "development",
+          swDest: "./pageService.js",
+          maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
+          exclude: [
+            // Don’t cache source maps and PWA manifests.
+            // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
+            // so we need to specify them explicitly if we’re extending this array.)
+            /\.map$/,
+            /^manifest.*\.js$/,
+            // Don’t cache the root html file
+            /index\.html/,
+            // Don’t cache LICENSE.txt files emitted by CRA
+            // when a chunk includes some license comments
+            /LICENSE\.txt/,
+            // Don’t cache static icons as there are hundreds of them, and caching them all
+            // one by one (as the service worker does it) keeps the network busy for a long time
+            // and delays the service worker installation
+            /\/*\.svg$/,
+          ],
+          // Don’t cache-bust JS and CSS chunks
+          dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
+        }),
+      isEnvDevelopment &&
+        new WorkboxWebpackPlugin.InjectManifest({
+          swSrc: "./src/serviceWorker.ts",
+          mode: "development",
+          swDest: "./pageService.js",
+          exclude: [
+            // Don't cache source maps and PWA manifests.
+            // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
+            // so we need to specify them explicitly if we're extending this array.)
+            /\.map$/,
+            /^manifest.*\.js$/,
+            // Don't cache the root html file
+            /index\.html/,
+            // Don't cache LICENSE.txt files emitted by CRA
+            // when a chunk includes some license comments
+            /LICENSE\.txt/,
+            // Don't cache static icons as there are hundreds of them, and caching them all
+            // one by one (as the service worker does it) keeps the network busy for a long time
+            // and delays the service worker installation
+            /\/*\.svg$/,
+            /\.(js|css|html|png|jpg|jpeg|gif)$/, // Exclude JS, CSS, HTML, and image files
+          ],
         }),
       // TypeScript type checking
       new ForkTsCheckerWebpackPlugin({
