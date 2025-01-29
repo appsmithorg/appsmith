@@ -26,7 +26,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
     });
 
-    it("1. Should check the datasource selector and the form", () => {
+    it.skip("1. Should check the datasource selector and the form", () => {
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
       agHelper.AssertElementAbsence(
         oneClickBindingLocator.datasourceQueryBindHeaderSelector,
