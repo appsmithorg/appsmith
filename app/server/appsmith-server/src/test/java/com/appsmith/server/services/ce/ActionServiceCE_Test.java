@@ -1419,45 +1419,6 @@ public class ActionServiceCE_Test {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
-    public void updateAction_withoutWorkspaceId_withOrganizationId() {
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("validAction_nestedDatasource");
-        action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Mono<ActionDTO> createActionMono =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
-
-        ActionDTO updateAction = new ActionDTO();
-        Datasource nestedDatasource = new Datasource();
-        nestedDatasource.setOrganizationId(workspaceId);
-        nestedDatasource.setName("DEFAULT_REST_DATASOURCE");
-        nestedDatasource.setPluginId(datasource.getPluginId());
-        nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
-
-        updateAction.setDatasource(nestedDatasource);
-        Mono<ActionDTO> actionMono = createActionMono.flatMap(
-                savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
-
-        StepVerifier.create(actionMono)
-                .assertNext(updatedAction -> {
-                    Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId()).isNotNull();
-                    assertThat(datasource1.getInvalids()).isEmpty();
-                })
-                .verifyComplete();
-    }
-
-    @Test
     @WithUserDetails("api_user")
     public void validateAndSaveActionToRepository_noDatasourceEditPermission() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))

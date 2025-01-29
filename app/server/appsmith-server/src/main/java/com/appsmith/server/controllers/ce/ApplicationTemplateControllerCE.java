@@ -73,14 +73,14 @@ public class ApplicationTemplateControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("{templateId}/merge/{branchedApplicationId}/{organizationId}")
+    @PostMapping("{templateId}/merge/{branchedApplicationId}/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(
             @PathVariable String templateId,
             @PathVariable String branchedApplicationId,
-            @PathVariable String organizationId,
+            @PathVariable String workspaceId,
             @RequestBody(required = false) List<String> pagesToImport) {
         return applicationTemplateService
-                .mergeTemplateWithApplication(templateId, branchedApplicationId, organizationId, pagesToImport)
+                .mergeTemplateWithApplication(templateId, branchedApplicationId, workspaceId, pagesToImport)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 

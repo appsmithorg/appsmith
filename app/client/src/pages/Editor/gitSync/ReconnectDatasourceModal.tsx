@@ -244,10 +244,10 @@ function SuccessMessages() {
 function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
-  const workspaceId = useSelector(getWorkspaceIdForImport);
+  const importWorkspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
   const environmentsFetched = useSelector((state: AppState) =>
-    areEnvironmentsFetched(state, workspaceId),
+    areEnvironmentsFetched(state, importWorkspaceId),
   );
   const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
   const unconfiguredDatasourceIds = unconfiguredDatasources.map(
@@ -297,7 +297,7 @@ function ReconnectDatasourceModal() {
   const [isTesting, setIsTesting] = useState(false);
   const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
   const dsName = queryDS?.name;
-  const orgId = queryDS?.workspaceId;
+  const datasourceWorkspaceId = queryDS?.workspaceId;
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
     if (!ds || pluginsArray.length === 0) return false;
@@ -351,7 +351,7 @@ function ReconnectDatasourceModal() {
         environmentName: currentEnvDetails.name,
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
-        workspaceId: orgId,
+        workspaceId: datasourceWorkspaceId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
         ideType,
@@ -404,14 +404,14 @@ function ReconnectDatasourceModal() {
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && workspaceId && environmentsFetched) {
+    if (isModalOpen && importWorkspaceId && environmentsFetched) {
       dispatch(
         initDatasourceConnectionDuringImportRequest({
-          workspaceId: workspaceId as string,
+          workspaceId: importWorkspaceId as string,
         }),
       );
     }
-  }, [workspaceId, isModalOpen, environmentsFetched]);
+  }, [importWorkspaceId, isModalOpen, environmentsFetched]);
 
   useEffect(() => {
     if (isModalOpen) {
