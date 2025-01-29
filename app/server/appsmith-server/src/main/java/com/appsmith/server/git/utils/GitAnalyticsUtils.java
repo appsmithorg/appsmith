@@ -111,7 +111,7 @@ public class GitAnalyticsUtils {
             analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
         }
         analyticsProps.putAll(Map.of(
-                FieldName.ORGANIZATION_ID,
+                "organizationId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
                 "orgId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
