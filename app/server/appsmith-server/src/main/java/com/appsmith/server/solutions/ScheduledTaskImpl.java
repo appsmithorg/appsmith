@@ -5,7 +5,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
 
 public class ScheduledTaskImpl extends ScheduledTaskCEImpl implements ScheduledTask {
-    public ScheduledTaskImpl(FeatureFlagService featureFlagService, OrganizationService tenantService) {
-        super(featureFlagService, tenantService);
+    public ScheduledTaskImpl(FeatureFlagService featureFlagService, OrganizationService organizationService) {
+        super(featureFlagService, organizationService);
     }
 }

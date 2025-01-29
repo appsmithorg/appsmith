@@ -7,6 +7,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -92,8 +93,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .findById(organizationId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .flatMap(tenant -> {
-                    OrganizationConfiguration oldOrganizationConfiguration = tenant.getOrganizationConfiguration();
+                .flatMap(organization -> {
+                    OrganizationConfiguration oldOrganizationConfiguration =
+                            organization.getOrganizationConfiguration();
                     if (oldOrganizationConfiguration == null) {
                         oldOrganizationConfiguration = new OrganizationConfiguration();
                     }
@@ -109,22 +111,22 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                         });
                     }
 
-                    return envMono.then(Mono.zip(Mono.just(oldOrganizationConfiguration), Mono.just(tenant)));
+                    return envMono.then(Mono.zip(Mono.just(oldOrganizationConfiguration), Mono.just(organization)));
                 })
                 .flatMap(tuple2 -> {
                     Organization organization = tuple2.getT2();
                     OrganizationConfiguration oldConfig = tuple2.getT1();
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
                     organization.setOrganizationConfiguration(oldConfig);
-                    Mono<Organization> updatedTenantMono = repository
+                    Mono<Organization> updatedOrganizationMono = repository
                             .updateById(organizationId, organization, MANAGE_TENANT)
                             .cache();
                     // Firstly updating the Organization object in the database and then evicting the cache.
-                    // returning the updatedTenant, notice the updatedTenantMono is cached using .cache()
+                    // returning the updatedOrganization, notice the updatedOrganizationMono is cached using .cache()
                     // hence it will not be evaluated again
-                    return updatedTenantMono
+                    return updatedOrganizationMono
                             .then(Mono.defer(() -> evictOrganizationCache))
-                            .then(updatedTenantMono);
+                            .then(updatedOrganizationMono);
                 });
     }
 
@@ -132,46 +134,48 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     public Mono<Organization> findById(String organizationId, AclPermission permission) {
         return repository
                 .findById(organizationId, permission)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", organizationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldNameCE.ORGANIZATION_ID, organizationId)));
     }
 
     @Override
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
-        Mono<Organization> clientTenantMono = configService.getInstanceId().map(instanceId -> {
-            final Organization organization = new Organization();
-            organization.setInstanceId(instanceId);
-            organization.setAdminEmailDomainHash(adminEmailDomainHash);
+        Mono<Organization> clientOrganizationMono = configService
+                .getInstanceId()
+                .map(instanceId -> {
+                    final Organization organization = new Organization();
+                    organization.setInstanceId(instanceId);
+                    organization.setAdminEmailDomainHash(adminEmailDomainHash);
 
-            final OrganizationConfiguration config = new OrganizationConfiguration();
-            organization.setOrganizationConfiguration(config);
+                    final OrganizationConfiguration config = new OrganizationConfiguration();
+                    organization.setOrganizationConfiguration(config);
 
-            config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                config.addThirdPartyAuth("google");
-            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("google");
+                    }
 
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                config.addThirdPartyAuth("github");
-            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("github");
+                    }
 
-            config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
-            return organization;
-        });
+                    return organization;
+                });
 
-        return Mono.zip(dbOrganizationMono, clientTenantMono).flatMap(tuple -> {
+        return Mono.zip(dbOrganizationMono, clientOrganizationMono).flatMap(tuple -> {
             Organization dbOrganization = tuple.getT1();
             Organization clientOrganization = tuple.getT2();
-            return getClientPertinentTenant(dbOrganization, clientOrganization);
+            return getClientPertinentOrganization(dbOrganization, clientOrganization);
         });
     }
 
     /*
      * For now, returning just the instance-id, with an empty organizationConfiguration object in this class. Will enhance
-     * this function once we start saving other pertinent environment variables in the tenant collection.
+     * this function once we start saving other pertinent environment variables in the organization collection.
      */
     @Override
     public Mono<Organization> getOrganizationConfiguration() {
@@ -183,33 +187,35 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     public Mono<Organization> getDefaultOrganization() {
         // Fetching Organization from redis cache
         return getDefaultOrganizationId()
-                .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultOrganization(tenantId))
+                .flatMap(organizationId -> cacheableRepositoryHelper.fetchDefaultOrganization(organizationId))
                 .name(FETCH_DEFAULT_ORGANIZATION_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .flatMap(organization ->
+                        repository.setUserPermissionsInObject(organization).switchIfEmpty(Mono.just(organization)))
                 .onErrorResume(e -> {
                     e.printStackTrace();
-                    log.error("Error fetching default tenant from redis : {}", e.getMessage());
-                    // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
-                    // the db. This handles the case for deserialization errors. This prevents the entire instance to
-                    // go down if tenant cache is corrupted.
+                    log.error("Error fetching default organization from redis : {}", e.getMessage());
+                    // If there is an error fetching the organization from the cache, then evict the cache and fetching
+                    // from the db. This handles the case for deserialization errors. This prevents the entire instance
+                    // to
+                    // go down if organization cache is corrupted.
                     // More info - https://github.com/appsmithorg/appsmith/issues/33504
-                    log.info("Evicting the default tenant from cache and fetching from the database!");
+                    log.info("Evicting the default organization from cache and fetching from the database!");
                     return cacheableRepositoryHelper
                             .evictCachedOrganization(organizationId)
                             .then(cacheableRepositoryHelper
                                     .fetchDefaultOrganization(organizationId)
-                                    .map(tenant -> {
-                                        if (tenant.getOrganizationConfiguration() == null) {
-                                            tenant.setOrganizationConfiguration(new OrganizationConfiguration());
+                                    .map(organization -> {
+                                        if (organization.getOrganizationConfiguration() == null) {
+                                            organization.setOrganizationConfiguration(new OrganizationConfiguration());
                                         }
-                                        return tenant;
+                                        return organization;
                                     }))
                             .name(FETCH_ORGANIZATION_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
-                            .flatMap(tenant -> repository
-                                    .setUserPermissionsInObject(tenant)
-                                    .switchIfEmpty(Mono.just(tenant)));
+                            .flatMap(organization -> repository
+                                    .setUserPermissionsInObject(organization)
+                                    .switchIfEmpty(Mono.just(organization)));
                 });
     }
 
@@ -217,27 +223,27 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     public Mono<Organization> updateDefaultOrganizationConfiguration(
             OrganizationConfiguration organizationConfiguration) {
         return getDefaultOrganizationId()
-                .flatMap(tenantId -> updateOrganizationConfiguration(tenantId, organizationConfiguration))
-                .flatMap(updatedTenant -> getOrganizationConfiguration());
+                .flatMap(organizationId -> updateOrganizationConfiguration(organizationId, organizationConfiguration))
+                .flatMap(updatedOrganization -> getOrganizationConfiguration());
     }
 
     /**
      * To get the Organization with values that are pertinent to the client
-     * @param dbOrganization Original tenant from the database
+     * @param dbOrganization Original organization from the database
      * @param clientOrganization Organization object that is sent to the client, can be null
      * @return Mono<Organization>
      */
-    protected Mono<Organization> getClientPertinentTenant(
+    protected Mono<Organization> getClientPertinentOrganization(
             Organization dbOrganization, Organization clientOrganization) {
         if (clientOrganization == null) {
             clientOrganization = new Organization();
             clientOrganization.setOrganizationConfiguration(new OrganizationConfiguration());
         }
 
-        final OrganizationConfiguration tenantConfiguration = clientOrganization.getOrganizationConfiguration();
+        final OrganizationConfiguration organizationConfiguration = clientOrganization.getOrganizationConfiguration();
 
         // Only copy the values that are pertinent to the client
-        tenantConfiguration.copyNonSensitiveValues(dbOrganization.getOrganizationConfiguration());
+        organizationConfiguration.copyNonSensitiveValues(dbOrganization.getOrganizationConfiguration());
         clientOrganization.setUserPermissions(dbOrganization.getUserPermissions());
 
         return Mono.just(clientOrganization);
@@ -246,9 +252,11 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     // This function is used to save the organization object in the database and evict the cache
     @Override
     public Mono<Organization> save(Organization organization) {
-        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
-        Mono<Organization> savedTenantMono = repository.save(organization).cache();
-        return savedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(savedTenantMono);
+        Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
+        Mono<Organization> savedOrganizationMono = repository.save(organization).cache();
+        return savedOrganizationMono
+                .then(Mono.defer(() -> evictCachedOrganization))
+                .then(savedOrganizationMono);
     }
 
     /**
@@ -299,20 +307,22 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     /**
      * This function updates the organization object in the database and evicts the cache
-     * @param tenantId
+     * @param organizationId
      * @param organization
      * @return
      */
     @Override
-    public Mono<Organization> update(String tenantId, Organization organization) {
-        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedOrganization(tenantId);
-        Mono<Organization> updatedTenantMono =
-                super.update(tenantId, organization).cache();
-        return updatedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(updatedTenantMono);
+    public Mono<Organization> update(String organizationId, Organization organization) {
+        Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
+        Mono<Organization> updatedOrganizationMono =
+                super.update(organizationId, organization).cache();
+        return updatedOrganizationMono
+                .then(Mono.defer(() -> evictCachedOrganization))
+                .then(updatedOrganizationMono);
     }
 
     /**
-     * This function checks if the tenant needs to be restarted and restarts after the feature flag migrations are
+     * This function checks if the organization needs to be restarted and restarts after the feature flag migrations are
      * executed.
      *
      * @return
@@ -320,13 +330,16 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Void> restartOrganization() {
         // Avoid dependency on user context as this method will be called internally by the server
-        Mono<Organization> defaultTenantMono = this.getDefaultOrganizationId().flatMap(this::retrieveById);
-        return defaultTenantMono.flatMap(updatedTenant -> {
-            if (TRUE.equals(updatedTenant.getOrganizationConfiguration().getIsRestartRequired())) {
-                log.debug("Triggering tenant restart after the feature flag migrations are executed");
-                OrganizationConfiguration tenantConfiguration = updatedTenant.getOrganizationConfiguration();
-                tenantConfiguration.setIsRestartRequired(false);
-                return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());
+        Mono<Organization> defaultOrganizationMono =
+                this.getDefaultOrganizationId().flatMap(this::retrieveById);
+        return defaultOrganizationMono.flatMap(updatedOrganization -> {
+            if (TRUE.equals(updatedOrganization.getOrganizationConfiguration().getIsRestartRequired())) {
+                log.debug("Triggering organization restart after the feature flag migrations are executed");
+                OrganizationConfiguration organizationConfiguration =
+                        updatedOrganization.getOrganizationConfiguration();
+                organizationConfiguration.setIsRestartRequired(false);
+                return this.update(updatedOrganization.getId(), updatedOrganization)
+                        .then(envManager.restartWithoutAclCheck());
             }
             return Mono.empty();
         });

@@ -52,7 +52,7 @@ import static org.mockito.Mockito.doReturn;
 class OrganizationServiceCETest {
 
     @Autowired
-    OrganizationService tenantService;
+    OrganizationService organizationService;
 
     @MockBean
     EnvManager envManager;
@@ -61,7 +61,7 @@ class OrganizationServiceCETest {
     UserRepository userRepository;
 
     @Autowired
-    OrganizationRepository tenantRepository;
+    OrganizationRepository organizationRepository;
 
     @Autowired
     UserUtils userUtils;
@@ -81,15 +81,16 @@ class OrganizationServiceCETest {
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
-    OrganizationConfiguration originalTenantConfiguration;
+    OrganizationConfiguration originalOrganizationConfiguration;
 
     @BeforeEach
     public void setup() throws IOException {
-        final Organization organization = tenantService.getDefaultOrganization().block();
+        final Organization organization =
+                organizationService.getDefaultOrganization().block();
         assert organization != null;
-        originalTenantConfiguration = organization.getOrganizationConfiguration();
+        originalOrganizationConfiguration = organization.getOrganizationConfiguration();
 
-        tenantRepository
+        organizationRepository
                 .updateAndReturn(
                         organization.getId(),
                         Bridge.update().set(Organization.Fields.organizationConfiguration, null),
@@ -108,10 +109,10 @@ class OrganizationServiceCETest {
     @AfterEach
     public void cleanup() {
         Organization updatedOrganization = new Organization();
-        updatedOrganization.setOrganizationConfiguration(originalTenantConfiguration);
-        tenantService
+        updatedOrganization.setOrganizationConfiguration(originalOrganizationConfiguration);
+        organizationService
                 .getDefaultOrganizationId()
-                .flatMap(tenantId -> tenantService.update(tenantId, updatedOrganization))
+                .flatMap(organizationId -> organizationService.update(organizationId, updatedOrganization))
                 .doOnError(error -> {
                     System.err.println("Error during cleanup: " + error.getMessage());
                 })
@@ -120,9 +121,9 @@ class OrganizationServiceCETest {
 
     @Test
     void ensureMapsKey() {
-        StepVerifier.create(tenantService.getOrganizationConfiguration())
-                .assertNext(tenant -> {
-                    assertThat(tenant.getOrganizationConfiguration().getGoogleMapsKey())
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getGoogleMapsKey())
                             .isNull();
                 })
                 .verifyComplete();
@@ -134,13 +135,13 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<OrganizationConfiguration> resultMono = tenantService
+        final Mono<OrganizationConfiguration> resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getGoogleMapsKey()).isEqualTo("test-key");
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getGoogleMapsKey()).isEqualTo("test-key");
                 })
                 .verifyComplete();
     }
@@ -150,7 +151,7 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<?> resultMono = tenantService.updateDefaultOrganizationConfiguration(changes);
+        final Mono<?> resultMono = organizationService.updateDefaultOrganizationConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -166,7 +167,7 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<?> resultMono = tenantService.updateDefaultOrganizationConfiguration(changes);
+        final Mono<?> resultMono = organizationService.updateDefaultOrganizationConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -178,13 +179,14 @@ class OrganizationServiceCETest {
 
     @Test
     @WithUserDetails("anonymousUser")
-    void getTenantConfig_Valid_AnonymousUser() {
-        StepVerifier.create(tenantService.getOrganizationConfiguration())
-                .assertNext(tenant -> {
-                    assertThat(tenant.getOrganizationConfiguration()).isNotNull();
-                    assertThat(tenant.getOrganizationConfiguration().getLicense())
+    void getOrganizationConfig_Valid_AnonymousUser() {
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration()).isNotNull();
+                    assertThat(organization.getOrganizationConfiguration().getLicense())
                             .isNotNull();
-                    assertThat(tenant.getOrganizationConfiguration()
+                    assertThat(organization
+                                    .getOrganizationConfiguration()
                                     .getLicense()
                                     .getPlan())
                             .isEqualTo(LicensePlan.FREE);
@@ -205,9 +207,9 @@ class OrganizationServiceCETest {
         // mocking env vars file
         Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
 
-        final Mono<OrganizationConfiguration> resultMono = tenantService
+        final Mono<OrganizationConfiguration> resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
-                .then(tenantService.getOrganizationConfiguration())
+                .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
@@ -231,14 +233,15 @@ class OrganizationServiceCETest {
         // mocking env vars file
         Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
 
-        final Mono<OrganizationConfiguration> resultMono = tenantService
+        final Mono<OrganizationConfiguration> resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
-                .then(tenantService.getOrganizationConfiguration())
+                .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isTrue();
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.isEmailVerificationEnabled())
+                            .isTrue();
                 })
                 .verifyComplete();
     }
@@ -249,20 +252,21 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setEmailVerificationEnabled(Boolean.FALSE);
 
-        final Mono<OrganizationConfiguration> resultMono = tenantService
+        final Mono<OrganizationConfiguration> resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
-                .then(tenantService.getOrganizationConfiguration())
+                .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isFalse();
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.isEmailVerificationEnabled())
+                            .isFalse();
                 })
                 .verifyComplete();
     }
 
     @Test
-    void checkAndExecuteMigrationsForTenantFeatureFlags_emptyMigrationMap_revertSameOrganization() {
+    void checkAndExecuteMigrationsForOrganizationFeatureFlags_emptyMigrationMap_revertSameOrganization() {
         Mockito.when(featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(any(), any()))
                 .thenReturn(Mono.just(TRUE));
 
@@ -272,20 +276,20 @@ class OrganizationServiceCETest {
         config.setFeaturesWithPendingMigration(new HashMap<>());
         organization.setOrganizationConfiguration(config);
         final Mono<Organization> resultMono =
-                tenantService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
+                organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
         StepVerifier.create(resultMono)
-                .assertNext(tenant1 -> {
-                    assertThat(tenant1).isEqualTo(organization);
-                    assertThat(tenant1.getOrganizationConfiguration().getFeaturesWithPendingMigration())
+                .assertNext(organization1 -> {
+                    assertThat(organization1).isEqualTo(organization);
+                    assertThat(organization1.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEmpty();
-                    assertThat(tenant1.getOrganizationConfiguration().getMigrationStatus())
+                    assertThat(organization1.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(COMPLETED);
                 })
                 .verifyComplete();
     }
 
     @Test
-    void checkAndExecuteMigrationsForTenantFeatureFlags_withPendingMigration_getUpdatedOrganization() {
+    void checkAndExecuteMigrationsForOrganizationFeatureFlags_withPendingMigration_getUpdatedOrganization() {
         Mockito.when(featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(any(), any()))
                 .thenReturn(Mono.just(TRUE));
 
@@ -298,12 +302,12 @@ class OrganizationServiceCETest {
         featureMigrationTypeMap.put(TEST_FEATURE_2, FeatureMigrationType.DISABLE);
         organization.setOrganizationConfiguration(config);
         final Mono<Organization> resultMono =
-                tenantService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
+                organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
         StepVerifier.create(resultMono)
-                .assertNext(tenant1 -> {
-                    assertThat(tenant1.getOrganizationConfiguration().getFeaturesWithPendingMigration())
+                .assertNext(organization1 -> {
+                    assertThat(organization1.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEmpty();
-                    assertThat(tenant1.getOrganizationConfiguration().getMigrationStatus())
+                    assertThat(organization1.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(COMPLETED);
                 })
                 .verifyComplete();
@@ -312,7 +316,7 @@ class OrganizationServiceCETest {
     @Test
     @WithUserDetails("api_user")
     void
-            checkAndExecuteMigrationsForTenantFeatureFlags_withPendingMigration_exceptionWhileRunningMigration_getUpdatedOrganization() {
+            checkAndExecuteMigrationsForOrganizationFeatureFlags_withPendingMigration_exceptionWhileRunningMigration_getUpdatedOrganization() {
         Mockito.when(featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(any(), any()))
                 .thenReturn(Mono.just(TRUE))
                 .thenReturn(Mono.just(FALSE));
@@ -326,7 +330,7 @@ class OrganizationServiceCETest {
         featureMigrationTypeMap.put(TEST_FEATURE_2, FeatureMigrationType.ENABLE);
         organization.setOrganizationConfiguration(config);
         final Mono<Organization> resultMono =
-                tenantService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
+                organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
 
         // Verify that the feature flag migration failure is thrown
         StepVerifier.create(resultMono)
@@ -338,11 +342,11 @@ class OrganizationServiceCETest {
                 .verify();
 
         // Verify that the organization is updated for the feature flag migration failure
-        StepVerifier.create(tenantService.getByIdWithoutPermissionCheck(organization.getId()))
-                .assertNext(updatedTenant -> {
-                    assertThat(updatedTenant.getOrganizationConfiguration().getFeaturesWithPendingMigration())
+        StepVerifier.create(organizationService.getByIdWithoutPermissionCheck(organization.getId()))
+                .assertNext(organization1 -> {
+                    assertThat(organization1.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .hasSize(1);
-                    assertThat(updatedTenant.getOrganizationConfiguration().getMigrationStatus())
+                    assertThat(organization1.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(IN_PROGRESS);
                 })
                 .verifyComplete();
@@ -350,13 +354,13 @@ class OrganizationServiceCETest {
 
     @Test
     @WithUserDetails("api_user")
-    void updateTenantConfiguration_updateStrongPasswordPolicy_success() {
+    void updateOrganizationConfiguration_updateStrongPasswordPolicy_success() {
 
-        // Ensure that the default tenant does not have strong password policy setup
-        Mono<Organization> tenantMono = tenantService.getDefaultOrganization();
-        StepVerifier.create(tenantMono)
-                .assertNext(tenant -> {
-                    assertThat(tenant.getOrganizationConfiguration().getIsStrongPasswordPolicyEnabled())
+        // Ensure that the default organization does not have strong password policy setup
+        Mono<Organization> organizationMono = organizationService.getDefaultOrganization();
+        StepVerifier.create(organizationMono)
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getIsStrongPasswordPolicyEnabled())
                             .isNull();
                 })
                 .verifyComplete();
@@ -364,46 +368,46 @@ class OrganizationServiceCETest {
         // Ensure that the strong password policy is enabled after the update
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setIsStrongPasswordPolicyEnabled(TRUE);
-        Mono<OrganizationConfiguration> resultMono = tenantService
+        Mono<OrganizationConfiguration> resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
-                .then(tenantService.getOrganizationConfiguration())
+                .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getIsStrongPasswordPolicyEnabled())
                             .isTrue();
                 })
                 .verifyComplete();
 
         // Ensure that the strong password policy is disabled after the update
         changes.setIsStrongPasswordPolicyEnabled(FALSE);
-        resultMono = tenantService
+        resultMono = organizationService
                 .updateDefaultOrganizationConfiguration(changes)
-                .then(tenantService.getOrganizationConfiguration())
+                .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getIsStrongPasswordPolicyEnabled())
                             .isFalse();
                 })
                 .verifyComplete();
     }
 
     /**
-     * This test checks that the tenant cache is created and data is fetched without any deserialization errors
-     * This will ensure if any new nested user-defined classes are created in the tenant object in the future, and
+     * This test checks that the organization cache is created and data is fetched without any deserialization errors
+     * This will ensure if any new nested user-defined classes are created in the organization object in the future, and
      * implements serializable is missed for that class, the deserialization will fail leads this test to fail.
      */
     @Test
     @WithUserDetails(value = "api_user")
     public void testDeserializationErrors() {
-        String tenantId = tenantService.getDefaultOrganizationId().block();
-        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedOrganization(tenantId);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenant:" + tenantId);
-        Mono<Organization> cachedTenant = tenantService.getDefaultOrganization();
-        StepVerifier.create(evictTenantCache.then(cachedTenant).then(hasKeyMono))
+        String organizationId = organizationService.getDefaultOrganizationId().block();
+        Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenant:" + organizationId);
+        Mono<Organization> organizationMono = organizationService.getDefaultOrganization();
+        StepVerifier.create(evictCachedOrganization.then(organizationMono).then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }

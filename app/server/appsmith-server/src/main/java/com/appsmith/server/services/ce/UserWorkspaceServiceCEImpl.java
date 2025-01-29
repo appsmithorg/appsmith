@@ -50,7 +50,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final UserRepository userRepository;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
-    private final OrganizationService tenantService;
+    private final OrganizationService organizationService;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
 
@@ -61,7 +61,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             UserRepository userRepository,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
@@ -69,7 +69,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.userRepository = userRepository;
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
     }
@@ -147,9 +147,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         // Get the user
-        Mono<User> userMono = tenantService
+        Mono<User> userMono = organizationService
                 .getDefaultOrganizationId()
-                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), tenantId))
+                .flatMap(organizationId ->
+                        userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), organizationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();

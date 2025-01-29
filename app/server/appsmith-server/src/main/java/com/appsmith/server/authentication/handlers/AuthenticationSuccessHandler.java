@@ -32,7 +32,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             ApplicationPageService applicationPageService,
             WorkspacePermission workspacePermission,
             RateLimitService rateLimitService,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             UserService userService,
             WorkspaceServiceHelper workspaceServiceHelper) {
         super(
@@ -46,7 +46,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 applicationPageService,
                 workspacePermission,
                 rateLimitService,
-                tenantService,
+                organizationService,
                 userService,
                 workspaceServiceHelper);
     }

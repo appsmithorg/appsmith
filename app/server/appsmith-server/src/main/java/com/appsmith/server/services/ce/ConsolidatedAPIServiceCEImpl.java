@@ -67,11 +67,11 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.DAT
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FEATURE_FLAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FORM_CONFIG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.MOCK_DATASOURCES_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ORGANIZATION_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PAGES_DSL_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PAGES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PLUGINS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PRODUCT_ALERT_SPAN;
-import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.TENANT_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
@@ -185,13 +185,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .cache();
         fetches.add(featureFlagsForCurrentUserResponseDTOMonoCache);
 
-        /* Get tenant config data */
+        /* Get organization config data */
         fetches.add(organizationService
                 .getOrganizationConfiguration()
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching tenant config", e))
+                .doOnError(e -> log.error("Error fetching organization config", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setOrganizationConfig)
-                .name(getQualifiedSpanName(TENANT_SPAN, mode))
+                .name(getQualifiedSpanName(ORGANIZATION_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
         /* Get any product alert info */

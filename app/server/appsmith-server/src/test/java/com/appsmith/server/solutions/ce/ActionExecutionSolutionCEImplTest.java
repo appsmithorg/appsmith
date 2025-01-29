@@ -129,7 +129,7 @@ class ActionExecutionSolutionCEImplTest {
     ConfigService configService;
 
     @SpyBean
-    OrganizationService tenantService;
+    OrganizationService organizationService;
 
     @SpyBean
     CommonConfig commonConfig;
@@ -169,7 +169,7 @@ class ActionExecutionSolutionCEImplTest {
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 commonConfig,
                 actionExecutionSolutionHelper,
                 featureFlagService);

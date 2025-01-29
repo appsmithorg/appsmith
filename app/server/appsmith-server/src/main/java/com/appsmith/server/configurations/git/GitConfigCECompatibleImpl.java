@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GitConfigCECompatibleImpl extends GitConfigCEImpl implements GitConfigCECompatible {
-    public GitConfigCECompatibleImpl(OrganizationService tenantService) {
-        super(tenantService);
+    public GitConfigCECompatibleImpl(OrganizationService organizationService) {
+        super(organizationService);
     }
 }

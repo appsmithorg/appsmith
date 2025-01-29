@@ -11,7 +11,7 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
     Mono<String> getDefaultOrganizationId();
 
     Mono<Organization> updateOrganizationConfiguration(
-            String tenantId, OrganizationConfiguration organizationConfiguration);
+            String organizationId, OrganizationConfiguration organizationConfiguration);
 
     Mono<Organization> findById(String organizationId, AclPermission permission);
 

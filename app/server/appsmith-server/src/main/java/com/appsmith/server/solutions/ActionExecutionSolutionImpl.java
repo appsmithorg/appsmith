@@ -41,7 +41,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             CommonConfig commonConfig,
             ActionExecutionSolutionHelper actionExecutionSolutionHelper,
             FeatureFlagService featureFlagService) {
@@ -63,7 +63,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 commonConfig,
                 actionExecutionSolutionHelper,
                 featureFlagService);

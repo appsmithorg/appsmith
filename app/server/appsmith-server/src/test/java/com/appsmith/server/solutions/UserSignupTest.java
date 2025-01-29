@@ -64,7 +64,7 @@ public class UserSignupTest {
     private EmailService emailService;
 
     @MockBean
-    private OrganizationService tenantService;
+    private OrganizationService organizationService;
 
     private UserSignup userSignup;
 
@@ -85,7 +85,7 @@ public class UserSignupTest {
                 userUtils,
                 networkUtils,
                 emailService,
-                tenantService);
+                organizationService);
 
         exchange = Mockito.mock(ServerWebExchange.class);
         Mockito.when(exchange.getSession()).thenReturn(Mono.just(new MockWebSession()));
@@ -93,7 +93,7 @@ public class UserSignupTest {
         organization = new Organization();
         OrganizationConfiguration configuration = new OrganizationConfiguration();
         organization.setOrganizationConfiguration(configuration);
-        Mockito.when(tenantService.getDefaultOrganization()).thenReturn(Mono.just(organization));
+        Mockito.when(organizationService.getDefaultOrganization()).thenReturn(Mono.just(organization));
     }
 
     private String createRandomString(int length) {
@@ -142,7 +142,7 @@ public class UserSignupTest {
         user.setPassword(createRandomString(LOGIN_PASSWORD_MAX_LENGTH - 1));
 
         organization.getOrganizationConfiguration().setIsStrongPasswordPolicyEnabled(true);
-        Mockito.when(tenantService.getDefaultOrganization()).thenReturn(Mono.just(organization));
+        Mockito.when(organizationService.getDefaultOrganization()).thenReturn(Mono.just(organization));
         Mono<User> userMono = userSignup.signupAndLogin(user, exchange);
         StepVerifier.create(userMono)
                 .expectErrorSatisfies(throwable -> {

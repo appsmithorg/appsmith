@@ -10,13 +10,13 @@ import reactor.core.publisher.Mono;
 @Component
 public class GitConfigCEImpl implements GitConfigCE {
 
-    private final OrganizationService tenantService;
+    private final OrganizationService organizationService;
 
     @Override
     public Mono<Boolean> getIsAtomicPushAllowed() {
-        return tenantService
+        return organizationService
                 .getOrganizationConfiguration()
-                .map(tenant -> tenant.getOrganizationConfiguration().getIsAtomicPushAllowed())
+                .map(organization -> organization.getOrganizationConfiguration().getIsAtomicPushAllowed())
                 .switchIfEmpty(Mono.just(false));
     }
 }

@@ -16,7 +16,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
 
     private final FeatureFlagService featureFlagService;
 
-    private final OrganizationService tenantService;
+    private final OrganizationService organizationService;
 
     @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
     @Observed(name = "fetchFeatures")
@@ -24,10 +24,10 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
         log.info("Fetching features for default tenant");
         featureFlagService
                 .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
-                .then(tenantService
+                .then(organizationService
                         .getDefaultOrganization()
                         .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
-                        .then(tenantService.restartOrganization()))
+                        .then(organizationService.restartOrganization()))
                 .doOnError(error -> log.error("Error while fetching tenant feature flags", error))
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();

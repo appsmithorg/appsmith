@@ -96,7 +96,7 @@ public class ConsolidatedAPIServiceImplTest {
     UserDataService mockUserDataService;
 
     @MockBean
-    OrganizationService mockTenantService;
+    OrganizationService mockOrganizationService;
 
     @MockBean
     ProductAlertService mockProductAlertService;
@@ -165,7 +165,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -225,7 +225,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -414,7 +414,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -733,7 +733,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -905,7 +905,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -1097,7 +1097,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
@@ -1443,7 +1443,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Organization sampleOrganization = new Organization();
         sampleOrganization.setDisplayName("sampleOrganization");
-        when(mockTenantService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
 
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");

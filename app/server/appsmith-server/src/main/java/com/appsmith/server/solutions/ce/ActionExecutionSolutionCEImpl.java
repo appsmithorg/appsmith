@@ -121,7 +121,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final OrganizationService tenantService;
+    private final OrganizationService organizationService;
     private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
     private final FeatureFlagService featureFlagService;
@@ -151,7 +151,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             CommonConfig commonConfig,
             ActionExecutionSolutionHelper actionExecutionSolutionHelper,
             FeatureFlagService featureFlagService) {
@@ -172,7 +172,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
         this.configService = configService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.commonConfig = commonConfig;
         this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
         this.featureFlagService = featureFlagService;
@@ -252,16 +252,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultTenantIdMono = tenantService.getDefaultOrganizationId();
+        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
 
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
         return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
-                        instanceIdMono, defaultTenantIdMono)
+                        instanceIdMono, defaultOrganizationIdMono)
                 .map(tuple -> {
                     String instanceId = tuple.getT1();
-                    String tenantId = tuple.getT2();
+                    String organizationId = tuple.getT2();
                     populatedExecuteActionDTO.setActionId(newAction.getId());
                     populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
@@ -272,7 +272,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 newAction.getUnpublishedAction().getDatasource().getId());
                     }
                     populatedExecuteActionDTO.setInstanceId(instanceId);
-                    populatedExecuteActionDTO.setOrganizationId(tenantId);
+                    populatedExecuteActionDTO.setOrganizationId(organizationId);
                     return populatedExecuteActionDTO;
                 }));
     }

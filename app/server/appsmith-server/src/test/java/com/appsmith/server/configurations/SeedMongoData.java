@@ -40,7 +40,7 @@ public class SeedMongoData {
             UserRepository userRepository,
             WorkspaceRepository workspaceRepository,
             PluginRepository pluginRepository,
-            OrganizationRepository tenantRepository,
+            OrganizationRepository organizationRepository,
             PermissionGroupRepository permissionGroupRepository,
             PolicySolution policySolution) {
 
@@ -122,24 +122,24 @@ public class SeedMongoData {
         defaultOrganization.setSlug("default");
         defaultOrganization.setPricingPlan(PricingPlan.FREE);
 
-        Mono<String> defaultTenantId = tenantRepository
+        Mono<String> defaultOrganizationId = organizationRepository
                 .findBySlug("default")
-                .switchIfEmpty(tenantRepository.save(defaultOrganization))
+                .switchIfEmpty(organizationRepository.save(defaultOrganization))
                 .map(Organization::getId)
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .zipWith(defaultTenantId.repeat())
+                .zipWith(defaultOrganizationId.repeat())
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
-                    String tenantId = tuple.getT2();
+                    String organizationId = tuple.getT2();
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    user.setTenantId(tenantId);
+                    user.setTenantId(organizationId);
                     return userRepository.save(user);
                 })
                 .flatMap(user -> {

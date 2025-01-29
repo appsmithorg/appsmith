@@ -54,7 +54,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourcePermission datasourcePermission;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final OrganizationService tenantService;
+    private final OrganizationService organizationService;
     private final FeatureFlagService featureFlagService;
 
     public Mono<TriggerResultDTO> trigger(
@@ -166,7 +166,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
     private Mono<TriggerRequestDTO> populateTriggerRequestDto(
             TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
-        return tenantService
+        return organizationService
                 .getDefaultOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {

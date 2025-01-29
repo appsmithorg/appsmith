@@ -29,7 +29,7 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
             DatasourcePermission datasourcePermission,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             FeatureFlagService featureFlagService) {
         super(
                 datasourceService,
@@ -42,7 +42,7 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
                 datasourcePermission,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 featureFlagService);
     }
 }

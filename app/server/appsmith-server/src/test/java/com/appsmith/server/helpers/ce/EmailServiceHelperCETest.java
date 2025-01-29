@@ -27,13 +27,13 @@ class EmailServiceHelperCETest {
     @Qualifier("emailServiceHelperCEImpl") private EmailServiceHelperCE emailServiceHelperCE;
 
     @Autowired
-    OrganizationService tenantService;
+    OrganizationService organizationService;
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testEnrichWithBrandParams() {
         Organization defautOrganization =
-                tenantService.getOrganizationConfiguration().block();
+                organizationService.getOrganizationConfiguration().block();
         String instanceName = StringUtils.defaultIfEmpty(
                 defautOrganization.getOrganizationConfiguration().getInstanceName(), "Appsmith");
         StepVerifier.create(emailServiceHelperCE.enrichWithBrandParams(new HashMap<>(), "www.test.com"))

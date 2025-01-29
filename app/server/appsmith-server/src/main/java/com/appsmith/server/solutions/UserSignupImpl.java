@@ -29,7 +29,7 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
-            OrganizationService tenantService) {
+            OrganizationService organizationService) {
 
         super(
                 userService,
@@ -42,6 +42,6 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                 userUtils,
                 networkUtils,
                 emailService,
-                tenantService);
+                organizationService);
     }
 }

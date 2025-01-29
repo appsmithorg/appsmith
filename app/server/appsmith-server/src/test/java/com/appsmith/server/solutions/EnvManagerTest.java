@@ -81,7 +81,7 @@ public class EnvManagerTest {
     private UserUtils userUtils;
 
     @MockBean
-    private OrganizationService tenantService;
+    private OrganizationService organizationService;
 
     @MockBean
     private ObjectMapper objectMapper;
@@ -108,7 +108,7 @@ public class EnvManagerTest {
                 permissionGroupService,
                 configService,
                 userUtils,
-                tenantService,
+                organizationService,
                 objectMapper,
                 emailService);
     }

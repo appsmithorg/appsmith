@@ -38,7 +38,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             PermissionGroupService permissionGroupService,
             ConfigService configService,
             UserUtils userUtils,
-            OrganizationService tenantService,
+            OrganizationService organizationService,
             ObjectMapper objectMapper,
             EmailService emailService) {
 
@@ -56,7 +56,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                 permissionGroupService,
                 configService,
                 userUtils,
-                tenantService,
+                organizationService,
                 objectMapper,
                 emailService);
     }
