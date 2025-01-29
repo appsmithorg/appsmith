@@ -76,15 +76,18 @@ interface ApplicationCardProps {
 
 const IconScrollWrapper = styled.div`
   position: relative;
+
   .t--icon-selected {
     background-color: var(--ads-v2-color-bg-muted);
-    border: var(--ads-v2-border-color);
+    border: var(--ads-v2-color-border);
+
     svg {
       path {
         fill: var(--ads-v2-color-fg);
       }
     }
   }
+
   svg {
     path {
       fill: var(--ads-v2-color-fg);
@@ -98,13 +101,13 @@ export interface ModifiedMenuItemProps extends MenuItemProps {
 }
 
 export function ApplicationCard(props: ApplicationCardProps) {
-  const { isFetchingApplications } = props;
+  const { application, isFetchingApplications } = props;
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const currentUser = useSelector(getCurrentUserSelector);
   const initialsAndColorCode = getInitialsAndColorCode(
-    props.application.name,
+    application.name,
     theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
@@ -120,9 +123,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const dispatch = useDispatch();
 
-  const applicationId = props.application?.id;
-  const baseApplicationId = props.application?.baseId;
-  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+  const applicationId = application.id;
+  const baseApplicationId = application.baseId;
+  const showGitBadge = application.gitApplicationMetadata?.branchName;
   const [editorParams, setEditorParams] = useState({});
   const isGitPersistBranchEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_persist_branch_enabled,
@@ -159,14 +162,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
   useEffect(() => {
     let colorCode;
 
-    if (props.application.color) {
-      colorCode = props.application.color;
+    if (application.color) {
+      colorCode = application.color;
     } else {
       colorCode = getRandomPaletteColor(theme.colors.appCardColors);
     }
 
     setSelectedColor(colorCode);
-  }, [props.application.color]);
+  }, [application.color]);
 
   useEffect(() => {
     if (props.share) {
@@ -205,22 +208,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const appIcon = (props.application?.icon ||
+  const appIcon = (application.icon ||
     getApplicationIcon(applicationId)) as AppIconName;
   const hasEditPermission = isPermitted(
-    props.application?.userPermissions ?? [],
+    application.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
   );
   const hasReadPermission = isPermitted(
-    props.application?.userPermissions ?? [],
+    application.userPermissions ?? [],
     PERMISSION_TYPE.READ_APPLICATION,
   );
   const hasExportPermission = isPermitted(
-    props.application?.userPermissions ?? [],
+    application.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
   const hasDeletePermission = hasDeleteApplicationPermission(
-    props.application?.userPermissions,
+    application.userPermissions,
   );
 
   const updateColor = (color: string) => {
@@ -247,7 +250,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
-    const branchName = props.application.gitApplicationMetadata?.branchName;
+    const branchName = application.gitApplicationMetadata?.branchName;
 
     link.href = getExportAppAPIRoute(applicationId, branchName);
     link.id = id;
@@ -259,7 +262,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
 
     setIsMenuOpen(false);
-    toast.show(`Successfully exported ${props.application.name}`, {
+    toast.show(`Successfully exported ${application.name}`, {
       kind: "success",
     });
   };
@@ -307,8 +310,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
   };
 
-  if (initials.length < 2 && props.application.name.length > 1) {
-    initials += props.application.name[1].toUpperCase() || "";
+  if (initials.length < 2 && application.name.length > 1) {
+    initials += application.name[1].toUpperCase() || "";
   }
 
   const handleMenuOnClose = (open: boolean) => {
@@ -317,7 +320,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setShowOverlay(false);
       addDeleteOption();
 
-      if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
+      if (lastUpdatedValue && application.name !== lastUpdatedValue) {
         props.update &&
           props.update(applicationId, {
             name: lastUpdatedValue,
@@ -353,7 +356,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             >
               <EditableText
                 className="px-3 pt-2 pb-2 t--application-name"
-                defaultValue={props.application.name}
+                defaultValue={application.name}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 fill
                 hideEditIcon={false}
@@ -435,68 +438,88 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   const editedByText = generateEditedByText({
-    modifiedAt: props.application.modifiedAt,
-    modifiedBy: props.application.modifiedBy,
+    modifiedAt: application.modifiedAt,
+    modifiedBy: application.modifiedBy,
   });
 
-  function setURLParams() {
-    const page: ApplicationPagePayload | undefined =
-      props.application.pages.find(
-        (page) => page.id === props.application.defaultPageId,
-      );
+  const setURLParams = useCallback(() => {
+    const page: ApplicationPagePayload | undefined = application.pages.find(
+      (page) => page.id === application.defaultPageId,
+    );
 
     if (!page) return;
 
     urlBuilder.updateURLParams(
       {
-        applicationSlug: props.application.slug,
-        applicationVersion: props.application.applicationVersion,
-        baseApplicationId: props.application.baseId,
+        applicationSlug: application.slug,
+        applicationVersion: application.applicationVersion,
+        baseApplicationId: application.baseId,
       },
-      props.application.pages.map((page) => ({
+      application.pages.map((page) => ({
         pageSlug: page.slug,
         customSlug: page.customSlug,
         basePageId: page.baseId,
       })),
     );
-  }
+  }, [
+    application.applicationVersion,
+    application.baseId,
+    application.defaultPageId,
+    application.pages,
+    application.slug,
+  ]);
 
   const editModeURL = useMemo(() => {
-    const basePageId = props.application.defaultBasePageId;
+    const basePageId = application.defaultBasePageId;
 
     if (!basePageId) return "";
 
     return builderURL({ basePageId, params: editorParams });
-  }, [props.application.defaultBasePageId, editorParams]);
+  }, [application.defaultBasePageId, editorParams]);
 
   const viewModeURL = useMemo(() => {
-    const basePageId = props.application.defaultBasePageId;
+    const basePageId = application.defaultBasePageId;
 
     if (!basePageId) return "";
 
     return viewerURL({ basePageId, params: viewerParams });
-  }, [props.application.defaultBasePageId, viewerParams]);
+  }, [application.defaultBasePageId, viewerParams]);
 
-  const launchApp = useCallback(() => {
-    setURLParams();
-    dispatch(getCurrentUser());
-  }, []);
+  const launchApp = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        window.open(viewModeURL, "_blank");
 
-  const editApp = useCallback(() => {
-    setURLParams();
-    dispatch(getCurrentUser());
-  }, []);
+        return;
+      }
+
+      setURLParams();
+      history.push(viewModeURL);
+      dispatch(getCurrentUser());
+    },
+    [dispatch, setURLParams, viewModeURL],
+  );
+
+  const editApp = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        window.open(editModeURL, "_blank");
+
+        return;
+      }
+
+      setURLParams();
+      history.push(editModeURL);
+      dispatch(getCurrentUser());
+    },
+    [dispatch, editModeURL, setURLParams],
+  );
 
   const launchMobileApp = useCallback(() => {
     setURLParams();
-    history.push(
-      viewerURL({
-        basePageId: props.application.defaultBasePageId,
-        params: viewerParams,
-      }),
-    );
+    history.push(viewModeURL);
     dispatch(getCurrentUser());
-  }, [dispatch, props.application.defaultBasePageId, viewerParams]);
+  }, [setURLParams, viewModeURL, dispatch]);
 
   return (
     <Card
@@ -514,14 +537,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay}
-      testId={`t--application-card ${props.application.name}`}
-      title={props.application.name}
+      testId={`t--application-card ${application.name}`}
+      title={application.name}
       titleTestId="t--app-card-name"
     >
       {hasEditPermission && !isMenuOpen && (
         <Button
           className="t--application-edit-link"
-          href={editModeURL}
           onClick={editApp}
           renderAs="a"
           size="md"
@@ -533,7 +555,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       {!isMenuOpen && (
         <Button
           className="t--application-view-link"
-          href={viewModeURL}
           kind="secondary"
           onClick={launchApp}
           renderAs="a"
