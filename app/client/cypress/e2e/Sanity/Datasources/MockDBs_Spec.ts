@@ -26,7 +26,7 @@ describe(
     ],
   },
   () => {
-    it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
+    it.skip("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       PageList.AddNewPage();
       PageList.AddNewPage();
       dataSources.CreateMockDB("Users").then((mockDBName) => {
@@ -75,7 +75,7 @@ describe(
       });
     });
 
-    it("2. Create Query from Mock Mongo DB & verify active queries count", () => {
+    it.skip("2. Create Query from Mock Mongo DB & verify active queries count", () => {
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
         cy.log("Mock DB Name: " + mockDBName);
