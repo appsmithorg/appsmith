@@ -84,9 +84,12 @@ export const featureFlagInterceptForLicenseFlags = () => {
     },
   ).as("getLicenseFeatures");
 
-  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+  cy.intercept({
+    method: "GET", 
+    url: "/api/v1/consolidated-api/*?*",
+  }, (req) => {
     req.reply((res: any) => {
-      if (res.statusCode === 200) {
+      if (res.statusCode === 200 || res.statusCode === 304) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = {};
