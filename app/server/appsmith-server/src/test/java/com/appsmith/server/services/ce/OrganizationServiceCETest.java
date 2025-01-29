@@ -155,7 +155,7 @@ class OrganizationServiceCETest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).startsWith("Unable to find tenant ");
+                    assertThat(error.getMessage()).startsWith("Unable to find organization ");
                     return true;
                 })
                 .verify();
@@ -171,7 +171,7 @@ class OrganizationServiceCETest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).startsWith("Unable to find tenant ");
+                    assertThat(error.getMessage()).startsWith("Unable to find organization ");
                     return true;
                 })
                 .verify();
