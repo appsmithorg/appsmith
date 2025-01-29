@@ -2,6 +2,7 @@ type ID = string;
 
 export interface Package {
   id: ID;
+  baseId: ID;
   name: string; // Name of the package.
   icon: string;
   color: string;
