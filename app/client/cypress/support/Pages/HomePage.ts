@@ -365,20 +365,22 @@ export class HomePage {
       },
     }).then((response) => {
       expect(response.status).equal(200);
-    });
 
-    let httpMethod = "POST";
-    if (CURRENT_REPO === REPO.EE) {
-      httpMethod = "GET";
-    }
-    cy.request({
-      method: httpMethod,
-      url: "/api/v1/logout",
-      headers: {
-        "X-Requested-By": "Appsmith",
-      },
-    }).then((response) => {
-      expect(response.status).equal(200); //Verifying logout is success
+      let httpMethod = "POST";
+      if (CURRENT_REPO === REPO.EE) {
+        httpMethod = "GET";
+      }
+
+      // Only send logout request after the first request is complete
+      cy.request({
+        method: httpMethod,
+        url: "/api/v1/logout",
+        headers: {
+          "X-Requested-By": "Appsmith",
+        },
+      }).then((response) => {
+        expect(response.status).equal(200); // Verifying logout is success
+      });
     });
   }
 
