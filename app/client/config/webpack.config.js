@@ -666,6 +666,14 @@ module.exports = function (webpackEnv) {
       },
     ],
     plugins: [
+      // Replace BlueprintJS’s icon component with our own implementation
+      // that code-splits icons away
+      new webpack.NormalModuleReplacementPlugin(
+        /@blueprintjs\/core\/lib\/\w+\/components\/icon\/icon\.\w+/,
+        require.resolve(
+          `${paths.appSrc}/components/designSystems/blueprintjs/icon/index.js`,
+        ),
+      ),
       isEnvProduction &&
         new RetryChunkLoadPlugin({
           retryDelay: 3000,
