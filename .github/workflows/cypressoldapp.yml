@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Cypress tests
         run: |
-          npx cypress run --config-file cypress_ci_custom.config.ts --browser $BROWSER_PATH --spec $CYPRESS_SPECS --env NODE_ENV=development,baseUrl=${{ matrix.baseUrl }}
+          npx cypress run --config-file cypress_ci_custom.config.ts --browser $BROWSER_PATH --spec ${{ matrix.specs }} --env NODE_ENV=development,baseUrl=${{ matrix.baseUrl }}
         working-directory: app/client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
