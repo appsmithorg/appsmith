@@ -274,6 +274,12 @@ jobs:
           DP_EFS_ID: ${{ secrets.APPSMITH_DP_EFS_ID }}
           DP_POSTGRES_URL: ${{ secrets.DP_POSTGRES_URL }}
           REDIS_URL: ${{ secrets.APPSMITH_DP_REDIS_URL }}
+          OPENAI_ASSISTANT_ID: ${{ secrets.OPENAI_ASSISTANT_ID }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          APPSMITH_CARBON_API_KEY: ${{ secrets.APPSMITH_CARBON_API_KEY }}
+          APPSMITH_CARBON_API_BASE_PATH: ${{ secrets.APPSMITH_CARBON_API_BASE_PATH }}
+          APPSMITH_AI_SERVER_MANAGED_HOSTING: ${{ secrets.APPSMITH_AI_SERVER_MANAGED_HOSTING }}
+          IN_DOCKER: ${{ secrets.IN_DOCKER }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh
