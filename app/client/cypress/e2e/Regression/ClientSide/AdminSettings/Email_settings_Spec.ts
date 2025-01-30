@@ -40,7 +40,7 @@ describe(
       cy.LogOut();
     });
 
-    it.only("1. Verify adding new admin user and sign up process", () => {
+    it("1. Verify adding new admin user and sign up process", () => {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
@@ -62,7 +62,7 @@ describe(
       cy.LoginFromAPI(fromEmail, "testPassword");
     });
 
-    it.only("2. Verify admin setup smtp and test email works", () => {
+    it("2. Verify admin setup smtp and test email works", () => {
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       agHelper.CypressReload();
       const testEmailSubject: string = "Test email from Appsmith";
@@ -120,7 +120,6 @@ describe(
           expect(text).to.equal("root");
         });
       cy.intercept("POST", "/api/v1/admin/send-test-email").as("sendTestEmail");
-      cy.pause();
       agHelper.GetNClick(AdminsSettings.smtpAppsmithMailTestButton);
       cy.wait("@sendTestEmail").then((interception) => {
         expect(interception.response.statusCode).to.eq(200);
