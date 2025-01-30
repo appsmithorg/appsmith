@@ -111,9 +111,10 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_DB_URL="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
-  --set applicationConfig.APPSMITH_OPENAI_ASSISTANT_ID="$OPENAI_ASSISTANT_ID" \
-  --set applicationConfig.APPSMITH_OPENAI_API_KEY="$OPENAI_API_KEY" \
+  --set applicationConfig.OPENAI_ASSISTANT_ID="$OPENAI_ASSISTANT_ID" \
+  --set applicationConfig.OPENAI_API_KEY="$OPENAI_API_KEY" \
   --set applicationConfig.APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY" \
   --set applicationConfig.APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH" \
   --set applicationConfig.APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING" \
+  --set applicationConfig.IN_DOCKER="$IN_DOCKER" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com"
