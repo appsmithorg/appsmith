@@ -459,7 +459,7 @@ const mapStateToProps = (
                 ...dynamicFetchedValues.evaluatedConfig.params,
                 parameters: {
                   ...dynamicFetchedValues.evaluatedConfig.params.parameters,
-                  startIndex: startIndex + count + 1,
+                  startIndex: startIndex + count,
                 },
               },
             },
@@ -474,7 +474,7 @@ const mapStateToProps = (
           };
         }
       } else {
-        options = dynamicFetchedValues.data.content;
+        options = dynamicFetchedValues.data;
       }
 
       isLoading = dynamicFetchedValues.isLoading;
