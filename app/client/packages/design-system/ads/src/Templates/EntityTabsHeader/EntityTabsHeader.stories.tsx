@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { useBoolean } from "usehooks-ts";
 
 import { DismissibleTab, DismissibleTabBar } from "../..";
 
@@ -18,6 +19,8 @@ interface Args {
 }
 
 const Template = ({ width }: Args) => {
+  const { toggle, value: isInSplitScreenMode } = useBoolean();
+
   return (
     <div style={{ width }}>
       <EntityTabsHeader>
@@ -39,7 +42,10 @@ const Template = ({ width }: Args) => {
             Five
           </DismissibleTab>
         </DismissibleTabBar>
-        <ToggleScreenModeButton onClick={console.log} />
+        <ToggleScreenModeButton
+          isInSplitScreenMode={isInSplitScreenMode}
+          onClick={toggle}
+        />
       </EntityTabsHeader>
     </div>
   );

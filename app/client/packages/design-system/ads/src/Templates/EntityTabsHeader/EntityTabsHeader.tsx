@@ -15,12 +15,15 @@ export const EntityListButton = (props: EntityListButtonProps) => {
 };
 
 export const ToggleScreenModeButton = (props: ToggleScreenModeButtonProps) => {
+  const { isInSplitScreenMode, ...rest } = props;
+  const iconName = isInSplitScreenMode ? "maximize-v3" : "minimize-v3";
+
   return (
     <Styled.IconButton
-      {...props}
+      {...rest}
       isIconButton
       kind="tertiary"
-      startIcon="maximize-v3"
+      startIcon={iconName}
     />
   );
 };
