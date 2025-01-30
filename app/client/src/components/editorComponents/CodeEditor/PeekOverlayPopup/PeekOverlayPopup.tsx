@@ -7,8 +7,8 @@ import React, {
 import { useEventCallback } from "usehooks-ts";
 import { componentWillAppendToBody } from "react-append-to-body";
 import { debounce } from "lodash";
-import { useSelector } from "react-redux";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
+import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "ee/selectors/entitiesSelector";
