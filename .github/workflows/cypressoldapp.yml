@@ -42,12 +42,15 @@ jobs:
 
       - name: Run Cypress tests
         run: |
-          npx cypress run --config-file cypress_ci_custom.config.ts --browser ${{ env.BROWSER_PATH }} --spec ${{ matrix.specs }} --env NODE_ENV=development,baseUrl=${{ matrix.baseUrl }}
+          xvfb-run --auto-servernum npx cypress run --config-file cypress_ci_custom.config.ts \
+            --browser ${{ env.BROWSER_PATH }} \
+            --spec ${{ matrix.specs }} \
+            --env NODE_ENV=development,baseUrl=${{ matrix.baseUrl }},USERNAME=demo@appsmith.com,PASSWORD=demo@appsmith.com
         working-directory: app/client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_USERNAME: ${{ secrets.OLD_APP_TESTING_USER }}
-          CYPRESS_PASSWORD: ${{ secrets.OLD_APP_TESTING_PWD }}
+          CYPRESS_USERNAME: demo@appsmith.com
+          CYPRESS_PASSWORD: demo@appsmith.com
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
