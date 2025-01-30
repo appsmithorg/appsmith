@@ -1999,4 +1999,97 @@ export class AggregateHelper {
       cy.spy(win.console, "warn").as("warn");
     });
   }
+
+  public waitForEmail({
+    pollInterval,
+    targetEmail,
+    targetSubject,
+    timeout,
+  }: {
+    pollInterval: number;
+    timeout: number;
+    targetSubject: string;
+    targetEmail?: string;
+  }): Cypress.Chainable<any> {
+    const endTime = Date.now() + timeout;
+    let latestEmail: any = null;
+
+    function parseDate(dateString: string): Date {
+      return new Date(dateString.replace(/ \([A-Za-z\s]*\)$/, ""));
+    }
+
+    function fetchEmail(): Cypress.Chainable<any> {
+      return cy
+        .request("http://localhost:5001/api/v1/maildev-emails")
+        .then((res) => {
+          if (res.status !== 200) {
+            cy.log(`Request failed with status ${res.status}`);
+            return cy.wrap(null);
+          }
+
+          const emails: Array<{
+            headers: {
+              subject: string;
+              date: string;
+              to: string;
+              from: string;
+            };
+            text: string;
+          }> = res.body;
+
+          const matchingEmails = emails.filter((email) => {
+            const subjectMatch = email.headers.subject
+              .trim()
+              .toLowerCase()
+              .includes(targetSubject.trim().toLowerCase());
+
+            if (targetEmail) {
+              const emailTo = email.headers.to.trim().toLowerCase();
+              return (
+                subjectMatch && emailTo === targetEmail.trim().toLowerCase()
+              );
+            }
+
+            return subjectMatch;
+          });
+
+          if (matchingEmails.length > 0) {
+            latestEmail = matchingEmails.reduce((latest, email) => {
+              const emailDate = parseDate(email.headers.date);
+              const latestDate = parseDate(
+                latest?.headers?.date || "1970-01-01",
+              );
+
+              return emailDate > latestDate ? email : latest;
+            }, null);
+
+            if (latestEmail) {
+              cy.log("===== Email Details =====");
+              cy.log(`From: ${latestEmail.headers.from}`);
+              cy.log(`To: ${latestEmail.headers.to}`);
+              cy.log(`Subject: ${latestEmail.headers.subject}`);
+              cy.log("=========================");
+            }
+
+            return cy.wrap(latestEmail);
+          }
+
+          if (Date.now() > endTime) {
+            cy.log("===== Info =====");
+            cy.log(
+              `No email with subject "${targetSubject}" found${
+                targetEmail ? ` for recipient "${targetEmail}"` : ""
+              } within the timeout period.`,
+            );
+            cy.log("================");
+
+            return cy.wrap(null);
+          }
+
+          return cy.wait(pollInterval).then(fetchEmail);
+        });
+    }
+
+    return fetchEmail();
+  }
 }

@@ -69,6 +69,7 @@ export interface JSONFormComponentProps<TValues = any> {
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
   showConnectDataOverlay?: boolean;
+  maxAllowedFields?: number;
 }
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
@@ -174,7 +175,8 @@ function JSONFormComponent<TValues>(
     if (fieldLimitExceeded) {
       return (
         <InfoMessage fixHeight={fixMessageHeight}>
-          Source data exceeds {MAX_ALLOWED_FIELDS} fields.&nbsp;
+          Source data exceeds {rest.maxAllowedFields || MAX_ALLOWED_FIELDS}{" "}
+          fields. &nbsp;
           {renderMode === RenderModes.PAGE
             ? "Please contact your developer for more information"
             : "Please update the source data."}

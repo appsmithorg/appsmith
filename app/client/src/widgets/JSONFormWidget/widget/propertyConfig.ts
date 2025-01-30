@@ -7,7 +7,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
-import { FieldType, ROOT_SCHEMA_KEY } from "../constants";
+import { FieldType, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -142,6 +142,7 @@ export const onGenerateFormClick = ({
     prevSchema: widgetProperties.schema,
     prevSourceData,
     widgetName: widgetProperties.widgetName,
+    maxAllowedFields: widgetProperties.maxAllowedFields,
   });
 
   if (status === ComputedSchemaStatus.LIMIT_EXCEEDED) {
@@ -413,6 +414,26 @@ export const contentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "maxAllowedFields",
+        label: "Max allowed fields",
+        helperText:
+          "⚠️ Warning: Increasing this value beyond 50 can severely impact performance and responsiveness",
+        helpText:
+          "Sets the maximum number of fields that can be generated in the form. Default value is 50 fields.",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+            max: 200,
+            default: MAX_ALLOWED_FIELDS,
+          },
+        },
+        placeholderText: "1-200",
       },
     ],
     expandedByDefault: false,
