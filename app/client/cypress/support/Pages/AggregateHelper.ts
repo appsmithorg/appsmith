@@ -1193,7 +1193,7 @@ export class AggregateHelper {
       this.locator._specificToast("Cannot read properties of undefined"),
     );
     this.assertHelper.AssertDocumentReady();
-    cy.wait(4000); //for page to load for CI runs
+    this.Sleep(4000); //for page to load for CI runs
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
