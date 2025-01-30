@@ -40,6 +40,12 @@ export DBNAME="$edition$PULL_REQUEST_NUMBER"
 export DOMAINNAME="$edition-$PULL_REQUEST_NUMBER.dp.appsmith.com"
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
+export OPENAI_ASSISTANT_ID="$OPENAI_ASSISTANT_ID"
+export OPENAI_API_KEY="$OPENAI_API_KEY"
+export APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY"
+export APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH"
+export APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING"
+export IN_DOCKER="$IN_DOCKER"
 
 
 aws eks update-kubeconfig --region "$region" --name "$cluster_name" --profile eksci
