@@ -364,13 +364,20 @@ export class HomePage {
         "X-Requested-By": "Appsmith",
       },
     }).then((response) => {
+      console.log("First request completed: GET /api/v1/consolidated-api/view");
+      console.log("Response status:", response.status);
+      cy.log("First request completed: GET /api/v1/consolidated-api/view");
+    
       expect(response.status).equal(200);
-
+    
       let httpMethod = "POST";
       if (CURRENT_REPO === REPO.EE) {
         httpMethod = "GET";
       }
-
+      
+      console.log("Preparing to send logout request with method:", httpMethod);
+      cy.log("Preparing to send logout request with method: " + httpMethod);
+    
       // Only send logout request after the first request is complete
       cy.request({
         method: httpMethod,
@@ -378,8 +385,12 @@ export class HomePage {
         headers: {
           "X-Requested-By": "Appsmith",
         },
-      }).then((response) => {
-        expect(response.status).equal(200); // Verifying logout is success
+      }).then((logoutResponse) => {
+        console.log("Logout request completed");
+        console.log("Logout response status:", logoutResponse.status);
+        cy.log("Logout request completed");
+    
+        expect(logoutResponse.status).equal(200); // Verifying logout is success
       });
     });
   }
