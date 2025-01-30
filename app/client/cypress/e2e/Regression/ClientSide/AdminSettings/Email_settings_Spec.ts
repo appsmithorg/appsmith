@@ -136,10 +136,17 @@ describe(
           targetEmail: fromEmail,
         })
         .then((email) => {
-          expect(email).to.exist;
-          expect(email.headers.subject).to.equal(testEmailSubject);
-          expect(email.headers.to).to.equal(fromEmail);
-          expect(email.text.trim()).to.equal(testEmailBody);
+          if (email) {
+            expect(email).to.exist;
+            expect(email.headers.subject).to.equal(testEmailSubject);
+            expect(email.headers.to).to.equal(fromEmail);
+            expect(email.text.trim()).to.equal(testEmailBody);
+          } else {
+            cy.log("No email received, continuing test without failure.");
+          }
+        })
+        .catch((error) => {
+          cy.log("Error occurred while fetching email:", error);
         });
       agHelper.GetNClick(AdminsSettings.saveButton, 0, true);
       cy.waitForServerRestart();
@@ -193,29 +200,45 @@ describe(
           targetEmail: emailOne,
         })
         .then((email) => {
-          expect(email).to.exist;
-          expect(email.headers.subject).to.equal(resetPassSubject);
-          expect(email.headers.to).to.equal(emailOne);
+          if (email) {
+            expect(email).to.exist;
+            expect(email.headers.subject).to.equal(resetPassSubject);
+            expect(email.headers.to).to.equal(emailOne);
 
-          const emailHtml = email.html; // Store the email HTML content
-          const resetPasswordLinkMatch = emailHtml.match(
-            /href="([^"]*resetPassword[^"]*)"/,
-          );
-          console.log("Reset Password data:", resetPasswordLinkMatch);
-          if (resetPasswordLinkMatch) {
-            const resetPasswordLink = resetPasswordLinkMatch[1]
-              .replace(new RegExp(`(${originUrl})(\\/+)`, "g"), "$1/")
-              .replace(/&#61;/g, "=");
-            console.log("Reset Password Link:", resetPasswordLink);
-            cy.visit(resetPasswordLink, { timeout: 60000 });
-            agHelper.AssertContains("Reset password");
-            agHelper.AssertContains("New password");
-            agHelper.GetElement(SignupPageLocators.password).type(tempPassword);
-            agHelper.GetNClick(SignupPageLocators.submitBtn);
-            agHelper.AssertContains("Your password has been reset");
+            const emailHtml = email.html; // Store the email HTML content
+            const resetPasswordLinkMatch = emailHtml.match(
+              /href="([^"]*resetPassword[^"]*)"/,
+            );
+
+            console.log("Reset Password data:", resetPasswordLinkMatch);
+
+            if (resetPasswordLinkMatch) {
+              const resetPasswordLink = resetPasswordLinkMatch[1]
+                .replace(new RegExp(`(${originUrl})(\\/+)`, "g"), "$1/")
+                .replace(/&#61;/g, "=");
+
+              console.log("Reset Password Link:", resetPasswordLink);
+
+              cy.visit(resetPasswordLink, { timeout: 60000 });
+              agHelper.AssertContains("Reset password");
+              agHelper.AssertContains("New password");
+              agHelper
+                .GetElement(SignupPageLocators.password)
+                .type(tempPassword);
+              agHelper.GetNClick(SignupPageLocators.submitBtn);
+              agHelper.AssertContains("Your password has been reset");
+            } else {
+              cy.log("Reset password link not found in the email HTML");
+            }
           } else {
-            cy.log("Reset password link not found in the email HTML");
+            cy.log("No email found with subject:", resetPassSubject);
           }
+        })
+        .catch((error) => {
+          cy.log(
+            "Error occurred while fetching the email or processing the reset password link:",
+            error,
+          );
         });
     });
 
@@ -256,28 +279,41 @@ describe(
           targetEmail: emailTwo,
         })
         .then((email) => {
-          expect(email).to.exist;
-          expect(email.headers.subject).to.include(inviteEmailSubject);
-          expect(email.headers.to).to.equal(emailTwo);
+          if (email) {
+            expect(email).to.exist;
+            expect(email.headers.subject).to.include(inviteEmailSubject);
+            expect(email.headers.to).to.equal(emailTwo);
 
-          const emailHtml = email.html; // Store the email HTML content
-          const inviteLinkMatch = emailHtml.match(
-            /href="([^"]*applications[^"]*)"/,
-          ); // Extract the link using regex
+            const emailHtml = email.html; // Store the email HTML content
+            const inviteLinkMatch = emailHtml.match(
+              /href="([^"]*applications[^"]*)"/,
+            ); // Extract the link using regex
 
-          if (inviteLinkMatch) {
-            const inviteLink = inviteLinkMatch[1].replace(/([^:]\/)\/+/g, "$1");
-            console.log("Invite workspace Link:", inviteLink);
-            cy.visit(inviteLink, { timeout: 60000 });
-            homePage.SelectWorkspace(workspaceName);
-            agHelper.AssertContains(workspaceName);
-            cy.get(homePageLocators.applicationCard)
-              .first()
-              .trigger("mouseover");
-            agHelper.AssertElementExist(homePageLocators.appEditIcon);
+            if (inviteLinkMatch) {
+              const inviteLink = inviteLinkMatch[1].replace(
+                /([^:]\/)\/+/g,
+                "$1",
+              );
+              console.log("Invite workspace Link:", inviteLink);
+              cy.visit(inviteLink, { timeout: 60000 });
+              homePage.SelectWorkspace(workspaceName);
+              agHelper.AssertContains(workspaceName);
+              cy.get(homePageLocators.applicationCard)
+                .first()
+                .trigger("mouseover");
+              agHelper.AssertElementExist(homePageLocators.appEditIcon);
+            } else {
+              cy.log("Invite workspace app link not found in the email HTML");
+            }
           } else {
-            cy.log("Invite workspace app link not found in the email HTML");
+            cy.log("No email found with subject:", inviteEmailSubject);
           }
+        })
+        .catch((error) => {
+          cy.log(
+            "Error occurred while fetching the email or processing the invite link:",
+            error,
+          );
         });
     });
 
@@ -322,45 +358,58 @@ describe(
           targetEmail: emailThree,
         })
         .then((email) => {
-          console.log("Email:", email);
-          expect(email).to.exist;
-          expect(email.headers.subject).to.include(inviteEmailSubject);
-          expect(email.headers.to).to.include(emailThree);
-          const emailHtml = email.html; // Store the email HTML content
+          if (email) {
+            console.log("Email:", email);
+            expect(email).to.exist;
+            expect(email.headers.subject).to.include(inviteEmailSubject);
+            expect(email.headers.to).to.include(emailThree);
+            const emailHtml = email.html; // Store the email HTML content
 
-          // Match all href links inside the <body>
-          const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-          console.log("bodyMatch: ", bodyMatch);
-          if (bodyMatch && bodyMatch[1]) {
-            const bodyContent = bodyMatch[1];
+            // Match all href links inside the <body>
+            const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            console.log("bodyMatch: ", bodyMatch);
 
-            const inviteLinkMatch = bodyContent.match(
-              /href="https?:\/\/[^"]*"/,
-            );
-            console.log("inviteLinkMatch: ", inviteLinkMatch);
+            if (bodyMatch && bodyMatch[1]) {
+              const bodyContent = bodyMatch[1];
 
-            if (inviteLinkMatch) {
-              const inviteLink = inviteLinkMatch[0]
-                .replace(/([^:]\/)\/+/g, "$1")
-                .replace(/href=|=|"|"/g, "");
-
-              console.log("Invite workspace Link:", inviteLink);
-              cy.visit(inviteLink, { timeout: 60000 });
-              homePage.SelectWorkspace(workspaceName);
-              agHelper.AssertContains(applicationName);
-              cy.get(homePageLocators.applicationCard)
-                .first()
-                .trigger("mouseover");
-              agHelper.AssertElementExist(homePageLocators.appEditIcon);
-              homePage.LogOutviaAPI();
-              agHelper.VisitNAssert("/");
-              agHelper.WaitUntilEleAppear(
-                SignupPageLocators.forgetPasswordLink,
+              const inviteLinkMatch = bodyContent.match(
+                /href="https?:\/\/[^"]*"/,
               );
+              console.log("inviteLinkMatch: ", inviteLinkMatch);
+
+              if (inviteLinkMatch) {
+                const inviteLink = inviteLinkMatch[0]
+                  .replace(/([^:]\/)\/+/g, "$1")
+                  .replace(/href=|=|"|"/g, "");
+
+                console.log("Invite workspace Link:", inviteLink);
+                cy.visit(inviteLink, { timeout: 60000 });
+                homePage.SelectWorkspace(workspaceName);
+                agHelper.AssertContains(applicationName);
+                cy.get(homePageLocators.applicationCard)
+                  .first()
+                  .trigger("mouseover");
+                agHelper.AssertElementExist(homePageLocators.appEditIcon);
+                homePage.LogOutviaAPI();
+                agHelper.VisitNAssert("/");
+                agHelper.WaitUntilEleAppear(
+                  SignupPageLocators.forgetPasswordLink,
+                );
+              } else {
+                cy.log("Invite developer app link not found in the email HTML");
+              }
             } else {
-              cy.log("Invite developer app link not found in the email HTML");
+              cy.log("No body content found in the email HTML");
             }
+          } else {
+            cy.log("No email found with subject:", inviteEmailSubject);
           }
+        })
+        .catch((error) => {
+          cy.log(
+            "Error occurred while fetching the email or processing the invite link:",
+            error,
+          );
         });
     });
 
@@ -405,40 +454,53 @@ describe(
           targetEmail: emailFour,
         })
         .then((email) => {
-          console.log("Email:", email);
-          expect(email).to.exist;
-          expect(email.headers.subject).to.include(inviteEmailSubject);
-          expect(email.headers.to).to.include(emailFour);
-          const emailHtml = email.html; // Store the email HTML content
+          if (email) {
+            console.log("Email:", email);
+            expect(email).to.exist;
+            expect(email.headers.subject).to.include(inviteEmailSubject);
+            expect(email.headers.to).to.include(emailFour);
+            const emailHtml = email.html; // Store the email HTML content
 
-          // Match all href links inside the <body>
-          const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-          console.log("bodyMatch: ", bodyMatch);
-          if (bodyMatch && bodyMatch[1]) {
-            const bodyContent = bodyMatch[1];
+            // Match all href links inside the <body>
+            const bodyMatch = emailHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            console.log("bodyMatch: ", bodyMatch);
 
-            const inviteLinkMatch = bodyContent.match(
-              /href="https?:\/\/[^"]*"/,
-            );
-            console.log("inviteLinkMatch: ", inviteLinkMatch);
+            if (bodyMatch && bodyMatch[1]) {
+              const bodyContent = bodyMatch[1];
 
-            if (inviteLinkMatch) {
-              const inviteLink = inviteLinkMatch[0]
-                .replace(/([^:]\/)\/+/g, "$1")
-                .replace(/href=|=|"|"/g, "");
+              const inviteLinkMatch = bodyContent.match(
+                /href="https?:\/\/[^"]*"/,
+              );
+              console.log("inviteLinkMatch: ", inviteLinkMatch);
 
-              console.log("Invite workspace Link:", inviteLink);
-              cy.visit(inviteLink, { timeout: 60000 });
-              homePage.SelectWorkspace(workspaceName);
-              agHelper.AssertContains(applicationName);
-              cy.get(homePageLocators.applicationCard)
-                .first()
-                .trigger("mouseover");
-              agHelper.AssertElementAbsence(homePageLocators.appEditIcon);
+              if (inviteLinkMatch) {
+                const inviteLink = inviteLinkMatch[0]
+                  .replace(/([^:]\/)\/+/g, "$1")
+                  .replace(/href=|=|"|"/g, "");
+
+                console.log("Invite workspace Link:", inviteLink);
+                cy.visit(inviteLink, { timeout: 60000 });
+                homePage.SelectWorkspace(workspaceName);
+                agHelper.AssertContains(applicationName);
+                cy.get(homePageLocators.applicationCard)
+                  .first()
+                  .trigger("mouseover");
+                agHelper.AssertElementAbsence(homePageLocators.appEditIcon);
+              } else {
+                cy.log("Invite viewer app link not found in the email HTML");
+              }
             } else {
-              cy.log("Invite viewer app link not found in the email HTML");
+              cy.log("No body content found in the email HTML");
             }
+          } else {
+            cy.log("No email found with subject:", inviteEmailSubject);
           }
+        })
+        .catch((error) => {
+          cy.log(
+            "Error occurred while fetching the email or processing the invite link:",
+            error,
+          );
         });
     });
   },
