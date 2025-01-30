@@ -250,15 +250,20 @@ function* fetchDynamicValueSaga(
         // we extract the action diff path of the param value from the dynamic binding i.e. actionConfiguration.formData.sheetUrl.data
         const dynamicBindingValue = getDynamicBindings(value as string)
           ?.jsSnippets[0];
-        // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
-        const dataTreeActionConfigPath =
-          getDataTreeActionConfigPath(dynamicBindingValue);
-        // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
-        // TODOD: Find a better way to pass the workspaceId
-        const evaluatedValue = get(
-          { ...evalAction, workspaceId },
-          dataTreeActionConfigPath,
-        );
+        let evaluatedValue = value as string;
+
+        if (dynamicBindingValue) {
+          // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
+          const dataTreeActionConfigPath =
+            getDataTreeActionConfigPath(dynamicBindingValue);
+
+          // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
+          // TODOD: Find a better way to pass the workspaceId
+          evaluatedValue = get(
+            { ...evalAction, workspaceId },
+            dataTreeActionConfigPath,
+          );
+        }
 
         // if it exists, we store it in the substituted params object.
         // we check if that value is enclosed in dynamic bindings i.e the value has not been evaluated or somehow still contains a js expression
