@@ -29,7 +29,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "http://localhost/",
+    baseUrl: "https://release-ee-mongo.appsmith.com/",
     env: {
       grepFilterSpecs: true,
       grepOmitFiltered: true,
