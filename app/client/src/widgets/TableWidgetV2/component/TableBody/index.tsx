@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
@@ -33,6 +33,9 @@ export type BodyContextType = {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
+  onLoadNextPage?: () => void;
+  isNextPageLoading?: boolean;
+  hasNextPage?: boolean;
 } & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -79,10 +82,49 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
+  onLoadNextPage?: () => void;
+  isNextPageLoading?: boolean;
+  hasNextPage?: boolean;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+    const lastRowRef = useRef<HTMLDivElement>(null);
+    const observerRef = useRef<IntersectionObserver | null>(null);
+
+    const handleIntersection = useCallback(
+      (entries: IntersectionObserverEntry[]) => {
+        const target = entries[0];
+        if (
+          target.isIntersecting &&
+          props.hasNextPage &&
+          !props.isNextPageLoading &&
+          props.onLoadNextPage
+        ) {
+          props.onLoadNextPage();
+        }
+      },
+      [props.hasNextPage, props.isNextPageLoading, props.onLoadNextPage],
+    );
+
+    useEffect(() => {
+      if (lastRowRef.current) {
+        observerRef.current = new IntersectionObserver(handleIntersection, {
+          root: null,
+          rootMargin: "100px",
+          threshold: 0.1,
+        });
+
+        observerRef.current.observe(lastRowRef.current);
+      }
+
+      return () => {
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }, [handleIntersection]);
+
     return (
       <div className="simplebar-content-wrapper">
         <FixedSizeList
@@ -101,6 +143,10 @@ const TableVirtualBodyComponent = React.forwardRef(
         >
           {rowRenderer}
         </FixedSizeList>
+        <div ref={lastRowRef} style={{ height: "1px" }} />
+        {props.isNextPageLoading && (
+          <div className="loading-indicator">Loading more...</div>
+        )}
       </div>
     );
   },
@@ -152,6 +198,9 @@ export const TableBody = React.forwardRef(
       useVirtual,
       widgetId,
       width,
+      onLoadNextPage,
+      isNextPageLoading,
+      hasNextPage,
       ...restOfProps
     } = props;
 
@@ -186,6 +235,9 @@ export const TableBody = React.forwardRef(
           rows,
           getTableBodyProps: props.getTableBodyProps,
           totalColumnsWidth: props.totalColumnsWidth,
+          onLoadNextPage,
+          isNextPageLoading,
+          hasNextPage,
         }}
       >
         {useVirtual ? (
@@ -193,6 +245,9 @@ export const TableBody = React.forwardRef(
             ref={ref}
             rows={rows}
             width={width}
+            onLoadNextPage={onLoadNextPage}
+            isNextPageLoading={isNextPageLoading}
+            hasNextPage={hasNextPage}
             {...restOfProps}
           />
         ) : (

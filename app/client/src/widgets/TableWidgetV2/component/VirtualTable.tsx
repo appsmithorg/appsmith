@@ -37,6 +37,9 @@ type VirtualTableProps = TableColumnHeaderProps & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollContainerStyles: any;
   useVirtual: boolean;
+  onLoadNextPage?: () => void;
+  isNextPageLoading?: boolean;
+  hasNextPage?: boolean;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
@@ -55,13 +58,16 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           handleAllRowSelectClick={props.handleAllRowSelectClick}
           handleColumnFreeze={props.handleColumnFreeze}
           handleReorderColumn={props.handleReorderColumn}
+          hasNextPage={props.hasNextPage}
           headerGroups={props.headerGroups}
           height={props.height}
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
+          isNextPageLoading={props.isNextPageLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
           multiRowSelection={!!props.multiRowSelection}
+          onLoadNextPage={props.onLoadNextPage}
           pageSize={props.pageSize}
           prepareRow={props.prepareRow}
           primaryColumnId={props.primaryColumnId}
