@@ -6,7 +6,7 @@ import {
     entityExplorer,
     table,
     locators,
-} from "../../../../support/Objects/ObjectsCore";
+} from "../../../support/Objects/ObjectsCore";
 
 describe("JS Object Table Testing", { tags: ["@tag.JS"] }, () => {
     before(() => {
