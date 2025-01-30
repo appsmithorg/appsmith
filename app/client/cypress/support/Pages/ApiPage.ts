@@ -533,7 +533,10 @@ export class ApiPage {
     // Navigate to the source page and select the API item
     EditorNavigation.NavigateToPage(sourcePage);
     PageLeftPane.selectItem(apiName);
-    FileTabs.assertActiveTab(apiName);
+    this.agHelper.AssertClassExists(
+      FileTabs.locators.tabName(apiName),
+      "active",
+    );
 
     PageList.ShowList();
     cy.get(PageList.numberOfPages).then(($el) => {
@@ -593,18 +596,16 @@ export class ApiPage {
     // Navigate to the source page and select the API item
     EditorNavigation.NavigateToPage(sourcePage);
     PageLeftPane.selectItem(apiName);
-    FileTabs.assertActiveTab(apiName);
+    this.agHelper.AssertClassExists(
+      FileTabs.locators.tabName(apiName),
+      "active",
+    );
 
-    // Open the 'More Actions' menu and select the action
-    cy.get(this.moreActionsTrigger).should("be.visible").click();
-    cy.contains("Delete")
-      .should("be.visible")
-      .trigger("click", { force: true });
-    cy.contains("Are you sure?")
-      .should("be.visible")
-      .trigger("click", { force: true });
+    this.agHelper.GetNClick(this.moreActionsTrigger);
+    this.agHelper.ContainsNClick("Delete", 0, true);
+    this.agHelper.ContainsNClick("Are you sure?", 0, true);
 
-    // Validate the absence of the deleted API
+    // Validate the absence of the API from the source page
     PageLeftPane.assertAbsence(apiName);
   }
 }

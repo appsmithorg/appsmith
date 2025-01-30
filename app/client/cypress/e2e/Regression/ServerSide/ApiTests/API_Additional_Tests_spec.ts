@@ -1,4 +1,5 @@
 import {
+  agHelper,
   debuggerHelper,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
@@ -9,8 +10,6 @@ import {
 } from "../../../../support/Pages/EditorNavigation";
 import FileTabs from "../../../../support/Pages/IDE/FileTabs";
 import PageList from "../../../../support/Pages/PageList";
-
-let repoName;
 
 describe(
   "Additional API tests",
@@ -61,7 +60,7 @@ describe(
       // Click on the entity link in the log entry at index 2
       debuggerHelper.ClicklogEntityLink(false, 2);
       // Assert that the correct tab ("Api3") opens
-      FileTabs.assertActiveTab("Api3");
+      agHelper.AssertClassExists(FileTabs.locators.tabName("Api3"), "active");
     });
 
     it("4. Validate whether closed tab opens up after clicking on link from logs", () => {
@@ -77,7 +76,7 @@ describe(
       // Click on the entity link in the log entry at index 1
       debuggerHelper.ClicklogEntityLink(false, 1);
       // Assert that the correct tab ("Api2") reopens
-      FileTabs.assertActiveTab("Api2");
+      agHelper.AssertClassExists(FileTabs.locators.tabName("Api2"), "active");
     });
   },
 );
