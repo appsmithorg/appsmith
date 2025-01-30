@@ -11,6 +11,7 @@ import type { ReactTableColumnProps, TableSizes } from "./Constants";
 import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
 import { TableBody } from "./TableBody";
+import type { CSSProperties } from "styled-components";
 
 type VirtualTableProps = TableColumnHeaderProps & {
   getTableBodyProps(
@@ -34,21 +35,21 @@ type VirtualTableProps = TableColumnHeaderProps & {
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
   totalColumnsWidth?: number;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scrollContainerStyles: any;
+  scrollContainerStyles: CSSProperties;
   useVirtual: boolean;
   loadMore: () => void;
+  isLoading: boolean;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
   // Use a ref to store the previous scroll position
   const prevScrollTop = useRef(0);
-  const isLoadingRef = useRef(false);
+  const isLoadingRef = useRef(false); // Lock to prevent multiple triggers
+  const prevDataRef = useRef(props.subPage); // Ref to store previous data
 
-  // Create a throttled scroll handler that will run at most once every 200ms
+  // Create a debounced scroll handler that will run after the user stops scrolling
   const handleScroll = useCallback(
-    _.throttle(
+    _.debounce(
       (e: React.UIEvent<HTMLElement>) => {
         // Skip if we're currently loading
         if (isLoadingRef.current) return;
@@ -72,31 +73,44 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
         const isNearBottom = scrollBottom < threshold;
 
         if (isScrollingDown && isNearBottom) {
+          // Set the lock to prevent multiple triggers
           isLoadingRef.current = true;
 
+          // Trigger loadMore
           Promise.resolve(props.loadMore()).finally(() => {
-            // Reset loading flag after loadMore completes
+            // Reset the lock after loadMore completes
             isLoadingRef.current = false;
-            // Reset scroll to the top
-            target.scrollTo({
-              top: 0,
-              behavior: "auto",
-            });
           });
         }
       },
-      200,
+      200, // Adjust debounce delay as needed
       { leading: true, trailing: true },
     ),
     [props.loadMore],
   );
 
-  // Cleanup the throttled function on unmount
+  // Cleanup the debounced function on unmount
   useEffect(() => {
     return () => {
       handleScroll.cancel();
     };
   }, [handleScroll]);
+
+  // Effect to scroll to the top when data changes
+  useEffect(() => {
+    if (!_.isEqual(prevDataRef.current, props.subPage)) {
+      // Data has changed, scroll to the top
+      const simpleBarRef = ref as React.RefObject<SimpleBar>;
+      const scrollableNode = simpleBarRef.current?.getScrollElement();
+
+      if (scrollableNode) {
+        scrollableNode.scrollTo({ top: 0, behavior: "auto" });
+      }
+
+      // Update the previous data ref
+      prevDataRef.current = props.subPage;
+    }
+  }, [props.subPage, ref]);
 
   return (
     <SimpleBar
@@ -121,6 +135,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           height={props.height}
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
+          isLoading={props.isLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
           multiRowSelection={!!props.multiRowSelection}

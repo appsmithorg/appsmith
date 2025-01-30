@@ -28,6 +28,7 @@ export type BodyContextType = {
   width: number;
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
+  isLoading: boolean;
   isAddRowInProgress: boolean;
   getTableBodyProps?(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
@@ -47,7 +48,17 @@ export const BodyContext = React.createContext<BodyContextType>({
   primaryColumnId: "",
   isAddRowInProgress: false,
   totalColumnsWidth: 0,
+  isLoading: false,
 });
+
+const LoadingIndicator = () => (
+  <div className="sticky bottom-0 left-0 right-0 p-2 bg-white border-t">
+    <div className="flex items-center justify-center p-2 space-x-2 bg-gray-50 rounded">
+      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+      <span className="text-sm text-gray-600">Loading more data...</span>
+    </div>
+  </div>
+);
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
   const { data, index, style } = rowProps;
@@ -81,6 +92,7 @@ interface BodyPropsType {
   height: number;
   width?: number;
   tableSizes: TableSizes;
+  isLoading: boolean;
   onLoadMore?: () => void;
   innerElementType?: ReactElementType;
 }
@@ -105,6 +117,7 @@ const TableVirtualBodyComponent = React.forwardRef(
         >
           {rowRenderer}
         </FixedSizeList>
+        {props.isLoading && <LoadingIndicator />}
       </div>
     );
   },
@@ -141,6 +154,7 @@ export const TableBody = React.forwardRef(
       handleReorderColumn,
       headerGroups,
       isAddRowInProgress,
+      isLoading,
       isResizingColumn,
       isSortable,
       multiRowSelection,
@@ -163,6 +177,7 @@ export const TableBody = React.forwardRef(
     return (
       <BodyContext.Provider
         value={{
+          isLoading,
           accentColor,
           canFreezeColumn,
           disableDrag,
@@ -195,6 +210,7 @@ export const TableBody = React.forwardRef(
       >
         {useVirtual ? (
           <TableVirtualBodyComponent
+            isLoading={isLoading}
             onLoadMore={onLoadMore}
             ref={ref}
             rows={rows}
@@ -203,6 +219,7 @@ export const TableBody = React.forwardRef(
           />
         ) : (
           <TableBodyComponent
+            isLoading={isLoading}
             rows={rows}
             {...restOfProps}
             onLoadMore={onLoadMore}

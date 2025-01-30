@@ -73,6 +73,7 @@ export interface TableProps {
   widgetName: string;
   searchKey: string;
   isLoading: boolean;
+  isInfiniteScroll: boolean;
   columnWidthMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
@@ -446,7 +447,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={
-            props.isLoading
+            props.isLoading && (!props.isInfiniteScroll || !props.data?.length)
               ? Classes.SKELETON
               : shouldUseVirtual
                 ? "tableWrap virtual"
@@ -471,6 +472,7 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
                 multiRowSelection={props?.multiRowSelection}
@@ -509,6 +511,7 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
                 loadMore={props.nextPageClick}

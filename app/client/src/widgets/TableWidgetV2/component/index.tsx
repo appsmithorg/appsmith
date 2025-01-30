@@ -246,6 +246,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
+      isInfiniteScroll // this should come from property pane
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}

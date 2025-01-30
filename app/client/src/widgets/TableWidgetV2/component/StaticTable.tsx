@@ -41,6 +41,7 @@ type StaticTableProps = TableColumnHeaderProps & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollContainerStyles: any;
   useVirtual: boolean;
+  isLoading: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
 };
 
@@ -81,6 +82,7 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         getTableBodyProps={props.getTableBodyProps}
         height={props.height}
         isAddRowInProgress={props.isAddRowInProgress}
+        isLoading={props.isLoading}
         multiRowSelection={!!props.multiRowSelection}
         pageSize={props.pageSize}
         prepareRow={props.prepareRow}
