@@ -54,14 +54,17 @@ export function PeekOverlayPopUpContent(
     configTree,
   );
 
-  const jsData = useMemo(
+  const [jsData, dataType] = useMemo(
     // Because getPropertyData can return a function
     // And we don't want to execute it.
-    () => getPropertyData(filteredData, propertyPath),
+    () => {
+      const jsData = getPropertyData(filteredData, propertyPath);
+      const dataType = getDataTypeHeader(jsData);
+
+      return [jsData, dataType];
+    },
     [filteredData, propertyPath],
   );
-
-  const dataType = useMemo(() => getDataTypeHeader(jsData), [jsData]);
 
   const debouncedHide = debounce(hidePeekOverlay, PEEK_OVERLAY_DELAY);
 
