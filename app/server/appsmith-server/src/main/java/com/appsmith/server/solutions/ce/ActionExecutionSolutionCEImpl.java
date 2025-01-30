@@ -293,8 +293,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .environmentId(environmentId)
                 .build();
         Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);
+        Mono<NewAction> newActionMono = executeActionDTOMono.flatMap(
+                executeActionDTO -> newActionService.findById(executeActionDTO.getActionId()));
+        String pluginType = newActionMono
+                .flatMap(newAction -> pluginService.findById(newAction.getPluginId()))
+                .map(Plugin::getName)
+                .block();
+        assert pluginType != null;
         return executeActionDTOMono
                 .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                .tag("plugin", !pluginType.isEmpty() ? pluginType : "none")
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
