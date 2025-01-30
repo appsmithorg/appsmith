@@ -32,6 +32,7 @@ export const getConsolidatedDataApi = (
   reload = true,
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    delete req.headers["if-none-match"];
     req.reply((res: any) => {
       if (
         res.statusCode === 200 ||
@@ -86,6 +87,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
+      delete req.headers["if-none-match"];
       if (res.statusCode === 200) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
