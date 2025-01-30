@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ReactJson from "react-json-view";
 import {
   EntityGroupsList,
   Flex,
@@ -8,23 +7,10 @@ import {
   SearchInput,
   Text,
 } from "@appsmith/ads";
+import { JSONViewer, Size } from "components/editorComponents/JSONViewer";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { useStateInspectorItems } from "./hooks";
 import * as Styled from "./styles";
-
-export const reactJsonProps = {
-  name: null,
-  enableClipboard: false,
-  displayDataTypes: false,
-  displayArrayKey: true,
-  quotesOnKeys: false,
-  style: {
-    fontSize: "12px",
-  },
-  collapsed: 1,
-  indentWidth: 2,
-  collapseStringsAfterLength: 30,
-};
 
 const GroupListPadding = {
   pl: "spaces-3",
@@ -84,14 +70,9 @@ export const StateInspector = () => {
             {selectedItem.icon}
             <Text kind="body-m">{selectedItem.title}</Text>
           </Styled.SelectedItem>
-          <Styled.JSONWrapper
-            $fontSize="12px"
-            className="as-mask"
-            overflowY="auto"
-            px="spaces-3"
-          >
-            <ReactJson src={selectedItemCode} {...reactJsonProps} />
-          </Styled.JSONWrapper>
+          <Flex className="as-mask" overflowY="auto" px="spaces-3">
+            <JSONViewer size={Size.MEDIUM} src={selectedItemCode} />
+          </Flex>
         </Flex>
       ) : null}
     </Flex>

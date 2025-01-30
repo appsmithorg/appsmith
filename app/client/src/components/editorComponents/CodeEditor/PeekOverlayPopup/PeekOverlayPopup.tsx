@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import ReactJson from "react-json-view";
 import { useEventCallback } from "usehooks-ts";
 import { componentWillAppendToBody } from "react-append-to-body";
 import { debounce } from "lodash";
@@ -14,12 +13,9 @@ import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "ee/selectors/entitiesSelector";
 import * as Styled from "./styles";
-import {
-  CONTAINER_MAX_HEIGHT_PX,
-  PEEK_OVERLAY_DELAY,
-  reactJsonProps,
-} from "./constants";
+import { CONTAINER_MAX_HEIGHT_PX, PEEK_OVERLAY_DELAY } from "./constants";
 import { getDataTypeHeader, getPropertyData } from "./utils";
+import { JSONViewer, Size } from "../../JSONViewer";
 
 export interface PeekOverlayStateProps {
   objectName: string;
@@ -105,8 +101,8 @@ export function PeekOverlayPopUpContent(
       <Styled.BlockDivider />
       <Styled.PeekOverlayData id="t--peek-overlay-data" ref={dataWrapperRef}>
         {(dataType === "object" || dataType === "array") && jsData !== null && (
-          <Styled.JsonWrapper $fontSize="10px" className="as-mask">
-            <ReactJson src={jsData} {...reactJsonProps} />
+          <Styled.JsonWrapper className="as-mask">
+            <JSONViewer size={Size.SMALL} src={jsData} />
           </Styled.JsonWrapper>
         )}
         {dataType === "function" && <div>{jsData.toString()}</div>}
