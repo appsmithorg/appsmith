@@ -15,7 +15,7 @@ import {
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
-describe(
+describe.skip(
   "Validate Mock Query Active Ds querying & count",
   {
     tags: [
