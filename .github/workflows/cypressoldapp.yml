@@ -40,8 +40,10 @@ jobs:
           echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
           google-chrome --version
 
-      - name: Run the cypress test
-        uses: cypress-io/github-action@v6
+      - name: Run Cypress tests
+        run: |
+          npx cypress run --config-file cypress_ci_custom.config.ts --browser $BROWSER_PATH --spec $CYPRESS_SPECS --env NODE_ENV=development,baseUrl=${{ matrix.baseUrl }}
+        working-directory: app/client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.OLD_APP_TESTING_USER }}
@@ -105,10 +107,3 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
-        with:
-          browser: ${{ env.BROWSER_PATH }}
-          install: false
-          config-file: cypress_ci_custom.config.ts
-          spec: ${{ matrix.specs }}
-          working-directory: app/client
-          env: "NODE_ENV=development"
