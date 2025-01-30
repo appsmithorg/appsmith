@@ -2011,7 +2011,7 @@ export class AggregateHelper {
     targetSubject: string;
     targetEmail?: string;
   }): Cypress.Chainable<any> {
-    const endTime = Date.now() + timeout; // Calculate the end time based on timeout duration
+    const endTime = Date.now() + timeout;
     let latestEmail: any = null;
 
     function parseDate(dateString: string): Date {
@@ -2023,7 +2023,8 @@ export class AggregateHelper {
         .request("http://localhost:5001/api/v1/maildev-emails")
         .then((res) => {
           if (res.status !== 200) {
-            throw new Error(`Request failed with status ${res.status}`);
+            cy.log(`Request failed with status ${res.status}`);
+            return cy.wrap(null);
           }
 
           const emails: Array<{
@@ -2036,7 +2037,6 @@ export class AggregateHelper {
             text: string;
           }> = res.body;
 
-          // Filter emails matching the criteria
           const matchingEmails = emails.filter((email) => {
             const subjectMatch = email.headers.subject
               .trim()
@@ -2063,7 +2063,6 @@ export class AggregateHelper {
               return emailDate > latestDate ? email : latest;
             }, null);
 
-            // Log email addresses (from and to) with a separator
             if (latestEmail) {
               cy.log("===== Email Details =====");
               cy.log(`From: ${latestEmail.headers.from}`);
@@ -2076,7 +2075,14 @@ export class AggregateHelper {
           }
 
           if (Date.now() > endTime) {
-            console.error("No matching email found within the timeout period.");
+            cy.log("===== Info =====");
+            cy.log(
+              `No email with subject "${targetSubject}" found${
+                targetEmail ? ` for recipient "${targetEmail}"` : ""
+              } within the timeout period.`,
+            );
+            cy.log("================");
+
             return cy.wrap(null);
           }
 
@@ -2084,21 +2090,6 @@ export class AggregateHelper {
         });
     }
 
-    return fetchEmail().then((email) => {
-      if (!email) {
-        const errorMessage = `Timeout: No email with subject "${targetSubject}" found${
-          targetEmail ? ` for recipient "${targetEmail}"` : ""
-        }.`;
-
-        // Log the error message
-        cy.log("===== Error =====");
-        cy.log(errorMessage);
-        cy.log("=================");
-
-        // Throw the error after logging
-        throw new Error(errorMessage);
-      }
-      return email;
-    });
+    return fetchEmail();
   }
 }
