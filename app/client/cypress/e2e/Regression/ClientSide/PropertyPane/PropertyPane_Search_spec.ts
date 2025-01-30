@@ -12,7 +12,7 @@ describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
     agHelper.AddDsl("swtchTableV2Dsl");
   });
 
-  // skipping this because this feature is not 
+  // skipping this because this feature is not
   it.skip("1. Verify if the search Input is getting focused when a widget is selected", function () {
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
