@@ -54,7 +54,7 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
         recentEntityNames.add(action.config.name);
         break;
       }
-      case FocusEntity.PROPERTY_PANE: {
+      case FocusEntity.WIDGET: {
         const widget = get(widgetsMap, id, null);
 
         if (!widget) break;

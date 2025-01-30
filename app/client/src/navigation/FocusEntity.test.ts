@@ -27,7 +27,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/applications/${baseApplicationId}/pages/${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
@@ -146,7 +146,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/app/app-slug/page1-${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
@@ -272,7 +272,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/app/myCustomSlug-${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {

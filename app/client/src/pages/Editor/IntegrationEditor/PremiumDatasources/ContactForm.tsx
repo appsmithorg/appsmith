@@ -17,7 +17,7 @@ import { isEmail } from "utils/formhelpers";
 import ReduxFormTextField from "components/utils/ReduxFormTextField";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
-import { getInstanceId, isFreePlan } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import {
@@ -29,6 +29,8 @@ import {
   shouldLearnMoreButtonBeVisible,
 } from "./Helpers";
 import { PREMIUM_INTEGRATION_CONTACT_FORM } from "./Constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const FormWrapper = styled.form`
   display: flex;
@@ -41,7 +43,8 @@ const PremiumDatasourceContactForm = (
 ) => {
   const instanceId = useSelector(getInstanceId);
   const appsmithConfigs = getAppsmithConfigs();
-  const isFreePlanInstance = useSelector(isFreePlan);
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const redirectPricingURL = PRICING_PAGE_URL(
     appsmithConfigs.pricingUrl,
@@ -68,24 +71,20 @@ const PremiumDatasourceContactForm = (
   }, [redirectPricingURL, props.email, props.integrationName]);
 
   const submitEvent = useCallback(() => {
-    handleSubmitEvent(
-      props.integrationName,
-      props.email || "",
-      !isFreePlanInstance,
-    );
-  }, [props.email, props.integrationName, isFreePlanInstance]);
+    handleSubmitEvent(props.integrationName, props.email || "", isGACEnabled);
+  }, [props.email, props.integrationName, isGACEnabled]);
 
   return (
     <>
       <ModalHeader>
-        {getContactFormModalTitle(props.integrationName, !isFreePlanInstance)}
+        {getContactFormModalTitle(props.integrationName, isGACEnabled)}
       </ModalHeader>
       <FormWrapper onSubmit={props.handleSubmit(onSubmit)}>
         <Text renderAs="p">
           {getContactFormModalDescription(
             props.email || "",
             props.integrationName,
-            !isFreePlanInstance,
+            isGACEnabled,
           )}
         </Text>
         <Field
@@ -99,7 +98,7 @@ const PremiumDatasourceContactForm = (
           type="email"
         />
         <ModalFooter>
-          {shouldLearnMoreButtonBeVisible(!isFreePlanInstance) && (
+          {shouldLearnMoreButtonBeVisible(isGACEnabled) && (
             <Button
               aria-label="Learn more"
               kind="secondary"
@@ -110,10 +109,7 @@ const PremiumDatasourceContactForm = (
             </Button>
           )}
           <Button isDisabled={props.invalid} size="md" type="submit">
-            {getContactFormSubmitButtonText(
-              props.email || "",
-              !isFreePlanInstance,
-            )}
+            {getContactFormSubmitButtonText(props.email || "", isGACEnabled)}
           </Button>
         </ModalFooter>
       </FormWrapper>
