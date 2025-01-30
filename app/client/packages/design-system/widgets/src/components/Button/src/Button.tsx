@@ -57,7 +57,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
 
         {isLoading && (
           <span aria-hidden={!isLoading ? true : undefined} data-loader="">
-            <Spinner />
+            <Spinner size={size} />
             <span {...visuallyHiddenProps}>{loadingText}</span>
           </span>
         )}

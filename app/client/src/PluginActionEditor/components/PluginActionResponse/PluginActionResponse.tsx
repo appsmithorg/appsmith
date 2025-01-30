@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import { PluginType } from "entities/Plugin";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +17,8 @@ import { useDefaultTab } from "ee/PluginActionEditor/components/PluginActionResp
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
-  const { actionResponse } = usePluginActionContext();
+  const { actionResponse, plugin } = usePluginActionContext();
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const tabs = usePluginActionResponseTabs();
 
@@ -36,6 +39,9 @@ function PluginActionResponse() {
   // as for page load queries, query response is available and can be shown in response tab
   useEffect(
     function openResponseTabForPageLoadQueries() {
+      // disable the opening of RESPONSE_TAB for the AI plugin in Anvil
+      if (isAnvilEnabled && plugin.type === PluginType.AI) return;
+
       // actionResponse and responseDisplayFormat is present only when query has response available
       if (
         !!responseDisplayFormat?.title &&
@@ -53,11 +59,16 @@ function PluginActionResponse() {
       responseDisplayFormat?.title,
       actionResponse?.isExecutionSuccess,
       dispatch,
+      isAnvilEnabled,
+      plugin.type,
     ],
   );
 
   useEffect(
     function openResponseTabOnError() {
+      // disable the opening of RESPONSE_TAB for the AI plugin in Anvil
+      if (isAnvilEnabled && plugin.type === PluginType.AI) return;
+
       if (executionFailed) {
         dispatch(
           setPluginActionEditorDebuggerState({
@@ -67,7 +78,7 @@ function PluginActionResponse() {
         );
       }
     },
-    [executionFailed, dispatch],
+    [executionFailed, dispatch, isAnvilEnabled, plugin.type],
   );
 
   useDefaultTab();

@@ -10,7 +10,7 @@ import { PostgresFactory } from "test/factories/Actions/Postgres";
 import { sagasToRunForTests } from "test/sagas";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { screen, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
 const basePageId = "0123456789abcdef00000000";
@@ -170,6 +170,14 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByRole("button", { name: /run/i })).toHaveLength(2);
       // Check if the Add new button is shown
       getByTestId("t--add-item");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", { name: /response/i, selected: true });
+
+      expect(getAllByRole("tab", { name: /headers/i })).toHaveLength(2);
+      getByRole("tab", { name: /logs/i });
+      getByRole("tab", { name: /linter/i });
     });
 
     it("Renders Api routes in Split Screen", async () => {
@@ -189,7 +197,7 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByRole, getAllByText, getByTestId } = render(
+      const { getAllByRole, getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -215,6 +223,15 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByRole("button", { name: /run/i }).length).toBe(2);
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", {
+        name: /response/i,
+        selected: true,
+      });
+
+      expect(getAllByRole("tab", { name: /headers/i })).toHaveLength(2);
     });
 
     it("Renders Api add routes in Full Screen", () => {
@@ -362,6 +379,14 @@ describe("IDE URL rendering of Queries", () => {
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
       getByTestId("t--add-item");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", { name: /datasource/i, selected: true });
+
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
+      getByRole("tab", { name: /linter/i });
     });
 
     it("Renders Postgres routes in Split screen", async () => {
@@ -409,6 +434,12 @@ describe("IDE URL rendering of Queries", () => {
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", { name: /datasource/i, selected: true });
+
+      getByRole("tab", { name: /response/i });
     });
 
     it("Renders Postgres add routes in Full Screen", async () => {
@@ -553,6 +584,14 @@ describe("IDE URL rendering of Queries", () => {
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
       getByTestId("t--add-item");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", { name: /datasource/i, selected: true });
+
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
+      getByRole("tab", { name: /linter/i });
     });
 
     it("Renders Google Sheets routes in Split screen", async () => {
@@ -573,7 +612,7 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { container, getAllByText, getByRole, getByTestId } = render(
+      const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -595,14 +634,18 @@ describe("IDE URL rendering of Queries", () => {
         getByTestId("t--ide-tab-sheets2").classList.contains("active"),
       ).toBe(true);
 
-      screen.logTestingPlaygroundURL(container);
-
       // Check if the form is rendered
       getByTestId("t--uqi-editor-form");
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
+
+      // Check if the bottom view is rendered
+
+      getByRole("tab", { name: /datasource/i, selected: true });
+
+      getByRole("tab", { name: /response/i });
     });
 
     it("Renders Google Sheets add routes in Full Screen", async () => {

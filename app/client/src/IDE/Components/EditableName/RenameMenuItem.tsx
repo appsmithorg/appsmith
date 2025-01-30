@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { MenuItem } from "@appsmith/ads";
 import { useDispatch } from "react-redux";
 import { setRenameEntity } from "actions/ideActions";
+import { CONTEXT_RENAME, createMessage } from "ee/constants/messages";
 
 interface Props {
   disabled?: boolean;
@@ -24,7 +25,7 @@ export const RenameMenuItem = ({ disabled, entityId }: Props) => {
       onSelect={setRename}
       startIcon="input-cursor-move"
     >
-      Rename
+      {createMessage(CONTEXT_RENAME)}
     </MenuItem>
   );
 };

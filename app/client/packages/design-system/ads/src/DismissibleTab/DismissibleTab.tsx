@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import clsx from "classnames";
 
@@ -17,6 +17,15 @@ export const DismissibleTab = ({
   onClose,
   onDoubleClick,
 }: DismissibleTabProps) => {
+  const handleClose = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onClose(e);
+    },
+    [onClose],
+  );
+
   return (
     <Styled.Tab
       className={clsx("editor-tab", isActive && "active")}
@@ -31,7 +40,7 @@ export const DismissibleTab = ({
         data-testid={DATA_TEST_ID.CLOSE_BUTTON}
         isIconButton
         kind="tertiary"
-        onClick={onClose}
+        onClick={handleClose}
         role="tab"
         size="sm"
         tabIndex={0}

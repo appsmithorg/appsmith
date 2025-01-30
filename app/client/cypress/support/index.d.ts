@@ -307,5 +307,7 @@ declare namespace Cypress {
       name: string,
       options?: Partial<Cypress.ScreenshotOptions>,
     );
+
+    updateCodeInput(selector: string, value: string);
   }
 }

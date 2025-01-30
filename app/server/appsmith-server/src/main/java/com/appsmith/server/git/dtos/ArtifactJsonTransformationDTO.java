@@ -34,4 +34,12 @@ public class ArtifactJsonTransformationDTO {
         this.baseArtifactId = baseArtifactId;
         this.repoName = repoName;
     }
+
+    public ArtifactJsonTransformationDTO(
+            String workspaceId, String baseArtifactId, String repoName, ArtifactType artifactType) {
+        this.workspaceId = workspaceId;
+        this.baseArtifactId = baseArtifactId;
+        this.repoName = repoName;
+        this.artifactType = artifactType;
+    }
 }
