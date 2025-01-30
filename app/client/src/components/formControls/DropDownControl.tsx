@@ -386,6 +386,7 @@ export interface DropDownControlProps extends ControlProps {
     actionId: string;
     datasourceId: string;
     pluginId: string;
+    identifier: string;
   };
 }
 
@@ -403,6 +404,7 @@ interface ReduxDispatchProps {
     actionId: string;
     datasourceId: string;
     pluginId: string;
+    identifier: string;
   }) => void;
 }
 
@@ -422,6 +424,7 @@ const mapStateToProps = (
     actionId: string;
     datasourceId: string;
     pluginId: string;
+    identifier: string;
   };
 } => {
   // Added default options to prevent error when options is undefined
@@ -468,9 +471,14 @@ const mapStateToProps = (
           paginationPayload = {
             value: { ...conditionalOutput, fetchDynamicValues: modifiedDFV },
             dynamicFetchedValues: modifiedDFV,
-            actionId: "6796f36d4f98bc0e66296bc6",
-            datasourceId: "",
-            pluginId: "6796ebbd4f98bc0e66296b98",
+            actionId: formValues.id || "",
+            datasourceId: formValues.datasource?.id || "",
+            pluginId: formValues.pluginId || "",
+            identifier:
+              ownProps.propertyName ||
+              ownProps.configProperty ||
+              ownProps.identifier ||
+              "",
           };
         }
       } else {
