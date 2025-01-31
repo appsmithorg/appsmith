@@ -244,7 +244,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     this.agHelper.ValidateToastMessage(successMessage);
   }
 
@@ -268,10 +268,10 @@ export class HomePage {
 
   public StubPostHeaderReq() {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
-      req.headers["origin"] = "Cypress";
+      req.headers["origin"] = Cypress.config("baseUrl");
     }).as("mockPostInvite");
     cy.intercept("POST", "/api/v1/applications/invite", (req) => {
-      req.headers["origin"] = "Cypress";
+      req.headers["origin"] = Cypress.config("baseUrl");
     }).as("mockPostAppInvite");
   }
 
@@ -686,7 +686,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     // cy.contains(email, { matchCase: false });
     if (validate) {
       cy.contains(successMessage);
@@ -706,7 +706,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostAppInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     // cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
   }

@@ -19,6 +19,7 @@ module.exports = {
     "@tag.Divider",
     "@tag.DocumentViewer",
     "@tag.Dropdown",
+    "@tag.Email",
     "@tag.Filepicker",
     "@tag.Fork",
     "@tag.Form",
