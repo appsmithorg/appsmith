@@ -61,7 +61,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration
-                // TODO Update implementation to fetch license status for all the tenants once multi-tenancy is
+                // TODO Update implementation to fetch license status for all the organizations once multi-tenancy is
                 //  introduced
                 .then(Mono.defer(instanceConfigHelper::isLicenseValid)
                         // Ensure that the tenant feature flags are refreshed with the latest values after completing

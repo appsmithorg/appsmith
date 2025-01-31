@@ -20,5 +20,8 @@ public class UsagePulse extends BaseDomain {
     private Boolean isAnonymousUser;
 
     @Deprecated
+    // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
     private String tenantId;
+
+    private String organizationId;
 }

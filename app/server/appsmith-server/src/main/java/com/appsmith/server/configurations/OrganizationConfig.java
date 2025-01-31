@@ -22,8 +22,9 @@ public class OrganizationConfig implements ApplicationListener<ApplicationStarte
     private final OrganizationRepository organizationRepository;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    // Method to cleanup the cache and update the default tenant policies if the policyMap is empty. This will make sure
-    // cache will be updated if we update the tenant via startup DB migrations.
+    // Method to cleanup the cache and update the default organization policies if the policyMap is empty. This will
+    // make sure
+    // cache will be updated if we update the organization via startup DB migrations.
     // As we have mocked the OrganizationService in the tests, we had to manually evict the cache and save the object to
     // DB
     private Mono<Organization> cleanupAndUpdateRefreshDefaultOrganizationPolicies() {
