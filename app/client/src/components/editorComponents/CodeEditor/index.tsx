@@ -128,10 +128,7 @@ import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
-import {
-  PeekOverlayPopUp,
-  PEEK_OVERLAY_DELAY,
-} from "./PeekOverlayPopup/PeekOverlayPopup";
+import { PeekOverlayPopUp } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
 import {
   getSaveAndAutoIndentKey,
@@ -164,6 +161,7 @@ import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { executeCommandAction } from "actions/pluginActionActions";
+import { PEEK_OVERLAY_DELAY } from "./PeekOverlayPopup/constants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -202,6 +200,7 @@ export interface EditorStyleProps {
   popperZIndex?: Indices;
   blockCompletions?: Array<BlockCompletion>;
 }
+
 /**
  *  line => Line to which the gutter is added
  *
