@@ -692,7 +692,11 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             byte[] hashBytes = digest.digest(consolidateAPISignatureJSON.getBytes(StandardCharsets.UTF_8));
             String etag = Base64.getEncoder().encodeToString(hashBytes);
 
-            return etag;
+            // Strong Etag are removed by nginx if gzip is enabled. Hence, we are using weak etags.
+            // Ref: https://github.com/kubernetes/ingress-nginx/issues/1390
+            // Weak Etag format: W/"<etag>"
+            // Ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+            return "W/\"" + etag + "\"";
         } catch (Exception e) {
             log.error("Error while computing etag for ConsolidatedAPIResponseDTO", e);
             return "";
