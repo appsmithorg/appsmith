@@ -111,9 +111,7 @@ public class GitAnalyticsUtils {
             analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
         }
         analyticsProps.putAll(Map.of(
-                "organizationId",
-                defaultIfNull(artifact.getWorkspaceId(), ""),
-                "orgId",
+                "workspaceId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
                 "branchApplicationId",
                 defaultIfNull(artifact.getId(), ""),
@@ -142,7 +140,7 @@ public class GitAnalyticsUtils {
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
                 gitArtifactMetadata.getRefName(),
-                "organizationId",
+                "workspaceId",
                 artifact.getWorkspaceId(),
                 "repoUrl",
                 gitArtifactMetadata.getRemoteUrl(),
@@ -201,9 +199,9 @@ public class GitAnalyticsUtils {
         GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
 
-        // TODO: analytics generalisation
+        // TODO: analytics generalization
         analyticsProps.put("appId", gitData.getDefaultArtifactId());
-        analyticsProps.put("orgId", artifact.getWorkspaceId());
+        analyticsProps.put("workspaceId", artifact.getWorkspaceId());
         analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
         analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
 
