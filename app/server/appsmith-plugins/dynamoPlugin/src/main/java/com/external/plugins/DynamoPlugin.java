@@ -29,6 +29,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.SdkField;
 import software.amazon.awssdk.core.SdkPojo;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
@@ -42,6 +43,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +72,7 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
+    private static final Duration CONNECTION_TIME_TO_LIVE = Duration.ofDays(1);
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -285,7 +288,15 @@ public class DynamoPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
-                        final DynamoDbClientBuilder builder = DynamoDbClient.builder();
+
+                        // Configuring connection time to live as 1 day so that we don't face issues with stale
+                        // connections
+                        // in the connection pool.
+                        // 1 Day is added randomly as a time which is not too less or too high
+                        final DynamoDbClientBuilder builder = DynamoDbClient.builder()
+                                .httpClient(ApacheHttpClient.builder()
+                                        .connectionTimeToLive(CONNECTION_TIME_TO_LIVE)
+                                        .build());
 
                         if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                             final Endpoint endpoint =
