@@ -1,9 +1,7 @@
 .ads-v2-select {
   --select-color-border: var(--ads-v2-colors-control-field-default-border);
-  --select-padding-x: var(--ads-v2-spaces-2);
-  /* padding left and right */
-  --select-padding-y: var(--ads-v2-spaces-2);
-  /* padding top and bottom */
+  --select-padding-x: var(--ads-v2-spaces-2); /* padding left and right */
+  --select-padding-y: var(--ads-v2-spaces-2); /* padding top and bottom */
   --select-font-size: var(--ads-v2-font-size-2);
   --select-height: 24px;
   --select-search-input-padding-right: 0;
@@ -53,6 +51,7 @@
 .ads-v2-select.rc-select-focused {
   outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
+  --select-color-border: var(--ads-v2-colors-control-field-active-border);
 }
 
 /* Error */
@@ -88,7 +87,6 @@
   /* padding x + icon size + gap */
   --select-search-input-padding-right: calc(var(--select-padding-x) + 16px);
 }
-
 .ads-v2-select.rc-select-allow-clear.rc-select-show-arrow.rc-select-selection-search-input,
 .ads-v2-select.rc-select-allow-clear.rc-select-show-arrow
   .rc-select-selection-overflow {
@@ -113,10 +111,6 @@
   border-radius: var(--ads-v2-border-radius);
   box-sizing: border-box;
   overflow: hidden;
-}
-
-.ads-v2-select.rc-select-focused > .rc-select-selector {
-  border-color: transparent;
 }
 
 /* Placeholder */

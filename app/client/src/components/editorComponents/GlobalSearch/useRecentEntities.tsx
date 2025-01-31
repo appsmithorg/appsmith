@@ -76,7 +76,7 @@ const useResentEntities = (): Array<
               ),
               entityType: type,
             };
-          else if (type === FocusEntity.PROPERTY_PANE) {
+          else if (type === FocusEntity.WIDGET) {
             return { ...get(widgetsMap, id, null), entityType: type };
           }
         })

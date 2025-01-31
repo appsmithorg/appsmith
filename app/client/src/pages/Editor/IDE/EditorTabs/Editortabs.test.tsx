@@ -9,13 +9,9 @@ import "@testing-library/jest-dom";
 import { PageFactory } from "test/factories/PageFactory";
 import { APIFactory } from "test/factories/Actions/API";
 import type { AppState } from "ee/reducers";
-
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
+import { act, within } from "@testing-library/react";
 
 describe("EditorTabs render checks", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   const page = PageFactory.build();
 
   const renderComponent = (url: string, state: Partial<AppState>) =>
@@ -25,7 +21,6 @@ describe("EditorTabs render checks", () => {
       </Route>,
       {
         url,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
@@ -167,20 +162,27 @@ describe("EditorTabs render checks", () => {
 
   it("Render list view onclick of toggle in split view", () => {
     const anApi = APIFactory.build({
+      name: "Api1",
       id: "api_id",
       baseId: "api_base_id",
       pageId: page.pageId,
     });
+    const anApi2 = APIFactory.build({
+      name: "Api2",
+      id: "api_id2",
+      baseId: "api_base_id2",
+      pageId: page.pageId,
+    });
     const state = getIDETestState({
       pages: [page],
-      actions: [anApi],
+      actions: [anApi, anApi2],
       ideView: EditorViewMode.SplitScreen,
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
       },
     });
-    const { getByTestId } = renderComponent(
+    const { getByRole, getByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anApi.baseId}`,
       state,
     );
@@ -189,6 +191,19 @@ describe("EditorTabs render checks", () => {
 
     // check list view
     expect(getByTestId("t--editorpane-list-view")).not.toBeNull();
+
+    act(() => {
+      fireEvent.change(
+        getByRole("textbox", {
+          name: /search/i,
+        }),
+        { target: { value: "Api2" } },
+      );
+    });
+    const view = getByTestId("t--editorpane-list-view");
+
+    within(view).getByText("Api2");
+    expect(within(view).queryByText("Api1")).toBeNull();
   });
 
   it("Render Add tab in split view", () => {

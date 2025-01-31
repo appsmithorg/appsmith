@@ -77,7 +77,7 @@ public class ApplicationControllerTest {
 
         webTestClient
                 .post()
-                .uri(Url.APPLICATION_URL + "/import/orgId")
+                .uri(Url.APPLICATION_URL + "/import/workspaceId")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
                 .exchange()
@@ -108,7 +108,7 @@ public class ApplicationControllerTest {
 
         webTestClient
                 .post()
-                .uri(Url.APPLICATION_URL + "/import/orgId")
+                .uri(Url.APPLICATION_URL + "/import/workspaceId")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
                 .exchange()

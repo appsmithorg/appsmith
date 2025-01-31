@@ -31,10 +31,10 @@ import MergeStatus from "./MergeStatus";
 import ConflictError from "git/components/ConflictError";
 import MergeSuccessIndicator from "./MergeSuccessIndicator";
 import { noop } from "lodash";
-import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 import type { GitApiError } from "git/store/types";
+import type { GitBranch } from "git/types";
 
 const Container = styled.div`
   min-height: 360px;
@@ -64,7 +64,7 @@ interface BranchOption {
 }
 
 interface TabMergeViewProps {
-  branches: FetchBranchesResponseData | null;
+  branches: GitBranch[] | null;
   clearMergeStatus: () => void;
   currentBranch: string | null;
   fetchBranches: () => void;
@@ -80,6 +80,7 @@ interface TabMergeViewProps {
   mergeStatus: FetchMergeStatusResponseData | null;
   protectedBranches: FetchProtectedBranchesResponseData | null;
   resetMergeState: () => void;
+  resetMergeSuccessState: () => void;
 }
 
 export default function TabMergeView({
@@ -99,6 +100,7 @@ export default function TabMergeView({
   mergeStatus = null,
   protectedBranches = null,
   resetMergeState = noop,
+  resetMergeSuccessState = noop,
 }: TabMergeViewProps) {
   const [selectedBranchOption, setSelectedBranchOption] =
     useState<BranchOption>();
@@ -208,9 +210,15 @@ export default function TabMergeView({
       // when user selects a branch to merge
       if (currentBranch && selectedBranchOption?.value) {
         fetchMergeStatus(currentBranch, selectedBranchOption?.value);
+        resetMergeSuccessState();
       }
     },
-    [currentBranch, selectedBranchOption?.value, fetchMergeStatus],
+    [
+      currentBranch,
+      selectedBranchOption?.value,
+      fetchMergeStatus,
+      resetMergeSuccessState,
+    ],
   );
 
   useEffect(

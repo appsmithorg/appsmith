@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 
 export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
   return {
@@ -55,27 +54,6 @@ export const setSignpostingOverlay = (payload: boolean) => {
 export const signpostingMarkAllRead = () => {
   return {
     type: ReduxActionTypes.SIGNPOSTING_MARK_ALL_READ,
-  };
-};
-
-export const signpostingStepUpdateInit = (payload: {
-  step: SIGNPOSTING_STEP;
-  completed: boolean;
-}) => {
-  return {
-    type: ReduxActionTypes.SIGNPOSTING_STEP_UPDATE_INIT,
-    payload,
-  };
-};
-
-export const signpostingStepUpdate = (payload: {
-  step: SIGNPOSTING_STEP;
-  completed: boolean;
-  read?: boolean;
-}) => {
-  return {
-    type: ReduxActionTypes.SIGNPOSTING_STEP_UPDATE,
-    payload,
   };
 };
 

@@ -80,7 +80,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.storeValue()}}`,
@@ -93,7 +92,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeValue()}}`,
@@ -164,7 +162,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeNonExistentValue()}}`,
@@ -233,7 +230,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeInvalidKey()}}`,
@@ -354,7 +350,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.storeValues()}}`,
@@ -367,7 +362,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeValue1()}}`,
@@ -380,7 +374,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button3", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeValue2()}}`,
@@ -516,7 +509,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.storeValues()}}`,
@@ -529,7 +521,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeValue1()}}`,
@@ -628,7 +619,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.storeTempValue()}}`,
@@ -641,7 +631,6 @@ describe(
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       cy.get("@jsObjectName").then((jsObjectName: string) => {
-        console.log("Mera variable: ", jsObjectName);
         propPane.EnterJSContext(
           "onClick",
           `{{${jsObjectName}.removeTempValue()}}`,

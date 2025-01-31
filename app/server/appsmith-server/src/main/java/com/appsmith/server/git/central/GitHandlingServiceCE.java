@@ -87,7 +87,10 @@ public interface GitHandlingServiceCE {
 
     Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
-    Mono<String> createGitReference(ArtifactJsonTransformationDTO artifactJsonTransformationDTO, GitRefDTO gitRefDTO);
+    Mono<String> createGitReference(
+            ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
+            GitArtifactMetadata baseGitData,
+            GitRefDTO gitRefDTO);
 
     Mono<String> checkoutRemoteReference(ArtifactJsonTransformationDTO jsonTransformationDTO);
 

@@ -7,6 +7,8 @@ import {
   entityExplorer,
   jsEditor,
   propPane,
+  homePage,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import EditorNavigation, {
@@ -177,9 +179,12 @@ describe(
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(pageTwoUrl);
+      agHelper.WaitUntilEleAppear(debuggerHelper.locators._debuggerIcon);
+      agHelper.CypressReload();
     });
 
     it("3. To verify add a navigation using URL containing links to third party websites", () => {
+      agHelper.RefreshPage();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
@@ -250,6 +255,7 @@ describe(
     });
 
     it("4. To verify navigation to a hidden page in same as well a new window", () => {
+      agHelper.RefreshPage();
       PageList.AddNewPage();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page3",

@@ -66,8 +66,11 @@ export const IndividualSemantic: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="100%">
-      {Object.keys(SIZES)
-        .filter((size) => !["xSmall", "large"].includes(size))
+      {objectKeys(SIZES)
+        .filter(
+          (size): size is Exclude<keyof typeof SIZES, "xSmall" | "large"> =>
+            !["xSmall", "large"].includes(size),
+        )
         .map((size) => (
           <InlineButtons items={itemList} key={size} size={size} />
         ))}

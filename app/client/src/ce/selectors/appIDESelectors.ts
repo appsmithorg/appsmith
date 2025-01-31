@@ -9,7 +9,7 @@ import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";

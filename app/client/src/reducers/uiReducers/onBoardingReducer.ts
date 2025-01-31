@@ -77,26 +77,6 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return { ...state, forceOpenWidgetPanel: action.payload };
   },
-  [ReduxActionTypes.SIGNPOSTING_STEP_UPDATE]: (
-    state: OnboardingState,
-    action: ReduxAction<StepState>,
-  ) => {
-    const index = state.stepState.findIndex(
-      (stepState) => stepState.step === action.payload.step,
-    );
-    const newArray = [...state.stepState];
-
-    if (index >= 0) {
-      newArray[index] = action.payload;
-    } else {
-      newArray.push(action.payload);
-    }
-
-    return {
-      ...state,
-      stepState: newArray,
-    };
-  },
   [ReduxActionTypes.SIGNPOSTING_MARK_ALL_READ]: (state: OnboardingState) => {
     return {
       ...state,

@@ -198,7 +198,7 @@ public class CommonGitFileUtilsCE {
                 final Map<String, Object> data = Map.of(
                         artifactConstant,
                         repoPath.getParent().getFileName().toString(),
-                        FieldName.ORGANIZATION_ID,
+                        "organizationId",
                         repoPath.getParent().getParent().getFileName().toString(),
                         FieldName.FLOW_NAME,
                         stopwatch.getFlow(),
@@ -630,8 +630,9 @@ public class CommonGitFileUtilsCE {
      */
     protected void copyMetadataToArtifactExchangeJson(
             GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson) {
+        final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
         GitResourceIdentity metadataIdentity =
-                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, METADATA + JSON_EXTENSION, "");
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
         Object metadata = gitResourceMap.getGitResourceMap().get(metadataIdentity);
 
         Gson gson = new Gson();
@@ -675,7 +676,7 @@ public class CommonGitFileUtilsCE {
                     final Map<String, Object> data = Map.of(
                             constantsMap.get(FieldName.ID),
                             baseArtifactId,
-                            FieldName.ORGANIZATION_ID,
+                            "organizationId",
                             workspaceId,
                             FieldName.FLOW_NAME,
                             stopwatch.getFlow(),

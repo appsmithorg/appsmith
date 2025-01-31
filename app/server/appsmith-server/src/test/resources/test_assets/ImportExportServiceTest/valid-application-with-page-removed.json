@@ -2,7 +2,7 @@
   "clientSchemaVersion": 1,
   "serverSchemaVersion": 1,
   "exportedApplication": {
-    "name": "importApplicationIntoOrganization_pageRemovedInBranchApplication_Success",
+    "name": "importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success",
     "isPublic": false,
     "appIsExample": false,
     "unreadCommentThreads": 0,

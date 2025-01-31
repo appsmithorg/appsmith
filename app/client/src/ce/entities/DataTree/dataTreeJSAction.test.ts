@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { generateDataTreeJSAction } from "./dataTreeJSAction";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 

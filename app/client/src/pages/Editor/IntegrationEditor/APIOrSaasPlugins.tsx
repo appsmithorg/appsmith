@@ -5,9 +5,13 @@ import {
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import type { AppState } from "ee/reducers";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import { getQueryParams } from "utils/URLUtils";
 import {
   getGenerateCRUDEnabledPluginMap,
@@ -16,9 +20,8 @@ import {
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { Spinner } from "@appsmith/ads";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
-import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { createNewApiActionBasedOnIdeType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import {
   DatasourceContainer,
@@ -43,6 +46,9 @@ import {
   PREMIUM_INTEGRATIONS,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
+import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { IDEType } from "ee/entities/IDE/constants";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -57,8 +63,8 @@ interface CreateAPIOrSaasPluginsProps {
   plugins: Plugin[];
   createDatasourceFromForm: typeof createDatasourceFromForm;
   createTempDatasourceFromForm: typeof createTempDatasourceFromForm;
-  createNewApiActionBasedOnEditorType: (
-    editorType: string,
+  createNewApiActionBasedOnIdeType: (
+    ideType: IDEType,
     editorId: string,
     parentEntityId: string,
     parentEntityType: ActionParentEntityTypeInterface,
@@ -82,9 +88,9 @@ export const API_ACTION = {
 function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
   const { authApiPlugin, isCreating, isOnboardingScreen, pageId, plugins } =
     props;
-  const editorType = useEditorType(location.pathname);
+  const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
-    useParentEntityInfo(editorType);
+    useParentEntityInfo(ideType);
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -109,8 +115,8 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source,
     });
-    props.createNewApiActionBasedOnEditorType(
-      editorType,
+    props.createNewApiActionBasedOnIdeType(
+      ideType,
       editorId,
       // Set parentEntityId as (parentEntityId or if it is onboarding screen then set it as pageId) else empty string
       parentEntityId || (isOnboardingScreen && pageId) || "",
@@ -207,6 +213,8 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
       {plugins.map((p) => (
         <DatasourceItem
           handleOnClick={() => {
+            if (isCreating) return;
+
             AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
               pluginName: p.name,
               pluginPackageName: p.packageName,
@@ -218,6 +226,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           icon={getAssetUrl(p.iconLocation)}
           key={p.id}
           name={p.name}
+          rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
         />
       ))}
       <PremiumDatasources plugins={props.premiumPlugins} />
@@ -271,7 +280,11 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
 
 const mapStateToProps = (
   state: AppState,
-  props: { showSaasAPIs?: boolean; isPremiumDatasourcesViewEnabled: boolean },
+  props: {
+    showSaasAPIs?: boolean;
+    isPremiumDatasourcesViewEnabled: boolean;
+    isCreating?: boolean;
+  },
 ) => {
   const searchedPlugin = (
     pluginSearchSelector(state, "search") || ""
@@ -287,9 +300,12 @@ const mapStateToProps = (
         p.type === PluginType.EXTERNAL_SAAS,
   );
 
-  plugins = plugins.filter((p) =>
-    p.name.toLocaleLowerCase().includes(searchedPlugin),
-  );
+  plugins = plugins
+    .sort((a, b) => {
+      // Sort the AI plugins alphabetically
+      return a.name.localeCompare(b.name);
+    })
+    .filter((p) => p.name.toLocaleLowerCase().includes(searchedPlugin));
 
   let authApiPlugin = !props.showSaasAPIs
     ? allPlugins.find((p) => p.name === "REST API")
@@ -325,13 +341,14 @@ const mapStateToProps = (
     authApiPlugin,
     restAPIVisible,
     graphQLAPIVisible,
+    isCreating: props.isCreating || getDatasourcesLoadingState(state),
   };
 };
 
 const mapDispatchToProps = {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
-  createNewApiActionBasedOnEditorType,
+  createNewApiActionBasedOnIdeType,
 };
 
 export default connect(

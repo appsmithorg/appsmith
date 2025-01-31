@@ -28,9 +28,8 @@ import {
   JsFileIconV2,
   dbQueryIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { PluginType } from "entities/Action";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginType } from "entities/Plugin";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { Icon } from "@appsmith/ads";
 import {
@@ -501,7 +500,7 @@ export function getCurrentEntityInfo(entity: FocusEntity) {
         segment: EditorEntityTab.UI,
         segmentMode: EditorEntityTabState.Add,
       };
-    case FocusEntity.PROPERTY_PANE:
+    case FocusEntity.WIDGET:
       return {
         segment: EditorEntityTab.UI,
         segmentMode: EditorEntityTabState.Edit,

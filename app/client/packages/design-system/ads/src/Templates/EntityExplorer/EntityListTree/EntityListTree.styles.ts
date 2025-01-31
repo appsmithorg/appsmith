@@ -11,6 +11,7 @@ export const CollapseSpacer = styled.div`
 
 export const PaddingOverrider = styled.div`
   width: 100%;
+  overflow-x: hidden;
 
   & > div {
     // Override the padding of the entity item since collapsible icon can be on the left

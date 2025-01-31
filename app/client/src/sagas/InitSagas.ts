@@ -1,4 +1,4 @@
-import { get, identity, pickBy } from "lodash";
+import get from "lodash/get";
 import {
   all,
   call,
@@ -80,7 +80,8 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { ConsolidatedPageLoadApi } from "api";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {
@@ -220,6 +221,7 @@ function* executeActionDuringUserDetailsInitialisation(
 export function* getInitResponses({
   applicationId,
   basePageId,
+  branch,
   mode,
   shouldInitialiseUserDetails,
 }: {
@@ -227,16 +229,13 @@ export function* getInitResponses({
   basePageId?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): any {
-  const params = pickBy(
-    {
-      applicationId,
-      defaultPageId: basePageId,
-    },
-    identity,
-  );
+  branch?: string;
+}) {
+  const params = {
+    applicationId,
+    defaultPageId: basePageId,
+    branchName: branch,
+  };
   let response: InitConsolidatedApi | undefined;
 
   try {

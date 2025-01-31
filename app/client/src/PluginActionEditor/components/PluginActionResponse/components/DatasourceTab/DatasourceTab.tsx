@@ -13,7 +13,7 @@ import type { AppState } from "ee/reducers";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-import { DatasourceComponentTypes } from "api/PluginApi";
+import { DatasourceComponentTypes } from "entities/Plugin";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { SchemaDisplayStatus, StatusDisplay } from "./StatusDisplay";
 import { DatasourceTables } from "./DatasourceTables";
@@ -23,8 +23,7 @@ import { isEmpty, omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
 import { TableColumns } from "./TableColumns";
 import { BOTTOMBAR_HEIGHT } from "./constants";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import DatasourceInfo from "./DatasourceInfo";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import {
@@ -34,6 +33,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface Props {
   datasourceId: string;
@@ -58,8 +58,8 @@ const DatasourceTab = (props: Props) => {
 
   const plugin = useSelector((state) => getPlugin(state, pluginId || ""));
 
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId } = useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId } = useParentEntityInfo(ideType);
 
   const [selectedTable, setSelectedTable] = useState<string>();
 
