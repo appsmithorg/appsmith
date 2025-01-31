@@ -199,7 +199,7 @@ public class GitAnalyticsUtils {
         GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
 
-        // TODO: analytics generalisation
+        // TODO: analytics generalization
         analyticsProps.put("appId", gitData.getDefaultArtifactId());
         analyticsProps.put("workspaceId", artifact.getWorkspaceId());
         analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
