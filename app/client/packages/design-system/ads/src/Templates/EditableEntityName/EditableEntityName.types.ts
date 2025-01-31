@@ -9,7 +9,7 @@ export interface EditableEntityNameProps {
   onExitEditing: () => void;
   onNameSave: (name: string) => void;
   validateName: (name: string) => string | null;
-  canEdit?: boolean;
+  canEdit: boolean;
   isFixedWidth?: boolean;
   size?: "small" | "medium";
 }
