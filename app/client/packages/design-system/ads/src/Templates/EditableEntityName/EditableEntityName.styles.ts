@@ -21,13 +21,7 @@ export const Root = styled.div`
 
 export const Text = styled(ADSText)`
   min-width: 3ch;
-
-  & input {
-    background-color: var(--ads-v2-color-bg);
-    padding-top: 4px;
-    padding-bottom: 4px;
-    top: -5px;
-  }
+  line-height: normal;
 
   &[data-isfixedwidth="true"] {
     white-space: nowrap;

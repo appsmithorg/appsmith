@@ -10,6 +10,7 @@ import type { EditableEntityNameProps } from "./EditableEntityName.types";
 export const EditableEntityName = (props: EditableEntityNameProps) => {
   const {
     canEdit,
+    icon,
     inputTestId,
     isEditing,
     isFixedWidth,
@@ -43,8 +44,8 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
       return <Spinner size={size === "small" ? "sm" : "md"} />;
     }
 
-    return props.icon;
-  }, [isLoading, props.icon]);
+    return icon;
+  }, [isLoading, icon]);
 
   const inputProps = useMemo(
     () => ({
@@ -52,6 +53,12 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
       onKeyUp: handleKeyUp,
       onChange: handleTitleChange,
       autoFocus: true,
+      style: {
+        backgroundColor: "var(--ads-v2-color-bg)",
+        paddingTop: "4px",
+        paddingBottom: "4px",
+        top: "-5px",
+      },
     }),
     [handleKeyUp, handleTitleChange, inputTestId],
   );

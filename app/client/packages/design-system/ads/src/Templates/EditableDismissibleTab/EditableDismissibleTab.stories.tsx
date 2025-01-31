@@ -24,6 +24,7 @@ export const Basic: Story = {
     dataTestId: "t--dismissible-tab",
     icon: JSIcon(),
     name: "Hello",
+    canEdit: true,
 
     onNameSave: console.log,
     validateName: (name: string) =>
