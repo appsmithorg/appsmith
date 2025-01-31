@@ -11,4 +11,5 @@ export interface EditableDismissibleTabProps {
   onClose: () => void;
   onNameSave: (name: string) => void;
   validateName: (name: string) => string | null;
+  canEdit: boolean;
 }

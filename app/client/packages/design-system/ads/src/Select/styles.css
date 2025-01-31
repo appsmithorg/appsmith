@@ -237,6 +237,48 @@
   box-sizing: border-box;
 }
 
+/* Option group */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-group {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+
+  padding: var(--select-option-padding) 0 0 var(--select-option-padding);
+  border-radius: var(--ads-v2-border-radius);
+  font-weight: 500;
+  font-size: var(--ads-v2-font-size-4);
+  /* TODO: remove !important after WDS fix their issue in tree select */
+  background-color: var(--select-option-color-bg) !important;
+  position: relative;
+  color: var(--ads-v2-colors-content-label-default-fg);
+  min-height: var(--select-option-height);
+  box-sizing: border-box;
+}
+
+/* Option when it is grouped */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-grouped {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+
+  padding: var(--select-option-padding);
+  padding-left: var(--ads-v2-spaces-5);
+  margin-bottom: var(--ads-v2-spaces-1);
+  border-radius: var(--ads-v2-border-radius);
+  cursor: pointer;
+  /* TODO: remove !important after WDS fix their issue in tree select */
+  background-color: var(--select-option-color-bg) !important;
+  position: relative;
+  color: var(--ads-v2-colors-content-label-default-fg);
+  min-height: var(--select-option-height);
+  box-sizing: border-box;
+}
+
 /* size sm */
 .ads-v2-select__dropdown.ads-v2-select__dropdown--sm .rc-select-item {
   --select-option-padding: var(--ads-v2-spaces-2);

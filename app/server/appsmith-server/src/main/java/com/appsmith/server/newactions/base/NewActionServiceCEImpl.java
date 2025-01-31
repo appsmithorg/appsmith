@@ -1370,7 +1370,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
         analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedAction.getPageId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
         analyticsProperties.put("pluginId", ObjectUtils.defaultIfNull(savedAction.getPluginId(), ""));
         analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
         analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
