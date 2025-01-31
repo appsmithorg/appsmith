@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithException;
 import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
@@ -22,11 +23,11 @@ public class ObservationConfig {
                 // Extract error code safely
                 String errorCode = context.getError() != null && context.getError() instanceof AppsmithException
                         ? (((AppsmithException) context.getError()).getAppErrorCode())
-                        : "none";
+                        : FieldName.NONE;
 
                 String errorTitle = context.getError() != null && context.getError() instanceof AppsmithException
                         ? (((AppsmithException) context.getError()).getTitle())
-                        : "none";
+                        : FieldName.NONE;
 
                 return keyValues.and(KeyValue.of("errorCode", errorCode)).and(KeyValue.of("exception", errorTitle));
             }
