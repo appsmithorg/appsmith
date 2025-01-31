@@ -18,7 +18,7 @@ export enum FocusEntity {
   QUERY_LIST = "QUERY_LIST",
   JS_OBJECT = "JS_OBJECT",
   JS_OBJECT_LIST = "JS_OBJECT_LIST",
-  PROPERTY_PANE = "PROPERTY_PANE",
+  WIDGET = "WIDGET",
   NONE = "NONE",
   APP_STATE = "APP_STATE",
   LIBRARY = "LIBRARY",
@@ -30,10 +30,11 @@ export enum FocusEntity {
   QUERY_MODULE_INSTANCE = "QUERY_MODULE_INSTANCE",
   JS_MODULE_INSTANCE = "JS_MODULE_INSTANCE",
   JS_OBJECT_ADD = "JS_OBJECT_ADD",
+  PAGE = "PAGE",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
-  [FocusEntity.PROPERTY_PANE]: FocusEntity.WIDGET_LIST,
+  [FocusEntity.WIDGET]: FocusEntity.WIDGET_LIST,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
   [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
   [FocusEntity.JS_MODULE_INSTANCE]: FocusEntity.JS_OBJECT_LIST,
@@ -62,8 +63,8 @@ export interface MatchEntityFromPath {
   baseApplicationId?: string;
   customSlug?: string;
   applicationSlug?: string;
-  packageId?: string;
-  moduleId?: string;
+  basePackageId?: string;
+  baseModuleId?: string;
   workflowId?: string;
   pageSlug?: string;
   baseApiId?: string;
@@ -243,7 +244,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
 
   if (match.params.widgetIds) {
     return {
-      entity: FocusEntity.PROPERTY_PANE,
+      entity: FocusEntity.WIDGET,
       id: match.params.widgetIds,
       appState: EditorState.EDITOR,
       params: match.params,

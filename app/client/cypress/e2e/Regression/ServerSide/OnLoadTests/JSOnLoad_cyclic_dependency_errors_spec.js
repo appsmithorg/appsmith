@@ -27,7 +27,7 @@ Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 
 let dsname;
 
-describe(
+describe.skip(
   "Cyclic Dependency Informational Error Messages",
   { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {

@@ -31,4 +31,5 @@ public class ConsolidatedApiSpanNamesCE {
     public static final String DATASOURCES_SPAN = "datasources";
     public static final String FORM_CONFIG_SPAN = "form_config";
     public static final String MOCK_DATASOURCES_SPAN = "mock_datasources";
+    public static final String ETAG_SPAN = CONSOLIDATED_API_PREFIX + VIEW + "compute_etag";
 }

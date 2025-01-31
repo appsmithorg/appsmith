@@ -20,7 +20,7 @@ import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./EditorTabs/constants";
-import { createEditorFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { createPageFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 import { FocusElement } from "navigation/FocusElements";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
@@ -101,18 +101,21 @@ export const useGetPageFocusUrl = (basePageId: string): string => {
 
   const branch = useGitCurrentBranch();
 
-  const editorStateFocusInfo = useSelector((appState) =>
-    getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
+  const pageStateFocusInfo = useSelector((appState) =>
+    getCurrentFocusInfo(appState, createPageFocusInfoKey(basePageId, branch)),
   );
 
-  useEffect(() => {
-    if (editorStateFocusInfo) {
-      const lastSelectedEntity =
-        editorStateFocusInfo.state[FocusElement.SelectedEntity];
+  useEffect(
+    function handleUpdateOfPageLink() {
+      if (pageStateFocusInfo) {
+        const lastSelectedEntity =
+          pageStateFocusInfo.state[FocusElement.SelectedEntity];
 
-      setFocusPageUrl(builderURL({ basePageId, suffix: lastSelectedEntity }));
-    }
-  }, [editorStateFocusInfo, branch]);
+        setFocusPageUrl(builderURL({ basePageId, suffix: lastSelectedEntity }));
+      }
+    },
+    [pageStateFocusInfo, branch, basePageId],
+  );
 
   return focusPageUrl;
 };
@@ -127,7 +130,7 @@ export function useWidgetSelectionBlockListener() {
   useEffect(() => {
     const inUIMode = [
       FocusEntity.CANVAS,
-      FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET,
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
 
