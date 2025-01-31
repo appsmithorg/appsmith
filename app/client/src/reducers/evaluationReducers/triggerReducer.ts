@@ -62,19 +62,6 @@ const triggers = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT]: (
-    state: FormEvaluationState,
-    action: ReduxAction<{ identifier: string; actionId: string }>,
-  ) =>
-    produce(state, (draftState) => {
-      const { actionId, identifier } = action.payload;
-
-      if (!draftState[actionId][identifier].fetchDynamicValues) {
-        return draftState;
-      }
-
-      draftState[actionId][identifier].fetchDynamicValues.isLoading = true;
-    }),
   [ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_SUCCESS]: (
     state: FormEvaluationState,
     action: ReduxAction<TriggerActionNextPagePayload>,
@@ -89,14 +76,19 @@ const triggers = createReducer(initialState, {
       const triggers = state[actionId];
       const storedConditionalOutput = triggers[identifier];
 
-      let content: Array<unknown> = [];
+      let content: Array<unknown> =
+        storedConditionalOutput.fetchDynamicValues?.data.content;
 
-      if (storedConditionalOutput.fetchDynamicValues?.data.content) {
-        content = [
-          ...storedConditionalOutput.fetchDynamicValues?.data.content,
-          ...newValue.data.content,
-        ];
+      // if stored data is already of the same length or more than the incoming data
+      // then this might be a duplicate call and needs to be skipped.
+      if (newValue.data.count + newValue.data.startIndex <= content.length) {
+        return draftState;
       }
+
+      content = [
+        ...storedConditionalOutput.fetchDynamicValues?.data.content,
+        ...newValue.data.content,
+      ];
 
       const updatedData = {
         content,
