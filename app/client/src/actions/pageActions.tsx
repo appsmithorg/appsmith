@@ -207,12 +207,12 @@ export const createPageAction = (
   applicationId: string,
   pageName: string,
   layouts: Partial<PageLayout>[],
-  orgId: string,
+  workspaceId: string,
   instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
-    orgId,
+    workspaceId,
     instanceId,
   });
 
@@ -229,12 +229,12 @@ export const createPageAction = (
 export const createNewPageFromEntities = (
   applicationId: string,
   pageName: string,
-  orgId: string,
+  workspaceId: string,
   instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
-    orgId,
+    workspaceId,
     instanceId,
   });
 

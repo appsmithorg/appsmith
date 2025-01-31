@@ -1,5 +1,8 @@
 import React from "react";
-import RCSelect, { Option as RCOption } from "rc-select";
+import RCSelect, {
+  Option as RCOption,
+  OptGroup as RCOptGroup,
+} from "rc-select";
 import clsx from "classnames";
 import "./rc-styles.css";
 import "./styles.css";
@@ -91,5 +94,6 @@ Select.displayName = "Select";
 Select.defaultProps = {};
 
 const Option = RCOption;
+const OptGroup = RCOptGroup;
 
-export { Select, Option };
+export { Select, Option, OptGroup };

@@ -930,7 +930,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
         return analyticsProperties;
     }
 
