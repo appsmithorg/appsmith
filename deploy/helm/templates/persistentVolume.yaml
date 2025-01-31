@@ -34,7 +34,6 @@ spec:
   {{- if .Values.persistence.efs.enabled }}
   csi:
     driver: {{ .Values.persistence.efs.driver }}
-    nfs:
     volumeHandle: {{ .Values.persistence.efs.volumeHandle }}
   {{ end }}
 {{- end }}

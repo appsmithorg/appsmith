@@ -59,7 +59,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if or .Values.redis.enabled .Values.mongodb.enabled .Values.postgresql.enabled }}
       initContainers:
+      {{- end }}
       {{- if .Values.redis.enabled }}
       - name: redis-init-container
       {{- if ((.Values.initContainer.redis).image) }}

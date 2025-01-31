@@ -33,8 +33,6 @@ spec:
       targetPort: http
       {{- if and (or (eq .Values.service.type "LoadBalancer") (eq .Values.service.type "NodePort")) .Values.service.nodePort }}
       nodePort: {{ .Values.service.nodePort }}
-      {{- else if eq .Values.service.type "ClusterIP" }}
-      nodePort: null
       {{- end }}
   selector:
     {{- include "appsmith.selectorLabels" . | nindent 4 }}
