@@ -167,7 +167,7 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
-              orgId: workspaceId,
+              workspaceId: workspaceId,
               instanceId,
             });
           }

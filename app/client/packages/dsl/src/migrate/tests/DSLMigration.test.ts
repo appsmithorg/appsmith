@@ -90,7 +90,6 @@ import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 import * as m87 from "../migrations/087-migrate-chart-widget-customechartdata";
 import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
 import * as m89 from "../migrations/089-migrage-table-widget-v2-currentRow-binding";
-import * as m91 from "../migrations/090-migrate-table-widget-v2-validation-try-catch";
 
 interface Migration {
   functionLookup: {
@@ -934,15 +933,6 @@ const migrations: Migration[] = [
   {
     functionLookup: [],
     version: 90,
-  },
-  {
-    functionLookup: [
-      {
-        moduleObj: m91,
-        functionName: "migrateTableWidgetV2ValidationTryCatch",
-      },
-    ],
-    version: 91,
   },
 ];
 

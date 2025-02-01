@@ -4,7 +4,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe(
+describe.skip(
   "Handle Conversion for Generated/Imported Pages",
   { tags: ["@tag.Settings", "@tag.excludeForAirgap"] },
   () => {

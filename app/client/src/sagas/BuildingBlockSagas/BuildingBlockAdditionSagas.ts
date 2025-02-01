@@ -183,7 +183,7 @@ export function* loadBuildingBlocksIntoApplication(
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
-    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const loadWorkspaceId: string = yield select(getCurrentWorkspaceId);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const buildingBlockDragStartTimestamp: number = yield select(
       getBuildingBlockDragStartTimestamp,
@@ -272,7 +272,7 @@ export function* loadBuildingBlocksIntoApplication(
 
       AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_COMPLETED", {
         applicationId,
-        workspaceId,
+        workspaceId: loadWorkspaceId,
         source: "explorer",
         eventData: {
           buildingBlockName: dragDetails.newWidget.displayName,

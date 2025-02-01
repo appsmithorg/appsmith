@@ -4,10 +4,10 @@ import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
 import { getTagText, handlePremiumDatasourceClick } from "./Helpers";
-import { isFreePlan } from "ee/selectors/tenantSelectors";
-import { useSelector } from "react-redux";
 import DatasourceItem from "../DatasourceItem";
 import type { PremiumIntegration } from "./Constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
@@ -36,9 +36,10 @@ export default function PremiumDatasources(props: {
   plugins: PremiumIntegration[];
 }) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
-  const isFreePlanInstance = useSelector(isFreePlan);
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const handleOnClick = (name: string) => {
-    handlePremiumDatasourceClick(name, !isFreePlanInstance);
+    handlePremiumDatasourceClick(name, isGACEnabled);
     setSelectedIntegration(name);
   };
 
@@ -61,11 +62,11 @@ export default function PremiumDatasources(props: {
           name={integration.name}
           rightSibling={
             <PremiumTag
-              isBusinessOrEnterprise={!isFreePlanInstance}
+              isBusinessOrEnterprise={isGACEnabled}
               isClosable={false}
               kind={"premium"}
             >
-              {getTagText(!isFreePlanInstance)}
+              {getTagText(isGACEnabled)}
             </PremiumTag>
           }
         />
