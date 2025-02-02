@@ -648,6 +648,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     @NotNull public String computeConsolidatedAPIResponseEtag(
             ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId) {
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
+            log.debug(
+                    "Skipping etag computation: Both defaultPageId '{}', and applicationId '{}' are blank",
+                    defaultPageId,
+                    applicationId);
             return "";
         }
 
@@ -664,6 +668,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     : null;
 
             if (lastDeployedAt == null) {
+                log.debug(
+                        "Skipping etag computation: lastDeployedAt is null for applicationId '{}', pageId '{}'",
+                        applicationId,
+                        defaultPageId);
                 return "";
             }
 
