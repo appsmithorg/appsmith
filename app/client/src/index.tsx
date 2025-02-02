@@ -23,15 +23,12 @@ import "./assets/styles/index.css";
 import "./polyfills";
 import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
-import { setAutoFreeze } from "immer";
+
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { FaroErrorBoundary } from "@grafana/faro-react";
 import { isTracingEnabled } from "instrumentation/utils";
 
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
-
-setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();

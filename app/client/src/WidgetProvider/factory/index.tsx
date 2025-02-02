@@ -35,7 +35,7 @@ import {
 import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
-import produce from "immer";
+import { create } from "mutative";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
@@ -418,7 +418,7 @@ class WidgetFactory {
 
             if (dynamicProperties && dynamicProperties.length) {
               addPropertyConfigIds(dynamicProperties, false);
-              section = produce(section, (draft) => {
+              section = create(section, (draft) => {
                 draft.children = [...dynamicProperties, ...section.children];
               });
             }

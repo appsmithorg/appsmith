@@ -161,6 +161,7 @@
     "mixpanel-browser": "^2.55.1",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
+    "mutative": "^1.1.0",
     "nanoid": "^2.0.4",
     "node-forge": "^1.3.0",
     "object-hash": "^3.0.0",
