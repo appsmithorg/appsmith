@@ -21,7 +21,7 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 import type { PluginType } from "entities/Plugin";
 import localStorage from "utils/localStorage";
 import { EDITOR_PATHS } from "ee/entities/IDE/utils";
-import type { Match, TokensToRegexpOptions } from "path-to-regexp";
+import { match, type Match } from "path-to-regexp";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -105,8 +105,12 @@ export function getAppViewerPageIdFromPath(path: string): string | null {
 
 export const matchEditorPath = (
   path: string,
-): Match<{ baseApplicationId: string; basePageId: string }> => {
-  return matchBuilderPath(path, { end: false });
+): Match<{ baseApplicationId: string; basePageId: string }> | false => {
+  const result = matchBuilderPath(path, { end: false });
+  if (result && 'params' in result) {
+    return result as Match<{ baseApplicationId: string; basePageId: string }>;
+  }
+  return false;
 };
 export const isEditorPath = (path: string) => {
   return !!matchEditorPath(path);

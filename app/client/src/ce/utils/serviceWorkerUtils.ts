@@ -1,7 +1,7 @@
 import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
-import type { Match, TokensToRegexpOptions } from "path-to-regexp";
-import { match } from "path-to-regexp";
+import match, { type Match, type TokensToRegexpOptions } from "path-to-regexp";
+
 import {
   BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
@@ -36,7 +36,7 @@ export const cachedApiUrlRegex = new RegExp("/api/v1/consolidated-api/");
  */
 export const matchBuilderPath = (
   pathName: string,
-  options: TokensToRegexpOptions,
+  options?: TokensToRegexpOptions,
 ) =>
   match<TMatchResult>(BUILDER_PATH, options)(pathName) ||
   match<TMatchResult>(BUILDER_PATH_DEPRECATED, options)(pathName) ||
