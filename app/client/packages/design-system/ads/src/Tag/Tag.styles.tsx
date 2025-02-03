@@ -89,7 +89,7 @@ export const StyledButton = styled(Button)`
   --button-color-fg: var(--tag-color-fg);
   --button-color-bg: inherit;
 
-  margin-left: var(--ads-v2-spaces-1);
+  margin-left: var(--ads-v2-spaces-2);
   position: relative;
   cursor: pointer;
 

@@ -19,7 +19,7 @@
 }
 
 .ads-v2-select.rc-select-show-search * {
-  cursor: text;
+  cursor: unset;
 }
 
 /* size sm */
@@ -351,7 +351,7 @@
   border-top: none;
   border-left: none;
   border-right: none;
-  border-bottom: 1px solid var(--ads-v2-colors-control-field-active-border);
+  border-bottom: 1px solid var(--ads-v2-color-border-emphasis);
   border-radius: 0;
   outline: none !important;
 }
