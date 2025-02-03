@@ -1,5 +1,5 @@
 import type { CSSProperties, Key } from "react";
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
@@ -12,30 +12,11 @@ interface RowType {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
-  data: {
-    onHeightChange?: (index: number, height: number) => void;
-  };
 }
 
 export function Row(props: RowType) {
-  const { data, index } = props;
+  const { row, index } = props;
   const rowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const element = rowRef.current;
-
-    if (!element || !data || !data.onHeightChange) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const newHeight = entries[0].contentRect.height;
-
-      data.onHeightChange!(index, newHeight);
-    });
-
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [index, data]);
   const {
     accentColor,
     borderRadius,
@@ -47,7 +28,59 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
+    rowHeights,
+    rowNeedsMeasurement,
+    listRef,
   } = useContext(BodyContext);
+
+  useEffect(() => {
+    if (
+      rowNeedsMeasurement.current &&
+      rowNeedsMeasurement.current[index] === false
+    ) {
+      return;
+    }
+    const element = rowRef.current;
+
+    if (!element || !row) return;
+    const cellIndexesWithAllowCellWrapping: number[] = [];
+    try {
+      // @ts-ignore
+      row.cells.forEach((cell: any, index: number) => {
+        if (cell.column.columnProperties.allowCellWrapping) {
+          cellIndexesWithAllowCellWrapping.push(index);
+        }
+      });
+    } catch (error) {}
+
+    // Get all child elements
+    const children = element.children;
+    let totalHeight = 0;
+
+    cellIndexesWithAllowCellWrapping.forEach((index: number) => {
+      const child = children[index] as HTMLElement;
+      const dynamicContent = child.querySelector(
+        ".t--table-cell-tooltip-target",
+      );
+      if (dynamicContent) {
+        const styles = window.getComputedStyle(dynamicContent);
+        totalHeight +=
+          (dynamicContent as HTMLElement).offsetHeight +
+          parseFloat(styles.marginTop) +
+          parseFloat(styles.marginBottom) +
+          parseFloat(styles.paddingTop) +
+          parseFloat(styles.paddingBottom);
+      }
+    });
+
+    // Add padding of the container
+    const styles = window.getComputedStyle(element);
+    totalHeight +=
+      parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+    rowHeights.current && (rowHeights.current[index] = totalHeight);
+    rowNeedsMeasurement.current && (rowNeedsMeasurement.current[index] = false);
+    listRef && listRef.current?.resetAfterIndex(index);
+  }, [index, row]);
 
   prepareRow?.(props.row);
   const rowProps = {

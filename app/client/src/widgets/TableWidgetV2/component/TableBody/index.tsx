@@ -1,13 +1,13 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import type { Ref } from "react";
-import React from "react";
+import type { Ref, RefObject } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
+import { VariableSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
@@ -34,6 +34,9 @@ export type BodyContextType = {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
+  rowHeights: RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement: RefObject<{ [key: number]: boolean }>;
+  listRef: RefObject<VariableSizeList> | null;
 } & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -49,6 +52,9 @@ export const BodyContext = React.createContext<BodyContextType>({
   isAddRowInProgress: false,
   totalColumnsWidth: 0,
   isLoading: false,
+  rowHeights: { current: {} },
+  rowNeedsMeasurement: { current: {} },
+  listRef: null,
 });
 
 const LoadingIndicator = () => (
@@ -69,9 +75,6 @@ const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
     return (
       <Row
         className="t--virtual-row"
-        data={{
-          onHeightChange: data.handleRowHeightChange,
-        }}
         index={index}
         key={index}
         row={row}
@@ -97,26 +100,67 @@ interface BodyPropsType {
   innerElementType?: ReactElementType;
 }
 
-const TableVirtualBodyComponent = React.forwardRef(
+// const TableVirtualBodyComponent = React.forwardRef(
+//   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+//     return (
+//       <div className="simplebar-content-wrapper">
+//         <FixedSizeList
+//           className="virtual-list simplebar-content"
+//           height={
+//             props.height -
+//             props.tableSizes.TABLE_HEADER_HEIGHT -
+//             2 * props.tableSizes.VERTICAL_PADDING
+//           }
+//           innerElementType={props.innerElementType}
+//           itemCount={Math.max(props.rows.length, props.pageSize)}
+//           itemData={props.rows}
+//           itemSize={props.tableSizes.ROW_HEIGHT}
+//           outerRef={ref}
+//           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
+//         >
+//           {rowRenderer}
+//         </FixedSizeList>
+//         {props.isLoading && <LoadingIndicator />}
+//       </div>
+//     );
+//   },
+// );
+
+const TableVirtualBodyComponentWithVariableHeight = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+    const { rowHeights, listRef } = useContext(BodyContext);
+    const getItemSize = useCallback(
+      (index: number) => {
+        try {
+          return rowHeights.current?.[index]
+            ? Math.max(rowHeights.current?.[index], props.tableSizes.ROW_HEIGHT)
+            : props.tableSizes.ROW_HEIGHT;
+        } catch (error) {
+          return props.tableSizes.ROW_HEIGHT;
+        }
+      },
+      [rowHeights.current, props.tableSizes.ROW_HEIGHT],
+    );
     return (
       <div className="simplebar-content-wrapper">
-        <FixedSizeList
+        <VariableSizeList
           className="virtual-list simplebar-content"
           height={
             props.height -
             props.tableSizes.TABLE_HEADER_HEIGHT -
             2 * props.tableSizes.VERTICAL_PADDING
           }
+          estimatedItemSize={props.tableSizes.ROW_HEIGHT}
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
+          itemSize={getItemSize}
           outerRef={ref}
+          ref={listRef}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
           {rowRenderer}
-        </FixedSizeList>
+        </VariableSizeList>
         {props.isLoading && <LoadingIndicator />}
       </div>
     );
@@ -127,7 +171,7 @@ const TableBodyComponent = (props: BodyPropsType) => {
   return (
     <div {...props.getTableBodyProps()} className="tbody body">
       {props.rows.map((row, index) => {
-        return <Row data={{}} index={index} key={index} row={row} />;
+        return <Row index={index} key={index} row={row} />;
       })}
       {props.pageSize > props.rows.length && (
         <EmptyRows rowCount={props.pageSize - props.rows.length} />
@@ -138,7 +182,13 @@ const TableBodyComponent = (props: BodyPropsType) => {
 
 export const TableBody = React.forwardRef(
   (
-    props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+    props: BodyPropsType &
+      Omit<
+        BodyContextType,
+        "rowHeights" | "rowNeedsMeasurement" | "listRef"
+      > & {
+        useVirtual: boolean;
+      },
     ref: Ref<SimpleBar>,
   ) => {
     const {
@@ -174,6 +224,14 @@ export const TableBody = React.forwardRef(
       ...restOfProps
     } = props;
 
+    const listRef = useRef<VariableSizeList>(null);
+    const rowHeights = useRef<{ [key: number]: number }>({});
+    // Keep track of which rows need measurement
+    const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
+    useEffect(() => {
+      rowNeedsMeasurement.current = {};
+    }, [rows]);
+
     return (
       <BodyContext.Provider
         value={{
@@ -206,10 +264,13 @@ export const TableBody = React.forwardRef(
           rows,
           getTableBodyProps: props.getTableBodyProps,
           totalColumnsWidth: props.totalColumnsWidth,
+          rowHeights: rowHeights,
+          rowNeedsMeasurement: rowNeedsMeasurement,
+          listRef: listRef,
         }}
       >
         {useVirtual ? (
-          <TableVirtualBodyComponent
+          <TableVirtualBodyComponentWithVariableHeight
             isLoading={isLoading}
             onLoadMore={onLoadMore}
             ref={ref}

@@ -338,9 +338,7 @@ export function Table(props: TableProps) {
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
     !props.columns.some(
-      (column) =>
-        !!column.columnProperties.allowCellWrapping ||
-        column.metaProperties?.type === ColumnTypes.HTML,
+      (column) => column.metaProperties?.type === ColumnTypes.HTML,
     );
 
   useEffect(() => {
