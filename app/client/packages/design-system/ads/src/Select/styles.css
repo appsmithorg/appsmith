@@ -309,17 +309,12 @@
 }
 
 /* Option hover */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover {
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover,
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-active {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
   outline: none;
   background-color: var(--select-option-color-bg) !important;
-}
-
-.ads-v2-select__dropdown
-  .rc-select-item.rc-select-item-option.rc-select-item-option-active:not(
-    :hover
-  ) {
-  background-color: unset !important;
 }
 
 /* Option focus */
@@ -354,5 +349,7 @@
   border-top: none;
   border-left: none;
   border-right: none;
+  border-bottom: 1px solid var(--ads-v2-colors-control-field-active-border);
   border-radius: 0;
+  outline: none !important;
 }

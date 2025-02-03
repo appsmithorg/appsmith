@@ -14,6 +14,8 @@ import type { SelectProps } from "./Select.types";
 import { Spinner } from "../Spinner";
 import { SearchInput } from "../SearchInput";
 
+let intervalId: number;
+
 /*
   TODO:
   - Lots of warnings are generated from this component. Fix them.
@@ -53,6 +55,22 @@ function Select(props: SelectProps) {
     return <Icon name="arrow-down-s-line" size="md" />;
   }
 
+  const handleDropdownVisibleChange = (open: boolean) => {
+    if (open) {
+      // this is a hack to get the search input to focus when the dropdown is opened
+      intervalId = setInterval(() => {
+        if (!searchRef.current) return;
+
+        searchRef.current?.focus();
+      }, 100);
+    }
+
+    // clear the interval
+    if (!open && intervalId) {
+      clearInterval(intervalId);
+    }
+  };
+
   return (
     <RCSelect
       {...rest}
@@ -73,6 +91,7 @@ function Select(props: SelectProps) {
               <SearchInput
                 onChange={setSearchValue}
                 placeholder="Type to search..."
+                ref={searchRef}
                 size="md"
               />
             )}
@@ -81,20 +100,14 @@ function Select(props: SelectProps) {
         );
       }}
       inputIcon={<InputIcon />}
-      listHeight={300}
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""
       mode={isMultiSelect ? "multiple" : undefined}
-      onDropdownVisibleChange={(open) => {
-        if (open) {
-          setTimeout(() => searchRef.current?.focus(), 0);
-        }
-      }}
+      onDropdownVisibleChange={handleDropdownVisibleChange}
       placeholder={placeholder}
       searchValue={searchValue}
       showArrow
-      showSearch={showSearch}
       tagRender={(props) => {
         if (rest.tagRender) {
           return rest.tagRender(props);

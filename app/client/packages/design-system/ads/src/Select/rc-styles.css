@@ -30,7 +30,7 @@
 
 .rc-select .rc-select-selection-search-input {
   appearance: none;
-  display: none;
+  opacity: 0;
 }
 
 .rc-select .rc-select-selection-search-input::-webkit-search-cancel-button {
