@@ -14,8 +14,6 @@ import type { SelectProps } from "./Select.types";
 import { Spinner } from "../Spinner";
 import { SearchInput } from "../SearchInput";
 
-let intervalId: number;
-
 /*
   TODO:
   - Lots of warnings are generated from this component. Fix them.
@@ -58,16 +56,14 @@ function Select(props: SelectProps) {
   const handleDropdownVisibleChange = (open: boolean) => {
     if (open) {
       // this is a hack to get the search input to focus when the dropdown is opened
-      intervalId = setInterval(() => {
+      // the reason is, rc-select does not support putting the search input in the dropdown
+      // and rc-select focus its native input element on dropdown open, but we need to focus the search input
+      // so we use a timeout to focus the search input after the dropdown is opened
+      setTimeout(() => {
         if (!searchRef.current) return;
 
         searchRef.current?.focus();
-      }, 100);
-    }
-
-    // clear the interval
-    if (!open && intervalId) {
-      clearInterval(intervalId);
+      }, 200);
     }
   };
 
