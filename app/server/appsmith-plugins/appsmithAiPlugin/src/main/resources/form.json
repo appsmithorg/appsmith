@@ -45,7 +45,114 @@
               "requestType": "UPLOAD_FILES"
             }
           },
-          "isRequired": false
+          "isRequired": false,
+          "hidden": {
+            "comparison": "FEATURE_FLAG",
+            "flagValue": "release_anvil_enabled",
+            "value": true
+          }
+        },
+        {
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "initialValue": "Rag Integrations",
+          "hidden": true,
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "controlType": "RAG_INTEGRATIONS",
+          "isRequired": false,
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "initialValue":  [
+            {
+              "id": "LOCAL_FILES",
+              "chunkSize": 1000,
+              "overlapSize": 300,
+              "allowedFileTypes": [
+                {
+                  "extension": "TXT",
+                  "chunkSize": 1000,
+                  "overlapSize": 300
+                },
+                {
+                  "extension": "PDF",
+                  "chunkSize": 1000,
+                  "overlapSize": 300,
+                  "useOcr": true,
+                  "setPageAsBoundary": true
+                },
+                {
+                  "extension": "MD",
+                  "chunkSize": 1000,
+                  "overlapSize": 300
+                },
+                {
+                  "extension": "RTF",
+                  "chunkSize": 1000,
+                  "overlapSize": 300
+                },
+                {
+                  "extension": "DOCX",
+                  "chunkSize": 1000,
+                  "overlapSize": 300
+                }
+              ]
+            },
+            {
+              "id": "NOTION",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "ZENDESK",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "SALESFORCE",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "WEB_SCRAPER",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "GOOGLE_DRIVE",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "INTERCOM",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "FRESHDESK",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "CONFLUENCE",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "DROPBOX",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            },
+            {
+              "id": "BOX",
+              "chunkSize": 1500,
+              "overlapSize": 450
+            }
+          ],
+          "hidden": {
+            "comparison": "FEATURE_FLAG",
+            "flagValue": "release_anvil_enabled",
+            "value": false
+          }
         }
       ]
     }
