@@ -98,7 +98,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
                             artifact.getId(),
-                            "organizationId",
+                            "workspaceId",
                             artifact.getWorkspaceId(),
                             "isRegeneratedKey",
                             gitAuth.isRegeneratedKey(),

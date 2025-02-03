@@ -648,6 +648,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     @NotNull public String computeConsolidatedAPIResponseEtag(
             ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId) {
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
+            log.debug(
+                    "Skipping etag computation: Both defaultPageId '{}', and applicationId '{}' are blank",
+                    defaultPageId,
+                    applicationId);
             return "";
         }
 
@@ -664,6 +668,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     : null;
 
             if (lastDeployedAt == null) {
+                log.debug(
+                        "Skipping etag computation: lastDeployedAt is null for applicationId '{}', pageId '{}'",
+                        applicationId,
+                        defaultPageId);
                 return "";
             }
 
@@ -692,7 +700,11 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             byte[] hashBytes = digest.digest(consolidateAPISignatureJSON.getBytes(StandardCharsets.UTF_8));
             String etag = Base64.getEncoder().encodeToString(hashBytes);
 
-            return etag;
+            // Strong Etags are removed by nginx if gzip is enabled. Hence, we are using weak etags.
+            // Ref: https://github.com/kubernetes/ingress-nginx/issues/1390
+            // Weak Etag format is: W/"<etag>"
+            // Ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+            return "W/\"" + etag + "\"";
         } catch (Exception e) {
             log.error("Error while computing etag for ConsolidatedAPIResponseDTO", e);
             return "";
