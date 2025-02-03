@@ -981,8 +981,8 @@ const groupOptions = [
         value: "value 11",
       },
       {
-        label: "Option 2",
-        value: "value 22",
+        label: "Very long label to force a line break in the option",
+        value: "Very long label to force a line break in the option",
       },
     ],
   },

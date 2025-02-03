@@ -30,8 +30,13 @@ function Select(props: SelectProps) {
     isLoading = false,
     isMultiSelect,
     isValid,
-    maxTagCount = "responsive",
+    maxTagCount = isMultiSelect
+      ? props.value?.length > 1
+        ? "responsive"
+        : 1
+      : undefined,
     maxTagPlaceholder,
+    optionLabelProp = "label",
     placeholder = "Please select an option",
     showSearch = false,
     size = "md",
@@ -104,8 +109,9 @@ function Select(props: SelectProps) {
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""
-      mode={isMultiSelect ? "multiple" : undefined}
+      mode={isMultiSelect ? "tags" : undefined}
       onDropdownVisibleChange={handleDropdownVisibleChange}
+      optionLabelProp={optionLabelProp}
       placeholder={placeholder}
       searchValue={searchValue}
       showArrow
