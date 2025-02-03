@@ -149,6 +149,7 @@ jobs:
         run: |
           sudo /etc/init.d/ssh stop ;
           sudo systemctl disable --now ssh.socket
+          sudo ufw allow 1433/tcp
           mkdir -p ~/git-server/keys
           ted_tag="${{inputs.ted_tag}}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
