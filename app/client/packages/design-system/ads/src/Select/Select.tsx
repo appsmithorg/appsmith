@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import RCSelect, {
   Option as RCOption,
   OptGroup as RCOptGroup,
@@ -38,6 +38,7 @@ function Select(props: SelectProps) {
     virtual = false,
     ...rest
   } = props;
+  const searchRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState("");
 
   const getMaxTagPlaceholder = (omittedValues: any[]) => {
