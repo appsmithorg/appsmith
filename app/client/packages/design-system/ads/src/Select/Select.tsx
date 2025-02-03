@@ -57,7 +57,7 @@ function Select(props: SelectProps) {
     if (open) {
       // this is a hack to get the search input to focus when the dropdown is opened
       // the reason is, rc-select does not support putting the search input in the dropdown
-      // and rc-select focus its native input element on dropdown open, but we need to focus the search input
+      // and rc-select focus its native searchinput element on dropdown open, but we need to focus the search input
       // so we use a timeout to focus the search input after the dropdown is opened
       setTimeout(() => {
         if (!searchRef.current) return;
