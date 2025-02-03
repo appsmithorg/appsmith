@@ -14,21 +14,28 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
     icon,
     isActive,
     isEditable = true,
+    isEditing: propIsEditing,
     isLoading,
     name,
     onClick,
     onClose,
+    onEnterEditMode: propOnEnterEditMode,
+    onExitEditMode: propOnExitEditMode,
     onNameSave,
     validateName,
   } = props;
 
   const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
+    setFalse: localOnExitEditMode,
+    setTrue: localOnEnterEditMode,
+    value: localIsEditing,
   } = useBoolean(false);
 
-  const handleDoubleClick = isEditable ? enterEditMode : noop;
+  const isEditing = propIsEditing ?? localIsEditing;
+  const handleEnterEditMode = propOnEnterEditMode ?? localOnEnterEditMode;
+  const handleExitEditMode = propOnExitEditMode ?? localOnExitEditMode;
+
+  const handleDoubleClick = isEditable ? handleEnterEditMode : noop;
 
   return (
     <DismissibleTab
@@ -44,7 +51,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
         isEditing={isEditing}
         isLoading={isLoading}
         name={name}
-        onExitEditing={exitEditMode}
+        onExitEditing={handleExitEditMode}
         onNameSave={onNameSave}
         validateName={validateName}
       />
