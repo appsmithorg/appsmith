@@ -415,10 +415,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         Mono<Boolean> acquireFileLock = gitRedisUtils.acquireGitLock(
-                baseArtifact.getArtifactType(),
-                baseArtifactId,
-                GitConstants.GitCommandConstants.CHECKOUT_BRANCH,
-                addFileLock);
+                baseArtifact.getArtifactType(), baseArtifactId, GitCommandConstants.CHECKOUT_REF, addFileLock);
 
         Mono<? extends Artifact> checkedOutArtifactMono;
         // If the user is trying to check out remote reference, create a new reference if it does not exist already
@@ -446,7 +443,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                         return Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
-                                GitCommandConstants.CHECKOUT_BRANCH,
+                                GitCommandConstants.CHECKOUT_REF,
                                 gitRefDTO.getRefName() + " already exists in local - " + finalRefName));
                     });
         } else {
@@ -632,10 +629,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         createRefTransformationDTO.setRefName(refDTO.getRefName());
 
         Mono<Boolean> acquireGitLockMono = gitRedisUtils.acquireGitLock(
-                artifactType,
-                baseGitMetadata.getDefaultArtifactId(),
-                GitConstants.GitCommandConstants.CREATE_BRANCH,
-                FALSE);
+                artifactType, baseGitMetadata.getDefaultArtifactId(), GitCommandConstants.CREATE_REF, FALSE);
 
         FetchRemoteDTO fetchRemoteDTO = new FetchRemoteDTO();
         fetchRemoteDTO.setRefType(refType);
@@ -724,7 +718,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .releaseFileLock(artifactType, baseArtifactId, TRUE)
                             .then(Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED,
-                                    GitCommandConstants.CREATE_BRANCH,
+                                    GitCommandConstants.CREATE_REF,
                                     error.getMessage())));
                 })
                 .name(GitSpan.OPS_CREATE_BRANCH)
@@ -2042,7 +2036,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setRefType(RefType.branch);
         jsonTransformationDTO.setRefName(branchName);
 
-        Mono<? extends Artifact> lockHandledRecreateArtifactFromLastCommit = Mono.usingWhen(
+        Mono<? extends Artifact> artifactFromLastCommitMono = Mono.usingWhen(
                         gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.DISCARD, TRUE),
                         ignoreLockAcquisition -> {
                             Mono<? extends ArtifactExchangeJson> artifactJsonFromLastCommitMono = gitHandlingService
@@ -2084,8 +2078,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink -> lockHandledRecreateArtifactFromLastCommit.subscribe(
-                sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(
+                sink -> artifactFromLastCommitMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     public Mono<List<GitRefDTO>> listBranchForArtifact(
