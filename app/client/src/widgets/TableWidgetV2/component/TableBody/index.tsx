@@ -12,6 +12,7 @@ import { EmptyRows, EmptyRow, Row } from "./Row";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
 import type SimpleBar from "simplebar-react";
+import InfiniteLoader from "react-window-infinite-loader";
 
 export type BodyContextType = {
   accentColor: string;
@@ -83,24 +84,41 @@ interface BodyPropsType {
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+    const { pageSize, rows } = props;
+    const isItemLoaded = (index: number) => index < rows.length;
+    const INFINITE_SCROLL_PADDING = 20;
+
     return (
       <div className="simplebar-content-wrapper">
-        <FixedSizeList
-          className="virtual-list simplebar-content"
-          height={
-            props.height -
-            props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * props.tableSizes.VERTICAL_PADDING
-          }
-          innerElementType={props.innerElementType}
-          itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
-          outerRef={ref}
-          width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
+        <InfiniteLoader
+          isItemLoaded={isItemLoaded}
+          itemCount={Math.max(rows.length, pageSize) + INFINITE_SCROLL_PADDING}
+          loadMoreItems={() => {}}
+          threshold={3} // Load more items when the user is within 3 rows of the end
         >
-          {rowRenderer}
-        </FixedSizeList>
+          {({ onItemsRendered, ref: infiniteLoaderRef }) => (
+            <FixedSizeList
+              className="virtual-list simplebar-content"
+              height={
+                props.height -
+                props.tableSizes.TABLE_HEADER_HEIGHT -
+                2 * props.tableSizes.VERTICAL_PADDING
+              }
+              innerElementType={props.innerElementType}
+              itemCount={
+                Math.max(rows.length, pageSize) + INFINITE_SCROLL_PADDING
+              }
+              itemData={rows}
+              itemSize={props.tableSizes.ROW_HEIGHT}
+              onItemsRendered={onItemsRendered}
+              outerRef={ref}
+              ref={infiniteLoaderRef}
+              width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
+            >
+              {rowRenderer}
+            </FixedSizeList>
+          )}
+        </InfiniteLoader>
       </div>
     );
   },
