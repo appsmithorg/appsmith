@@ -234,6 +234,7 @@ export class GracefulWorkerService {
     completeWebworkerComputationRoot?.setAttribute("taskType", method);
     completeWebworkerComputationRoot?.end(endTime);
   }
+
   /**
    * Send a request to the worker for processing.
    * If the worker isn't ready, we wait for it to become ready.
