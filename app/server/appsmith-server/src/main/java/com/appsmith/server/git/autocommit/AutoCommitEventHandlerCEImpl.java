@@ -174,7 +174,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         Map<String, Object> analyticsProps = new HashMap<>();
         analyticsProps.put("appId", autoCommitEvent.getApplicationId());
         analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
-        analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
+        analyticsProps.put("workspaceId", autoCommitEvent.getWorkspaceId());
         analyticsProps.put("isSystemGenerated", true);
         analyticsProps.put("repoUrl", autoCommitEvent.getRepoUrl());
 
