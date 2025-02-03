@@ -310,6 +310,7 @@ function renderDropdown(
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
+      maxTagCount={3}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
