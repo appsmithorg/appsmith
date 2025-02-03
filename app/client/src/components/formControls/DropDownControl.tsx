@@ -310,7 +310,7 @@ function renderDropdown(
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
-      maxTagCount={3}
+      maxTagCount={props.maxTagCount}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
@@ -363,6 +363,7 @@ export interface DropDownControlProps extends ControlProps {
   isLoading: boolean;
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
+  maxTagCount?: number;
 }
 
 interface ReduxDispatchProps {
