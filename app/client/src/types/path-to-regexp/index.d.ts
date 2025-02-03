@@ -39,5 +39,6 @@ declare module "path-to-regexp" {
   export function tokensToRegexp(tokens: Key[], keys?: Key[], options?: TokensToRegexpOptions): RegExp;
   export function pathToRegexp(path: string | RegExp | Array<string | RegExp>, keys?: Key[], options?: TokensToRegexpOptions): RegExp;
 
-  export { match as default };
+  export default pathToRegexp;
+}
 }

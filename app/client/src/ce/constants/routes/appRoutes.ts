@@ -1,5 +1,5 @@
 import { matchPath } from "react-router";
-import { match, type TokensToRegexpOptions } from "path-to-regexp";
+import match, { type TokensToRegexpOptions } from "path-to-regexp";
 
 // Regex to extract the id from the URL path which supports both the formats:
 // 1. With Mongo ObjectIds

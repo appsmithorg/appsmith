@@ -31,6 +31,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "module": "esnext",
     "typeRoots": ["./typings", "./node_modules/@types", "./src/types"],
     "sourceMap": true,
     "baseUrl": "./src",
