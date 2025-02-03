@@ -64,7 +64,11 @@ function Select(props: SelectProps) {
 
         searchRef.current?.focus();
       }, 200);
+
+      return;
     }
+
+    setSearchValue("");
   };
 
   return (
@@ -89,6 +93,7 @@ function Select(props: SelectProps) {
                 placeholder="Type to search..."
                 ref={searchRef}
                 size="md"
+                value={searchValue}
               />
             )}
             {menu}

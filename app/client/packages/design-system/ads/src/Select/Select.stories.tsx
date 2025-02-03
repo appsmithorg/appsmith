@@ -4,6 +4,7 @@ import { Icon } from "../Icon";
 import { Checkbox } from "../Checkbox";
 import type { SelectProps } from "./Select.types";
 import type { StoryObj } from "@storybook/react";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 export default {
   title: "ADS/Components/Select",
@@ -995,19 +996,19 @@ const groupOptions = [
 ];
 
 export function SelectWithCheckboxAndGroup() {
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState<DefaultOptionType[]>(
+    [],
+  );
 
   return (
     <Select
       isMultiSelect
       onDeselect={(value, unselectedOption) =>
         setSelectedOptions(
-          // @ts-expect-error type error
           selectedOptions.filter((opt) => opt.value !== unselectedOption.value),
         )
       }
       onSelect={(value, newSelectedOption) =>
-        // @ts-expect-error type error
         setSelectedOptions([...selectedOptions, newSelectedOption])
       }
       placeholder="Select options"
@@ -1024,9 +1025,12 @@ export function SelectWithCheckboxAndGroup() {
               value={option.value}
             >
               <Checkbox
-                isSelected={selectedOptions.find(
-                  // @ts-expect-error type error
-                  (selectedOption) => selectedOption.value == option.value,
+                // making it read only as it is interfering with selection of options of rc-select
+                isReadOnly
+                isSelected={Boolean(
+                  selectedOptions.find(
+                    (selectedOption) => selectedOption.value == option.value,
+                  ),
                 )}
               >
                 {option.label}
