@@ -83,6 +83,7 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         height={props.height}
         isAddRowInProgress={props.isAddRowInProgress}
         isLoading={props.isLoading}
+        isLoadingDirection="down"
         multiRowSelection={!!props.multiRowSelection}
         pageSize={props.pageSize}
         prepareRow={props.prepareRow}

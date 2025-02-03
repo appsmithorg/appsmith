@@ -29,6 +29,7 @@ export type BodyContextType = {
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
   isLoading: boolean;
+  isLoadingDirection: string | null;
   isAddRowInProgress: boolean;
   getTableBodyProps?(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
@@ -49,13 +50,14 @@ export const BodyContext = React.createContext<BodyContextType>({
   isAddRowInProgress: false,
   totalColumnsWidth: 0,
   isLoading: false,
+  isLoadingDirection: "down",
 });
 
 const LoadingIndicator = () => (
   <div className="sticky bottom-0 left-0 right-0 p-2 bg-white border-t">
     <div className="flex items-center justify-center p-2 space-x-2 bg-gray-50 rounded">
       <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-      <span className="text-sm text-gray-600">Loading more data...</span>
+      <span className="text-sm text-gray-600">Loading data...</span>
     </div>
   </div>
 );
@@ -93,7 +95,7 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   isLoading: boolean;
-  onLoadMore?: () => void;
+  isLoadingDirection: string | null;
   innerElementType?: ReactElementType;
 }
 
@@ -101,6 +103,9 @@ const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
     return (
       <div className="simplebar-content-wrapper">
+        {props.isLoading && props.isLoadingDirection === "up" && (
+          <LoadingIndicator />
+        )}
         <FixedSizeList
           className="virtual-list simplebar-content"
           height={
@@ -117,7 +122,9 @@ const TableVirtualBodyComponent = React.forwardRef(
         >
           {rowRenderer}
         </FixedSizeList>
-        {props.isLoading && <LoadingIndicator />}
+        {props.isLoading && props.isLoadingDirection === "down" && (
+          <LoadingIndicator />
+        )}
       </div>
     );
   },
@@ -155,10 +162,10 @@ export const TableBody = React.forwardRef(
       headerGroups,
       isAddRowInProgress,
       isLoading,
+      isLoadingDirection,
       isResizingColumn,
       isSortable,
       multiRowSelection,
-      onLoadMore,
       prepareRow,
       primaryColumnId,
       rows,
@@ -178,6 +185,7 @@ export const TableBody = React.forwardRef(
       <BodyContext.Provider
         value={{
           isLoading,
+          isLoadingDirection,
           accentColor,
           canFreezeColumn,
           disableDrag,
@@ -211,7 +219,7 @@ export const TableBody = React.forwardRef(
         {useVirtual ? (
           <TableVirtualBodyComponent
             isLoading={isLoading}
-            onLoadMore={onLoadMore}
+            isLoadingDirection={isLoadingDirection}
             ref={ref}
             rows={rows}
             width={width}
@@ -220,9 +228,9 @@ export const TableBody = React.forwardRef(
         ) : (
           <TableBodyComponent
             isLoading={isLoading}
+            isLoadingDirection={isLoadingDirection}
             rows={rows}
             {...restOfProps}
-            onLoadMore={onLoadMore}
           />
         )}
       </BodyContext.Provider>

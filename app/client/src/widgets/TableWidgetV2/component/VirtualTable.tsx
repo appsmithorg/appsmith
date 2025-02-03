@@ -18,6 +18,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   pageSize: number;
+  pageNo: number;
   height: number;
   width?: number;
   tableSizes: TableSizes;
@@ -37,7 +38,8 @@ type VirtualTableProps = TableColumnHeaderProps & {
   totalColumnsWidth?: number;
   scrollContainerStyles: CSSProperties;
   useVirtual: boolean;
-  loadMore: () => void;
+  loadNext: () => void;
+  loadPrev: () => void;
   isLoading: boolean;
 };
 
@@ -46,6 +48,9 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
   const prevScrollTop = useRef(0);
   const isLoadingRef = useRef(false); // Lock to prevent multiple triggers
   const prevDataRef = useRef(props.subPage); // Ref to store previous data
+
+  // Use a ref to store the loading direction
+  const isLoadingDirectionRef = useRef<string | null>(null);
 
   // Create a debounced scroll handler that will run after the user stops scrolling
   const handleScroll = useCallback(
@@ -63,22 +68,37 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
         const scrollBottom = scrollHeight - (scrollTop + clientHeight);
         const threshold = 20;
 
-        // Check if scrolling downwards
+        // Check if scrolling upwards or downwards
         const isScrollingDown = scrollTop > prevScrollTop.current;
+        const isScrollingUp = scrollTop < prevScrollTop.current;
 
         // Update the previous scroll position
         prevScrollTop.current = scrollTop;
 
-        // Only trigger loadMore if scrolling down and near the bottom
+        // Only trigger loadNext if scrolling down and near the bottom
         const isNearBottom = scrollBottom < threshold;
+
+        // Only trigger loadPrev if scrolling up and near the top
+        const isNearTop = scrollTop < threshold;
 
         if (isScrollingDown && isNearBottom) {
           // Set the lock to prevent multiple triggers
           isLoadingRef.current = true;
+          isLoadingDirectionRef.current = "down";
 
-          // Trigger loadMore
-          Promise.resolve(props.loadMore()).finally(() => {
-            // Reset the lock after loadMore completes
+          // Trigger loadNext
+          Promise.resolve(props.loadNext()).finally(() => {
+            // Reset the lock after loadNext completes
+            isLoadingRef.current = false;
+          });
+        } else if (isScrollingUp && isNearTop) {
+          // Set the lock to prevent multiple triggers
+          isLoadingRef.current = true;
+          isLoadingDirectionRef.current = "up";
+
+          // Trigger loadPrev
+          Promise.resolve(props.loadPrev()).finally(() => {
+            // Reset the lock after loadPrev completes
             isLoadingRef.current = false;
           });
         }
@@ -86,7 +106,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
       200, // Adjust debounce delay as needed
       { leading: true, trailing: true },
     ),
-    [props.loadMore],
+    [props.loadNext, props.loadPrev],
   );
 
   // Cleanup the debounced function on unmount
@@ -104,7 +124,10 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
       const scrollableNode = simpleBarRef.current?.getScrollElement();
 
       if (scrollableNode) {
-        scrollableNode.scrollTo({ top: 0, behavior: "auto" });
+        const scrollTopValue =
+          props.pageNo === 0 ? 0 : scrollableNode.scrollHeight / 5;
+
+        scrollableNode.scrollTo({ top: scrollTopValue, behavior: "auto" });
       }
 
       // Update the previous data ref
@@ -136,6 +159,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
           isLoading={props.isLoading}
+          isLoadingDirection={isLoadingDirectionRef.current}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
           multiRowSelection={!!props.multiRowSelection}
