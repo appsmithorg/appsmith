@@ -4,6 +4,8 @@ import "@testing-library/jest-dom";
 import { StateInspector } from "./StateInspector";
 import { useStateInspectorItems } from "./hooks";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
 
 jest.mock("./hooks");
 jest.mock("IDE/utils");
@@ -31,7 +33,11 @@ describe("StateInspector", () => {
       ],
       { key: "value1" },
     ]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     const searchInput = screen.getByPlaceholderText("Search entities");
 
     fireEvent.change(searchInput, { target: { value: "Group 1" } });
@@ -53,7 +59,11 @@ describe("StateInspector", () => {
       ],
       { key: "value1" },
     ]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     fireEvent.click(screen.getByText("Item 2"));
 
     expect(mockOnClick).toHaveBeenCalled();
@@ -71,7 +81,11 @@ describe("StateInspector", () => {
       ],
       { key: "Value1" },
     ]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
 
     expect(
       screen.getByTestId("t--selected-entity-details").textContent,
@@ -84,7 +98,11 @@ describe("StateInspector", () => {
 
   it("does not render selected item details when no item is selected", () => {
     mockedUseStateInspectorItems.mockReturnValue([null, [], null]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     expect(screen.queryByText("Item 1")).not.toBeInTheDocument();
   });
 
@@ -101,12 +119,20 @@ describe("StateInspector", () => {
       { key: "value1" },
     ]);
 
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     expect(screen.getByText("Group 1")).toBeInTheDocument();
     expect(screen.getByText("Group 2")).toBeInTheDocument();
   });
   it("renders no items when search term does not match any group", () => {
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     const searchInput = screen.getByPlaceholderText("Search entities");
 
     fireEvent.change(searchInput, { target: { value: "Nonexistent Group" } });
@@ -116,7 +142,11 @@ describe("StateInspector", () => {
 
   it("renders no items when items list is empty", () => {
     mockedUseStateInspectorItems.mockReturnValue([null, [], null]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
     expect(screen.queryByText("Group 1")).not.toBeInTheDocument();
     expect(screen.queryByText("Group 2")).not.toBeInTheDocument();
   });
@@ -130,7 +160,11 @@ describe("StateInspector", () => {
       ],
       {},
     ]);
-    render(<StateInspector />);
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <StateInspector />
+      </ThemeProvider>,
+    );
 
     expect(
       screen.getByTestId("t--selected-entity-details").textContent,

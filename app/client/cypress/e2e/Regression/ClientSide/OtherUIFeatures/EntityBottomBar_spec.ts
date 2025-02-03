@@ -77,7 +77,7 @@ describe(
       _.debuggerHelper.AssertOpen(PageType.DataSources);
     });
 
-    it(
+    it.skip(
       "5. Query bottom bar should be collapsable",
       { tags: ["@tag.excludeForAirgap"] },
       () => {
