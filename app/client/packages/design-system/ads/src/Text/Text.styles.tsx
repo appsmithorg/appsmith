@@ -190,7 +190,6 @@ export const StyledEditableInput = styled.input`
   background-color: transparent;
   border: 1px solid transparent;
   border-radius: var(--ads-v2-border-radius);
-  outline: none;
   margin: 0;
   position: absolute;
   top: -3px;
@@ -201,8 +200,13 @@ export const StyledEditableInput = styled.input`
     border-color: var(--ads-v2-colors-control-field-hover-border);
   }
 
-  &:focus,
   &:active {
     border-color: var(--ads-v2-colors-control-field-active-border);
+  }
+
+  &:focus {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 `;
