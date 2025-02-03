@@ -66,10 +66,10 @@ export const getApplicationParamsFromUrl = (
   // Get the branch name from the query string
   const branchName = getSearchQuery(search, "branch");
 
-  const matchedBuilder: Match<TMatchResult> = matchBuilderPath(pathname, {
+  const matchedBuilder = matchBuilderPath(pathname, {
     end: false,
   });
-  const matchedViewer: Match<TMatchResult> = matchViewerPath(pathname);
+  const matchedViewer = matchViewerPath(pathname);
 
   if (matchedBuilder) {
     return {
