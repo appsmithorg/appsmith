@@ -1014,7 +1014,6 @@ export function SelectWithCheckboxAndGroup() {
       placeholder="Select options"
       showSearch
       value={selectedOptions}
-      virtual
     >
       {groupOptions.map((group, groupIndex) => (
         <OptGroup key={`${group.label}-${groupIndex}`} label={group.label}>

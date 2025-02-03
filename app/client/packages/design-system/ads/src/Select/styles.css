@@ -187,7 +187,9 @@
   display: flex;
   font-size: 12px;
   align-items: center;
-  background: var(--ads-v2-colors-control-pill-default-bg);
+  background: var(--ads-v2-colors-content-surface-info-bg);
+  border: 1px solid var(--ads-v2-colors-content-surface-info-border);
+  color: var(--ads-v2-colors-content-label-info-fg);
 }
 
 /* typing space */
