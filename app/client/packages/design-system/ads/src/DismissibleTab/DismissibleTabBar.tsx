@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
 
-import { ScrollArea } from "../ScrollArea";
+import { Spinner, ScrollArea } from "..";
 
 import * as Styled from "./DismissibleTabBar.styles";
 import type { DismissibleTabBarProps } from "./DismissibleTabBar.types";
@@ -21,6 +21,8 @@ const SCROLL_AREA_STYLE = {
 export const DismissibleTabBar = ({
   children,
   disableAdd = false,
+  hideAdd = false,
+  isAddingNewTab,
   onTabAdd,
 }: DismissibleTabBarProps) => {
   const [isLeftIntersecting, setIsLeftIntersecting] = useState(false);
@@ -99,16 +101,22 @@ export const DismissibleTabBar = ({
           <Styled.StickySentinel ref={sentinelRightRef} />
         </Styled.TabsContainer>
       </ScrollArea>
-      <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
-        <Styled.PlusButton
-          isDisabled={disableAdd}
-          isIconButton
-          kind="tertiary"
-          onClick={handleAdd}
-          startIcon="add-line"
-          title="Add new tab"
-        />
-      </Styled.PlusButtonContainer>
+      {!hideAdd && (
+        <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
+          {isAddingNewTab ? (
+            <Spinner size="md" />
+          ) : (
+            <Styled.PlusButton
+              isDisabled={disableAdd}
+              isIconButton
+              kind="tertiary"
+              onClick={handleAdd}
+              startIcon="add-line"
+              title="Add new tab"
+            />
+          )}
+        </Styled.PlusButtonContainer>
+      )}
     </Styled.Root>
   );
 };
