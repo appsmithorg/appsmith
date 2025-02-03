@@ -62,7 +62,7 @@
           "controlType": "RAG_INTEGRATIONS",
           "isRequired": false,
           "configProperty": "datasourceConfiguration.properties[1].value",
-          "initialValue":  [
+          "initialValue": [
             {
               "id": "LOCAL_FILES",
               "chunkSize": 1000,
