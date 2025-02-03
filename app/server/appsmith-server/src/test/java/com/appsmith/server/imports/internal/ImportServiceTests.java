@@ -85,6 +85,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
@@ -145,6 +146,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("ImportExport")
+@Tag("Git")
 public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
