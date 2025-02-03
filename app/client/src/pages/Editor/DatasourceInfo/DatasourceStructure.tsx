@@ -1,5 +1,5 @@
-import React, { memo, useMemo, useRef, useState } from "react";
-import Entity, { EntityClassNames } from "../Explorer/Entity";
+import React, { memo, useMemo, useState } from "react";
+import { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
 import type { DatasourceTable } from "entities/Datasource";
@@ -10,13 +10,20 @@ import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
+import {
+  Menu,
+  MenuTrigger,
+  Button,
+  Tooltip,
+  MenuContent,
+  List,
+  ListItem,
+} from "@appsmith/ads";
 import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Plugin } from "entities/Plugin";
 import { omit } from "lodash";
-import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -47,13 +54,16 @@ const StructureWrapper = styled.div`
   height: 100%;
 `;
 
+const StyledList = styled(List)`
+  padding: 0;
+`;
+
 const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const dbStructure = props.dbStructure;
   let templateMenu = null;
   const [active, setActive] = useState(false);
 
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
-  const collapseRef = useRef<HTMLDivElement | null>(null);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
@@ -137,17 +147,13 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   }, [active, props.tableName]);
 
   return (
-    <Entity
-      action={onEntityClick}
-      active={activeState}
+    <ListItem
       className={`datasourceStructure-${props.context}`}
-      collapseRef={collapseRef}
-      contextMenu={templateMenu}
-      entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
-      icon={datasourceTableIcon}
-      isDefaultExpanded={props?.isDefaultOpen}
-      name={dbStructure.name}
-      step={props.step}
+      isSelected={activeState}
+      onClick={onEntityClick}
+      rightControl={templateMenu}
+      startIcon={datasourceTableIcon}
+      title={dbStructure.name}
     />
   );
 });
@@ -163,26 +169,18 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
 };
 
 const DatasourceStructure = (props: DatasourceStructureProps) => {
-  const Row = (index: number) => {
-    const structure = props.tables[index];
-
-    return (
-      <DatasourceStructureItem
-        {...omit(props, ["tables"])}
-        dbStructure={structure}
-        key={`${props.datasourceId}${structure.name}-${props.context}`}
-        showTemplates={props.showTemplates}
-      />
-    );
-  };
-
   return (
     <StructureWrapper>
-      <Virtuoso
-        className="t--schema-virtuoso-container"
-        itemContent={Row}
-        totalCount={props.tables.length}
-      />
+      <StyledList>
+        {props.tables.map((dbStructure) => (
+          <DatasourceStructureItem
+            {...omit(props, ["tables"])}
+            dbStructure={dbStructure}
+            key={`${props.datasourceId}${dbStructure.name}-${props.context}`}
+            showTemplates={props.showTemplates}
+          />
+        ))}
+      </StyledList>
     </StructureWrapper>
   );
 };
