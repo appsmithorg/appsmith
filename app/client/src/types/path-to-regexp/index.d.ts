@@ -41,4 +41,3 @@ declare module "path-to-regexp" {
 
   export default pathToRegexp;
 }
-}
