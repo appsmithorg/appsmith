@@ -70,6 +70,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .map(remoteAndTenantFlags -> {
                     Map<String, Boolean> combinedFlags = new HashMap<>();
                     combinedFlags.putAll(remoteAndTenantFlags.getT1());
+                    combinedFlags.put("release_query_module_enabled", true);
+                    combinedFlags.put("release_anvil_enabled", false);
                     // Always add the tenant level flags after the user flags to make sure tenant flags gets the
                     // precedence
                     combinedFlags.putAll(remoteAndTenantFlags.getT2());
