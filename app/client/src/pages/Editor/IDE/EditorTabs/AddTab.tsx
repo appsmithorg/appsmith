@@ -1,12 +1,14 @@
 import React from "react";
+import { useEventCallback } from "usehooks-ts";
 
-import { FileTab } from "IDE/Components/FileTab";
-import { useCurrentEditorState } from "../hooks";
+import { DismissibleTab, Text } from "@appsmith/ads";
+
 import {
   EditorEntityTab,
   EditorEntityTabState,
 } from "ee/entities/IDE/constants";
-import { Text } from "@appsmith/ads";
+
+import { useCurrentEditorState } from "../hooks";
 
 const AddTab = ({
   isListActive,
@@ -19,24 +21,23 @@ const AddTab = ({
 }) => {
   const { segment, segmentMode } = useCurrentEditorState();
 
-  if (segmentMode !== EditorEntityTabState.Add) return null;
-
-  const onCloseClick = (e: React.MouseEvent) => {
+  const onCloseClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onClose();
-  };
+  });
+
+  if (segmentMode !== EditorEntityTabState.Add) return null;
 
   const content = `New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`;
 
   return (
-    <FileTab
+    <DismissibleTab
       isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
-      onClose={(e) => onCloseClick(e)}
-      title={content}
+      onClose={onCloseClick}
     >
       <Text kind="body-s">{content}</Text>
-    </FileTab>
+    </DismissibleTab>
   );
 };
 

@@ -17,11 +17,14 @@ export type ToggleScreenModeButtonProps = Omit<
 type DismissibleTabBarType = ReactElement<DismissibleTabBarProps>;
 type EntityListButtonType = ReactElement<EntityListButtonProps>;
 
+type OptionalChild<T> = T | null | false;
+
 export interface EntityTabsHeaderProps {
   children:
     | DismissibleTabBarType
-    | [DismissibleTabBarType]
-    | [EntityListButtonType, DismissibleTabBarType]
-    | [DismissibleTabBarType, ReactNode]
-    | [EntityListButtonType, DismissibleTabBarType, ReactNode];
+    | [
+        OptionalChild<EntityListButtonType>,
+        DismissibleTabBarType,
+        OptionalChild<ReactNode>,
+      ];
 }
