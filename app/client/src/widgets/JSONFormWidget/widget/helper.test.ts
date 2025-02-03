@@ -3,6 +3,7 @@ import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldType,
+  MAX_ALLOWED_FIELDS,
   ROOT_SCHEMA_KEY,
 } from "../constants";
 import schemaTestData from "../schemaTestData";
@@ -469,7 +470,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
 });
 
 describe(".computeSchema", () => {
-  it("returns LIMIT_EXCEEDED state when source data exceeds limit", () => {
+  it("returns LIMIT_EXCEEDED state when source data exceeds default limit", () => {
     const sourceData = {
       number: 10,
       text: "text",
@@ -542,6 +543,7 @@ describe(".computeSchema", () => {
       currSourceData: sourceData,
       widgetName: "JSONForm1",
       fieldThemeStylesheets: {} as FieldThemeStylesheet,
+      maxAllowedFields: MAX_ALLOWED_FIELDS,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
@@ -556,6 +558,7 @@ describe(".computeSchema", () => {
       const response = computeSchema({
         currSourceData: sourceData,
         widgetName: "JSONForm1",
+        maxAllowedFields: MAX_ALLOWED_FIELDS,
         fieldThemeStylesheets: {} as FieldThemeStylesheet,
       });
 
@@ -563,6 +566,74 @@ describe(".computeSchema", () => {
       expect(response.dynamicPropertyPathList).toBeUndefined();
       expect(response.schema).toEqual({});
     });
+  });
+
+  it("respects custom maxAllowedFields when higher than default", () => {
+    const sourceData = {
+      number: 10,
+      text: "text",
+      object1: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+      object2: {
+        number: 10,
+        text: "text",
+        obj: {
+          arr: {
+            number: 10,
+            text: "text",
+            arr: ["a", "b"],
+            obj: {
+              a: 10,
+              c: 20,
+            },
+          },
+        },
+      },
+    };
+
+    const response = computeSchema({
+      currSourceData: sourceData,
+      widgetName: "TestWidget",
+      maxAllowedFields: 60,
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
+    });
+
+    expect(response.status).not.toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
+  });
+
+  it("respects custom maxAllowedFields when lower than default", () => {
+    const sourceData = {
+      name: "John",
+      age: 30,
+      email: "john@example.com",
+      address: {
+        street: "123 Main St",
+        city: "Springfield",
+        country: "USA",
+      },
+    };
+
+    const response = computeSchema({
+      currSourceData: sourceData,
+      widgetName: "TestWidget",
+      maxAllowedFields: 5,
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
+    });
+
+    expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
   });
 
   it("returns UNCHANGED status when prev and curr source data are same", () => {
@@ -587,6 +658,7 @@ describe(".computeSchema", () => {
       prevSourceData,
       widgetName: "JSONForm1",
       fieldThemeStylesheets: {} as FieldThemeStylesheet,
+      maxAllowedFields: MAX_ALLOWED_FIELDS,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
@@ -599,6 +671,7 @@ describe(".computeSchema", () => {
       currSourceData: schemaTestData.initialDataset.dataSource,
       widgetName: "JSONForm1",
       fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
+      maxAllowedFields: MAX_ALLOWED_FIELDS,
     });
 
     const expectedDynamicPropertyPathList = [
@@ -630,6 +703,7 @@ describe(".computeSchema", () => {
       currSourceData: schemaTestData.initialDataset.dataSource,
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
+      maxAllowedFields: MAX_ALLOWED_FIELDS,
       fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
@@ -659,6 +733,7 @@ describe(".computeSchema", () => {
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
       fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
+      maxAllowedFields: MAX_ALLOWED_FIELDS,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
