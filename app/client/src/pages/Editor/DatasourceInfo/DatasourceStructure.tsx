@@ -148,7 +148,8 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
 
   return (
     <ListItem
-      className={`datasourceStructure-${props.context}`}
+      className={`datasourceStructure-${props.context} t--entity-item`}
+      data-testid={`t--entity-item-${dbStructure.name}`}
       isSelected={activeState}
       onClick={onEntityClick}
       rightControl={templateMenu}
@@ -171,7 +172,7 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
 const DatasourceStructure = (props: DatasourceStructureProps) => {
   return (
     <StructureWrapper>
-      <StyledList>
+      <StyledList className="t--schema-virtuoso-container">
         {props.tables.map((dbStructure) => (
           <DatasourceStructureItem
             {...omit(props, ["tables"])}
