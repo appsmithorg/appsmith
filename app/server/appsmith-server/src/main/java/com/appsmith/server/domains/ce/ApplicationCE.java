@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,9 +99,6 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
 
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
-
-    @JsonView(Views.Public.class)
-    Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
     GitArtifactMetadata gitApplicationMetadata;
@@ -264,7 +260,6 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
                                 ? null
                                 : new Application.ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
-        this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
@@ -332,7 +327,6 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
         this.setForkingEnabled(null);

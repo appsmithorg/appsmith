@@ -14,8 +14,7 @@
     "color": "#EA6179",
     "icon": "medical",
     "new": true,
-    "unpublishedCustomJSLibs": [{ "uidString": "accessor1_url" }],
-    "publishedCustomJSLibs": [{ "uidString": "accessor1_url" }]
+    "unpublishedCustomJSLibs": [{ "uidString": "accessor1_url" }]
   },
   "datasourceList": [
     {

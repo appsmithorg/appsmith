@@ -4876,12 +4876,6 @@ public class ImportServiceTests {
                                     .getExportedApplication()
                                     .getUnpublishedCustomJSLibs()
                                     .size());
-                    assertEquals(
-                            0,
-                            exportedAppJson
-                                    .getExportedApplication()
-                                    .getPublishedCustomJSLibs()
-                                    .size());
                 })
                 .verifyComplete();
     }
