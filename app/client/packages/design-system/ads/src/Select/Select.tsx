@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import RCSelect, {
   Option as RCOption,
   OptGroup as RCOptGroup,
@@ -12,6 +12,7 @@ import { SelectClassName, SelectDropdownClassName } from "./Select.constants";
 import { Tag } from "../Tag";
 import type { SelectProps } from "./Select.types";
 import { Spinner } from "../Spinner";
+import { SearchInput } from "../SearchInput";
 
 /*
   TODO:
@@ -29,15 +30,15 @@ function Select(props: SelectProps) {
     isLoading = false,
     isMultiSelect,
     isValid,
-    maxTagCount = 2,
+    maxTagCount = "responsive",
     maxTagPlaceholder,
-    maxTagTextLength = 5,
     placeholder = "Please select an option",
     showSearch = false,
     size = "md",
     virtual = false,
     ...rest
   } = props;
+  const [searchValue, setSearchValue] = useState("");
 
   const getMaxTagPlaceholder = (omittedValues: any[]) => {
     return `+${omittedValues.length}`;
@@ -64,20 +65,44 @@ function Select(props: SelectProps) {
         SelectDropdownClassName + `--${size}`,
         dropdownClassName,
       )}
+      dropdownRender={(menu: any) => {
+        return (
+          <div>
+            {showSearch && (
+              <SearchInput
+                onChange={setSearchValue}
+                placeholder="Type to search..."
+                size="md"
+              />
+            )}
+            {menu}
+          </div>
+        );
+      }}
       inputIcon={<InputIcon />}
+      listHeight={300}
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
-      maxTagTextLength={maxTagTextLength}
       menuItemSelectedIcon=""
       mode={isMultiSelect ? "multiple" : undefined}
+      onDropdownVisibleChange={(open) => {
+        if (open) {
+          setTimeout(() => searchRef.current?.focus(), 0);
+        }
+      }}
       placeholder={placeholder}
+      searchValue={searchValue}
       showArrow
       showSearch={showSearch}
       tagRender={(props) => {
+        if (rest.tagRender) {
+          return rest.tagRender(props);
+        }
+
         const { closable, label, onClose } = props;
 
         return (
-          <Tag isClosable={closable} onClose={onClose}>
+          <Tag isClosable={closable} kind="info" onClose={onClose}>
             {label}
           </Tag>
         );

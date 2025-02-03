@@ -78,6 +78,10 @@ export const StyledTag = styled.span<{
   display: flex;
   align-items: center;
 
+  & > span {
+    line-height: normal;
+  }
+
   ${({ isClosed }) => isClosed && `display: none;`}
 `;
 
@@ -87,7 +91,6 @@ export const StyledButton = styled(Button)`
 
   margin-left: var(--ads-v2-spaces-1);
   position: relative;
-  top: 1px; // align with text
   cursor: pointer;
 
   &:hover:not([data-disabled="true"]):not([data-loading="true"]) {

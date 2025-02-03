@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Select, Option } from "./Select";
+import { Select, Option, OptGroup } from "./Select";
 import { Icon } from "../Icon";
 import { Checkbox } from "../Checkbox";
 import type { SelectProps } from "./Select.types";
@@ -966,6 +966,73 @@ export function SelectWithCheckbox() {
             {option.label}
           </Checkbox>
         </Option>
+      ))}
+    </Select>
+  );
+}
+
+const groupOptions = [
+  {
+    label: "Group 1",
+    options: [
+      {
+        label: "Option 1",
+        value: "value 11",
+      },
+      {
+        label: "Option 2",
+        value: "value 22",
+      },
+    ],
+  },
+  {
+    label: "Group 2",
+    options: Array.from({ length: 1000 }, (_, i) => ({
+      label: `Option ${i + 1}`,
+      value: `value ${i + 1}`,
+    })),
+  },
+];
+
+export function SelectWithCheckboxAndGroup() {
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  return (
+    <Select
+      isMultiSelect
+      onDeselect={(value, unselectedOption) =>
+        setSelectedOptions(
+          // @ts-expect-error type error
+          selectedOptions.filter((opt) => opt.value !== unselectedOption.value),
+        )
+      }
+      onSelect={(value, newSelectedOption) =>
+        // @ts-expect-error type error
+        setSelectedOptions([...selectedOptions, newSelectedOption])
+      }
+      placeholder="Select options"
+      showSearch
+      value={selectedOptions}
+    >
+      {groupOptions.map((group, groupIndex) => (
+        <OptGroup key={`${group.label}-${groupIndex}`} label={group.label}>
+          {group.options.map((option, optionIndex) => (
+            <Option
+              key={`${option.value}-${groupIndex}-${optionIndex}`}
+              label={option.label}
+              value={option.value}
+            >
+              <Checkbox
+                isSelected={selectedOptions.find(
+                  // @ts-expect-error type error
+                  (selectedOption) => selectedOption.value == option.value,
+                )}
+              >
+                {option.label}
+              </Checkbox>
+            </Option>
+          ))}
+        </OptGroup>
       ))}
     </Select>
   );

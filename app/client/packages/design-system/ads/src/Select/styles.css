@@ -208,7 +208,7 @@
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-colors-content-container-default-border);
   box-shadow: var(--ads-v2-shadow-popovers);
-  padding: var(--ads-v2-spaces-2);
+  padding: 0;
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
@@ -226,15 +226,20 @@
   --select-option-height: 36px;
 
   padding: var(--select-option-padding);
-  margin-bottom: var(--ads-v2-spaces-1);
+  margin-inline: var(--ads-v2-spaces-2);
+  margin-bottom: var(--ads-v2-spaces-2);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:first-child {
+  margin-top: var(--ads-v2-spaces-2);
 }
 
 /* Option group */
@@ -249,8 +254,6 @@
   border-radius: var(--ads-v2-border-radius);
   font-weight: 500;
   font-size: var(--ads-v2-font-size-4);
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
@@ -267,12 +270,9 @@
   --select-option-height: 36px;
 
   padding: var(--select-option-padding);
-  padding-left: var(--ads-v2-spaces-5);
-  margin-bottom: var(--ads-v2-spaces-1);
+  margin-left: var(--ads-v2-spaces-2);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
@@ -309,11 +309,17 @@
 }
 
 /* Option hover */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover,
-.ads-v2-select__dropdown
-  .rc-select-item.rc-select-item-option.rc-select-item-option-active {
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
   outline: none;
+  background-color: var(--select-option-color-bg) !important;
+}
+
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-active:not(
+    :hover
+  ) {
+  background-color: unset !important;
 }
 
 /* Option focus */
@@ -326,11 +332,6 @@
 .ads-v2-select__dropdown .rc-select-item.rc-select-item-option:focus-visible {
   outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
-}
-
-/* Option active */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:active {
-  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }
 
 /* Option disabled */
@@ -348,8 +349,10 @@
   color: var(--ads-v2-colors-content-helper-default-fg);
 }
 
-/* Selected option */
-.ads-v2-select__dropdown
-  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
-  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
+/* search input */
+.ads-v2-select__dropdown .ads-v2-search-input input {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
 }
