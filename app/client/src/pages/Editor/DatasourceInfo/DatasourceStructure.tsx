@@ -149,7 +149,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   return (
     <ListItem
       className={`datasourceStructure-${props.context} t--entity-item`}
-      data-testid={`t--entity-item-${dbStructure.name}`}
+      dataTestId={`t--entity-item-${dbStructure.name}`}
       isSelected={activeState}
       onClick={onEntityClick}
       rightControl={templateMenu}
