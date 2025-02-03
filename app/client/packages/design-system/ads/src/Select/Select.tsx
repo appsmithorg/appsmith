@@ -30,7 +30,7 @@ function Select(props: SelectProps) {
     isLoading = false,
     isMultiSelect,
     isValid,
-    maxTagCount = "responsive",
+    maxTagCount = "3",
     maxTagPlaceholder,
     placeholder = "Please select an option",
     showSearch = false,
