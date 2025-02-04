@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.ExceptionHelper;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,9 @@ public class ActionExecutionResult {
     Object body;
     String readableError;
     Boolean isExecutionSuccess = false;
+
+    @JsonView(Views.Internal.class)
+    String pluginName;
 
     /*
      * - To return useful hints to the user.

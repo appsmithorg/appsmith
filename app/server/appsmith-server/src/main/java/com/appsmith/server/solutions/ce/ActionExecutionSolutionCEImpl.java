@@ -293,16 +293,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .environmentId(environmentId)
                 .build();
         Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);
-        return executeActionDTOMono.flatMap(executeActionDTO -> newActionService
-                .findById(executeActionDTO.getActionId())
-                .flatMap(newAction -> pluginService
-                        .findById(newAction.getPluginId())
-                        .map(Plugin::getName)
-                        .defaultIfEmpty("none")
-                        .flatMap(pluginType -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO)
-                                .tag("plugin", pluginType)
-                                .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                                .tap(Micrometer.observation(observationRegistry)))));
+        return executeActionDTOMono
+                .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                .flatMap(result -> Mono.just(result)
+                        .tag("plugin", result.getPluginName())
+                        .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                        .tap(Micrometer.observation(observationRegistry)));
     }
 
     /**
@@ -880,7 +876,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .flatMap(tuple1 -> {
                                 Long timeElapsed = tuple1.getT1();
                                 ActionExecutionResult result = tuple1.getT2();
-
+                                result.setPluginName(plugin.getName());
                                 log.debug(
                                         "{}: Action {} with id {} execution time : {} ms",
                                         Thread.currentThread().getName(),
