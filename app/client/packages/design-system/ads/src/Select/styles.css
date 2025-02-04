@@ -376,6 +376,7 @@
   outline: none !important;
 }
 
+/* this is required because we want to set the max width of first tag around 60% of the container width */
 .ads-v2-select .rc-select-selector {
   container-type: inline-size;
 }

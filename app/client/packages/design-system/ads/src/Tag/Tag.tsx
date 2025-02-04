@@ -36,6 +36,7 @@ function Tag({
           isIconButton
           kind="tertiary"
           onClick={closeHandler}
+          onMouseDown={(e) => e.stopPropagation()}
           size="sm"
           startIcon="close-line"
         />
