@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Parameters;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.schmizz.sshj.userauth.method.AuthPublickey;
 
@@ -16,8 +18,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
 
 import static com.appsmith.external.constants.ConnectionMethod.CONNECTION_METHOD_SSH;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
@@ -65,8 +69,22 @@ public class SSHUtils {
 
         client.connect(sshHost, sshPort);
         Reader targetReader = new InputStreamReader(new ByteArrayInputStream(key.getDecodedContent()));
-        PKCS8KeyFile keyFile = new PKCS8KeyFile();
-        keyFile.init(targetReader);
+        KeyProvider keyFile;
+        String keyContent = new String(key.getDecodedContent(), StandardCharsets.UTF_8);
+
+        if (keyContent.contains("BEGIN OPENSSH PRIVATE KEY")) {
+            // OpenSSH format
+            OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
+            openSSHKeyFile.init(new StringReader(keyContent));
+            keyFile = openSSHKeyFile;
+        } else {
+            // PEM (PKCS#8) format
+            PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
+            pkcs8KeyFile.init(new StringReader(keyContent));
+            keyFile = pkcs8KeyFile;
+        }
+
+        // Authenticate using the detected key format
         client.auth(sshUsername, new AuthPublickey(keyFile));
 
         final ServerSocket serverSocket = new ServerSocket();
