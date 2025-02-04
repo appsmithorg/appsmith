@@ -23,7 +23,7 @@ import {
   Text,
 } from "@appsmith/ads";
 import { getAppsmithConfigs } from "ee/configs";
-import moment from "moment/moment";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import styled from "styled-components";
 import {
   getFirstTimeUserOnboardingModal,
@@ -296,7 +296,7 @@ function HelpButton() {
                     )}
                   </span>
                   <span>
-                    Released {moment(appVersion.releaseDate).fromNow()}
+                    Released {formatDistanceToNow(parseISO(appVersion.releaseDate), { addSuffix: true })}
                   </span>
                 </HelpFooter>
               </MenuItem>

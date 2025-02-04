@@ -1,5 +1,5 @@
 import { ConditionFunctions } from "./Constants";
-import moment from "moment";
+import { parseISO, addDays, subDays, isSameDay } from "date-fns";
 
 describe("ConditionFunctions Constants", () => {
   it("works as expected for isExactly", () => {
@@ -65,29 +65,29 @@ describe("ConditionFunctions Constants", () => {
   });
   it("works as expected for is", () => {
     const conditionFunction = ConditionFunctions["is"];
-    const date1 = moment();
+    const date1 = new Date();
 
-    expect(conditionFunction(date1, date1)).toStrictEqual(true);
+    expect(conditionFunction(date1.toISOString(), date1.toISOString())).toStrictEqual(true);
   });
   it("works as expected for isNot", () => {
     const conditionFunction = ConditionFunctions["isNot"];
-    const date1 = moment();
-    const date2 = moment().add(1, "day");
+    const date1 = new Date();
+    const date2 = addDays(date1, 1);
 
-    expect(conditionFunction(date1, date2)).toStrictEqual(true);
+    expect(conditionFunction(date1.toISOString(), date2.toISOString())).toStrictEqual(true);
   });
   it("works as expected for isAfter", () => {
     const conditionFunction = ConditionFunctions["isAfter"];
-    const date1 = moment();
-    const date2 = moment().add(1, "day");
+    const date1 = new Date();
+    const date2 = addDays(date1, 1);
 
-    expect(conditionFunction(date1, date2)).toStrictEqual(true);
+    expect(conditionFunction(date1.toISOString(), date2.toISOString())).toStrictEqual(true);
   });
   it("works as expected for isBefore", () => {
     const conditionFunction = ConditionFunctions["isBefore"];
-    const date1 = moment();
-    const date2 = moment().subtract(1, "day");
+    const date1 = new Date();
+    const date2 = subDays(date1, 1);
 
-    expect(conditionFunction(date1, date2)).toStrictEqual(true);
+    expect(conditionFunction(date1.toISOString(), date2.toISOString())).toStrictEqual(true);
   });
 });

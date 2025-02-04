@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/full";
-import moment from "moment";
+import { parseISO } from "date-fns";
 
 describe("Klona clone test", () => {
   it("Strings, Booleans, numbers, null & undefined values", () => {
@@ -51,11 +51,11 @@ describe("Klona clone test", () => {
 
   it("Dates and regex values", () => {
     const currentDate = new Date();
-    const currentMoment = moment();
+    const parsedDate = parseISO(currentDate.toISOString());
     const input = {
       meta: {
         date: currentDate,
-        moment: currentMoment,
+        parsedDate,
         regex: /^abc$/g,
         regexExp: new RegExp(/^abc$/),
       },
@@ -64,7 +64,7 @@ describe("Klona clone test", () => {
     const expected = {
       meta: {
         date: currentDate,
-        moment: currentMoment,
+        parsedDate,
         regex: /^abc$/g,
         regexExp: new RegExp(/^abc$/),
       },
@@ -73,7 +73,7 @@ describe("Klona clone test", () => {
 
     // mutate
     input.meta.date = new Date(327392879);
-    input.meta.moment = moment();
+    input.meta.parsedDate = parseISO(new Date().toISOString());
     input.meta.regex = /^def$/g;
     input.meta.regexExp = new RegExp(/^def$/);
 

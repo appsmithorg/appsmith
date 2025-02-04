@@ -1,7 +1,7 @@
 import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import moment from "moment";
+import { formatISO } from "date-fns";
 import { sample } from "lodash";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -72,7 +72,7 @@ export function getExpectedValue(
     case ValidationTypes.DATE_ISO_STRING:
       return {
         type: "ISO 8601 date string",
-        example: moment().toISOString(true),
+        example: formatISO(new Date()),
         autocompleteDataType: AutocompleteDataType.STRING,
       };
     case ValidationTypes.BOOLEAN:
