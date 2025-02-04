@@ -190,6 +190,7 @@
   background: var(--ads-v2-colors-content-surface-info-bg);
   border: 1px solid var(--ads-v2-colors-content-surface-info-border);
   color: var(--ads-v2-colors-content-label-info-fg);
+  line-height: normal;
 }
 
 /* typing space */
@@ -229,7 +230,6 @@
 
   padding: var(--select-option-padding);
   margin-inline: var(--ads-v2-spaces-2);
-  margin-bottom: var(--ads-v2-spaces-2);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
   position: relative;
@@ -240,8 +240,17 @@
   align-items: center;
 }
 
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:first-child {
-  margin-top: var(--ads-v2-spaces-2);
+.ads-v2-select__dropdown .rc-virtual-list {
+  padding-top: var(--ads-v2-spaces-2);
+  padding-bottom: var(--ads-v2-spaces-2);
+}
+
+/* if the dropdown first item is a group, dont add padding-top to virtual list */
+.ads-v2-select__dropdown:has(
+    .rc-select-item:first-child:is(.rc-select-item-group)
+  )
+  .rc-virtual-list {
+  padding-top: 0;
 }
 
 /* Option group */
@@ -367,10 +376,16 @@
   outline: none !important;
 }
 
+.ads-v2-select .rc-select-selector {
+  container-type: inline-size;
+}
+
 /* tags */
-.ads-v2-select .rc-select-selection-overflow-item > span {
-  /* display: inline-block;
-  max-width: 100%; */
+.ads-v2-select
+  .rc-select-selection-overflow-item:first-child
+  .ads-v2-tag
+  > span {
+  max-width: calc(60cqw - 16px);
 }
 
 .ads-v2-select .rc-select-selection-overflow-item .ads-v2-tag > span {
@@ -383,4 +398,9 @@
 
 .ads-v2-select .rc-select-selection-overflow-item-suffix {
   display: none;
+}
+
+.ads-v2-select__dropdown .rc-virtual-list {
+  padding-top: var(--ads-v2-spaces-2);
+  padding-bottom: var(--ads-v2-spaces-2);
 }

@@ -101,11 +101,12 @@ function Select(props: SelectProps) {
                 value={searchValue}
               />
             )}
-            {menu}
+            <div>{menu}</div>
           </div>
         );
       }}
       inputIcon={<InputIcon />}
+      listHeight={300}
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""
