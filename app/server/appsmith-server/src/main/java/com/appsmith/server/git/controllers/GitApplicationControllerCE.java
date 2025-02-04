@@ -1,6 +1,5 @@
 package com.appsmith.server.git.controllers;
 
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -181,10 +180,12 @@ public class GitApplicationControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/{baseArtifactId}/ref")
     public Mono<ResponseDTO<? extends Artifact>> deleteBranch(
-            @PathVariable String baseArtifactId, @RequestBody GitRefDTO gitRefDTO) {
-        log.info("Going to delete ref {} for baseApplicationId {}", gitRefDTO.getRefName(), baseArtifactId);
+            @PathVariable String baseArtifactId,
+            @RequestParam String refName,
+            @RequestParam(required = false, defaultValue = "branch") RefType refType) {
+        log.info("Going to delete ref {} for baseApplicationId {}", refName, baseArtifactId);
         return centralGitService
-                .deleteGitReference(baseArtifactId, ARTIFACT_TYPE, gitRefDTO, GIT_TYPE)
+                .deleteGitReference(baseArtifactId, ARTIFACT_TYPE, refName, refType, GIT_TYPE)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -198,7 +199,7 @@ public class GitApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{baseArtifactId}/branch/protected")
+    @PostMapping("/{baseArtifactId}/protected-branches")
     public Mono<ResponseDTO<List<String>>> updateProtectedBranches(
             @PathVariable String baseArtifactId,
             @RequestBody @Valid BranchProtectionRequestDTO branchProtectionRequestDTO) {
@@ -208,7 +209,7 @@ public class GitApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{baseArtifactId}/branch/protected")
+    @GetMapping("/{baseArtifactId}/protected-branches")
     public Mono<ResponseDTO<List<String>>> getProtectedBranches(@PathVariable String baseArtifactId) {
         return centralGitService
                 .getProtectedBranches(baseArtifactId, ARTIFACT_TYPE)
@@ -242,9 +243,10 @@ public class GitApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{branchedApplicationId}/branches")
-    public Mono<ResponseDTO<List<GitBranchDTO>>> branch(
+    @GetMapping("/{branchedApplicationId}/refs")
+    public Mono<ResponseDTO<List<GitRefDTO>>> getReferences(
             @PathVariable String branchedApplicationId,
+            @RequestParam(required = false, defaultValue = "branch") RefType refType,
             @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches) {
         log.debug("Going to get branch list for application {}", branchedApplicationId);
         return centralGitService
