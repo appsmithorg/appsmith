@@ -9,7 +9,7 @@ import {
 } from "@appsmith/ads";
 import { JSONViewer, Size } from "components/editorComponents/JSONViewer";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import { useStateInspectorItems } from "./hooks";
+import { useStateInspectorItems, useGetDisplayData } from "./hooks";
 import * as Styled from "./styles";
 
 const GroupListPadding = {
@@ -18,7 +18,8 @@ const GroupListPadding = {
 } as FlexProps;
 
 export const StateInspector = () => {
-  const [selectedItem, items, selectedItemCode] = useStateInspectorItems();
+  const [selectedItem, items] = useStateInspectorItems();
+  const selectedItemCode = useGetDisplayData(selectedItem?.title || "");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm<
