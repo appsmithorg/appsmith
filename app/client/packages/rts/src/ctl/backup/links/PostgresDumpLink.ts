@@ -12,8 +12,10 @@ export class PostgresDumpLink implements Link {
 
   async preBackup() {
     const url = this.state.dbUrl;
+
     if (url.startsWith("postgresql")) {
       this.postgresUrl = url;
+
       return;
     }
 
