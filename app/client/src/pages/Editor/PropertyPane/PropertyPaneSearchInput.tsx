@@ -20,21 +20,6 @@ const Container = styled.div`
 
 const SearchInputWrapper = styled.div`
   margin: 0 1rem;
-  border-radius: var(--ads-v2-border-radius);
-  border: 1px solid var(--ads-v2-color-border);
-  :focus-within {
-    /* outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline); */
-    border-color: var(--ads-v2-color-border-emphasis-plus);
-  }
-`;
-
-const StyledSearchInput = styled(SearchInput)`
-  input {
-    border: none;
-    outline: none;
-  }
 `;
 
 interface PropertyPaneSearchInputProps {
@@ -104,7 +89,7 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
         ref={wrapperRef}
         tabIndex={0}
       >
-        <StyledSearchInput
+        <SearchInput
           className="propertyPaneSearch t--property-pane-search-input-wrapper"
           onChange={props.onTextChange}
           placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}

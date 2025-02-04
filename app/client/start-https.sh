@@ -294,6 +294,10 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         location /api {
             proxy_pass $backend;
+            # Delete the Cache-Control header set in the server block above.
+            add_header Cache-Control '' always;
+            # Proxy pass the Cache-Control header from the upstream.
+            proxy_pass_header Cache-Control;
         }
 
         location /oauth2 {

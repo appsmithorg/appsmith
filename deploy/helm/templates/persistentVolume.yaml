@@ -2,8 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ include "appsmith.fullname" . }}
-  namespace: {{ include "appsmith.namespace" . }}
+  name: {{ include "appsmith.pvName" . }}
 spec:
   capacity:
     storage: {{ .Values.persistence.size | quote }}

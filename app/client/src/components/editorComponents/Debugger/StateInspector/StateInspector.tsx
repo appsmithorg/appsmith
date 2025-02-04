@@ -1,29 +1,21 @@
 import React, { useState } from "react";
-import ReactJson from "react-json-view";
 import {
   EntityGroupsList,
   Flex,
+  type FlexProps,
   type ListItemProps,
   SearchInput,
   Text,
 } from "@appsmith/ads";
+import { JSONViewer, Size } from "components/editorComponents/JSONViewer";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { useStateInspectorItems } from "./hooks";
 import * as Styled from "./styles";
 
-export const reactJsonProps = {
-  name: null,
-  enableClipboard: false,
-  displayDataTypes: false,
-  displayArrayKey: true,
-  quotesOnKeys: false,
-  style: {
-    fontSize: "12px",
-  },
-  collapsed: 1,
-  indentWidth: 2,
-  collapseStringsAfterLength: 30,
-};
+const GroupListPadding = {
+  pl: "spaces-3",
+  pr: "spaces-3",
+} as FlexProps;
 
 export const StateInspector = () => {
   const [selectedItem, items, selectedItemCode] = useStateInspectorItems();
@@ -51,10 +43,7 @@ export const StateInspector = () => {
           />
         </Flex>
         <EntityGroupsList
-          flexProps={{
-            pl: "spaces-3",
-            pr: "spaces-3",
-          }}
+          flexProps={GroupListPadding}
           groups={filteredItemGroups.map((item) => {
             return {
               groupTitle: item.group,
@@ -81,8 +70,8 @@ export const StateInspector = () => {
             {selectedItem.icon}
             <Text kind="body-m">{selectedItem.title}</Text>
           </Styled.SelectedItem>
-          <Flex overflowY="auto" px="spaces-3">
-            <ReactJson src={selectedItemCode} {...reactJsonProps} />
+          <Flex className="as-mask" overflowY="auto" px="spaces-3">
+            <JSONViewer size={Size.MEDIUM} src={selectedItemCode} />
           </Flex>
         </Flex>
       ) : null}

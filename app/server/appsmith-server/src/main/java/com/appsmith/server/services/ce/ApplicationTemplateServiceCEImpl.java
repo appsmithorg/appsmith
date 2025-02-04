@@ -224,7 +224,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
      */
     @Override
     public Mono<ApplicationImportDTO> mergeTemplateWithApplication(
-            String templateId, String branchedApplicationId, String organizationId, List<String> pagesToImport) {
+            String templateId, String branchedApplicationId, String workspaceId, List<String> pagesToImport) {
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> {
                     String templateName = "";
@@ -235,7 +235,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
                     return importService
                             .mergeArtifactExchangeJsonWithImportableArtifact(
-                                    organizationId, branchedApplicationId, null, applicationJson, pagesToImport)
+                                    workspaceId, branchedApplicationId, null, applicationJson, pagesToImport)
                             .map(importableArtifact -> (Application) importableArtifact)
                             .zipWith(Mono.just(templateName));
                 })

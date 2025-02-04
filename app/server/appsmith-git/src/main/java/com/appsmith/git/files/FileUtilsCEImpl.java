@@ -224,7 +224,7 @@ public class FileUtilsCEImpl implements FileInterface {
         ApplicationGitReference applicationGitReference = (ApplicationGitReference) artifactGitReference;
 
         // Repo path will be:
-        // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
+        // baseRepo : root/workspaceId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor
@@ -245,7 +245,7 @@ public class FileUtilsCEImpl implements FileInterface {
             throws GitAPIException, IOException {
 
         // Repo path will be:
-        // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
+        // baseRepo : root/workspaceId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
         return gitExecutor
                 .resetToLastCommit(baseRepoSuffix, branchName)

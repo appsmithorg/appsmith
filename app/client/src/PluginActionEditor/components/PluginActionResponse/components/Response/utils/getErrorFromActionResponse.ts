@@ -23,6 +23,10 @@ export const getErrorMessageFromActionResponse = (
     );
   }
 
-  // Return body if plugin type is DB, otherwise return default error message
-  return pluginType === PluginType.DB ? body : DEFAULT_ERROR_MESSAGE;
+  // Return body if plugin type is DB/SAAS/ExternalSAAS, otherwise return default error message
+  return pluginType === PluginType.DB ||
+    pluginType === PluginType.SAAS ||
+    pluginType === PluginType.EXTERNAL_SAAS
+    ? body
+    : DEFAULT_ERROR_MESSAGE;
 };

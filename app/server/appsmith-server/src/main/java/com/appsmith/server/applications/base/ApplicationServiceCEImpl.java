@@ -325,7 +325,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         if (error instanceof DuplicateKeyException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
                             // workspace_app_deleted_gitApplicationMetadata dup key:
-                            // { organizationId: "******", name: "AppName", deletedAt: null }
+                            // { workspaceId: "******", name: "AppName", deletedAt: null }
                             if (error.getCause()
                                     .getMessage()
                                     .contains("workspace_app_deleted_gitApplicationMetadata")) {
@@ -930,7 +930,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
         return analyticsProperties;
     }
 

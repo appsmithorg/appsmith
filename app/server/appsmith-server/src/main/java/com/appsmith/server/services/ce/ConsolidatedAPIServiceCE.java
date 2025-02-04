@@ -9,4 +9,7 @@ public interface ConsolidatedAPIServiceCE {
 
     Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
             String defaultPageId, String applicationId, RefType refType, String refName, ApplicationMode mode);
+
+    String computeConsolidatedAPIResponseEtag(
+            ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId);
 }

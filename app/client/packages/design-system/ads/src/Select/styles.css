@@ -1,7 +1,9 @@
 .ads-v2-select {
   --select-color-border: var(--ads-v2-colors-control-field-default-border);
-  --select-padding-x: var(--ads-v2-spaces-2); /* padding left and right */
-  --select-padding-y: var(--ads-v2-spaces-2); /* padding top and bottom */
+  --select-padding-x: var(--ads-v2-spaces-2);
+  /* padding left and right */
+  --select-padding-y: var(--ads-v2-spaces-2);
+  /* padding top and bottom */
   --select-font-size: var(--ads-v2-font-size-2);
   --select-height: 24px;
   --select-search-input-padding-right: 0;
@@ -51,7 +53,6 @@
 .ads-v2-select.rc-select-focused {
   outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
-  --select-color-border: var(--ads-v2-colors-control-field-active-border);
 }
 
 /* Error */
@@ -87,6 +88,7 @@
   /* padding x + icon size + gap */
   --select-search-input-padding-right: calc(var(--select-padding-x) + 16px);
 }
+
 .ads-v2-select.rc-select-allow-clear.rc-select-show-arrow.rc-select-selection-search-input,
 .ads-v2-select.rc-select-allow-clear.rc-select-show-arrow
   .rc-select-selection-overflow {
@@ -111,6 +113,10 @@
   border-radius: var(--ads-v2-border-radius);
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.ads-v2-select.rc-select-focused > .rc-select-selector {
+  border-color: transparent;
 }
 
 /* Placeholder */
@@ -220,6 +226,48 @@
   --select-option-height: 36px;
 
   padding: var(--select-option-padding);
+  margin-bottom: var(--ads-v2-spaces-1);
+  border-radius: var(--ads-v2-border-radius);
+  cursor: pointer;
+  /* TODO: remove !important after WDS fix their issue in tree select */
+  background-color: var(--select-option-color-bg) !important;
+  position: relative;
+  color: var(--ads-v2-colors-content-label-default-fg);
+  min-height: var(--select-option-height);
+  box-sizing: border-box;
+}
+
+/* Option group */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-group {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+
+  padding: var(--select-option-padding) 0 0 var(--select-option-padding);
+  border-radius: var(--ads-v2-border-radius);
+  font-weight: 500;
+  font-size: var(--ads-v2-font-size-4);
+  /* TODO: remove !important after WDS fix their issue in tree select */
+  background-color: var(--select-option-color-bg) !important;
+  position: relative;
+  color: var(--ads-v2-colors-content-label-default-fg);
+  min-height: var(--select-option-height);
+  box-sizing: border-box;
+}
+
+/* Option when it is grouped */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-grouped {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+
+  padding: var(--select-option-padding);
+  padding-left: var(--ads-v2-spaces-5);
   margin-bottom: var(--ads-v2-spaces-1);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;

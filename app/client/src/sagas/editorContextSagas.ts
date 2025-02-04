@@ -23,7 +23,7 @@ function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
   const { cursorPosition, key } = action.payload;
 
   const entityInfo = identifyEntityFromPath(window.location.pathname);
-  const ignoredEntities = [FocusEntity.DATASOURCE, FocusEntity.PROPERTY_PANE];
+  const ignoredEntities = [FocusEntity.DATASOURCE, FocusEntity.WIDGET];
 
   if (key) {
     if (!ignoredEntities.includes(entityInfo.entity)) {
