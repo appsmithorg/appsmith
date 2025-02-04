@@ -1,3 +1,4 @@
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { Ref } from "react";
 import React from "react";
 import type {
@@ -5,14 +6,12 @@ import type {
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, EmptyRow, Row } from "./Row";
+import { Virtuoso } from "react-virtuoso";
+import type { ReactElementType } from "react-window";
+import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
-import type SimpleBar from "simplebar-react";
-import InfiniteLoader from "react-window-infinite-loader";
+import { EmptyRow, EmptyRows, Row } from "./Row";
 
 export type BodyContextType = {
   accentColor: string;
@@ -50,25 +49,19 @@ export const BodyContext = React.createContext<BodyContextType>({
   totalColumnsWidth: 0,
 });
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
-
-  if (index < data.length) {
-    const row = data[index];
-
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        row={row}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRow style={style} />;
-  }
-}, areEqual);
+const Footer = () => {
+  return (
+    <div
+      style={{
+        padding: "2rem",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      Loading...
+    </div>
+  );
+};
 
 interface BodyPropsType {
   getTableBodyProps(
@@ -83,47 +76,45 @@ interface BodyPropsType {
   loadMore: () => void;
 }
 
-const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType, ref: Ref<SimpleBar>) => {
-    const { rows } = props;
-    const isItemLoaded = (index: number) => index < rows.length;
-    const TOTAL_ITEM_COUNT = 517; // static value for poc, this should come from total record count
+const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
+  const { height, rows, tableSizes } = props;
 
-    return (
-      <div className="simplebar-content-wrapper">
-        <InfiniteLoader
-          isItemLoaded={isItemLoaded}
-          itemCount={TOTAL_ITEM_COUNT}
-          loadMoreItems={() => {
-            props.loadMore();
-          }}
-          threshold={3} // Load more items when the user is within 3 rows of the end
-        >
-          {({ onItemsRendered, ref: infiniteLoaderRef }) => (
-            <FixedSizeList
-              className="virtual-list simplebar-content"
-              height={
-                props.height -
-                props.tableSizes.TABLE_HEADER_HEIGHT -
-                2 * props.tableSizes.VERTICAL_PADDING
-              }
-              innerElementType={props.innerElementType}
-              itemCount={TOTAL_ITEM_COUNT}
-              itemData={rows}
-              itemSize={props.tableSizes.ROW_HEIGHT}
-              onItemsRendered={onItemsRendered}
-              outerRef={ref}
-              ref={infiniteLoaderRef}
-              width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-            >
-              {rowRenderer}
-            </FixedSizeList>
-          )}
-        </InfiniteLoader>
-      </div>
-    );
-  },
-);
+  return (
+    <div>
+      <Virtuoso
+        components={{ Footer }}
+        data={rows}
+        endReached={() => props.loadMore()}
+        itemContent={(index) => {
+          if (index < rows.length) {
+            const row = rows[index];
+
+            return (
+              <Row
+                className="t--virtual-row"
+                index={index}
+                key={index}
+                row={row}
+                style={{
+                  width: `calc(100% + ${2 * WIDGET_PADDING}px)`,
+                }}
+              />
+            );
+          } else {
+            return <EmptyRow />;
+          }
+        }}
+        overscan={200}
+        style={{
+          height:
+            height -
+            tableSizes.TABLE_HEADER_HEIGHT -
+            2 * tableSizes.VERTICAL_PADDING,
+        }}
+      />
+    </div>
+  );
+});
 
 const TableBodyComponent = (props: BodyPropsType) => {
   return (

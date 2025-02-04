@@ -1,10 +1,9 @@
 import React from "react";
 import type {
+  Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
-  Row as ReactTableRowType,
 } from "react-table";
-import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
 import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
@@ -40,48 +39,44 @@ type VirtualTableProps = TableColumnHeaderProps & {
   loadMore: () => void;
 };
 
-const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
+const VirtualTable = (props: VirtualTableProps) => {
   return (
-    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
-      {({ scrollableNodeRef }) => (
-        <TableBody
-          accentColor={props.accentColor}
-          borderRadius={props.borderRadius}
-          canFreezeColumn={props.canFreezeColumn}
-          columns={props.columns}
-          disableDrag={props.disableDrag}
-          editMode={props.editMode}
-          enableDrag={props.enableDrag}
-          getTableBodyProps={props.getTableBodyProps}
-          handleAllRowSelectClick={props.handleAllRowSelectClick}
-          handleColumnFreeze={props.handleColumnFreeze}
-          handleReorderColumn={props.handleReorderColumn}
-          headerGroups={props.headerGroups}
-          height={props.height}
-          innerElementType={VirtualTableInnerElement}
-          isAddRowInProgress={props.isAddRowInProgress}
-          isResizingColumn={props.isResizingColumn}
-          isSortable={props.isSortable}
-          loadMore={props.loadMore}
-          multiRowSelection={!!props.multiRowSelection}
-          pageSize={props.pageSize}
-          prepareRow={props.prepareRow}
-          primaryColumnId={props.primaryColumnId}
-          ref={scrollableNodeRef}
-          rowSelectionState={props.rowSelectionState}
-          rows={props.subPage}
-          selectTableRow={props.selectTableRow}
-          selectedRowIndex={props.selectedRowIndex}
-          selectedRowIndices={props.selectedRowIndices}
-          sortTableColumn={props.sortTableColumn}
-          tableSizes={props.tableSizes}
-          totalColumnsWidth={props?.totalColumnsWidth}
-          useVirtual={props.useVirtual}
-          widgetId={props.widgetId}
-          width={props.width}
-        />
-      )}
-    </SimpleBar>
+    <TableBody
+      accentColor={props.accentColor}
+      borderRadius={props.borderRadius}
+      canFreezeColumn={props.canFreezeColumn}
+      columns={props.columns}
+      disableDrag={props.disableDrag}
+      editMode={props.editMode}
+      enableDrag={props.enableDrag}
+      getTableBodyProps={props.getTableBodyProps}
+      handleAllRowSelectClick={props.handleAllRowSelectClick}
+      handleColumnFreeze={props.handleColumnFreeze}
+      handleReorderColumn={props.handleReorderColumn}
+      headerGroups={props.headerGroups}
+      height={props.height}
+      innerElementType={VirtualTableInnerElement}
+      isAddRowInProgress={props.isAddRowInProgress}
+      isResizingColumn={props.isResizingColumn}
+      isSortable={props.isSortable}
+      loadMore={props.loadMore}
+      multiRowSelection={!!props.multiRowSelection}
+      pageSize={props.pageSize}
+      prepareRow={props.prepareRow}
+      primaryColumnId={props.primaryColumnId}
+      // ref={scrollableNodeRef}
+      rowSelectionState={props.rowSelectionState}
+      rows={props.subPage}
+      selectTableRow={props.selectTableRow}
+      selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndices={props.selectedRowIndices}
+      sortTableColumn={props.sortTableColumn}
+      tableSizes={props.tableSizes}
+      totalColumnsWidth={props?.totalColumnsWidth}
+      useVirtual={props.useVirtual}
+      widgetId={props.widgetId}
+      width={props.width}
+    />
   );
 };
 
