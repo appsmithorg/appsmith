@@ -44,7 +44,8 @@ describe("EditorTabs render checks", () => {
     // check tabs is empty
     const tabsContainer = getByTestId("t--tabs-container");
 
-    expect(tabsContainer.firstChild).toBeNull();
+    // tabs container contains 2 sentinel divs to check for intersections, so in empty state it should have 2 children
+    expect(tabsContainer.childElementCount).toBe(2);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -69,7 +70,8 @@ describe("EditorTabs render checks", () => {
     // check tabs is empty
     const tabsContainer = getByTestId("t--tabs-container");
 
-    expect(tabsContainer.firstChild).toBeNull();
+    // tabs container contains 2 sentinel divs to check for intersections, so in empty state it should have 2 children
+    expect(tabsContainer.childElementCount).toBe(2);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();

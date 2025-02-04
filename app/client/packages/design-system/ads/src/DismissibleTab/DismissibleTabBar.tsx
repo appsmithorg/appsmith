@@ -107,6 +107,7 @@ export const DismissibleTabBar = ({
             <Spinner size="md" />
           ) : (
             <Styled.PlusButton
+              data-testid="t--ide-tabs-add-button"
               isDisabled={disableAdd}
               isIconButton
               kind="tertiary"

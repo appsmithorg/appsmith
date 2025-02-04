@@ -9,6 +9,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
 
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { sanitizeString } from "utils/URLUtils";
 
 import {
   getEditableTabPermissions,
@@ -63,6 +64,7 @@ export function EditableTab(props: EditableTabProps) {
   return (
     <EditableDismissibleTab
       canEdit={isChangePermitted}
+      dataTestId={`t--ide-tab-${sanitizeString(title)}`}
       icon={icon}
       isActive={isActive}
       isEditable={isChangePermitted}

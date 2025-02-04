@@ -32,6 +32,7 @@ const AddTab = ({
 
   return (
     <DismissibleTab
+      dataTestId="t--ide-tab-new_query"
       isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
       onClose={onCloseClick}

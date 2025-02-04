@@ -93,6 +93,7 @@ const EditorTabs = () => {
       <EntityTabsHeader>
         {showEntityListButton && (
           <EntityListButton
+            data-testid="t--list-toggle"
             isSelected={isListViewActive}
             onClick={handleHamburgerClick}
           />
