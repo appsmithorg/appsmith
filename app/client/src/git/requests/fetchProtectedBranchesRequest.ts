@@ -14,7 +14,9 @@ async function fetchProtectedBranchesRequestNew(
   artifactType: GitArtifactType,
   baseArtifactId: string,
 ): AxiosPromise<FetchProtectedBranchesResponse> {
-  return Api.get(`${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected-branches`);
+  return Api.get(
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected-branches`,
+  );
 }
 
 export default async function fetchProtectedBranchesRequest(
