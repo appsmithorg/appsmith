@@ -106,7 +106,6 @@ function Select(props: SelectProps) {
         );
       }}
       inputIcon={<InputIcon />}
-      listHeight={300}
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""

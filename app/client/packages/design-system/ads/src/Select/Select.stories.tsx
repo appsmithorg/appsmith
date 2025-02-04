@@ -1022,6 +1022,7 @@ export function SelectWithCheckboxAndGroup() {
             <Option
               key={`${option.value}-${groupIndex}-${optionIndex}`}
               label={option.label}
+              title={option.label}
               value={option.value}
             >
               <Checkbox

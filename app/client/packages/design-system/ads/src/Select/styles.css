@@ -215,7 +215,6 @@
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
-  overflow: auto;
   z-index: 1001;
   pointer-events: auto;
 }
@@ -317,6 +316,7 @@
   font-size: var(--select-option-font-size);
   overflow: hidden;
   overflow-wrap: break-word;
+  width: 100%;
 }
 
 .ads-v2-select__dropdown
