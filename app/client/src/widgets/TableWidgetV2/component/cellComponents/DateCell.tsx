@@ -235,11 +235,14 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    const momentAdjustedInputFormat =
-      convertInputFormatToMomentFormat(inputFormat);
+    const dateFormat = inputFormat === DateInputFormat.MILLISECONDS 
+      ? "T" 
+      : inputFormat === DateInputFormat.EPOCH 
+        ? "t" 
+        : inputFormat;
 
     const formattedDate = date
-      ? moment(date).format(momentAdjustedInputFormat)
+      ? format(parseISO(date), dateFormat)
       : "";
 
     if (isNewRow) {

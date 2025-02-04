@@ -21,7 +21,7 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import styled from "styled-components";
-import moment from "moment";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
@@ -110,7 +110,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
 
   const handleMouseLeave = useCallback(() => {
     if (hoverStartTime !== 0) {
-      const timeTaken = moment().diff(hoverStartTime, "seconds");
+      const timeTaken = Math.floor((Date.now() - hoverStartTime) / 1000);
 
       AnalyticsUtil.logEvent("TIME_TO_NAVIGATE_ENTITY_EXPLORER", { timeTaken });
       setHoverStartTime(0);

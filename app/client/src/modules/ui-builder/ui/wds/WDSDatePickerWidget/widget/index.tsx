@@ -1,5 +1,5 @@
 import React from "react";
-import moment from "moment";
+import { format, parseISO } from "date-fns";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type {
@@ -55,8 +55,8 @@ class WDSDatePickerWidget extends BaseWidget<
 
     return {
       isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
-      selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
-      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
+      selectedDate: `{{ this.value ? format(parseISO(this.value), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx") : "" }}`,
+      formattedDate: `{{ this.value ? format(parseISO(this.value), this.dateFormat) : "" }}`,
     };
   }
 
@@ -120,7 +120,7 @@ class WDSDatePickerWidget extends BaseWidget<
 
   private parseDate(date: string | undefined) {
     return date
-      ? parseDateTime(moment(date).format("YYYY-MM-DDTHH:mm:ss"))
+      ? parseDateTime(format(parseISO(date), "yyyy-MM-dd'T'HH:mm:ss"))
       : undefined;
   }
 

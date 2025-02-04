@@ -383,7 +383,7 @@ export const generateSchemaWithDefaultValues = (columns: Column[]) => {
   const typeMappings: Record<string, unknown> = {
     number: 0,
     string: "",
-    date: moment(moment.now()).format(ISO_DATE_FORMAT),
+    date: formatISO(new Date()),
     array: [],
   };
 

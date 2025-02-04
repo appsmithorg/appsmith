@@ -5,7 +5,7 @@ import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
-import { isMoment } from "moment";
+import { isValid, parseISO } from "date-fns";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export const fn_keys: string = "__fn_keys__";
@@ -225,9 +225,8 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath) as DataTree;
 
-      //when a moment value changes we do not want the inner moment object updates, we just want the ISO result of it
-      // which we get during the serialisation process we perform at latter steps
-      if (isMoment(rhs)) {
+      // When a date value changes we want to handle it specially
+      if (rhs instanceof Date && isValid(rhs)) {
         attachDirectly.push({
           kind: "E",
           lhs,

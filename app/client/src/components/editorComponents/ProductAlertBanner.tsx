@@ -8,7 +8,7 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "ee/sagas/userSagas";
 import type { CalloutLinkProps } from "@appsmith/ads";
-import moment from "moment/moment";
+import { formatDistanceToNow, parseISO, isBefore, addDays } from "date-fns";
 import { createMessage, I_UNDERSTAND, LEARN_MORE } from "ee/constants/messages";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { updateProductAlertConfig } from "actions/userActions";
@@ -86,7 +86,7 @@ const ProductAlertBanner = () => {
 
   // If still snoozed, it will not be shown
   if (config && config.snoozeTill) {
-    const stillSnoozed = moment().isBefore(moment(config.snoozeTill));
+    const stillSnoozed = isBefore(new Date(), new Date(config.snoozeTill));
 
     if (stillSnoozed) {
       return null;
@@ -127,9 +127,7 @@ const ProductAlertBanner = () => {
             if (message.remindLaterDays) {
               updateConfig(message.messageId, {
                 dismissed: false,
-                snoozeTill: moment()
-                  .add(message.remindLaterDays, "days")
-                  .toDate(),
+                snoozeTill: addDays(new Date(), message.remindLaterDays),
               });
             } else if (message.canDismiss) {
               updateConfig(message.messageId, {

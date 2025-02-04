@@ -1,5 +1,5 @@
 import { isString } from "lodash";
-import moment from "moment";
+import { isSameDay, isAfter, isBefore, parseISO } from "date-fns";
 import type { IconName } from "@blueprintjs/icons";
 import type { Alignment } from "@blueprintjs/core";
 import type {
@@ -476,22 +476,22 @@ export const ConditionFunctions: {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   is: (a: any, b: any) => {
-    return moment(a).isSame(moment(b), "d");
+    return isSameDay(parseISO(a), parseISO(b));
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isNot: (a: any, b: any) => {
-    return !moment(a).isSame(moment(b), "d");
+    return !isSameDay(parseISO(a), parseISO(b));
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isAfter: (a: any, b: any) => {
-    return !moment(a).isAfter(moment(b), "d");
+    return isAfter(parseISO(a), parseISO(b));
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isBefore: (a: any, b: any) => {
-    return !moment(a).isBefore(moment(b), "d");
+    return isBefore(parseISO(a), parseISO(b));
   },
 };
 

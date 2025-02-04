@@ -13,8 +13,8 @@ import {
 import { get, has, isNil, uniq } from "lodash";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
-import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
+import { parseISO, formatISO, isValid, differenceInYears, differenceInMonths, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds } from "date-fns";
 import type { ApiResponse } from "api/ApiResponses";
 import type { DSLWidget } from "WidgetProvider/constants";
 import * as Sentry from "@sentry/react";
@@ -720,20 +720,45 @@ export const howMuchTimeBeforeText = (
   date: string,
   options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
 ) => {
-  if (!date || !moment.isMoment(moment(date))) {
+  if (!date) {
     return "";
   }
 
-  const { lessThanAMinute } = options;
+  try {
+    const parsedDate = parseISO(date);
+    if (!isValid(parsedDate)) {
+      return "";
+    }
 
-  const now = moment();
-  const checkDate = moment(date);
-  const years = now.diff(checkDate, "years");
-  const months = now.diff(checkDate, "months");
-  const days = now.diff(checkDate, "days");
-  const hours = now.diff(checkDate, "hours");
-  const minutes = now.diff(checkDate, "minutes");
-  const seconds = now.diff(checkDate, "seconds");
+    const { lessThanAMinute } = options;
+
+    const now = new Date();
+    const checkDate = parsedDate;
+    const years = differenceInYears(now, checkDate);
+    const months = differenceInMonths(now, checkDate);
+    const days = differenceInDays(now, checkDate);
+    const hours = differenceInHours(now, checkDate);
+    const minutes = differenceInMinutes(now, checkDate);
+    const seconds = differenceInSeconds(now, checkDate);
+
+    if (years > 0) {
+      return `${years} year${years > 1 ? "s" : ""}`;
+    } else if (months > 0) {
+      return `${months} month${months > 1 ? "s" : ""}`;
+    } else if (days > 0) {
+      return `${days} day${days > 1 ? "s" : ""}`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""}`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+    }
+
+    return lessThanAMinute
+      ? "less than a minute"
+      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
+  } catch (e) {
+    return "";
+  }
 
   if (years > 0) return `${years} yr${years > 1 ? "s" : ""}`;
   else if (months > 0) return `${months} mth${months > 1 ? "s" : ""}`;

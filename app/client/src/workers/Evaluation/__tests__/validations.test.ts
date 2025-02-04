@@ -5,7 +5,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import moment from "moment";
+import { parseISO, formatISO, format } from "date-fns";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const DUMMY_WIDGET: WidgetProps = {
@@ -1271,11 +1271,10 @@ describe("Validate Validators", () => {
   });
 
   it("correctly validates date iso string when required is true", () => {
-    const defaultLocalDate = moment().toISOString(true);
-    const defaultDate = moment().toISOString();
+    const defaultDate = formatISO(new Date());
     const inputs = [
       defaultDate,
-      defaultLocalDate,
+      defaultDate,
       "2021-08-08",
       undefined,
       null,
@@ -1297,12 +1296,12 @@ describe("Validate Validators", () => {
       },
       {
         isValid: true,
-        parsed: defaultLocalDate,
+        parsed: defaultDate,
       },
       {
         isValid: true,
         messages: [{ name: "", message: "" }],
-        parsed: moment("2021-08-08").toISOString(true),
+        parsed: formatISO(parseISO("2021-08-08")),
       },
       {
         isValid: false,
@@ -1344,7 +1343,7 @@ describe("Validate Validators", () => {
   });
 
   it("correctly validates date iso string when required is false", () => {
-    const defaultDate = moment().toISOString();
+    const defaultDate = formatISO(new Date());
     const inputs = [""];
 
     const config = {

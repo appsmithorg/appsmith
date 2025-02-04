@@ -10,7 +10,7 @@ import EntityLink from "../EntityLink";
 import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import ContextualMenu from "../ContextualMenu";
 import { Button, Flex, Icon } from "@appsmith/ads";
-import moment from "moment";
+import { format, formatDistanceToNow, parseISO } from "date-fns";
 import classNames from "classnames";
 import { DebuggerLinkUI } from "../DebuggerEntityLink";
 import { reactJsonProps } from "../ErrorLogs/components/LogCollapseData";
@@ -215,7 +215,7 @@ export function LogItem(props: LogItemProps) {
           size="md"
         />
         <span className={`debugger-time ${props.severity}`}>
-          {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
+          {format(new Date(parseInt(props.timestamp)), "HH:mm:ss")}
         </span>
         <Flex alignItems={"center"} justifyContent="center" w="30px">
           <Button

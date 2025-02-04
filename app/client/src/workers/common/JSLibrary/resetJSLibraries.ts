@@ -1,12 +1,15 @@
 import _ from "./lodash-wrapper";
-import moment from "moment-timezone";
+import { formatInTimeZone } from "date-fns-tz";
 import forge from "node-forge";
 import { defaultLibraries, JSLibraryAccessor } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
 const defaultLibImplementations = {
   lodash: _,
-  moment: moment,
+  moment: {
+    zonedTimeToUtc: (date: string, timeZone: string) => new Date(formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")),
+    utcToZonedTime: (date: string, timeZone: string) => formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  },
   // We are removing some functionalities of node-forge because they wont
   // work in the worker thread
   forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),

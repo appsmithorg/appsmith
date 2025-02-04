@@ -496,22 +496,38 @@ export const ConditionFunctions: {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   is: (a: any, b: any) => {
-    return moment(a).isSame(moment(b), "d");
+    try {
+      return isSameDay(parseISO(a), parseISO(b));
+    } catch (e) {
+      return false;
+    }
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isNot: (a: any, b: any) => {
-    return !moment(a).isSame(moment(b), "d");
+    try {
+      return !isSameDay(parseISO(a), parseISO(b));
+    } catch (e) {
+      return false;
+    }
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isAfter: (a: any, b: any) => {
-    return !moment(a).isAfter(moment(b), "d");
+    try {
+      return isAfter(parseISO(a), parseISO(b));
+    } catch (e) {
+      return false;
+    }
   },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isBefore: (a: any, b: any) => {
-    return !moment(a).isBefore(moment(b), "d");
+    try {
+      return isBefore(parseISO(a), parseISO(b));
+    } catch (e) {
+      return false;
+    }
   },
 };
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Text, Button } from "@appsmith/ads";
 import { getAppsmithConfigs } from "ee/configs";
 import { APPSMITH_DISPLAY_VERSION, createMessage } from "ee/constants/messages";
-import moment from "moment";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -116,7 +116,7 @@ function HelpMenu(props: {
             )}
           </StyledText>
           <StyledText color="var(--ads-v2-color-fg-muted)" kind={"action-s"}>
-            Released {moment(appVersion.releaseDate).fromNow()}
+            Released {formatDistanceToNow(parseISO(appVersion.releaseDate), { addSuffix: true })}
           </StyledText>
         </HelpFooter>
       )}

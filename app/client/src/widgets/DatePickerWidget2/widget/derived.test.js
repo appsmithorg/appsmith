@@ -1,5 +1,5 @@
 import derivedProperty from "./derived";
-import moment from "moment";
+import { parseISO, format } from "date-fns";
 import _ from "lodash";
 
 describe("Validates Derived Properties", () => {

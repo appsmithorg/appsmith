@@ -1,5 +1,5 @@
 import log from "loglevel";
-import moment from "moment";
+import { addHours, formatISO, isAfter, parseISO } from "date-fns";
 import localforage from "localforage";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -50,7 +50,7 @@ const store = localforage.createInstance({
 });
 
 export const resetAuthExpiration = () => {
-  const expireBy = moment().add(1, "h").format();
+  const expireBy = formatISO(addHours(new Date(), 1));
 
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
     log.error("Unable to set expiration time");
@@ -63,7 +63,7 @@ export const hasAuthExpired = async () => {
     STORAGE_KEYS.AUTH_EXPIRATION,
   );
 
-  if (expireBy && moment().isAfter(moment(expireBy))) {
+  if (expireBy && isAfter(new Date(), parseISO(expireBy))) {
     return true;
   }
 

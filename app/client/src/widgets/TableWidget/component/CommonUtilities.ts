@@ -31,13 +31,17 @@ export function sortTableFunction(
                 ? 1
                 : -1;
           case ColumnTypes.DATE:
-            return sortOrder
-              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
-                ? 1
-                : -1
-              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-                ? 1
-                : -1;
+            try {
+              return sortOrder
+                ? isAfter(parseISO(a[sortedColumn]), parseISO(b[sortedColumn]))
+                  ? 1
+                  : -1
+                : isAfter(parseISO(b[sortedColumn]), parseISO(a[sortedColumn]))
+                  ? 1
+                  : -1;
+            } catch (e) {
+              return 0;
+            }
           default:
             return sortOrder
               ? a[sortedColumn].toString().toUpperCase() >

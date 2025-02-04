@@ -14,7 +14,7 @@ import _, {
   uniq,
 } from "lodash";
 
-import moment from "moment";
+import { isValid, parseISO, formatISO } from "date-fns";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
@@ -1086,7 +1086,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    let isValid = false;
+    let dateIsValid = false;
     let parsed = value;
     let message = { name: "", message: "" };
 
@@ -1094,33 +1094,32 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed = config.params?.default;
 
       if (config.params?.required) {
-        isValid = false;
+        dateIsValid = false;
         message = {
           name: "TypeError",
           message: `Value does not match: ${getExpectedType(config)}`,
         };
       } else {
-        isValid = true;
+        dateIsValid = true;
       }
-    } else if (typeof value === "object" && moment(value).isValid()) {
-      //Date and moment object
-      isValid = true;
-      parsed = moment(value).toISOString(true);
+    } else if (value instanceof Date) {
+      dateIsValid = isValid(value);
+      if (dateIsValid) {
+        parsed = formatISO(value);
+      }
     } else if (isString(value)) {
-      //Date string
-      if (
-        value === moment(value).toISOString() ||
-        value === moment(value).toISOString(true)
-      ) {
-        return {
-          isValid: true,
-          parsed: value,
-        };
-      } else if (moment(value).isValid()) {
-        isValid = true;
-        parsed = moment(value).toISOString(true);
+      const parsedDate = parseISO(value);
+      if (isValid(parsedDate)) {
+        if (value === formatISO(parsedDate)) {
+          return {
+            isValid: true,
+            parsed: value,
+          };
+        }
+        dateIsValid = true;
+        parsed = formatISO(parsedDate);
       } else {
-        isValid = false;
+        dateIsValid = false;
         message = {
           name: "TypeError",
           message: `Value does not match: ${getExpectedType(config)}`,
@@ -1128,7 +1127,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         parsed = config.params?.default;
       }
     } else {
-      isValid = false;
+      dateIsValid = false;
       message = {
         name: "TypeError",
         message: `Value does not match: ${getExpectedType(config)}`,
@@ -1136,7 +1135,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     const result: ValidationResponse = {
-      isValid,
+      isValid: dateIsValid,
       parsed,
     };
 
@@ -1166,17 +1165,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
         const fnBody = `const fn = ${config.params?.fnString};
-        return fn(value, props, _, moment, propertyPath, config);`;
+        return fn(value, props, _, propertyPath, config);`;
 
         const result = new Function(
           "value",
           "props",
           "_",
-          "moment",
           "propertyPath",
           "config",
           fnBody,
-        )(value, props, self._, self.moment, propertyPath, config);
+        )(value, props, self._, propertyPath, config);
 
         return result;
       } catch (e) {

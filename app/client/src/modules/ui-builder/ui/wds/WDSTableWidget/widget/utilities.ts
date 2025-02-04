@@ -20,7 +20,7 @@ import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { dateFormatOptions } from "WidgetProvider/constants";
-import moment from "moment";
+import { format, parse, isValid } from "date-fns";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
 import type React from "react";
@@ -529,8 +529,8 @@ export const getColumnType = (
     case "boolean":
       return ColumnTypes.CHECKBOX;
     case "string":
-      return dateFormatOptions.some(({ value: format }) =>
-        moment(columnValue as string, format, true).isValid(),
+      return dateFormatOptions.some(({ value: dateFormat }) =>
+        isValid(parse(columnValue as string, dateFormat, new Date())),
       )
         ? ColumnTypes.DATE
         : ColumnTypes.TEXT;

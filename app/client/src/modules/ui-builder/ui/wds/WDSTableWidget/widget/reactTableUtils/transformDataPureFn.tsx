@@ -1,7 +1,6 @@
 import log from "loglevel";
-import type { MomentInput } from "moment";
-import moment from "moment";
 import _, { isNumber, isNil, isArray } from "lodash";
+import { format, parse, isValid } from "date-fns";
 import type { EditableCell } from "../../constants";
 import { ColumnTypes, DateInputFormat } from "../../constants";
 import type { ReactTableColumnProps } from "../../component/Constants";
@@ -44,7 +43,7 @@ export const transformDataPureFn = (
                   type !== DateInputFormat.MILLISECONDS
                 ) {
                   inputFormat = type;
-                  moment(value as MomentInput, inputFormat);
+                  parse(value as string, inputFormat, new Date());
                 } else if (!isNumber(value)) {
                   isValidDate = false;
                 }
@@ -65,10 +64,10 @@ export const transformDataPureFn = (
                     value = 1000 * Number(value);
                   }
 
-                  newRow[alias] = moment(
-                    value as MomentInput,
-                    inputFormat,
-                  ).format(outputFormat);
+                  const parsedDate = inputFormat 
+                    ? parse(value as string, inputFormat, new Date())
+                    : new Date(value as number);
+                  newRow[alias] = format(parsedDate, outputFormat);
                 } catch (e) {
                   log.debug("Unable to parse Date:", { e });
                   newRow[alias] = "";

@@ -1,8 +1,8 @@
-import moment from "moment";
+import { parseISO, format } from "date-fns";
 import derived from "./derived";
 
 describe("isValid function", () => {
-  const mockMoment = (date: string) => moment(date);
+  const mockMoment = (date: string) => parseISO(date);
 
   it("should return true when isDirty is false", () => {
     const props = { isDirty: false };

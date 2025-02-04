@@ -1,4 +1,4 @@
-import moment from "moment";
+import { parseISO, format, parse } from "date-fns";
 import { DateFormatOptions } from "../widget/constants";
 import { parseDate } from "./utils";
 
@@ -7,9 +7,9 @@ describe("DatePickerWidget", () => {
     const testDate = new Date(2000000000000); // let's enter into the future
 
     DateFormatOptions.forEach((format) => {
-      const testDateStr = moment(testDate).format(format.value);
+      const testDateStr = format(testDate, format.value);
       const parsedDate = parseDate(testDateStr, format.value);
-      const receivedDate = moment(testDateStr, format.value).toDate();
+      const receivedDate = parse(testDateStr, format.value, new Date());
 
       expect(parsedDate.getFullYear()).toBe(receivedDate.getFullYear());
       expect(parsedDate.getUTCMonth()).toBe(receivedDate.getUTCMonth());
