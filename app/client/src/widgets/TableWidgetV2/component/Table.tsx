@@ -134,6 +134,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  isInfiniteScroll: boolean;
 }
 
 const defaultColumn = {
@@ -446,7 +447,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={
-            props.isLoading
+            props.isLoading && (!props.isInfiniteScroll || !props.data?.length)
               ? Classes.SKELETON
               : shouldUseVirtual
                 ? "tableWrap virtual"
