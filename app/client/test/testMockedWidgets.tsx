@@ -1,7 +1,7 @@
 import { APP_MODE } from "entities/App";
 import AppViewerPageContainer from "pages/AppViewer/AppViewerPageContainer";
 import Canvas from "pages/Editor/Canvas";
-import IDE from "pages/Editor/IDE";
+import AppIDE from "pages/AppIDE";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
@@ -21,5 +21,5 @@ export function UpdateAppViewer({ dsl }: { dsl: unknown }) {
 export function UpdatedEditor({ dsl }: { dsl: unknown }) {
   const hasLoaded = useMockDsl(dsl, APP_MODE.EDIT);
 
-  return hasLoaded ? <IDE /> : null;
+  return hasLoaded ? <AppIDE /> : null;
 }

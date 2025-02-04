@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
 import { CANVAS_VIEW_MODE_TOOLTIP, createMessage } from "ee/constants/messages";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
+import { useCurrentAppState } from "pages/AppIDE/hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 
 /**

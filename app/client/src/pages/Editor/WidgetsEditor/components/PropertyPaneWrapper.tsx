@@ -1,6 +1,6 @@
 import React from "react";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
-import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
+import { CreateNewQueryModal } from "pages/AppIDE/RightPane/components/CreateNewQueryModal";
 
 /**
  * PropertyPaneWrapper

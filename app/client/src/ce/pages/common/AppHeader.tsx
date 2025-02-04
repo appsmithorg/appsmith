@@ -19,7 +19,7 @@ import {
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
 import type { RouteComponentProps } from "react-router";
-import { Header as AppIDEHeader } from "pages/Editor/IDE/Header";
+import { Header as AppIDEHeader } from "pages/AppIDE/Header";
 
 export type Props = RouteComponentProps;
 

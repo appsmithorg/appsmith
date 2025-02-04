@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import PaneHeader from "../IDE/LeftPane/PaneHeader";
+import PaneHeader from "pages/AppIDE/LeftPane/PaneHeader";
 
 type EditorSettingsPaneContainerProps = React.PropsWithChildren<{
   title: string;

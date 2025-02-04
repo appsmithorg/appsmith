@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "ee/reducers";
-import IDE from "./IDE";
+import IDE from "../AppIDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,

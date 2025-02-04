@@ -15,8 +15,8 @@ import {
   queryListURL,
 } from "ee/RouteBuilder";
 import type { EntityItem } from "ee/entities/IDE/constants";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
+import { getQueryEntityItemUrl } from "ee/pages/AppIDE/EditorPane/Query/utils/getQueryEntityItemUrl";
+import { getJSEntityItemUrl } from "ee/pages/AppIDE/EditorPane/JS/utils/getJSEntityItemUrl";
 import log from "loglevel";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
