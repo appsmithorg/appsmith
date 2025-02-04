@@ -80,20 +80,23 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
+  loadMore: () => void;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
-    const { pageSize, rows } = props;
+    const { rows } = props;
     const isItemLoaded = (index: number) => index < rows.length;
-    const INFINITE_SCROLL_PADDING = 20;
+    const TOTAL_ITEM_COUNT = 517; // static value for poc, this should come from total record count
 
     return (
       <div className="simplebar-content-wrapper">
         <InfiniteLoader
           isItemLoaded={isItemLoaded}
-          itemCount={Math.max(rows.length, pageSize) + INFINITE_SCROLL_PADDING}
-          loadMoreItems={() => {}}
+          itemCount={TOTAL_ITEM_COUNT}
+          loadMoreItems={() => {
+            props.loadMore();
+          }}
           threshold={3} // Load more items when the user is within 3 rows of the end
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
@@ -105,9 +108,7 @@ const TableVirtualBodyComponent = React.forwardRef(
                 2 * props.tableSizes.VERTICAL_PADDING
               }
               innerElementType={props.innerElementType}
-              itemCount={
-                Math.max(rows.length, pageSize) + INFINITE_SCROLL_PADDING
-              }
+              itemCount={TOTAL_ITEM_COUNT}
               itemData={rows}
               itemSize={props.tableSizes.ROW_HEIGHT}
               onItemsRendered={onItemsRendered}

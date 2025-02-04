@@ -474,6 +474,7 @@ export function Table(props: TableProps) {
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
                 multiRowSelection={props?.multiRowSelection}
+                nextPageClick={props.nextPageClick}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
@@ -511,6 +512,7 @@ export function Table(props: TableProps) {
                 isAddRowInProgress={props.isAddRowInProgress}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMore={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}

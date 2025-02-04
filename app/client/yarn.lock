@@ -13405,7 +13405,7 @@ __metadata:
     react-test-renderer: ^16.11.0
     react-timer-hook: ^3.0.4
     react-use-gesture: ^7.0.4
-    react-virtuoso: ^4.5.0
+    react-virtuoso: ^4.12.3
     react-webcam: ^7.0.1
     react-window: ^1.8.6
     react-window-infinite-loader: ^1.0.10
@@ -29861,13 +29861,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "react-virtuoso@npm:4.5.0"
+"react-virtuoso@npm:^4.12.3":
+  version: 4.12.3
+  resolution: "react-virtuoso@npm:4.12.3"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: 5de22196428e318a0a1454cfcd8d73a1495a19471a895b2d943a86c80a5d9d3ab3637ef81c1612c270a1f362285403d3d2a918da7ec40e3c4aecbe0b28f77776
+  checksum: 1ca208e2d8279dbd9928995b46de016b6702f2a65e92a0eeaf9efa1522bb960b64ae2788a5e7b51f7d7528ba9f82fef5a2d1806bff3e61e37ea18b7b7944ede1
   languageName: node
   linkType: hard
 
