@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, Menu, MenuTrigger } from "@appsmith/ads";
+import { Button, Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import { useToggle } from "@mantine/hooks";
 import { usePluginActionContext } from "../../PluginActionContext";
-import * as Styled from "./styles";
 
 interface Props {
   menuContent: React.ReactNode;
@@ -23,9 +22,9 @@ export function PluginActionContextMenu(props: Props) {
           startIcon="more-2-fill"
         />
       </MenuTrigger>
-      <Styled.MenuContent key={action.id} loop width="204px">
+      <MenuContent key={action.id} loop width="204px">
         {props.menuContent}
-      </Styled.MenuContent>
+      </MenuContent>
     </Menu>
   );
 }

@@ -14,7 +14,6 @@ import PluginActionSettings from "./PluginActionSettings";
 import { PluginActionContextMenu } from "./PluginActionContextMenu";
 
 interface PluginActionToolbarProps {
-  key: string;
   runOptions?: React.ReactNode;
   children?: React.ReactNode[] | React.ReactNode;
   menuContent?: React.ReactNode[] | React.ReactNode;
