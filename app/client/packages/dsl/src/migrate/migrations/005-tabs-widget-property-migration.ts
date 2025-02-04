@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import isString from "lodash/isString";
+import { isString } from "lodash";
 import log from "loglevel";
 import type { DSLWidget } from "../types";
 
