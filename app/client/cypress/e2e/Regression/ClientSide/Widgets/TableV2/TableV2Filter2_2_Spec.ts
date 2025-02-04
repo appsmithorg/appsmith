@@ -36,8 +36,9 @@ describe(
       //cy.verifyDownload("Table1.csv")
       table.ValidateDownloadNVerify("Table1.csv", "Michael Lawson");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("Table1.xlsx", "Michael Lawson");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("Table1.xlsx", "Michael Lawson");
     });
 
     it("2. Verify Searched data - download csv and download Excel", function () {
@@ -51,16 +52,18 @@ describe(
       //cy.verifyDownload("Table1.csv")
       table.ValidateDownloadNVerify("Table1.csv", "byron.fields@reqres.in");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");
 
       table.RemoveSearchTextNVerify("2381224", "v2");
 
       table.DownloadFromTable("Download as CSV");
       table.ValidateDownloadNVerify("Table1.csv", "2736212");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("Table1.xlsx", "Beef steak");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("Table1.xlsx", "Beef steak");
     });
 
     it("3. Verify Filtered data - download csv and download Excel", function () {
@@ -75,8 +78,9 @@ describe(
       //cy.verifyDownload("Table1.csv")
       table.ValidateDownloadNVerify("Table1.csv", "Beef steak");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("Table1.xlsx", "tobias.funke@reqres.in");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("Table1.xlsx", "tobias.funke@reqres.in");
 
       agHelper.GetNClick(table._filterBtn);
       table.RemoveFilterNVerify("2381224", true, false, 0, "v2");
@@ -84,8 +88,9 @@ describe(
       table.DownloadFromTable("Download as CSV");
       table.ValidateDownloadNVerify("Table1.csv", "Tuna Salad");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("Table1.xlsx", "Avocado Panini");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("Table1.xlsx", "Avocado Panini");
     });
 
     it("4. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
