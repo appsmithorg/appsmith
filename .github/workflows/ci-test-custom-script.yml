@@ -28,7 +28,7 @@ on:
         description: TestEventDriver image tag
         required: false
         type: string
-        default: latest
+        default: nightly
 
 jobs:
   ci-test:
