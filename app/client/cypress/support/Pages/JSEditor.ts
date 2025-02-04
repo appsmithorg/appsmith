@@ -55,8 +55,8 @@ export class JSEditor {
   private _onPageLoadSwitchStatus = (functionName: string) =>
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
 
-  private _jsObjName = ".editor-tab.active > .ads-v2-text";
-  public _jsObjTxt = ".editor-tab.active > .ads-v2-text input";
+  private _jsObjName = ".editor-tab.active .ads-v2-text";
+  public _jsObjTxt = ".editor-tab.active .ads-v2-text input";
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
