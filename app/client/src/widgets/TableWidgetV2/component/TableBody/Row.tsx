@@ -5,7 +5,11 @@ import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
-import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
+import {
+  MULTISELECT_CHECKBOX_WIDTH,
+  StickyType,
+  TABLE_SIZES,
+} from "../Constants";
 
 interface RowType {
   className?: string;
@@ -44,6 +48,7 @@ export function Row(props: RowType) {
 
     if (!element || !row) return;
     const cellIndexesWithAllowCellWrapping: number[] = [];
+    const cellIndexesWithHTMLCell: number[] = [0];
     try {
       // @ts-ignore
       row.cells.forEach((cell: any, index: number) => {
@@ -55,7 +60,8 @@ export function Row(props: RowType) {
 
     // Get all child elements
     const children = element.children;
-    let totalHeight = 0;
+    let normalCellHeight = 0;
+    let htmlCellHeight = 0;
 
     cellIndexesWithAllowCellWrapping.forEach((index: number) => {
       const child = children[index] as HTMLElement;
@@ -64,7 +70,7 @@ export function Row(props: RowType) {
       );
       if (dynamicContent) {
         const styles = window.getComputedStyle(dynamicContent);
-        totalHeight +=
+        normalCellHeight +=
           (dynamicContent as HTMLElement).offsetHeight +
           parseFloat(styles.marginTop) +
           parseFloat(styles.marginBottom) +
@@ -73,10 +79,27 @@ export function Row(props: RowType) {
       }
     });
 
+    cellIndexesWithHTMLCell.forEach((index: number) => {
+      const child = children[index] as HTMLElement;
+      const dynamicContent = child.querySelector(
+        '[data-testid="t--table-widget-v2-html-cell"]>span',
+      );
+      if (dynamicContent) {
+        const styles = window.getComputedStyle(dynamicContent);
+        htmlCellHeight +=
+          (dynamicContent as HTMLElement).offsetHeight +
+          parseFloat(styles.marginTop) +
+          parseFloat(styles.marginBottom) +
+          parseFloat(styles.paddingTop) * 2 +
+          parseFloat(styles.paddingBottom) * 2;
+      }
+    });
     // Add padding of the container
     const styles = window.getComputedStyle(element);
-    totalHeight +=
-      parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+
+    const totalHeight =
+      Math.max(normalCellHeight, htmlCellHeight) +
+      TABLE_SIZES.DEFAULT.VERTICAL_PADDING * 2;
     rowHeights.current && (rowHeights.current[index] = totalHeight);
     rowNeedsMeasurement.current && (rowNeedsMeasurement.current[index] = false);
     listRef && listRef.current?.resetAfterIndex(index);

@@ -335,11 +335,11 @@ export function Table(props: TableProps) {
    * Right now all HTML content is dynamic height in nature hence
    * for server paginated tables it needs this extra handling.
    */
-  const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) => column.metaProperties?.type === ColumnTypes.HTML,
-    );
+  const shouldUseVirtual = true;
+  // props.serverSidePaginationEnabled &&
+  // !props.columns.some(
+  //   (column) => column.metaProperties?.type === ColumnTypes.HTML,
+  // );
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
