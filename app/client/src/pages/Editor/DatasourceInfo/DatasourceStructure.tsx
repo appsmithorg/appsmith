@@ -16,7 +16,6 @@ import {
   Button,
   Tooltip,
   MenuContent,
-  List,
   ListItem,
 } from "@appsmith/ads";
 import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
@@ -29,6 +28,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import history from "utils/history";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { Virtuoso } from "react-virtuoso";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -52,10 +52,6 @@ const StructureWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   height: 100%;
-`;
-
-const StyledList = styled(List)`
-  padding: 0;
 `;
 
 const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
@@ -170,18 +166,26 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
 };
 
 const DatasourceStructure = (props: DatasourceStructureProps) => {
+  const Row = (index: number) => {
+    const structure = props.tables[index];
+
+    return (
+      <DatasourceStructureItem
+        {...omit(props, ["tables"])}
+        dbStructure={structure}
+        key={`${props.datasourceId}${structure.name}-${props.context}`}
+        showTemplates={props.showTemplates}
+      />
+    );
+  };
+
   return (
     <StructureWrapper>
-      <StyledList className="t--schema-virtuoso-container">
-        {props.tables.map((dbStructure) => (
-          <DatasourceStructureItem
-            {...omit(props, ["tables"])}
-            dbStructure={dbStructure}
-            key={`${props.datasourceId}${dbStructure.name}-${props.context}`}
-            showTemplates={props.showTemplates}
-          />
-        ))}
-      </StyledList>
+      <Virtuoso
+        className="t--schema-virtuoso-container"
+        itemContent={Row}
+        totalCount={props.tables.length}
+      />
     </StructureWrapper>
   );
 };
