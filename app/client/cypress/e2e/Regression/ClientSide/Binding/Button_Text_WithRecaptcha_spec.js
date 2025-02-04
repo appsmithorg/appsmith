@@ -98,7 +98,9 @@ describe(
         "reCAPTCHA v2",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.ValidateToastMessage("Google reCAPTCHA token generation failed!");
+      _.agHelper.ValidateToastMessage(
+        "Google reCAPTCHA token generation failed!",
+      );
       _.agHelper.WaitUntilAllToastsDisappear();
     });
 
