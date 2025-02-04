@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { Button } from "..";
+import { Button } from "../Button";
 
 export const animatedLeftBorder = (showLeftBorder: boolean) => css`
   transition: border-color 0.5s ease;

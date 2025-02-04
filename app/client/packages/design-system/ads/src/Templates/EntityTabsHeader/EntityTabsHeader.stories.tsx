@@ -3,10 +3,14 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useBoolean } from "usehooks-ts";
 
-import { DismissibleTab } from "../..";
+import { DismissibleTab } from "../../DismissibleTab";
 
-import { EntityTabsHeader, EntityListButton, ToggleScreenModeButton } from ".";
-import { EntityTabBar } from "./EntityTabsHeader";
+import {
+  EntityTabBar,
+  EntityTabsHeader,
+  EntityListButton,
+  ToggleScreenModeButton,
+} from "./EntityTabsHeader";
 
 const meta: Meta<typeof EntityTabsHeader> = {
   title: "ADS/Templates/Entity Tabs Header",

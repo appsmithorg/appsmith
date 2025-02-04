@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { Button as ADSButton } from "..";
+import { Button as ADSButton } from "../Button";
 
 export const Tab = styled.div`
   position: relative;

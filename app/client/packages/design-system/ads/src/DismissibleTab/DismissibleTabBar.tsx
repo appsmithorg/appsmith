@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
 import clsx from "clsx";
 
-import { Spinner, ScrollArea } from "..";
+import { Spinner } from "../Spinner";
+import { ScrollArea } from "../ScrollArea";
 
 import * as Styled from "./DismissibleTabBar.styles";
 import type { DismissibleTabBarProps } from "./DismissibleTabBar.types";

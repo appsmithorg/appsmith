@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Button } from "../..";
-import { DismissibleTabBar } from "../..";
+import { Button } from "../../Button";
+import { DismissibleTabBar } from "../../DismissibleTab";
 
 export const Root = styled.div`
   display: flex;

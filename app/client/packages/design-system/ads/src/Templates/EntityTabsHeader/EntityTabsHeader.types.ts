@@ -1,9 +1,8 @@
 import type { ReactElement, ReactNode } from "react";
-import type {
-  ToggleButtonProps,
-  ButtonProps,
-  DismissibleTabBarProps,
-} from "../..";
+
+import type { DismissibleTabBarProps } from "../../DismissibleTab";
+import type { ToggleButtonProps } from "../../ToggleButton";
+import type { ButtonProps } from "../../Button";
 
 export type EntityListButtonProps = Omit<ToggleButtonProps, "icon" | "size">;
 

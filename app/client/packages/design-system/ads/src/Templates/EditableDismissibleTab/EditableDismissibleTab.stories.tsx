@@ -2,8 +2,8 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { EditableDismissibleTab } from ".";
-import { Icon } from "../..";
+import { EditableDismissibleTab } from "./EditableDismissibleTab";
+import { Icon } from "../../Icon";
 
 const meta: Meta<typeof EditableDismissibleTab> = {
   title: "ADS/Templates/Editable Dismissible Tab",

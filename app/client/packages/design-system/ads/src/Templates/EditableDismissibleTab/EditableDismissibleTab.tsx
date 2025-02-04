@@ -2,8 +2,8 @@ import React from "react";
 import { noop } from "lodash";
 import { useBoolean } from "usehooks-ts";
 
-import { DismissibleTab } from "../..";
-import { EditableEntityName } from "..";
+import { DismissibleTab } from "../../DismissibleTab";
+import { EditableEntityName } from "../EditableEntityName";
 
 import type { EditableDismissibleTabProps } from "./EditableDismissibleTab.types";
 
