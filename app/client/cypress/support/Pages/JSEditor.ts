@@ -36,7 +36,8 @@ export class JSEditor {
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
-  public listOfJsObjects = "[data-testid='t--tabs-container']>div>span";
+  public listOfJsDismissibleTabs =
+    "[data-testid='t--tabs-container'] .editor-tab";
 
   public toolbar = new PluginEditorToolbar(
     this.runButtonLocator,
@@ -55,8 +56,8 @@ export class JSEditor {
   private _onPageLoadSwitchStatus = (functionName: string) =>
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
 
-  private _jsObjName = ".editor-tab.active .ads-v2-text";
-  public _jsObjTxt = ".editor-tab.active .ads-v2-text input";
+  private _jsObjName = this.locator._activeEntityTab;
+  public _jsObjTxt = this.locator._activeEntityTabInput;
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
