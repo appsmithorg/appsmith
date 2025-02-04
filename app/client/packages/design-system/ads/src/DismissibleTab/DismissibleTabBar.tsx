@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
+import clsx from "clsx";
 
 import { Spinner, ScrollArea } from "..";
 
@@ -14,12 +15,12 @@ export const SCROLL_AREA_OPTIONS = {
 } as const;
 
 const SCROLL_AREA_STYLE = {
-  height: 34,
-  top: 1,
+  height: 32,
 };
 
 export const DismissibleTabBar = ({
   children,
+  className,
   disableAdd = false,
   hideAdd = false,
   isAddingNewTab,
@@ -87,7 +88,10 @@ export const DismissibleTabBar = ({
   );
 
   return (
-    <Styled.Root $showLeftBorder={isLeftIntersecting}>
+    <Styled.Root
+      $showLeftBorder={isLeftIntersecting}
+      className={clsx(className)}
+    >
       <ScrollArea
         data-testid="t--editor-tabs"
         options={SCROLL_AREA_OPTIONS}

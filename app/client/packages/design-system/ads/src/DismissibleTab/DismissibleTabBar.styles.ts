@@ -16,10 +16,11 @@ export const Root = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow-x: hidden;
   white-space: nowrap;
   position: relative;
-  height: 32px;
+  max-height: 32px;
+  min-height: 32px;
 
   ${({ $showLeftBorder }) => animatedLeftBorder($showLeftBorder ?? false)};
 `;
@@ -28,7 +29,6 @@ export const TabsContainer = styled.div`
   display: flex;
   flex: 1 0 auto;
   align-items: center;
-  gap: var(--ads-v2-spaces-2);
   height: 100%;
 `;
 
@@ -42,7 +42,7 @@ export const PlusButtonContainer = styled.div<{ $showLeftBorder?: boolean }>`
   right: 0;
   border: none;
   min-width: 32px;
-  height: 100%;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;

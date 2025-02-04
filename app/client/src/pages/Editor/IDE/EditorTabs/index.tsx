@@ -4,9 +4,9 @@ import { useEventCallback } from "usehooks-ts";
 import { useLocation } from "react-router";
 
 import {
-  DismissibleTabBar,
   EntityTabsHeader,
   EntityListButton,
+  EntityTabBar,
 } from "@appsmith/ads";
 
 import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
@@ -99,7 +99,7 @@ const EditorTabs = () => {
           />
         )}
 
-        <DismissibleTabBar
+        <EntityTabBar
           hideAdd={hideAdd}
           isAddingNewTab={isJSLoading}
           onTabAdd={addClickHandler}
@@ -129,7 +129,7 @@ const EditorTabs = () => {
             newTabClickCallback={handleNewTabClick}
             onClose={closeClickHandler}
           />
-        </DismissibleTabBar>
+        </EntityTabBar>
         <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
       </EntityTabsHeader>
 

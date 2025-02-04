@@ -6,6 +6,7 @@ export interface DismissibleTabBarProps {
     | React.ReactElement<DismissibleTabProps>
     | React.ReactElement<DismissibleTabProps>[]
     | React.ReactNode;
+  className?: string;
   disableAdd?: boolean;
   hideAdd?: boolean;
   isAddingNewTab?: boolean;

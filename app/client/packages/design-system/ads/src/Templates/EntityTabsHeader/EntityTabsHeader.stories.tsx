@@ -3,9 +3,10 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useBoolean } from "usehooks-ts";
 
-import { DismissibleTab, DismissibleTabBar } from "../..";
+import { DismissibleTab } from "../..";
 
 import { EntityTabsHeader, EntityListButton, ToggleScreenModeButton } from ".";
+import { EntityTabBar } from "./EntityTabsHeader";
 
 const meta: Meta<typeof EntityTabsHeader> = {
   title: "ADS/Templates/Entity Tabs Header",
@@ -25,7 +26,7 @@ const Template = ({ width }: Args) => {
     <div style={{ width }}>
       <EntityTabsHeader>
         <EntityListButton onClick={console.log} />
-        <DismissibleTabBar onTabAdd={console.log}>
+        <EntityTabBar onTabAdd={console.log}>
           <DismissibleTab onClick={console.log} onClose={console.log}>
             One
           </DismissibleTab>
@@ -41,7 +42,7 @@ const Template = ({ width }: Args) => {
           <DismissibleTab onClick={console.log} onClose={console.log}>
             Five
           </DismissibleTab>
-        </DismissibleTabBar>
+        </EntityTabBar>
         <ToggleScreenModeButton
           isInSplitScreenMode={isInSplitScreenMode}
           onClick={toggle}
