@@ -38,6 +38,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
   scrollContainerStyles: any;
   useVirtual: boolean;
   loadMore: () => void;
+  isLoading: boolean;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
@@ -60,6 +61,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           height={props.height}
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
+          isLoading={props.isLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
           loadMore={props.loadMore}
