@@ -9,7 +9,8 @@ export const Tab = styled.div`
   justify-content: center;
   flex-shrink: 0;
   gap: var(--ads-v2-spaces-2);
-  height: 100%;
+  min-height: 32px;
+  max-height: 32px;
   font-size: 12px;
   color: var(--ads-v2-color-fg);
   cursor: pointer;
