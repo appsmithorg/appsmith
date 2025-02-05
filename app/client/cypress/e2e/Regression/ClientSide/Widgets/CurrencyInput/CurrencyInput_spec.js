@@ -30,8 +30,7 @@ describe(
       cy.get(".t--property-control-currency").click();
       cy.openSelectDropdown(".t--property-control-currency");
       cy.searchSelectDropdown("usd");
- 
-      cy.selectDropdownValue("USD - US Dollar");
+      cy.selectDropdownValue(".t--property-control-currency", "USD - US Dollar");
 
       function enterAndTest(text, expected) {
         cy.get(widgetInput).clear();
@@ -53,8 +52,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("1");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "1");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -67,8 +65,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("2");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "2");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -94,7 +91,7 @@ describe(
       cy.openPropertyPane(widgetName);
       cy.openSelectDropdown(".t--property-control-allowcurrencychange");
       cy.searchSelectDropdown("gbp");
-      cy.selectDropdownValue("GBP - British Pound");
+      cy.selectDropdownValue(".t--property-control-allowcurrencychange", "GBP - British Pound");
       enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       cy.get(".t--input-currency-change").should("contain", "£");
@@ -102,8 +99,7 @@ describe(
 
     it("3. should accept 0 decimal option", () => {
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("0");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "0");
       cy.closePropertyPane();
       cy.wait(500);
       cy.openPropertyPane(widgetName);
@@ -140,8 +136,7 @@ describe(
         `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}`,
       );
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("0");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "0");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -156,8 +151,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("1");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "1");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
         ["100", "100:100"],
@@ -171,8 +165,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("2");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "2");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
         ["100", "100:100"],
@@ -206,8 +199,7 @@ describe(
       }
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("0");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "0");
 
       [
         //[input, expected]
@@ -223,8 +215,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("1");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "1");
       [
         //[input, expected]
         ["100", "100"],
@@ -241,8 +232,7 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-decimalsallowed");
-      cy.selectDropdownValue("2");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed", "2");
       [
         //[input, expected]
         ["100", "100"],

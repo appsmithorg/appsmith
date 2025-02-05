@@ -87,10 +87,16 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 });
 
 Cypress.Commands.add("openSelectDropdown", (element) => {
+  const isDropdownAlreadyOpen = document.querySelector(`${element} .rc-select-open`);
+
+  if (isDropdownAlreadyOpen) return;
+
   cy.get(`${element} .rc-select-selection-search-input`).last().scrollIntoView().click({ force: true });
 });
 
-Cypress.Commands.add("selectDropdownValue", (value) => {
+Cypress.Commands.add("selectDropdownValue", (element, value) => {
+  cy.openSelectDropdown(element);
+
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)

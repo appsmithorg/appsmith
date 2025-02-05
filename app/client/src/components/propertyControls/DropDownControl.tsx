@@ -122,6 +122,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
+          dropdownClassName={
+            this.props.label
+              ? `t--property-control-${this.props.label.split(" ").join("").toLowerCase()}__select-dropdown`
+              : ""
+          }
           isMultiSelect={this.props.isMultiSelect}
           isValid={!errors.length}
           onDeselect={this.onDeselect}
