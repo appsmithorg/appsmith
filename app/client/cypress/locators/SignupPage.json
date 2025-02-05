@@ -6,5 +6,6 @@
   "useCaseGroupButton": "[data-testid='t--user-use-case'] button",
   "dropdownOption": ".rc-select-item-option:first",
   "getStartedSubmit": ".t--get-started-button",
-  "forgetPasswordLink": "[href='/user/forgotPassword']"
+  "forgetPasswordLink": "[href='/user/forgotPassword']",
+  "signupLink": ".t--signup-link"
 }
