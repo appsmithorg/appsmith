@@ -1,11 +1,20 @@
+import Fuse from "fuse.js";
+
+const searchConfig = {
+  keys: ["name"],
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  distance: 100,
+};
+
 export function filterSearch(
   list: { name: string }[],
   searchString: string = "",
 ) {
-  const regex = new RegExp(
-    `.*?${[...searchString].map((c) => `(${c})`).join(".*?")}.*?`,
-    "i",
-  );
+  if (searchString.length === 0) return list;
 
-  return list.filter((item) => regex.test(item.name.toLocaleLowerCase()));
+  const fusesearch = new Fuse(list, searchConfig);
+
+  return fusesearch.search(searchString);
 }
