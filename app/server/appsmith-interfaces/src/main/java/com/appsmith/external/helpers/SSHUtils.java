@@ -15,6 +15,7 @@ import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.schmizz.sshj.userauth.method.AuthPublickey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +29,9 @@ import java.security.Security;
 import static com.appsmith.external.constants.ConnectionMethod.CONNECTION_METHOD_SSH;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_PORT_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.INVALID_SSH_KEY_FORMAT_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.SSH_CONNECTION_FAILED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.SSH_KEY_PARSING_ERROR_MSG;
 import static java.lang.Math.toIntExact;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -43,6 +46,9 @@ public class SSHUtils {
     static Object monitor = new Object(); // monitor object to be used for synchronization lock
     public static final int RANDOM_FREE_PORT_NUM = 0; // using port 0 indicates `bind` method to acquire random free
     // port
+    private static final String PKCS_1_PEM_HEADER = "BEGIN RSA PRIVATE KEY";
+    private static final String PKCS_8_PEM_HEADER = "BEGIN PRIVATE KEY";
+    private static final String OPENSSH_PEM_HEADER = "BEGIN OPENSSH PRIVATE KEY";
 
     /**
      * Create SSH tunnel and return the relevant connection context.
@@ -71,38 +77,54 @@ public class SSHUtils {
 
         client.connect(sshHost, sshPort);
         Reader targetReader = new InputStreamReader(new ByteArrayInputStream(key.getDecodedContent()));
-        KeyProvider keyFile;
-        String keyContent = null;
-        try (Reader reader = new StringReader(new String(key.getDecodedContent(), StandardCharsets.UTF_8))) {
-            keyContent = reader.toString();
-
-            if (keyContent.contains("BEGIN OPENSSH PRIVATE KEY")) {
+        String keyContent;
+        KeyProvider keyFile = null;
+        try (Reader reader = new StringReader(new String(key.getDecodedContent(), StandardCharsets.UTF_8));
+                BufferedReader bufferedReader = new BufferedReader(reader)) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            keyContent = sb.toString();
+        } catch (IOException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    SSH_KEY_PARSING_ERROR_MSG + e.getMessage(),
+                    e);
+        }
+        try {
+            if (keyContent.contains(OPENSSH_PEM_HEADER)) {
                 // Use BouncyCastle to handle OpenSSH keys
-                Security.addProvider(new BouncyCastleProvider());
+                if (Security.getProvider("BC") == null) {
+                    Security.addProvider(new BouncyCastleProvider());
+                }
                 OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
-                openSSHKeyFile.init(reader);
+                openSSHKeyFile.init(new StringReader(keyContent));
                 keyFile = openSSHKeyFile;
-            } else if (keyContent.contains("BEGIN PRIVATE KEY") || keyContent.contains("BEGIN RSA PRIVATE KEY")) {
+            } else if (keyContent.contains(PKCS_8_PEM_HEADER) || keyContent.contains(PKCS_1_PEM_HEADER)) {
                 // Handle PEM (PKCS#8) and RSA PEM formats
                 PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
-                pkcs8KeyFile.init(reader);
+                pkcs8KeyFile.init(new StringReader(keyContent));
                 keyFile = pkcs8KeyFile;
             } else {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Invalid SSH key format. Only OpenSSH and PEM (PKCS#8) formats are supported.");
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, INVALID_SSH_KEY_FORMAT_ERROR_MSG);
             }
-
-            // Authenticate using the detected key format
-            client.auth(sshUsername, new AuthPublickey(keyFile));
-
-        } finally {
-            // Clear sensitive data from memory
-            if (keyContent != null) {
-                keyContent = null;
-                System.gc();
-            }
+        } catch (Exception e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    SSH_KEY_PARSING_ERROR_MSG + e.getMessage(),
+                    e);
         }
+
+        if (keyFile == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, INVALID_SSH_KEY_FORMAT_ERROR_MSG);
+        }
+
+        // Authenticate using the detected key format
+        client.auth(sshUsername, new AuthPublickey(keyFile));
 
         final ServerSocket serverSocket = new ServerSocket();
         final Parameters params = new Parameters(LOCALHOST, RANDOM_FREE_PORT_NUM, dbHost, dbPort);
