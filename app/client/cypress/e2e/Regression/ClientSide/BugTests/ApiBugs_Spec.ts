@@ -121,7 +121,10 @@ describe(
         dataSources._addSuggestedExisting,
       );
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.ValidatePropertyFieldValue("Table data", "{{ARRAY_RESPONSE.data}}");
+      propPane.ValidatePropertyFieldValue(
+        "Table data",
+        "{{OBJECT_RESPONSE.data.users}}",
+      );
     });
   },
 );
