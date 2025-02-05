@@ -46,14 +46,6 @@ describe(
         "placeholder",
         "xy12345.ap-south-1.aws",
       );
-      // agHelper.ClearNType(datasource.datasourceConfigUrl, dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_accountName);
-      // agHelper.ClearNType(dataSources._dsConfigProperties(0), dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_warehouseName);
-      // agHelper.ClearNType(dataSources._dsConfigProperties(1), dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_databaseName);
-      // agHelper.ClearNType(dataSources._dsConfigProperties(2), dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_defaultSchema);
-      // agHelper.ClearNType(dataSources._dsConfigProperties(3), dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_role);
-      // agHelper.AssertContains("Basic", "exist", dataSources._dsConfigAuthType);
-      // agHelper.ClearNType(dataSources._username, dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_username);
-      // agHelper.ClearNType(dataSources._password, dataManager.dsValues[dataManager.defaultEnviorment].Snowflake_password);
 
       // Fill out the Snowflake configuration form and test/save the datasource
       dataSources.FillSnowflakeDSForm();
@@ -148,7 +140,7 @@ describe(
       dataSources.DeleteDatasourceFromWithinDS(myDsName, 200);
     });
 
-    it("5. Vlidate the user can create new queries from the datasource section in response tab", () => {
+    it("5. Validate the user can create new queries from the datasource section in response tab", () => {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Snowflake");
       dataSources.FillSnowflakeDSForm();
@@ -213,7 +205,6 @@ describe(
 
       // Visit the documentation link
       agHelper.GetNClick(locators._contextMenuInPane);
-      //cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as("getDatasourceStructure");
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-snowflake-db#querying-snowflake",
@@ -227,7 +218,6 @@ describe(
       agHelper.GetNAssertContains(locators._dsName, "Untitled datasource 2");
       agHelper.AssertElementVisibility(dataSources._datasourceCard, true);
       dataSources.FillSnowflakeDSForm(undefined, undefined, "wrongpassword");
-      //agHelper.ClearNType(dataSources._password, "wrongpassword");
       dataSources.TestDatasource(false);
     });
   },
