@@ -237,6 +237,7 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  background-color: var(--select-option-color-bg);
 }
 
 .ads-v2-select__dropdown .rc-virtual-list {
@@ -336,7 +337,13 @@
   .rc-select-item.rc-select-item-option.rc-select-item-option-active {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
   outline: none;
-  background-color: var(--select-option-color-bg) !important;
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
+}
+
+/* selected */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }
 
 /* Option focus */
