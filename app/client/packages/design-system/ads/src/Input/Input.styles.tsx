@@ -164,7 +164,7 @@ export const StyledInput = styled.input<{
     renderer === "input" &&
     css`
       padding-left: calc((var(--input-padding-x) * 2) + var(--icon-size) - 1px);
-    `};
+    `}
 
   /* adjust padding end according to icon present or not */
   ${({ hasEndIcon, renderer }) =>
@@ -174,20 +174,13 @@ export const StyledInput = styled.input<{
       padding-right: calc(
         (var(--input-padding-x) * 2) + var(--icon-size) - 1px
       );
-    `};
-
-  &:focus:enabled:not(:read-only) {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
-  }
+    `}
 
   &:hover:enabled:not(:read-only) {
     --input-color-border: var(--ads-v2-colors-control-field-hover-border);
   }
 
-  &:active:enabled:not(:read-only),
-  &:focus:enabled:not(:read-only) {
+  &:active:enabled:not(:read-only) {
     --input-color-border: var(--ads-v2-colors-control-field-active-border);
   }
 
@@ -203,10 +196,15 @@ export const StyledInput = styled.input<{
       --input-color-border: var(--ads-v2-colors-control-field-error-border);
     }
 
-    &:active:enabled:not(:read-only),
-    &:focus:enabled:not(:read-only) {
+    &:active:enabled:not(:read-only) {
       --input-color-border: var(--ads-v2-colors-control-field-error-border);
     }
+  }
+
+  &:focus {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 `;
 

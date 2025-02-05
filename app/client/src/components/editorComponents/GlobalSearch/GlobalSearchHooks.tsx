@@ -24,7 +24,7 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { type Plugin, PluginType } from "entities/Plugin";
+import { type Plugin, PluginType, UIComponentTypes } from "entities/Plugin";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -313,7 +313,9 @@ export const updateActionOperations = (
   actionOps: ActionOperation[],
 ) => {
   const restApiPlugin = plugins.find(
-    (plugin) => plugin.type === PluginType.API,
+    (plugin) =>
+      plugin.type === PluginType.API &&
+      plugin.uiComponent === UIComponentTypes.ApiEditorForm,
   );
   const newApiActionIdx = actionOps.findIndex(
     (op) => op.title === "New blank API",

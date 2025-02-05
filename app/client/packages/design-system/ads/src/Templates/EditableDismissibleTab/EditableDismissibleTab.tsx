@@ -9,6 +9,7 @@ import type { EditableDismissibleTabProps } from "./EditableDismissibleTab.types
 
 export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
   const {
+    canEdit,
     dataTestId,
     icon,
     isActive,
@@ -38,6 +39,7 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
       onDoubleClick={handleDoubleClick}
     >
       <EditableEntityName
+        canEdit={canEdit}
         icon={icon}
         isEditing={isEditing}
         isLoading={isLoading}

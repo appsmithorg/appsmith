@@ -1083,7 +1083,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             actionDTO.getName(),
                             "datasource",
                             Map.of("name", datasourceStorage.getName()),
-                            "orgId",
+                            "workspaceId",
                             application.getWorkspaceId(),
                             "appId",
                             actionDTO.getApplicationId(),

@@ -1,19 +1,17 @@
 import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
-import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
+import { Button, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
-import { PluginType } from "../../entities/Plugin";
-import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { usePluginActionContext } from "../PluginActionContext";
 import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
 } from "../hooks";
-import { useToggle } from "@mantine/hooks";
 import { useSelector } from "react-redux";
 import { isActionRunning } from "../store";
 import PluginActionSettings from "./PluginActionSettings";
+import { PluginActionContextMenu } from "./PluginActionContextMenu";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -22,21 +20,16 @@ interface PluginActionToolbarProps {
 }
 
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
-  const { action, plugin } = usePluginActionContext();
+  const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
   const { callRunActionAnalytics } = useAnalyticsOnRunClick();
-  const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const blockExecution = useBlockExecution();
   const isRunning = useSelector(isActionRunning(action.id));
-  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const onRunClick = useCallback(() => {
-    const isSkipOpeningDebugger =
-      isAnvilEnabled && plugin.type === PluginType.AI;
-
     callRunActionAnalytics();
-    handleRunClick(isSkipOpeningDebugger);
-  }, [callRunActionAnalytics, handleRunClick, isAnvilEnabled, plugin.type]);
+    handleRunClick();
+  }, [callRunActionAnalytics, handleRunClick]);
 
   return (
     <IDEToolbar>
@@ -60,25 +53,12 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           </Button>
         </Tooltip>
         <PluginActionSettings />
-        <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
-          <MenuTrigger>
-            <Button
-              data-testid="t--more-action-trigger"
-              isIconButton
-              kind="tertiary"
-              size="sm"
-              startIcon="more-2-fill"
-            />
-          </MenuTrigger>
-          <MenuContent
+        {props.menuContent ? (
+          <PluginActionContextMenu
             key={action.id}
-            loop
-            style={{ zIndex: 100 }}
-            width="204px"
-          >
-            {props.menuContent}
-          </MenuContent>
-        </Menu>
+            menuContent={props.menuContent}
+          />
+        ) : null}
       </IDEToolbar.Right>
     </IDEToolbar>
   );
