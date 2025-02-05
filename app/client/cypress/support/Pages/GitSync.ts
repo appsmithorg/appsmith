@@ -72,7 +72,7 @@ export class GitSync {
     opsPullBtn: "[data-testid='t--git-ops-pull-btn']",
     opsMergeBranchSelect: "[data-testid='t--git-ops-merge-branch-select']",
     opsMergeBranchSelectMenu:
-      "[data-testid='t--git-ops-merge-branch-select'] .rc-select-arrow",
+      "[data-testid='t--git-ops-merge-branch-select'] .rc-select-selection-search-input",
     opsMergeLoader: "[data-testid='t--git-ops-merge-loader']",
     opsMergeStatus: "[data-testid='t--git-ops-merge-status']",
     opsMergeBtn: "[data-testid='t--git-ops-merge-button']",
