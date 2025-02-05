@@ -287,6 +287,7 @@ export class GitSync {
     toUseNewGuid = false,
     assertCreateBranch = true,
   ) {
+    this.agHelper.WaitUntilEleDisappear(this.commonLocators._btnSpinner);
     this.agHelper.AssertElementVisibility(this.locators.quickActionsPullBtn);
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this.locators.quickActionsCommitBtn);
