@@ -106,6 +106,7 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       border-radius: var(--ads-v2-border-radius);
       /* ${(props) =>
+        props.showFocusVisible &&
         props.isFocused &&
         `outline: ${
           props?.removeHoverAndFocusStyle
@@ -402,13 +403,17 @@ export const EditorWrapper = styled.div<{
       }
     }
 
-    &:focus-visible {
-      .CodeMirror.cm-s-duotone-light {
-        outline: var(--ads-v2-border-width-outline) solid
-          var(--ads-v2-color-outline);
-        outline-offset: -1px;
+    ${(props) =>
+      props.showFocusVisible &&
+      `
+      &:focus-visible {
+        .CodeMirror.cm-s-duotone-light {
+          outline: var(--ads-v2-border-width-outline) solid
+            var(--ads-v2-color-outline);
+          outline-offset: -1px;
+        }
       }
-    }
+    `}
 
     ${(props) =>
       props.size === EditorSize.COMPACT ||
