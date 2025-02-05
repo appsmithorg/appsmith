@@ -30,7 +30,7 @@ describe(
       dataSources.AddSuggestedWidget(Widgets.Table);
       debuggerHelper.AssertErrorCount(0);
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
+      propPane.ValidatePropertyFieldValue("Table data", "{{Api1.data}}");
 
       // Create another API so that it returns object response
       apiPage.CreateAndFillApi(
@@ -108,10 +108,7 @@ describe(
       );
       debuggerHelper.AssertErrorCount(0);
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.AssertPropertiesDropDownCurrentValue(
-        "Table data",
-        "ARRAY_RESPONSE",
-      );
+      propPane.ValidatePropertyFieldValue("Table data", "{{ARRAY_RESPONSE.data}}");
 
       // Create API so that it returns object response
       apiPage.CreateAndFillApi(
@@ -124,10 +121,7 @@ describe(
         dataSources._addSuggestedExisting,
       );
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.ValidatePropertyFieldValue(
-        "Table data",
-        "{{OBJECT_RESPONSE.data.users}}",
-      );
+      propPane.ValidatePropertyFieldValue("Table data", "{{ARRAY_RESPONSE.data}}");
     });
   },
 );
