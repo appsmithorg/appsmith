@@ -28,11 +28,13 @@ const AddTab = ({
 
   if (segmentMode !== EditorEntityTabState.Add) return null;
 
-  const content = `New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`;
+  const segmentName = segment === EditorEntityTab.JS ? "JS" : "Query";
+  const content = `New ${segmentName}`;
+  const dataTestId = `t--ide-tab-new_${segmentName.toLowerCase()}`;
 
   return (
     <DismissibleTab
-      dataTestId="t--ide-tab-new_query"
+      dataTestId={dataTestId}
       isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
       onClose={onCloseClick}
