@@ -38,6 +38,10 @@ import type { MultipleFilePickerControlProps } from "components/formControls/Mul
 import type { RadioButtonControlProps } from "components/formControls/RadioButtonControl";
 import RadioButtonControl from "components/formControls/RadioButtonControl";
 import { RagIntegrations } from "ee/components/formControls/Rag";
+import {
+  SliderControl,
+  type SliderControlProps,
+} from "components/formControls/SliderControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -199,6 +203,11 @@ class FormControlRegistry {
         },
       },
     );
+    FormControlFactory.registerControlBuilder(formControlTypes.SLIDER, {
+      buildPropertyControl(controlProps: SliderControlProps): JSX.Element {
+        return <SliderControl {...controlProps} />;
+      },
+    });
   }
 }
 
