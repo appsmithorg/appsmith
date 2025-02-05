@@ -15,20 +15,20 @@ on:
         type: number
         default: 0
       run_count:
-        description: 'Number of times to repeat the test run'
+        description: "Number of times to repeat the test run"
         required: false
         type: number
         default: 1
       update_snapshot:
-          description: 'Give option to update snapshot (true/false)'
-          required: false
-          type: boolean
-          default: false
+        description: "Give option to update snapshot (true/false)"
+        required: false
+        type: boolean
+        default: false
       specs_to_run:
-        description: 'Cypress spec file(s) to run'
+        description: "Cypress spec file(s) to run"
         required: false
         type: string
-        default: 'no_data'
+        default: "no_data"
 
   workflow_call:
     inputs:
@@ -42,20 +42,20 @@ on:
         type: number
         default: 0
       run_count:
-        description: 'Number of times to repeat the test run'
+        description: "Number of times to repeat the test run"
         required: false
         type: number
         default: 1
       update_snapshot:
-          description: 'Give option to update snapshot (true/false)'
-          required: false
-          type: boolean
-          default: false
+        description: "Give option to update snapshot (true/false)"
+        required: false
+        type: boolean
+        default: false
       specs_to_run:
-        description: 'Cypress spec file(s) to run'
+        description: "Cypress spec file(s) to run"
         required: false
         type: string
-        default: 'no_data'
+        default: "no_data"
 
 jobs:
   ci-test-limited:
@@ -132,14 +132,14 @@ jobs:
           else
             echo "rerun=false" >> $GITHUB_OUTPUT
           fi
-       
+
       - name: Upload existing snapshot data
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-existing-compare-snapshots
           path: ${{ github.workspace }}/app/client/cypress/snapshots
-          overwrite: true    
+          overwrite: true
 
       # Step to get specs from the file or use the provided specs
       - name: Get specs to run
@@ -147,7 +147,7 @@ jobs:
           ls -l
           echo "[DEBUG] Checking inputs.specs_to_run: '${{ inputs.specs_to_run }}'"
           echo "[DEBUG] Checking github.event.inputs.specs_to_run: '${{ github.event.inputs.specs_to_run }}'"
-          
+
           # Determine the source of the specs_to_run input
           if [[ -n "${{ inputs.specs_to_run }}" ]]; then
             specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
@@ -202,7 +202,6 @@ jobs:
           # Log the final specs_to_run value
           echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
-          
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
@@ -361,95 +360,98 @@ jobs:
 
       - name: Run the cypress test
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-            CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-            CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-            CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-            CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-            CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-            CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
-            CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
-            CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
-            CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
-            CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
-            CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
-            CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
-            CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
-            CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
-            CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
-            CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
-            CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
-            CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-            CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-            CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-            CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
-            CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
-            CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
-            CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
-            CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
-            CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
-            CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
-            CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
-            CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
-            CYPRESS_EXCLUDE_TAGS: "airgap"
-            CYPRESS_AIRGAPPED: false
-            APPSMITH_DISABLE_TELEMETRY: true
-            APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-            POSTGRES_PASSWORD: postgres
-            CYPRESS_VERIFY_TIMEOUT: 100000
-            COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-            RUNID: ${{ github.run_id }}
-            ATTEMPT_NUMBER: ${{ github.run_attempt }}
-            REPOSITORY: ${{ github.repository }}
-            COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
-            TAG: ${{ github.event_name }}
-            BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
-            THIS_RUNNER: ${{ strategy.job-index }}
-            TOTAL_RUNNERS: ${{ strategy.job-total }}
-            CYPRESS_SPECS: ${{ env.specs_to_run }}
-            CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
-            CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
-            CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
-            CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
-            CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
-            CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
-            CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-            CYPRESS_STATIC_ALLOCATION: true
-            NODE_ENV: development
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+          CYPRESS_VERIFY_TIMEOUT: 100000
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
+          CYPRESS_SPECS: ${{ env.specs_to_run }}
+          CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
+          SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+          SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          CYPRESS_STATIC_ALLOCATION: true
+          NODE_ENV: development
         run: |
-            cd app/client
-            if [[ "${{ inputs.update_snapshot }}" == "true" ]]; then
-              echo "Running Cypress with snapshot updates..."
-              CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
-                --spec "${{ inputs.specs_to_run }}" \
-                --config-file "cypress_ci_custom.config.ts" \
-                --browser "${{ env.BROWSER_PATH }}"
-            else
-              echo "Running Cypress tests without snapshot updates..."
-              npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
-                --spec "${{ env.specs_to_run }}" \
-                --config-file "cypress_ci_custom.config.ts" \
-                --browser "${{ env.BROWSER_PATH }}"
-            fi
-            cat cy-repeat-summary.txt
-            # Define the path for the failure flag file
-            FAILURE_FLAG_FILE="ci_test_status.txt"
+          cd app/client
+          if [[ "${{ inputs.update_snapshot }}" == "true" ]]; then
+            echo "Running Cypress with snapshot updates..."
+            CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+              --spec "${{ inputs.specs_to_run }}" \
+              --config-file "cypress_ci_custom.config.ts" \
+              --browser "${{ env.BROWSER_PATH }}"
+          else
+            echo "Running Cypress tests without snapshot updates..."
+            npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+              --spec "${{ env.specs_to_run }}" \
+              --config-file "cypress_ci_custom.config.ts" \
+              --browser "${{ env.BROWSER_PATH }}"
+          fi
+          cat cy-repeat-summary.txt
+          # Define the path for the failure flag file
+          FAILURE_FLAG_FILE="ci_test_status.txt"
 
-            # Check for test results and store the status in the file
-            if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
-                echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
-            else
-                echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
-            fi
-            cat "$FAILURE_FLAG_FILE"
+          # Check for test results and store the status in the file
+          if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
+              echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
+          else
+              echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
+          fi
+          cat "$FAILURE_FLAG_FILE"
 
       - name: Trim number of cypress log files
         if: failure()
@@ -468,9 +470,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-            name: ci_test_status
-            path: ${{ github.workspace }}/app/client/ci_test_status.txt
-            overwrite: true
+          name: ci_test_status
+          path: ${{ github.workspace }}/app/client/ci_test_status.txt
+          overwrite: true
 
       - name: Upload failed test cypress logs artifact
         if: always()
@@ -548,7 +550,7 @@ jobs:
         with:
           name: cypress-new-compare-snapshots
           path: ${{ github.workspace }}/app/client/cypress/snapshots
-          overwrite: true   
+          overwrite: true
 
       # Set status = success
       - name: Save the status of the run
