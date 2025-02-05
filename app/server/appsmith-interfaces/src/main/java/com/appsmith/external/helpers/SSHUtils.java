@@ -13,6 +13,7 @@ import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.schmizz.sshj.userauth.method.AuthPublickey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.security.Security;
 
 import static com.appsmith.external.constants.ConnectionMethod.CONNECTION_METHOD_SSH;
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
@@ -73,12 +75,13 @@ public class SSHUtils {
         String keyContent = new String(key.getDecodedContent(), StandardCharsets.UTF_8);
 
         if (keyContent.contains("BEGIN OPENSSH PRIVATE KEY")) {
-            // OpenSSH format
+            // Use BouncyCastle to handle OpenSSH keys
+            Security.addProvider(new BouncyCastleProvider());
             OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
             openSSHKeyFile.init(new StringReader(keyContent));
             keyFile = openSSHKeyFile;
         } else {
-            // PEM (PKCS#8) format
+            // Handle PEM (PKCS#8) keys
             PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
             pkcs8KeyFile.init(new StringReader(keyContent));
             keyFile = pkcs8KeyFile;
