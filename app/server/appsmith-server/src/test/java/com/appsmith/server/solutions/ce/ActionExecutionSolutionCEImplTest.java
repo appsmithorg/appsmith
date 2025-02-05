@@ -300,7 +300,7 @@ class ActionExecutionSolutionCEImplTest {
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
         mockResult.setTitle("test title");
-
+        mockResult.setPluginName("REST API");
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
         Datasource datasource = new Datasource();
