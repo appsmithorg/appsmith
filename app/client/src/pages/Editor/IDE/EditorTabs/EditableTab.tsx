@@ -63,7 +63,6 @@ export function EditableTab(props: EditableTabProps) {
 
   return (
     <EditableDismissibleTab
-      canEdit={isChangePermitted}
       dataTestId={`t--ide-tab-${sanitizeString(title)}`}
       icon={icon}
       isActive={isActive}

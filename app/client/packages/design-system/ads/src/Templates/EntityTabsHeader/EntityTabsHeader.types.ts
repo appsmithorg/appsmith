@@ -16,6 +16,7 @@ export type ToggleScreenModeButtonProps = Omit<
 type DismissibleTabBarType = ReactElement<DismissibleTabBarProps>;
 type EntityListButtonType = ReactElement<EntityListButtonProps>;
 
+/** Required for optional/conditional children. */
 type OptionalChild<T> = T | null | false;
 
 export interface EntityTabsHeaderProps {
