@@ -6,7 +6,7 @@ import welcomePage from "../../../../locators/welcomePage.json";
 const emailOne = `sagarspecSignIn1.${Math.random().toString(36).substring(2, 25)}@appsmith.com`;
 const tempPassword = "testPassword";
 
-describe("Sign in and Sign up verification", { tags: ["@tag.Visual"] }, () => {
+describe("Sign in and Sign up verification", { tags: ["@tag.SignIn"] }, () => {
   it("1. User can sign up to application with form.", () => {
     homePage.LogOutviaAPI();
     agHelper.VisitNAssert("/");
