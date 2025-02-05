@@ -16,8 +16,9 @@ import type { WorkerRequest } from "ee/workers/common/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData, Attributes } from "instrumentation/types";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type { ICacheProps } from "../common/AppComputationCache/types";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
+import type { UpdateActionProps } from "./handlers/types";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,6 +52,7 @@ export interface EvalTreeRequestData {
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
   affectedJSObjects: AffectedJSObjects;
+  actionDataPayloadConsolidated?: UpdateActionProps[];
 }
 
 export interface EvalTreeResponseData {

@@ -1,32 +1,25 @@
 import React, { useState } from "react";
-import ReactJson from "react-json-view";
 import {
+  EntityGroupsList,
   Flex,
-  List,
+  type FlexProps,
   type ListItemProps,
   SearchInput,
   Text,
 } from "@appsmith/ads";
+import { JSONViewer, Size } from "components/editorComponents/JSONViewer";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import { useStateInspectorItems } from "./hooks";
+import { useStateInspectorItems, useGetDisplayData } from "./hooks";
 import * as Styled from "./styles";
 
-export const reactJsonProps = {
-  name: null,
-  enableClipboard: false,
-  displayDataTypes: false,
-  displayArrayKey: true,
-  quotesOnKeys: false,
-  style: {
-    fontSize: "12px",
-  },
-  collapsed: 1,
-  indentWidth: 2,
-  collapseStringsAfterLength: 30,
-};
+const GroupListPadding = {
+  pl: "spaces-3",
+  pr: "spaces-3",
+} as FlexProps;
 
 export const StateInspector = () => {
-  const [selectedItem, items, selectedItemCode] = useStateInspectorItems();
+  const [selectedItem, items] = useStateInspectorItems();
+  const selectedItemCode = useGetDisplayData(selectedItem?.title || "");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm<
@@ -50,33 +43,20 @@ export const StateInspector = () => {
             value={searchTerm}
           />
         </Flex>
-        <Flex
-          flexDirection="column"
-          gap="spaces-3"
-          overflowY="auto"
-          pl="spaces-3"
-          pr="spaces-3"
-        >
-          {filteredItemGroups.map((item) => (
-            <Styled.Group
-              flexDirection="column"
-              gap="spaces-2"
-              key={item.group}
-            >
-              <Styled.GroupName
-                className="overflow-hidden overflow-ellipsis whitespace-nowrap flex-shrink-0"
-                kind="body-s"
-              >
-                {item.group}
-              </Styled.GroupName>
-              <List items={item.items} />
-            </Styled.Group>
-          ))}
-        </Flex>
+        <EntityGroupsList
+          flexProps={GroupListPadding}
+          groups={filteredItemGroups.map((item) => {
+            return {
+              groupTitle: item.group,
+              items: item.items,
+              className: "",
+            };
+          })}
+        />
       </Flex>
       {selectedItem ? (
         <Flex
-          className="mp-mask"
+          className="as-mask"
           data-testid="t--selected-entity-details"
           flex="1"
           flexDirection="column"
@@ -91,8 +71,8 @@ export const StateInspector = () => {
             {selectedItem.icon}
             <Text kind="body-m">{selectedItem.title}</Text>
           </Styled.SelectedItem>
-          <Flex overflowY="auto" px="spaces-3">
-            <ReactJson src={selectedItemCode} {...reactJsonProps} />
+          <Flex className="as-mask" overflowY="auto" px="spaces-3">
+            <JSONViewer size={Size.MEDIUM} src={selectedItemCode} />
           </Flex>
         </Flex>
       ) : null}

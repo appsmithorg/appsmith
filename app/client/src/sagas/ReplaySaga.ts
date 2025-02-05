@@ -17,7 +17,7 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
@@ -78,8 +78,7 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { startFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import { type Plugin, UIComponentTypes } from "entities/Plugin";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";

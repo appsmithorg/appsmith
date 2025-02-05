@@ -350,6 +350,9 @@ export class CommonLocators {
   _editorTab = ".editor-tab";
   _entityTestId = (entity: string) =>
     `[data-testid="t--entity-item-${entity}"]`;
+  _listItemTitle = ".ads-v2-listitem__title";
   _dropdownOption = ".rc-select-item-option-content";
   _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
+  _homeIcon = "[data-testid='t--default-home-icon']";
+  _widget = (widgetName: string) => `.t--widget-${widgetName}`;
 }

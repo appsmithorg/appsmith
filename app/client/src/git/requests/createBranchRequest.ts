@@ -6,7 +6,7 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 
-export default async function createBranchRequest(
+export default async function createBranchRequestOld(
   branchedApplicationId: string,
   params: CreateBranchRequestParams,
 ): AxiosPromise<CreateBranchResponse> {

@@ -1,20 +1,20 @@
 import { api } from "api/core";
 import type { InitConsolidatedApi } from "sagas/InitSagas";
+import type { ConsolidatedApiParams } from "./types";
+import { ConsolidatedApiUtils } from "./url";
 
-const BASE_URL = "v1/consolidated-api";
-const VIEW_URL = `${BASE_URL}/view`;
-const EDIT_URL = `${BASE_URL}/edit`;
+export const getConsolidatedPageLoadDataView = async (
+  params: ConsolidatedApiParams,
+) => {
+  const viewUrl = ConsolidatedApiUtils.getViewUrl(params);
 
-export const getConsolidatedPageLoadDataView = async (params: {
-  applicationId?: string;
-  defaultPageId?: string;
-}) => {
-  return api.get<InitConsolidatedApi>(VIEW_URL, { params });
+  return api.get<InitConsolidatedApi>(viewUrl);
 };
 
-export const getConsolidatedPageLoadDataEdit = async (params: {
-  applicationId?: string;
-  defaultPageId?: string;
-}) => {
-  return api.get<InitConsolidatedApi>(EDIT_URL, { params });
+export const getConsolidatedPageLoadDataEdit = async (
+  params: ConsolidatedApiParams,
+) => {
+  const editUrl = ConsolidatedApiUtils.getEditUrl(params);
+
+  return api.get<InitConsolidatedApi>(editUrl);
 };

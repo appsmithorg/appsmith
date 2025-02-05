@@ -18,6 +18,7 @@ import { PULSE_INTERVAL as PULSE_INTERVAL_CE } from "ce/constants/UsagePulse";
 import { PULSE_INTERVAL as PULSE_INTERVAL_EE } from "ee/constants/UsagePulse";
 import store from "store";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -26,6 +27,7 @@ class UsagePulse {
   static isTelemetryEnabled: boolean;
   static isAnonymousUser: boolean;
   static isFreePlan: boolean;
+  static isAirgapped = isAirgapped();
 
   /*
    * Function to check if the given URL is trakable or not.
@@ -143,6 +145,10 @@ class UsagePulse {
    * registers listeners to wait for the user to go to a trackable url
    */
   static async sendPulseAndScheduleNext() {
+    if (UsagePulse.isAirgapped) {
+      return;
+    }
+
     UsagePulse.sendPulse();
     UsagePulse.scheduleNextActivityListeners();
   }

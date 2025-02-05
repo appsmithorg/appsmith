@@ -17,7 +17,7 @@ import {
 import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
 import { IDE_TYPE } from "ee/entities/IDE/constants";
@@ -93,10 +93,9 @@ class FocusRetention {
     previousPath: string,
     state: AppsmithLocationState,
   ) {
-    this.updateFocusStrategy(currentPath);
-
     /* STORE THE UI STATE OF PREVIOUS URL */
     if (previousPath) {
+      this.updateFocusStrategy(previousPath);
       const toStore: Array<FocusPath> = yield call(
         this.focusStrategy.getEntitiesForStore,
         previousPath,
@@ -108,6 +107,7 @@ class FocusRetention {
       }
     }
 
+    this.updateFocusStrategy(currentPath);
     /* RESTORE THE UI STATE OF THE NEW URL */
     yield call(this.focusStrategy.waitForPathLoad, currentPath, previousPath);
     const setPaths: Array<FocusPath> = yield call(
@@ -257,6 +257,7 @@ class FocusRetention {
       return config.selector(previousURL);
     }
   }
+
   private *setState(config: FocusElementConfig, value: unknown): unknown {
     if (config.type === FocusElementConfigType.Redux) {
       yield put(config.setter(value));

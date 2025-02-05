@@ -1,6 +1,6 @@
 import type { ActionPattern } from "redux-saga/effects";
 import { call, take, select, put, actionChannel } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
@@ -33,6 +33,8 @@ import {
   doesPluginRequireDatasource,
   type ActionParentEntityTypeInterface,
 } from "ee/entities/Engine/actionHelpers";
+import type { Plugin } from "entities/Plugin";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
 import { objectKeys } from "@appsmith/utils";
 

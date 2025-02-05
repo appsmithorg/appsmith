@@ -4,10 +4,8 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import {
-  ReduxActionTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -38,27 +36,23 @@ export function* handleRouteChange(
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
-    const ideType = getIDETypeByUrl(pathname);
-    const isAnEditorPath = ideType !== IDE_TYPE.None;
+    const IDEType = getIDETypeByUrl(pathname);
 
-    // handled only on edit mode
-    if (isAnEditorPath) {
-      yield fork(
-        FocusRetention.onRouteChange.bind(FocusRetention),
-        pathname,
-        previousPath,
-        state,
-      );
+    yield fork(
+      FocusRetention.onRouteChange.bind(FocusRetention),
+      pathname,
+      previousPath,
+      state,
+    );
 
-      if (ideType === IDE_TYPE.App) {
-        yield fork(logNavigationAnalytics, action.payload);
-        yield fork(appBackgroundHandler);
-        const entityInfo = identifyEntityFromPath(pathname);
+    if (IDEType === IDE_TYPE.App) {
+      yield fork(logNavigationAnalytics, action.payload);
+      yield fork(appBackgroundHandler);
+      const entityInfo = identifyEntityFromPath(pathname);
 
-        yield fork(updateRecentEntitySaga, entityInfo);
-        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
-        yield fork(setSelectedWidgetsSaga, state?.invokedBy);
-      }
+      yield fork(updateRecentEntitySaga, entityInfo);
+      yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
+      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -147,7 +141,7 @@ function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   let widgets: string[] = [];
   let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
 
-  if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
+  if (entityInfo.entity === FocusEntity.WIDGET) {
     widgets = entityInfo.id.split(",");
 
     if (widgets.length) {

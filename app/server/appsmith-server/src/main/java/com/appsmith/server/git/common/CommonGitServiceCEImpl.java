@@ -101,8 +101,9 @@ import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_ME
 import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
 import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
-import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
-import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_STATUS;
+import static com.appsmith.external.git.constants.GitConstants.README_FILE_NAME;
+import static com.appsmith.external.git.constants.GitSpan.OPS_COMMIT;
+import static com.appsmith.external.git.constants.GitSpan.OPS_STATUS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
@@ -517,7 +518,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
                 gitArtifactMetadata.getRefName(),
-                "organizationId",
+                "workspaceId",
                 artifact.getWorkspaceId(),
                 "repoUrl",
                 gitArtifactMetadata.getRemoteUrl(),
@@ -761,7 +762,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 .flatMap(artifact -> {
                     String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                     Path readMePath = gitArtifactHelper.getRepoSuffixPath(
-                            artifact.getWorkspaceId(), baseArtifactId, repoName, "README.md");
+                            artifact.getWorkspaceId(), baseArtifactId, repoName, README_FILE_NAME);
                     try {
                         Mono<Path> readMeMono = gitArtifactHelper.intialiseReadMe(artifact, readMePath, originHeader);
                         return Mono.zip(readMeMono, currentUserMono)
@@ -2095,9 +2096,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
             analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
         }
         analyticsProps.putAll(Map.of(
-                FieldName.ORGANIZATION_ID,
-                defaultIfNull(artifact.getWorkspaceId(), ""),
-                "orgId",
+                "workspaceId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
                 "branchApplicationId",
                 defaultIfNull(artifact.getId(), ""),

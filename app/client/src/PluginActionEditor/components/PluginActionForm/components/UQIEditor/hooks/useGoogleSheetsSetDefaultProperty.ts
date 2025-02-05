@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { diff, type Diff } from "deep-diff";

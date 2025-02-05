@@ -240,8 +240,8 @@ describe("Autocomplete tests", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     agHelper.TypeText(locators._codeMirrorTextArea, "userCollection[0].");
     agHelper.GetNAssertElementText(locators._hints, "users");
     agHelper.TypeText(locators._codeMirrorTextArea, "users[0].");
-    agHelper.GetNAssertElementText(locators._hints, "label");
-    agHelper.GetNAssertElementText(locators._hints, "value", "have.text", 1);
+    agHelper.GetNAssertElementText(locators._hints, "value");
+    agHelper.GetNAssertElementText(locators._hints, "label", "have.text", 1);
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;

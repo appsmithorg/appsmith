@@ -14,9 +14,8 @@ const plugins = [];
 plugins.push(
   new WorkboxPlugin.InjectManifest({
     swSrc: "./src/serviceWorker.ts",
-    mode: "development",
+    mode: "production",
     swDest: "./pageService.js",
-    maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
     exclude: [
       // Don’t cache source maps and PWA manifests.
       // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
@@ -32,13 +31,12 @@ plugins.push(
       // one by one (as the service worker does it) keeps the network busy for a long time
       // and delays the service worker installation
       /\/*\.svg$/,
+      /\.(js|css|html|png|jpg|jpeg|gif)$/, // Exclude JS, CSS, HTML, and image files
     ],
-    // Don’t cache-bust JS and CSS chunks
-    dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
   }),
 );
 
-if (env === "PRODUCTION" || env === "STAGING") {
+if (env === "PRODUCTION") {
   plugins.push(
     new FaroSourceMapUploaderPlugin({
       appId: process.env.REACT_APP_FARO_APP_ID,
@@ -52,8 +50,6 @@ if (env === "PRODUCTION" || env === "STAGING") {
     }),
   );
 }
-
-plugins.push(new CompressionPlugin());
 
 plugins.push(
   new CompressionPlugin({
@@ -78,17 +74,16 @@ plugins.push(
 );
 
 module.exports = merge(common, {
-  webpack: {
-    configure: {
-      plugins,
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+    loaderOptions: {
+      cacheDirectory: false,
     },
   },
-  jest: {
+  webpack: {
     configure: {
-      moduleNameMapper: {
-        // Jest module mapper which will detect our absolute imports.
-        "^@test(.*)$": "<rootDir>/test$1",
-      },
+      devtool: env === "PRODUCTION" ? "source-map" : false,
+      plugins,
     },
   },
   plugins: [

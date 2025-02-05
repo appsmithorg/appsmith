@@ -1,8 +1,10 @@
 import { tailwindLayers } from "constants/Layers";
 import React from "react";
 import styled from "styled-components";
-import type { CallbackResponseType } from "utils/hooks/useResize";
-import useResize, { DIRECTION } from "utils/hooks/useResize";
+import useResize, {
+  DIRECTION,
+  type CallbackResponseType,
+} from "utils/hooks/useResize";
 
 const ResizeHandler = styled.div`
   &:hover {
@@ -33,8 +35,8 @@ export const EntityExplorerResizeHandler = ({
       onMouseDown={() => setMouseDown(true)}
     >
       <ResizeHandler
-        className={`w-full h-1 bg-transparent hover:bg-transparent transform transition
-          ${mouseDown ? "" : ""}
+        className={`w-full h-1 bg-transparent hover:bg-transparent transform transition	
+          ${mouseDown ? "" : ""}	
           `}
       />
     </div>

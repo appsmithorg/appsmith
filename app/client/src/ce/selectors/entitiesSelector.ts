@@ -15,11 +15,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import {
-  isStoredDatasource,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -32,11 +28,13 @@ import type {
   JSCollectionData,
   JSCollectionDataState,
 } from "ee/reducers/entityReducers/jsActionsReducer";
-import type {
-  DefaultPlugin,
-  GenerateCRUDEnabledPluginMap,
-  Plugin,
-} from "api/PluginApi";
+import {
+  type DefaultPlugin,
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";
@@ -66,6 +64,7 @@ import {
   EditorEntityTab,
   type EntityItem,
   type GenericEntityItem,
+  type IDEType,
 } from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
@@ -1072,9 +1071,6 @@ export const getExistingActionNames = createSelector(
   },
 );
 
-export const getEditingEntityName = (state: AppState) =>
-  state.ui.explorer.entity.editingEntityName;
-
 export const getExistingJSCollectionNames = createSelector(
   getJSCollections,
   (jsActions) =>
@@ -1673,7 +1669,7 @@ export const getQuerySegmentItems = createSelector(
       }
 
       return {
-        icon: ActionUrlIcon(iconUrl),
+        icon: ActionUrlIcon(iconUrl, "16", "16"),
         title: action.config.name,
         key: action.config.baseId,
         type: action.config.pluginType,
@@ -1706,16 +1702,17 @@ export const getSelectedTableName = (state: AppState) =>
 export const getDatasourceUsageCountForApp = createSelector(
   getActions,
   getDatasources,
-  (state: AppState, editorType: string) => editorType,
-  (actions, datasources, editorType) => {
+  (state: AppState, ideType: IDEType) => ideType,
+  (actions, datasources, ideType) => {
     const actionCount = countBy(actions, "config.datasource.id");
     const actionDsMap: Record<string, string> = {};
 
     datasources.forEach((ds) => {
-      actionDsMap[ds.id] = `No queries in this ${editorType}`;
+      actionDsMap[ds.id] = `No queries in this ${ideType.toLowerCase()}`;
     });
     Object.keys(actionCount).forEach((dsId) => {
-      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${editorType}`;
+      actionDsMap[dsId] =
+        `${actionCount[dsId]} queries in this ${ideType.toLowerCase()}`;
     });
 
     return actionDsMap;

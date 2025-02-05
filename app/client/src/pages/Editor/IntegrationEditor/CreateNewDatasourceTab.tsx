@@ -36,6 +36,8 @@ import { StyledDivider } from "./IntegrationStyledComponents";
 import CreateNewDatasourceHeader from "./CreateNewDatasourceHeader";
 import EmptySearchedPlugins from "./EmptySearchedPlugins";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+// This css file contains for the EXTERNAL_SAAS plugin modal
+import "./index.css";
 
 const NewIntegrationsContainer = styled.div<{ isOnboardingScreen?: boolean }>`
   ${thinScrollbar};

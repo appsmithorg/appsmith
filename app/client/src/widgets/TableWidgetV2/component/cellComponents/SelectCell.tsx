@@ -204,7 +204,7 @@ export const SelectCell = (props: SelectProps) => {
 
     return selectedOption
       ? selectedOption[TableSelectColumnOptionKeys.LABEL]
-      : "";
+      : value;
   }, [value, options]);
 
   if (isEditable && isCellEditable && isCellEditMode) {

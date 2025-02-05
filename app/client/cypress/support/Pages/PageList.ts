@@ -16,6 +16,7 @@ class PageList {
   };
 
   public DefaultPageName = PAGE_ENTITY_NAME + "1";
+  public numberOfPages = `.pages > .ads-v2-text`;
 
   public AddNewPage(
     option:

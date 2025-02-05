@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
@@ -27,6 +27,12 @@ const ideReducer = createImmerReducer(initialState, {
     state: IDEState,
     action: ReduxAction<{ view: EditorViewMode }>,
   ) => ({ ...state, view: action.payload.view }),
+  [ReduxActionTypes.SET_IDE_TABS]: (
+    state: IDEState,
+    action: ReduxAction<ParentEntityIDETabs>,
+  ) => {
+    set(state, "tabs", action.payload);
+  },
   [ReduxActionTypes.SET_IDE_JS_TABS]: (
     state: IDEState,
     action: ReduxAction<{ tabs: string[]; parentId: string }>,
@@ -47,8 +53,11 @@ const ideReducer = createImmerReducer(initialState, {
       action.payload.tabs,
     );
   },
-  [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
-    return klona(initialState);
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: IDEState): IDEState => {
+    return klona({
+      ...initialState,
+      tabs: state.tabs,
+    });
   },
   [ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL]: (
     state: IDEState,

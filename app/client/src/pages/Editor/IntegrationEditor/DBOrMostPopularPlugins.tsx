@@ -6,7 +6,6 @@ import {
   getPluginImages,
   getMostPopularPlugins,
 } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "ee/constants/forms";
 import {
   createDatasourceFromForm,
@@ -18,11 +17,9 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { API_ACTION } from "./APIOrSaasPlugins";
-import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@appsmith/ads";
 import {
   createMessage,
@@ -30,7 +27,7 @@ import {
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
 } from "ee/constants/messages";
-import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import { createNewApiActionBasedOnIdeType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import history from "utils/history";
 import {
@@ -41,13 +38,20 @@ import {
 } from "./IntegrationStyledComponents";
 import DatasourceItem from "./DatasourceItem";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type { Datasource } from "entities/Datasource";
 import type { AnyAction, Dispatch } from "redux";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { IDEType } from "ee/entities/IDE/constants";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -70,7 +74,7 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
 };
 
 interface DBOrMostPopularPluginsProps {
-  editorType: string;
+  ideType: IDEType;
   editorId: string;
   parentEntityId: string;
   parentEntityType: ActionParentEntityTypeInterface;
@@ -87,8 +91,8 @@ interface ReduxDispatchProps {
   initializeForm: (data: Record<string, unknown>) => void;
   createDatasource: (data: CreateDatasourceConfig & Datasource) => void;
   createTempDatasource: typeof createTempDatasourceFromForm;
-  createNewApiActionBasedOnEditorType: (
-    editorType: string,
+  createNewApiActionBasedOnIdeType: (
+    ideType: IDEType,
     editorId: string,
     parentEntityId: string,
     parentEntityType: ActionParentEntityTypeInterface,
@@ -182,14 +186,13 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
   };
 
   handleOnClick = () => {
-    const { editorId, editorType, parentEntityId, parentEntityType } =
-      this.props;
+    const { editorId, ideType, parentEntityId, parentEntityType } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source: API_ACTION.CREATE_NEW_API,
     });
-    this.props.createNewApiActionBasedOnEditorType(
-      editorType,
+    this.props.createNewApiActionBasedOnIdeType(
+      ideType,
       editorId,
       parentEntityId,
       parentEntityType,
@@ -251,9 +254,9 @@ class DBOrMostPopularPlugins extends React.Component<Props> {
 }
 
 function CreateDBOrMostPopularPlugins(props: CreateDBOrMostPopularPluginsType) {
-  const editorType = useEditorType(location.pathname);
+  const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
-    useParentEntityInfo(editorType);
+    useParentEntityInfo(ideType);
   const newDatasourceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -281,7 +284,7 @@ function CreateDBOrMostPopularPlugins(props: CreateDBOrMostPopularPluginsType) {
         <DBOrMostPopularPlugins
           {...props}
           editorId={editorId}
-          editorType={editorType}
+          ideType={ideType}
           isCreating={props.isCreating}
           location={location}
           parentEntityId={
@@ -342,16 +345,16 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
       dispatch(createDatasourceFromForm(data)),
     createTempDatasource: (data: { pluginId: string; type: PluginType }) =>
       dispatch(createTempDatasourceFromForm(data)),
-    createNewApiActionBasedOnEditorType: (
-      editorType: string,
+    createNewApiActionBasedOnIdeType: (
+      ideType: IDEType,
       editorId: string,
       parentEntityId: string,
       parentEntityType: ActionParentEntityTypeInterface,
       apiType: string,
     ) =>
       dispatch(
-        createNewApiActionBasedOnEditorType(
-          editorType,
+        createNewApiActionBasedOnIdeType(
+          ideType,
           editorId,
           parentEntityId,
           parentEntityType,

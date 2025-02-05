@@ -7,7 +7,6 @@ import type {
 } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
 import type { APP_MODE } from "entities/App";
-import type { GenericEntityItem } from "ee/entities/IDE/constants";
 
 export interface LogDebuggerErrorAnalyticsPayload {
   entityName: string;
@@ -149,9 +148,7 @@ export const showDebuggerLogs = () => {
   };
 };
 
-export const setDebuggerStateInspectorSelectedItem = (
-  payload: GenericEntityItem,
-) => {
+export const setDebuggerStateInspectorSelectedItem = (payload: string) => {
   return {
     type: ReduxActionTypes.SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM,
     payload,

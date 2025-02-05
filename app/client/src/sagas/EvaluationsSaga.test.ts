@@ -1,10 +1,14 @@
 import {
   defaultAffectedJSObjects,
+  evalAndLintingHandler,
   evalQueueBuffer,
   evaluateTreeSaga,
+  evaluationLoopWithDebounce,
+  type BUFFERED_ACTION,
 } from "./EvaluationsSaga";
 import { evalWorker } from "utils/workerInstances";
-import { expectSaga } from "redux-saga-test-plan";
+import { expectSaga, testSaga } from "redux-saga-test-plan";
+
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { select } from "redux-saga/effects";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
@@ -13,7 +17,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
 
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -76,6 +80,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: true,
         affectedJSObjects: { ids: [], isAllAffected: false },
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
@@ -121,6 +126,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: false,
         affectedJSObjects: { ids: [], isAllAffected: false },
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
@@ -175,6 +181,7 @@ describe("evaluateTreeSaga", () => {
         widgetsMeta: {},
         shouldRespondWithLogs: false,
         affectedJSObjects,
+        actionDataPayloadConsolidated: undefined,
       })
       .run();
   });
@@ -382,6 +389,139 @@ describe("evalQueueBuffer", () => {
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1"], isAllAffected: false },
       postEvalActions: [],
+    });
+  });
+});
+
+describe("evaluationLoopWithDebounce", () => {
+  describe("debounce", () => {
+    test("should call a regular evaluation with the consolidated action data payload when both updateActionData and evaluation action is triggered", async () => {
+      const buffer = evalQueueBuffer();
+
+      buffer.put(
+        updateActionData([
+          {
+            entityName: "widget1",
+            dataPath: "data",
+            data: { a: 1 },
+            dataPathRef: "",
+          },
+        ]),
+      );
+      buffer.put(
+        updateActionData([
+          {
+            entityName: "widget2",
+            dataPath: "data",
+            data: { a: 2 },
+            dataPathRef: "",
+          },
+        ]),
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      buffer.put(createJSCollectionSuccess({ id: "1" } as any));
+      const action = buffer.take();
+
+      const mockChannel = "mock-channel";
+
+      // assert that a regular evaluation is only triggered and no evalTreeWithChanges evaluation is triggered
+      return (
+        testSaga(evaluationLoopWithDebounce, mockChannel)
+          .next()
+          .take(mockChannel)
+          .next(action)
+          .call(evalAndLintingHandler, true, action, {
+            actionDataPayloadConsolidated: [
+              {
+                entityName: "widget1",
+                dataPath: "data",
+                data: { a: 1 },
+                dataPathRef: "",
+              },
+              {
+                entityName: "widget2",
+                dataPath: "data",
+                data: { a: 2 },
+                dataPathRef: "",
+              },
+            ],
+            shouldReplay: undefined,
+            forceEvaluation: false,
+            requiresLogging: undefined,
+            affectedJSObjects: { isAllAffected: false, ids: ["1"] },
+          })
+          .next()
+          // wait for the next action in the event loop
+          .take(mockChannel)
+      );
+    });
+    test("should call an evalTreeWithChanges when only updateActionData actions are triggered", async () => {
+      const buffer = evalQueueBuffer();
+
+      buffer.put(
+        updateActionData([
+          {
+            entityName: "widget1",
+            dataPath: "data",
+            data: { a: 1 },
+            dataPathRef: "",
+          },
+        ]),
+      );
+      buffer.put(
+        updateActionData([
+          {
+            entityName: "widget2",
+            dataPath: "data",
+            data: { a: 2 },
+            dataPathRef: "",
+          },
+        ]),
+      );
+      const action = buffer.take() as unknown as BUFFERED_ACTION;
+
+      const mockChannel = "mock-channel";
+
+      return (
+        testSaga(evaluationLoopWithDebounce, mockChannel)
+          .next()
+          .take(mockChannel)
+          .next(action)
+          .call(
+            evalWorker.request,
+            EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+            action.actionDataPayloadConsolidated,
+          )
+          .next()
+          // wait for the next action in the event loop
+          .take(mockChannel)
+      );
+    });
+    test("should call a regular evaluation when evaluation actions are triggered", async () => {
+      const buffer = evalQueueBuffer();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      buffer.put(createJSCollectionSuccess({ id: "1" } as any));
+
+      const action = buffer.take();
+
+      const mockChannel = "mock-channel";
+
+      return (
+        testSaga(evaluationLoopWithDebounce, mockChannel)
+          .next()
+          .take(mockChannel)
+          .next(action)
+          .call(evalAndLintingHandler, true, action, {
+            shouldReplay: undefined,
+            forceEvaluation: false,
+            requiresLogging: undefined,
+            affectedJSObjects: { isAllAffected: false, ids: ["1"] },
+          })
+          .next()
+          // wait for the next action in the event loop
+          .take(mockChannel)
+      );
     });
   });
 });

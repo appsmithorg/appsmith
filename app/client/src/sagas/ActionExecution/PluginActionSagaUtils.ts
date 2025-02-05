@@ -1,7 +1,7 @@
 import { put } from "redux-saga/effects";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import type { ActionResponse } from "api/ActionAPI";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 export function* setDefaultActionDisplayFormat(
   actionId: string,

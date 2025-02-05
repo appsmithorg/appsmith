@@ -6,7 +6,7 @@ import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { IDESidebar, Condition } from "IDE";
+import { IDESidebar, Condition } from "@appsmith/ads";
 import {
   BottomButtons,
   EditorState,

@@ -16,7 +16,7 @@ import type { AppState } from "ee/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginName } from "entities/Action";
+import { PluginName } from "entities/Plugin";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 
 interface Props {

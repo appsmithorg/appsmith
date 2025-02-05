@@ -1,12 +1,11 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { Log } from "entities/AppsmithConsole";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { klona } from "klona";
-import type { GenericEntityItem } from "ee/entities/IDE/constants";
 
 export const DefaultDebuggerContext = {
   scrollPosition: 0,
@@ -189,12 +188,12 @@ const debuggerReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM]: (
     state: DebuggerReduxState,
-    action: ReduxAction<GenericEntityItem>,
+    action: ReduxAction<string>,
   ): DebuggerReduxState => {
     return {
       ...state,
       stateInspector: {
-        selectedItem: action.payload,
+        selectedItemId: action.payload,
       },
     };
   },
@@ -212,7 +211,7 @@ export interface DebuggerReduxState {
   hideErrors: boolean;
   context: DebuggerContext;
   stateInspector: {
-    selectedItem?: GenericEntityItem;
+    selectedItemId?: string;
   };
 }
 

@@ -85,6 +85,7 @@ import {
   mergeInitAction,
   mergeSuccessAction,
   resetMergeStateAction,
+  resetMergeSuccessAction,
 } from "./actions/mergeActions";
 import {
   pollAutocommitProgressStopAction,
@@ -108,7 +109,10 @@ import {
   updateProtectedBranchesInitAction,
   updateProtectedBranchesSuccessAction,
 } from "./actions/updateProtectedBranchesActions";
-import { initGitForEditorAction } from "./actions/initGitActions";
+import {
+  initGitForEditorAction,
+  initGitForEditorSuccessAction,
+} from "./actions/initGitActions";
 import {
   fetchAutocommitProgressErrorAction,
   fetchAutocommitProgressInitAction,
@@ -142,6 +146,7 @@ export const gitArtifactSlice = createSlice({
   reducers: {
     // init
     initGitForEditor: initGitForEditorAction,
+    initGitForEditorSuccess: initGitForEditorSuccessAction,
     mount: mountAction,
     unmount: unmountAction,
     fetchMetadataInit: fetchMetadataInitAction,
@@ -188,6 +193,7 @@ export const gitArtifactSlice = createSlice({
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
     resetMergeState: resetMergeStateAction,
+    resetMergeSuccessState: resetMergeSuccessAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,

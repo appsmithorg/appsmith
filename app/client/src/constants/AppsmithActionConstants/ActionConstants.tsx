@@ -1,6 +1,6 @@
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { ActionResponse } from "api/ActionAPI";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
@@ -26,6 +26,7 @@ export interface TriggerSource {
   isJSAction?: boolean;
   actionId?: string;
 }
+
 export enum TriggerKind {
   EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
@@ -34,9 +35,7 @@ export enum TriggerKind {
 export interface ExecuteTriggerPayload {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  callbackData?: Array<any>;
+  callbackData?: Array<unknown>;
   triggerPropertyName?: string;
   source?: TriggerSource;
   widgetId?: string;

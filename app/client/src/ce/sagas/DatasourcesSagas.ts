@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { all, call, fork, put, select, take } from "redux-saga/effects";
 import {
   change,
@@ -13,7 +12,7 @@ import type {
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -89,6 +88,7 @@ import {
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { setIdeEditorViewMode } from "../../actions/ideActions";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { createActionRequestSaga } from "../../sagas/ActionSagas";
 import { validateResponse } from "../../sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -118,11 +118,16 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { type Action, PluginPackageName, PluginType } from "entities/Action";
+import { type Action } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Plugin";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   klonaLiteWithTelemetry,
@@ -538,6 +543,9 @@ export function* updateDatasourceSaga(
       getPluginPackageFromDatasourceId,
       datasourcePayload?.id,
     );
+    const isAnvilEnabled: boolean = yield select(
+      getIsAnvilEnabledInCurrentApplication,
+    );
 
     // when clicking save button, it should be changed as configured
     set(datasourceStoragePayload, `isConfigured`, true);
@@ -667,7 +675,14 @@ export function* updateDatasourceSaga(
       // or update initial values as the next form open will be from the reconnect modal itself
       if (!datasourcePayload.isInsideReconnectModal) {
         // Don't redirect to view mode if the plugin is google sheets
-        if (pluginPackageName !== PluginPackageName.GOOGLE_SHEETS) {
+        // Also don't redirect to view mode if anvil is enabled and plugin is APPSMITH_AI
+        if (
+          pluginPackageName !== PluginPackageName.GOOGLE_SHEETS &&
+          !(
+            isAnvilEnabled &&
+            pluginPackageName === PluginPackageName.APPSMITH_AI
+          )
+        ) {
           yield put(
             setDatasourceViewMode({
               datasourceId: response.data.id,

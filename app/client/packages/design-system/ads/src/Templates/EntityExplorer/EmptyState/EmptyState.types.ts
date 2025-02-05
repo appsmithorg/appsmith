@@ -1,4 +1,5 @@
-import { type IconNames, type ButtonKind } from "../../..";
+import type { IconNames } from "../../../Icon";
+import type { ButtonKind } from "../../../Button";
 
 export interface EmptyStateProps {
   icon: IconNames;

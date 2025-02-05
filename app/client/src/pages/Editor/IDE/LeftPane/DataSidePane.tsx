@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Flex, List, Text } from "@appsmith/ads";
+import { EntityGroupsList, Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getDatasourceUsageCountForApp,
@@ -21,7 +21,6 @@ import {
   DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "ee/constants/messages";
 import PaneHeader from "./PaneHeader";
-import { useEditorType } from "ee/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -31,20 +30,17 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
   height: calc(100vh - 120px);
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 const DatasourceIcon = styled.img`
   height: 16px;
   width: 16px;
-`;
-
-const StyledList = styled(List)`
-  gap: 0;
 `;
 
 interface DataSidePaneProps {
@@ -55,7 +51,6 @@ interface DataSidePaneProps {
 
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
-  const editorType = useEditorType(history.location.pathname);
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
@@ -64,12 +59,12 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const dsUsageMap = useSelector((state) => dsUsageSelector(state, editorType));
+  const location = useLocation();
+  const ideType = getIDETypeByUrl(location.pathname);
+  const dsUsageMap = useSelector((state) => dsUsageSelector(state, ideType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
-
-  const location = useLocation();
 
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
@@ -128,30 +123,15 @@ const DataSidePane = (props: DataSidePaneProps) => {
             icon={"datasource-v3"}
           />
         ) : null}
-        <Flex
-          flexDirection={"column"}
-          gap="spaces-4"
-          overflowY="auto"
-          px="spaces-3"
-        >
-          {Object.entries(groupedDatasources).map(([key, value]) => (
-            <Flex flexDirection={"column"} key={key}>
-              <Flex px="spaces-3" py="spaces-1">
-                <Text
-                  className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-                  kind="body-s"
-                >
-                  {key}
-                </Text>
-              </Flex>
-              <StyledList
-                items={value.map((data) => ({
-                  className: "t--datasource",
+        <EntityGroupsList
+          flexProps={{ px: "spaces-3" }}
+          groups={Object.entries(groupedDatasources).map(([key, value]) => {
+            return {
+              groupTitle: key,
+              items: value.map((data) => {
+                return {
+                  id: data.id,
                   title: data.name,
-                  onClick: () => goToDatasource(data.id),
-                  description: get(dsUsageMap, data.id, ""),
-                  descriptionType: "block",
-                  isSelected: currentSelectedDatasource === data.id,
                   startIcon: (
                     <DatasourceIcon
                       src={getAssetUrl(
@@ -159,11 +139,17 @@ const DataSidePane = (props: DataSidePaneProps) => {
                       )}
                     />
                   ),
-                }))}
-              />
-            </Flex>
-          ))}
-        </Flex>
+                  description: get(dsUsageMap, data.id, ""),
+                  descriptionType: "block",
+                  className: "t--datasource",
+                  isSelected: currentSelectedDatasource === data.id,
+                  onClick: () => goToDatasource(data.id),
+                };
+              }),
+              className: "",
+            };
+          })}
+        />
       </PaneBody>
     </Flex>
   );

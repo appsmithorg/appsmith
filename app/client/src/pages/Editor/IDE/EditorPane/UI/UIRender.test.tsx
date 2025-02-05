@@ -13,10 +13,6 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
-
 const pageId = "0123456789abcdef00000000";
 
 describe("IDE URL rendering: UI", () => {
@@ -32,7 +28,6 @@ describe("IDE URL rendering: UI", () => {
       </Route>,
       {
         url: `/app/applicationSlug/pageSlug-${pageId}/edit`,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
@@ -52,7 +47,6 @@ describe("IDE URL rendering: UI", () => {
       </Route>,
       {
         url: `/app/applicationSlug/pageSlug-${pageId}/edit/widgets`,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
@@ -101,7 +95,6 @@ describe("IDE URL rendering: UI", () => {
       </Route>,
       {
         url,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
@@ -126,7 +119,6 @@ describe("IDE URL rendering: UI", () => {
       </Route>,
       {
         url: `/app/applicationSlug/pageSlug-${pageId}/edit`,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );

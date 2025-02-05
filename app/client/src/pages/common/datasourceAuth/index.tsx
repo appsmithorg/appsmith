@@ -17,6 +17,7 @@ import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CANCEL,
+  CONNECT_DATASOURCE_BUTTON_TEXT,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
@@ -36,7 +37,7 @@ import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
-import type { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -86,6 +87,7 @@ export enum DatasourceButtonTypeEnum {
   TEST = "TEST",
   CANCEL = "CANCEL",
   SAVE_AND_AUTHORIZE = "SAVE_AND_AUTHORIZE",
+  CONNECT_DATASOURCE = "CONNECT_DATASOURCE",
 }
 
 export const DatasourceButtonType: Record<
@@ -96,6 +98,7 @@ export const DatasourceButtonType: Record<
   TEST: "TEST",
   CANCEL: "CANCEL",
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
+  CONNECT_DATASOURCE: "CONNECT_DATASOURCE",
 };
 
 export const ActionButton = styled(Button)<{
@@ -333,7 +336,7 @@ function DatasourceAuth({
         updateDatasource(
           getSanitizedFormData(),
           currentEnvironment,
-          pluginType
+          pluginType && pluginType !== PluginType.EXTERNAL_SAAS
             ? redirectAuthorizationCode(
                 parentEntityId,
                 datasourceId,
@@ -347,7 +350,7 @@ function DatasourceAuth({
 
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
       dsName: datasource?.name,
-      orgId: datasource?.workspaceId,
+      workspaceId: datasource?.workspaceId,
       pluginName: pluginName,
       scopeValue: scopeValue,
     });
@@ -436,6 +439,18 @@ function DatasourceAuth({
           size="md"
         >
           {createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
+        </Button>
+      ),
+      [DatasourceButtonType.CONNECT_DATASOURCE]: (
+        <Button
+          className="t--edit-external-saas"
+          isDisabled={!canManageDatasource}
+          isLoading={isSaving}
+          key={buttonType}
+          onClick={handleOauthDatasourceSave}
+          size="md"
+        >
+          {createMessage(CONNECT_DATASOURCE_BUTTON_TEXT)}
         </Button>
       ),
     }[buttonType];

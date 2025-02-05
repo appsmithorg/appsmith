@@ -1,5 +1,5 @@
 import type { AppState } from "ee/reducers";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -400,11 +400,13 @@ export function* fetchPublishedPageResourcesSaga(
   action: ReduxAction<FetchPublishedPageResourcesPayload>,
 ) {
   try {
-    const { basePageId, pageId } = action.payload;
+    const { basePageId, branch: branchName, pageId } = action.payload;
 
-    const params = { defaultPageId: basePageId };
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
-      yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+      yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView({
+        defaultPageId: basePageId,
+        branchName,
+      });
 
     const isValidResponse: boolean = yield validateResponse(
       initConsolidatedApiResponse,

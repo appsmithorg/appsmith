@@ -4,9 +4,6 @@ public class FieldNameCE {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
 
-    @Deprecated
-    public static final String ORGANIZATION_ID = "organizationId";
-
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String DATASOURCE_ID = "datasourceId";
     public static final String DELETED = "deleted";
@@ -206,4 +203,5 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
+    public static final String NONE = "none";
 }

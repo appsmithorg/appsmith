@@ -81,7 +81,7 @@ describe("AppIDEFocusStrategy", () => {
       ]);
     });
 
-    it("adds editor state entry if the appState or pageId", async () => {
+    it("adds page state entry if the appState or pageId", async () => {
       const state = getIDETestState({ branch: "main" });
       const appStateChangeResult = await runSaga(
         {
@@ -96,11 +96,11 @@ describe("AppIDEFocusStrategy", () => {
       expect(appStateChangeResult).toContainEqual({
         entityInfo: {
           appState: "EDITOR",
-          entity: "EDITOR",
-          id: `EDITOR.${basePageId1}`,
+          entity: "PAGE",
+          id: `PAGE.${basePageId1}`,
           params: {},
         },
-        key: `EDITOR_STATE.${basePageId1}#main`,
+        key: `PAGE.${basePageId1}#main`,
       });
 
       const pageIdChangeResult = await runSaga(
@@ -116,11 +116,11 @@ describe("AppIDEFocusStrategy", () => {
       expect(pageIdChangeResult).toContainEqual({
         entityInfo: {
           appState: "EDITOR",
-          entity: "EDITOR",
-          id: `EDITOR.${basePageId2}`,
+          entity: "PAGE",
+          id: `PAGE.${basePageId2}`,
           params: {},
         },
-        key: `EDITOR_STATE.${basePageId2}#main`,
+        key: `PAGE.${basePageId2}#main`,
       });
     });
 
@@ -177,7 +177,7 @@ describe("AppIDEFocusStrategy", () => {
       });
     });
 
-    it("if user is in editor, it will store the editor state", async () => {
+    it("if user is in editor, it will store the page state", async () => {
       const result = await runSaga(
         {
           getState: () => state,
@@ -190,9 +190,9 @@ describe("AppIDEFocusStrategy", () => {
       expect(result).toContainEqual({
         entityInfo: expect.objectContaining({
           appState: "EDITOR",
-          entity: "EDITOR",
+          entity: "PAGE",
         }),
-        key: `EDITOR_STATE.${basePageId1}#main`,
+        key: `PAGE.${basePageId1}#main`,
       });
     });
 

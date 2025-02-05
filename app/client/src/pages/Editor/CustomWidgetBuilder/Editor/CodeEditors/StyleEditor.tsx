@@ -41,6 +41,7 @@ export function TitleControls() {
             "--appsmith-theme-backgroundColor",
             "--appsmith-theme-borderRadius",
             "--appsmith-theme-boxShadow",
+            "--appsmith-theme-fontFamily",
           ])
       : [];
   }, [model]);

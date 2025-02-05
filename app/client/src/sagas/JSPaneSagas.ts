@@ -8,7 +8,7 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -62,7 +62,7 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -95,7 +95,6 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "ee/utils/analyticsHelpers";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
@@ -208,6 +207,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+
+      // Initialize actions array if undefined
+      if (!jsActionTobeUpdated.actions) {
+        jsActionTobeUpdated.actions = [];
+      }
+
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
 
       if (data.nameChangedActions.length) {
@@ -866,11 +871,7 @@ function* handleCreateNewJSFromActionCreator(
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
   // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Create the JS Object with the given function name
   const pageId: string = yield select(getCurrentPageId);

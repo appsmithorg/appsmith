@@ -54,7 +54,24 @@ describe("emptyChartData", () => {
   };
 
   describe("font family", () => {
-    expect(ChartWidget.fontFamily).toEqual("Nunito Sans");
+    it("Does not use any font family as a fallback", () => {
+      const widget = new ChartWidget(defaultProps);
+      const view = widget.renderChartWithData();
+
+      expect(view.props.children.props.fontFamily).toEqual("fontfamily");
+
+      const propsWithoutFont: ChartWidgetProps = {
+        ...defaultProps,
+        fontFamily: undefined as unknown as string,
+      };
+      const viewWithoutFont = new ChartWidget(
+        propsWithoutFont,
+      ).renderChartWithData();
+
+      expect(viewWithoutFont.props.children.props.fontFamily).toEqual(
+        undefined,
+      );
+    });
   });
 
   describe("when chart type is basic ECharts", () => {

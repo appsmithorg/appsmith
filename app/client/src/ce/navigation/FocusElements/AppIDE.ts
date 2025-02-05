@@ -1,18 +1,12 @@
 import {
-  setAllEntityCollapsibleStates,
-  setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
-  setExplorerSwitchIndex,
   setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 import {
-  getAllEntityCollapsibleStates,
   getAllPropertySectionState,
-  getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
-  getExplorerSwitchIndex,
   getFocusableInputField,
   getPropertyPanelState,
   getWidgetSelectedPropertyTabIndex,
@@ -24,7 +18,6 @@ import {
 } from "selectors/ui";
 
 import { setDatasourceViewMode } from "actions/datasourceActions";
-import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   setJsPaneConfigSelectedTab,
   setJsPaneDebuggerState,
@@ -32,18 +25,12 @@ import {
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
-  setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTab,
   getJsPaneDebuggerState,
@@ -51,7 +38,6 @@ import {
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
-  getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import { getLastQueryTab } from "ee/selectors/appIDESelectors";
@@ -77,27 +63,15 @@ import { ActionExecutionResizerHeight } from "PluginActionEditor/components/Plug
 import {
   getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,
-  getFormData,
-  setExtraFormData,
   setPluginActionEditorDebuggerState,
   setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import {
-  API_EDITOR_TABS,
-  POST_BODY_FORMAT_OPTIONS,
-} from "PluginActionEditor/constants/CommonApiConstants";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
+import { getIDETabs } from "selectors/ideSelectors";
+import { setIDETabs } from "actions/ideActions";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
-  [FocusEntity.DATASOURCE_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedDatasource,
-      selector: getSelectedDatasourceId,
-      setter: setSelectedDatasource,
-      defaultValue: getFirstDatasourceId,
-    },
-  ],
   [FocusEntity.DATASOURCE]: [
     {
       type: FocusElementConfigType.Redux,
@@ -105,6 +79,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getDsViewModeValues,
       setter: setDatasourceViewMode,
       defaultValue: { datasourceId: "", viewMode: true },
+    },
+  ],
+  [FocusEntity.DATASOURCE_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedDatasource,
+      selector: getSelectedDatasourceId,
+      setter: setSelectedDatasource,
+      defaultValue: getFirstDatasourceId,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
@@ -133,6 +116,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       },
     },
   ],
+  [FocusEntity.JS_OBJECT_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedJSObject,
+      selector: identifyEntityFromPath,
+      setter: setSelectedJSObject,
+      defaultValue: getLastJSTab,
+    },
+  ],
   [FocusEntity.QUERY]: [
     {
       type: FocusElementConfigType.Redux,
@@ -157,16 +149,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     },
     {
       type: FocusElementConfigType.Redux,
-      name: FocusElement.PluginActionFormData,
-      selector: getFormData,
-      setter: setExtraFormData,
-      defaultValue: {
-        label: POST_BODY_FORMAT_OPTIONS.NONE,
-        value: POST_BODY_FORMAT_OPTIONS.NONE,
-      },
-    },
-    {
-      type: FocusElementConfigType.Redux,
       name: FocusElement.PluginActionDebugger,
       selector: getPluginActionDebuggerState,
       setter: setPluginActionEditorDebuggerState,
@@ -177,7 +159,16 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       },
     },
   ],
-  [FocusEntity.PROPERTY_PANE]: [
+  [FocusEntity.QUERY_LIST]: [
+    {
+      type: FocusElementConfigType.URL,
+      name: FocusElement.SelectedQuery,
+      selector: identifyEntityFromPath,
+      setter: setSelectedQuery,
+      defaultValue: getLastQueryTab,
+    },
+  ],
+  [FocusEntity.WIDGET]: [
     {
       type: FocusElementConfigType.Redux,
       name: FocusElement.PropertyPanelContext,
@@ -214,33 +205,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: "",
     },
   ],
-  [FocusEntity.DEBUGGER]: [
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.DebuggerContext,
-      selector: getDebuggerContext,
-      setter: setDebuggerContext,
-      defaultValue: DefaultDebuggerContext,
-    },
-  ],
-  [FocusEntity.QUERY_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedQuery,
-      selector: identifyEntityFromPath,
-      setter: setSelectedQuery,
-      defaultValue: getLastQueryTab,
-    },
-  ],
-  [FocusEntity.JS_OBJECT_LIST]: [
-    {
-      type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedJSObject,
-      selector: identifyEntityFromPath,
-      setter: setSelectedJSObject,
-      defaultValue: getLastJSTab,
-    },
-  ],
   [FocusEntity.WIDGET_LIST]: [
     {
       type: FocusElementConfigType.Redux,
@@ -255,7 +219,16 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: getDefaultSelectedWidgetIds,
     },
   ],
-  [FocusEntity.EDITOR]: [
+  [FocusEntity.DEBUGGER]: [
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.DebuggerContext,
+      selector: getDebuggerContext,
+      setter: setDebuggerContext,
+      defaultValue: DefaultDebuggerContext,
+    },
+  ],
+  [FocusEntity.PAGE]: [
     {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedEntity,
@@ -264,45 +237,19 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     },
     {
       type: FocusElementConfigType.Redux,
-      name: FocusElement.EntityExplorerWidth,
-      selector: getExplorerWidth,
-      setter: updateExplorerWidthAction,
-      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.EntityCollapsibleState,
-      selector: getAllEntityCollapsibleStates,
-      setter: setAllEntityCollapsibleStates,
-      defaultValue: {},
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.SubEntityCollapsibleState,
-      selector: getAllSubEntityCollapsibleStates,
-      setter: setAllSubEntityCollapsibleStates,
-      defaultValue: {},
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.ExplorerSwitchIndex,
-      selector: getExplorerSwitchIndex,
-      setter: setExplorerSwitchIndex,
-      defaultValue: 0,
-    },
-    {
-      type: FocusElementConfigType.Redux,
       name: FocusElement.CodeEditorHistory,
       selector: getCodeEditorHistory,
       setter: setCodeEditorHistory,
       defaultValue: {},
     },
+  ],
+  [FocusEntity.EDITOR]: [
     {
       type: FocusElementConfigType.Redux,
-      name: FocusElement.PropertyPaneWidth,
-      selector: getPropertyPaneWidth,
-      setter: setPropertyPaneWidthAction,
-      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
+      name: FocusElement.IDETabs,
+      selector: getIDETabs,
+      setter: setIDETabs,
+      defaultValue: {},
     },
   ],
 };

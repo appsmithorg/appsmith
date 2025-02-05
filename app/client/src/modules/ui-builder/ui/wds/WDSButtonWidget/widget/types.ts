@@ -9,7 +9,7 @@ export interface ButtonWidgetState extends WidgetState {
 
 export interface ButtonWidgetProps
   extends WidgetProps,
-    Omit<ButtonComponentProps, "type"> {
+    Omit<ButtonComponentProps, "type" | "onClick"> {
   text?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
@@ -17,4 +17,5 @@ export interface ButtonWidgetProps
   googleRecaptchaKey?: string;
   recaptchaType?: RecaptchaType;
   disabledWhenInvalid?: boolean;
+  onClick?: string;
 }

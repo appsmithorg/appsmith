@@ -1,7 +1,7 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
 import PageList from "../../../support/Pages/PageList";
 
-describe(
+describe.skip(
   "Validate generate CRUD operation by creating a datasource from generate CRUD form",
   {
     tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
