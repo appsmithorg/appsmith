@@ -72,23 +72,37 @@ public class SSHUtils {
         client.connect(sshHost, sshPort);
         Reader targetReader = new InputStreamReader(new ByteArrayInputStream(key.getDecodedContent()));
         KeyProvider keyFile;
-        String keyContent = new String(key.getDecodedContent(), StandardCharsets.UTF_8);
+        String keyContent = null;
+        try (Reader reader = new StringReader(new String(key.getDecodedContent(), StandardCharsets.UTF_8))) {
+            keyContent = reader.toString();
 
-        if (keyContent.contains("BEGIN OPENSSH PRIVATE KEY")) {
-            // Use BouncyCastle to handle OpenSSH keys
-            Security.addProvider(new BouncyCastleProvider());
-            OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
-            openSSHKeyFile.init(new StringReader(keyContent));
-            keyFile = openSSHKeyFile;
-        } else {
-            // Handle PEM (PKCS#8) keys
-            PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
-            pkcs8KeyFile.init(new StringReader(keyContent));
-            keyFile = pkcs8KeyFile;
+            if (keyContent.contains("BEGIN OPENSSH PRIVATE KEY")) {
+                // Use BouncyCastle to handle OpenSSH keys
+                Security.addProvider(new BouncyCastleProvider());
+                OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
+                openSSHKeyFile.init(reader);
+                keyFile = openSSHKeyFile;
+            } else if (keyContent.contains("BEGIN PRIVATE KEY") || keyContent.contains("BEGIN RSA PRIVATE KEY")) {
+                // Handle PEM (PKCS#8) and RSA PEM formats
+                PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
+                pkcs8KeyFile.init(reader);
+                keyFile = pkcs8KeyFile;
+            } else {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        "Invalid SSH key format. Only OpenSSH and PEM (PKCS#8) formats are supported.");
+            }
+
+            // Authenticate using the detected key format
+            client.auth(sshUsername, new AuthPublickey(keyFile));
+
+        } finally {
+            // Clear sensitive data from memory
+            if (keyContent != null) {
+                keyContent = null;
+                System.gc();
+            }
         }
-
-        // Authenticate using the detected key format
-        client.auth(sshUsername, new AuthPublickey(keyFile));
 
         final ServerSocket serverSocket = new ServerSocket();
         final Parameters params = new Parameters(LOCALHOST, RANDOM_FREE_PORT_NUM, dbHost, dbPort);
