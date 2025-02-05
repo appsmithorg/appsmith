@@ -41,11 +41,11 @@ export const PlusButtonContainer = styled.div<{ $showLeftBorder?: boolean }>`
   position: sticky;
   right: 0;
   border: none;
-  min-width: 32px;
+  min-width: 28px;
   min-height: 32px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: end;
 
   ${({ $showLeftBorder }) => animatedLeftBorder($showLeftBorder ?? false)};
 `;
