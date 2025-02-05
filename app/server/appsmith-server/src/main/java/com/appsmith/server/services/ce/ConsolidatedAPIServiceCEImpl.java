@@ -677,7 +677,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             Map<String, Object> consolidateAPISignature = Map.of(
                     "userProfile", consolidatedAPIResponseDTO.getUserProfile(),
                     "featureFlags", consolidatedAPIResponseDTO.getFeatureFlags(),
-                    "tenantConfig", consolidatedAPIResponseDTO.getTenantConfig(),
+                    "organizationConfig", consolidatedAPIResponseDTO.getOrganizationConfig(),
                     "productAlert", consolidatedAPIResponseDTO.getProductAlert(),
                     "currentTheme", currentTheme,
                     "themes", themes,

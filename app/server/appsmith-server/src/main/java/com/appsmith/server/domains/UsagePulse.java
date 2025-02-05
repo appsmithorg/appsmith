@@ -22,6 +22,4 @@ public class UsagePulse extends BaseDomain {
     @Deprecated
     // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
     private String tenantId;
-
-    private String organizationId;
 }
