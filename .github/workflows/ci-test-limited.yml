@@ -221,7 +221,7 @@ jobs:
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
-
+          
       - name: Install Google Chrome 129.0.6668.100
         run: |
           sudo apt-get remove google-chrome-stable
@@ -338,9 +338,6 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
-          SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           CYPRESS_STATIC_ALLOCATION: true
         with:
           browser: ${{ env.BROWSER_PATH }}

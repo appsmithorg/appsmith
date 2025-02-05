@@ -368,9 +368,6 @@ jobs:
           CYPRESS_SKIP_FLAKY: true
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
-          SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
-          SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
@@ -472,9 +469,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: docker-logs-${{ matrix.job }}
-          path: app/server/docker-logs.log
-          overwrite: true
+            name: docker-logs-${{ matrix.job }}
+            path: app/server/docker-logs.log
+            overwrite: true
 
       # Set status = success
       - name: Save the status of the run
