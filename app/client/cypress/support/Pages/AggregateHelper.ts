@@ -575,12 +575,14 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilEleAppear(selector: string) {
+  // Note: isVisible is required in case where item exists but is not visible ( hidden by css ),
+  // For e.g - search input in select widget is not visible,
+  public WaitUntilEleAppear(selector: string, isVisible = true) {
     cy.waitUntil(
       () =>
         this.GetElement(selector)
           .should("exist")
-          .should("be.visible")
+          .should(isVisible ? "be.visible" : "not.be.visible")
           .its("length")
           .should("be.gte", 1),
       {
