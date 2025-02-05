@@ -337,6 +337,7 @@ function renderOptionWithIcon(option: SelectOptionProps) {
       aria-label={option.label}
       disabled={option.disabled}
       isDisabled={option.isDisabled}
+      label={option.label}
       value={option.value}
     >
       {option.icon && <Icon color={option.color} name={option.icon} />}

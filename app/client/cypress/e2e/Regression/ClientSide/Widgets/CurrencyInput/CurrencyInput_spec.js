@@ -28,11 +28,11 @@ describe(
     it("2. should check for type of value and widget", () => {
       cy.openPropertyPane(widgetName);
       cy.get(".t--property-control-currency").click();
-      cy.get(".t--property-control-currency").type("usd");
-      cy.selectDropdownValue(
-        ".t--property-control-currency input",
-        "USD - US Dollar",
-      );
+      cy.openSelectDropdown(".t--property-control-currency");
+      cy.searchSelectDropdown("usd");
+ 
+      cy.selectDropdownValue("USD - US Dollar");
+
       function enterAndTest(text, expected) {
         cy.get(widgetInput).clear();
         cy.wait(300);
@@ -53,7 +53,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("1");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -66,7 +67,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("2");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -90,22 +92,18 @@ describe(
       cy.get(".currency-change-dropdown-trigger").should("contain", "₹");
 
       cy.openPropertyPane(widgetName);
-      cy.get(".t--property-control-allowcurrencychange input")
-        .last()
-        .click({ force: true });
-      cy.get(".t--input-currency-change").first().click();
-      cy.get(".t--search-input input").type("gbp");
-      cy.wait(500);
-      cy.get(".ads-dropdown-options-wrapper .t--dropdown-option")
-        .last()
-        .click();
+      cy.openSelectDropdown(".t--property-control-allowcurrencychange");
+      cy.searchSelectDropdown("gbp");
+      cy.selectDropdownValue("GBP - British Pound");
+      enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       cy.get(".t--input-currency-change").should("contain", "£");
     });
 
     it("3. should accept 0 decimal option", () => {
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("0");
       cy.closePropertyPane();
       cy.wait(500);
       cy.openPropertyPane(widgetName);
@@ -142,7 +140,8 @@ describe(
         `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}`,
       );
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
+      cy.selectDropdownValue(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("0");
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -157,7 +156,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("1");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
         ["100", "100:100"],
@@ -171,7 +171,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("2");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
         ["100", "100:100"],
@@ -205,7 +206,8 @@ describe(
       }
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("0");
 
       [
         //[input, expected]
@@ -221,7 +223,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("1");
       [
         //[input, expected]
         ["100", "100"],
@@ -238,7 +241,8 @@ describe(
       });
 
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
+      cy.openSelectDropdown(".t--property-control-decimalsallowed");
+      cy.selectDropdownValue("2");
       [
         //[input, expected]
         ["100", "100"],

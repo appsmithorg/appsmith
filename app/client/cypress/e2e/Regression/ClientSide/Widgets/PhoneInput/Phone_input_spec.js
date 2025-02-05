@@ -2,17 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "phoneinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
-const searchAndSelectOption = (optionValue) => {
-  cy.get(".t--property-control-defaultcountrycode input")
-    .last()
-    .scrollIntoView()
-    .click({ force: true })
-    .type(optionValue.substring(0, 3));
-  cy.get(".t--dropdown-option")
-    .children()
-    .contains(optionValue)
-    .click({ force: true });
-};
+
 describe(
   "Phone input widget - ",
   { tags: ["@tag.Widget", "@tag.PhoneInput", "@tag.Binding"] },
@@ -21,7 +11,7 @@ describe(
       _.agHelper.AddDsl("emptyDSL");
     });
 
-    it("1. Add new dropdown widget", () => {
+    it("1. Add new phone input widget", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
@@ -39,7 +29,9 @@ describe(
       cy.get(".t--widget-textwidget").should("contain", "(999) 999-9999:US:+1");
 
       cy.openPropertyPane(widgetName);
-      searchAndSelectOption("Afghanistan (+93)");
+      cy.openSelectDropdown(".t--property-control-defaultcountrycode");
+      cy.searchSelectDropdown("Afg");
+      cy.selectDropdownValue("Afghanistan (+93)");
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("1234567890");
@@ -62,14 +54,18 @@ describe(
       cy.get(".t--property-control-enableformatting label")
         .last()
         .click({ force: true });
-      searchAndSelectOption("United States / Canada (+1)");
+      cy.openSelectDropdown(".t--property-control-defaultcountrycode");
+      cy.searchSelectDropdown("United States / Canada");
+      cy.selectDropdownValue("United States / Canada (+1)");
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("9999999999");
       cy.get(".t--widget-textwidget").should("contain", "9999999999:US:+1");
 
       cy.openPropertyPane(widgetName);
-      searchAndSelectOption("India (+91)");
+      cy.openSelectDropdown(".t--property-control-defaultcountrycode");
+      cy.searchSelectDropdown("India");
+      cy.selectDropdownValue("India (+91)");
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("1234567890");
@@ -131,13 +127,11 @@ describe(
 
       // Select the Currency dropdown option from property pane
       // and enter a value that has space and returns 0 results
-      cy.get(".t--property-control-defaultcountrycode input")
-        .first()
-        .click()
-        .type("AFDB (+93)");
+      cy.openSelectDropdown(".t--property-control-defaultcountrycode");
+      cy.searchSelectDropdown("AFDB");
 
       // assert that the dropdown is still option
-      cy.get(".t--property-control-defaultcountrycode input").should(
+      cy.get(".ads-v2-select__dropdown .rc-select-item-empty").should(
         "be.visible",
       );
     });

@@ -86,12 +86,21 @@ Cypress.Commands.add("selectDateFormat", (value) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("selectDropdownValue", (element, value) => {
-  cy.get(element).last().scrollIntoView().click({ force: true });
+Cypress.Commands.add("openSelectDropdown", (element) => {
+  cy.get(`${element} .rc-select-selection-search-input`).last().scrollIntoView().click({ force: true });
+});
+
+Cypress.Commands.add("selectDropdownValue", (value) => {
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
     .click({ force: true });
+});
+
+Cypress.Commands.add("searchSelectDropdown", (value) => {
+  cy.get(".ads-v2-select__dropdown .ads-v2-input__input-section-input").click();
+  cy.get(".ads-v2-select__dropdown .ads-v2-input__input-section-input").should("have.focus");
+  cy.get(".ads-v2-select__dropdown .ads-v2-input__input-section-input").type(value);
 });
 
 Cypress.Commands.add("assertDateFormat", () => {

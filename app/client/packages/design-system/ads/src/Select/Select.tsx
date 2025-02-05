@@ -36,7 +36,6 @@ function Select(props: SelectProps) {
         : 1
       : undefined,
     maxTagPlaceholder,
-    optionLabelProp = "label",
     placeholder = "Please select an option",
     showSearch = false,
     size = "md",
@@ -111,7 +110,6 @@ function Select(props: SelectProps) {
       menuItemSelectedIcon=""
       mode={isMultiSelect ? "tags" : undefined}
       onDropdownVisibleChange={handleDropdownVisibleChange}
-      optionLabelProp={optionLabelProp}
       placeholder={placeholder}
       searchValue={searchValue}
       showArrow
