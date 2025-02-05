@@ -90,7 +90,7 @@ export const EditorWrapper = styled.div<{
         .CodeMirror-focused {
           outline: var(--ads-v2-border-width-outline) solid
             var(--ads-v2-color-outline) !important;
-          outline-offset: var(--ads-v2-offset-outline) !important;
+          outline-offset: -1px !important;
           z-index: 1 !important;
         }
       `}
@@ -112,7 +112,7 @@ export const EditorWrapper = styled.div<{
             ? "none"
             : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
         };
-        outline-offset: var(--ads-v2-offset-outline);
+        outline-offset: -1px;
         clip-path: unset !important;
         `} */
       ${(props) => props.isFocused && `clip-path: unset !important;`}
@@ -406,7 +406,7 @@ export const EditorWrapper = styled.div<{
       .CodeMirror.cm-s-duotone-light {
         outline: var(--ads-v2-border-width-outline) solid
           var(--ads-v2-color-outline);
-        outline-offset: var(--ads-v2-offset-outline);
+        outline-offset: -1px;
       }
     }
 
