@@ -126,7 +126,7 @@
   "filePickerRemoveButton": ".uppy-Dashboard-Item-action--remove",
   "AddMoreFiles": ".uppy-DashboardContent-addMoreCaption",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
-  "dataType": ".t--property-control-datatype input",
+  "dataType": ".t--property-control-datatype",
   "recaptchaVersion": ".t--property-control-googlerecaptchaversion",
   "recaptchaVersionText": ".t--property-control-googlerecaptchaversion span.rc-select-selection-item span",
   "filePickerDataFormat": ".t--property-control-dataformat",

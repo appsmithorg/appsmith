@@ -27,7 +27,6 @@ describe(
 
     it("2. should check for type of value and widget", () => {
       cy.openPropertyPane(widgetName);
-      cy.get(".t--property-control-currency").click();
       cy.openSelectDropdown(".t--property-control-currency");
       cy.searchSelectDropdown("usd");
       cy.selectDropdownValue(".t--property-control-currency", "USD - US Dollar");
@@ -79,19 +78,25 @@ describe(
       cy.get(".currency-change-dropdown-trigger").should("contain", "$");
 
       cy.openPropertyPane(widgetName);
-      cy.get(".t--property-control-currency").click();
-      cy.get(".t--property-control-currency").type("ind");
+      cy.openSelectDropdown(".t--property-control-currency");
+      cy.searchSelectDropdown("ind");
       cy.selectDropdownValue(
-        ".t--property-control-currency input",
+        ".t--property-control-currency",
         "INR - Indian Rupee",
       );
       enterAndTest("100.22", "100.22:100.22:true:string:number:IN:INR");
       cy.get(".currency-change-dropdown-trigger").should("contain", "₹");
 
       cy.openPropertyPane(widgetName);
-      cy.openSelectDropdown(".t--property-control-allowcurrencychange");
-      cy.searchSelectDropdown("gbp");
-      cy.selectDropdownValue(".t--property-control-allowcurrencychange", "GBP - British Pound");
+      cy.get(".t--property-control-allowcurrencychange input")
+        .last()
+        .click({ force: true });
+      cy.get(".t--input-currency-change").first().click();
+      cy.get(".t--search-input input").type("gbp");
+      cy.wait(500);
+      cy.get(".ads-dropdown-options-wrapper .t--dropdown-option")
+        .last()
+        .click();
       enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
       cy.get(".t--input-currency-change").should("contain", "£");

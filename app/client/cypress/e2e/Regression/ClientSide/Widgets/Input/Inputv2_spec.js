@@ -112,7 +112,7 @@ describe(
 
     it("4. Validate DataType - NUMBER can be entered into Input widget", () => {
       cy.openPropertyPane(widgetName);
-      cy.selectDropdownValue(".t--property-control-datatype input", "Number");
+      cy.selectDropdownValue(".t--property-control-datatype", "Number");
       [
         {
           input: "invalid",
