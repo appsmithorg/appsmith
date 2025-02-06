@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec node /opt/appsmith/rts/bundle/server.js
+exec node --enable-source-maps /opt/appsmith/rts/bundle/server.js
