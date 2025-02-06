@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 
 import clsx from "classnames";
 
-import { Icon } from "..";
+import { Icon } from "../Icon";
 
 import * as Styled from "./DismissibleTab.styles";
 import { DATA_TEST_ID } from "./constants";

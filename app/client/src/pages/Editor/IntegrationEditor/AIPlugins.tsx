@@ -18,6 +18,7 @@ import {
 } from "ee/constants/messages";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import { getPlugins } from "ee/selectors/entitiesSelector";
+import { filterSearch } from "./util";
 
 interface CreateAIPluginsProps {
   pageId: string;
@@ -86,16 +87,15 @@ const mapStateToProps = (state: AppState) => {
   let plugins = getPlugins(state);
 
   // AI Plugins
-  plugins = plugins
-    .sort((a, b) => {
-      // Sort the AI plugins alphabetically
-      return a.name.localeCompare(b.name);
-    })
-    .filter(
-      (plugin) =>
-        plugin.type === PluginType.AI &&
-        plugin.name.toLocaleLowerCase().includes(searchedPlugin),
-    );
+  plugins = filterSearch(
+    plugins
+      .sort((a, b) => {
+        // Sort the AI plugins alphabetically
+        return a.name.localeCompare(b.name);
+      })
+      .filter((plugin) => plugin.type === PluginType.AI),
+    searchedPlugin,
+  ) as Plugin[];
 
   return {
     plugins,

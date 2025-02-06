@@ -1,21 +1,23 @@
 import React, { useCallback } from "react";
-
-import { FileTab } from "IDE/Components/FileTab";
-import { useCurrentEditorState } from "../hooks";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEventCallback } from "usehooks-ts";
-import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { EditableDismissibleTab } from "@appsmith/ads";
+
+import { type EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
+
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { sanitizeString } from "utils/URLUtils";
+
 import {
   getEditableTabPermissions,
   saveEntityName,
 } from "ee/entities/IDE/utils";
-import { noop } from "lodash";
-import { EditableName, useIsRenaming } from "IDE";
-import { IconContainer } from "IDE/Components/FileTab/styles";
-import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { useIsRenaming, useValidateEntityName } from "IDE";
+
+import { useCurrentEditorState } from "../hooks";
 
 interface EditableTabProps {
   id: string;
@@ -30,6 +32,7 @@ interface EditableTabProps {
 export function EditableTab(props: EditableTabProps) {
   const { entity, icon, id, isActive, onClick, onClose, title } = props;
   const { segment } = useCurrentEditorState();
+  const dispatch = useDispatch();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getEditableTabPermissions({
@@ -43,39 +46,36 @@ export function EditableTab(props: EditableTabProps) {
     getIsSavingEntityName(state, { id, segment, entity }),
   );
 
-  const handleClose = useEventCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose(id);
+  const validateName = useValidateEntityName({
+    entityName: title,
   });
 
-  const handleDoubleClick = isChangePermitted ? enterEditMode : noop;
-
-  const dispatch = useDispatch();
+  const handleClose = useEventCallback(() => {
+    onClose(id);
+  });
 
   const handleNameSave = useCallback(
     (name: string) => {
       dispatch(saveEntityName({ params: { id, name }, segment, entity }));
-      exitEditMode();
     },
-    [dispatch, entity, exitEditMode, id, segment],
+    [dispatch, entity, id, segment],
   );
 
   return (
-    <FileTab
+    <EditableDismissibleTab
+      dataTestId={`t--ide-tab-${sanitizeString(title)}`}
+      icon={icon}
       isActive={isActive}
+      isEditable={isChangePermitted}
+      isEditing={isEditing}
+      isLoading={isLoading}
+      name={title}
       onClick={onClick}
       onClose={handleClose}
-      onDoubleClick={handleDoubleClick}
-      title={title}
-    >
-      <EditableName
-        exitEditing={exitEditMode}
-        icon={<IconContainer>{icon}</IconContainer>}
-        isEditing={isEditing}
-        isLoading={isLoading}
-        name={title}
-        onNameSave={handleNameSave}
-      />
-    </FileTab>
+      onEnterEditMode={enterEditMode}
+      onExitEditMode={exitEditMode}
+      onNameSave={handleNameSave}
+      validateName={validateName}
+    />
   );
 }

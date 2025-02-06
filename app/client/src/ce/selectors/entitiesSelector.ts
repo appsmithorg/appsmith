@@ -19,10 +19,7 @@ import { isStoredDatasource } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  MAIN_CONTAINER_WIDGET_NAME,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
@@ -76,6 +73,9 @@ import {
   getIsSavingForApiName,
   getIsSavingForJSObjectName,
 } from "selectors/ui";
+import WidgetFactory from "../../WidgetProvider/factory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -990,7 +990,8 @@ export const getAllPageWidgets = createSelector(
 
 export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
   const items: GenericEntityItem[] = Object.values(widgets)
-    .filter((widget) => widget.widgetName !== MAIN_CONTAINER_WIDGET_NAME)
+    // We remove canvas widget because they are functional widgets and not UI widgets
+    .filter((widget) => widget.type !== WidgetTypes.CANVAS_WIDGET)
     .map((widget) => ({
       icon: WidgetIconByType(widget.type),
       title: widget.widgetName,

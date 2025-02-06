@@ -1,34 +1,39 @@
 import React, { useCallback, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
+import { useEventCallback } from "usehooks-ts";
+import { useLocation } from "react-router";
+
+import {
+  EntityTabsHeader,
+  EntityListButton,
+  EntityTabBar,
+} from "@appsmith/ads";
+
 import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
 } from "IDE/Interfaces/EditorTypes";
+import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 
-import Container from "./Container";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { setListViewActiveState } from "actions/ideActions";
+
 import {
   useCurrentEditorState,
   useIDETabClickHandlers,
   useShowSideBySideNudge,
 } from "../hooks";
-import { SCROLL_AREA_OPTIONS, TabSelectors } from "./constants";
-import { AddButton } from "./AddButton";
-import { useLocation } from "react-router";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
-import { AddTab } from "./AddTab";
-import { setListViewActiveState } from "actions/ideActions";
-
-import { useEventCallback } from "usehooks-ts";
-
 import { EditableTab } from "./EditableTab";
-import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { TabSelectors } from "./constants";
+import { AddTab } from "./AddTab";
 
 const EditorTabs = () => {
+  const location = useLocation();
+  const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
@@ -37,46 +42,29 @@ const EditorTabs = () => {
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
   const isListViewActive = useSelector(getListViewActiveState);
   const [showNudge, dismissNudge] = useShowSideBySideNudge();
+  const { addClickHandler } = useIDETabClickHandlers();
+  const isJSLoading = useIsJSAddLoading();
+  const hideAdd = segmentMode === EditorEntityTabState.Add || !files.length;
 
-  const location = useLocation();
-  const dispatch = useDispatch();
   const currentEntity = identifyEntityFromPath(location.pathname);
+  const showEntityListButton =
+    ideViewMode === EditorViewMode.SplitScreen && files.length > 0;
 
-  // Turn off list view while changing segment, files
-  useEffect(() => {
-    dispatch(setListViewActiveState(false));
-  }, [currentEntity.id, currentEntity.entity, files, segmentMode, dispatch]);
+  useEffect(
+    function turnOffListViewWhileChangingSegmentFiles() {
+      dispatch(setListViewActiveState(false));
+    },
+    [currentEntity.id, currentEntity.entity, files, segmentMode, dispatch],
+  );
 
-  // Show list view if all tabs is closed
-  useEffect(() => {
-    if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
-      dispatch(setListViewActiveState(true));
-    }
-  }, [files, segmentMode, currentEntity.entity, dispatch]);
-
-  // scroll to the active tab
-  useEffect(() => {
-    const activeTab = document.querySelector(".editor-tab.active");
-
-    if (activeTab) {
-      activeTab.scrollIntoView({
-        inline: "nearest",
-      });
-    }
-  }, [files, segmentMode]);
-
-  // show border if add button is sticky
-  useEffect(() => {
-    const ele = document.querySelector<HTMLElement>(
-      '[data-testid="t--editor-tabs"] > [data-overlayscrollbars-viewport]',
-    );
-
-    if (ele && ele.scrollWidth > ele.clientWidth) {
-      ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
-    } else if (ele) {
-      ele.style.borderRight = "unset";
-    }
-  }, [files]);
+  useEffect(
+    function showListViewIfAllTabsAreClosed() {
+      if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
+        dispatch(setListViewActiveState(true));
+      }
+    },
+    [files, segmentMode, currentEntity.entity, dispatch],
+  );
 
   const handleHamburgerClick = useEventCallback(() => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
@@ -101,61 +89,49 @@ const EditorTabs = () => {
 
   return (
     <>
-      <Container>
-        {ideViewMode === EditorViewMode.SplitScreen && files.length > 0 ? (
-          <ToggleButton
+      <EntityTabsHeader>
+        {showEntityListButton && (
+          <EntityListButton
             data-testid="t--list-toggle"
-            icon="hamburger"
             isSelected={isListViewActive}
             onClick={handleHamburgerClick}
-            size="md"
           />
-        ) : null}
-        <ScrollArea
-          className="h-[32px] top-[0.5px]"
-          data-testid="t--editor-tabs"
-          options={SCROLL_AREA_OPTIONS}
-          size="sm"
+        )}
+
+        <EntityTabBar
+          hideAdd={hideAdd}
+          isAddingNewTab={isJSLoading}
+          onTabAdd={addClickHandler}
         >
-          <Flex
-            className="items-center"
-            data-testid="t--tabs-container"
-            gap="spaces-2"
-            height="100%"
-          >
-            {files.map((tab) => {
-              const entity = entities.find((entity) => entity.key === tab.key);
+          {files.map((tab) => {
+            const entity = entities.find((entity) => entity.key === tab.key);
 
-              return (
-                <EditableTab
-                  entity={entity}
-                  icon={tab.icon}
-                  id={tab.key}
-                  isActive={
-                    currentEntity.id === tab.key &&
-                    segmentMode !== EditorEntityTabState.Add &&
-                    !isListViewActive
-                  }
-                  key={tab.key}
-                  onClick={handleTabClick(tab)}
-                  onClose={closeClickHandler}
-                  title={tab.title}
-                />
-              );
-            })}
-            <AddTab
-              isListActive={isListViewActive}
-              newTabClickCallback={handleNewTabClick}
-              onClose={closeClickHandler}
-            />
-          </Flex>
-        </ScrollArea>
-        {files.length > 0 ? <AddButton /> : null}
-        {/* Switch screen mode button */}
+            return (
+              <EditableTab
+                entity={entity}
+                icon={tab.icon}
+                id={tab.key}
+                isActive={
+                  currentEntity.id === tab.key &&
+                  segmentMode !== EditorEntityTabState.Add &&
+                  !isListViewActive
+                }
+                key={tab.key}
+                onClick={handleTabClick(tab)}
+                onClose={closeClickHandler}
+                title={tab.title}
+              />
+            );
+          })}
+          <AddTab
+            isListActive={isListViewActive}
+            newTabClickCallback={handleNewTabClick}
+            onClose={closeClickHandler}
+          />
+        </EntityTabBar>
         <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
-      </Container>
+      </EntityTabsHeader>
 
-      {/* Overflow list */}
       {isListViewActive && ideViewMode === EditorViewMode.SplitScreen && (
         <List />
       )}

@@ -87,6 +87,7 @@ export interface ControlData {
   errorText?: string;
   showError?: boolean;
   encrypted?: boolean;
+  title?: string; // used as label for control component
   subtitle?: string;
   showLineNumbers?: boolean;
   url?: string;

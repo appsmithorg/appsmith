@@ -446,7 +446,7 @@ describe(
         subAction: "Page1",
         toastToValidate: "copied to page",
       });
-      agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
+      agHelper.GetNAssertContains(locators._activeEntityTab, "Query1Copy");
       dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       PageList.AddNewPage();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -456,7 +456,7 @@ describe(
         toastToValidate: "moved to page",
       });
       agHelper.WaitUntilAllToastsDisappear();
-      agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
+      agHelper.GetNAssertContains(locators._activeEntityTab, "Query1Copy");
       dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
