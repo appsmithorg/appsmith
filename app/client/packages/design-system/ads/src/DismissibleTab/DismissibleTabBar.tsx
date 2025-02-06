@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { noop } from "lodash";
+import clsx from "clsx";
 
+import { Spinner } from "../Spinner";
 import { ScrollArea } from "../ScrollArea";
 
 import * as Styled from "./DismissibleTabBar.styles";
@@ -14,13 +16,15 @@ export const SCROLL_AREA_OPTIONS = {
 } as const;
 
 const SCROLL_AREA_STYLE = {
-  height: 34,
-  top: 1,
+  height: 32,
 };
 
 export const DismissibleTabBar = ({
   children,
+  className,
   disableAdd = false,
+  hideAdd = false,
+  isAddingNewTab,
   onTabAdd,
 }: DismissibleTabBarProps) => {
   const [isLeftIntersecting, setIsLeftIntersecting] = useState(false);
@@ -85,7 +89,10 @@ export const DismissibleTabBar = ({
   );
 
   return (
-    <Styled.Root $showLeftBorder={isLeftIntersecting}>
+    <Styled.Root
+      $showLeftBorder={isLeftIntersecting}
+      className={clsx(className)}
+    >
       <ScrollArea
         data-testid="t--editor-tabs"
         options={SCROLL_AREA_OPTIONS}
@@ -99,16 +106,23 @@ export const DismissibleTabBar = ({
           <Styled.StickySentinel ref={sentinelRightRef} />
         </Styled.TabsContainer>
       </ScrollArea>
-      <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
-        <Styled.PlusButton
-          isDisabled={disableAdd}
-          isIconButton
-          kind="tertiary"
-          onClick={handleAdd}
-          startIcon="add-line"
-          title="Add new tab"
-        />
-      </Styled.PlusButtonContainer>
+      {!hideAdd && (
+        <Styled.PlusButtonContainer $showLeftBorder={isRightIntersecting}>
+          {isAddingNewTab ? (
+            <Spinner size="md" />
+          ) : (
+            <Styled.PlusButton
+              data-testid="t--ide-tabs-add-button"
+              isDisabled={disableAdd}
+              isIconButton
+              kind="tertiary"
+              onClick={handleAdd}
+              startIcon="add-line"
+              title="Add new tab"
+            />
+          )}
+        </Styled.PlusButtonContainer>
+      )}
     </Styled.Root>
   );
 };

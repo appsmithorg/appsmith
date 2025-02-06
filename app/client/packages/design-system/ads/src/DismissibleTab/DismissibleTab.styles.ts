@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { Button as ADSButton } from "..";
+import { Button as ADSButton } from "../Button";
 
 export const Tab = styled.div`
   position: relative;
@@ -9,7 +9,8 @@ export const Tab = styled.div`
   justify-content: center;
   flex-shrink: 0;
   gap: var(--ads-v2-spaces-2);
-  height: 100%;
+  min-height: 32px;
+  max-height: 32px;
   font-size: 12px;
   color: var(--ads-v2-color-fg);
   cursor: pointer;
@@ -20,8 +21,7 @@ export const Tab = styled.div`
   border-right: 1px solid transparent;
   border-top: 3px solid transparent;
 
-  padding: var(--ads-v2-spaces-3);
-  padding-top: 6px;
+  padding: 0 var(--ads-v2-spaces-3) 2px var(--ads-v2-spaces-3);
 
   &.active {
     background: var(--ads-v2-colors-control-field-default-bg);
