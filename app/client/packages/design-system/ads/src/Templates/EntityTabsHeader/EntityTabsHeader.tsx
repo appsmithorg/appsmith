@@ -8,7 +8,8 @@ import type {
   ToggleScreenModeButtonProps,
 } from "./EntityTabsHeader.types";
 
-import { ToggleButton } from "../..";
+import { ToggleButton } from "../../ToggleButton";
+import { type DismissibleTabBarProps } from "../../DismissibleTab/DismissibleTabBar.types";
 
 export const EntityListButton = (props: EntityListButtonProps) => {
   return <ToggleButton {...props} icon="hamburger" size="md" />;
@@ -26,6 +27,10 @@ export const ToggleScreenModeButton = (props: ToggleScreenModeButtonProps) => {
       startIcon={iconName}
     />
   );
+};
+
+export const EntityTabBar = (props: DismissibleTabBarProps) => {
+  return <Styled.TabBar {...props} />;
 };
 
 export function EntityTabsHeader({ children }: EntityTabsHeaderProps) {

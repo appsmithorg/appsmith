@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import RCSelect, {
   Option as RCOption,
   OptGroup as RCOptGroup,
@@ -12,6 +12,7 @@ import { SelectClassName, SelectDropdownClassName } from "./Select.constants";
 import { Tag } from "../Tag";
 import type { SelectProps } from "./Select.types";
 import { Spinner } from "../Spinner";
+import { SearchInput } from "../SearchInput";
 
 /*
   TODO:
@@ -29,15 +30,20 @@ function Select(props: SelectProps) {
     isLoading = false,
     isMultiSelect,
     isValid,
-    maxTagCount = 2,
+    maxTagCount = isMultiSelect
+      ? props.value?.length > 1
+        ? "responsive"
+        : 1
+      : undefined,
     maxTagPlaceholder,
-    maxTagTextLength = 5,
     placeholder = "Please select an option",
     showSearch = false,
     size = "md",
     virtual = false,
     ...rest
   } = props;
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchValue, setSearchValue] = useState("");
 
   const getMaxTagPlaceholder = (omittedValues: any[]) => {
     return `+${omittedValues.length}`;
@@ -50,6 +56,24 @@ function Select(props: SelectProps) {
 
     return <Icon name="arrow-down-s-line" size="md" />;
   }
+
+  const handleDropdownVisibleChange = (open: boolean) => {
+    if (open) {
+      // this is a hack to get the search input to focus when the dropdown is opened
+      // the reason is, rc-select does not support putting the search input in the dropdown
+      // and rc-select focus its native searchinput element on dropdown open, but we need to focus the search input
+      // so we use a timeout to focus the search input after the dropdown is opened
+      setTimeout(() => {
+        if (!searchRef.current) return;
+
+        searchRef.current?.focus();
+      }, 200);
+
+      return;
+    }
+
+    setSearchValue("");
+  };
 
   return (
     <RCSelect
@@ -64,20 +88,40 @@ function Select(props: SelectProps) {
         SelectDropdownClassName + `--${size}`,
         dropdownClassName,
       )}
+      dropdownRender={(menu: any) => {
+        return (
+          <div>
+            {showSearch && (
+              <SearchInput
+                onChange={setSearchValue}
+                placeholder="Type to search..."
+                ref={searchRef}
+                size="md"
+                value={searchValue}
+              />
+            )}
+            <div>{menu}</div>
+          </div>
+        );
+      }}
       inputIcon={<InputIcon />}
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
-      maxTagTextLength={maxTagTextLength}
       menuItemSelectedIcon=""
-      mode={isMultiSelect ? "multiple" : undefined}
+      mode={isMultiSelect ? "tags" : undefined}
+      onDropdownVisibleChange={handleDropdownVisibleChange}
       placeholder={placeholder}
+      searchValue={searchValue}
       showArrow
-      showSearch={showSearch}
       tagRender={(props) => {
+        if (rest.tagRender) {
+          return rest.tagRender(props);
+        }
+
         const { closable, label, onClose } = props;
 
         return (
-          <Tag isClosable={closable} onClose={onClose}>
+          <Tag isClosable={closable} kind="info" onClose={onClose}>
             {label}
           </Tag>
         );

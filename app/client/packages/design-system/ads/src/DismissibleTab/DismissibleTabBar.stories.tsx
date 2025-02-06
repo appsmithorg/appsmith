@@ -2,11 +2,9 @@
 import React, { useRef, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import {
-  DismissibleTab,
-  DismissibleTabBar,
-  type DismissibleTabBarProps,
-} from ".";
+import { DismissibleTab } from "./DismissibleTab";
+import { DismissibleTabBar } from "./DismissibleTabBar";
+import { type DismissibleTabBarProps } from "./DismissibleTabBar.types";
 
 const meta: Meta<typeof DismissibleTabBar> = {
   title: "ADS/Components/Dismissible Tab Bar",
