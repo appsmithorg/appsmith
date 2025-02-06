@@ -110,12 +110,24 @@ jobs:
         id: log-compare-circular-deps
         if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
         run: |
-            echo "Dependencies added:" >> diff.txt
-            grep -E '^\+[^+]' diff_output.txt | sed 's/^+//' >> diff.txt || true
-            echo "" >> diff.txt
-            echo "" >> diff.txt
-            echo "Dependencies removed:" >> diff.txt
-            grep -E '^-[^-]' diff_output.txt >> diff.txt | sed 's/^-//' || true
+            # Capture added dependencies (lines starting with '+' but not the diff header lines)
+            added=$(grep -E '^\+[^+]' diff_output.txt | sed 's/^\+//') || true
+
+            # Only output the "Dependencies added:" header if there are any added dependencies.
+            if [[ -n "$added" ]]; then
+              echo "Dependencies added:" >> diff.txt
+              echo "$added" >> diff.txt
+              echo "" >> diff.txt
+            fi
+
+            # Capture removed dependencies (lines starting with '-' but not the diff header lines)
+            removed=$(grep -E '^-[^-]' diff_output.txt | sed 's/^-//') || true
+
+            # Only output the "Dependencies removed:" header if there are any removed dependencies.
+            if [[ -n "$removed" ]]; then
+              echo "Dependencies removed:" >> diff.txt
+              echo "$removed" >> diff.txt
+            fi
 
             cat diff.txt
       # Comment on the PR if cyclic dependencies are found
