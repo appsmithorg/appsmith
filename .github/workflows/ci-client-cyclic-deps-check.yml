@@ -61,7 +61,7 @@ jobs:
           # wc -l: Count the number of lines in the file
           pr_count="$(awk 'NF' pr_circular_deps.txt | wc -l)"
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
-          cat pr_circular_deps.txt
+          # cat pr_circular_deps.txt
 
       - name: Checkout base branch
         uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
           # wc -l: Count the number of lines in the file
           base_branch_count="$(awk 'NF' base_branch_circular_deps.txt | wc -l)"
           echo "base_branch_count=$base_branch_count" >> $GITHUB_OUTPUT
-          cat base_branch_circular_deps.txt
+          # cat base_branch_circular_deps.txt
 
       - name: Compare circular dependencies
         id: compare-deps
@@ -103,7 +103,8 @@ jobs:
       
       - name: Save diff
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: diff -u base_branch_circular_deps.txt pr_circular_deps.txt || true > diff_output.txt
+        run: |
+          { diff -u base_branch_circular_deps.txt pr_circular_deps.txt || true; } > diff_output.txt
 
       - name: Log diff in circular dependencies between PR and base branch
         id: log-compare-circular-deps
