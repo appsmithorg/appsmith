@@ -63,11 +63,11 @@ jobs:
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
           cat pr_circular_deps.txt
 
-      - name: Checkout release branch
+      - name: Checkout base branch
         uses: actions/checkout@v4
         if: steps.changed-files.outputs.any_changed == 'true'
         with:
-          ref: release
+          ref: ${{ github.event.pull_request.base.ref }}
 
       # Install all the dependencies
       - name: Install dependencies
@@ -75,25 +75,25 @@ jobs:
         run: |
           yarn install --immutable
 
-      - name: Count circular dependencies on release branch
-        id: count-cyclic-deps-in-release
+      - name: Count circular dependencies on base branch
+        id: count-cyclic-deps-in-base
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > release_circular_deps.txt
-          # awk 'NF' release_circular_deps.txt: Filter out empty lines from the file
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > base_branch_circular_deps.txt
+          # awk 'NF' base_branch_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
           # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
-          release_count="$(awk 'NF' release_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
-          echo "release_count=$release_count" >> $GITHUB_OUTPUT
-          cat release_circular_deps.txt
+          base_branch_count="$(awk 'NF' base_branch_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
+          echo "base_branch_count=$base_branch_count" >> $GITHUB_OUTPUT
+          cat base_branch_circular_deps.txt
 
       - name: Compare circular dependencies
         id: compare-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          release_count="${{ steps.count-cyclic-deps-in-release.outputs.release_count }}"
+          base_branch_count="${{ steps.count-cyclic-deps-in-base.outputs.base_branch_count }}"
           pr_count="${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}"
-          diff="$((pr_count - release_count))"
+          diff="$((pr_count - base_branch_count))"
 
           if [ "$diff" -gt 0 ]; then
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
@@ -108,7 +108,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `🔴🔴🔴 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
+            const message = `🔴🔴🔴 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the ${{github.event.pull_request.base.ref}} branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
