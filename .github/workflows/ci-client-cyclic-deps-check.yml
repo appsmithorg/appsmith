@@ -55,7 +55,6 @@ jobs:
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          rm -rf node_modules
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
           | sort | sed '/^[[:space:]]*$/d' > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
@@ -80,6 +79,7 @@ jobs:
         id: count-cyclic-deps-in-base
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
+          rm -rf node_modules
           dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
           | sort | sed '/^[[:space:]]*$/d' > base_branch_circular_deps.txt
           # awk 'NF' base_branch_circular_deps.txt: Filter out empty lines from the file
