@@ -10,12 +10,12 @@ import {
 } from "ee/constants/messages";
 
 const DataButtonWithWarning: IDESidebarButton = {
-  ...DataButton("datasources"),
+  ...DataButton("datasource"),
   condition: Condition.Warn,
   tooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
 };
 
-const DataButtonWithoutWarning = DataButton("datasources");
+const DataButtonWithoutWarning = DataButton("datasource");
 
 export const BottomButtons = (datasourcesExist: boolean) => [
   datasourcesExist ? DataButtonWithoutWarning : DataButtonWithWarning,
