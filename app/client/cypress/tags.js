@@ -54,6 +54,7 @@ module.exports = {
     "@tag.Scanner",
     "@tag.Select",
     "@tag.Settings",
+    "@tag.SignIn",
     "@tag.Slider",
     "@tag.Statbox",
     "@tag.Switch",
