@@ -39,6 +39,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
   useVirtual: boolean;
   loadMore: () => void;
   isLoading: boolean;
+  totalRecordsCount?: number;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
@@ -78,6 +79,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           sortTableColumn={props.sortTableColumn}
           tableSizes={props.tableSizes}
           totalColumnsWidth={props?.totalColumnsWidth}
+          totalRecordsCount={props.totalRecordsCount}
           useVirtual={props.useVirtual}
           widgetId={props.widgetId}
           width={props.width}

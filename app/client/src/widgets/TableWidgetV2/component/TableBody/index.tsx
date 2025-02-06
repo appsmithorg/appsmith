@@ -82,6 +82,7 @@ interface BodyPropsType {
   innerElementType?: ReactElementType;
   loadMore: () => void;
   isLoading: boolean;
+  totalRecordsCount?: number;
 }
 
 const LoadingIndicator = () => (
@@ -97,17 +98,20 @@ const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
     const { rows } = props;
     const isItemLoaded = (index: number) => index < rows.length;
-    const TOTAL_ITEM_COUNT = 517; // static value for poc, this should come from total record count
+    const itemCount = props.totalRecordsCount || rows.length;
 
     return (
       <div className="simplebar-content-wrapper">
         <InfiniteLoader
           isItemLoaded={isItemLoaded}
-          itemCount={TOTAL_ITEM_COUNT}
-          loadMoreItems={() => {
-            props.loadMore();
+          itemCount={itemCount}
+          loadMoreItems={(startIndex: number, stopIndex: number) => {
+            if (!props.isLoading) {
+              props.loadMore();
+            }
+            return Promise.resolve();
           }}
-          threshold={rows.length - 3} // Load more items when the user is within 3 rows of the end
+          threshold={5}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
             <FixedSizeList
@@ -118,7 +122,7 @@ const TableVirtualBodyComponent = React.forwardRef(
                 2 * props.tableSizes.VERTICAL_PADDING
               }
               innerElementType={props.innerElementType}
-              itemCount={TOTAL_ITEM_COUNT}
+              itemCount={itemCount}
               itemData={rows}
               itemSize={props.tableSizes.ROW_HEIGHT}
               onItemsRendered={onItemsRendered}
