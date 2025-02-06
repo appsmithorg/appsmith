@@ -100,19 +100,22 @@ jobs:
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
             echo "diff=$diff" >> "$GITHUB_OUTPUT"
           fi
+      
+      - name: Save diff
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          diff -u base_branch_circular_deps.txt pr_circular_deps.txt > diff_output.txt
 
       - name: Log diff in circular dependencies between PR and base branch
         id: log-compare-circular-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          diff_output=$(diff -u base_branch_circular_deps.txt pr_circular_deps.txt || true)
           {
-            echo "Dependencies added:"
-            echo "$diff_output" | grep -E '^\+[^+]'
-            echo ""
-            echo ""
             echo "Dependencies removed:"
-            echo "$diff_output" | grep -E '^-[^-]'
+            grep -E '^-[^-]' diff_output.txt
+            echo ""
+            echo "Dependencies added:"
+            grep -E '^\+[^+]' diff_output.txt
           } > diff.txt
 
           cat diff.txt
