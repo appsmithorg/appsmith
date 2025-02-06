@@ -207,10 +207,10 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
       {/* ACTIONS */}
       <div className="flex items-center space-x-1">
-        {props.actions.map((value, index) => (
+        {props.actions.map((value) => (
           <Tooltip
             content={value.tooltipContent}
-            key={index}
+            key={value.tooltipContent}
             placement={value.tooltipPosition}
           >
             {value.icon}

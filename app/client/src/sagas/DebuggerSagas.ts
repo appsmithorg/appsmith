@@ -58,8 +58,8 @@ import {
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getIDEViewMode } from "../selectors/ideSelectors";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
-import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/constants";
+import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/hooks/useDebuggerConfig";
 
 let blockedSource: string | null = null;
 

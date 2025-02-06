@@ -14,6 +14,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import {
   BINDING_WIDGET_WALKTHROUGH_DESC,
   BINDING_WIDGET_WALKTHROUGH_TITLE,
+  CONTEXT_INSPECT_STATE,
   createMessage,
 } from "ee/constants/messages";
 import { AB_TESTING_EVENT_KEYS } from "ee/entities/FeatureFlag";
@@ -46,6 +47,7 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { InspectStateToolbarButton } from "components/editorComponents/Debugger/StateInspector/InspectStateToolbarButton";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -218,6 +220,14 @@ function PropertyPaneView(
   }> => {
     return [
       {
+        tooltipContent: createMessage(CONTEXT_INSPECT_STATE),
+        icon: (
+          <InspectStateToolbarButton
+            entityId={widgetProperties?.widgetId || ""}
+          />
+        ),
+      },
+      {
         tooltipContent: "Copy widget",
         icon: (
           <Button
@@ -242,7 +252,7 @@ function PropertyPaneView(
         ),
       },
     ];
-  }, [onCopy, onDelete]);
+  }, [onCopy, onDelete, widgetProperties?.widgetId]);
 
   useEffect(() => {
     setSearchText("");

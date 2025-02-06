@@ -14,6 +14,7 @@ import {
   ShowBindings,
 } from "pages/Editor/JSEditor/ContextMenuItems";
 import { MenuSeparator } from "@appsmith/ads";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/InspectStateMenuItem";
 
 export interface Props {
   jsAction: JSCollection;
@@ -38,9 +39,12 @@ export function AppJSContextMenuItems(props: Props) {
   return (
     <>
       <Rename disabled={!canManageJSAction} jsAction={jsAction} />
-      <ShowBindings jsAction={jsAction} />
+      <MenuSeparator />
       <Copy disabled={!canManageJSAction} jsAction={jsAction} />
       <Move disabled={!canManageJSAction} jsAction={jsAction} />
+      <MenuSeparator />
+      <ShowBindings jsAction={jsAction} />
+      <InspectStateMenuItem entityId={jsAction.id} />
       <MenuSeparator />
       <Delete disabled={!canDeleteJSAction} jsAction={jsAction} />
     </>
