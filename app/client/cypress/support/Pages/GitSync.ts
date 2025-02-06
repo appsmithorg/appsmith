@@ -450,10 +450,16 @@ export class GitSync {
   public CheckMergeConflicts(destinationBranch: string) {
     this.agHelper.AssertElementExist(this.locators.quickActionsPullBtn);
     this.agHelper.GetNClick(this.locators.quickActionsMergeBtn);
-    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelectMenu, false);
+    this.agHelper.WaitUntilEleAppear(
+      this.locators.opsMergeBranchSelectMenu,
+      false,
+    );
     this.agHelper.WaitUntilEleDisappear(this.locators.opsMergeLoader);
     this.assertHelper.AssertNetworkStatus("@getBranch", 200);
-    this.agHelper.WaitUntilEleAppear(this.locators.opsMergeBranchSelectMenu, false);
+    this.agHelper.WaitUntilEleAppear(
+      this.locators.opsMergeBranchSelectMenu,
+      false,
+    );
     this.agHelper.GetNClick(this.locators.opsMergeBranchSelectMenu, 0, true);
     this.agHelper.AssertContains(destinationBranch);
     this.agHelper.GetNClickByContains(

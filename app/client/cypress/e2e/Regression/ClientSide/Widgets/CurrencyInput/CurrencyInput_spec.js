@@ -29,7 +29,10 @@ describe(
       cy.openPropertyPane(widgetName);
       cy.openSelectDropdown(".t--property-control-currency");
       cy.searchSelectDropdown("usd");
-      cy.selectDropdownValue(".t--property-control-currency", "USD - US Dollar");
+      cy.selectDropdownValue(
+        ".t--property-control-currency",
+        "USD - US Dollar",
+      );
 
       function enterAndTest(text, expected) {
         cy.get(widgetInput).clear();

@@ -31,7 +31,10 @@ describe(
       cy.openPropertyPane(widgetName);
       cy.openSelectDropdown(".t--property-control-defaultcountrycode");
       cy.searchSelectDropdown("Afg");
-      cy.selectDropdownValue(".t--property-control-defaultcountrycode", "Afghanistan (+93)");
+      cy.selectDropdownValue(
+        ".t--property-control-defaultcountrycode",
+        "Afghanistan (+93)",
+      );
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("1234567890");
@@ -56,7 +59,10 @@ describe(
         .click({ force: true });
       cy.openSelectDropdown(".t--property-control-defaultcountrycode");
       cy.searchSelectDropdown("United States / Canada");
-      cy.selectDropdownValue(".t--property-control-defaultcountrycode", "United States / Canada (+1)");
+      cy.selectDropdownValue(
+        ".t--property-control-defaultcountrycode",
+        "United States / Canada (+1)",
+      );
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("9999999999");
@@ -65,7 +71,10 @@ describe(
       cy.openPropertyPane(widgetName);
       cy.openSelectDropdown(".t--property-control-defaultcountrycode");
       cy.searchSelectDropdown("India");
-      cy.selectDropdownValue(".t--property-control-defaultcountrycode", "India (+91)");
+      cy.selectDropdownValue(
+        ".t--property-control-defaultcountrycode",
+        "India (+91)",
+      );
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("1234567890");
