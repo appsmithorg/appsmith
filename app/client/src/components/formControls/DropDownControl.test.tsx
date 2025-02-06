@@ -58,6 +58,7 @@ const dropDownProps = {
   isValid: true,
   formValues: mockAction,
   isLoading: false,
+  maxTagCount: 3,
 };
 
 describe("DropDownControl", () => {

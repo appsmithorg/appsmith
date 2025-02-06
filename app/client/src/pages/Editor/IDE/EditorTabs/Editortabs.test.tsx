@@ -37,14 +37,13 @@ describe("EditorTabs render checks", () => {
 
   it("Renders correctly in split view", () => {
     const state = getIDETestState({ ideView: EditorViewMode.SplitScreen });
-    const { getByTestId, queryByTestId } = renderComponent(
+    const { getByTestId, queryAllByRole, queryByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries`,
       state,
     );
-    // check tabs is empty
-    const tabsContainer = getByTestId("t--tabs-container");
 
-    expect(tabsContainer.firstChild).toBeNull();
+    // check that tabs are empty
+    expect(queryAllByRole("tab").length).toBe(0);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -58,7 +57,7 @@ describe("EditorTabs render checks", () => {
 
   it("Renders correctly in fullscreen view", () => {
     const state = getIDETestState({ ideView: EditorViewMode.FullScreen });
-    const { getByTestId, queryByTestId } = renderComponent(
+    const { getByTestId, queryAllByRole, queryByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries`,
       state,
     );
@@ -66,10 +65,8 @@ describe("EditorTabs render checks", () => {
     // check toggle
     expect(queryByTestId("t--list-toggle")).toBeNull();
 
-    // check tabs is empty
-    const tabsContainer = getByTestId("t--tabs-container");
-
-    expect(tabsContainer.firstChild).toBeNull();
+    // check that tabs are empty
+    expect(queryAllByRole("tab").length).toBe(0);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();

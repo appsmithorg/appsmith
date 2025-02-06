@@ -3,7 +3,6 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 
 import _, {
-  cloneDeep,
   filter,
   isArray,
   isEmpty,
@@ -142,6 +141,7 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 import HTMLCell from "../component/cellComponents/HTMLCell";
+import { objectKeys } from "@appsmith/utils";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -928,16 +928,23 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * @rahulbarwal Remove this once we remove the feature flag
      */
     if (!TableWidgetV2.getFeatureFlag(HTML_COLUMN_TYPE_ENABLED)) {
-      const updatedPrimaryColumns = cloneDeep(this.props.primaryColumns);
       let hasHTMLColumns = false;
+      const { primaryColumns } = this.props;
 
-      Object.values(updatedPrimaryColumns).forEach(
-        (column: ColumnProperties) => {
+      const updatedPrimaryColumns = objectKeys(primaryColumns).reduce(
+        (acc, widgetId) => {
+          const column = primaryColumns[widgetId];
+
           if (column.columnType === ColumnTypes.HTML) {
-            column.columnType = ColumnTypes.TEXT;
+            acc[widgetId] = { ...column, columnType: ColumnTypes.TEXT };
             hasHTMLColumns = true;
+          } else {
+            acc[widgetId] = column;
           }
+
+          return acc;
         },
+        {} as Record<string, ColumnProperties>,
       );
 
       if (hasHTMLColumns) {
