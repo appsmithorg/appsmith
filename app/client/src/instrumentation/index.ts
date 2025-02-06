@@ -26,6 +26,7 @@ import { isTracingEnabled } from "instrumentation/utils";
 const { appVersion, observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
   observability;
+//
 
 let faro: Faro | null = null;
 
