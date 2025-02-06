@@ -110,15 +110,13 @@ jobs:
         id: log-compare-circular-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          {
-            echo "Dependencies removed:"
-            grep -E '^-[^-]' diff_output.txt
-            echo ""
-            echo "Dependencies added:"
-            grep -E '^\+[^+]' diff_output.txt
-          } > diff.txt
+            echo "Dependencies removed:" >> diff.txt
+            grep -E '^-[^-]' diff_output.txt >> diff.txt
+            echo "" >> diff.txt
+            echo "Dependencies added:" >> diff.txt
+            grep -E '^\+[^+]' diff_output.txt >> diff.txt
 
-          cat diff.txt
+            cat diff.txt
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
         if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
