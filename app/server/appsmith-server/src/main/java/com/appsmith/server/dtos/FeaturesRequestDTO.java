@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class FeaturesRequestDTO {
     private String instanceId;
-    private String organizationId;
+    private String tenantId;
     private String appsmithVersion;
     private Boolean isCloudHosting;
 }
