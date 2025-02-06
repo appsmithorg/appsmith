@@ -104,7 +104,7 @@ jobs:
         id: log-compare-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          cat pr_circular_deps.txt
+          ls -ltr
 
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
