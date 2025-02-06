@@ -32,6 +32,10 @@ const ordersAction1 = PostgresFactory.build({
     id: ordersDS.id,
   },
 });
+const dsUsageMap = {
+  [usersDS.id]: "Rendering description for users",
+  [productsDS.id]: "Rendering description for products",
+};
 
 describe("DataSidePane", () => {
   it("renders the ds and count by using the default selector if dsUsageSelector not passed as a props", () => {
@@ -40,7 +44,7 @@ describe("DataSidePane", () => {
       datasources: [productsDS, usersDS, ordersDS],
     }) as AppState;
 
-    render(<DataSidePane />, {
+    render(<DataSidePane dsUsageMap={dsUsageMap} />, {
       url: "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       initialState: state,
     });
@@ -67,19 +71,12 @@ describe("DataSidePane", () => {
     );
   });
 
-  it("it uses the selector dsUsageSelector passed as prop", () => {
+  it("it uses the dsUsageMap passed as prop", () => {
     const state = getIDETestState({
       datasources: [productsDS, usersDS, ordersDS],
     }) as AppState;
 
-    const usageSelector = () => {
-      return {
-        [usersDS.id]: "Rendering description for users",
-        [productsDS.id]: "Rendering description for products",
-      };
-    };
-
-    render(<DataSidePane dsUsageSelector={usageSelector} />, {
+    render(<DataSidePane dsUsageMap={dsUsageMap} />, {
       url: "/app/untitled-application-1/page1-2/edit/datasource/users-ds-id",
       initialState: state,
     });
