@@ -636,7 +636,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         });
     }
 
-    private Flux<Plugin> getAllPlugins(String workspaceId) {
+    public Flux<Plugin> getAllPlugins(String workspaceId) {
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
         Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
