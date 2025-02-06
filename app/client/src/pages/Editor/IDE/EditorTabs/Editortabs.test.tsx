@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import EditorTabs from ".";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import "@testing-library/jest-dom";

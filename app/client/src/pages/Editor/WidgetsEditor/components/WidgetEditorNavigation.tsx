@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import NavigationPreview from "./NavigationPreview";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/Interfaces/EditorState";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
 import {
   getAppSettingsPaneContext,

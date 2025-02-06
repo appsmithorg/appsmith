@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Tooltip } from "@appsmith/ads";
 
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   MAXIMIZE_BUTTON_TOOLTIP,

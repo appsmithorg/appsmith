@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/Interfaces/EditorState";
 import { RenderModes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";

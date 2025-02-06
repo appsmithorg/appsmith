@@ -12,7 +12,7 @@ import log from "loglevel";
 import { all, put, select, takeEvery } from "redux-saga/effects";
 import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
 
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import {
   recordAnalyticsForSideBySideNavigation,
   recordAnalyticsForSideBySideWidgetHover,

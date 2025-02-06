@@ -18,7 +18,7 @@ import {
 import SegmentSwitcher from "./components/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const EditorPaneExplorer = () => {

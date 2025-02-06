@@ -2,12 +2,11 @@ import React, { useCallback, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 
 import Container from "./Container";
 import {
@@ -27,6 +26,7 @@ import { setListViewActiveState } from "actions/ideActions";
 import { useEventCallback } from "usehooks-ts";
 
 import { EditableTab } from "./EditableTab";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 const EditorTabs = () => {
   const ideViewMode = useSelector(getIDEViewMode);

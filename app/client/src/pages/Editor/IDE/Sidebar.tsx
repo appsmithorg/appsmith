@@ -6,17 +6,12 @@ import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { IDESidebar, Condition } from "@appsmith/ads";
-import {
-  BottomButtons,
-  EditorState,
-  TopButtons,
-} from "ee/entities/IDE/constants";
+import { IDESidebar } from "@appsmith/ads";
 import { getDatasources } from "ee/selectors/entitiesSelector";
-import {
-  createMessage,
-  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
-} from "ee/constants/messages";
+import { EditorButton } from "IDE/constants/SidebarButtons";
+import { BottomButtons } from "ee/pages/Editor/IDE/constants/SidebarButtons";
+
+const TopButtons = [EditorButton("editor")];
 
 function Sidebar() {
   const dispatch = useDispatch();
@@ -28,19 +23,7 @@ function Sidebar() {
 
   // Updates the bottom button config based on datasource existence
   const bottomButtons = React.useMemo(() => {
-    return datasourcesExist
-      ? BottomButtons
-      : BottomButtons.map((button) => {
-          if (button.state === EditorState.DATA) {
-            return {
-              ...button,
-              condition: Condition.Warn,
-              tooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
-            };
-          }
-
-          return button;
-        });
+    return BottomButtons(datasourcesExist);
   }, [datasourcesExist]);
 
   useEffect(() => {

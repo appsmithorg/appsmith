@@ -4,7 +4,7 @@ import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = () => {

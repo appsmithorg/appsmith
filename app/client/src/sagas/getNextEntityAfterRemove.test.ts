@@ -1,8 +1,9 @@
-import { EditorState, type EntityItem } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/Interfaces/EditorState";
 import { PluginType } from "entities/Plugin";
 import * as FocusEntityObj from "navigation/FocusEntity";
 import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";
 import { FocusEntity } from "navigation/FocusEntity";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 describe("getNextEntityAfterRemove function", () => {
   const items: EntityItem[] = [

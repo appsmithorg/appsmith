@@ -2,7 +2,7 @@ import React from "react";
 import { Flex, Spinner, Button } from "@appsmith/ads";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
-import { EditorEntityTabState } from "ee/entities/IDE/constants";
+import { EditorEntityTabState } from "IDE/Interfaces/EditorTypes";
 
 const AddButton = () => {
   const { addClickHandler } = useIDETabClickHandlers();

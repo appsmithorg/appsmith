@@ -58,7 +58,7 @@ import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "../hooks/useCurrentAppState";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/Interfaces/EditorState";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";

@@ -1,6 +1,6 @@
 import { groupBy, keyBy, sortBy } from "lodash";
 import { createSelector } from "reselect";
-import type { EntityItem } from "ee/entities/IDE/constants";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,

@@ -58,7 +58,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
@@ -143,6 +143,7 @@ import {
 } from "./helper";
 import { handleQueryEntityRedirect } from "./IDESaga";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",

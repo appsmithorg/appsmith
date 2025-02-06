@@ -48,7 +48,8 @@ import {
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { IDEType } from "ee/entities/IDE/constants";
+
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {

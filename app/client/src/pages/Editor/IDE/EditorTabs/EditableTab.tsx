@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 
 import { FileTab } from "IDE/Components/FileTab";
-import { type EntityItem } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../hooks";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +15,7 @@ import {
 import { noop } from "lodash";
 import { EditableName, useIsRenaming } from "IDE";
 import { IconContainer } from "IDE/Components/FileTab/styles";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 interface EditableTabProps {
   id: string;

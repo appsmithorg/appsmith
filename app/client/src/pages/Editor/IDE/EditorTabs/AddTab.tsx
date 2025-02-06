@@ -5,7 +5,7 @@ import { useCurrentEditorState } from "../hooks";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 import { Text } from "@appsmith/ads";
 
 const AddTab = ({
