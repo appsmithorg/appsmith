@@ -16,7 +16,10 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { objectKeys } from "@appsmith/utils";
-import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "ee/entities/Engine/actionHelpers";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -595,7 +598,7 @@ export function setFormEvaluationSaga(
         formId,
         actionConfiguration,
         currentEvalState,
-        editorContextType,
+        editorContextType || ActionParentEntityType.PAGE,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,

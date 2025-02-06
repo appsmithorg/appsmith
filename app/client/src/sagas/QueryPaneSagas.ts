@@ -85,7 +85,10 @@ import {
   getCurrentApplicationIdForCreateNewApp,
 } from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import {
+  ActionParentEntityType,
+  doesPluginRequireDatasource,
+} from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 import { objectKeys } from "@appsmith/utils";
@@ -340,7 +343,7 @@ function* formValueChangeSaga(
               values.actionConfiguration,
               values.datasource.id,
               values.pluginId,
-              values.contextType,
+              values.contextType || ActionParentEntityType.PAGE,
               field,
               hasRouteChanged,
               dsConfig,
