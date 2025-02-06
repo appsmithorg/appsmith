@@ -70,11 +70,10 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
 
-      # Install all the dependencies
-      # - name: Install dependencies
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   run: |
-      #     yarn install --immutable
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
 
       - name: Count circular dependencies on base branch
         id: count-cyclic-deps-in-base
@@ -105,8 +104,6 @@ jobs:
         id: log-compare-circular-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          sed -i '10,14d' pr_circular_deps.txt
-          sed -i '20,29d' base_branch_circular_deps.txt
           diff_output=$(diff -u base_branch_circular_deps.txt pr_circular_deps.txt)
           {
             echo "Dependencies removed:"
