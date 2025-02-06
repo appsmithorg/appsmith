@@ -27,7 +27,7 @@ function Checkbox(props: CheckboxProps) {
       isFocusVisible={isFocusVisible}
       isIndeterminate={isIndeterminate}
     >
-      {children}
+      <span>{children}</span>
       <input {...inputProps} {...focusProps} ref={ref} />
       <span className={CheckboxClassNameSquare} />
     </StyledCheckbox>

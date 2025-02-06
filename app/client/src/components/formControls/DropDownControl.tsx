@@ -310,6 +310,7 @@ function renderDropdown(
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
+      maxTagCount={props.maxTagCount}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
@@ -336,6 +337,7 @@ function renderOptionWithIcon(option: SelectOptionProps) {
       aria-label={option.label}
       disabled={option.disabled}
       isDisabled={option.isDisabled}
+      label={option.label}
       value={option.value}
     >
       {option.icon && <Icon color={option.color} name={option.icon} />}
@@ -362,6 +364,7 @@ export interface DropDownControlProps extends ControlProps {
   isLoading: boolean;
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
+  maxTagCount?: number;
 }
 
 interface ReduxDispatchProps {
