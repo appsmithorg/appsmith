@@ -366,7 +366,8 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
   return db_name;
 }
 
-export async function run() {  const processesToPause = ["backend", "rts"];
+export async function run() {
+  const processesToPause = ["backend", "rts"];
   if (
     await fsPromises
       .access(process.env.TMP + "/supervisor-conf.d/keycloak.conf")
