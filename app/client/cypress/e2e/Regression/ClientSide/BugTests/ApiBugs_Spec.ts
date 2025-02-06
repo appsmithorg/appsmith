@@ -108,7 +108,10 @@ describe(
       );
       debuggerHelper.AssertErrorCount(0);
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.ValidatePropertyFieldValue("Table data", "{{ARRAY_RESPONSE.data}}");
+      propPane.ValidatePropertyFieldValue(
+        "Table data",
+        "{{ARRAY_RESPONSE.data}}",
+      );
 
       // Create API so that it returns object response
       apiPage.CreateAndFillApi(
