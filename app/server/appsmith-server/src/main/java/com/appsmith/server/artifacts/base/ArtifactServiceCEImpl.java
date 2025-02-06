@@ -121,7 +121,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
     /**
      * Method to get the SSH public key
      *
-     * @param branchedArtifactId package for which the SSH key is requested
+     * @param branchedArtifactId artifact for which the SSH key is requested
      * @return public SSH key
      */
     @Override
@@ -140,7 +140,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Can't find valid SSH key. Please configure the artifact with git"));
                     }
-                    // Check if the package is base package
+                    // Check if the artifact is base artifact
                     if (branchedArtifactId.equals(gitData.getDefaultArtifactId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         GitAuthDTO gitAuthDTO = new GitAuthDTO();
@@ -154,7 +154,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                     if (gitData.getDefaultArtifactId() == null) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Can't find root package. Please configure the package with git");
+                                "Can't find root artifact. Please configure the artifact with git");
                     }
 
                     return artifactBasedService
