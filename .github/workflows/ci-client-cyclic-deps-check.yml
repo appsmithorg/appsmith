@@ -102,13 +102,13 @@ jobs:
           fi
       
       - name: Save diff
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
         run: |
           { diff -u base_branch_circular_deps.txt pr_circular_deps.txt || true; } > diff_output.txt
 
       - name: Log diff in circular dependencies between PR and base branch
         id: log-compare-circular-deps
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
         run: |
             echo "Dependencies added:" >> diff.txt
             grep -E '^\+[^+]' diff_output.txt | sed 's/^+//' >> diff.txt || true
