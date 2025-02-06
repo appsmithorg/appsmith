@@ -12,6 +12,7 @@ import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { getSelectedDatasourceId } from "ee/navigation/FocusSelectors";
 import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
+import { useLocation } from "react-router";
 import {
   createMessage,
   DATA_PANE_TITLE,
@@ -54,6 +55,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
+  const location = useLocation();
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
