@@ -16,10 +16,8 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import { Widgets } from "../../../../support/Pages/DataSources";
 import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
-import { DRAG_AND_DROP } from "../../../../../src/ce/constants/messages";
 
 let pluginActionForm = new PluginActionForm();
 
