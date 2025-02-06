@@ -28,7 +28,7 @@ export default function* commitSaga(
 
   try {
     const params: CommitRequestParams = {
-      commitMessage: action.payload.commitMessage,
+      message: action.payload.message,
       doPush: action.payload.doPush,
     };
     const isGitApiContractsEnabled: boolean = yield select(

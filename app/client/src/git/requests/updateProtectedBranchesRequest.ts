@@ -23,7 +23,7 @@ async function updateProtectedBranchesRequestNew(
   params: UpdateProtectedBranchesRequestParams,
 ): AxiosPromise<UpdateProtectedBranchesResponse> {
   return Api.post(
-    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected`,
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/protected-branches`,
     params,
   );
 }

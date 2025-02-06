@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
+import io.micrometer.common.KeyValue;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.errors.LockFailedException;
 import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.observation.ServerRequestObservationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -83,6 +85,12 @@ public class GlobalExceptionHandler {
                     new ErrorDTO(
                             e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle(), e.getReferenceDoc()));
         }
+
+        ServerRequestObservationContext.findCurrent(exchange.getAttributes()).ifPresent(context -> {
+            context.setError(e);
+            context.addLowCardinalityKeyValue(KeyValue.of("errorCode", e.getAppErrorCode()));
+            context.addLowCardinalityKeyValue(KeyValue.of("exception", e.getTitle()));
+        });
 
         return getResponseDTOMono(urlPath, response);
     }

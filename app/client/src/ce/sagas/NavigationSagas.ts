@@ -38,12 +38,14 @@ export function* handleRouteChange(
     yield fork(watchForTrackableUrl, action.payload);
     const IDEType = getIDETypeByUrl(pathname);
 
-    yield fork(
-      FocusRetention.onRouteChange.bind(FocusRetention),
-      pathname,
-      previousPath,
-      state,
-    );
+    if (previousPath) {
+      yield fork(
+        FocusRetention.onRouteChange.bind(FocusRetention),
+        pathname,
+        previousPath,
+        state,
+      );
+    }
 
     if (IDEType === IDE_TYPE.App) {
       yield fork(logNavigationAnalytics, action.payload);
