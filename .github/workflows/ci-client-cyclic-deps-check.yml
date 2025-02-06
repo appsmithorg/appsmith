@@ -79,7 +79,6 @@ jobs:
         id: count-cyclic-deps-in-base
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          rm -rf node_modules
           npx dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
           | sort | sed '/^[[:space:]]*$/d' > base_branch_circular_deps.txt
           # awk 'NF' base_branch_circular_deps.txt: Filter out empty lines from the file
@@ -137,9 +136,9 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/job/${process.env.GITHUB_JOB}`;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
             const prNumber = context.payload.pull_request.number;
-            const message = `🔴🔴🔴 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the ${{github.event.pull_request.base.ref}} branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.\n\nYou can view the dependency diff in the [run log](${runUrl}).`;
+            const message = `🔴🔴🔴 Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the ${{github.event.pull_request.base.ref}} branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.\n\nYou can view the dependency diff in the [run log](${runUrl}). Look for the **check-cyclic-dependencies** job in the run.`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
