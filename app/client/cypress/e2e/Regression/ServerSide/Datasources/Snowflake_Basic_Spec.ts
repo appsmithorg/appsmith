@@ -110,10 +110,11 @@ describe(
 
     it("3. Validate widget binding with queries & deploying the app", () => {
       PageLeftPane.selectItem("SelectQuery", { ctrlKey: true, force: true });
-      dataSources.AddSuggestedWidget(Widgets.Table);
-      //deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-      //table.AssertTableLoaded(0, 0, "v2");
-      //deployMode.NavigateBacktoEditor();
+      dataSources.AddSuggestedWidget(Widgets.Table, undefined, true);
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      table.WaitUntilTableLoad(0, 0, "v2");
+      // table.AssertTableLoaded(0, 0, "v2");
+      deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
     });
 
