@@ -43,13 +43,15 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
-  PREMIUM_INTEGRATIONS,
+  getFilteredPremiumIntegrations,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { IDEType } from "ee/entities/IDE/constants";
 import { filterSearch } from "./util";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -321,10 +323,15 @@ const mapStateToProps = (
       ? authApiPlugin
       : undefined;
 
+  const isExternalSaasEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_external_saas_plugins_enabled,
+  );
+
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
-          PREMIUM_INTEGRATIONS,
+          getFilteredPremiumIntegrations(isExternalSaasEnabled),
           searchedPlugin,
         ) as PremiumIntegration[])
       : [];

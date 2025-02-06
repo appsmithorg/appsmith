@@ -11,10 +11,12 @@ import {
 import { useSelector } from "react-redux";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import { getPlugins } from "ee/selectors/entitiesSelector";
-import { PREMIUM_INTEGRATIONS } from "./PremiumDatasources/Constants";
+import { getFilteredPremiumIntegrations } from "./PremiumDatasources/Constants";
 import styled from "styled-components";
 import { filterSearch } from "./util";
 import type { MockDatasource } from "entities/Datasource";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const EmptyImage = styled.img`
   margin-bottom: var(--ads-v2-spaces-6);
@@ -34,13 +36,23 @@ export default function EmptySearchedPlugins({
 
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
   const plugins = useSelector(getPlugins);
+
+  const isExternalSaasEnabled = useSelector((state) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.release_external_saas_plugins_enabled,
+    ),
+  );
+
   const searchedItems =
     filterSearch(
       [
         ...plugins,
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
-        ...(isPremiumDatasourcesViewEnabled ? PREMIUM_INTEGRATIONS : []),
+        ...(isPremiumDatasourcesViewEnabled
+          ? getFilteredPremiumIntegrations(isExternalSaasEnabled)
+          : []),
       ],
       searchedPlugin,
     ).length > 0;
