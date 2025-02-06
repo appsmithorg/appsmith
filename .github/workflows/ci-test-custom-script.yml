@@ -373,7 +373,7 @@ jobs:
           NODE_ENV: development
         run: |
             cd app/client
-            npx cypress-repeat-pro run -n 3 --until-passes \
+            npx cypress-repeat-pro run -n 3 --rerun-failed-only \
                 --spec "${{ inputs.spec }}" \
                 --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
