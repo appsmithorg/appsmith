@@ -103,9 +103,9 @@ jobs:
             echo "diff=$diff" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Log circular dependencies
-        id: log-compare-deps
-        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
+      - name: Log diff in circular dependencies between PR and base branch
+        id: log-compare-circular-deps
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           sed -i '' '10,14d' pr_circular_deps.txt
           sed -i '' '20,29d' base_branch_circular_deps.txt
