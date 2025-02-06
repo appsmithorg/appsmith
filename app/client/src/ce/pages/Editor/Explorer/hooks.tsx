@@ -6,7 +6,7 @@ import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import type { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
-import produce from "immer";
+import { create } from "mutative";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getActions, getDatasources } from "ee/selectors/entitiesSelector";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
@@ -184,7 +184,7 @@ export const useActions = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
-      const filteredActions = produce(actions, (draft) => {
+      const filteredActions = create(actions, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           if (pageIds.includes(key)) {
             draft[key] = value;
@@ -225,7 +225,7 @@ export const useWidgets = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword && pageCanvasStructures) {
       const start = performance.now();
-      const filteredDSLs = produce(pageCanvasStructures, (draft) => {
+      const filteredDSLs = create(pageCanvasStructures, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           if (pageIds.includes(key)) {
             draft[key] = value;
@@ -256,7 +256,7 @@ export const usePageIds = (searchKeyword?: string) => {
 
   return useMemo(() => {
     if (searchKeyword) {
-      const filteredPages = produce(pages, (draft) => {
+      const filteredPages = create(pages, (draft) => {
         draft.forEach((page, index) => {
           const searchMatches =
             page.pageName.toLowerCase().indexOf(searchKeyword.toLowerCase()) >

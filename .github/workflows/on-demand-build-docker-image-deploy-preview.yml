@@ -73,7 +73,7 @@ jobs:
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn't work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
@@ -169,10 +169,9 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
+        id: info_json
         run: |
-          if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
-          fi
+          scripts/generate_info_json.sh
 
       - name: Place server artifacts-es
         run: |
@@ -209,6 +208,10 @@ jobs:
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
+          labels: |
+            org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}
+            org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}
+            org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}

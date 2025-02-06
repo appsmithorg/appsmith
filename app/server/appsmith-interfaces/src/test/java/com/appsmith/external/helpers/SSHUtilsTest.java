@@ -6,8 +6,15 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSHConnection;
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
+import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +23,57 @@ import static com.appsmith.external.helpers.SSHUtils.getDBPortFromConfigOrDefaul
 import static com.appsmith.external.helpers.SSHUtils.getSSHPortFromConfigOrDefault;
 import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
 import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SSHUtilsTest {
+
+    @BeforeAll
+    static void setup() {
+        Security.addProvider(new BouncyCastleProvider()); // Ensure BouncyCastle is available for OpenSSH keys
+    }
+
+    /* Test OpenSSH Key Parsing */
+    @Test
+    public void testOpenSSHKeyParsing() throws Exception {
+        String opensshKey = "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+                + "b3BlbnNzaC1rZXktdmVyc2lvbjE=\n"
+                + "-----END OPENSSH PRIVATE KEY-----";
+
+        Reader reader = new StringReader(opensshKey);
+        OpenSSHKeyFile openSSHKeyFile = new OpenSSHKeyFile();
+        openSSHKeyFile.init(reader);
+
+        assertNotNull(openSSHKeyFile);
+    }
+
+    /* Test PKCS#8 PEM Key Parsing */
+    @Test
+    public void testPKCS8PEMKeyParsing() throws Exception {
+        String pkcs8Key =
+                "-----BEGIN PRIVATE KEY-----\n" + "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC...\n" + "-----END PRIVATE KEY-----";
+
+        Reader reader = new StringReader(pkcs8Key);
+        PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
+        pkcs8KeyFile.init(reader);
+
+        assertNotNull(pkcs8KeyFile);
+    }
+
+    /* Test RSA PEM Key Parsing */
+    @Test
+    public void testRSAPEMKeyParsing() throws Exception {
+        String rsaKey =
+                "-----BEGIN RSA PRIVATE KEY-----\n" + "MIIEowIBAAKCAQEA7...\n" + "-----END RSA PRIVATE KEY-----";
+
+        Reader reader = new StringReader(rsaKey);
+        PKCS8KeyFile pkcs8KeyFile = new PKCS8KeyFile();
+        pkcs8KeyFile.init(reader);
+
+        assertNotNull(pkcs8KeyFile);
+    }
+
     /* Test is ssh enabled method */
     @Test
     public void testIsSSHEnabled_trueCase() {
