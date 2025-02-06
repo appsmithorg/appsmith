@@ -49,6 +49,7 @@ export class CommonLocators {
     )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _tableWidget = ".t--widget-tablewidgetv2";
+  _tabWidget = (tabNumber: string) => `.t--tabid-tab${tabNumber}`;
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;

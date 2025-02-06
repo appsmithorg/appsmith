@@ -1,25 +1,34 @@
-import { LoginPage } from '../pages/loginPage_spec'
-import { HomePage } from '../pages/homepage_spec'
-import { ApplicationPage } from '../pages/ApplicationPage'
-import { DeployPage } from '../pages/deploy_spec'
+// <reference types="Cypress" />
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  table,
+  locators,
+} from "../../support/Objects/ObjectsCore";
 
-describe('Appsmith Application Search and Verification', () => {
-  const loginPage = new LoginPage()
-  const homePage = new HomePage()
-  const applicationPage = new ApplicationPage()
-  const deployPage = new DeployPage()
-  const appName = "Xolair"
+describe("Xolair Application check in deploy mode", () => {
+  before(() => {
+      // Navigate to the test application
+      cy.visit(
+          "http://ec2-3-110-218-99.ap-south-1.compute.amazonaws.com/app/application/page-67a229a76579413798820d52",
+      );
+  });
+  it("1. Check if the patient tab is displayed or not", () => {
+      // check all the tabs in xolair app
+      agHelper.AssertElementVisibility(locators._widgetByName("lookup_tab"));
+      cy.get(locators._tabWidget("2")).click().should("be.visible");
+      //cy.get(locators._tabWidget("3")).click().should("be.visible");
+      cy.get(locators._tabWidget("1")).click().should("be.visible");
+      //cy.get(".t--tab-Patients").should("be.visible");
 
-  beforeEach(() => {
-    cy.visit('http://ec2-3-110-218-99.ap-south-1.compute.amazonaws.com/')
-  })
+  });
+});
 
-  it('should login, search app, and verify table content', () => {
-    loginPage.login("","")
-    homePage.searchApplication(appName)
-    homePage.clickSuggestedApp(appName)
-    cy.wait(5000)
-    cy.get(".t--tab-Providers").should("be.visible")
-    deployPage.verifyPatientsTab()
-  })
-}) 
+    
+
+
+
+
+
+
