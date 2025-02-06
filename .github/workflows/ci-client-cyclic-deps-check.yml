@@ -100,6 +100,12 @@ jobs:
             echo "diff=$diff" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Log circular dependencies
+        id: log-compare-deps
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          cat pr_circular_deps.txt
+
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
         if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
