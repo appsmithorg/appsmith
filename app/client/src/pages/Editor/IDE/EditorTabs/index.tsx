@@ -10,6 +10,7 @@ import {
 } from "@appsmith/ads";
 
 import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import {
   EditorEntityTab,
   EditorEntityTabState,
