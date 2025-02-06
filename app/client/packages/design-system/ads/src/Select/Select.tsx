@@ -40,6 +40,7 @@ function Select(props: SelectProps) {
     showSearch = false,
     size = "md",
     virtual = false,
+    optionLabelProp = "label",
     ...rest
   } = props;
   const searchRef = useRef<HTMLInputElement>(null);
@@ -108,8 +109,9 @@ function Select(props: SelectProps) {
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""
-      mode={isMultiSelect ? "tags" : undefined}
+      mode={isMultiSelect ? "multiple" : undefined}
       onDropdownVisibleChange={handleDropdownVisibleChange}
+      optionLabelProp={optionLabelProp}
       placeholder={placeholder}
       searchValue={searchValue}
       showArrow
