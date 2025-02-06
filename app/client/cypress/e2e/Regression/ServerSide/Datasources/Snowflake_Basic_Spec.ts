@@ -4,18 +4,22 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
+  entityExplorer,
   entityItems,
   locators,
+  propPane,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import datasource from "../../../../../cypress/locators/DatasourcesEditor.json";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
+import { DRAG_AND_DROP } from "../../../../../src/ce/constants/messages";
 
 let pluginActionForm = new PluginActionForm();
 
@@ -109,11 +113,12 @@ describe(
     });
 
     it("3. Validate widget binding with queries & deploying the app", () => {
-      PageLeftPane.selectItem("SelectQuery", { ctrlKey: true, force: true });
-      dataSources.AddSuggestedWidget(Widgets.Table, undefined, true);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      propPane.EnterJSContext("Table data", "{{SelectQuery.data}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");
-      // table.AssertTableLoaded(0, 0, "v2");
+      table.AssertTableHeaderOrder("IDNAMEPOSITIONSALARY");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
     });
