@@ -4,19 +4,22 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
+import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -24,7 +27,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @ChangeUnit(id = "copy-tenant-id-to-organization-id", order = "065")
 public class Migration065_CopyTenantIdToOrganizationId {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ReactiveRedisOperations<String, Object> reactiveRedisOperations;
     private final ObjectMapper objectMapper;
     private final MongoTemplate mongoTemplate;
 
@@ -32,11 +35,16 @@ public class Migration065_CopyTenantIdToOrganizationId {
             Arrays.asList(User.class, Workspace.class, PermissionGroup.class, UsagePulse.class);
 
     public Migration065_CopyTenantIdToOrganizationId(
-            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, MongoTemplate mongoTemplate) {
-        this.redisTemplate = redisTemplate;
+            @Qualifier("reactiveRedisOperations") ReactiveRedisOperations<String, Object> reactiveRedisOperations,
+            ObjectMapper objectMapper,
+            MongoTemplate mongoTemplate) {
+        this.reactiveRedisOperations = reactiveRedisOperations;
         this.objectMapper = objectMapper;
         this.mongoTemplate = mongoTemplate;
     }
+
+    @RollbackExecution
+    public void rollbackExecution() {}
 
     @Execution
     public void execute() {
@@ -79,7 +87,10 @@ public class Migration065_CopyTenantIdToOrganizationId {
     private void migrateRedisData() {
         try {
             // Get all session keys
-            Set<String> sessionKeys = redisTemplate.keys("session:*");
+            List<String> sessionKeys = reactiveRedisOperations
+                    .keys("spring:session:sessions:*")
+                    .collectList()
+                    .block();
 
             if (sessionKeys == null || sessionKeys.isEmpty()) {
                 log.info("No session keys found in Redis");
@@ -88,37 +99,43 @@ public class Migration065_CopyTenantIdToOrganizationId {
 
             int updatedCount = 0;
             for (String sessionKey : sessionKeys) {
-                String sessionData = redisTemplate.opsForValue().get(sessionKey);
-                if (sessionData != null) {
+                Map<Object, Object> sessionData = reactiveRedisOperations
+                        .opsForHash()
+                        .entries(sessionKey)
+                        .collectMap(entry -> entry.getKey(), entry -> entry.getValue())
+                        .block();
+
+                if (sessionData != null && sessionData.containsKey("sessionAttr:SPRING_SECURITY_CONTEXT")) {
                     try {
-                        // Parse the session data
-                        Document sessionDoc = Document.parse(sessionData);
-                        boolean updated = false;
+                        String sessionStr = sessionData
+                                .get("sessionAttr:SPRING_SECURITY_CONTEXT")
+                                .toString();
+                        // Extract the appsmith-session JSON string
+                        if (sessionStr.contains("appsmith-session:")) {
+                            String jsonStr =
+                                    sessionStr.substring(sessionStr.indexOf('{'), sessionStr.lastIndexOf('}') + 1);
+                            JsonNode jsonNode = objectMapper.readTree(jsonStr);
+                            ObjectNode objectNode = (ObjectNode) jsonNode;
 
-                        // Update user data if present
-                        if (sessionDoc.containsKey("user")) {
-                            Document userDoc = sessionDoc.get("user", Document.class);
-                            if (userDoc.containsKey("tenantId") && !userDoc.containsKey("organizationId")) {
-                                userDoc.put("organizationId", userDoc.get("tenantId"));
-                                sessionDoc.put("user", userDoc);
-                                updated = true;
+                            if (objectNode.has("tenantId") && !objectNode.has("organizationId")) {
+                                // Copy tenantId value to organizationId
+                                objectNode.put(
+                                        "organizationId",
+                                        objectNode.get("tenantId").asText());
+                                // Remove tenantId
+                                objectNode.remove("tenantId");
+
+                                // Reconstruct the session string with updated JSON
+                                String updatedJson = objectMapper.writeValueAsString(objectNode);
+                                String updatedSessionStr = "appsmith-session:" + updatedJson;
+
+                                // Convert to byte array if needed
+                                reactiveRedisOperations
+                                        .opsForHash()
+                                        .put(sessionKey, "sessionAttr:SPRING_SECURITY_CONTEXT", updatedSessionStr)
+                                        .block();
+                                updatedCount++;
                             }
-                        }
-
-                        // Update workspace data if present
-                        if (sessionDoc.containsKey("workspace")) {
-                            Document workspaceDoc = sessionDoc.get("workspace", Document.class);
-                            if (workspaceDoc.containsKey("tenantId") && !workspaceDoc.containsKey("organizationId")) {
-                                workspaceDoc.put("organizationId", workspaceDoc.get("tenantId"));
-                                sessionDoc.put("workspace", workspaceDoc);
-                                updated = true;
-                            }
-                        }
-
-                        if (updated) {
-                            // Save the updated session data back to Redis
-                            redisTemplate.opsForValue().set(sessionKey, sessionDoc.toJson());
-                            updatedCount++;
                         }
                     } catch (Exception e) {
                         log.error("Error processing Redis session key {}: ", sessionKey, e);
