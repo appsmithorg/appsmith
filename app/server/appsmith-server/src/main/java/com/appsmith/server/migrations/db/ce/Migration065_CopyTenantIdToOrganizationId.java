@@ -17,7 +17,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 
 import java.util.Arrays;
@@ -77,6 +76,12 @@ public class Migration065_CopyTenantIdToOrganizationId {
                 String tenantId = tenant.getObjectId("_id").toString();
                 organization.put("_id", new ObjectId(tenantId));
 
+                // Handle configuration key rename
+                if (tenant.containsKey("tenantConfiguration")) {
+                    organization.put("organizationConfiguration", tenant.get("tenantConfiguration"));
+                    organization.remove("tenantConfiguration");
+                }
+
                 // Insert into organization collection
                 try {
                     mongoTemplate.insert(organization, "organization");
@@ -108,11 +113,15 @@ public class Migration065_CopyTenantIdToOrganizationId {
         Query query =
                 new Query(where("tenantId").exists(true).and("organizationId").exists(false));
 
-        Update update = new Update().set("organizationId", "$tenantId");
+        // Create an update pipeline that copies the value
+        List<Document> pipeline = Arrays.asList(new Document("$set", new Document("organizationId", "$tenantId")));
 
         try {
-            long updatedCount =
-                    mongoTemplate.updateMulti(query, update, domainClass).getModifiedCount();
+            long updatedCount = mongoTemplate
+                    .getCollection(mongoTemplate.getCollectionName(domainClass))
+                    .updateMany(query.getQueryObject(), pipeline)
+                    .getModifiedCount();
+
             log.info(
                     "Successfully copied tenantId to organizationId for {} documents in collection: {}",
                     updatedCount,
