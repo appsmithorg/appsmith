@@ -32,6 +32,7 @@ import { isTracingEnabled } from "instrumentation/utils";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
 setAutoFreeze(shouldAutoFreeze);
+//
 runSagaMiddleware();
 
 appInitializer();
