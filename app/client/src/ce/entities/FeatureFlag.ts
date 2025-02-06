@@ -51,6 +51,8 @@ export const FEATURE_FLAG = {
     "config_mask_session_recordings_enabled",
   config_user_session_recordings_enabled:
     "config_user_session_recordings_enabled",
+  release_external_saas_plugins_enabled:
+    "release_external_saas_plugins_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -94,6 +96,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   kill_session_recordings_enabled: false,
   config_user_session_recordings_enabled: true,
   config_mask_session_recordings_enabled: true,
+  release_external_saas_plugins_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
