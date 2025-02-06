@@ -111,10 +111,10 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
             echo "Dependencies removed:" >> diff.txt
-            grep -E '^-[^-]' diff_output.txt >> diff.txt
+            grep -E '^-[^-]' diff_output.txt >> diff.txt || true
             echo "" >> diff.txt
             echo "Dependencies added:" >> diff.txt
-            grep -E '^\+[^+]' diff_output.txt >> diff.txt
+            grep -E '^\+[^+]' diff_output.txt >> diff.txt || true
 
             cat diff.txt
       # Comment on the PR if cyclic dependencies are found
