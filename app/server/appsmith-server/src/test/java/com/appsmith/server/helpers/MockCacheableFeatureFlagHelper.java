@@ -50,7 +50,7 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
         return Mono.empty();
     }
 
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<CachedFeatures> fetchCachedOrganizationFeatures(String organizationId) {
         return getRemoteFeaturesForOrganization(new FeaturesRequestDTO()).map(responseDTO -> {
@@ -61,13 +61,13 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
         });
     }
 
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<CachedFeatures> updateCachedOrganizationFeatures(String organizationId, CachedFeatures cachedFeatures) {
         return Mono.just(cachedFeatures);
     }
 
-    @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @CacheEvict(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<Void> evictCachedOrganizationFeatures(String organizationId) {
         return Mono.empty();

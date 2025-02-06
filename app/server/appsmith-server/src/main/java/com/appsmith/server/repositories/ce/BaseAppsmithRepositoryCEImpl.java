@@ -446,15 +446,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
 
         Mono<User> userMono = Mono.just(user);
-        if (user.getTenantId() == null) {
+        if (user.getOrganizationId() == null) {
             userMono = cacheableRepositoryHelper.getDefaultOrganizationId().map(organizationId -> {
-                user.setTenantId(organizationId);
+                user.setOrganizationId(organizationId);
                 return user;
             });
         }
 
-        return userMono.flatMap(userWithTenant -> Mono.zip(
-                        cacheableRepositoryHelper.getPermissionGroupsOfUser(userWithTenant),
+        return userMono.flatMap(userWithOrganization -> Mono.zip(
+                        cacheableRepositoryHelper.getPermissionGroupsOfUser(userWithOrganization),
                         getAnonymousUserPermissionGroups()))
                 .map(tuple -> {
                     Set<String> permissionGroups = new HashSet<>(tuple.getT1());
@@ -477,9 +477,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     protected Mono<Set<String>> getStrictPermissionGroupsForUser(User user) {
 
         Mono<User> userMono = Mono.just(user);
-        if (user.getTenantId() == null) {
-            userMono = cacheableRepositoryHelper.getDefaultOrganizationId().map(tenantId -> {
-                user.setTenantId(tenantId);
+        if (user.getOrganizationId() == null) {
+            userMono = cacheableRepositoryHelper.getDefaultOrganizationId().map(organizationId -> {
+                user.setOrganizationId(organizationId);
                 return user;
             });
         }

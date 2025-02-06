@@ -7,10 +7,13 @@ import com.appsmith.server.domains.Workspace;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.DuplicateKeyException;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -48,8 +51,47 @@ public class Migration065_CopyTenantIdToOrganizationId {
 
     @Execution
     public void execute() {
+        migrateTenantCollection();
         migrateMongoCollections();
         migrateRedisData();
+    }
+
+    private void migrateTenantCollection() {
+        try {
+            // Get the single tenant document
+            Document tenant = mongoTemplate.findOne(new Query(), Document.class, "tenant");
+
+            if (tenant == null) {
+                log.info("No tenant found to migrate");
+                return;
+            }
+
+            try {
+                // Create new organization document
+                Document organization = new Document();
+
+                // Copy all fields from tenant to organization
+                organization.putAll(tenant);
+
+                // Ensure the _id is preserved
+                String tenantId = tenant.getObjectId("_id").toString();
+                organization.put("_id", new ObjectId(tenantId));
+
+                // Insert into organization collection
+                try {
+                    mongoTemplate.insert(organization, "organization");
+                    log.info("Successfully migrated tenant to organization with id: {}", tenantId);
+                } catch (DuplicateKeyException e) {
+                    log.warn("Organization already exists for tenant: {}", tenantId);
+                }
+
+            } catch (Exception e) {
+                log.error("Error migrating tenant: {}", tenant.get("_id"), e);
+            }
+
+        } catch (Exception e) {
+            log.error("Error during tenant to organization migration", e);
+        }
     }
 
     private void migrateMongoCollections() {

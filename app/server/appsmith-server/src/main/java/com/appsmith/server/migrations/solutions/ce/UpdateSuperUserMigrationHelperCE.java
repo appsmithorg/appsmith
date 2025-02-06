@@ -53,7 +53,7 @@ public class UpdateSuperUserMigrationHelperCE {
         User user = new User();
         user.setEmail(email);
         user.setIsEnabled(false);
-        user.setTenantId(organization.getId());
+        user.setOrganizationId(organization.getId());
         user.setCreatedAt(Instant.now());
         user = mongoTemplate.save(user);
 

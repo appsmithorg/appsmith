@@ -45,7 +45,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
 
-    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
+    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.organizationId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
 
@@ -177,7 +177,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
      * @param organizationId
      * @return
      */
-    @Cache(cacheName = "tenant", key = "{#organizationId}")
+    @Cache(cacheName = "organization", key = "{#organizationId}")
     @Override
     public Mono<Organization> fetchDefaultOrganization(String organizationId) {
         BridgeQuery<Organization> defaultOrganizationCriteria =
@@ -199,7 +199,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    @CacheEvict(cacheName = "tenant", key = "{#organizationId}")
+    @CacheEvict(cacheName = "organization", key = "{#organizationId}")
     @Override
     public Mono<Void> evictCachedOrganization(String organizationId) {
         return Mono.empty().then();

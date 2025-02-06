@@ -187,7 +187,7 @@ public class UserServiceTest {
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getTenantId()).isNotNull();
+                    assertThat(user.getOrganizationId()).isNotNull();
 
                     Set<Policy> userPolicies = user.getPolicies();
                     Optional<Policy> optionalManageUserPolicy = userPolicies.stream()

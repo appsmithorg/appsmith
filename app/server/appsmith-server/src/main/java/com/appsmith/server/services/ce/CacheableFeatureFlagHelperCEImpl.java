@@ -88,7 +88,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             }
             userTraits.put("email", emailTrait);
             userTraits.put("instanceId", instanceId);
-            userTraits.put("tenantId", user.getTenantId());
+            userTraits.put("organizationId", user.getOrganizationId());
             userTraits.put("emailDomain", emailDomain);
             userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
             // for anonymous user, user.getCreatedAt() is null
@@ -109,14 +109,14 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        // TODO: Convert to current tenant when the feature is enabled
-        Mono<Organization> defaultTenantMono = organizationRepository.findBySlug(DEFAULT);
-        return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
+        // TODO: Convert to current organization when the feature is enabled
+        Mono<Organization> organizationMono = organizationRepository.findBySlug(DEFAULT);
+        return Mono.zip(instanceIdMono, organizationMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
-                    String tenantId = objects.getT2().getId();
+                    String organizationId = objects.getT2().getId();
                     String appsmithVersion = releaseNotesService.getRunningVersion();
                     FeatureFlagIdentityTraits featureFlagIdentityTraits = new FeatureFlagIdentityTraits(
-                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
+                            objects.getT1(), organizationId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
                     return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
                 .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
@@ -162,14 +162,14 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     /**
-     * To fetch the tenant new features via cache
-     * @param organizationId Id of the tenant
+     * To fetch the organization new features via cache
+     * @param organizationId Id of the organization
      * @return Mono of CachedFeatures
      */
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<CachedFeatures> fetchCachedOrganizationFeatures(String organizationId) {
-        return this.forceAllRemoteFeaturesForTenant(organizationId).flatMap(flags -> {
+        return this.forceAllRemoteFeaturesForOrganization(organizationId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
             cachedFeatures.setFeatures(flags);
             // If CS is down we expect the empty flags, from upstream method. Hence, setting the refreshed at to past
@@ -183,36 +183,36 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         });
     }
 
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<CachedFeatures> updateCachedOrganizationFeatures(String organizationId, CachedFeatures cachedFeatures) {
-        log.debug("Updating cached tenant features for tenant: {}", organizationId);
+        log.debug("Updating cached organization features for organization: {}", organizationId);
         return Mono.just(cachedFeatures);
     }
 
     /**
-     * To evict the tenant new features cache
-     * @param organizationId Id of the tenant
+     * To evict the organization new features cache
+     * @param organizationId Id of the organization
      * @return Mono of Void
      */
-    @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @CacheEvict(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
     public Mono<Void> evictCachedOrganizationFeatures(String organizationId) {
         return Mono.empty();
     }
 
     /**
-     * To force fetch all tenant features from Cloud Services
-     * @param tenantId Id of the tenant
+     * To force fetch all organization features from Cloud Services
+     * @param organizationId Id of the organization
      * @return Mono of Map
      */
-    private Mono<Map<String, Boolean>> forceAllRemoteFeaturesForTenant(String tenantId) {
+    private Mono<Map<String, Boolean>> forceAllRemoteFeaturesForOrganization(String organizationId) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         String appsmithVersion = releaseNotesService.getRunningVersion();
         return instanceIdMono
                 .map(instanceId -> {
                     FeaturesRequestDTO featuresRequestDTO = new FeaturesRequestDTO();
-                    featuresRequestDTO.setOrganizationId(tenantId);
+                    featuresRequestDTO.setOrganizationId(organizationId);
                     featuresRequestDTO.setInstanceId(instanceId);
                     featuresRequestDTO.setAppsmithVersion(appsmithVersion);
                     featuresRequestDTO.setIsCloudHosting(commonConfig.isCloudHosting());
@@ -225,7 +225,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     /**
-     * To get all tenant features from Cloud Services.
+     * To get all organization features from Cloud Services.
      * @param featuresRequestDTO FeaturesRequestDTO
      * @return Mono of Map
      */

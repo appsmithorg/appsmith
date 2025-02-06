@@ -150,7 +150,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<User> userMono = organizationService
                 .getDefaultOrganizationId()
                 .flatMap(organizationId ->
-                        userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), organizationId))
+                        userRepository.findByEmailAndOrganizationId(changeUserGroupDTO.getUsername(), organizationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();

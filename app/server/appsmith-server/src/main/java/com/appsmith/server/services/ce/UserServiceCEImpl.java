@@ -156,12 +156,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<User> findByEmail(String email) {
         return organizationService
                 .getDefaultOrganizationId()
-                .flatMap(organizationId -> findByEmailAndTenantId(email, organizationId));
+                .flatMap(organizationId -> findByEmailAndOrganizationId(email, organizationId));
     }
 
     @Override
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        return repository.findByEmailAndTenantId(email, tenantId);
+    public Mono<User> findByEmailAndOrganizationId(String email, String organizationId) {
+        return repository.findByEmailAndOrganizationId(email, organizationId);
     }
 
     /**
@@ -399,19 +399,19 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
-            if (userBeforeSave.getTenantId() == null) {
+        Mono<User> userWithOrgMono = Mono.just(user).flatMap(userBeforeSave -> {
+            if (userBeforeSave.getOrganizationId() == null) {
                 return organizationService.getDefaultOrganizationId().map(organizationId -> {
-                    userBeforeSave.setTenantId(organizationId);
+                    userBeforeSave.setOrganizationId(organizationId);
                     return userBeforeSave;
                 });
             }
-            // The tenant has been set already. No need to set the default tenant id.
+            // The org has been set already. No need to set the default org id.
             return Mono.just(userBeforeSave);
         });
 
         // Save the new user
-        return userWithTenantMono
+        return userWithOrgMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
@@ -678,7 +678,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
-        Mono<Boolean> isSuperUserMono = userFromDbMono.flatMap(userUtils::isSuperUser);
+        Mono<Boolean> isSuperUserMono =
+                userFromDbMono.flatMap(userUtils::isSuperUser).defaultIfEmpty(false);
 
         return Mono.zip(
                         isUsersEmpty(),

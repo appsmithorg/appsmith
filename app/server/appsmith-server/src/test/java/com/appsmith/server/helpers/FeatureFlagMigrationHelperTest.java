@@ -147,7 +147,7 @@ class FeatureFlagMigrationHelperTest {
     }
 
     @Test
-    void getUpdatedFlagsWithPendingMigration_fetchTenantFlagsFailedFromCS_pendingMigrationReported() {
+    void getUpdatedFlagsWithPendingMigration_fetchOrganizationFlagsFailedFromCS_pendingMigrationReported() {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(UUID.randomUUID().toString());
         defaultOrganization.setOrganizationConfiguration(new OrganizationConfiguration());
@@ -197,10 +197,10 @@ class FeatureFlagMigrationHelperTest {
     @Test
     void checkAndExecuteMigrationsForFeatureFlag_validFeatureFlag_success() {
         Organization defaultOrganization = new Organization();
-        OrganizationConfiguration tenantConfiguration = new OrganizationConfiguration();
-        tenantConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
-        tenantConfiguration.setMigrationStatus(PENDING);
-        defaultOrganization.setOrganizationConfiguration(tenantConfiguration);
+        OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
+        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
+        organizationConfiguration.setMigrationStatus(PENDING);
+        defaultOrganization.setOrganizationConfiguration(organizationConfiguration);
 
         CachedFeatures existingCachedFeatures = new CachedFeatures();
         Map<String, Boolean> featureMap = new HashMap<>();
@@ -215,9 +215,9 @@ class FeatureFlagMigrationHelperTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertThat(result).isTrue();
-                    assertThat(tenantConfiguration.getFeaturesWithPendingMigration())
+                    assertThat(organizationConfiguration.getFeaturesWithPendingMigration())
                             .hasSize(1);
-                    assertThat(tenantConfiguration.getMigrationStatus()).isEqualTo(PENDING);
+                    assertThat(organizationConfiguration.getMigrationStatus()).isEqualTo(PENDING);
                 })
                 .verifyComplete();
     }
@@ -230,9 +230,9 @@ class FeatureFlagMigrationHelperTest {
         // flag flipped from true to false
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(UUID.randomUUID().toString());
-        OrganizationConfiguration tenantConfiguration = new OrganizationConfiguration();
-        tenantConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
-        defaultOrganization.setOrganizationConfiguration(tenantConfiguration);
+        OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
+        organizationConfiguration.setFeaturesWithPendingMigration(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
+        defaultOrganization.setOrganizationConfiguration(organizationConfiguration);
 
         // Mock CS calls to fetch the feature flags to have the feature flag in pending migration list with ENABLE
         // status

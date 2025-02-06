@@ -50,7 +50,7 @@ public class EqualityTest {
     }
 
     @Test
-    void testTenantConfiguration() {
+    void testOrganizationConfiguration() {
         OrganizationConfiguration c1 = new OrganizationConfiguration();
         c1.setEmailVerificationEnabled(true);
         OrganizationConfiguration c2 = new OrganizationConfiguration();

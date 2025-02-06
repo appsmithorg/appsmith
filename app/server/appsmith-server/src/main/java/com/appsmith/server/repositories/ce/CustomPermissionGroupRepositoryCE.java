@@ -23,9 +23,9 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
 
     Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
-    Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
+    Mono<Void> evictPermissionGroupsUser(String email, String organizationId);
 
-    Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
+    Mono<Void> evictAllPermissionGroupCachesForUser(String email, String organizationId);
 
     Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);

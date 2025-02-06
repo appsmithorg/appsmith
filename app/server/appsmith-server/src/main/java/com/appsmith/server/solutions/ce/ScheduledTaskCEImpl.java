@@ -21,14 +21,14 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
     @Observed(name = "fetchFeatures")
     public void fetchFeatures() {
-        log.info("Fetching features for default tenant");
+        log.info("Fetching features for default organization");
         featureFlagService
                 .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
                 .then(organizationService
                         .getDefaultOrganization()
                         .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
                         .then(organizationService.restartOrganization()))
-                .doOnError(error -> log.error("Error while fetching tenant feature flags", error))
+                .doOnError(error -> log.error("Error while fetching organization feature flags", error))
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
     }

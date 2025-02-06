@@ -362,7 +362,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         // We ideally want to migrate all variables from .env file to the config collection for better
                         // scalability
                         // Write the changes to the organization collection in configuration field
-                        .flatMap(originalVariables -> updateOrganizationConfiguration(user.getTenantId(), changes)
+                        .flatMap(originalVariables -> updateOrganizationConfiguration(user.getOrganizationId(), changes)
                                 .then(sendAnalyticsEvent(user, originalVariables, changes))
                                 .thenReturn(originalVariables)))
                 .flatMap(originalValues -> {
