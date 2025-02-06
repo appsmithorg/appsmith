@@ -8,6 +8,10 @@ export const getJSContextMenuByIdeType = (
   ideType: IDEType,
   jsAction: JSCollection,
 ) => {
+  if (Boolean(jsAction?.isMainJSCollection)) {
+    return null;
+  }
+
   switch (ideType) {
     case IDE_TYPE.App: {
       return (

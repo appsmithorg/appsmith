@@ -73,6 +73,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
       >
         <Styled.Text
           aria-invalid={Boolean(validationError)}
+          className="t--entity-name"
           data-isediting={inEditMode}
           data-isfixedwidth={isFixedWidth}
           inputProps={inputProps}

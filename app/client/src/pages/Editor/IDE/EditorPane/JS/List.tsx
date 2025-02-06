@@ -73,7 +73,7 @@ const ListJSObjects = () => {
               items: items,
               className: "",
               renderList: (item: EntityItem) => {
-                return <JSEntity item={item} />;
+                return <JSEntity item={item} key={item.key} />;
               },
             };
           })}
