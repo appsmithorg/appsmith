@@ -108,7 +108,7 @@ function Select(props: SelectProps) {
       maxTagCount={maxTagCount}
       maxTagPlaceholder={maxTagPlaceholder || getMaxTagPlaceholder}
       menuItemSelectedIcon=""
-      mode={isMultiSelect ? "tags" : undefined}
+      mode={isMultiSelect ? "multiple" : undefined}
       onDropdownVisibleChange={handleDropdownVisibleChange}
       placeholder={placeholder}
       searchValue={searchValue}
