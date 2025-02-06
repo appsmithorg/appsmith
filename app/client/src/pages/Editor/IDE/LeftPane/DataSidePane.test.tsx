@@ -8,7 +8,7 @@ import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { AppState } from "ee/reducers";
 import { render } from "test/testUtils";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 const productsDS = datasourceFactory().build({
   name: "Products",
