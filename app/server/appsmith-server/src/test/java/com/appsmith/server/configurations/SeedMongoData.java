@@ -139,7 +139,7 @@ public class SeedMongoData {
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    user.setTenantId(organizationId);
+                    user.setOrganizationId(organizationId);
                     return userRepository.save(user);
                 })
                 .flatMap(user -> {
