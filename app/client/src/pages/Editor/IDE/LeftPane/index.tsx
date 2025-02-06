@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
@@ -15,6 +16,8 @@ import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import EditorPane from "../EditorPane";
 import LibrarySidePane from "ee/pages/Editor/IDE/LeftPane/LibrarySidePane";
+import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 
 export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   height: 100%;
@@ -45,10 +48,20 @@ const LeftPane = () => {
     [path],
   );
 
+  const dsUsageMap = useSelector((state) =>
+    getDatasourceUsageCountForApp(state, IDE_TYPE.App),
+  );
+
   return (
     <LeftPaneContainer showRightBorder={false}>
       <Switch>
-        <SentryRoute component={DataSidePane} exact path={dataSidePanePaths} />
+        <SentryRoute
+          exact
+          path={dataSidePanePaths}
+          render={(routeProps) => (
+            <DataSidePane {...routeProps} dsUsageMap={dsUsageMap} />
+          )}
+        />
         <SentryRoute
           component={LibrarySidePane}
           exact

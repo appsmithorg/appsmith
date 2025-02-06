@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { EntityGroupsList, Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
-  getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
@@ -13,7 +12,6 @@ import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { getSelectedDatasourceId } from "ee/navigation/FocusSelectors";
 import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
-import { useLocation } from "react-router";
 import {
   createMessage,
   DATA_PANE_TITLE,
@@ -30,7 +28,6 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
@@ -44,13 +41,11 @@ const DatasourceIcon = styled.img`
 `;
 
 interface DataSidePaneProps {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dsUsageSelector?: (...args: any[]) => Record<string, string>;
+  dsUsageMap: Record<string, string>;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
-  const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
+  const { dsUsageMap } = props;
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
@@ -59,9 +54,6 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const location = useLocation();
-  const ideType = getIDETypeByUrl(location.pathname);
-  const dsUsageMap = useSelector((state) => dsUsageSelector(state, ideType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
