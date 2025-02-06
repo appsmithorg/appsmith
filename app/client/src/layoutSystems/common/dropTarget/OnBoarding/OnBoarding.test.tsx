@@ -1,5 +1,5 @@
 import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";

@@ -6,7 +6,7 @@ import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import type { AppState } from "ee/reducers";
 import type React from "react";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 
 export const useHoverToFocusWidget = (
   widgetId: string,

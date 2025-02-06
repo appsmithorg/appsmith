@@ -1,4 +1,4 @@
-import type { EditorState } from "IDE/Interfaces/EditorState";
+import type { EditorState } from "IDE/enums";
 import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { IDEBasePaths } from "ee/IDE/constants/routes";
 import { matchPath } from "react-router";

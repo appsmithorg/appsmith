@@ -3,7 +3,7 @@ import { matchPath } from "react-router";
 import { ADD_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { EntityPaths } from "ee/IDE/constants/routes";
 import { getBaseUrlsForIDEType, getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { memoize } from "lodash";

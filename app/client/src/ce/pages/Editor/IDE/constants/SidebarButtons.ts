@@ -1,5 +1,6 @@
 import {
   DataButton,
+  EditorButton,
   LibrariesButton,
   SettingsButton,
 } from "IDE/constants/SidebarButtons";
@@ -22,3 +23,4 @@ export const BottomButtons = (datasourcesExist: boolean) => [
   LibrariesButton("libraries"),
   SettingsButton("settings"),
 ];
+export const TopButtons = [EditorButton("editor")];

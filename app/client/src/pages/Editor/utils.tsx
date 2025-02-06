@@ -37,7 +37,7 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "IDE/Interfaces/EditorTypes";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { FocusEntity } from "navigation/FocusEntity";
 import { objectKeys } from "@appsmith/utils";
 

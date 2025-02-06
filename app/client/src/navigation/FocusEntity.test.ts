@@ -1,6 +1,6 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 
 interface TestCase {
   path: string;

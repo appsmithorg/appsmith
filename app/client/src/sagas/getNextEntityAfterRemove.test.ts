@@ -1,4 +1,4 @@
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { PluginType } from "entities/Plugin";
 import * as FocusEntityObj from "navigation/FocusEntity";
 import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";

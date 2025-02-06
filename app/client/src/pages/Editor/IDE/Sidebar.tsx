@@ -8,10 +8,10 @@ import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { IDESidebar } from "@appsmith/ads";
 import { getDatasources } from "ee/selectors/entitiesSelector";
-import { EditorButton } from "IDE/constants/SidebarButtons";
-import { BottomButtons } from "ee/pages/Editor/IDE/constants/SidebarButtons";
-
-const TopButtons = [EditorButton("editor")];
+import {
+  BottomButtons,
+  TopButtons,
+} from "ee/pages/Editor/IDE/constants/SidebarButtons";
 
 function Sidebar() {
   const dispatch = useDispatch();

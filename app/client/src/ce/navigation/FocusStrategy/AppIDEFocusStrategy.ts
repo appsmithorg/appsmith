@@ -8,7 +8,7 @@ import {
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   datasourcesEditorURL,

@@ -1,7 +1,7 @@
 import { getQueryUrl } from "./getQueryUrl";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "IDE/enums";
 import { PluginPackageName } from "entities/Plugin";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 

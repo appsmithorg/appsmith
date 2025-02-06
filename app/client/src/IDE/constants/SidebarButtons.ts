@@ -1,5 +1,5 @@
 import type { IDESidebarButton } from "@appsmith/ads";
-import { EditorState } from "IDE/Interfaces/EditorState";
+import { EditorState } from "../enums";
 
 const SidebarButtonTitles = {
   EDITOR: "Editor",
