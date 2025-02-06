@@ -56,6 +56,7 @@ module.exports = {
     "@tag.Settings",
     "@tag.SignIn",
     "@tag.Slider",
+    "@tag.Snowflake",
     "@tag.Statbox",
     "@tag.Switch",
     "@tag.Tab",
