@@ -105,8 +105,8 @@ jobs:
         id: log-compare-circular-deps
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          sed -i '' '10,14d' pr_circular_deps.txt
-          sed -i '' '20,29d' base_branch_circular_deps.txt
+          sed -i '10,14d' pr_circular_deps.txt
+          sed -i '20,29d' base_branch_circular_deps.txt
           diff_output=$(diff -u base_branch_circular_deps.txt pr_circular_deps.txt)
           {
             echo "Dependencies removed:"
