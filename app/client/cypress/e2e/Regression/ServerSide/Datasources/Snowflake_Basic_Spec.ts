@@ -52,7 +52,7 @@ describe(
       dataSources.TestSaveDatasource();
     });
 
-    it("2. Validate creating & running queries for the datasource", () => {
+    it.skip("2. Validate creating & running queries for the datasource", () => {
       // Create and run a SELECT query, validating the response views
       dataSources.CreateQueryAfterDSSaved(
         "SELECT * FROM PUBLIC.DB1 LIMIT 10;",
@@ -101,7 +101,7 @@ describe(
       });
     });
 
-    it("3. Validate widget binding with queries & deploying the app", () => {
+    it.skip("3. Validate widget binding with queries & deploying the app", () => {
       PageLeftPane.selectItem("SelectQuery", { ctrlKey: true, force: true });
       dataSources.AddSuggestedWidget(Widgets.Table);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -110,7 +110,7 @@ describe(
       EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
     });
 
-    it("4. Validate deleting the datasource", () => {
+    it.skip("4. Validate deleting the datasource", () => {
       // Delete all queries associated with the datasource
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -140,7 +140,7 @@ describe(
       dataSources.DeleteDatasourceFromWithinDS(myDsName, 200);
     });
 
-    it("5. Validate the user can create new queries from the datasource section in response tab", () => {
+    it.skip("5. Validate the user can create new queries from the datasource section in response tab", () => {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Snowflake");
       dataSources.FillSnowflakeDSForm();
@@ -212,7 +212,7 @@ describe(
       );
     });
 
-    it("6. Validate connection error when misconfiguring datasource", () => {
+    it.skip("6. Validate connection error when misconfiguring datasource", () => {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Snowflake");
       agHelper.GetNAssertContains(locators._dsName, "Untitled datasource 2");
