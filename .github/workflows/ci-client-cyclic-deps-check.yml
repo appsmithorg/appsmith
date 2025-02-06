@@ -68,6 +68,7 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         with:
           ref: ${{ github.event.pull_request.base.ref }}
+          clean: false
 
       # Install all the dependencies
       - name: Install dependencies
