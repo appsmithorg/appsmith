@@ -55,11 +55,12 @@ jobs:
         id: count-cyclic-deps-in-pr
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > pr_circular_deps.txt
+          npx dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false \                     
+          | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
+          | sort | sed '/^[[:space:]]*$/d' > pr_circular_deps.txt
           # awk 'NF' pr_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
-          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
-          pr_count="$(awk 'NF' pr_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
+          pr_count="$(awk 'NF' pr_circular_deps.txt | wc -l)"
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
           cat pr_circular_deps.txt
 
@@ -80,11 +81,12 @@ jobs:
         id: count-cyclic-deps-in-base
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false > base_branch_circular_deps.txt
+          npx dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false \                     
+          | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
+          | sort | sed '/^[[:space:]]*$/d' > > base_branch_circular_deps.txt
           # awk 'NF' base_branch_circular_deps.txt: Filter out empty lines from the file
           # wc -l: Count the number of lines in the file
-          # awk '{print $1 - 1}': Subtract 1 from the count because the first line is the header 'Circular Dependencies'
-          base_branch_count="$(awk 'NF' base_branch_circular_deps.txt | wc -l | awk '{print $1 - 1}')"
+          base_branch_count="$(awk 'NF' base_branch_circular_deps.txt | wc -l)"
           echo "base_branch_count=$base_branch_count" >> $GITHUB_OUTPUT
           cat base_branch_circular_deps.txt
 
@@ -103,10 +105,20 @@ jobs:
 
       - name: Log circular dependencies
         id: log-compare-deps
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
         run: |
-          ls -ltr
+          sed -i '' '10,14d' pr_circular_deps.txt
+          sed -i '' '20,29d' base_branch_circular_deps.txt
+          diff_output=$(diff -u base_branch_circular_deps.txt pr_circular_deps.txt)
+          {
+            echo "Dependencies removed:"
+            echo "$diff_output" | grep -E '^-[^-]'
+            echo ""
+            echo "Dependencies added:"
+            echo "$diff_output" | grep -E '^\+[^+]'
+          } > diff.txt
 
+          cat diff.txt
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
         if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
