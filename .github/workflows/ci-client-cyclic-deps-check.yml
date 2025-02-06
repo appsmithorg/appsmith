@@ -41,15 +41,15 @@ jobs:
           node-version-file: app/client/package.json
 
         # Globally install the npm package
-      # - name: Install dpdm globally
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   run: npm install -g dpdm@3.14
+      - name: Install dpdm globally
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm install -g dpdm@3.14
 
-      #   # Install all the dependencies
-      # - name: Install dependencies
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   run: |
-      #     yarn install --immutable
+        # Install all the dependencies
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
 
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
@@ -70,15 +70,16 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
 
-      - name: Install dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          yarn install --immutable
+      # - name: Install dependencies
+      #   if: steps.changed-files.outputs.any_changed == 'true'
+      #   run: |
+      #     yarn install --immutable
 
       - name: Count circular dependencies on base branch
         id: count-cyclic-deps-in-base
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
+          rm -rf node_modules
           npx dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
           | sort | sed '/^[[:space:]]*$/d' > base_branch_circular_deps.txt
           # awk 'NF' base_branch_circular_deps.txt: Filter out empty lines from the file
