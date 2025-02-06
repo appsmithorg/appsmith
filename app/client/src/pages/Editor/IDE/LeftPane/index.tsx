@@ -19,10 +19,9 @@ import LibrarySidePane from "ee/pages/Editor/IDE/LeftPane/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/entities/IDE/constants";
 
-export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
+export const LeftPaneContainer = styled.div`
   height: 100%;
-  border-right: ${({ showRightBorder = true }) =>
-    showRightBorder ? "1px solid var(--ads-v2-color-border)" : "none"};
+  border-right: 1px solid var(--ads-v2-color-border);
   background: var(--ads-v2-color-bg);
   overflow: hidden;
 `;
@@ -53,7 +52,7 @@ const LeftPane = () => {
   );
 
   return (
-    <LeftPaneContainer showRightBorder={false}>
+    <LeftPaneContainer>
       <Switch>
         <SentryRoute
           exact

@@ -93,12 +93,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   );
 
   return (
-    <Flex
-      borderRight="1px solid var(--ads-v2-color-border)"
-      flexDirection="column"
-      height="100%"
-      width="100%"
-    >
+    <Flex flexDirection="column" height="100%" width="100%">
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
