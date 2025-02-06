@@ -72,7 +72,13 @@ describe("Backup Tests", () => {
     const url = "postgresql://username:password@host/appsmith";
     const cmd =
       "pg_dump postgresql://username:password@host/appsmith --schema=appsmith --format=custom --file=/dest/pg-data";
-    const res = await executePostgresDumpCMD(dest, url);
+    const res = await executePostgresDumpCMD(dest, {
+      host: "host",
+      port: 5432,
+      username: "username",
+      password: "password",
+      database: "appsmith",
+    });
 
     expect(res).toBe(cmd);
     console.log(res);
@@ -288,6 +294,7 @@ test("Get DB name from Mongo URI 4", async () => {
 
   expect(dbName).toEqual(expectedDBName);
 });
+
 test("Get DB name from Postgres URL", async () => {
   const dbName = utils.getDatabaseNameFromUrl(
     "postgresql://user:password@host:5432/postgres_db",

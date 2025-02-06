@@ -4,6 +4,8 @@ import os from "os";
 import readlineSync from "readline-sync";
 import * as utils from "./utils";
 import * as Constants from "./constants";
+import { PostgresDumpLink } from "./backup/links/PostgresDumpLink";
+import { BackupState } from "./backup/BackupState";
 
 const command_args = process.argv.slice(3);
 
@@ -109,18 +111,21 @@ async function extractArchive(backupFilePath: string, restoreRootPath: string) {
   console.log("Extracting the backup archive completed");
 }
 
-async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
+async function restoreDatabases(restoreContentsPath: string, dbUrl: string) {
   console.log("Restoring database...");
 
   if (dbUrl.startsWith("mongodb")) {
     await restoreMongoDB(restoreContentsPath, dbUrl);
-  } else if (dbUrl.includes("postgresql")) {
-    await restorePostgres(restoreContentsPath, dbUrl);
   } else {
     throw new Error(
       "Unsupported database type, only MongoDB and Postgres are supported",
     );
   }
+
+  // TODO: Get all link classes equipped with `doRestore` and refactor this to be like backup.
+  const link = new PostgresDumpLink(new BackupState([], ""));
+  await link.preBackup();
+  await link.doRestore(restoreContentsPath);
 
   console.log("Restoring database completed");
 }
@@ -361,7 +366,24 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
   return db_name;
 }
 
-export async function run() {
+export async function run() {  const processesToPause = ["backend", "rts"];
+  if (
+    await fsPromises
+      .access(process.env.TMP + "/supervisor-conf.d/keycloak.conf")
+      .then(() => true)
+      .catch(() => false)
+  ) {
+    processesToPause.push("keycloak");
+  }
+  if (
+    await fsPromises
+      .access(process.env.TMP + "/supervisor-conf.d/temporal.conf")
+      .then(() => true)
+      .catch(() => false)
+  ) {
+    processesToPause.push("temporal");
+  }
+
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
   let backupFilePath: string;
@@ -415,8 +437,8 @@ export async function run() {
       console.log(
         "Restoring Appsmith instance from the backup at " + backupFilePath,
       );
-      await utils.stop(["backend", "rts"]);
-      await restoreDatabase(restoreContentsPath, utils.getDburl());
+      await utils.stop(processesToPause);
+      await restoreDatabases(restoreContentsPath, utils.getDburl());
       await restoreDockerEnvFile(
         restoreContentsPath,
         backupName,
@@ -434,7 +456,7 @@ export async function run() {
       await fsPromises.rm(backupFilePath, { force: true });
     }
 
-    await utils.start(["backend", "rts"]);
+    await utils.start(processesToPause);
     process.exit();
   }
 }
