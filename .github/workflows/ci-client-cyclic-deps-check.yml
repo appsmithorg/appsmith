@@ -70,10 +70,10 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
 
-      # - name: Install dependencies
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   run: |
-      #     yarn install --immutable
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          yarn install --immutable
 
       - name: Count circular dependencies on base branch
         id: count-cyclic-deps-in-base
