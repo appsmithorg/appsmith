@@ -405,7 +405,7 @@ class OrganizationServiceCETest {
     public void testDeserializationErrors() {
         String organizationId = organizationService.getDefaultOrganizationId().block();
         Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenant:" + organizationId);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organization:" + organizationId);
         Mono<Organization> organizationMono = organizationService.getDefaultOrganization();
         StepVerifier.create(evictCachedOrganization.then(organizationMono).then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
