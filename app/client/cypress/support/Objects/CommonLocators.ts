@@ -355,4 +355,6 @@ export class CommonLocators {
   _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
   _homeIcon = "[data-testid='t--default-home-icon']";
   _widget = (widgetName: string) => `.t--widget-${widgetName}`;
+  _draggableCustomWidget =
+    "//div[contains(@class,'t--draggable-customwidget')]";
 }

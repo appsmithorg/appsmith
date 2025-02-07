@@ -181,6 +181,7 @@ export class PropertyPane {
   _buttonWidget = "[data-widgetname-cy='Button1']";
   _getActionCardSelector = (type: string) =>
     `[data-testid='action-card-Show ${type}']`;
+  _propDefaultModel = ".t--property-pane-section-defaultmodel";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
