@@ -28,14 +28,13 @@ export class PostgresDumpLink implements Link {
     }
 
     if (process.env.APPSMITH_KEYCLOAK_DB_URL) {
-      if (process.env.APPSMITH_KEYCLOAK_DB_URL.startsWith("postgresql://")) {
-        this.postgresUrl = parsePostgresUrl(
-          process.env.APPSMITH_KEYCLOAK_DB_URL,
-        );
-      } else {
+      const dbUrlFromEnv = process.env.APPSMITH_KEYCLOAK_DB_URL;
+
+      if (dbUrlFromEnv.startsWith("postgresql://")) {
+        this.postgresUrl = parsePostgresUrl(dbUrlFromEnv);
+      } else if (dbUrlFromEnv.includes("/")) {
         // then it's just the hostname and database in there
-        const [host, database] =
-          process.env.APPSMITH_KEYCLOAK_DB_URL.split("/");
+        const [host, database] = dbUrlFromEnv.split("/");
         this.postgresUrl = {
           host,
           port: 5432,
@@ -43,6 +42,12 @@ export class PostgresDumpLink implements Link {
           password: process.env.APPSMITH_KEYCLOAK_DB_PASSWORD,
           database,
         };
+      } else {
+        // Identify this as an invalid value for this env variable.
+        // But we ignore this fact for now, since Postgres itself is not a critical component yet.
+        console.warn(
+          "APPSMITH_KEYCLOAK_DB_URL is set, but it doesn't start with postgresql://. This is not a valid value for this env variable. But we ignore this fact for now, since Postgres itself is not a critical component yet.",
+        );
       }
     } else if (process.env.APPSMITH_ENABLE_EMBEDDED_DB !== "0") {
       this.postgresUrl = {

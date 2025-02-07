@@ -70,8 +70,19 @@ describe("Backup Tests", () => {
   test("Test postgres dump CMD generation", async () => {
     const dest = "/dest";
     const url = "postgresql://username:password@host/appsmith";
-    const cmd =
-      "pg_dump postgresql://username:password@host/appsmith --schema=appsmith --format=custom --file=/dest/pg-data";
+    const cmd = [
+      "pg_dump --host=host",
+      "--port=5432",
+      "--username=username",
+      "--dbname=appsmith",
+      "--schema=appsmith",
+      "--schema=public",
+      "--schema=temporal",
+      "--file=/dest/pg-data.sql",
+      "--verbose",
+      "--serializable-deferrable",
+    ].join(" ");
+
     const res = await executePostgresDumpCMD(dest, {
       host: "host",
       port: 5432,
