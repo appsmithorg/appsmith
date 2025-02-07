@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.services.RTSCaller;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
@@ -23,7 +24,7 @@ import static com.appsmith.server.filters.MDCFilter.REQUEST_ID_HEADER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
-public class RTSCaller {
+public class RTSCallerImpl implements RTSCaller {
 
     private final ObservationRegistry observationRegistry;
 
@@ -34,7 +35,7 @@ public class RTSCaller {
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
-    public RTSCaller(ObservationRegistry observationRegistry) {
+    public RTSCallerImpl(ObservationRegistry observationRegistry) {
         this.observationRegistry = observationRegistry;
     }
 
@@ -88,18 +89,52 @@ public class RTSCaller {
         });
     }
 
+    @Override
+    public WebClient getWebClient() {
+        return this.webClient;
+    }
+
+    @Override
+    public Mono<WebClient> getWebClientWithContextHeaders() {
+        return Mono.deferContextual(Mono::just).map(ctx -> {
+            if (ctx.hasKey(LogHelper.CONTEXT_MAP)) {
+                final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
+
+                if (contextMap.containsKey(INTERNAL_REQUEST_ID_HEADER)) {
+                    webClient = webClient
+                            .mutate()
+                            .defaultHeader(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER))
+                            .build();
+                }
+
+                if (contextMap.containsKey(REQUEST_ID_HEADER)) {
+                    webClient = webClient
+                            .mutate()
+                            .defaultHeader(REQUEST_ID_HEADER, contextMap.get(REQUEST_ID_HEADER))
+                            .build();
+                }
+            }
+
+            return webClient;
+        });
+    }
+
+    @Override
     public Mono<WebClient.RequestBodySpec> get(@NonNull String path) {
         return makeRequest(HttpMethod.GET, path, null);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> post(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.POST, path, requestBody);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> put(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.PUT, path, requestBody);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> delete(@NonNull String path) {
         return makeRequest(HttpMethod.DELETE, path, null);
     }
