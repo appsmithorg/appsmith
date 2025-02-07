@@ -5,7 +5,7 @@ import IDE from "pages/Editor/IDE/index";
 import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 

@@ -20,7 +20,7 @@ import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export interface FocusPath {

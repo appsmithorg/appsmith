@@ -4,6 +4,7 @@ import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.dtos.GitAuthDTO;
 import reactor.core.publisher.Mono;
 
 public interface ArtifactServiceCE {
@@ -21,4 +22,6 @@ public interface ArtifactServiceCE {
      * @return public key which will be used by user to copy to relevant platform
      */
     Mono<GitAuth> createOrUpdateSshKeyPair(ArtifactType artifactType, String branchedArtifactId, String keyType);
+
+    Mono<GitAuthDTO> getSshKey(ArtifactType artifactType, String branchedArtifactId);
 }

@@ -24,7 +24,7 @@ import {
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import type { UseRoutes } from "ee/entities/IDE/constants";
+import type { UseRoutes } from "IDE/Interfaces/UseRoutes";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
@@ -35,7 +35,7 @@ import {
 } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { setListViewActiveState } from "actions/ideActions";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "widgets/Skeleton";

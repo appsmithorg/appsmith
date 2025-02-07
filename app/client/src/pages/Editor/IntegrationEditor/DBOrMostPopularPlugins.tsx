@@ -51,7 +51,7 @@ import {
   PluginType,
 } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { IDEType } from "ee/entities/IDE/constants";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 
 // This function remove the given key from queryParams and return string
