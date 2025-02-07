@@ -21,7 +21,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
-import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/InspectStateMenuItem";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;

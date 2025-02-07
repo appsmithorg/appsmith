@@ -14,7 +14,7 @@ import {
   ShowBindings,
 } from "pages/Editor/JSEditor/ContextMenuItems";
 import { MenuSeparator } from "@appsmith/ads";
-import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/InspectStateMenuItem";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export interface Props {
   jsAction: JSCollection;

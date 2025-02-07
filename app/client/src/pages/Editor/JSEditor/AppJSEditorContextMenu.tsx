@@ -10,7 +10,7 @@ import { Copy, Delete, Move, Prettify } from "./ContextMenuItems";
 import { RenameMenuItem } from "IDE";
 import { MenuSeparator } from "@appsmith/ads";
 import EntityContextMenu from "../IDE/EditorPane/components/EntityContextMenu";
-import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/InspectStateMenuItem";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 interface AppJSEditorContextMenuProps {
   jsCollection: JSCollection;

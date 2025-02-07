@@ -16,6 +16,8 @@ import * as Styled from "./styles";
 import { CONTAINER_MAX_HEIGHT_PX, PEEK_OVERLAY_DELAY } from "./constants";
 import { getDataTypeHeader, getPropertyData } from "./utils";
 import { JSONViewer, Size } from "../../JSONViewer";
+import { InspectStateHeaderButton } from "components/editorComponents/Debugger/StateInspector/CTAs";
+import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 
 export interface PeekOverlayStateProps {
   objectName: string;
@@ -52,6 +54,10 @@ export function PeekOverlayPopUpContent(
     jsActions,
     dataTree,
     configTree,
+  );
+
+  const { id } = getEntityPayloadInfo[dataTree[objectName].ENTITY_TYPE](
+    configTree[objectName],
   );
 
   const [jsData, dataType] = useMemo(
@@ -98,9 +104,15 @@ export function PeekOverlayPopUpContent(
       onWheel={onWheel}
       {...getPositionValues()}
     >
-      <Styled.DataType className="first-letter:uppercase">
-        {dataType}
-      </Styled.DataType>
+      <Styled.Header>
+        <Styled.DataType className="first-letter:uppercase">
+          {dataType}
+        </Styled.DataType>
+        {propertyPath.length === 0 && (
+          <InspectStateHeaderButton entityId={id} />
+        )}
+      </Styled.Header>
+
       <Styled.BlockDivider />
       <Styled.PeekOverlayData id="t--peek-overlay-data" ref={dataWrapperRef}>
         {(dataType === "object" || dataType === "array") && jsData !== null && (

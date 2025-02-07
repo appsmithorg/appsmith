@@ -47,7 +47,7 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
-import { InspectStateToolbarButton } from "components/editorComponents/Debugger/StateInspector/InspectStateToolbarButton";
+import { InspectStateToolbarButton } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -213,9 +213,7 @@ function PropertyPaneView(
    * actions shown on the right of title
    */
   const actions = useMemo((): Array<{
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tooltipContent: any;
+    tooltipContent: string;
     icon: ReactElement;
   }> => {
     return [

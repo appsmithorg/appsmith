@@ -1,17 +1,17 @@
 import React, { useCallback } from "react";
-import { MenuItem } from "@appsmith/ads";
-import { CONTEXT_INSPECT_STATE, createMessage } from "ee/constants/messages";
+import { Button, Tooltip } from "@appsmith/ads";
 import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerActions";
 import { useDispatch } from "react-redux";
-import { DEBUGGER_TAB_KEYS } from "../constants";
-import { useDebuggerConfig } from "../hooks/useDebuggerConfig";
+import { DEBUGGER_TAB_KEYS } from "../../constants";
+import { useDebuggerConfig } from "../../hooks/useDebuggerConfig";
+import { CONTEXT_INSPECT_STATE, createMessage } from "ee/constants/messages";
 
 interface Props {
   entityId: string;
   disabled?: boolean;
 }
 
-export function InspectStateMenuItem({ disabled, entityId }: Props) {
+export function InspectStateToolbarButton({ disabled, entityId }: Props) {
   const dispatch = useDispatch();
   const config = useDebuggerConfig();
 
@@ -23,8 +23,14 @@ export function InspectStateMenuItem({ disabled, entityId }: Props) {
   }, [config, dispatch, entityId]);
 
   return (
-    <MenuItem disabled={disabled} onSelect={handleSelect} startIcon="code">
-      {createMessage(CONTEXT_INSPECT_STATE)}
-    </MenuItem>
+    <Tooltip content={createMessage(CONTEXT_INSPECT_STATE)}>
+      <Button
+        disabled={disabled}
+        isIconButton
+        kind="tertiary"
+        onClick={handleSelect}
+        startIcon="code"
+      />
+    </Tooltip>
   );
 }

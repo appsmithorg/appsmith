@@ -12,7 +12,7 @@ import {
 } from "PluginActionEditor";
 import { ConvertToModule, Copy, Delete, Move } from "../ContextMenuItems";
 import { RenameMenuItem } from "IDE";
-import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/InspectStateMenuItem";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export const ToolbarMenu = () => {
   const { action } = usePluginActionContext();
