@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ExplorerContainer } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
@@ -18,17 +18,32 @@ import {
 import SegmentSwitcher from "./components/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { useCurrentEditorState } from "../hooks";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
   const ideViewMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+
+  const widgetSegmentPaths = useMemo(
+    () => [
+      BUILDER_PATH,
+      BUILDER_CUSTOM_PATH,
+      BUILDER_PATH_DEPRECATED,
+      ...widgetSegmentRoutes.map((route) => `${path}${route}`),
+    ],
+    [path],
+  );
 
   return (
     <ExplorerContainer
       borderRight={
-        ideViewMode === EditorViewMode.SplitScreen ? "NONE" : "STANDARD"
+        ideViewMode === EditorViewMode.SplitScreen ||
+        segment === EditorEntityTab.UI
+          ? "NONE"
+          : "STANDARD"
       }
       className="ide-editor-left-pane__content"
       width={
@@ -47,15 +62,7 @@ const EditorPaneExplorer = () => {
           component={QueryExplorer}
           path={querySegmentRoutes.map((route) => `${path}${route}`)}
         />
-        <SentryRoute
-          component={WidgetsSegment}
-          path={[
-            BUILDER_PATH,
-            BUILDER_CUSTOM_PATH,
-            BUILDER_PATH_DEPRECATED,
-            ...widgetSegmentRoutes.map((route) => `${path}${route}`),
-          ]}
-        />
+        <SentryRoute component={WidgetsSegment} path={widgetSegmentPaths} />
       </Switch>
     </ExplorerContainer>
   );

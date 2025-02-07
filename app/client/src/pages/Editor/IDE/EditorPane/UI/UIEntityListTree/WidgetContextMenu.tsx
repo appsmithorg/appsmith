@@ -64,6 +64,9 @@ export const WidgetContextMenu = (props: {
         >
           {createMessage(CONTEXT_RENAME)}
         </MenuItem>
+        <MenuItem onClick={showBinding} startIcon="binding-new">
+          {createMessage(CONTEXT_SHOW_BINDING)}
+        </MenuItem>
         <MenuSeparator />
         <MenuItem onClick={showBinding} startIcon="binding-new">
           {createMessage(CONTEXT_SHOW_BINDING)}
