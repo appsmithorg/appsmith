@@ -52,7 +52,7 @@ export class EntityExplorer {
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   public _contextMenu = (entityNameinLeftSidebar: string) =>
-    "//div[text()='" +
+    "//span[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
 
