@@ -253,7 +253,7 @@ jobs:
           mkdir -p ~/git-server/keys
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-            appsmith/test-event-driver:latest
+            appsmith/test-event-driver:nightly
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
