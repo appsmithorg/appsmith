@@ -8,7 +8,7 @@ import HomepageLocators from "../../../../locators/HomePage";
 
 describe(
   "Validate Homepage Experience V2 changes",
-  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl", "@tag.SignIn"] },
   function () {
     before(() => {});
 
@@ -27,6 +27,7 @@ describe(
     });
 
     it("2. Entity Search bar should be visible on Homepage and not visible on Settings and Editor", () => {
+      expect(false).to.be.true;
       homePage.CreateNewApplication();
       agHelper.AssertElementAbsence(HomepageLocators._entitySearchBar);
       homePage.NavigateToHome();

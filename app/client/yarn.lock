@@ -13272,7 +13272,7 @@ __metadata:
     cypress-network-idle: ^1.14.2
     cypress-plugin-tab: ^1.0.5
     cypress-real-events: ^1.8.1
-    cypress-repeat-pro: ^1.0.1
+    cypress-repeat-pro: ^1.0.2
     cypress-tags: ^1.1.2
     cypress-terminal-report: ^5.3.6
     cypress-wait-until: ^1.7.2
@@ -16571,19 +16571,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-repeat-pro@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "cypress-repeat-pro@npm:1.0.1"
+"cypress-repeat-pro@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "cypress-repeat-pro@npm:1.0.2"
   dependencies:
+    "@cypress/grep": ^4.0.1
     arg: 5.0.2
     bluebird: 3.7.2
-    debug: 4.3.5
+    debug: ^4.4.0
     dotenv: 8.2.0
   peerDependencies:
     cypress: ">=5.3.0"
   bin:
     cypress-repeat-pro: index.js
-  checksum: e62a21479b62a5d5624ce21bdd8204afd754082d851d5fc712ad76e39ca2cfe6d446c2a1434025be77fa9d76fa257609285879e9841efecc26be4d25454fb732
+  checksum: 0c13df291f0b451badfdd2b3c8b74cf6b397d9f7b0e86f07e752b51ac56cc7df728bef4423445eea886b1445029642454a321fd3b0db3e9c8d9b72f9a37cd126
   languageName: node
   linkType: hard
 
@@ -16790,15 +16791,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
-  version: 4.3.7
-  resolution: "debug@npm:4.3.7"
+"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "debug@npm:4.4.0"
   dependencies:
     ms: ^2.1.3
   peerDependenciesMeta:
     supports-color:
       optional: true
-  checksum: 822d74e209cd910ef0802d261b150314bbcf36c582ccdbb3e70f0894823c17e49a50d3e66d96b633524263975ca16b6a833f3e3b7e030c157169a5fabac63160
+  checksum: fb42df878dd0e22816fc56e1fdca9da73caa85212fbe40c868b1295a6878f9101ae684f4eeef516c13acfc700f5ea07f1136954f43d4cd2d477a811144136479
   languageName: node
   linkType: hard
 
@@ -16811,18 +16812,6 @@ __metadata:
     supports-color:
       optional: true
   checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
-  languageName: node
-  linkType: hard
-
-"debug@npm:4.3.5":
-  version: 4.3.5
-  resolution: "debug@npm:4.3.5"
-  dependencies:
-    ms: 2.1.2
-  peerDependenciesMeta:
-    supports-color:
-      optional: true
-  checksum: 7c002b51e256257f936dda09eb37167df952758c57badf6bf44bdc40b89a4bcb8e5a0a2e4c7b53f97c69e2970dd5272d33a757378a12c8f8e64ea7bf99e8e86e
   languageName: node
   linkType: hard
 
