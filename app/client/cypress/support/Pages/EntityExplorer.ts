@@ -55,10 +55,6 @@ export class EntityExplorer {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
-  _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']";
 
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
@@ -72,6 +68,7 @@ export class EntityExplorer {
   _widgetTagSuggestedWidgets = ".widget-tag-collapsible-suggested";
   _widgetTagBuildingBlocks = ".widget-tag-collapsible-building-blocks";
   _widgetSeeMoreButton = "[data-testid='t--explorer-ui-entity-tag-see-more']";
+  _entityAddButton = ".t--entity-add-btn";
   _entityName = ".t--entity-name";
 
   public ActionContextMenuByEntityName({

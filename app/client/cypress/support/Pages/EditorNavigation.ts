@@ -29,7 +29,7 @@ export enum EditorViewMode {
 }
 
 const pagePaneListItemSelector = (name: string) =>
-  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
+  "//span[contains(@class, 't--entity-name')][text()='" + name + "']";
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,

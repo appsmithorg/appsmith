@@ -101,7 +101,7 @@ export class CommonLocators {
   _entityNameEditing = (entityNameinLeftSidebar: string) =>
     "//span[text()='" +
     entityNameinLeftSidebar +
-    "']/parent::div[contains(@class, 't--entity-name editing')]/input";
+    "']/parent::span[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
     `.t--property-control-${controlToToggle} .t--js-toggle, [data-guided-tour-iid='${controlToToggle}']`;
   _buttonByText = (btnVisibleText: string) =>
@@ -334,9 +334,14 @@ export class CommonLocators {
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
-  _selectionItem = ".rc-select-selection-item";
   errorPageTitle = ".t--error-page-title";
   errorPageDescription = ".t--error-page-description";
+  _moduleInstanceEntity = (module: string) =>
+    `[data-testid=t--entity-item-${module}1]`;
+  _codeEditor = "[data-testid=code-editor-target]";
+  _selectionItem = ".rc-select-selection-item";
+  _moduleInputEntity = (inputName: string) =>
+    `[data-testid=t--module-instance-input-field-wrapper-${inputName}]`;
   _selectClearButton_testId = "selectbutton.btn.cancel";
   _selectClearButton_dataTestId = `[data-testid="${this._selectClearButton_testId}"]`;
   _saveDatasource = `[data-testid='t--store-as-datasource']`;
@@ -347,6 +352,7 @@ export class CommonLocators {
   _showBoundary = ".show-boundary";
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
+  _visualNonIdeaState = ".bp3-non-ideal-state";
   _editorTab = ".editor-tab";
   _entityTestId = (entity: string) =>
     `[data-testid="t--entity-item-${entity}"]`;

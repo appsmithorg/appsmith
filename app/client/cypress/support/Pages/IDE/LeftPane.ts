@@ -1,7 +1,5 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import { PagePaneSegment } from "../EditorNavigation";
 import AddView from "./AddView";
-import FileTabs from "./FileTabs";
 import ListView from "./ListView";
 
 export class LeftPane {
@@ -11,9 +9,7 @@ export class LeftPane {
   locators = {
     segment: (name: string) => "//span[text()='" + name + "']/ancestor::div",
     expandCollapseArrow: (name: string) =>
-      "//div[text()='" +
-      name +
-      "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
+      `//span[contains(@class, 't--entity-name')][text()="${name}"]/ancestor::div//*[@data-testid="t--entity-collapse-toggle"]`,
     activeItemSelector: "",
     selector: "",
   };
@@ -83,6 +79,7 @@ export class LeftPane {
       .then((state) => {
         const closed = state === "arrow-right-s-line";
         const opened = state === "arrow-down-s-line";
+
         if ((expand && closed) || (!expand && opened)) {
           ObjectsRegistry.AggregateHelper.GetNClick(
             this.locators.expandCollapseArrow(itemName),
@@ -90,6 +87,7 @@ export class LeftPane {
         }
       });
   }
+
   public selectedItem(
     exists?: "exist" | "not.exist" | "noVerify",
   ): Cypress.Chainable {
