@@ -2,11 +2,12 @@ import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
 import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
-import { isValid, parseISO } from "date-fns";
+import { isValid } from "date-fns";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { objectKeys } from "@appsmith/utils";
 
 export const fn_keys: string = "__fn_keys__";
 
@@ -148,7 +149,7 @@ const parseFunctionsInObject = (
       }
     }
   } else {
-    const keys = Object.keys(userObject);
+    const keys = objectKeys(userObject);
 
     for (const key of keys) {
       const value = userObject[key];
@@ -173,7 +174,7 @@ const parseFunctionsInObject = (
 const isLargeCollection = (val: any) => {
   if (!Array.isArray(val)) return false;
 
-  const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
+  const rowSize = !isObject(val[0]) ? 1 : objectKeys(val[0]).length;
 
   const size = val.length * rowSize;
 
@@ -186,19 +187,21 @@ const getReducedDataTree = (
 ): DataTree => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withErrors = Object.keys(dataTree).reduce((acc: any, key: string) => {
-    const widgetValue = dataTree[key] as WidgetEntity;
+  const withErrors = objectKeys(dataTree).reduce<
+    Record<string, DataTreeEntity>
+  >((acc, key) => {
+      const widgetValue = dataTree[key] as WidgetEntity;
+      acc[key] = {
+        __evaluation__: {
+          errors: widgetValue.__evaluation__?.errors,
+        },
+      } as DataTreeEntity;
+      return acc;
+    },
+    {} as Record<string, DataTreeEntity>,
+  ) as unknown as DataTree;
 
-    acc[key] = {
-      __evaluation__: {
-        errors: widgetValue.__evaluation__?.errors,
-      },
-    };
-
-    return acc;
-  }, {});
-
-  return constrainedDiffPaths.reduce((acc: DataTree, key: string) => {
+  return constrainedDiffPaths.reduce<DataTree>((acc, key) => {
     set(acc, key, get(dataTree, key));
 
     return acc;

@@ -1,5 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { objectKeys } from "@appsmith/utils";
 import {
   Select,
   Button,
@@ -46,7 +47,7 @@ export const Main: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
-      {Object.keys(SIZES)
+      {objectKeys(SIZES)
         .filter(
           (size): size is NonNullable<SelectProps["size"]> =>
             !["xSmall", "large"].includes(size),

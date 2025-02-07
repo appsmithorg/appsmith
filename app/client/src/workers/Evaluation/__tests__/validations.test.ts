@@ -5,7 +5,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { parseISO, formatISO, format } from "date-fns";
+import { parseISO, formatISO } from "date-fns";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const DUMMY_WIDGET: WidgetProps = {

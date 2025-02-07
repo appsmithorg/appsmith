@@ -14,6 +14,7 @@ import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
+import { objectKeys } from "@appsmith/utils";
 
 interface ErrorMetaData {
   userScript: string;
@@ -63,7 +64,7 @@ class ErrorModifier {
       dataTree,
       jsPropertiesState.getMap(),
       dependencyMap,
-      Object.keys(allAsyncEntityFunctions),
+      objectKeys(allAsyncEntityFunctions),
     );
 
     this.asyncFunctionsNameMap = allAsyncEntityFunctions;
@@ -250,7 +251,7 @@ export const ActionInDataFieldErrorModifier: Modifier = (
 
   if (!["ReferenceError", "TypeError"].includes(error.name)) return {};
 
-  for (const asyncFunctionFullPath of Object.keys(asynFns)) {
+  for (const asyncFunctionFullPath of objectKeys(asynFns)) {
     const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
 
     if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {

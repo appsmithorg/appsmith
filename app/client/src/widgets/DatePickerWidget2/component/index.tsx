@@ -5,7 +5,7 @@ import type { IRef, Alignment } from "@blueprintjs/core";
 import { ControlGroup, Classes } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
-import { format, parseISO, isValid, isBefore, isAfter, isSameDay } from "date-fns";
+import { format, parseISO, isValid, isBefore, isAfter, isSameDay, parse, startOfYear, endOfYear, addYears } from "date-fns";
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
@@ -417,14 +417,14 @@ class DatePickerComponent extends React.Component<
 
     if (this.props.minDate) {
       const minDate = parseISO(this.props.minDate);
-      if (isValid(minDate) && !isSameDay(date, minDate) && isBefore(date, minDate)) {
+      if (minDate && !isSameDay(date, minDate) && isBefore(date, minDate)) {
         isValid = false;
       }
     }
 
     if (this.props.maxDate) {
       const maxDate = parseISO(this.props.maxDate);
-      if (isValid && isValid(maxDate) && !isSameDay(date, maxDate) && isAfter(date, maxDate)) {
+      if (isValid && maxDate && !isSameDay(date, maxDate) && isAfter(date, maxDate)) {
         isValid = false;
       }
     }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useThemeContext } from "@appsmith/wds-theming";
+import { objectKeys } from "@appsmith/utils";
 
 export const CompareTokens = () => {
   const [leftBg, setLeftBg] = useState<string>();
@@ -51,7 +52,7 @@ export const CompareTokens = () => {
           }}
         >
           <select onChange={(e) => setLeftBg(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("bg"))
               .map((key) => (
                 <option key={key} value={key}>
@@ -60,7 +61,7 @@ export const CompareTokens = () => {
               ))}
           </select>
           <select onChange={(e) => setLeftFg(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("fg"))
               .map((key) => (
                 <option key={key} value={key}>
@@ -69,7 +70,7 @@ export const CompareTokens = () => {
               ))}
           </select>
           <select onChange={(e) => setLeftBd(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("bd"))
               .map((key) => (
                 <option key={key} value={key}>
@@ -109,7 +110,7 @@ export const CompareTokens = () => {
           }}
         >
           <select onChange={(e) => setRightBg(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("bg"))
               .map((key) => (
                 <option key={key} value={key}>
@@ -118,7 +119,7 @@ export const CompareTokens = () => {
               ))}
           </select>
           <select onChange={(e) => setRightFg(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("fg"))
               .map((key) => (
                 <option key={key} value={key}>
@@ -127,7 +128,7 @@ export const CompareTokens = () => {
               ))}
           </select>
           <select onChange={(e) => setRightBd(e.target.value)}>
-            {Object.keys(color)
+            {(objectKeys(color) as string[])
               .filter((key) => key.includes("bd"))
               .map((key) => (
                 <option key={key} value={key}>

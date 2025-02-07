@@ -27,6 +27,7 @@ import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { set } from "lodash";
 import { klona } from "klona";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import { objectKeys } from "@appsmith/utils";
 
 export interface EvalResult {
   // TODO: Fix this the next time the file is edited
@@ -85,15 +86,12 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const topLevelWorkerAPIs = Object.keys(self).reduce(
-  (acc, key: string) => {
-    acc[key] = true;
-
+const topLevelWorkerAPIs = objectKeys(self).reduce<Record<string, unknown>>(
+  (acc, key) => {
+    acc[key] = () => ""; // Return empty string function instead of boolean
     return acc;
   },
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  {} as any,
+  {},
 );
 
 const ignoreGlobalObjectKeys = new Set([
@@ -106,22 +104,21 @@ const ignoreGlobalObjectKeys = new Set([
 export function resetWorkerGlobalScope() {
   const jsLibraryAccessorSet = JSLibraryAccessor.getSet();
 
-  for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+  for (const key of objectKeys(self)) {
+    const keyStr = String(key);
+    if (topLevelWorkerAPIs[keyStr] || DOM_APIS[keyStr]) continue;
 
     //TODO: Remove this once we have a better way to handle this
-    if (ignoreGlobalObjectKeys.has(key)) continue;
+    if (ignoreGlobalObjectKeys.has(keyStr)) continue;
 
-    if (jsLibraryAccessorSet.has(key)) continue;
+    if (jsLibraryAccessorSet.has(keyStr)) continue;
 
-    if (libraryReservedIdentifiers[key]) continue;
+    if (libraryReservedIdentifiers[keyStr]) continue;
 
     try {
-      // @ts-expect-error: Types are not available
-      delete self[key];
+      delete (self as unknown as Record<string, unknown>)[keyStr];
     } catch (e) {
-      // @ts-expect-error: Types are not available
-      self[key] = undefined;
+      (self as unknown as Record<string, unknown>)[keyStr] = undefined;
     }
   }
 }
@@ -231,7 +228,7 @@ const overrideEvalContext = (
   if (overrideContext) {
     const entitiesClonedSoFar = new Set();
 
-    Object.keys(overrideContext).forEach((path) => {
+    objectKeys(overrideContext).forEach((path) => {
       const { entityName } = getEntityNameAndPropertyPath(path);
 
       if (entityName in EVAL_CONTEXT && !entitiesClonedSoFar.has(entityName)) {

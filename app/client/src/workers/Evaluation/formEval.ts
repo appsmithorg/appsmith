@@ -15,6 +15,7 @@ import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { objectKeys } from "@appsmith/utils";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -71,7 +72,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
-    const allConditionTypes = Object.keys(formConfig.conditionals);
+    const allConditionTypes = objectKeys(formConfig.conditionals);
 
     if (
       allConditionTypes.includes(ConditionType.HIDE) ||
@@ -235,7 +236,8 @@ function generateEvalFormConfigPaths(
     placeHolderText: undefined,
   };
 
-  Object.entries(configToBeChecked).forEach(([key, value]) => {
+  objectKeys(configToBeChecked).forEach((key) => {
+    const value = configToBeChecked[key];
     // we check if the current value for the key is a dynamic value, if yes, we push the current key into our paths array.
     if (!!value) {
       if (isString(value)) {
@@ -277,7 +279,7 @@ function evaluateDynamicValuesConfig(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evaluatedConfig: Record<string, any> = { ...config };
-  const configArray = Object.entries(config);
+  const configArray = objectKeys(config).map((key) => [key, config[key]]);
 
   if (configArray.length > 0) {
     configArray.forEach(([key, value]) => {
@@ -311,7 +313,7 @@ function evaluateFormConfigElements(
   /* eslint-disable @typescript-eslint/no-unused-vars */
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
-  const paths = Object.keys(config);
+  const paths = objectKeys(config);
 
   if (paths.length > 0) {
     paths.forEach((path) => {
@@ -336,13 +338,13 @@ function evaluate(
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
-  Object.keys(currentEvalState).forEach((key: string) => {
+  objectKeys(currentEvalState).forEach((key: string) => {
     try {
       if (currentEvalState[key].hasOwnProperty("conditionals")) {
         const conditionBlock = currentEvalState[key].conditionals;
 
         if (!!conditionBlock) {
-          Object.keys(conditionBlock).forEach((conditionType: string) => {
+          objectKeys(conditionBlock).forEach((conditionType: string) => {
             const output = eval(conditionBlock[conditionType]);
 
             if (conditionType === ConditionType.HIDE) {
@@ -460,7 +462,9 @@ function getFormEvaluation(
     // dynamic conditions always need evaluations
     let dynamicConditionsToBeFetched = {};
 
-    for (const [key, value] of Object.entries(currentFormIdEvalState)) {
+    for (const key of objectKeys(currentFormIdEvalState)) {
+      const value = currentFormIdEvalState[key];
+
       if (
         value &&
         !!value.configPropertyPath &&

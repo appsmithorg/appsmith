@@ -1,5 +1,6 @@
 import { css } from "@emotion/css";
 import kebabCase from "lodash/kebabCase";
+import { objectKeys } from "@appsmith/utils";
 
 import type { FlexCssProps, CssVarValues, FlexProps } from "./types";
 
@@ -7,11 +8,10 @@ export const flexCss = (props: FlexCssProps) => {
   const { isInner, ...rest } = props;
 
   return css`
-    ${Object.keys(rest).reduce(
-      (styles, key) =>
-        styles + flexStyles(key, props[key as keyof FlexCssProps], { isInner }),
-      "",
-    )}
+    ${objectKeys(rest).reduce<string>((styles, key) => {
+      const propValue = props[key as keyof FlexCssProps];
+      return styles + flexStyles(key, propValue, { isInner });
+    }, "")}
   `;
 };
 
@@ -93,22 +93,24 @@ export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
   if (value == null) return;
 
   if (typeof value === "object" && !Array.isArray(value)) {
-    return Object.keys(value).reduce((prev, current) => {
+    return objectKeys(value).reduce<string>((prev, current: string) => {
       if (current !== "base") {
         return (
           prev +
           `@container (min-width: ${current}) {& {
           ${cssProp}: ${
-            //@ts-expect-error: type mismatch
-            callback ? callback(value[current], extraProps) : value[current]
+            callback 
+              ? callback(value[current as keyof typeof value], extraProps) 
+              : value[current as keyof typeof value]
           };}}`
         );
       } else {
         return (
           prev +
           `${cssProp}: ${
-            //@ts-expect-error: type mismatch
-            callback ? callback(value[current], extraProps) : value[current]
+            callback 
+              ? callback(value[current as keyof typeof value], extraProps) 
+              : value[current as keyof typeof value]
           };`
         );
       }

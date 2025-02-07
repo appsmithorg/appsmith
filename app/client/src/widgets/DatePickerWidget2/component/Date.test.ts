@@ -1,4 +1,4 @@
-import { parseISO, format, parse } from "date-fns";
+import { parseISO, format, parse, isValid } from "date-fns";
 import { DateFormatOptions } from "../widget/constants";
 import { parseDate } from "./utils";
 
@@ -6,10 +6,10 @@ describe("DatePickerWidget", () => {
   it("should parse date strings correctly according to date formats", () => {
     const testDate = new Date(2000000000000); // let's enter into the future
 
-    DateFormatOptions.forEach((format) => {
-      const testDateStr = format(testDate, format.value);
-      const parsedDate = parseDate(testDateStr, format.value);
-      const receivedDate = parse(testDateStr, format.value, new Date());
+    DateFormatOptions.forEach((formatOption) => {
+      const testDateStr = format(testDate, formatOption.value);
+      const parsedDate = parseDate(testDateStr, formatOption.value);
+      const receivedDate = parse(testDateStr, formatOption.value, new Date());
 
       expect(parsedDate.getFullYear()).toBe(receivedDate.getFullYear());
       expect(parsedDate.getUTCMonth()).toBe(receivedDate.getUTCMonth());

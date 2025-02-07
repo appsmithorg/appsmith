@@ -5,6 +5,7 @@ import {
   LightModeTheme,
   DarkModeTheme,
 } from "@appsmith/wds-theming";
+import { objectKeys } from "@appsmith/utils";
 import Color from "colorjs.io";
 import { Text } from "@appsmith/wds";
 import styles from "./styles.module.css";
@@ -115,11 +116,10 @@ export const ColorGrid = (props: any) => {
           marginTop: "12px",
         }}
       >
-        {Object.keys(COLORS).map((colorKey) => {
-          // @ts-expect-error for some reason
-          return Object.keys(COLORS[colorKey]).map((colorNestedKey) => {
-            // @ts-expect-error for some reason
-            const seedColor = COLORS[colorKey][colorNestedKey];
+        {objectKeys(COLORS).map((colorKey) => {
+          const colorGroup = COLORS[colorKey as keyof typeof COLORS];
+          return objectKeys(colorGroup).map((colorNestedKey) => {
+            const seedColor = colorGroup[colorNestedKey as keyof typeof colorGroup];
 
             const tokensAccessor = new TokensAccessor({
               seedColor,

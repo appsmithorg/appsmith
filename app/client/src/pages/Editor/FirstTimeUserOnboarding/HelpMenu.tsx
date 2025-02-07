@@ -70,7 +70,7 @@ function HelpMenu(props: {
             color="var(--ads-v2-color-bg-brand-secondary)"
             kind="heading-xs"
           >
-            Help & Resources
+            {"Help & Resources"}
           </Text>
           <div className="flex flex-wrap gap-2 mt-2">
             {HELP_MENU_ITEMS.map((item) => {

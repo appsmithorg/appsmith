@@ -1,4 +1,5 @@
 import kebabCase from "lodash/kebabCase";
+import { objectKeys } from "@appsmith/utils";
 import { DarkModeTheme, LightModeTheme } from "../../color";
 
 import type { ColorMode, ColorTypes } from "../../color";
@@ -70,9 +71,9 @@ export class TokensAccessor {
   updateBorderRadiusElevation = (borderRadiusElevation: TokenObj) => {
     // when the border-radius base is 0px, we set all other border-radius to 0px
     if (borderRadiusElevation["base"] == "0px") {
-      Object.keys(borderRadiusElevation).forEach((key) => {
+      objectKeys(borderRadiusElevation).forEach((key) => {
         if (key !== "base") {
-          borderRadiusElevation[key] = "0px";
+          borderRadiusElevation[key as keyof typeof borderRadiusElevation] = "0px";
         }
       });
     }
@@ -241,7 +242,7 @@ export class TokensAccessor {
   ): ThemeToken => {
     const themeTokens = {} as ThemeToken;
 
-    Object.keys(tokenObj).forEach((key) => {
+    objectKeys(tokenObj).forEach((key) => {
       themeTokens[tokenType] = {
         ...themeTokens[tokenType],
         [kebabCase(key)]: {

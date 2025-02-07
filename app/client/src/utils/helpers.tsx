@@ -759,16 +759,6 @@ export const howMuchTimeBeforeText = (
   } catch (e) {
     return "";
   }
-
-  if (years > 0) return `${years} yr${years > 1 ? "s" : ""}`;
-  else if (months > 0) return `${months} mth${months > 1 ? "s" : ""}`;
-  else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
-  else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
-  else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
-  else
-    return lessThanAMinute
-      ? "less than a minute"
-      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**

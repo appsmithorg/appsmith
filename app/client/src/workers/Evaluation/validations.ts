@@ -13,7 +13,7 @@ import _, {
   toString,
   uniq,
 } from "lodash";
-
+import { objectKeys } from "@appsmith/utils";
 import { isValid, parseISO, formatISO } from "date-fns";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 
@@ -54,7 +54,7 @@ function getPropertyEntry(
   if (!ignoreCase) {
     return name;
   } else {
-    const keys = Object.getOwnPropertyNames(obj);
+    const keys = objectKeys(obj);
 
     return keys.find((key) => key.toLowerCase() === name.toLowerCase()) || name;
   }
@@ -316,7 +316,7 @@ function validateExcessLength(text: string, maxLength: number): boolean {
 function validateObjectValues(obj: any): any {
   if (!obj) return;
 
-  Object.keys(obj).forEach((key) => {
+  objectKeys(obj).forEach((key) => {
     if (typeof obj[key] === "string" && obj[key].length > 100000) {
       obj[key] = obj[key].substring(0, 100000);
     } else if (isObject(obj[key])) {
@@ -1095,6 +1095,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
       if (config.params?.required) {
         dateIsValid = false;
+
         message = {
           name: "TypeError",
           message: `Value does not match: ${getExpectedType(config)}`,
@@ -1104,11 +1105,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     } else if (value instanceof Date) {
       dateIsValid = isValid(value);
+
       if (dateIsValid) {
         parsed = formatISO(value);
       }
     } else if (isString(value)) {
       const parsedDate = parseISO(value);
+
       if (isValid(parsedDate)) {
         if (value === formatISO(parsedDate)) {
           return {
@@ -1116,6 +1119,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
             parsed: value,
           };
         }
+
         dateIsValid = true;
         parsed = formatISO(parsedDate);
       } else {

@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import { objectKeys } from "@appsmith/utils";
 import styled, { css } from "styled-components";
 import { Variant } from "../constants/variants";
 import type { CommonComponentProps } from "../types/common";
@@ -344,9 +345,10 @@ const getPaddingBySize = (props: ButtonProps) => {
   const isIconOnly = !props.text && props.icon;
   const paddingConfig = isIconOnly ? paddingBySizeForJustIcon : paddingBySize;
 
-  const iSizeInConfig =
-    Object.keys(paddingConfig).indexOf(props.size || "") !== -1;
-  const size: any = props.size && iSizeInConfig ? props.size : Size.small;
+  const iSizeInConfig = objectKeys(paddingConfig).includes(
+    String(props.size || Size.small),
+  );
+  const size = props.size && iSizeInConfig ? props.size : Size.small;
 
   return paddingConfig[size as keyof typeof paddingConfig];
 };
@@ -358,9 +360,10 @@ const getHeightBySize = (props: ButtonProps) => {
     [Size.large]: 38,
   };
 
-  const iSizeInConfig =
-    Object.keys(heightBySize).indexOf(props.size || "") !== -1;
-  const size: any = props.size && iSizeInConfig ? props.size : Size.small;
+  const iSizeInConfig = objectKeys(heightBySize).includes(
+    String(props.size || Size.small),
+  );
+  const size = props.size && iSizeInConfig ? props.size : Size.small;
 
   return heightBySize[size as keyof typeof heightBySize];
 };
@@ -372,9 +375,10 @@ const getBtnFontBySize = (props: ButtonProps) => {
     [Size.large]: largeButton,
   };
 
-  const iSizeInConfig =
-    Object.keys(fontBySize).indexOf(props.size || "") !== -1;
-  const size: any = props.size && iSizeInConfig ? props.size : Size.small;
+  const iSizeInConfig = objectKeys(fontBySize).includes(
+    String(props.size || Size.small),
+  );
+  const size = props.size && iSizeInConfig ? props.size : Size.small;
 
   return fontBySize[size as keyof typeof fontBySize];
 };

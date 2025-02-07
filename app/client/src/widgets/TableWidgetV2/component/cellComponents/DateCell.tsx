@@ -15,7 +15,7 @@ import {
   MomentDateInputFormat,
 } from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import moment from "moment";
+import { format, parseISO, parse } from "date-fns";
 import { BasicCell } from "./BasicCell";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -201,18 +201,6 @@ export const DateCell = (props: DateComponentProps) => {
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const convertInputFormatToMomentFormat = (inputFormat: string) => {
-    let momentAdjustedInputFormat = inputFormat;
-
-    if (inputFormat === DateInputFormat.MILLISECONDS) {
-      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
-    } else if (inputFormat === DateInputFormat.EPOCH) {
-      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
-    }
-
-    return momentAdjustedInputFormat;
-  };
-
   const isCellCompletelyValid = useMemo(
     () => isEditableCellValid && isValid,
     [isEditableCellValid, isValid],
@@ -221,14 +209,18 @@ export const DateCell = (props: DateComponentProps) => {
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
 
-    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-      return value;
-    }
+    try {
+      const parsedDate = parseISO(value);
+      if (parsedDate instanceof Date && !isNaN(parsedDate.getTime())) {
+        return value;
+      }
 
-    const valueInSelectedFormat = moment(value, props.outputFormat, true);
-
-    if (valueInSelectedFormat.isValid()) {
-      return valueInSelectedFormat.format(ISO_DATE_FORMAT);
+      const parsedWithFormat = parse(value, outputFormat, new Date());
+      if (parsedWithFormat instanceof Date && !isNaN(parsedWithFormat.getTime())) {
+        return format(parsedWithFormat, ISO_DATE_FORMAT);
+      }
+    } catch (e) {
+      // Invalid date format
     }
 
     return value;

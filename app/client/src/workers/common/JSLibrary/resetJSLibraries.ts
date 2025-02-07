@@ -4,11 +4,18 @@ import forge from "node-forge";
 import { defaultLibraries, JSLibraryAccessor } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
+import { objectKeys } from "@appsmith/utils";
 const defaultLibImplementations = {
   lodash: _,
   moment: {
-    zonedTimeToUtc: (date: string, timeZone: string) => new Date(formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")),
-    utcToZonedTime: (date: string, timeZone: string) => formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+    zonedTimeToUtc: (date: string, timeZone: string) =>
+      formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    utcToZonedTime: (date: string, timeZone: string) =>
+      formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    tz: (date: string, timeZone: string) =>
+      formatInTimeZone(new Date(date), timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    format: (date: string, format: string) =>
+      formatInTimeZone(new Date(date), "UTC", format),
   },
   // We are removing some functionalities of node-forge because they wont
   // work in the worker thread
@@ -22,15 +29,13 @@ export function resetJSLibraries() {
     (lib) => lib.accessor[0],
   );
 
-  for (const key of Object.keys(libraryReservedIdentifiers)) {
+  for (const key of objectKeys(libraryReservedIdentifiers)) {
     if (defaultLibraryAccessors.includes(key)) continue;
 
     try {
-      // @ts-expect-error: Types are not available
-      delete self[key];
+      delete (self as unknown as Record<string, unknown>)[key];
     } catch (e) {
-      // @ts-expect-error: Types are not available
-      self[key] = undefined;
+      (self as unknown as Record<string, unknown>)[key] = undefined;
     }
     //we have to update invalidEntityIdentifiers as well
     delete libraryReservedIdentifiers[key];
