@@ -115,10 +115,10 @@ jobs:
       # Saving the docker image to tar file
       - name: Save Docker image to tar file
         run: |
-          docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
-            | grep -v cicontainer \
-            | cut -d, -f2 \
-            | xargs -r docker rmi
+          # docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
+          #   | grep -v cicontainer \
+          #   | cut -d, -f2 \
+          #   | xargs -r docker rmi
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
