@@ -212,7 +212,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return instanceIdMono
                 .map(instanceId -> {
                     FeaturesRequestDTO featuresRequestDTO = new FeaturesRequestDTO();
-                    featuresRequestDTO.setTenantId(organizationId);
+                    featuresRequestDTO.setOrganizationId(organizationId);
                     featuresRequestDTO.setInstanceId(instanceId);
                     featuresRequestDTO.setAppsmithVersion(appsmithVersion);
                     featuresRequestDTO.setIsCloudHosting(commonConfig.isCloudHosting());

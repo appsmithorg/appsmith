@@ -78,7 +78,7 @@ public class FeatureFlagServiceCETest {
     @AfterEach
     void tearDown() {
         cacheManager.evictAll("featureFlag").block();
-        cacheManager.evictAll("tenantNewFeatures").block();
+        cacheManager.evictAll("organizationNewFeatures").block();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class FeatureFlagServiceCETest {
         String organizationIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
                 cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + organizationIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
@@ -184,14 +184,14 @@ public class FeatureFlagServiceCETest {
         String organizationIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
                 cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + organizationIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         // Assert key is inserted in cache
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
 
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(organizationIdentifier);
-        hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + organizationIdentifier);
+        hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         // Assert key is evicted from cache
         StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(Assertions::assertFalse)

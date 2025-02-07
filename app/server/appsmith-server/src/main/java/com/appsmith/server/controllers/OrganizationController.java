@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
-@RequestMapping(Url.TENANT_URL)
+@RequestMapping(Url.ORGANIZATION_URL)
 public class OrganizationController extends OrganizationControllerCE {
 
     public OrganizationController(OrganizationService service) {

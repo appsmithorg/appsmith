@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Slf4j
-@RequestMapping(Url.TENANT_URL)
+@RequestMapping(Url.ORGANIZATION_URL)
 public class OrganizationControllerCE {
 
     private final OrganizationService service;
@@ -28,7 +28,7 @@ public class OrganizationControllerCE {
     }
 
     /**
-     * This API returns the tenant configuration for any user (anonymous or logged in). The configurations are set
+     * This API returns the organization configuration for any user (anonymous or logged in). The configurations are set
      * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(Map<String,String>)}
      * <p>
      * The update and retrieval are in different controllers because it would have been weird to fetch the configurations
@@ -48,6 +48,6 @@ public class OrganizationControllerCE {
     public Mono<ResponseDTO<Organization>> updateOrganizationConfiguration(
             @RequestBody OrganizationConfiguration organizationConfiguration) {
         return service.updateDefaultOrganizationConfiguration(organizationConfiguration)
-                .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
+                .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
     }
 }

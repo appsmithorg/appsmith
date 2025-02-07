@@ -26,13 +26,14 @@ public class OrganizationConfigurationCE implements Serializable {
 
     protected License license;
 
-    // tenant admin can toggle this field to enable/disable email verification
+    // organization admin can toggle this field to enable/disable email verification
     private Boolean emailVerificationEnabled;
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
     // if this field is not present, then the existing value in client's state doesn't get updated. It's just the way
     // the splat (`...`) operator works in the client. Evidently, we'll want this for all fields in this class.
-    // In that sense, this class is special, because tenant configuration is cached in `localStorage`, and so it's state
+    // In that sense, this class is special, because organization configuration is cached in `localStorage`, and so it's
+    // state
     // is preserved across browser refreshes.
     @JsonInclude
     private List<String> thirdPartyAuths;
@@ -45,7 +46,7 @@ public class OrganizationConfigurationCE implements Serializable {
     // Field to store the list of features for which the migrations are pending. This will be used to store the diffs of
     // the feature flags. This can happen for 2 reasons:
     // 1. The license plan changes
-    // 2. Because of grandfathering via cron where tenant level feature flags are fetched
+    // 2. Because of grandfathering via cron where organization level feature flags are fetched
     Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
 
     // This variable is used to indicate if the server needs to be restarted after the migration based on feature flags
