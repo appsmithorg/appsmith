@@ -6,13 +6,13 @@ import type {
   TableBodyProps,
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, EmptyRow, Row } from "./Row";
-import type { ReactTableColumnProps, TableSizes } from "../Constants";
-import type { HeaderComponentProps } from "../Table";
+import { areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
-import InfiniteLoader from "react-window-infinite-loader";
+import type { ReactTableColumnProps, TableSizes } from "../Constants";
+import { useInfiniteVirtualization } from "../hooks/useInfiniteVirtualization";
+import { InfiniteVirtualList } from "../InfiniteVirtualList";
+import type { HeaderComponentProps } from "../Table";
+import { EmptyRow, EmptyRows, Row } from "./Row";
 
 export type BodyContextType = {
   accentColor: string;
@@ -96,46 +96,32 @@ const LoadingIndicator = () => (
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
-    const { rows } = props;
-    const isItemLoaded = (index: number) => index < rows.length;
-    const itemCount = props.totalRecordsCount || rows.length;
+    const { rows, totalRecordsCount, isLoading, loadMore, pageSize } = props;
+
+    const { isItemLoaded, itemCount, loadMoreItems, cachedRows } =
+      useInfiniteVirtualization({
+        rows,
+        totalRecordsCount,
+        isLoading,
+        loadMore,
+        pageSize,
+      });
 
     return (
-      <div className="simplebar-content-wrapper">
-        <InfiniteLoader
-          isItemLoaded={isItemLoaded}
-          itemCount={itemCount}
-          loadMoreItems={(startIndex: number, stopIndex: number) => {
-            if (!props.isLoading) {
-              props.loadMore();
-            }
-            return Promise.resolve();
-          }}
-          threshold={5}
-        >
-          {({ onItemsRendered, ref: infiniteLoaderRef }) => (
-            <FixedSizeList
-              className="virtual-list simplebar-content"
-              height={
-                props.height -
-                props.tableSizes.TABLE_HEADER_HEIGHT -
-                2 * props.tableSizes.VERTICAL_PADDING
-              }
-              innerElementType={props.innerElementType}
-              itemCount={itemCount}
-              itemData={rows}
-              itemSize={props.tableSizes.ROW_HEIGHT}
-              onItemsRendered={onItemsRendered}
-              outerRef={ref}
-              ref={infiniteLoaderRef}
-              width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-            >
-              {rowRenderer}
-            </FixedSizeList>
-          )}
-        </InfiniteLoader>
-        {props.isLoading && <LoadingIndicator />}
-      </div>
+      <InfiniteVirtualList
+        cachedRows={cachedRows}
+        height={props.height}
+        innerElementType={props.innerElementType}
+        isItemLoaded={isItemLoaded}
+        isLoading={isLoading}
+        itemCount={itemCount}
+        loadMoreItems={loadMoreItems}
+        outerRef={ref}
+        pageSize={pageSize}
+        rows={rows}
+        tableSizes={props.tableSizes}
+        width={props.width}
+      />
     );
   },
 );
