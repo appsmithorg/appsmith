@@ -95,31 +95,6 @@ public class RTSCallerImpl implements RTSCaller {
     }
 
     @Override
-    public Mono<WebClient> getWebClientWithContextHeaders() {
-        return Mono.deferContextual(Mono::just).map(ctx -> {
-            if (ctx.hasKey(LogHelper.CONTEXT_MAP)) {
-                final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
-
-                if (contextMap.containsKey(INTERNAL_REQUEST_ID_HEADER)) {
-                    webClient = webClient
-                            .mutate()
-                            .defaultHeader(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER))
-                            .build();
-                }
-
-                if (contextMap.containsKey(REQUEST_ID_HEADER)) {
-                    webClient = webClient
-                            .mutate()
-                            .defaultHeader(REQUEST_ID_HEADER, contextMap.get(REQUEST_ID_HEADER))
-                            .build();
-                }
-            }
-
-            return webClient;
-        });
-    }
-
-    @Override
     public Mono<WebClient.RequestBodySpec> get(@NonNull String path) {
         return makeRequest(HttpMethod.GET, path, null);
     }
