@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.appsmith.external.constants.spans.TenantSpan.FETCH_DEFAULT_TENANT_SPAN;
@@ -257,8 +258,18 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (!isMigrationRequired(tenant)) {
             return Mono.just(tenant);
         }
-        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
-                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
+        tenant.getTenantConfiguration()
+                .getFeaturesWithPendingMigration()
+                .forEach((featureFlag, featureMigrationType) -> {
+                    try {
+                        FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.valueOf(featureFlag);
+                        featureMigrationTypeMap.put(featureFlagEnum, featureMigrationType);
+                    } catch (IllegalArgumentException e) {
+                        log.error(
+                                "Invalid feature flag found in the tenant configuration: {} removing it.", featureFlag);
+                    }
+                });
 
         FeatureFlagEnum featureFlagEnum =
                 featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);

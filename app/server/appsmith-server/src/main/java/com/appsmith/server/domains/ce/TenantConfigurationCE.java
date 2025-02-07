@@ -8,14 +8,17 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Data
+@Slf4j
 public class TenantConfigurationCE implements Serializable {
 
     private String googleMapsKey;
@@ -46,7 +49,7 @@ public class TenantConfigurationCE implements Serializable {
     // the feature flags. This can happen for 2 reasons:
     // 1. The license plan changes
     // 2. Because of grandfathering via cron where tenant level feature flags are fetched
-    Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
+    Map<String, FeatureMigrationType> featuresWithPendingMigration;
 
     // This variable is used to indicate if the server needs to be restarted after the migration based on feature flags
     // is complete.
@@ -85,5 +88,12 @@ public class TenantConfigurationCE implements Serializable {
 
     public Boolean isEmailVerificationEnabled() {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
+    }
+
+    public void setFeaturesWithPendingMigration(
+            Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration) {
+        this.featuresWithPendingMigration = new HashMap<>();
+        featuresWithPendingMigration.forEach((featureFlag, featureMigrationType) ->
+                this.featuresWithPendingMigration.put(featureFlag.toString(), featureMigrationType));
     }
 }
