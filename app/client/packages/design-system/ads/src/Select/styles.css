@@ -341,8 +341,11 @@
 }
 
 /* selected */
+/* if the option is selected and does not have a checkbox ( identified by label ), then we need to add a background color */
 .ads-v2-select__dropdown
-  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
+  .rc-select-item.rc-select-item-option.rc-select-item-option-selected:not(
+    :has(label)
+  ) {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }
 
@@ -378,7 +381,7 @@
   border-top: none;
   border-left: none;
   border-right: none;
-  border-bottom: 1px solid var(--ads-v2-color-border-emphasis);
+  border-bottom: 1px solid var(--ads-v2-color-border);
   border-radius: 0;
   outline: none !important;
 }
