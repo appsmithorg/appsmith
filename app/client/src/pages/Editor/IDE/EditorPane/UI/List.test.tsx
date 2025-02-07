@@ -346,7 +346,9 @@ describe("Widget List in Explorer tests", () => {
 
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const collapsible: any = component.getByTestId(`entity-item-expand-icon`);
+      const collapsible: any = component.getByTestId(
+        `t--entity-collapse-toggle`,
+      );
 
       fireEvent.click(collapsible);
 
