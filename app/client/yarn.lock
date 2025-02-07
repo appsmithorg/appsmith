@@ -46,7 +46,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@appsmith/ads-old@workspace:packages/design-system/ads-old"
   dependencies:
+    eslint-plugin-lodash: ^8.0.0
     identity-obj-proxy: 3.0.0
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
   languageName: unknown
   linkType: soft
 
@@ -74,6 +78,7 @@ __metadata:
     "@xstyled/system": ^3.8.1
     csstype: ^3.1.2
     date-fns: ^2.29.3
+    eslint-plugin-lodash: ^8.0.0
     overlayscrollbars: ^2.7.2
     overlayscrollbars-react: ^0.5.6
     rc-select: ^14.4.3
@@ -81,6 +86,11 @@ __metadata:
     rc-tooltip: ^5.3.1
     react-datepicker: ^4.10.0
     react-toastify: 9.0.3
+  peerDependencies:
+    eslint: ^8.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    styled-components: ^5.3.6
   languageName: unknown
   linkType: soft
 
@@ -89,12 +99,17 @@ __metadata:
   resolution: "@appsmith/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
     "@typescript-eslint/utils": 5.62.0
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
   languageName: unknown
   linkType: soft
 
 "@appsmith/utils@workspace:^, @appsmith/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@appsmith/utils@workspace:packages/utils"
+  dependencies:
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
   languageName: unknown
   linkType: soft
 
@@ -112,9 +127,11 @@ __metadata:
     "@react-types/label": ^3.7.3
     "@react-types/shared": ^3.23.1
     "@react-types/textfield": ^3.9.6
+    eslint-plugin-lodash: ^8.0.0
     react-aria-components: ^1.3.3
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
   languageName: unknown
   linkType: soft
 
@@ -126,6 +143,7 @@ __metadata:
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
     colorjs.io: ^0.5.2
+    eslint-plugin-lodash: ^8.0.0
     lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -153,6 +171,7 @@ __metadata:
     "@types/react-syntax-highlighter": ^15.5.13
     "@types/react-transition-group": ^4.4.11
     clsx: ^2.0.0
+    eslint-plugin-lodash: ^8.0.0
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
     react-aria-components: ^1.2.1
@@ -162,7 +181,9 @@ __metadata:
     remark-gfm: ^4.0.0
     usehooks-ts: "*"
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+    eslint: ^8.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
   languageName: unknown
   linkType: soft
 
@@ -3006,6 +3027,8 @@ __metadata:
     "@storybook/theming": ^8.2.7
     "@vitejs/plugin-react": ^4.3.1
     chromatic: ^11.3.0
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
     glob: ^11.0.0
     storybook: ^8.2.7
     vite: ^5.3.5
@@ -3018,6 +3041,7 @@ __metadata:
   resolution: "@design-system/widgets-old@workspace:packages/design-system/widgets-old"
   dependencies:
     "@types/react-table": "*"
+    eslint-plugin-lodash: ^8.0.0
     identity-obj-proxy: 3.0.0
   peerDependencies:
     "@blueprintjs/core": 3.33.0
@@ -3346,9 +3370,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@eslint/eslintrc@npm:2.1.2"
+"@eslint/eslintrc@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "@eslint/eslintrc@npm:2.1.4"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.3.2
@@ -3359,14 +3383,14 @@ __metadata:
     js-yaml: ^4.1.0
     minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
-  checksum: bc742a1e3b361f06fedb4afb6bf32cbd27171292ef7924f61c62f2aed73048367bcc7ac68f98c06d4245cd3fabc43270f844e3c1699936d4734b3ac5398814a7
+  checksum: 10957c7592b20ca0089262d8c2a8accbad14b4f6507e35416c32ee6b4dbf9cad67dfb77096bbd405405e9ada2b107f3797fe94362e1c55e0b09d6e90dd149127
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:8.51.0":
-  version: 8.51.0
-  resolution: "@eslint/js@npm:8.51.0"
-  checksum: 0228bf1e1e0414843e56d9ff362a2a72d579c078f93174666f29315690e9e30a8633ad72c923297f7fd7182381b5a476805ff04dac8debe638953eb1ded3ac73
+"@eslint/js@npm:8.57.1":
+  version: 8.57.1
+  resolution: "@eslint/js@npm:8.57.1"
+  checksum: 2afb77454c06e8316793d2e8e79a0154854d35e6782a1217da274ca60b5044d2c69d6091155234ed0551a1e408f86f09dd4ece02752c59568fa403e60611e880
   languageName: node
   linkType: hard
 
@@ -3791,14 +3815,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@humanwhocodes/config-array@npm:^0.11.11":
-  version: 0.11.11
-  resolution: "@humanwhocodes/config-array@npm:0.11.11"
+"@humanwhocodes/config-array@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@humanwhocodes/config-array@npm:0.13.0"
   dependencies:
-    "@humanwhocodes/object-schema": ^1.2.1
-    debug: ^4.1.1
+    "@humanwhocodes/object-schema": ^2.0.3
+    debug: ^4.3.1
     minimatch: ^3.0.5
-  checksum: db84507375ab77b8ffdd24f498a5b49ad6b64391d30dd2ac56885501d03964d29637e05b1ed5aefa09d57ac667e28028bc22d2da872bfcd619652fbdb5f4ca19
+  checksum: eae69ff9134025dd2924f0b430eb324981494be26f0fddd267a33c28711c4db643242cf9fddf7dadb9d16c96b54b2d2c073e60a56477df86e0173149313bd5d6
   languageName: node
   linkType: hard
 
@@ -3809,10 +3833,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@humanwhocodes/object-schema@npm:^1.2.1":
-  version: 1.2.1
-  resolution: "@humanwhocodes/object-schema@npm:1.2.1"
-  checksum: a824a1ec31591231e4bad5787641f59e9633827d0a2eaae131a288d33c9ef0290bd16fda8da6f7c0fcb014147865d12118df10db57f27f41e20da92369fcb3f1
+"@humanwhocodes/object-schema@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@humanwhocodes/object-schema@npm:2.0.3"
+  checksum: d3b78f6c5831888c6ecc899df0d03bcc25d46f3ad26a11d7ea52944dc36a35ef543fad965322174238d677a43d5c694434f6607532cff7077062513ad7022631
   languageName: node
   linkType: hard
 
@@ -8732,6 +8756,8 @@ __metadata:
     astravel: ^0.6.1
     astring: ^1.7.5
     escodegen: ^2.0.0
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
     jest: 29.0.3
     klona: ^2.0.5
     lodash: ^4.17.21
@@ -8752,6 +8778,8 @@ __metadata:
     "@rollup/plugin-commonjs": ^22.0.0
     "@rollup/plugin-json": ^6.0.0
     "@types/lodash": ^4.14.120
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
     jest: ^29.5.0
     normalizr: ^3.6.2
     rollup: ^2.79.2
@@ -11056,10 +11084,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167":
-  version: 4.14.191
-  resolution: "@types/lodash@npm:4.14.191"
-  checksum: ba0d5434e10690869f32d5ea49095250157cae502f10d57de0a723fd72229ce6c6a4979576f0f13e0aa9fbe3ce2457bfb9fa7d4ec3d6daba56730a51906d1491
+"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167, @types/lodash@npm:^4.14.195":
+  version: 4.17.15
+  resolution: "@types/lodash@npm:4.17.15"
+  checksum: 5037564154411f4ac0b187b914031c150520a7ca037dea007f774b7123c97c0da55b2e41ae81dc1bc80ff09e8d6a236455ea676d5062af12c592b8e81baec7bf
   languageName: node
   linkType: hard
 
@@ -12127,10 +12155,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ungap/structured-clone@npm:^1.0.0":
-  version: 1.2.0
-  resolution: "@ungap/structured-clone@npm:1.2.0"
-  checksum: 4f656b7b4672f2ce6e272f2427d8b0824ed11546a601d8d5412b9d7704e83db38a8d9f402ecdf2b9063fc164af842ad0ec4a55819f621ed7e7ea4d1efcc74524
+"@ungap/structured-clone@npm:^1.0.0, @ungap/structured-clone@npm:^1.2.0":
+  version: 1.3.0
+  resolution: "@ungap/structured-clone@npm:1.3.0"
+  checksum: 64ed518f49c2b31f5b50f8570a1e37bde3b62f2460042c50f132430b2d869c4a6586f13aa33a58a4722715b8158c68cae2827389d6752ac54da2893c83e480fc
   languageName: node
   linkType: hard
 
@@ -13086,6 +13114,8 @@ __metadata:
   dependencies:
     "@svgr/core": ^8.1.0
     "@svgr/plugin-jsx": ^8.1.0
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
     fast-glob: ^3.3.2
     figmagic: ^4.5.13
     fs-extra: ^11.2.0
@@ -13113,6 +13143,8 @@ __metadata:
     "@types/readline-sync": ^1.4.8
     axios: ^1.7.4
     dotenv: 10.0.0
+    eslint: ^8.0.0
+    eslint-plugin-lodash: ^8.0.0
     express: ^4.20.0
     express-validator: ^6.14.2
     http-status-codes: ^2.2.0
@@ -13197,7 +13229,7 @@ __metadata:
     "@types/google.maps": ^3.51.0
     "@types/jest": ^29.5.3
     "@types/jshint": ^2.12.0
-    "@types/lodash": ^4.14.120
+    "@types/lodash": ^4.14.195
     "@types/mixpanel-browser": ^2.50.1
     "@types/moment-timezone": ^0.5.10
     "@types/nanoid": ^2.0.0
@@ -18618,17 +18650,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.3.0, eslint@npm:^8.51.0":
-  version: 8.51.0
-  resolution: "eslint@npm:8.51.0"
+"eslint@npm:^8.0.0, eslint@npm:^8.3.0, eslint@npm:^8.51.0":
+  version: 8.57.1
+  resolution: "eslint@npm:8.57.1"
   dependencies:
     "@eslint-community/eslint-utils": ^4.2.0
     "@eslint-community/regexpp": ^4.6.1
-    "@eslint/eslintrc": ^2.1.2
-    "@eslint/js": 8.51.0
-    "@humanwhocodes/config-array": ^0.11.11
+    "@eslint/eslintrc": ^2.1.4
+    "@eslint/js": 8.57.1
+    "@humanwhocodes/config-array": ^0.13.0
     "@humanwhocodes/module-importer": ^1.0.1
     "@nodelib/fs.walk": ^1.2.8
+    "@ungap/structured-clone": ^1.2.0
     ajv: ^6.12.4
     chalk: ^4.0.0
     cross-spawn: ^7.0.2
@@ -18661,7 +18694,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: 214fa5d1fcb67af1b8992ce9584ccd85e1aa7a482f8b8ea5b96edc28fa838a18a3b69456db45fc1ed3ef95f1e9efa9714f737292dc681e572d471d02fda9649c
+  checksum: e2489bb7f86dd2011967759a09164e65744ef7688c310bc990612fc26953f34cc391872807486b15c06833bdff737726a23e9b4cdba5de144c311377dc41d91b
   languageName: node
   linkType: hard
 
