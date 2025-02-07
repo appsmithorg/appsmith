@@ -186,4 +186,4 @@ export const getCanvasDebuggerState = createSelector(
 );
 
 export const getDebuggerStateInspectorSelectedItem = (state: AppState) =>
-  state.ui.debugger.stateInspector.selectedItem;
+  state.ui.debugger.stateInspector.selectedItemId;

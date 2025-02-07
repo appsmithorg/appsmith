@@ -65,7 +65,6 @@ public interface GitHandlingServiceCE {
 
     Mono<String> createFirstCommit(ArtifactJsonTransformationDTO jsonTransformationDTO, CommitDTO commitDTO);
 
-    // TODO: provide a proper name
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 
@@ -88,6 +87,7 @@ public interface GitHandlingServiceCE {
     Mono<GitStatusDTO> getStatus(ArtifactJsonTransformationDTO jsonTransformationDTO);
 
     Mono<String> createGitReference(
+            ArtifactJsonTransformationDTO baseRefJsonTransformationDTO,
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO,
             GitArtifactMetadata baseGitData,
             GitRefDTO gitRefDTO);

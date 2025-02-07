@@ -35,10 +35,6 @@ function TableOrSpreadsheetDropdown() {
         </LabelWrapper>
         <Select
           data-testid="t--one-click-binding-table-selector"
-          dropdownStyle={{
-            minWidth: "350px",
-            maxHeight: "300px",
-          }}
           isDisabled={disabled}
           isLoading={isLoading}
           isValid={!error}

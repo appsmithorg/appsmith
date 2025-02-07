@@ -15,7 +15,6 @@ const StyledContainer = styled(Flex)<Pick<SidePaneContainerProps, "padded">>`
 function SidePaneWrapper({ children, padded = false }: SidePaneContainerProps) {
   return (
     <StyledContainer
-      borderRight="1px solid var(--ads-v2-color-border)"
       flexDirection="column"
       height="100%"
       padded={padded}

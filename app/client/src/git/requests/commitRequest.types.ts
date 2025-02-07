@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/types";
 
 export interface CommitRequestParams {
-  commitMessage: string;
+  message: string;
   doPush: boolean;
 }
 
