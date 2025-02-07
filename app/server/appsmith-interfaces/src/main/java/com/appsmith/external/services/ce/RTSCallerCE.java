@@ -5,8 +5,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 public interface RTSCallerCE {
-    WebClient getWebClient();
-
     Mono<WebClient.RequestBodySpec> get(@NonNull String path);
 
     Mono<WebClient.RequestBodySpec> post(@NonNull String path, @NonNull Object requestBody);

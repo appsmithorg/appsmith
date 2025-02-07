@@ -91,11 +91,6 @@ public class RTSCallerCEImpl implements RTSCallerCE {
     }
 
     @Override
-    public WebClient getWebClient() {
-        return this.webClient;
-    }
-
-    @Override
     public Mono<WebClient.RequestBodySpec> get(@NonNull String path) {
         return makeRequest(HttpMethod.GET, path, null);
     }
