@@ -1,4 +1,4 @@
-export const tenantConfigConnection: string[] = [
+export const organizationConfigConnection: string[] = [
   "instanceName",
   "googleMapsKey",
   "emailVerificationEnabled",

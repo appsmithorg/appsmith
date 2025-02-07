@@ -54,8 +54,8 @@ import SettingsReducer from "ee/reducers/settingsReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
-import type { TenantReduxState } from "ee/reducers/tenantReducer";
-import tenantReducer from "ee/reducers/tenantReducer";
+import type { OrganizationReduxState } from "ee/reducers/organizationReducer";
+import organizationReducer from "ee/reducers/organizationReducer";
 import type { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import type { EditorContextState } from "ee/reducers/uiReducers/editorContextReducer";
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
@@ -87,7 +87,7 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
-  tenant: tenantReducer,
+  organization: organizationReducer,
   linting: lintErrorReducer,
   git: gitReducer,
 };
@@ -180,7 +180,7 @@ export interface AppState {
   settings: SettingsReduxState;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tenant: TenantReduxState<any>;
+  organization: OrganizationReduxState<any>;
   git: {
     global: GitGlobalReduxState;
     artifacts: GitArtifactRootReduxState;

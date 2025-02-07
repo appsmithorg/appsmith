@@ -129,7 +129,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";

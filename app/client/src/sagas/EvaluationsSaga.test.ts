@@ -24,7 +24,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,

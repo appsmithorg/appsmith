@@ -209,13 +209,13 @@ export const faivconImageValidator = (
 
 // NOTE: the reason why the json parsing is out of selector is we don't
 // want to do the parsing everytime selector is called
-let cachedTenantConfigParsed = {};
-const cachedTenantConfig = localStorage.getItem("tenantConfig");
+let cachedOrganizationConfigParsed = {};
+const cachedOrganizationConfig = localStorage.getItem("organizationConfig");
 
 try {
-  if (cachedTenantConfig) {
-    cachedTenantConfigParsed = JSON.parse(cachedTenantConfig);
+  if (cachedOrganizationConfig) {
+    cachedOrganizationConfigParsed = JSON.parse(cachedOrganizationConfig);
   }
 } catch (e) {}
 
-export { cachedTenantConfigParsed };
+export { cachedOrganizationConfigParsed };
