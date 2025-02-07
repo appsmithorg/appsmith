@@ -42,6 +42,7 @@ module.exports = {
     "@tag.MobileResponsive",
     "@tag.Modal",
     "@tag.Module",
+    "@tag.MsSql",
     "@tag.Perf",
     "@tag.PhoneInput",
     "@tag.Progress",

@@ -4,7 +4,7 @@ import { dataSources } from "../../../support/Objects/ObjectsCore";
 describe(
   "MsSQL datasource test cases",
   {
-    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl", "@tag.MsSql"],
   },
   function () {
     let datasourceName;
