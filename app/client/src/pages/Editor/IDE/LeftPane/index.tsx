@@ -17,7 +17,7 @@ import DataSidePane from "./DataSidePane";
 import EditorPane from "../EditorPane";
 import LibrarySidePane from "ee/pages/Editor/IDE/LeftPane/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;
