@@ -6,7 +6,7 @@ import { DismissibleTab, Text } from "@appsmith/ads";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 
 import { useCurrentEditorState } from "../hooks";
 

@@ -57,12 +57,12 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import {
-  EditorEntityTab,
-  type EntityItem,
-  type GenericEntityItem,
-  type IDEType,
-} from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
+import type {
+  EntityItem,
+  GenericEntityItem,
+} from "ee/IDE/Interfaces/EntityItem";
 import {
   ActionUrlIcon,
   JsFileIconV2,

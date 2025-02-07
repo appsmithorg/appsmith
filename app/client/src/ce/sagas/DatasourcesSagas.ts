@@ -87,7 +87,7 @@ import {
 } from "ee/constants/forms";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { setIdeEditorViewMode } from "../../actions/ideActions";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { createActionRequestSaga } from "../../sagas/ActionSagas";
 import { validateResponse } from "../../sagas/ErrorSagas";
