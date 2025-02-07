@@ -316,6 +316,10 @@ export class DataSources {
   private _dsSchemaEntityItem = ".t--entity-item";
   private _entityTriggerElement = ".t--template-menu-trigger";
   _dsSchemaTableResponse = ".t--table-response";
+  _imgSnowflakeLogo = "//img[contains(@src, 'snowflake.svg')]";
+  _dsConfigProperties = (index: number) =>
+    "input[name*='datasourceConfiguration.properties[" + index + "]']";
+  _dsConfigAuthType = `[data-testid*='datasourceConfiguration.authentication.authenticationType']`;
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -564,6 +568,43 @@ export class DataSources {
       this._password,
       password == ""
         ? this.dataManager.dsValues[environment].oracle_password
+        : password,
+    );
+  }
+
+  public FillSnowflakeDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    username = "",
+    password = "",
+  ) {
+    const accountName =
+      this.dataManager.dsValues[environment].Snowflake_accountName;
+    const warehouseName =
+      this.dataManager.dsValues[environment].Snowflake_warehouseName;
+    const databaseName =
+      this.dataManager.dsValues[environment].Snowflake_databaseName;
+    const schemaName =
+      this.dataManager.dsValues[environment].Snowflake_defaultSchema;
+    const role = this.dataManager.dsValues[environment].Snowflake_role;
+    this.agHelper.ClearNType(datasource.datasourceConfigUrl, accountName);
+    this.agHelper.ClearNType(this._dsConfigProperties(0), warehouseName);
+    this.agHelper.ClearNType(this._dsConfigProperties(1), databaseName);
+    this.agHelper.ClearNType(this._dsConfigProperties(2), schemaName);
+    this.agHelper.ClearNType(this._dsConfigProperties(3), role);
+    this.agHelper.AssertContains("Basic", "exist", this._dsConfigAuthType)
+      ? null
+      : this.agHelper.GetNClick(this._dsConfigAuthType) &&
+        this.agHelper.ContainsNClick("Basic");
+    this.agHelper.ClearNType(
+      this._username,
+      username == ""
+        ? this.dataManager.dsValues[environment].Snowflake_username
+        : username,
+    );
+    this.agHelper.ClearNType(
+      this._password,
+      password == ""
+        ? this.dataManager.dsValues[environment].Snowflake_password
         : password,
     );
   }
