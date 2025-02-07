@@ -27,14 +27,14 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 public class RTSCallerCEImpl implements RTSCallerCE {
 
-    private final ObservationRegistry observationRegistry;
+    protected final ObservationRegistry observationRegistry;
 
     private WebClient webClient;
 
     @Value("${appsmith.rts.port:}")
-    private String rtsPort;
+    protected String rtsPort;
 
-    private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
+    protected static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
     public RTSCallerCEImpl(ObservationRegistry observationRegistry) {
         this.observationRegistry = observationRegistry;
