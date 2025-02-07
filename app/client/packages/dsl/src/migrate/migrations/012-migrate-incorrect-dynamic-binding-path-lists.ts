@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import flow from "lodash/flow";
+import { flow, get, isString, isObject, isUndefined } from "lodash";
 import type { DSLWidget } from "../types";
 import log from "loglevel";
-import get from "lodash/get";
-import isString from "lodash/isString";
 import memoize from "micro-memoize";
-import { isObject, isUndefined } from "lodash";
 import { generateReactKey, isDynamicValue } from "../utils";
 
 export const WidgetHeightLimits = {

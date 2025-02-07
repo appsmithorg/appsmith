@@ -1,5 +1,5 @@
 import React from "react";
-import capitalize from "lodash/capitalize";
+import { capitalize } from "lodash";
 import { Slide, toast as toastifyToast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 

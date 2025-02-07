@@ -1,5 +1,5 @@
 import { getType, Types } from "utils/TypeHelpers";
-import _ from "lodash";
+import { get, isString, isArray, isPlainObject, isNil, isNumber, isBoolean } from "lodash";
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { QUOTED_BINDING_REGEX } from "constants/BindingsConstants";
@@ -115,7 +115,7 @@ export const templateSubstituteDynamicValues = (
   subBindings.forEach((b, i) => {
     let value = subValues[i];
 
-    if (Array.isArray(value) || _.isObject(value)) {
+    if (Array.isArray(value) || isPlainObject(value)) {
       value = JSON.stringify(value);
     }
 

@@ -2,7 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
-import _ from "lodash";
+import { omit } from "lodash";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 
 const initialState: DatasourcePaneReduxState = {
@@ -55,7 +55,7 @@ const datasourcePaneReducer = createReducer(initialState, {
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
-    drafts: _.omit(state.drafts, action.payload.id),
+    drafts: omit(state.drafts, action.payload.id),
     newDatasource: "",
   }),
   [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (

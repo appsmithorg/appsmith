@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { clamp } from "lodash-es";
+import { clamp, debounce } from "lodash";
 import { useDrag } from "react-use-gesture";
 import { useSprings, animated, to } from "react-spring";
 import styled from "styled-components";
-import debounce from "lodash/debounce";
-import get from "lodash/get";
 
 interface SpringStyleProps {
   down: boolean;
@@ -76,7 +74,7 @@ export function DraggableList(props: any) {
     fixedHeight && fixedHeight < items.length * itemHeight
       ? fixedHeight
       : items.length * itemHeight;
-  const shouldReRender = get(props, "shouldReRender", true);
+  const shouldReRender = props.shouldReRender ?? true;
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
   const displacement = useRef<number>(0);

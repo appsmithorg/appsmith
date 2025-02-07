@@ -1,6 +1,6 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerSyncRequest } from "../types";
-import set from "lodash/set";
+import { set } from "lodash";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";

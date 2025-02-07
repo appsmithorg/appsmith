@@ -1,6 +1,6 @@
 import type { APIResponseError } from "api/ApiResponses";
 import type { ActionConfig, Property, StoredDatasource } from "entities/Action";
-import _ from "lodash";
+import { get, set, isString, isNil, isObject } from "lodash";
 import type { SSL } from "./RestAPIForm";
 
 export enum AuthType {
@@ -110,7 +110,7 @@ export const isEmbeddedRestDatasource = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   val: any,
 ): val is EmbeddedRestDatasource => {
-  if (!_.isObject(val)) return false;
+  if (!isObject(val)) return false;
 
   if (!("datasourceConfiguration" in val)) return false;
 

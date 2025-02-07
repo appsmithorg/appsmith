@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { saveSettings } from "ee/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import _ from "lodash";
+import { get, set, isString, isNil, forEach, filter } from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
@@ -198,7 +198,7 @@ export function SettingsForm(
       });
     }
 
-    _.forEach(props.settingsConfig, (value, settingName) => {
+    forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
 
       if (
@@ -245,7 +245,7 @@ export function SettingsForm(
       socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
 
     if (connectedMethodsCount >= 2) {
-      _.forEach(currentSettings, (setting: Setting) => {
+      forEach(currentSettings, (setting: Setting) => {
         if (
           !setting.isHidden &&
           [
@@ -331,7 +331,7 @@ const validate = (values: Record<string, any>) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
 
-  _.filter(values, (value, name) => {
+  filter(values, (value, name) => {
     const err_message = AdminConfig.validate(name, value);
 
     if (err_message) {
@@ -356,7 +356,7 @@ export default withRouter(
       showReleaseNotes: getShowReleaseNotes(state),
     };
 
-    _.forEach(AdminConfig.settingsMap, (setting, name) => {
+    forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
       const doNotUpdate =
         setting.controlType === SettingTypes.CHECKBOX &&

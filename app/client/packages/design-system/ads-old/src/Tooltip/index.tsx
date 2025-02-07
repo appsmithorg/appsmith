@@ -8,7 +8,7 @@ import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { Tooltip } from "@blueprintjs/core/lib/esnext/components/tooltip/tooltip";
 import type { Modifiers } from "popper.js";
-import type noop from "lodash/noop";
+import { noop } from "lodash";
 import "./styles.module.css";
 import styled from "styled-components";
 

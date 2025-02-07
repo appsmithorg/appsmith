@@ -1,4 +1,4 @@
-import noop from "lodash/noop";
+import { noop } from "lodash";
 import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,

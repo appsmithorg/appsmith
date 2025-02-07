@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { set } from "lodash";
+import { set, isArray } from "lodash";
 import type { DSLWidget } from "../types";
 import { generateReactKey } from "../utils";
 
@@ -13,7 +13,7 @@ import { generateReactKey } from "../utils";
 export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (children.type === "CHART_WIDGET") {
-      if (Array.isArray(children.chartData)) {
+      if (isArray(children.chartData)) {
         const newChartData = {};
         const dynamicBindingPathList = children?.dynamicBindingPathList
           ? children?.dynamicBindingPathList.slice()
@@ -25,7 +25,7 @@ export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
           set(newChartData, `${generatedKey}`, datum);
 
           if (
-            Array.isArray(children.dynamicBindingPathList) &&
+            isArray(children.dynamicBindingPathList) &&
             children.dynamicBindingPathList?.findIndex(
               (path: { key: string }) =>
                 (path.key = `chartData[${index}].data`),

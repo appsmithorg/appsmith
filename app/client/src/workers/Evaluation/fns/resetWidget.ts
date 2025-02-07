@@ -7,7 +7,7 @@ import {
   canvasWidgetsMeta,
   metaWidgetsCache,
 } from "../handlers/evalTree";
-import _ from "lodash";
+import { get, set, isString, find, reduce } from "lodash";
 import type {
   WidgetEntityConfig,
   WidgetEntity,
@@ -69,13 +69,13 @@ function resetWidgetMetaProperty(
 ) {
   if (!dataTreeEvaluator) return;
 
-  let widget: FlattenedWidgetProps | undefined = _.find(
+  let widget: FlattenedWidgetProps | undefined = find(
     Object.values(canvasWidgets || {}),
     (widget) => widget.widgetName === widgetName,
   );
 
   if (!widget) {
-    widget = _.find(
+    widget = find(
       Object.values(metaWidgetsCache || {}),
       (widget) => widget.widgetName === widgetName,
     );
@@ -177,7 +177,7 @@ function resetWidgetMetaProperty(
 }
 
 function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
-  return _.reduce(
+  return reduce(
     widgetsMeta,
     function (
       result: {
@@ -217,14 +217,14 @@ export function getWidgetDescendantToReset(
   widgetsMeta: MetaState,
 ): DescendantWidgetMap[] {
   const descendantList: DescendantWidgetMap[] = [];
-  const widget = _.get(canvasWidgets, widgetId);
+  const widget = get(canvasWidgets, widgetId);
 
   const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
 
   for (const childMetaWidgetId of Object.keys(
     sortedWidgetsMeta.childrenWidgetsMeta,
   )) {
-    const evaluatedChildWidget = _.find(evaluatedDataTree, function (entity) {
+    const evaluatedChildWidget = find(evaluatedDataTree, function (entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
     }) as WidgetEntity | undefined;
 
@@ -252,7 +252,7 @@ export function getWidgetDescendantToReset(
         if (children.hasOwnProperty(childIndex)) {
           const childWidgetId = children[childIndex];
 
-          const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+          const childCanvasWidget = get(canvasWidgets, childWidgetId);
           const childWidgetName = childCanvasWidget.widgetName;
           const childWidget = evaluatedDataTree[childWidgetName];
 

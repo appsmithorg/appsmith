@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import prettier from "prettier";
-import kebabCase from "lodash/kebabCase";
+import { kebabCase } from "lodash";
 
 import { icons } from "@tabler/icons-react";
 

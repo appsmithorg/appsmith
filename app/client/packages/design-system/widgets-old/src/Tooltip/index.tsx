@@ -5,7 +5,7 @@ import type { PopperBoundary } from "@blueprintjs/core/lib/esm/components/popove
 import { PopoverPosition } from "@blueprintjs/core/lib/esm/components/popover/popoverSharedProps";
 import { Tooltip } from "@blueprintjs/core/lib/esm/components/tooltip/tooltip";
 import type { Modifiers } from "popper.js";
-import type noop from "lodash/noop";
+import type { noop } from "lodash";
 import "./styles.module.css";
 import styled from "styled-components";
 

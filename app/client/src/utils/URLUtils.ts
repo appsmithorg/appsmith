@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isString, isObject, isNil, map, keys, join } from "lodash";
 
 export function getQueryParams() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -17,12 +17,12 @@ export function getQueryParams() {
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertObjectToQueryParams(object: any): string {
-  if (!_.isNil(object)) {
-    const paramArray: string[] = _.map(_.keys(object), (key) => {
+  if (!isNil(object)) {
+    const paramArray: string[] = map(keys(object), (key) => {
       return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
     });
 
-    return "?" + _.join(paramArray, "&");
+    return "?" + join(paramArray, "&");
   } else {
     return "";
   }

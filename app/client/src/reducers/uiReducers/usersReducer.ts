@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { findIndex } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
@@ -49,7 +49,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.users];
-    const userIndex = _.findIndex(users, { username: action.payload.username });
+    const userIndex = findIndex(users, { username: action.payload.username });
 
     if (userIndex > -1) {
       users[userIndex] = action.payload;
@@ -72,7 +72,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.users];
-    const userIndex = _.findIndex(users, { username: action.payload.username });
+    const userIndex = findIndex(users, { username: action.payload.username });
 
     if (userIndex > -1) {
       users[userIndex] = action.payload;
@@ -107,7 +107,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<User>,
   ) => {
     const users = [...state.list];
-    const userIndex = _.findIndex(users, { username: action.payload.username });
+    const userIndex = findIndex(users, { username: action.payload.username });
 
     if (userIndex > -1) {
       users[userIndex] = action.payload;

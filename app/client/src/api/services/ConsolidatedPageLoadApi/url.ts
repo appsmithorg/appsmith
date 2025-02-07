@@ -1,5 +1,4 @@
-import pickBy from "lodash/pickBy";
-import identity from "lodash/identity";
+import { pickBy, identity } from "lodash";
 import type { ConsolidatedApiParams } from "./types";
 
 export class ConsolidatedApiUtils {

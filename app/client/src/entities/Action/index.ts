@@ -1,6 +1,6 @@
 import type { EmbeddedRestDatasource } from "entities/Datasource";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import _ from "lodash";
+import { get, set, isString, isNil, isObject } from "lodash";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
@@ -111,7 +111,7 @@ export interface QueryActionConfig extends ActionConfig {
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isStoredDatasource = (val: any): val is StoredDatasource => {
-  if (!_.isObject(val)) return false;
+  if (!isObject(val)) return false;
 
   if (!("id" in val)) return false;
 

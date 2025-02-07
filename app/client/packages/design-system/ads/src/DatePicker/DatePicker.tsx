@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BaseDatePicker from "react-datepicker";
-import range from "lodash/range";
+import { range } from "lodash";
 import getYear from "date-fns/getYear";
 import getMonth from "date-fns/getMonth";
 import clsx from "classnames";

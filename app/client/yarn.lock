@@ -13291,6 +13291,7 @@ __metadata:
     eslint-linter-browserify: ^9.15.0
     eslint-plugin-cypress: ^2.15.1
     eslint-plugin-jest: ^27.4.2
+    eslint-plugin-lodash: ^8.0.0
     eslint-plugin-prettier: ^5.0.0
     eslint-plugin-react: ^7.33.2
     eslint-plugin-react-compiler: beta
@@ -18416,6 +18417,17 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: 311ab993ed982d0cc7cb0ba02fbc4b36c4a94e9434f31e97f13c4d67e8ecb8aec36baecfd759ff70498846e7e11d7a197eb04c39ad64934baf3354712fd0bc9d
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-lodash@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "eslint-plugin-lodash@npm:8.0.0"
+  dependencies:
+    lodash: ^4.17.21
+  peerDependencies:
+    eslint: ">=9.0.0"
+  checksum: 0cf3475e27935abf6377c5a0d64337217f8a373e44605239a153b638b702075fd4c1fe3e4d731552d2248146af28299e1b99be76a9b5c49319b8088a83338c5f
   languageName: node
   linkType: hard
 

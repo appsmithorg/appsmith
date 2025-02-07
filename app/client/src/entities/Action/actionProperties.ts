@@ -1,5 +1,5 @@
 import type { Action } from "entities/Action/index";
-import _ from "lodash";
+import { get, set, isNumber } from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   alternateViewTypeInputConfig,
@@ -98,7 +98,7 @@ export const getBindingAndReactivePathsOfAction = (
           alternateViewTypeInputConfig().evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
-        let actionValue = _.get(action, formConfig.configProperty);
+        let actionValue = get(action, formConfig.configProperty);
 
         if (Array.isArray(actionValue)) {
           actionValue = actionValue.filter((val) => val);
@@ -171,7 +171,7 @@ export const getBindingAndReactivePathsOfAction = (
           }
         };
 
-        const actionValue = _.get(action, formConfig.configProperty);
+        const actionValue = get(action, formConfig.configProperty);
 
         if (
           actionValue &&
@@ -207,7 +207,7 @@ export const getBindingAndReactivePathsOfAction = (
           formConfig.evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === formControlTypes.SORTING) {
-        const actionValue = _.get(action, formConfig.configProperty);
+        const actionValue = get(action, formConfig.configProperty);
 
         if (Array.isArray(actionValue)) {
           // TODO: Fix this the next time the file is edited
@@ -282,7 +282,7 @@ export const getBindingOrConfigPathsForSortingControl = (
   baseConfigProperty: string,
   index?: number,
 ): string => {
-  if (_.isNumber(index)) {
+  if (typeof index === "number") {
     return `${baseConfigProperty}[${index}].${fieldName}`;
   } else {
     return `${baseConfigProperty}.${fieldName}`;
@@ -305,7 +305,7 @@ export const getBindingOrConfigPathsForWhereClauseControl = (
     | WhereClauseSubComponent.Value,
   index?: number,
 ): string => {
-  if (fieldName === "children" && _.isNumber(index)) {
+  if (fieldName === "children" && typeof index === "number") {
     return `${configPath}.${fieldName}[${index}]`;
   } else if (configPath && fieldName) {
     return `${configPath}.${fieldName}`;

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { get, set, isString } from "lodash";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +34,7 @@ export const createObjectPeekData = (
         key,
       );
 
-      _.set(peekData, childKeyPathArray, result.peekData);
+      set(peekData, childKeyPathArray, result.peekData);
     } else {
       peekData[key] = isTernFunctionDef(defs[key])
         ? // eslint-disable-next-line @typescript-eslint/no-empty-function

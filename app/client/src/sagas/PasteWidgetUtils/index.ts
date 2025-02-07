@@ -38,7 +38,7 @@ import {
   getVerticallyAdjustedPositions,
   isDropTarget,
 } from "../WidgetOperationUtils";
-import _ from "lodash";
+import { get, set, isString, isArray, isObject, escapeRegExp } from "lodash";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -429,14 +429,14 @@ export function accessNestedObjectValue(
 ) {
   // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
   // since this replacement can occur multiple times within the object, to prevent unnecessary replacements(& wrong replacements), we check if the value already contains the newValue before replacing it.
-  const currentPathValue = _.get(obj, path, "");
+  const currentPathValue = get(obj, path, "");
 
   if (!currentPathValue.includes(newValue)) {
-    _.set(
+    set(
       obj,
       path,
       currentPathValue.replace(
-        new RegExp(_.escapeRegExp(oldValue), "g"),
+        new RegExp(escapeRegExp(oldValue), "g"),
         newValue,
       ),
     );

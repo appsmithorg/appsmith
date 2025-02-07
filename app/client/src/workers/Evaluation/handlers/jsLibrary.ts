@@ -1,4 +1,4 @@
-import difference from "lodash/difference";
+import { difference } from "lodash";
 import type { Def } from "tern";
 import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
 import {

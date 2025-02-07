@@ -1,6 +1,6 @@
 import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
-import _ from "lodash";
+import { get, isObject, find } from "lodash";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Page } from "entities/Page";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -26,7 +26,7 @@ const isValidPageName = (
   pageNameOrUrl: string,
   pageList: Page[],
 ): Page | undefined => {
-  return _.find(pageList, (page: Page) => page.pageName === pageNameOrUrl);
+  return find(pageList, (page: Page) => page.pageName === pageNameOrUrl);
 };
 
 export default function* navigateActionSaga(

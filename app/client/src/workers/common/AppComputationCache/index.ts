@@ -1,9 +1,8 @@
 import { APP_MODE } from "entities/App";
 import localforage from "localforage";
-import isNull from "lodash/isNull";
+import { isNull, debounce } from "lodash";
 import loglevel from "loglevel";
 import { EComputationCacheName, type ICacheProps } from "./types";
-import debounce from "lodash/debounce";
 
 interface ICachedData<T> {
   value: T;

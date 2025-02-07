@@ -9,7 +9,7 @@ import CodemirrorTernService, {
 import { AutocompleteDataType } from "../AutocompleteDataType";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import { get, set, isObject, shuffle, sortBy } from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type CodeMirror from "codemirror";
 import type { Def } from "tern";
@@ -411,7 +411,7 @@ describe("Tern server sorting", () => {
     );
     CodemirrorTernService.defEntityInformation = defEntityInformation;
     const sortedCompletions = AutocompleteSorter.sort(
-      _.shuffle(completions),
+      shuffle(completions),
       {
         entityName: "sameEntity",
         entityType: ENTITY_TYPE.WIDGET,
@@ -730,11 +730,11 @@ describe("Tern server completion", () => {
       jest.fn,
     )!;
 
-    const expectedContainingItems = _.sortBy(expectedValue, "text").map(
+    const expectedContainingItems = sortBy(expectedValue, "text").map(
       (item) => expect.objectContaining(item),
     );
 
-    expect(_.sortBy(result.list, "text")).toEqual(expectedContainingItems);
+    expect(sortBy(result.list, "text")).toEqual(expectedContainingItems);
   });
 });
 

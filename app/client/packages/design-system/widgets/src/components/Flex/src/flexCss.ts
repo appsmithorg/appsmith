@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import kebabCase from "lodash/kebabCase";
+import { kebabCase } from "lodash";
 
 import type { FlexCssProps, CssVarValues, FlexProps } from "./types";
 

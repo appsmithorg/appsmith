@@ -43,9 +43,8 @@ import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import type { Datasource } from "entities/Datasource";
-import omit from "lodash/omit";
+import { omit, get } from "lodash";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "ee/constants/messages";
-import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,

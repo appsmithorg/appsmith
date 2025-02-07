@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import set from "lodash/set";
+import { set } from "lodash";
 import type { DSLWidget } from "../types";
 
 /**

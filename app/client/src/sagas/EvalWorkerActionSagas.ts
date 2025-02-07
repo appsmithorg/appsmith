@@ -18,7 +18,7 @@ import {
 import { evalWorker } from "utils/workerInstances";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
-import isEmpty from "lodash/isEmpty";
+import { isEmpty } from "lodash";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";

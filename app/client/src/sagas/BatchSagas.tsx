@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
-import _ from "lodash";
+import { get, isString, isObject, set } from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -57,7 +57,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
     const currentPriorityBatch = batches[priority] || [];
 
     currentPriorityBatch.push(action.payload);
-    _.set(batches, `[${priority}]`, currentPriorityBatch);
+    set(batches, `[${priority}]`, currentPriorityBatch);
     yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
   } catch (e) {
     log.error(`${action.payload.type} action priority not set`);

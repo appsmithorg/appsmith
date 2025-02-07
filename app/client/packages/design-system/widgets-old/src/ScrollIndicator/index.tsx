@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { animated, useSpring, to } from "react-spring";
 
 export const ScrollThumb = styled(animated.div)<{
@@ -124,7 +124,7 @@ function ScrollIndicator({
     }
   }, [isScrollVisible]);
 
-  const hideScrollbar = _.debounce(() => {
+  const hideScrollbar = debounce(() => {
     setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
 

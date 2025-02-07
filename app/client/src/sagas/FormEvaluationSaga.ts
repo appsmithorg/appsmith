@@ -20,7 +20,7 @@ import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import get from "lodash/get";
+import { get } from "lodash";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,

@@ -7,7 +7,7 @@ import {
   cleanValuesInObjectForHashing,
   generateHashFromString,
 } from "./helper";
-import get from "lodash/get";
+import { get } from "lodash";
 import log from "loglevel";
 import { all, put, select, takeEvery } from "redux-saga/effects";
 import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";

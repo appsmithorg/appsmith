@@ -25,7 +25,7 @@ import { klona as clone } from "klona/full";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isFunction } from "lodash";
-import omit from "lodash/omit";
+import { omit } from "lodash";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,

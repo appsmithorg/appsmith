@@ -1,8 +1,7 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import get from "lodash/get";
-import omit from "lodash/omit";
+import { get, omit } from "lodash";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import type {
   ReduxAction,

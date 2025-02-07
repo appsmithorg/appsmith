@@ -1,4 +1,4 @@
-import kebabCase from "lodash/kebabCase";
+import { kebabCase } from "lodash";
 import { DarkModeTheme, LightModeTheme } from "../../color";
 
 import type { ColorMode, ColorTypes } from "../../color";

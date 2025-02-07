@@ -2,7 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import _ from "lodash";
+import { get } from "lodash";
 
 const initialState: ErrorReduxState = {
   safeCrash: false,
@@ -24,7 +24,7 @@ const errorReducer = createReducer(initialState, {
   ) => ({
     ...state,
     safeCrash: true,
-    safeCrashCode: _.get(action, "payload.code"),
+    safeCrashCode: get(action, "payload.code"),
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,

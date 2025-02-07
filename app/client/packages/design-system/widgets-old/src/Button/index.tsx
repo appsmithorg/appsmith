@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import { omit } from "lodash";
 import styled, { css } from "styled-components";
 import { Variant } from "../constants/variants";
 import type { CommonComponentProps } from "../types/common";
@@ -529,7 +529,7 @@ const getButtonContent = (props: ButtonProps) => {
 
 function ButtonComponent(props: ButtonProps) {
   const { className, cypressSelector, isLoading, onClick } = props;
-  const filteredProps = _.omit(props, ["fill"]);
+  const filteredProps = omit(props, ["fill"]);
 
   return (
     <StyledButton
@@ -547,7 +547,7 @@ function ButtonComponent(props: ButtonProps) {
 
 function LinkButtonComponent(props: ButtonProps) {
   const { className, cypressSelector, href, onClick } = props;
-  const filteredProps = _.omit(props, ["fill"]);
+  const filteredProps = omit(props, ["fill"]);
 
   return (
     <StyledLinkButton

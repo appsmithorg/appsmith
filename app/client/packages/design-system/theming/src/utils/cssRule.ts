@@ -1,5 +1,4 @@
-import kebabCase from "lodash/kebabCase";
-import isObject from "lodash/isObject";
+import { kebabCase, isObject } from "lodash";
 import type { Theme } from "../theme";
 import { objectKeys } from "@appsmith/utils";
 import type { TypographyVariantMetric } from "../token";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isString, isNumber, isBoolean, isArray, isPlainObject, isNil, isFunction } from "lodash";
 
 export enum Types {
   URL = "URL",
@@ -14,21 +14,21 @@ export enum Types {
 }
 
 export const getType = (value: unknown) => {
-  if (_.isString(value)) return Types.STRING;
+  if (isString(value)) return Types.STRING;
 
-  if (_.isNumber(value)) return Types.NUMBER;
+  if (isNumber(value)) return Types.NUMBER;
 
-  if (_.isBoolean(value)) return Types.BOOLEAN;
+  if (isBoolean(value)) return Types.BOOLEAN;
 
   if (Array.isArray(value)) return Types.ARRAY;
 
-  if (_.isFunction(value)) return Types.FUNCTION;
+  if (isFunction(value)) return Types.FUNCTION;
 
-  if (_.isObject(value)) return Types.OBJECT;
+  if (isPlainObject(value)) return Types.OBJECT;
 
-  if (_.isUndefined(value)) return Types.UNDEFINED;
+  if (value === undefined) return Types.UNDEFINED;
 
-  if (_.isNull(value)) return Types.NULL;
+  if (value === null) return Types.NULL;
 
   return Types.UNKNOWN;
 };
