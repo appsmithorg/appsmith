@@ -90,6 +90,15 @@ public class TenantConfigurationCE implements Serializable {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
     }
 
+    // TODO this can lead to uninteded behavior in following scenario:
+    // 1. Get the FeaturesWithPendingMigration
+    // 2. Convert it to Map<FeatureFlagEnum, FeatureMigrationType>
+    // 3. Update the FeatureFlagEnum to FeatureMigrationType mapping
+    // 4. Convert it back to Map<String, FeatureMigrationType>
+    // 5. Set it back to TenantConfiguration
+    // 6. Save the TenantConfiguration
+    // We expect as we are getting the field it will automatically gets set but that's not true anymore as setter is
+    // overriden
     public void setFeaturesWithPendingMigration(
             Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration) {
         this.featuresWithPendingMigration = new HashMap<>();

@@ -312,9 +312,9 @@ class TenantServiceCETest {
         tenant.setId(UUID.randomUUID().toString());
         TenantConfiguration config = new TenantConfiguration();
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
-        config.setFeaturesWithPendingMigration(featureMigrationTypeMap);
         featureMigrationTypeMap.put(TENANT_TEST_FEATURE, FeatureMigrationType.DISABLE);
         featureMigrationTypeMap.put(TEST_FEATURE_2, FeatureMigrationType.ENABLE);
+        config.setFeaturesWithPendingMigration(featureMigrationTypeMap);
         tenant.setTenantConfiguration(config);
         final Mono<Tenant> resultMono = tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
 

@@ -27,12 +27,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.appsmith.external.constants.spans.TenantSpan.FETCH_DEFAULT_TENANT_SPAN;
 import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.featureflags.FeatureFlagUtils.getValidFeaturesWithPendingMigration;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -258,18 +258,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (!isMigrationRequired(tenant)) {
             return Mono.just(tenant);
         }
-        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
-        tenant.getTenantConfiguration()
-                .getFeaturesWithPendingMigration()
-                .forEach((featureFlag, featureMigrationType) -> {
-                    try {
-                        FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.valueOf(featureFlag);
-                        featureMigrationTypeMap.put(featureFlagEnum, featureMigrationType);
-                    } catch (IllegalArgumentException e) {
-                        log.error(
-                                "Invalid feature flag found in the tenant configuration: {} removing it.", featureFlag);
-                    }
-                });
+        TenantConfiguration tenantConfig = tenant.getTenantConfiguration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+                getValidFeaturesWithPendingMigration(tenantConfig);
 
         FeatureFlagEnum featureFlagEnum =
                 featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);
@@ -283,6 +274,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         } else {
                             tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
                         }
+                        tenantConfig.setFeaturesWithPendingMigration(featureMigrationTypeMap);
                         return this.save(tenant)
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
