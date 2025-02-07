@@ -44,7 +44,7 @@
   },
   "rules": {
     "react-compiler/react-compiler": "warn",
-    "lodash/import-scope": ["error", "member"],
+    "lodash/import-scope": ["error", "method"],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },
