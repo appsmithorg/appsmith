@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import type { IconNames } from "@appsmith/ads";
 import type { SocialLoginType } from "ee/constants/SocialLogin";
 import { getSocialLoginButtonProps } from "ee/utils/signupHelpers";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
@@ -71,8 +72,8 @@ function SocialLoginButton(props: {
       size="md"
       startIcon={
         ["Google", "Github"].includes(props.name)
-          ? startIcon[props.name]
-          : "key-2-line"
+          ? (startIcon[props.name] as IconNames)
+          : ("key-2-line" as IconNames)
       }
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>

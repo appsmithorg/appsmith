@@ -1,5 +1,6 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
+import type { IconNames } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -230,12 +231,20 @@ const TriggerNode = (props: TriggerNodeProps) => {
     >
       <Button
         className={props.hasError ? "t--connection-error" : "t--connection"}
-        endIcon={props.iconAlignment === "RIGHT" ? "right-arrow" : ""}
+        endIcon={
+          props.iconAlignment === "RIGHT"
+            ? ("right-arrow" as IconNames)
+            : undefined
+        }
         isDisabled={props.disabled}
         kind={props.hasError ? "error" : "tertiary"}
         onClick={onClick}
         size="sm"
-        startIcon={props.iconAlignment === "LEFT" ? "right-arrow" : ""}
+        startIcon={
+          props.iconAlignment === "LEFT"
+            ? ("right-arrow" as IconNames)
+            : undefined
+        }
       >
         {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No entity"}
       </Button>

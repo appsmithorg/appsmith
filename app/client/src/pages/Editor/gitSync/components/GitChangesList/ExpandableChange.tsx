@@ -4,6 +4,7 @@ import {
   CollapsibleHeader,
   Icon,
   Text,
+  type IconNames,
 } from "@appsmith/ads";
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
@@ -103,7 +104,11 @@ export function ChangeSubList({
     return (
       <div className="flex items-center space-x-1.5" key={entity}>
         {iconName && (
-          <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+          <Icon
+            color={"var(--ads-v2-color-fg)"}
+            name={iconName as IconNames}
+            size="md"
+          />
         )}
         <Text color={"var(--ads-v2-color-fg)"} kind="body-m">
           {`${entityName} ${action}`}
@@ -177,7 +182,7 @@ export function ExpandableChange({ filter, kind, status }: ChangeProps) {
             {iconName && (
               <Icon
                 color={"var(--ads-v2-color-fg)"}
-                name={iconName}
+                name={iconName as IconNames}
                 size="md"
               />
             )}

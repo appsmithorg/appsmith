@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
+import type { IconNames } from "@appsmith/ads";
 
 import BranchButton from "./BranchButton";
 
@@ -52,7 +53,7 @@ interface QuickActionButtonProps {
   className?: string;
   count?: number;
   disabled?: boolean;
-  icon: string;
+  icon: IconNames;
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
@@ -121,7 +122,7 @@ function QuickActionButton({
               isIconButton
               kind="tertiary"
               size="md"
-              startIcon={icon}
+              startIcon={icon as IconNames}
             />
             {count > 0 && <span className="count">{count}</span>}
           </div>

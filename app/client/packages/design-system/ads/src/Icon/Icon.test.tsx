@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { render } from "@testing-library/react";
 import { IconCollection } from "./Icon.provider";
 import { IconClassName } from "./Icon.constants";
+import type { IconNames } from "./Icon.types";
 
 describe("Icon Component", () => {
   // this workaround to retroactively make Icon a default export is required because
@@ -15,7 +16,7 @@ describe("Icon Component", () => {
     IconCollection.forEach((iconKey) => {
       const { container } = render(
         <Suspense fallback={<svg height={12} width={12} />}>
-          <Icon name={iconKey} size="sm" />
+          <Icon name={iconKey as IconNames} size="sm" />
         </Suspense>,
       );
 
@@ -24,9 +25,12 @@ describe("Icon Component", () => {
     });
   });
 
-  it("makes canvas blank when name field is blank", () => {
+  it("makes canvas blank when name field is undefined", () => {
     const { getByTestId } = render(
-      <Icon data-testid={IconClassName} name="" />,
+      <Icon
+        data-testid={IconClassName}
+        name={undefined as unknown as IconNames}
+      />,
     );
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const icon = getByTestId(IconClassName);

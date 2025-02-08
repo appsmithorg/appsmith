@@ -1,6 +1,6 @@
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { Icon, Text } from "@appsmith/ads";
+import { Icon, Text, type IconNames } from "@appsmith/ads";
 import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
@@ -82,7 +82,11 @@ export default function StaticChange({ kind, status }: StaticChangeProps) {
       data-testid={`t--status-change-${kind}`}
     >
       {iconName && (
-        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+        <Icon
+          color={"var(--ads-v2-color-fg)"}
+          name={iconName as IconNames}
+          size="md"
+        />
       )}
       <TitleText color={"var(--ads-v2-color-fg)"}>{message}</TitleText>
     </div>
