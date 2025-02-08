@@ -11,7 +11,7 @@ import type { ApplicationPayload } from "entities/Application";
 import type {
   ReduxAction,
   ReduxActionWithMeta,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -35,7 +35,6 @@ import {
   getActionByBaseId,
 } from "ee/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
-import { PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -60,8 +59,12 @@ import {
   integrationEditorURL,
   queryEditorIdURL,
 } from "ee/RouteBuilder";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginType,
+  UIComponentTypes,
+} from "entities/Plugin";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
@@ -398,6 +401,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ].includes(pluginType)
   )
     return;

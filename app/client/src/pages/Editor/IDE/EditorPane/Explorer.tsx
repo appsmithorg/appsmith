@@ -1,5 +1,5 @@
-import React from "react";
-import { Flex } from "@appsmith/ads";
+import React, { useMemo } from "react";
+import { ExplorerContainer } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
@@ -15,33 +15,44 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import SegmentedHeader from "./components/SegmentedHeader";
+import SegmentSwitcher from "./components/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { useCurrentEditorState } from "../hooks";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
   const ideViewMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+
+  const widgetSegmentPaths = useMemo(
+    () => [
+      BUILDER_PATH,
+      BUILDER_CUSTOM_PATH,
+      BUILDER_PATH_DEPRECATED,
+      ...widgetSegmentRoutes.map((route) => `${path}${route}`),
+    ],
+    [path],
+  );
 
   return (
-    <Flex
+    <ExplorerContainer
       borderRight={
-        ideViewMode === EditorViewMode.SplitScreen
-          ? ""
-          : "1px solid var(--ads-v2-color-border)"
+        ideViewMode === EditorViewMode.SplitScreen ||
+        segment === EditorEntityTab.UI
+          ? "NONE"
+          : "STANDARD"
       }
-      className="relative ide-editor-left-pane__content"
-      flexDirection="column"
-      overflow="hidden"
+      className="ide-editor-left-pane__content"
       width={
         ideViewMode === EditorViewMode.FullScreen
           ? DEFAULT_EXPLORER_PANE_WIDTH
           : "100%"
       }
     >
-      <SegmentedHeader />
+      <SegmentSwitcher />
       <Switch>
         <SentryRoute
           component={JSExplorer}
@@ -51,17 +62,9 @@ const EditorPaneExplorer = () => {
           component={QueryExplorer}
           path={querySegmentRoutes.map((route) => `${path}${route}`)}
         />
-        <SentryRoute
-          component={WidgetsSegment}
-          path={[
-            BUILDER_PATH,
-            BUILDER_CUSTOM_PATH,
-            BUILDER_PATH_DEPRECATED,
-            ...widgetSegmentRoutes.map((route) => `${path}${route}`),
-          ]}
-        />
+        <SentryRoute component={WidgetsSegment} path={widgetSegmentPaths} />
       </Switch>
-    </Flex>
+    </ExplorerContainer>
   );
 };
 

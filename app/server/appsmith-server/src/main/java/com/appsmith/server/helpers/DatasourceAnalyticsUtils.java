@@ -24,7 +24,6 @@ public class DatasourceAnalyticsUtils {
 
     public static Map<String, Object> getAnalyticsProperties(Datasource datasource) {
         Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasource.getWorkspaceId());
         analyticsProperties.put("pluginName", datasource.getPluginName());
         analyticsProperties.put("pluginId", datasource.getPluginId());
         analyticsProperties.put("dsName", datasource.getName());
@@ -37,7 +36,6 @@ public class DatasourceAnalyticsUtils {
 
     public static Map<String, Object> getAnalyticsProperties(DatasourceStorage datasourceStroge) {
         Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasourceStroge.getWorkspaceId());
         analyticsProperties.put("pluginName", datasourceStroge.getPluginName());
         analyticsProperties.put("pluginId", datasourceStroge.getPluginId());
         analyticsProperties.put("dsName", datasourceStroge.getName());

@@ -12,7 +12,7 @@ import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type { Page } from "entities/Page";
 import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";

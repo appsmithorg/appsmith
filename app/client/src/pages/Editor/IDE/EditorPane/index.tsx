@@ -4,7 +4,7 @@ import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = () => {
@@ -12,11 +12,6 @@ const EditorPane = () => {
 
   return (
     <Flex
-      borderRight={
-        ideViewMode === EditorViewMode.SplitScreen
-          ? "1px solid var(--ads-v2-color-border)"
-          : ""
-      }
       className="ide-editor-left-pane"
       flexDirection={
         ideViewMode === EditorViewMode.SplitScreen ? "column" : "row"
@@ -24,7 +19,7 @@ const EditorPane = () => {
       // @ts-expect-error Fix this the next time the file is edited
       gap="spacing-2"
       height="100%"
-      width={"100%"}
+      width="100%"
     >
       {/** Entity Properties component is necessary to render
        the Bindings popover in the context menu.

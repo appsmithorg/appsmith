@@ -183,9 +183,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   return sourceDataPath;
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const dataTypeFor = (value: any) => {
+export const dataTypeFor = (value: unknown) => {
   const typeOfValue = typeof value;
 
   if (Array.isArray(value)) return DataType.ARRAY;
@@ -195,13 +193,11 @@ export const dataTypeFor = (value: any) => {
   return typeOfValue as DataType;
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const subDataTypeFor = (value: any) => {
+export const subDataTypeFor = (value: unknown) => {
   const dataType = dataTypeFor(value);
 
   if (dataType === DataType.ARRAY) {
-    return dataTypeFor(value[0]);
+    return dataTypeFor((value as unknown[])[0]);
   }
 
   return undefined;
@@ -351,6 +347,13 @@ export const checkIfArrayAndSubDataTypeChanged = (
 
   const currSubDataType = subDataTypeFor(currentData);
   const prevSubDataType = subDataTypeFor(prevData);
+
+  /**
+   * If the array is empty, then we don't need to check for sub data type
+   * as it would be an empty array, which will always be `undefined`.
+   * which leads to unnecessary re calculation of a type(https://github.com/appsmithorg/appsmith/issues/37246)
+   */
+  if (currentData.length === 0 || prevData.length === 0) return false;
 
   return currSubDataType !== prevSubDataType;
 };

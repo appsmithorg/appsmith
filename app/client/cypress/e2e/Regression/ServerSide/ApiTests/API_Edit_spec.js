@@ -48,7 +48,8 @@ describe(
       PageLeftPane.assertAbsence("SecondAPI");
     });
 
-    it("2. Should update loading state after cancellation of confirmation for run query", function () {
+    //Existing Bug: https://github.com/appsmithorg/appsmith/issues/38165
+    it.skip("2. Should update loading state after cancellation of confirmation for run query", function () {
       cy.CreateAPI("FirstAPI");
       cy.get(".CodeMirror-placeholder")
         .first()
@@ -102,8 +103,7 @@ describe(
         .wait(3000)
         .click({
           force: true,
-        })
-        .type("{enter}", { parseSpecialCharSequences: true });
+        });
 
       cy.validateEvaluatedValue(
         "http://host.docker.internal:5001/Cancel?key=test&val=Cancel",

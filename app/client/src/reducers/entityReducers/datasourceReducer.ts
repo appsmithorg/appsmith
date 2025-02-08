@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -13,7 +13,7 @@ import type {
 import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "@appsmith/ads-old";
-import produce from "immer";
+import { create } from "mutative";
 import { assign } from "lodash";
 
 export interface DatasourceDataState {
@@ -125,6 +125,12 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
   ) => {
     return { ...state, loading: true };
+  },
+  [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ loading?: boolean }>,
+  ) => {
+    return { ...state, loading: !!action.payload.loading };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
@@ -460,7 +466,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ): DatasourceDataState => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.loading = false;
       draftState.list.forEach((datasource) => {
         if (datasource.id === action.payload.id) {
@@ -650,7 +656,7 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS]: (
     state: DatasourceDataState,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.isFetchingSpreadsheets = true;
     });
   },
@@ -658,7 +664,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; data: DropdownOption[] }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.spreadsheets[action.payload.id] = {
         value: action.payload.data,
       };
@@ -670,7 +676,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; error: string }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.spreadsheets[action.payload.id] = {
         error: action.payload.error,
       };
@@ -679,7 +685,7 @@ const datasourceReducer = createReducer(initialState, {
     });
   },
   [ReduxActionTypes.FETCH_GSHEET_SHEETS]: (state: DatasourceDataState) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.isFetchingSheets = true;
     });
   },
@@ -687,7 +693,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; data: DropdownOption[] }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.sheets[action.payload.id] = {
         value: action.payload.data,
       };
@@ -698,7 +704,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; error: string }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.sheets[action.payload.id] = {
         error: action.payload.error,
       };
@@ -706,7 +712,7 @@ const datasourceReducer = createReducer(initialState, {
     });
   },
   [ReduxActionTypes.FETCH_GSHEET_COLUMNS]: (state: DatasourceDataState) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.isFetchingColumns = true;
     });
   },
@@ -714,7 +720,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; data: DropdownOption[] }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.columns[action.payload.id] = {
         value: action.payload.data,
       };
@@ -725,7 +731,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ id: string; error: string }>,
   ) => {
-    return produce(state, (draftState) => {
+    return create(state, (draftState) => {
       draftState.gsheetStructure.columns[action.payload.id] = {
         error: action.payload.error,
       };

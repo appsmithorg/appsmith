@@ -8,7 +8,11 @@ import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns";
 import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import {
+  setDebuggerSelectedTab,
+  showDebugger,
+  showDebuggerLogs,
+} from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import store from "store";
 import showToast from "sagas/ToastSagas";
@@ -63,8 +67,7 @@ export function* showToastOnExecutionError(
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "TOAST",
     });
-    store.dispatch(showDebugger(true));
-    store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    store.dispatch(showDebuggerLogs());
   }
 
   const action = showCTA

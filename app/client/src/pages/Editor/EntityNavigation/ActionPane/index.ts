@@ -1,4 +1,5 @@
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { EntityInfo } from "../types";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { select } from "redux-saga/effects";
@@ -20,6 +21,7 @@ export default class ActionPaneNavigationFactory {
       case PluginType.DB:
       case PluginType.SAAS:
       case PluginType.REMOTE:
+      case PluginType.EXTERNAL_SAAS:
       case PluginType.AI:
         return new QueryPaneNavigation(entityInfo);
       default:

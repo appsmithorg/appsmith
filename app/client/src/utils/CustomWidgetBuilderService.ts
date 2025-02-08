@@ -6,10 +6,10 @@ export class Builder {
   handleMessageBound = this.handleMessage.bind(this);
 
   constructor() {
-    this.builderWindow = window.open(
-      `${window.location.pathname}/builder`,
-      "_blank",
-    );
+    // when we add new widget, we add a /add to the url , so before opening the builder, we need to remove it
+    const path = window.location.pathname.replace(/\/add$/, "");
+
+    this.builderWindow = window.open(`${path}/builder`, "_blank");
 
     window?.addEventListener("message", this.handleMessageBound);
   }

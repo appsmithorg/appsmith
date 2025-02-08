@@ -8,10 +8,10 @@ import {
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { useCurrentEditorState } from "../../hooks";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
 
 export const useEditorStateLeftPaneWidth = (): number => {
   const [windowWidth] = useWindowDimensions();
@@ -20,7 +20,7 @@ export const useEditorStateLeftPaneWidth = (): number => {
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isProtectedMode = useGitProtectedMode();
 
   useEffect(
     function updateWidth() {

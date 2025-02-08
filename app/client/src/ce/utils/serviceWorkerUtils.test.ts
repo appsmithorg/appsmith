@@ -350,10 +350,9 @@ describe("serviceWorkerUtils", () => {
 
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${basePageId}&applicationId=${baseApplicationId}`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${basePageId}&applicationId=${baseApplicationId}&branchName=${params.branchName}`,
       );
       expect(request?.method).toBe("GET");
-      expect(request?.headers.get("Branchname")).toBe("main");
     });
 
     it("should create request for PUBLISHED mode with applicationId", () => {
@@ -369,10 +368,9 @@ describe("serviceWorkerUtils", () => {
 
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=${basePageId}&applicationId=${baseApplicationId}`,
+        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=${basePageId}&applicationId=${baseApplicationId}&branchName=${params.branchName}`,
       );
       expect(request?.method).toBe("GET");
-      expect(request?.headers.get("Branchname")).toBe("main");
     });
 
     it("should create request for EDIT mode without applicationId", () => {
@@ -387,10 +385,9 @@ describe("serviceWorkerUtils", () => {
 
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${params.basePageId}&branchName=${params.branchName}`,
       );
       expect(request?.method).toBe("GET");
-      expect(request?.headers.get("Branchname")).toBe("main");
     });
 
     it("should create request for PUBLISHED mode without applicationId", () => {
@@ -405,10 +402,9 @@ describe("serviceWorkerUtils", () => {
 
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=${params.basePageId}&branchName=${params.branchName}`,
       );
       expect(request?.method).toBe("GET");
-      expect(request?.headers.get("Branchname")).toBe("main");
     });
 
     it("should return null for an unknown app mode", () => {
@@ -438,10 +434,9 @@ describe("serviceWorkerUtils", () => {
 
       expect(consolidatedAPIRequest).toBeInstanceOf(Request);
       expect(consolidatedAPIRequest?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${params.basePageId}&branchName=${params.branchName}`,
       );
       expect(consolidatedAPIRequest?.method).toBe("GET");
-      expect(consolidatedAPIRequest?.headers.get("Branchname")).toBe("main");
     });
   });
 
@@ -475,27 +470,16 @@ describe("serviceWorkerUtils", () => {
 
     describe("getRequestKey", () => {
       it("should return the correct request key", () => {
-        const request = new Request("https://app.appsmith.com", {
-          method: "GET",
+        const url =
+          "https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123&applicationId=app123&branchName=main";
+        const method = "GET";
+        const request = new Request(url, {
+          method,
         });
 
-        request.headers.append("branchname", "main");
         const key = prefetchApiService.getRequestKey(request);
 
-        expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
-      });
-
-      it("should only append branchname header in request key", () => {
-        const request = new Request("https://app.appsmith.com", {
-          method: "GET",
-        });
-
-        request.headers.append("branchname", "main");
-        request.headers.append("another-header-key", "another-header-value");
-        request.headers.append("Content-Type", "application/json");
-        const key = prefetchApiService.getRequestKey(request);
-
-        expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
+        expect(key).toBe(`${method}:${url}`);
       });
     });
 

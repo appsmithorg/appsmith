@@ -1,7 +1,7 @@
 import type { ActionResponse } from "api/ActionAPI";
-import type { PluginId } from "api/PluginApi";
+import type { PluginType, PluginId } from "entities/Plugin";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import type { ActionConfig, PluginType } from "entities/Action";
+import type { ActionConfig } from "entities/Action";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
@@ -96,6 +96,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
+  actionNames: Set<string>;
 }
 
 export interface JSActionEntity {
@@ -189,6 +190,10 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: typeof ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
+  currentPageName: string;
+  workspaceName: string;
+  appName: string;
+  currentEnvironmentName: string;
 }
 
 export interface DataTreeSeed {

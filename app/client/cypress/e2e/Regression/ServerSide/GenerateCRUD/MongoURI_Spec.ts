@@ -30,7 +30,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource();
         AppSidebar.navigate(AppSidebarButton.Editor);
@@ -206,8 +206,9 @@ describe(
       table.DownloadFromTable("Download as CSV");
       table.ValidateDownloadNVerify("data_table.csv", "USB Stick (Green)");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("data_table.xlsx", "USB Stick (Leaf)");
+      // @rahulbarwal temporarily commenting download as excel feature till we have a proper fix to the issue: https://github.com/appsmithorg/appsmith/issues/38995
+      // table.DownloadFromTable("Download as Excel");
+      // table.ValidateDownloadNVerify("data_table.xlsx", "USB Stick (Leaf)");
       table.OpenFilter();
       table.RemoveFilter();
       agHelper

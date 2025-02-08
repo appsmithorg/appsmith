@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -22,9 +22,11 @@ import {
   defaultNavigationSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
-import produce from "immer";
+import { create } from "mutative";
 import { isEmpty } from "lodash";
 import type { ApplicationPayload } from "entities/Application";
+import { gitConnectSuccess, type GitConnectSuccessPayload } from "git";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
@@ -528,7 +530,7 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<NavigationSetting["logoAssetId"]>,
   ) => {
-    return produce(state, (draftState: ApplicationsReduxState) => {
+    return create(state, (draftState: ApplicationsReduxState) => {
       draftState.isUploadingNavigationLogo = false;
 
       if (
@@ -742,6 +744,20 @@ export const handlers = {
     return {
       ...state,
       isSavingNavigationSetting: false,
+    };
+  },
+  // git
+  [gitConnectSuccess.type]: (
+    state: ApplicationsReduxState,
+    action: PayloadAction<GitConnectSuccessPayload>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        gitApplicationMetadata:
+          action.payload.responseData.gitApplicationMetadata,
+      },
     };
   },
 };

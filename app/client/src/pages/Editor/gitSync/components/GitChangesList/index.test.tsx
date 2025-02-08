@@ -342,39 +342,10 @@ describe("GitChangesList", () => {
     expect(getByTestId("t--status-change-THEME")).toBeInTheDocument();
   });
 
-  it("should render Package related changes", () => {
-    const store = getMockStore({
-      gitStatus: {
-        modifiedPackages: 2,
-      },
-    });
-
-    const { getByTestId, queryByTestId } = render(
-      <Provider store={store}>
-        <GitChangesList />
-      </Provider>,
-    );
-
-    expect(
-      queryByTestId("t--status-change-DATASOURCES"),
-    ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
-    expect(
-      queryByTestId("t--status-change-REMOTE_AHEAD"),
-    ).not.toBeInTheDocument();
-    expect(
-      queryByTestId("t--status-change-REMOTE_BEHIND"),
-    ).not.toBeInTheDocument();
-    expect(getByTestId("t--status-change-PACKAGES")).toBeInTheDocument();
-    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
-  });
-
   it("should render Module related changes", () => {
     const store = getMockStore({
       gitStatus: {
-        modifiedModules: 2,
+        modifiedSourceModules: 2,
       },
     });
 

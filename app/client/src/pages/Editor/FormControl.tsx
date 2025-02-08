@@ -184,6 +184,7 @@ function FormControl(props: FormControlProps) {
         ...config,
         datasourceId: dsId,
         workspaceId,
+        actionId: actionValues?.id,
       },
       props.formName,
       props?.multipleConfig,

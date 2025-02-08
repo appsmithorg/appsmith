@@ -67,7 +67,7 @@ describe(
         "public.arraytypes",
         "Select",
       );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
       dataSources.RunQuery();
       agHelper
         .GetText(dataSources._noRecordFound)
@@ -180,7 +180,7 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       dataSources.CreateQueryForDS(dsName);
-      agHelper.RenameWithInPane("verifyArrayFunctions");
+      agHelper.RenameQuery("verifyArrayFunctions");
 
       query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;
       dataSources.EnterQuery(query);

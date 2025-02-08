@@ -1,5 +1,5 @@
-import React, { memo, useMemo, useRef, useState } from "react";
-import Entity, { EntityClassNames } from "../Explorer/Entity";
+import React, { memo, useMemo, useState } from "react";
+import { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
 import type { DatasourceTable } from "entities/Datasource";
@@ -10,18 +10,25 @@ import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
+import {
+  Menu,
+  MenuTrigger,
+  Button,
+  Tooltip,
+  MenuContent,
+  ListItem,
+} from "@appsmith/ads";
 import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { omit } from "lodash";
-import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { Virtuoso } from "react-virtuoso";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -53,7 +60,6 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const [active, setActive] = useState(false);
 
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
-  const collapseRef = useRef<HTMLDivElement | null>(null);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
@@ -66,13 +72,13 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const onSelect = () => {
@@ -137,17 +143,14 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   }, [active, props.tableName]);
 
   return (
-    <Entity
-      action={onEntityClick}
-      active={activeState}
-      className={`datasourceStructure-${props.context}`}
-      collapseRef={collapseRef}
-      contextMenu={templateMenu}
-      entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
-      icon={datasourceTableIcon}
-      isDefaultExpanded={props?.isDefaultOpen}
-      name={dbStructure.name}
-      step={props.step}
+    <ListItem
+      className={`datasourceStructure-${props.context} t--entity-item`}
+      dataTestId={`t--entity-item-${dbStructure.name}`}
+      isSelected={activeState}
+      onClick={onEntityClick}
+      rightControl={templateMenu}
+      startIcon={datasourceTableIcon}
+      title={dbStructure.name}
     />
   );
 });

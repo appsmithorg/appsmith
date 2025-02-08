@@ -1,12 +1,12 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
-import produce from "immer";
+import { create } from "mutative";
 import { klona } from "klona";
 
 export const initialState: JSCollectionDataState = [];
@@ -20,7 +20,9 @@ export interface JSCollectionData {
   // Existence of parse errors for each action (updates after execution)
   isDirty?: Record<string, boolean>;
 }
+
 export type JSCollectionDataState = JSCollectionData[];
+
 export interface PartialActionData {
   isLoading: boolean;
   config: { id: string };
@@ -398,7 +400,7 @@ export const handlers = {
       }>
     >,
   ) => {
-    return produce(state, (draft) => {
+    return create(state, (draft) => {
       const CollectionUpdateSearch = keyBy(action.payload, "collectionId");
       const actionUpdateSearch = keyBy(action.payload, "id");
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.imports;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -52,6 +53,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.PUBLISHED;
+import static com.appsmith.server.constants.FieldName.UNPUBLISHED;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 import static org.springframework.util.StringUtils.hasText;
@@ -360,11 +363,18 @@ public class ApplicationImportServiceCEImpl
                     application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
                     application.setIsPublic(null);
                     application.setPolicies(null);
-                    Map<String, List<ApplicationPage>> mapOfApplicationPageList = Map.of(
-                            FieldName.PUBLISHED,
-                            application.getPublishedPages(),
-                            FieldName.UNPUBLISHED,
-                            application.getPages());
+
+                    List<ApplicationPage> unPublishedPages = CollectionUtils.isEmpty(application.getPages())
+                            ? new ArrayList<>()
+                            : application.getPages();
+
+                    List<ApplicationPage> publishedPages = CollectionUtils.isEmpty(application.getPublishedPages())
+                            ? new ArrayList<>()
+                            : application.getPublishedPages();
+
+                    Map<String, List<ApplicationPage>> mapOfApplicationPageList =
+                            Map.of(PUBLISHED, publishedPages, UNPUBLISHED, unPublishedPages);
+
                     mappedImportableResourcesDTO
                             .getResourceStoreFromArtifactExchangeJson()
                             .putAll(mapOfApplicationPageList);
@@ -460,12 +470,6 @@ public class ApplicationImportServiceCEImpl
             }
         }
         return importApplicationMono
-                .doOnNext(application -> {
-                    if (application.getGitArtifactMetadata() != null) {
-                        importingMetaDTO.setBranchName(
-                                application.getGitArtifactMetadata().getBranchName());
-                    }
-                })
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
@@ -649,19 +653,21 @@ public class ApplicationImportServiceCEImpl
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         if (!hasText(branchedArtifactId)) {
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null, null);
         }
 
         return applicationService.findById(branchedArtifactId).flatMap(application -> {
             String baseArtifactId = application.getBaseId();
-            String branchName = null;
+            String refName = null;
+            RefType refType = null;
 
             if (application.getGitArtifactMetadata() != null) {
-                branchName = application.getGitArtifactMetadata().getBranchName();
+                refName = application.getGitArtifactMetadata().getRefName();
+                refType = application.getGitArtifactMetadata().getRefType();
             }
 
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+                    applicationJson, baseArtifactId, refName, refType);
         });
     }
 }

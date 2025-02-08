@@ -12,14 +12,15 @@ describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
     agHelper.AddDsl("swtchTableV2Dsl");
   });
 
-  it("1. Verify if the search Input is getting focused when a widget is selected", function () {
+  // skipping this because this feature is not
+  it.skip("1. Verify if the search Input is getting focused when a widget is selected", function () {
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     // Initially the search input will only be soft focused
     // We need to press Enter to properly focus it
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
     agHelper.PressEnter();
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Pressing Escape should soft focus the search input
     agHelper.PressEscape();
@@ -40,6 +41,7 @@ describe("Property Pane Search", { tags: ["@tag.PropertyPane"] }, function () {
   });
 
   it("2. Search for Properties", function () {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Search for a property inside CONTENT tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");

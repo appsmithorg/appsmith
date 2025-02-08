@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -73,10 +73,6 @@ import {
   deleteRecentAppEntities,
   getEnableStartSignposting,
 } from "utils/storage";
-import {
-  reconnectAppLevelWebsocket,
-  reconnectPageLevelWebsocket,
-} from "actions/websocketActions";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
@@ -235,6 +231,7 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
     });
   }
 }
+
 // v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
@@ -296,6 +293,7 @@ export function* fetchAppAndPagesSaga(
         payload: {
           workspaceId: response.data.workspaceId,
           editorId: response.data.application?.id,
+          mode: request.mode,
         },
       });
 
@@ -648,12 +646,6 @@ export function* createApplicationSaga(
             basePageId: defaultPage?.baseId,
           }),
         );
-
-        // subscribe to newly created application
-        // users join rooms on connection, so reconnecting
-        // ensures user receives the updates in the app just created
-        yield put(reconnectAppLevelWebsocket());
-        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {

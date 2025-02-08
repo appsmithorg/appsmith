@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -8,7 +9,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
-import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
@@ -131,6 +131,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
+                NewPage.Fields.refType,
+                NewPage.Fields.refName,
                 NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
@@ -169,18 +171,27 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
+    public Mono<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
+            String basePageId,
+            AclPermission permission,
+            List<String> projectedFieldNames) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.baseId, basePageId);
 
-        if (branchName != null) {
+        if (refName != null) {
             // branchCriteria
-            q.equal(NewPage.Fields.branchName, branchName);
+            BridgeQuery<NewPage> refQuery = Bridge.or(
+                    Bridge.equal(NewPage.Fields.branchName, refName),
+                    Bridge.and(
+                            Bridge.equal(NewPage.Fields.refName, refName),
+                            Bridge.equal(NewPage.Fields.refType, refType)));
+            q.and(refQuery);
         } else {
-            q.isNull(NewPage.Fields.branchName);
+            q.and(Bridge.and(Bridge.isNull(NewPage.Fields.branchName), Bridge.isNull(NewPage.Fields.refName)));
         }
 
         return queryBuilder()
@@ -190,19 +201,6 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .one()
                 .name(FETCH_PAGE_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry));
-    }
-
-    public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
-        final BridgeQuery<NewPage> q =
-                // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.baseId, defaultPageId);
-        q.equal(NewPage.Fields.branchName, branchName);
-
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .one(IdOnly.class)
-                .map(IdOnly::id);
     }
 
     @Override
@@ -260,5 +258,17 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
         return queryBuilder().criteria(q).updateFirst(update);
+    }
+
+    @Override
+    public Flux<NewPage> findByApplicationId(String applicationId) {
+        final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.applicationId, applicationId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Mono<Long> countByDeletedAtNull() {
+        final BridgeQuery<NewPage> q = Bridge.notExists(NewPage.Fields.deletedAt);
+        return queryBuilder().criteria(q).count();
     }
 }

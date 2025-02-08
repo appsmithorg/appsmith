@@ -11,15 +11,25 @@ sources:
   - https://github.com/appsmithorg/appsmith
 home: https://www.appsmith.com/
 icon: https://assets.appsmith.com/appsmith-icon.png
-version: 2.3.0
+version: 3.6.1
 dependencies:
-- condition: redis.enabled
-  name: redis
-  version: 16.11.2
-  appVersion: 6.2.7
-  repository: https://charts.bitnami.com/bitnami
-- condition: mongodb.enabled
-  name: mongodb
-  version: 12.1.16
-  appVersion: 6.0.10
-  repository: https://charts.bitnami.com/bitnami
+  - condition: redis.enabled
+    name: redis
+    version: 16.11.2
+    appVersion: 6.2.7
+    repository: https://charts.bitnami.com/bitnami
+  - condition: mongodb.enabled
+    name: mongodb
+    version: 12.1.16
+    appVersion: 6.0.10
+    repository: https://charts.bitnami.com/bitnami
+  - condition: postgresql.enabled
+    name: postgresql
+    version: 11.9.5
+    appVersion: 14.12.0
+    repository: https://charts.bitnami.com/bitnami
+  - condition: prometheus.enabled
+    name: prometheus
+    version: 25.27.0
+    appVersion: 2.54.1
+    repository: https://prometheus-community.github.io/helm-charts

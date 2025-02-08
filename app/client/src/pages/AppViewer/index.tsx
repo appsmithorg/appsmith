@@ -165,6 +165,7 @@ function AppViewer(props: Props) {
             fetchPublishedPageResources({
               basePageId,
               pageId,
+              branch,
             }),
           );
         }

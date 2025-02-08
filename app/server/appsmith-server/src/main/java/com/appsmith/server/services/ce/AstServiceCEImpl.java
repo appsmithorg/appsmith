@@ -2,11 +2,11 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -144,6 +145,23 @@ public class AstServiceCEImpl implements AstServiceCE {
 
         return Flux.fromIterable(bindingValues)
                 .flatMap(bindingValue -> {
+                    if (!StringUtils.hasText(bindingValue.getValue())) {
+                        // If the binding value is null or empty, it indicates an incorrect entry in the
+                        // dynamicBindingPathList.
+                        // Such bindings are considered invalid and can be safely discarded during refactoring.
+                        // Therefore, we return an empty response.
+
+                        return Mono.empty();
+                    }
+                    if (!bindingValue.getValue().contains(oldName)) {
+                        // This case is not handled in RTS either, so skipping the RTS call here will not affect the
+                        // behavior.
+                        // Example:
+                        // - Old name: foo.bar
+                        // - New name: foo.baz
+                        // - Binding: "foo['bar']"
+                        return Mono.just(Tuples.of(bindingValue, bindingValue.getValue()));
+                    }
                     EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(
                             bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return rtsCaller

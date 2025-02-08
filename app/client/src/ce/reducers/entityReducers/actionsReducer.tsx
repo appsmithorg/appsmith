@@ -1,5 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -29,6 +29,7 @@ export interface ActionDataWithMeta extends ActionData {
 }
 
 export type ActionDataState = ActionData[];
+
 export interface PartialActionData {
   isLoading: boolean;
   config: { id: string; baseId: string };

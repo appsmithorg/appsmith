@@ -1,30 +1,12 @@
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import type { AppState } from "ee/reducers";
 import { getPageActions } from "ee/selectors/entitiesSelector";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import { getCurrentBasePageId } from "./editorSelectors";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 import { get } from "lodash";
 
-export const getIsSideBySideEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) =>
-    flags.release_side_by_side_ide_enabled ||
-    flags.rollout_side_by_side_enabled,
-);
-
-export const getIDEViewMode = createSelector(
-  getIsSideBySideEnabled,
-  (state) => state.ui.ide.view,
-  (featureFlag, ideViewMode) => {
-    if (featureFlag) {
-      return ideViewMode;
-    }
-
-    return EditorViewMode.FullScreen;
-  },
-);
+export const getIDEViewMode = (state: AppState) => state.ui.ide.view;
 
 export const getActionsCount = (pageId: string) =>
   createSelector(getPageActions(pageId), (actions) => {

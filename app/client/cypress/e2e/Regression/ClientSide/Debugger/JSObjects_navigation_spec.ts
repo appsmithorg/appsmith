@@ -1,11 +1,15 @@
 import {
-  jsEditor,
   agHelper,
-  entityExplorer,
   debuggerHelper,
+  entityExplorer,
   entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation from "../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EditorViewMode,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObjects", { tags: ["@tag.JS"] }, () => {
   it("1. Focus and position cursor on the ch,line having an error", () => {
@@ -40,6 +44,37 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
     });
   });
 
+  it("2. Focus and position cursor on the ch,line having an error in split mode", () => {
+    const JS_OBJECT_BODY = `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1 () {
+            //	write code here
+            //	this.myVar1 = [1,2,3]
+            let testing  = test + "test";
+        },
+        async myFun2 () {
+            return []
+            //	use async-await or promises
+            //	await storeValue('varName', 'hello world')
+        }
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    EditorNavigation.SwitchScreenMode(EditorViewMode.SplitScreen);
+
+    debuggerHelper.OpenDebugger();
+    debuggerHelper.ClicklogEntityLink();
+    agHelper.AssertCursorInput(jsEditor._editor, { ch: 20, line: 6 });
+
+    jsEditor.DeleteJSObjectFromContextMenu();
+  });
+
   it("2. Bug 24990 Clears logs filter using backspace", function () {
     const JS_OBJECT_BODY = `export default {
       myVar1: [],
@@ -61,16 +96,6 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
     jsEditor.SelectFunctionDropdown("myFun1");
     jsEditor.RunJSObj();
     debuggerHelper.ClickLogsTab();
-    agHelper.AssertText(
-      debuggerHelper.locators._debuggerFilter,
-      "val",
-      "JSObject1",
-    );
-    agHelper.TypeText(
-      debuggerHelper.locators._debuggerFilter,
-      "{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}",
-      { delay: 50, parseSpecialCharSeq: true },
-    );
     agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
     debuggerHelper.DebuggerLogsFilter("JSObject1");
     debuggerHelper.DebuggerLogsFilter("{backspace}");

@@ -9,7 +9,6 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,16 +84,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission) {
-        final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
-                        ActionCollection.Fields.baseId, baseCollectionId)
-                .equal(ActionCollection.Fields.branchName, branchName);
-
-        return queryBuilder().criteria(bq).permission(permission).one();
-    }
-
-    @Override
     public Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         BridgeQuery<ActionCollection> pageIdCriteria =
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
@@ -167,5 +156,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission) {
         return this.findByPageIdAndViewMode(pageId, viewMode, permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByApplicationId(String applicationId) {
+        final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+        return queryBuilder().criteria(q).all();
     }
 }

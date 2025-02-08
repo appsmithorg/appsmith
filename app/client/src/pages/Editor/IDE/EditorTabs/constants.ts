@@ -1,5 +1,4 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import type { AppState } from "ee/reducers";
 import {
   selectJSSegmentEditorTabs,
@@ -9,8 +8,9 @@ import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 export const TabSelectors: Record<
   EditorEntityTab,
@@ -37,10 +37,3 @@ export const TabSelectors: Record<
     itemUrlSelector: () => "",
   },
 };
-
-export const SCROLL_AREA_OPTIONS = {
-  overflow: {
-    x: "scroll",
-    y: "hidden",
-  },
-} as const;

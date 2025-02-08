@@ -36,13 +36,12 @@ import {
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
-import type { Plugin } from "api/PluginApi";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isEnabledForPreviewData,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
-import type { PluginType } from "entities/Action";
+import type { PluginType, Plugin } from "entities/Plugin";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";

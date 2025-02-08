@@ -44,7 +44,10 @@ function renderComponent(props: renderComponentProps) {
   };
 
   const options = props.options || [];
-  const defaultValue = props.initialValue as string;
+  const selectedValue = props.input?.value;
+  const defaultValue = !!selectedValue
+    ? selectedValue
+    : (props.initialValue as string);
 
   return (
     <StyledRadioGroup

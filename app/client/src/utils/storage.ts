@@ -2,7 +2,7 @@ import log from "loglevel";
 import localforage from "localforage";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { EditorViewMode } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 

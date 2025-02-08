@@ -1,10 +1,11 @@
-import { fork, put, select, call } from "redux-saga/effects";
+import { fork, put, select, call, take } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -20,8 +21,8 @@ import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { EditorViewMode } from "ee/entities/IDE/constants";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 import { getIDEViewMode } from "selectors/ideSelectors";
 
@@ -35,27 +36,25 @@ export function* handleRouteChange(
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
-    const ideType = getIDETypeByUrl(pathname);
-    const isAnEditorPath = ideType !== IDE_TYPE.None;
+    const IDEType = getIDETypeByUrl(pathname);
 
-    // handled only on edit mode
-    if (isAnEditorPath) {
+    if (previousPath) {
       yield fork(
         FocusRetention.onRouteChange.bind(FocusRetention),
         pathname,
         previousPath,
         state,
       );
+    }
 
-      if (ideType === IDE_TYPE.App) {
-        yield fork(logNavigationAnalytics, action.payload);
-        yield fork(appBackgroundHandler);
-        const entityInfo = identifyEntityFromPath(pathname);
+    if (IDEType === IDE_TYPE.App) {
+      yield fork(logNavigationAnalytics, action.payload);
+      yield fork(appBackgroundHandler);
+      const entityInfo = identifyEntityFromPath(pathname);
 
-        yield fork(updateRecentEntitySaga, entityInfo);
-        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
-        yield fork(setSelectedWidgetsSaga, state?.invokedBy);
-      }
+      yield fork(updateRecentEntitySaga, entityInfo);
+      yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
+      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -86,6 +85,10 @@ function* clearErrors() {
 }
 
 function* watchForTrackableUrl(payload: RouteChangeActionPayload) {
+  yield take([
+    ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+    ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+  ]);
   const oldPathname = payload.prevLocation.pathname;
   const newPathname = payload.location.pathname;
   const isOldPathTrackable: boolean = yield call(
@@ -140,7 +143,7 @@ function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   let widgets: string[] = [];
   let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
 
-  if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
+  if (entityInfo.entity === FocusEntity.WIDGET) {
     widgets = entityInfo.id.split(",");
 
     if (widgets.length) {

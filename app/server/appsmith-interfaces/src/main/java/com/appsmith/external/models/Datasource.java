@@ -42,11 +42,6 @@ public class Datasource extends GitSyncedDomain {
     @JsonView(Views.Public.class)
     String pluginName;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
-
     @JsonView({Views.Public.class, FromRequest.class})
     String workspaceId;
 
@@ -152,5 +147,5 @@ public class Datasource extends GitSyncedDomain {
         this.setMessages(null);
     }
 
-    public static class Fields extends BranchAwareDomain.Fields {}
+    public static class Fields extends RefAwareDomain.Fields {}
 }

@@ -3,7 +3,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
@@ -189,13 +188,8 @@ describe(
       _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);
       _.dataSources.CreateQueryAfterDSSaved();
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({
-        force: true,
-      });
 
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query2");
+      _.agHelper.RenameQuery("Query2");
 
       // switching off Use Prepared Statement toggle
       _.dataSources.ToggleUsePreparedStatement(false);

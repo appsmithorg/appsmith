@@ -86,14 +86,6 @@ if [[ ${backend-} == release ]]; then
   backend=https://release.app.appsmith.com
 fi
 
-if [[ $backend == https://release.app.appsmith.com ]]; then
-  # If running client against release, we get the release's version and set it up, so we don't see version mismatches.
-  APPSMITH_VERSION_ID="$(
-    curl -sS "$backend/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4
-  )"
-  export APPSMITH_VERSION_ID
-fi
-
 if [[ -z ${run_as-} ]]; then
     if type nginx; then
         run_as=nginx
@@ -165,6 +157,14 @@ if [[ $backend =~ /$ ]]; then
     echo "The backend endpoint ($backend) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
     echo "Exiting. Please run again, removing the trailing slash(es) for the backend." >&2
     exit 1
+fi
+
+if [[ -n $backend ]]; then
+  # Try to get a version from the "backend". If it's a full container, not just backend, then it'll give us a version.
+  APPSMITH_VERSION_ID="$(
+    curl -vsS "${backend/host.docker.internal/localhost}/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4 || true
+  )"
+  export APPSMITH_VERSION_ID
 fi
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
@@ -294,6 +294,10 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         location /api {
             proxy_pass $backend;
+            # Delete the Cache-Control header set in the server block above.
+            add_header Cache-Control '' always;
+            # Proxy pass the Cache-Control header from the upstream.
+            proxy_pass_header Cache-Control;
         }
 
         location /oauth2 {

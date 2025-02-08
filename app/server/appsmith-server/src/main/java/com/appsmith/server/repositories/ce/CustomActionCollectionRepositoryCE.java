@@ -6,7 +6,6 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +24,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission);
-
     Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
     Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
@@ -42,4 +38,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission);
+
+    Flux<ActionCollection> findByApplicationId(String applicationId);
 }

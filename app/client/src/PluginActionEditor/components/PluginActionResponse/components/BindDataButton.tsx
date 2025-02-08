@@ -164,10 +164,7 @@ function getWidgetProps(
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
-          dynamicPropertyPathList:
-            suggestedWidget.bindingQuery === "data"
-              ? []
-              : [{ key: "tableData" }],
+          dynamicPropertyPathList: [{ key: "tableData" }],
         },
         parentRowSpace: 10,
       };
@@ -380,7 +377,7 @@ function BindDataButton(props: BindDataButtonProps) {
           size="sm"
           startIcon="binding-new"
         >
-          Bind Data
+          Display on UI
         </Button>
       </MenuTrigger>
       <MenuContent

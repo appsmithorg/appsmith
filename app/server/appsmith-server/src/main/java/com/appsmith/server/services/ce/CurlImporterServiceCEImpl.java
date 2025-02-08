@@ -7,7 +7,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -103,13 +102,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     return associateContextIdToActionDTO(action1, contextType, branchedContextId);
                 })
                 .flatMap(action2 -> layoutActionService.createSingleAction(action2));
-    }
-
-    protected Mono<String> getBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {
-        return newPageService
-                .findByBranchNameAndBasePageId(
-                        branchName, contextId, pagePermission.getActionCreatePermission(), List.of(NewPage.Fields.id))
-                .map(NewPage::getId);
     }
 
     protected Mono<ActionDTO> associateContextIdToActionDTO(

@@ -3,6 +3,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
+import { objectKeys } from "@appsmith/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
 import {
@@ -44,9 +45,9 @@ const ChartComponent = lazy(async () =>
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
-    return Object.keys(props.customFusionChartConfig).length == 0;
+    return objectKeys(props.customFusionChartConfig).length == 0;
   } else if (props.chartType == "CUSTOM_ECHART") {
-    return Object.keys(props.customEChartConfig).length == 0;
+    return objectKeys(props.customEChartConfig).length == 0;
   } else {
     const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
@@ -65,7 +66,6 @@ export const emptyChartData = (props: ChartWidgetProps) => {
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static type = "CHART_WIDGET";
-  static fontFamily: string = "Nunito Sans";
 
   static getConfig() {
     return {
@@ -257,7 +257,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           customEChartConfig={this.props.customEChartConfig}
           customFusionChartConfig={this.props.customFusionChartConfig}
           dimensions={this.props}
-          fontFamily={ChartWidget.fontFamily}
+          fontFamily={
+            this.props.fontFamily !== "System Default"
+              ? this.props.fontFamily
+              : undefined
+          }
           hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
           isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}

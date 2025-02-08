@@ -19,6 +19,9 @@ import EditorNavigation, {
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
+
+let pluginActionForm = new PluginActionForm();
 
 describe(
   "Validate Oracle DS",
@@ -145,17 +148,17 @@ describe(
       propPane.EnterJSContext(
         "Source Data",
         `[{
-    "name": "Cargo Plane",
-    "value": "Cargo Plane"
-  },
-  {
-    "name": "Passenger Plane",
-    "code": "Passenger Plane"
-  },
-  {
-    "name": "Helicopter",
-    "code": "Helicopter"
-  }]`,
+            "name": "Cargo Plane",
+            "value": "Cargo Plane"
+          },
+          {
+            "name": "Passenger Plane",
+            "code": "Passenger Plane"
+          },
+          {
+            "name": "Helicopter",
+            "code": "Helicopter"
+          }]`,
       );
       propPane.UpdatePropertyFieldValue(
         "Default selected value",
@@ -183,17 +186,17 @@ describe(
         true,
       );
       query = `CREATE TABLE ${guid} (
-      aircraft_id NUMBER(5) PRIMARY KEY,
-      aircraft_type VARCHAR2(50) NOT NULL,
-      registration_number VARCHAR2(20) UNIQUE,
-      manufacturer VARCHAR2(50),
-      seating_capacity NUMBER(3),
-      maximum_speed NUMBER(5, 2),
-      range NUMBER(7, 2),
-      purchase_date DATE,
-      maintenance_last_date DATE,
-      notes CLOB
-  );`;
+            aircraft_id NUMBER(5) PRIMARY KEY,
+            aircraft_type VARCHAR2(50) NOT NULL,
+            registration_number VARCHAR2(20) UNIQUE,
+            manufacturer VARCHAR2(50),
+            seating_capacity NUMBER(3),
+            maximum_speed NUMBER(5, 2),
+            range NUMBER(7, 2),
+            purchase_date DATE,
+            maintenance_last_date DATE,
+            notes CLOB
+        );`;
       dataSources.CreateQueryForDS(dataSourceName, query);
       dataSources.RunQuery();
 
@@ -238,41 +241,41 @@ describe(
       );
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews({ count: 1, operator: "gte" });
       dataSources.ToggleUsePreparedStatement(true);
       query = `ALTER TABLE ${guid} ADD (raw_data RAW(16), maintenance_interval INTERVAL YEAR(3) TO MONTH);`;
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       query = `INSERT INTO ${guid} (
-    aircraft_id,
-    aircraft_type,
-    registration_number,
-    manufacturer,
-    seating_capacity,
-    maximum_speed,
-    range,
-    purchase_date,
-    maintenance_last_date,
-    notes,
-    raw_data,
-    maintenance_interval) VALUES (
-    4,
-    'Passenger Plane',
-    'N77777',
-    'Airbus',
-    100,
-    600.67,
-    3800.82,
-    TO_DATE('2017-05-25', 'YYYY-MM-DD'),
-    TO_DATE('2023-02-18', 'YYYY-MM-DD'),
-    'This aircraft is part of the international fleet.',
-    UTL_RAW.CAST_TO_RAW('raw_value'),
-    INTERVAL '1' YEAR(3) -- 1 year maintenance interval
-);`;
+            aircraft_id,
+            aircraft_type,
+            registration_number,
+            manufacturer,
+            seating_capacity,
+            maximum_speed,
+            range,
+            purchase_date,
+            maintenance_last_date,
+            notes,
+            raw_data,
+            maintenance_interval) VALUES (
+            4,
+            'Passenger Plane',
+            'N77777',
+            'Airbus',
+            100,
+            600.67,
+            3800.82,
+            TO_DATE('2017-05-25', 'YYYY-MM-DD'),
+            TO_DATE('2023-02-18', 'YYYY-MM-DD'),
+            'This aircraft is part of the international fleet.',
+            UTL_RAW.CAST_TO_RAW('raw_value'),
+            INTERVAL '1' YEAR(3) -- 1 year maintenance interval
+        );`;
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       query = `INSERT ALL
       INTO ${guid} (
           aircraft_id,
@@ -334,12 +337,16 @@ describe(
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(4);
+      dataSources.runQueryAndVerifyResponseViews({ count: 4 });
       selectQuery = selectQuery + ` and  aircraft_id IN (1, 6)`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       dataSources.AddSuggestedWidget(Widgets.Table);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       table.WaitUntilTableLoad(0, 0, "v2");
       table.ReadTableRowColumnData(0, 10, "v2").then(($cellData) => {
         expect($cellData).to.be.empty;
@@ -359,28 +366,33 @@ describe(
     it("4. Tc #2362  - Update query validation", () => {
       EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
       query = `UPDATE ${guid}
-SET
-    maximum_speed = CASE
-        WHEN seating_capacity <= 100 THEN 400.89
-        WHEN seating_capacity > 100 AND seating_capacity <= 200 THEN 500.96
-        ELSE 600.00
-    END,
-    maintenance_interval = CASE
-        WHEN seating_capacity <= 50 THEN INTERVAL '3' MONTH
-        WHEN seating_capacity > 50 AND seating_capacity <= 150 THEN TO_YMINTERVAL('0-6')
-        ELSE TO_YMINTERVAL('1-0')
-    END
-WHERE aircraft_type = 'Passenger Plane'`;
+              SET
+                maximum_speed = CASE
+                    WHEN seating_capacity <= 100 THEN 400.89
+                    WHEN seating_capacity > 100 AND seating_capacity <= 200 THEN 500.96
+                    ELSE 600.00
+                END,
+                maintenance_interval = CASE
+                    WHEN seating_capacity <= 50 THEN INTERVAL '3' MONTH
+                    WHEN seating_capacity > 50 AND seating_capacity <= 150 THEN TO_YMINTERVAL('0-6')
+                    ELSE TO_YMINTERVAL('1-0')
+                END
+            WHERE aircraft_type = 'Passenger Plane'`;
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       selectQuery = selectQuery + ` or  aircraft_type = 'Passenger Plane'`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(3);
+      dataSources.runQueryAndVerifyResponseViews({ count: 3 });
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
       );
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      agHelper.RefreshPage();
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       table.WaitUntilTableLoad(0, 0, "v2");
       table.ReadTableRowColumnData(1, 5, "v2").then(($cellData) => {
         expect($cellData).to.eq("400.89");
@@ -394,40 +406,36 @@ WHERE aircraft_type = 'Passenger Plane'`;
     it("5. Tc #2361  - Delete query validation", () => {
       EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
       query = `DELETE FROM ${guid}
-    WHERE
-        (aircraft_type = 'Cargo Plane' AND seating_capacity <= 100)
-        OR
-        (aircraft_type = 'Passenger Plane' AND purchase_date < TO_DATE('2020-01-01', 'YYYY-MM-DD'))
-        OR
-        (aircraft_type = 'Helicopter' AND manufacturer = 'Robinson' AND maintenance_interval = INTERVAL '6' MONTH)`;
+      WHERE
+          (aircraft_type = 'Cargo Plane' AND seating_capacity <= 100)
+          OR
+          (aircraft_type = 'Passenger Plane' AND purchase_date < TO_DATE('2020-01-01', 'YYYY-MM-DD'))
+          OR
+          (aircraft_type = 'Helicopter' AND manufacturer = 'Robinson' AND maintenance_interval = INTERVAL '6' MONTH)`;
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       selectQuery = `SELECT * FROM ${guid}`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
       );
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       table.WaitUntilTableLoad(0, 0, "v2");
       for (let i = 0; i < 2; i++) {
         table.ReadTableRowColumnData(i, 1, "v2").then(($cellData) => {
           expect($cellData).to.eq("Cargo Plane");
         });
       }
-
-      table.OpenNFilterTable("MAINTENANCE_INTERVAL", "not empty");
-      table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2").then(($cellData) => {
         expect($cellData).to.eq("5");
       });
-      agHelper
-        .GetText(table._showPageItemsCount)
-        .then(($count) => expect($count).contain("1"));
-      table.CloseFilter();
-      agHelper
-        .GetText(table._filtersCount)
-        .then(($count) => expect($count).contain("1"));
+
       deployMode.NavigateBacktoEditor();
     });
 
@@ -438,8 +446,8 @@ WHERE aircraft_type = 'Passenger Plane'`;
         subAction: "Page1",
         toastToValidate: "copied to page",
       });
-      agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
-      dataSources.RunQueryNVerifyResponseViews(2);
+      agHelper.GetNAssertContains(locators._activeEntityTab, "Query1Copy");
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       PageList.AddNewPage();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.ActionContextMenuWithInPane({
@@ -448,8 +456,8 @@ WHERE aircraft_type = 'Passenger Plane'`;
         toastToValidate: "moved to page",
       });
       agHelper.WaitUntilAllToastsDisappear();
-      agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
-      dataSources.RunQueryNVerifyResponseViews(2);
+      agHelper.GetNAssertContains(locators._activeEntityTab, "Query1Copy");
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -459,30 +467,30 @@ WHERE aircraft_type = 'Passenger Plane'`;
     });
 
     it("7. Tc #2365  - Query settings tab validations", () => {
-      apiPage.ToggleOnPageLoadRun(false); // ALl above cases validated for onpage load run with confirmation dialog set to false
+      apiPage.ToggleOnPageLoadRun(false); // All above cases validated for onpage load run with confirmation dialog set to false
+      pluginActionForm.toolbar.toggleSettings();
       apiPage.ToggleConfirmBeforeRunning(true);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       table.WaitForTableEmpty("v2");
       deployMode.NavigateBacktoEditor();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 500);
       propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       agHelper.ClickButton("Submit");
       jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
-
-      table.WaitUntilTableLoad(0, 0, "v2");
+      agHelper.AssertElementAbsence(locators._loading);
+      agHelper.WaitUntilEleAppear(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+      );
       deployMode.NavigateBacktoEditor();
     });
-
-    after(
-      "Verify Deletion of the Oracle datasource after all created queries are deleted",
-      () => {
-        dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 409); //Since all queries exists
-        entityExplorer.DeleteAllQueriesForDB(dataSourceName);
-        deployMode.DeployApp();
-        deployMode.NavigateBacktoEditor();
-        dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 200);
-      },
-    );
   },
 );

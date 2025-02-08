@@ -6,6 +6,7 @@ import {
   SIZES,
   BUTTON_VARIANTS,
   COLORS,
+  type IconButtonProps,
 } from "@appsmith/wds";
 import { objectKeys } from "@appsmith/utils";
 
@@ -14,7 +15,7 @@ import { objectKeys } from "@appsmith/utils";
  */
 const meta: Meta<typeof IconButton> = {
   component: IconButton,
-  title: "WDS/Widgets/IconButton",
+  title: "WDS/Widgets/Icon Button",
 };
 
 export default meta;
@@ -66,7 +67,10 @@ export const Sizes: Story = {
   render: () => (
     <Flex alignItems="start" gap="spacing-2">
       {objectKeys(SIZES)
-        .filter((size) => !["xSmall", "large"].includes(size))
+        .filter(
+          (size): size is NonNullable<IconButtonProps["size"]> =>
+            !["xSmall", "large"].includes(size),
+        )
         .map((size) => (
           <IconButton icon="star" key={size} size={size} />
         ))}

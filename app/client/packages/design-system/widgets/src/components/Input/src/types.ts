@@ -10,7 +10,7 @@ interface CommonInputProps {
   suffix?: React.ReactNode;
   isLoading?: boolean;
   isReadOnly?: boolean;
-  size?: Omit<keyof typeof SIZES, "xSmall">;
+  size?: Exclude<keyof typeof SIZES, "xSmall">;
 }
 
 export interface InputProps
@@ -21,4 +21,5 @@ export interface TextAreaInputProps
   extends Omit<HeadlessTextAreaProps, "prefix" | "size">,
     CommonInputProps {
   rows?: number;
+  className?: string;
 }

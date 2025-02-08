@@ -15,7 +15,7 @@ export const defaultsConfig = {
   widgetName: "Button",
   isDisabled: false,
   isVisible: true,
-  disabledWhenInvalid: false,
+  disableOnInvalidForm: false,
   resetFormOnClick: false,
   recaptchaType: RecaptchaTypes.V3,
   version: 1,

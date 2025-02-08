@@ -3,6 +3,7 @@ import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
+
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -89,7 +90,7 @@ export class HomePage {
   private _workspaceImport = "[data-testid=t--workspace-import-app]";
   public _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
-  private _forkModal = ".fork-modal";
+  public _forkModal = ".fork-modal";
   public _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
@@ -129,9 +130,9 @@ export class HomePage {
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
   private _membersTab = "[data-testid=t--tab-members]";
-
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
+
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
   }
@@ -243,7 +244,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     this.agHelper.ValidateToastMessage(successMessage);
   }
 
@@ -267,10 +268,10 @@ export class HomePage {
 
   public StubPostHeaderReq() {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
-      req.headers["origin"] = "Cypress";
+      req.headers["origin"] = Cypress.config("baseUrl");
     }).as("mockPostInvite");
     cy.intercept("POST", "/api/v1/applications/invite", (req) => {
-      req.headers["origin"] = "Cypress";
+      req.headers["origin"] = Cypress.config("baseUrl");
     }).as("mockPostAppInvite");
   }
 
@@ -324,7 +325,7 @@ export class HomePage {
       .click({ force: true });
     this.agHelper.GetNClick(this._newButtonCreateApplication);
     this.AssertApplicationCreated();
-    this.agHelper.AssertElementVisibility(this.locator._sidebar);
+    this.agHelper.AssertElementVisibility(this._editorSidebar);
     this.agHelper.AssertElementAbsence(this.locator._loading);
     if (appname) this.RenameApplication(appname);
   }
@@ -685,7 +686,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     // cy.contains(email, { matchCase: false });
     if (validate) {
       cy.contains(successMessage);
@@ -705,7 +706,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._inviteButton, 0, true);
     cy.wait("@mockPostAppInvite")
       .its("request.headers")
-      .should("have.property", "origin", "Cypress");
+      .should("have.property", "origin", Cypress.config("baseUrl"));
     // cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
   }
@@ -798,6 +799,7 @@ export class HomePage {
       }
     });
   }
+
   public SelectWorkspace(workspaceName: string, networkCallAlias = true) {
     this.agHelper
       .GetElement(this._leftPanel)
@@ -805,5 +807,11 @@ export class HomePage {
       .click({ force: true });
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
+  }
+
+  public SelectAppToEdit(index: number = 0) {
+    cy.get(HomePageLocators.applicationCard).eq(index).trigger("mouseover");
+    cy.get(HomePageLocators.appEditIcon).click();
+    this.agHelper.AssertElementVisibility(this._editorSidebar);
   }
 }

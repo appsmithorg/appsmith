@@ -41,6 +41,12 @@ export const StyledSegment = styled.span`
   & > * {
     color: var(--ads-v2-colors-control-segment-value-default-fg);
   }
+
+  &[data-selected="true"] {
+    span {
+      font-weight: var(--ads-v2-font-weight-bold);
+    }
+  }
 `;
 
 export const StyledControlContainer = styled.div`
@@ -55,10 +61,14 @@ export const StyledControlContainer = styled.div`
   cursor: pointer;
   height: 100%;
 
+  &[data-selected="false"]:hover {
+    background-color: var(--ads-v2-color-bg-muted);
+  }
+
   &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 
   &[data-disabled="true"] {
@@ -77,7 +87,8 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
-  &:not(:last-child):not([data-selected="true"]):not(
+
+  &:not(:hover):not(:last-child):not([data-selected="true"]):not(
       :has(+ [data-selected="true"])
     ):after {
     content: "";
@@ -86,16 +97,5 @@ export const StyledControlContainer = styled.div`
     width: 1px;
     height: 16px;
     background-color: var(--ads-v2-colors-control-field-default-border);
-  }
-
-  /* This before is to mask the separator in left side of selected control */
-  /* Mask the seperator with track background color */
-  &[data-selected="true"]:not(:first-child):after {
-    content: "";
-    position: absolute;
-    left: -7px;
-    width: 2px;
-    height: 16px;
-    background-color: var(--ads-v2-colors-control-track-default-bg);
   }
 `;
