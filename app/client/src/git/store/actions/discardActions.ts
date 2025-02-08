@@ -6,6 +6,7 @@ import type {
 
 export interface DiscardInitPayload extends GitArtifactBasePayload {
   artifactId: string;
+  successMessage?: string;
 }
 
 export const discardInitAction = createArtifactAction<DiscardInitPayload>(
