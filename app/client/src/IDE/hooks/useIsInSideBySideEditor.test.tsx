@@ -1,7 +1,7 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { Provider } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import type { AppState } from "ee/reducers";
@@ -17,9 +17,6 @@ import type { Store } from "redux";
 const JS_COLLECTION_EDITOR_PATH =
   "/app/app-name/page-665dd1103e4483728c9ed11a/edit/jsObjects";
 const NON_JS_COLLECTION_EDITOR_PATH = "/some-other-path";
-const FEATURE_FLAGS = {
-  rollout_side_by_side_enabled: true,
-};
 
 const renderUseIsInSideBySideEditor = (
   history: MemoryHistory,
@@ -41,7 +38,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.SplitScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 
@@ -54,7 +50,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.FullScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 
@@ -71,7 +66,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.SplitScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 
@@ -88,7 +82,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.SplitScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 
@@ -105,7 +98,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.SplitScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 
@@ -130,7 +122,6 @@ describe("useIsInSideBySideEditor", () => {
     const store = testStore(
       getIDETestState({
         ideView: EditorViewMode.SplitScreen,
-        featureFlags: FEATURE_FLAGS,
       }),
     );
 

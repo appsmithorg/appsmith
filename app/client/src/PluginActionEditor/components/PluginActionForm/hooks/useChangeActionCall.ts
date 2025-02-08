@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { usePluginActionContext } from "../../../PluginActionContext";
 import { changeApi, changeQuery } from "../../../store";
 import usePrevious from "utils/hooks/usePrevious";
@@ -15,7 +15,7 @@ export const useChangeActionCall = () => {
 
     switch (plugin?.type) {
       case PluginType.API:
-        dispatch(changeApi(action?.id, false));
+        dispatch(changeApi(action.id, false));
         break;
       default:
         dispatch(

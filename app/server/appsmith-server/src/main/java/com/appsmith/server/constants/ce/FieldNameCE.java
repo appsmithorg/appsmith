@@ -4,9 +4,6 @@ public class FieldNameCE {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
 
-    @Deprecated
-    public static final String ORGANIZATION_ID = "organizationId";
-
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String DATASOURCE_ID = "datasourceId";
     public static final String DELETED = "deleted";
@@ -102,6 +99,8 @@ public class FieldNameCE {
     public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
     public static final String BRANCH_NAME = "branchName";
+    public static final String REF_TYPE = "refType";
+    public static final String REF_NAME = "refName";
     public static final String SOURCE_BRANCH = "sourceBranch";
     public static final String DESTINATION_BRANCH = "destinationBranch";
     public static final String DEFAULT = "default";
@@ -204,4 +203,5 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
+    public static final String NONE = "none";
 }

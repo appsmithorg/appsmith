@@ -37,8 +37,14 @@ import MultiFilePickerControl from "components/formControls/MultiFilePickerContr
 import type { MultipleFilePickerControlProps } from "components/formControls/MultiFilePickerControl";
 import type { RadioButtonControlProps } from "components/formControls/RadioButtonControl";
 import RadioButtonControl from "components/formControls/RadioButtonControl";
-import type { CarbonButtonProps } from "ee/components/formControls/CarbonButton";
-import { CarbonButton } from "ee/components/formControls/CarbonButton";
+import {
+  RagIntegrations,
+  RagDocumentsSelector,
+} from "ee/components/formControls/Rag";
+import {
+  SliderControl,
+  type SliderControlProps,
+} from "components/formControls/SliderControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -192,11 +198,33 @@ class FormControlRegistry {
         return <RadioButtonControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.CARBON_BUTTON, {
-      buildPropertyControl(controlProps: CarbonButtonProps): JSX.Element {
-        return <CarbonButton {...controlProps} />;
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.RAG_INTEGRATIONS,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <RagIntegrations {...controlProps} />;
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(formControlTypes.SLIDER, {
+      buildPropertyControl(controlProps: SliderControlProps): JSX.Element {
+        return <SliderControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.RAG_DOCUMENTS_SELECTOR,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return (
+            <RagDocumentsSelector
+              actionId={controlProps.actionId}
+              datasourceId={controlProps.datasourceId}
+              workspaceId={controlProps.workspaceId}
+            />
+          );
+        },
+      },
+    );
   }
 }
 

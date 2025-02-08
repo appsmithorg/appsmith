@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.ce.DslVersionDTO;
 import lombok.RequiredArgsConstructor;

@@ -11,6 +11,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
+//test comment
 describe(
   "JSEditor Indendation - Visual tests",
   { tags: ["@tag.Visual"] },
@@ -210,7 +211,7 @@ myFun2: async () => {
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
 
       // click run button and take a snap to make sure prettify did not revert
-      agHelper.GetNClick(jsEditor._runButton);
+      jsEditor.toolbar.clickRunButton();
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();
@@ -313,7 +314,7 @@ myFun2: async () => {
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
 
       // click run button and take a snap to make sure prettify did not revert
-      agHelper.GetNClick(jsEditor._runButton);
+      jsEditor.toolbar.clickRunButton();
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();

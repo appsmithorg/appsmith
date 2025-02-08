@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -426,6 +427,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
+    protected Mono<Boolean> isSignupAllowed(User user) {
+        return Mono.just(TRUE);
+    }
+
     @Override
     public Mono<UserSignupDTO> createUser(User user) {
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
@@ -441,17 +446,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
-                        // First enable the user
-                        savedUser.setIsEnabled(true);
-                        savedUser.setSource(user.getSource());
-                        // In case of form login, store the encrypted password.
-                        savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser).map(updatedUser -> {
-                            UserSignupDTO userSignupDTO = new UserSignupDTO();
-                            userSignupDTO.setUser(updatedUser);
-                            return userSignupDTO;
+                        return isSignupAllowed(user).flatMap(isSignupAllowed -> {
+                            if (isSignupAllowed) {
+                                // First enable the user
+                                savedUser.setIsEnabled(true);
+                                savedUser.setSource(user.getSource());
+                                // In case of form login, store the encrypted password.
+                                savedUser.setPassword(user.getPassword());
+                                return repository.save(savedUser).map(updatedUser -> {
+                                    UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                    userSignupDTO.setUser(updatedUser);
+                                    return userSignupDTO;
+                                });
+                            }
+
+                            return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
                         });
                     }
+
                     return Mono.error(
                             new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
@@ -509,7 +521,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-    private Mono<User> signupIfAllowed(User user) {
+    @Override
+    public Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
@@ -566,6 +579,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
+    }
+
+    @Override
+    public Mono<Integer> updateWithoutPermission(String id, UpdateDefinition updateObj) {
+        Mono<User> userFromRepository = repository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository.flatMap(existingUser -> repository.updateById(id, updateObj));
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {

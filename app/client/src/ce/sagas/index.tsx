@@ -16,7 +16,7 @@ import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
 import curlImportSagas from "sagas/CurlImportSagas";
-import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
+import { watchDatasourcesSagas } from "ee/sagas/DatasourcesSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import errorSagas from "sagas/ErrorSagas";
@@ -33,7 +33,6 @@ import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
 import pageSagas from "ee/sagas/PageSagas";
-import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
 import queryPaneSagas from "sagas/QueryPaneSagas";
 import replaySaga from "sagas/ReplaySaga";
@@ -42,7 +41,6 @@ import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
 import themeSagas from "sagas/ThemeSaga";
-import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
@@ -54,6 +52,7 @@ import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
+import gitSagas from "git/sagas";
 
 export const sagas = [
   initSagas,
@@ -83,7 +82,6 @@ export const sagas = [
   actionExecutionChangeListeners,
   formEvaluationChangeListener,
   globalSearchSagas,
-  websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
   selectionCanvasSagas,
@@ -94,7 +92,6 @@ export const sagas = [
   appThemingSaga,
   NavigationSagas,
   editorContextSagas,
-  PageVisibilitySaga,
   AutoHeightSagas,
   tenantSagas,
   JSLibrarySaga,
@@ -110,4 +107,5 @@ export const sagas = [
   ternSagas,
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
+  gitSagas,
 ];

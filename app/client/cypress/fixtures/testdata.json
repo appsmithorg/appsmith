@@ -140,7 +140,7 @@
   "noBodyErrorMessageDiv": "#NoBodyMessageDiv",
   "noBodyErrorMessage": "This request does not have a body",
   "v2Key": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-  "v3Key": "6LcnzQgfAAAAAMwMlQLppqx7STvZ6pZJoDMXti8k",
+  "v3Key": "6LcUj7gqAAAAALqbrlt_ZQ2NiO4fQns05nNFg3EX",
   "invalidKey": "abc123",
   "errorMsg": "Google reCAPTCHA token generation failed! Please check the reCAPTCHA site key.",
   "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
@@ -164,7 +164,7 @@
   "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
   "UPGRADEPASSWORD": "Test@123",
   "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
-  "iframeUrl": "https://elfsight.com/social-feed-widget/iframe/",
-  "iframeUrlSubstring": "https://elfsight.com/",
+  "iframeUrl": "https://docs.appsmith.com/build-apps/overview/",
+  "iframeUrlSubstring": "https://docs.appsmith.com/",
   "iframeRandomUrl": "https://www.appsmith.com/"
 }

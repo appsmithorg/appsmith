@@ -161,9 +161,7 @@ describe("GlobalSearch", { tags: ["@tag.Sanity"] }, function () {
       .first()
       .click();
     cy.wait("@createNewApi");
-    cy.get(datasourceHomeLocators.apiTxt)
-      .invoke("val")
-      .then((title) => expect(title).includes("Api"));
+    _.agHelper.GetObjectName().then((title) => expect(title).includes("Api"));
   });
 
   // since now datasource will only be saved once user clicks on save button explicitly,

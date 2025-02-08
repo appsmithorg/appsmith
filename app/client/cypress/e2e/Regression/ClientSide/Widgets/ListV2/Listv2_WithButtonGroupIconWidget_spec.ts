@@ -27,7 +27,7 @@ describe(
       const generalProperties1 = ["visible", "disabled", "animateloading"];
 
       const formSettingsProperties = [
-        "disabledinvalidforms",
+        "disablewhenformisinvalid",
         "resetformonsuccess",
       ];
 

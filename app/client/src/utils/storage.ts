@@ -1,10 +1,9 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
-import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { EditorViewMode } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 
@@ -759,25 +758,6 @@ export const isUserSignedUpFlagSet = async (email: string) => {
 
     return false;
   }
-};
-
-export const setVersionUpdateState = async (state: VersionUpdateState) => {
-  try {
-    await store.setItem(STORAGE_KEYS.VERSION_UPDATE_STATE, state);
-  } catch (e) {
-    log.error("An error occurred while storing version update state", e);
-  }
-};
-
-export const getVersionUpdateState =
-  async (): Promise<VersionUpdateState | null> => {
-    return await store.getItem<VersionUpdateState | null>(
-      STORAGE_KEYS.VERSION_UPDATE_STATE,
-    );
-  };
-
-export const removeVersionUpdateState = async () => {
-  return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
 };
 
 export const getAppKbState = async (appId: string) => {

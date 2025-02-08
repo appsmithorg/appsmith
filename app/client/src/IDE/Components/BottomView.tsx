@@ -4,7 +4,7 @@ import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
-import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
+import { ViewDisplayMode, ViewHideBehaviour } from "../Interfaces/View";
 import { Button } from "@appsmith/ads";
 import classNames from "classnames";
 
@@ -28,6 +28,7 @@ const Container = styled.div<{ displayMode: ViewDisplayMode }>`
 
 const ViewWrapper = styled.div`
   height: 100%;
+
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 var(--ads-v2-spaces-8);
@@ -39,6 +40,7 @@ const ViewWrapper = styled.div`
     .ads-v2-tabs__list {
       padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
       padding-left: var(--ads-v2-spaces-3);
+      user-select: none;
     }
   }
 
@@ -70,7 +72,7 @@ interface Props {
 const ViewHideButton = styled(Button)`
   &.view-hide-button {
     position: absolute;
-    top: 3px;
+    top: 2px;
     right: 0;
     padding: 9px 11px;
   }

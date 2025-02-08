@@ -21,7 +21,7 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
+import type { AnyReduxAction } from "actions/ReduxActionTypes";
 import AppsmithConsole from "utils/AppsmithConsole";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";
@@ -38,9 +38,10 @@ import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
+import { getJSActionPathNameToDisplay } from "ee/utils/actionExecutionUtils";
 import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -166,7 +167,7 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
-              orgId: workspaceId,
+              workspaceId: workspaceId,
               instanceId,
             });
           }
@@ -190,6 +191,9 @@ export function* logSuccessfulBindings(
 }
 
 export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
+  // Wait for environments api fetch before dispatching actions
+  yield call(waitForFetchEnvironments);
+
   for (const action of actions) {
     yield put(action);
   }
@@ -261,11 +265,11 @@ export function* handleJSFunctionExecutionErrorLog(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[],
 ) {
-  const { id: collectionId, name: collectionName } = collection;
+  const { id: collectionId } = collection;
 
-  const collectionNameToDisplay = getCollectionNameToDisplay(
+  const collectionNameToDisplay = getJSActionPathNameToDisplay(
     action,
-    collectionName,
+    collection,
   );
 
   errors.length
@@ -273,10 +277,8 @@ export function* handleJSFunctionExecutionErrorLog(
         {
           payload: {
             id: `${collectionId}-${action.id}`,
-            logType: LOG_TYPE.EVAL_ERROR,
-            text: `${createMessage(
-              JS_EXECUTION_FAILURE,
-            )}: ${collectionNameToDisplay}.${action.name}`,
+            logType: LOG_TYPE.JS_EXECUTION_ERROR,
+            text: createMessage(JS_EXECUTION_FAILURE),
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;

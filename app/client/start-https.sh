@@ -159,6 +159,14 @@ if [[ $backend =~ /$ ]]; then
     exit 1
 fi
 
+if [[ -n $backend ]]; then
+  # Try to get a version from the "backend". If it's a full container, not just backend, then it'll give us a version.
+  APPSMITH_VERSION_ID="$(
+    curl -vsS "${backend/host.docker.internal/localhost}/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4 || true
+  )"
+  export APPSMITH_VERSION_ID
+fi
+
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
     echo "I got --env-file as '$env_file', but I cannot access it." >&2
     exit 1
@@ -286,6 +294,10 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         location /api {
             proxy_pass $backend;
+            # Delete the Cache-Control header set in the server block above.
+            add_header Cache-Control '' always;
+            # Proxy pass the Cache-Control header from the upstream.
+            proxy_pass_header Cache-Control;
         }
 
         location /oauth2 {

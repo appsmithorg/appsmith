@@ -5,7 +5,7 @@ import { get, isUndefined } from "lodash";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
-import LogItem, { getLogItemProps } from "./LogItem";
+import { LogItem, getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
 import {
   createMessage,
@@ -24,13 +24,14 @@ import type { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
 import { setDebuggerSelectedFilter } from "actions/debuggerActions";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
-export const LIST_HEADER_HEIGHT = "38px";
+export const LIST_HEADER_HEIGHT = "53px";
 export const FOOTER_MARGIN = "40px";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
-  height: 100%;
+  height: calc(100% - ${BOTTOM_BAR_HEIGHT}px);
 `;
 
 export const ListWrapper = styled.div`

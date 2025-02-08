@@ -7,6 +7,8 @@ import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { AppState } from "ee/reducers";
 import { render } from "test/testUtils";
+import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 const productsDS = datasourceFactory().build({
   name: "Products",
@@ -34,70 +36,38 @@ const ordersAction1 = PostgresFactory.build({
 });
 
 describe("DataSidePane", () => {
-  it("renders the ds and count by using the default selector if dsUsageSelector not passed as a props", () => {
+  it("renders the ds and count by using the dsUsageMap passed as props", () => {
     const state = getIDETestState({
       actions: [usersAction1, usersAction2, ordersAction1],
       datasources: [productsDS, usersDS, ordersDS],
     }) as AppState;
 
-    render(<DataSidePane />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+    const dsUsageMap = getDatasourceUsageCountForApp(state, IDE_TYPE.App);
+
+    render(<DataSidePane dsUsageMap={dsUsageMap} />, {
+      url: "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       initialState: state,
     });
 
     expect(screen.getByText("Databases")).toBeInTheDocument();
-    expect(screen.getByText("Products")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
 
-    const usersDSParentElement =
-      screen.getByText("Users").parentElement?.parentElement;
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
 
-    expect(usersDSParentElement).toHaveTextContent("2 queries in this app");
-
-    const productsDSParentElement =
-      screen.getByText("Products").parentElement?.parentElement;
-
-    expect(productsDSParentElement).toHaveTextContent("No queries in this app");
-
-    const ortdersDSParentElement =
-      screen.getByText("Orders").parentElement?.parentElement;
-
-    expect(ortdersDSParentElement).toHaveTextContent("1 queries in this app");
-  });
-
-  it("it uses the selector dsUsageSelector passed as prop", () => {
-    const state = getIDETestState({
-      datasources: [productsDS, usersDS, ordersDS],
-    }) as AppState;
-
-    const usageSelector = () => {
-      return {
-        [usersDS.id]: "Rendering description for users",
-        [productsDS.id]: "Rendering description for products",
-      };
-    };
-
-    render(<DataSidePane dsUsageSelector={usageSelector} />, {
-      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
-      initialState: state,
-    });
-
-    expect(screen.getByText("Databases")).toBeInTheDocument();
-    expect(screen.getByText("Products")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
-
-    const usersDSParentElement =
-      screen.getByText("Users").parentElement?.parentElement;
-
-    expect(usersDSParentElement).toHaveTextContent(
-      "Rendering description for users",
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "Products",
+    );
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "No queries in this app",
     );
 
-    const productsDSParentElement =
-      screen.getByText("Products").parentElement?.parentElement;
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain("Users");
+    expect(screen.getAllByRole("listitem")[1].textContent).toContain(
+      "2 queries in this app",
+    );
 
-    expect(productsDSParentElement).toHaveTextContent(
-      "Rendering description for products",
+    expect(screen.getAllByRole("listitem")[2].textContent).toContain("Orders");
+    expect(screen.getAllByRole("listitem")[2].textContent).toContain(
+      "1 queries in this app",
     );
   });
 });

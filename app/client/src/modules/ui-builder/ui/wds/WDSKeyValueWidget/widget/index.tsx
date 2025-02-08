@@ -10,7 +10,7 @@ class WDSKeyValueWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       displayOrder: undefined,
-      tags: [WIDGET_TAGS.INPUTS],
+      tags: [WIDGET_TAGS.DISPLAY],
       name: "KeyValue",
     };
   }

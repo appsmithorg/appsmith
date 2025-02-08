@@ -4,7 +4,7 @@ import { TimeField } from "../src";
 import { Time } from "@internationalized/date";
 
 const meta: Meta<typeof TimeField> = {
-  title: "WDS/Widgets/TimeField",
+  title: "WDS/Widgets/Time Field",
   component: TimeField,
   parameters: {
     docs: {

@@ -6,17 +6,12 @@ import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { IDESidebar, Condition } from "IDE";
-import {
-  BottomButtons,
-  EditorState,
-  TopButtons,
-} from "ee/entities/IDE/constants";
+import { IDESidebar } from "@appsmith/ads";
 import { getDatasources } from "ee/selectors/entitiesSelector";
 import {
-  createMessage,
-  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
-} from "ee/constants/messages";
+  BottomButtons,
+  TopButtons,
+} from "ee/pages/Editor/IDE/constants/SidebarButtons";
 
 function Sidebar() {
   const dispatch = useDispatch();
@@ -26,21 +21,9 @@ function Sidebar() {
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
 
-  // Updates the top button config based on datasource existence
-  const topButtons = React.useMemo(() => {
-    return datasourcesExist
-      ? TopButtons
-      : TopButtons.map((button) => {
-          if (button.state === EditorState.DATA) {
-            return {
-              ...button,
-              condition: Condition.Warn,
-              tooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
-            };
-          }
-
-          return button;
-        });
+  // Updates the bottom button config based on datasource existence
+  const bottomButtons = React.useMemo(() => {
+    return BottomButtons(datasourcesExist);
   }, [datasourcesExist]);
 
   useEffect(() => {
@@ -64,11 +47,11 @@ function Sidebar() {
 
   return (
     <IDESidebar
-      bottomButtons={BottomButtons}
+      bottomButtons={bottomButtons}
       editorState={appState}
       id={"t--app-sidebar"}
       onClick={onClick}
-      topButtons={topButtons}
+      topButtons={TopButtons}
     />
   );
 }

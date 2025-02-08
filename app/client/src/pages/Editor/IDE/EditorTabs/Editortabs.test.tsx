@@ -2,20 +2,16 @@ import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import EditorTabs from ".";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import "@testing-library/jest-dom";
 import { PageFactory } from "test/factories/PageFactory";
 import { APIFactory } from "test/factories/Actions/API";
 import type { AppState } from "ee/reducers";
-
-const FeatureFlags = {
-  rollout_side_by_side_enabled: true,
-};
+import { act, within } from "@testing-library/react";
 
 describe("EditorTabs render checks", () => {
-  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   const page = PageFactory.build();
 
   const renderComponent = (url: string, state: Partial<AppState>) =>
@@ -25,7 +21,6 @@ describe("EditorTabs render checks", () => {
       </Route>,
       {
         url,
-        featureFlags: FeatureFlags,
         initialState: state,
       },
     );
@@ -42,14 +37,13 @@ describe("EditorTabs render checks", () => {
 
   it("Renders correctly in split view", () => {
     const state = getIDETestState({ ideView: EditorViewMode.SplitScreen });
-    const { getByTestId, queryByTestId } = renderComponent(
+    const { getByTestId, queryAllByRole, queryByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries`,
       state,
     );
-    // check tabs is empty
-    const tabsContainer = getByTestId("t--tabs-container");
 
-    expect(tabsContainer.firstChild).toBeNull();
+    // check that tabs are empty
+    expect(queryAllByRole("tab").length).toBe(0);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -63,7 +57,7 @@ describe("EditorTabs render checks", () => {
 
   it("Renders correctly in fullscreen view", () => {
     const state = getIDETestState({ ideView: EditorViewMode.FullScreen });
-    const { getByTestId, queryByTestId } = renderComponent(
+    const { getByTestId, queryAllByRole, queryByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries`,
       state,
     );
@@ -71,10 +65,8 @@ describe("EditorTabs render checks", () => {
     // check toggle
     expect(queryByTestId("t--list-toggle")).toBeNull();
 
-    // check tabs is empty
-    const tabsContainer = getByTestId("t--tabs-container");
-
-    expect(tabsContainer.firstChild).toBeNull();
+    // check that tabs are empty
+    expect(queryAllByRole("tab").length).toBe(0);
 
     //check add button is not present
     expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -167,20 +159,27 @@ describe("EditorTabs render checks", () => {
 
   it("Render list view onclick of toggle in split view", () => {
     const anApi = APIFactory.build({
+      name: "Api1",
       id: "api_id",
       baseId: "api_base_id",
       pageId: page.pageId,
     });
+    const anApi2 = APIFactory.build({
+      name: "Api2",
+      id: "api_id2",
+      baseId: "api_base_id2",
+      pageId: page.pageId,
+    });
     const state = getIDETestState({
       pages: [page],
-      actions: [anApi],
+      actions: [anApi, anApi2],
       ideView: EditorViewMode.SplitScreen,
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
       },
     });
-    const { getByTestId } = renderComponent(
+    const { getByRole, getByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anApi.baseId}`,
       state,
     );
@@ -189,6 +188,19 @@ describe("EditorTabs render checks", () => {
 
     // check list view
     expect(getByTestId("t--editorpane-list-view")).not.toBeNull();
+
+    act(() => {
+      fireEvent.change(
+        getByRole("textbox", {
+          name: /search/i,
+        }),
+        { target: { value: "Api2" } },
+      );
+    });
+    const view = getByTestId("t--editorpane-list-view");
+
+    within(view).getByText("Api2");
+    expect(within(view).queryByText("Api1")).toBeNull();
   });
 
   it("Render Add tab in split view", () => {

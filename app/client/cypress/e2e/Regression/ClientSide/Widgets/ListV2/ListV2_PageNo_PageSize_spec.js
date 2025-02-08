@@ -3,7 +3,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -162,11 +161,7 @@ describe(
       _.dataSources.CreateDataSource("Postgres");
       _.dataSources.CreateQueryAfterDSSaved();
 
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({ force: true });
-
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query1");
+      _.agHelper.RenameQuery("Query1");
 
       // switching off Use Prepared Statement toggle
       _.dataSources.ToggleUsePreparedStatement(false);

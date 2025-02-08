@@ -32,7 +32,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   fixActionPayloadForMongoQuery,
@@ -51,17 +51,14 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "ee/constants/messages";
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
@@ -103,8 +100,6 @@ import {
   ActionCreationSourceTypeEnum,
   isAPIAction,
   isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
   SlashCommand,
 } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -130,7 +125,6 @@ import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
@@ -148,6 +142,8 @@ import {
   RequestPayloadAnalyticsPath,
 } from "./helper";
 import { handleQueryEntityRedirect } from "./IDESaga";
+import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -1067,6 +1063,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
+  const isInternal = pluginType === PluginType.INTERNAL;
   const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
 
   if (!parentEntityId) return;
@@ -1085,7 +1082,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
     );
   }
 
-  if (isQuery) {
+  if (isQuery || isInternal) {
     history.push(
       queryEditorIdURL({
         baseParentEntityId,
@@ -1200,12 +1197,7 @@ function* handleCreateNewQueryFromActionCreator(
   yield put(setShowQueryCreateNewModal(true));
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
-  // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Wait for a query to be created
   const createdQuery: ReduxAction<BaseAction> = yield take(

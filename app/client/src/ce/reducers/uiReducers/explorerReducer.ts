@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -194,29 +194,6 @@ export const handlers = {
     return {
       ...state,
       active: action.payload,
-    };
-  },
-  [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.PINNED
-          ? ExplorerPinnedState.HIDDEN
-          : state.pinnedState,
-      active: false,
-    };
-  },
-  [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.HIDDEN
-          ? ExplorerPinnedState.PINNED
-          : state.pinnedState,
     };
   },
 };

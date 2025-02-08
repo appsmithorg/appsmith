@@ -1,4 +1,4 @@
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 
 // Map of plugin name to action property key to analytics key
 // This contains a list allowed action property keys that can be sent to analytics

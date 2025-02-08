@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import configureStore from "redux-mock-store";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import {
   ActionEntityContextMenu,
   type EntityContextMenuProps,
@@ -21,10 +21,8 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "ee/constants/messages";
-import {
-  ReduxActionTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 
 const mockStore = configureStore([]);
 

@@ -12,6 +12,7 @@ const DisabledContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  cursor: not-allowed;
 
   & * {
     pointer-events: none;

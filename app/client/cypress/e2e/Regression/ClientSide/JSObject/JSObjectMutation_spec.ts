@@ -130,7 +130,7 @@ describe("JSObject testing", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    _.agHelper.GetNAssertContains(locators._selectionItem, "getData");
+    _.agHelper.GetNAssertContains(_.jsEditor._funcDropdownValue, "getData");
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
     EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);

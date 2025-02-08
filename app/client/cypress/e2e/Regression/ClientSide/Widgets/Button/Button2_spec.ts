@@ -81,7 +81,7 @@ describe(
         "Form1",
       ]);
       // disable form validation
-      propPane.TogglePropertyState("Disabled invalid forms", "Off");
+      propPane.TogglePropertyState("Disable when form is invalid", "Off");
       // set invalid text
       agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
       // assert submit button us enabled since disabled invalid form is off

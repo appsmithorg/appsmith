@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,9 @@ public class ImportingMetaDTO {
      */
     String artifactId;
 
-    String branchName;
+    RefType refType;
+
+    String refName;
 
     List<String> branchedArtifactIds;
 

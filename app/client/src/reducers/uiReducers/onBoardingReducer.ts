@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { createReducer } from "utils/ReducerUtils";
@@ -76,26 +76,6 @@ const onboardingReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => {
     return { ...state, forceOpenWidgetPanel: action.payload };
-  },
-  [ReduxActionTypes.SIGNPOSTING_STEP_UPDATE]: (
-    state: OnboardingState,
-    action: ReduxAction<StepState>,
-  ) => {
-    const index = state.stepState.findIndex(
-      (stepState) => stepState.step === action.payload.step,
-    );
-    const newArray = [...state.stepState];
-
-    if (index >= 0) {
-      newArray[index] = action.payload;
-    } else {
-      newArray.push(action.payload);
-    }
-
-    return {
-      ...state,
-      stepState: newArray,
-    };
   },
   [ReduxActionTypes.SIGNPOSTING_MARK_ALL_READ]: (state: OnboardingState) => {
     return {
