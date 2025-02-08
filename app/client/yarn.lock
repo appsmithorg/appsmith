@@ -46,11 +46,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@appsmith/ads-old@workspace:packages/design-system/ads-old"
   dependencies:
-    eslint-plugin-lodash: ^8.0.0
     identity-obj-proxy: 3.0.0
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
   languageName: unknown
   linkType: soft
 
@@ -78,7 +74,6 @@ __metadata:
     "@xstyled/system": ^3.8.1
     csstype: ^3.1.2
     date-fns: ^2.29.3
-    eslint-plugin-lodash: ^8.0.0
     overlayscrollbars: ^2.7.2
     overlayscrollbars-react: ^0.5.6
     rc-select: ^14.4.3
@@ -86,11 +81,6 @@ __metadata:
     rc-tooltip: ^5.3.1
     react-datepicker: ^4.10.0
     react-toastify: 9.0.3
-  peerDependencies:
-    eslint: ^8.0.0
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    styled-components: ^5.3.6
   languageName: unknown
   linkType: soft
 
@@ -99,17 +89,12 @@ __metadata:
   resolution: "@appsmith/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
     "@typescript-eslint/utils": 5.62.0
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
   languageName: unknown
   linkType: soft
 
 "@appsmith/utils@workspace:^, @appsmith/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@appsmith/utils@workspace:packages/utils"
-  dependencies:
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
   languageName: unknown
   linkType: soft
 
@@ -127,11 +112,9 @@ __metadata:
     "@react-types/label": ^3.7.3
     "@react-types/shared": ^3.23.1
     "@react-types/textfield": ^3.9.6
-    eslint-plugin-lodash: ^8.0.0
     react-aria-components: ^1.3.3
   peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -143,7 +126,6 @@ __metadata:
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
     colorjs.io: ^0.5.2
-    eslint-plugin-lodash: ^8.0.0
     lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -171,7 +153,6 @@ __metadata:
     "@types/react-syntax-highlighter": ^15.5.13
     "@types/react-transition-group": ^4.4.11
     clsx: ^2.0.0
-    eslint-plugin-lodash: ^8.0.0
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
     react-aria-components: ^1.2.1
@@ -181,9 +162,7 @@ __metadata:
     remark-gfm: ^4.0.0
     usehooks-ts: "*"
   peerDependencies:
-    eslint: ^8.0.0
-    react: ^17.0.2
-    react-dom: ^17.0.2
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -3027,8 +3006,6 @@ __metadata:
     "@storybook/theming": ^8.2.7
     "@vitejs/plugin-react": ^4.3.1
     chromatic: ^11.3.0
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
     glob: ^11.0.0
     storybook: ^8.2.7
     vite: ^5.3.5
@@ -3041,7 +3018,6 @@ __metadata:
   resolution: "@design-system/widgets-old@workspace:packages/design-system/widgets-old"
   dependencies:
     "@types/react-table": "*"
-    eslint-plugin-lodash: ^8.0.0
     identity-obj-proxy: 3.0.0
   peerDependencies:
     "@blueprintjs/core": 3.33.0
@@ -8756,8 +8732,6 @@ __metadata:
     astravel: ^0.6.1
     astring: ^1.7.5
     escodegen: ^2.0.0
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
     jest: 29.0.3
     klona: ^2.0.5
     lodash: ^4.17.21
@@ -8778,8 +8752,6 @@ __metadata:
     "@rollup/plugin-commonjs": ^22.0.0
     "@rollup/plugin-json": ^6.0.0
     "@types/lodash": ^4.14.120
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
     jest: ^29.5.0
     normalizr: ^3.6.2
     rollup: ^2.79.2
@@ -13114,8 +13086,6 @@ __metadata:
   dependencies:
     "@svgr/core": ^8.1.0
     "@svgr/plugin-jsx": ^8.1.0
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
     fast-glob: ^3.3.2
     figmagic: ^4.5.13
     fs-extra: ^11.2.0
@@ -13143,8 +13113,6 @@ __metadata:
     "@types/readline-sync": ^1.4.8
     axios: ^1.7.4
     dotenv: 10.0.0
-    eslint: ^8.0.0
-    eslint-plugin-lodash: ^8.0.0
     express: ^4.20.0
     express-validator: ^6.14.2
     http-status-codes: ^2.2.0
@@ -18650,7 +18618,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.0.0, eslint@npm:^8.3.0, eslint@npm:^8.51.0":
+"eslint@npm:^8.3.0, eslint@npm:^8.51.0":
   version: 8.57.1
   resolution: "eslint@npm:8.57.1"
   dependencies:

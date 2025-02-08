@@ -265,7 +265,6 @@
     "@types/jest": "^29.5.3",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.195",
-    "eslint-plugin-lodash": "^8.0.0",
     "@types/mixpanel-browser": "^2.50.1",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
