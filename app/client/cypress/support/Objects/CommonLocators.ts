@@ -10,8 +10,8 @@ export class CommonLocators {
   _link = ".ads-v2-link";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
-  _queryName = ".editor-tab.active > .ads-v2-text";
-  _queryNameTxt = ".editor-tab.active > .ads-v2-text input";
+  _activeEntityTab = ".editor-tab.active .ads-v2-text";
+  _activeEntityTabInput = ".editor-tab.active .ads-v2-text input";
   _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";

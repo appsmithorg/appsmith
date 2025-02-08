@@ -24,7 +24,7 @@ function Tag({
   };
 
   return (
-    <StyledTag isClosed={isClosed} kind={kind} {...rest}>
+    <StyledTag className="ads-v2-tag" isClosed={isClosed} kind={kind} {...rest}>
       <Text color="inherit" kind="body-s">
         {children}
       </Text>
@@ -36,6 +36,7 @@ function Tag({
           isIconButton
           kind="tertiary"
           onClick={closeHandler}
+          onMouseDown={(e) => e.stopPropagation()}
           size="sm"
           startIcon="close-line"
         />

@@ -87,6 +87,7 @@ export interface ControlData {
   errorText?: string;
   showError?: boolean;
   encrypted?: boolean;
+  title?: string; // used as label for control component
   subtitle?: string;
   showLineNumbers?: boolean;
   url?: string;
@@ -110,6 +111,7 @@ export interface ControlData {
   addMoreButtonLabel?: string;
   datasourceId?: string;
   workspaceId?: string;
+  actionId?: string;
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

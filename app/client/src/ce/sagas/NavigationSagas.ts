@@ -21,8 +21,8 @@ import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { EditorViewMode } from "ee/entities/IDE/constants";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 import { getIDEViewMode } from "selectors/ideSelectors";
 
@@ -38,12 +38,14 @@ export function* handleRouteChange(
     yield fork(watchForTrackableUrl, action.payload);
     const IDEType = getIDETypeByUrl(pathname);
 
-    yield fork(
-      FocusRetention.onRouteChange.bind(FocusRetention),
-      pathname,
-      previousPath,
-      state,
-    );
+    if (previousPath) {
+      yield fork(
+        FocusRetention.onRouteChange.bind(FocusRetention),
+        pathname,
+        previousPath,
+        state,
+      );
+    }
 
     if (IDEType === IDE_TYPE.App) {
       yield fork(logNavigationAnalytics, action.payload);

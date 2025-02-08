@@ -1,5 +1,5 @@
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
-import type { IDEType } from "ee/entities/IDE/constants";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { useSelector } from "react-redux";
 import {
   getCurrentApplicationId,

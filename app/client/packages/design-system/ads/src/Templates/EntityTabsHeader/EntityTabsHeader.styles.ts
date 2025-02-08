@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { Button } from "../..";
+import { Button } from "../../Button";
+import { DismissibleTabBar } from "../../DismissibleTab";
 
 export const Root = styled.div`
   display: flex;
@@ -11,7 +12,6 @@ export const Root = styled.div`
   min-height: 32px;
   padding: 0 var(--ads-v2-spaces-2);
   width: 100%;
-  overflow: hidden;
 `;
 
 export const IconButton = styled(Button)`
@@ -19,4 +19,8 @@ export const IconButton = styled(Button)`
   && {
     min-width: 24px;
   }
+`;
+
+export const TabBar = styled(DismissibleTabBar)`
+  margin-bottom: -1px;
 `;

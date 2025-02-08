@@ -30,7 +30,7 @@ describe(
       dataSources.AddSuggestedWidget(Widgets.Table);
       debuggerHelper.AssertErrorCount(0);
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
+      propPane.ValidatePropertyFieldValue("Table data", "{{Api1.data}}");
 
       // Create another API so that it returns object response
       apiPage.CreateAndFillApi(
@@ -108,9 +108,9 @@ describe(
       );
       debuggerHelper.AssertErrorCount(0);
       table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.AssertPropertiesDropDownCurrentValue(
+      propPane.ValidatePropertyFieldValue(
         "Table data",
-        "ARRAY_RESPONSE",
+        "{{ARRAY_RESPONSE.data}}",
       );
 
       // Create API so that it returns object response

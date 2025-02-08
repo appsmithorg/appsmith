@@ -23,7 +23,7 @@ import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
-import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;

@@ -90,7 +90,7 @@ export const EditorWrapper = styled.div<{
         .CodeMirror-focused {
           outline: var(--ads-v2-border-width-outline) solid
             var(--ads-v2-color-outline) !important;
-          outline-offset: var(--ads-v2-offset-outline) !important;
+          outline-offset: -1px !important;
           z-index: 1 !important;
         }
       `}
@@ -106,13 +106,14 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       border-radius: var(--ads-v2-border-radius);
       /* ${(props) =>
+        props.showFocusVisible &&
         props.isFocused &&
         `outline: ${
           props?.removeHoverAndFocusStyle
             ? "none"
             : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
         };
-        outline-offset: var(--ads-v2-offset-outline);
+        outline-offset: -1px;
         clip-path: unset !important;
         `} */
       ${(props) => props.isFocused && `clip-path: unset !important;`}
@@ -402,13 +403,17 @@ export const EditorWrapper = styled.div<{
       }
     }
 
-    &:focus-visible {
-      .CodeMirror.cm-s-duotone-light {
-        outline: var(--ads-v2-border-width-outline) solid
-          var(--ads-v2-color-outline);
-        outline-offset: var(--ads-v2-offset-outline);
+    ${(props) =>
+      props.showFocusVisible &&
+      `
+      &:focus-visible {
+        .CodeMirror.cm-s-duotone-light {
+          outline: var(--ads-v2-border-width-outline) solid
+            var(--ads-v2-color-outline);
+          outline-offset: -1px;
+        }
       }
-    }
+    `}
 
     ${(props) =>
       props.size === EditorSize.COMPACT ||
