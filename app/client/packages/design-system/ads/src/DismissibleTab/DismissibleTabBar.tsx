@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { noop } from "lodash";
+import noop from "lodash/noop";
 import clsx from "clsx";
 
 import { Spinner } from "../Spinner";

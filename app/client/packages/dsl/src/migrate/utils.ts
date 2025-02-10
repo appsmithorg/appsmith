@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import generate from "nanoid/generate";
 import type { DSLWidget, WidgetProps } from "./types";
-import { isString } from "lodash";
+import isString from "lodash/isString";
 
 export const DATA_BIND_REGEX_GLOBAL = /{{([\s\S]*?)}}/g;
 export const DATA_BIND_REGEX = /{{([\s\S]*?)}}/;
