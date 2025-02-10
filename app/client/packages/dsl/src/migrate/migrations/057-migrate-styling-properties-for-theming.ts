@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { clone, get, has, isEmpty, set } from "lodash";
+import clone from "lodash/clone";
+import get from "lodash/get";
+import has from "lodash/has";
+import isEmpty from "lodash/isEmpty";
+import set from "lodash/set";
 import type { DSLWidget } from "../types";
 import { isDynamicValue } from "../utils";
 

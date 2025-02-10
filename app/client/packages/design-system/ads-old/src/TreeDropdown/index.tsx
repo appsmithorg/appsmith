@@ -6,7 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { find, findIndex } from "lodash";
+import find from "lodash/find";
+import findIndex from "lodash/findIndex";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import {
   PopoverInteractionKind,

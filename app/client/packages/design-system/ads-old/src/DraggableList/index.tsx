@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { clamp } from "lodash-es";
+import clamp from "lodash/clamp";
 import { useDrag } from "react-use-gesture";
 import { useSprings, animated, to } from "react-spring";
 import styled from "styled-components";
