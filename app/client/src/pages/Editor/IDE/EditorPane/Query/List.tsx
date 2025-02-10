@@ -20,13 +20,13 @@ import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import { ActionEntityItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
 import { objectKeys } from "@appsmith/utils";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");

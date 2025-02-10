@@ -57,7 +57,7 @@ import {
 } from "ee/sagas/helpers";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getIDEViewMode } from "../selectors/ideSelectors";
-import type { EditorViewMode } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/constants";
 

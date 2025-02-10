@@ -45,8 +45,8 @@ import { Linter } from "eslint-linter-browserify";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { AppsmithEntity } from "ee/entities/DataTree/types";
-import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 

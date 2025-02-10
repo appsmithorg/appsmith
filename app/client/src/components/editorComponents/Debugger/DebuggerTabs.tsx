@@ -26,7 +26,7 @@ import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 import { StateInspector } from "./StateInspector";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
