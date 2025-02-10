@@ -246,3 +246,6 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
 
 export const HTML_COLUMN_TYPE_ENABLED =
   FEATURE_FLAG["release_table_html_column_type_enabled"];
+
+export const INFINITE_SCROLL_ENABLED =
+  FEATURE_FLAG["release_tablev2_infinitescroll_enabled"];
