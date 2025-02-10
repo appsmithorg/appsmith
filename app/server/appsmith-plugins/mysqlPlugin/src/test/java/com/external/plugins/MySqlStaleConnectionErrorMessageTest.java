@@ -34,7 +34,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         }
     }
 
-    static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
+    static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
     static MySqlDatasourceUtils mysqlDatasourceUtils = new MySqlDatasourceUtils();
 
     @Test
