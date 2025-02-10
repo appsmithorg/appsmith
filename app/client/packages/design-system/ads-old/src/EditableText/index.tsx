@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { noop } from "lodash";
+import noop from "lodash/noop";
 import {
   EditableTextSubComponent,
   EditInteractionKind,

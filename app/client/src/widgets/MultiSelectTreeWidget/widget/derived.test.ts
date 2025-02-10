@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { flat } from "widgets/WidgetUtils";
 import derivedProperty from "./derived";
 
@@ -45,7 +44,7 @@ describe("Derived property - TreeSelect Widget", () => {
           selectedOptionValues: [],
         },
         null,
-        _,
+        {} as LoDashStatic,
       );
 
       expect(isValid).toBeTruthy();

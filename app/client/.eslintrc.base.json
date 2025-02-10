@@ -19,7 +19,8 @@
     "testing-library",
     "jest",
     "@appsmith",
-    "react-perf"
+    "react-perf",
+    "lodash"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -43,6 +44,7 @@
   },
   "rules": {
     "react-compiler/react-compiler": "warn",
+    "lodash/import-scope": ["error", "method"],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },

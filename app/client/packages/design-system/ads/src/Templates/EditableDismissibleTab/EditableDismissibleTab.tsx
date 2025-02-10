@@ -1,5 +1,5 @@
 import React from "react";
-import { noop } from "lodash";
+import noop from "lodash/noop";
 import { useBoolean } from "usehooks-ts";
 
 import { DismissibleTab } from "../../DismissibleTab";

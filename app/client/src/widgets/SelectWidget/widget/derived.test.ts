@@ -1,4 +1,3 @@
-import _ from "lodash";
 import derivedProperty from "./derived";
 
 describe("Derived property - Select Widget", () => {
@@ -10,7 +9,7 @@ describe("Derived property - Select Widget", () => {
           selectedOptionValue: "",
         },
         null,
-        _,
+        {} as LoDashStatic,
       );
 
       expect(isValid).toBeTruthy();

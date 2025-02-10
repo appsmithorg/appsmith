@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { set } from "lodash";
+import set from "lodash/set";
+import isArray from "lodash/isArray";
+import findIndex from "lodash/findIndex";
 import type { DSLWidget } from "../types";
 import { generateReactKey } from "../utils";
 
-/**
- * changes chartData which we were using as array. now it will be a object
- *
- *
- * @param currentDSL
- * @returns
- */
 export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (children.type === "CHART_WIDGET") {
-      if (Array.isArray(children.chartData)) {
+      if (isArray(children.chartData)) {
         const newChartData = {};
         const dynamicBindingPathList = children?.dynamicBindingPathList
           ? children?.dynamicBindingPathList.slice()
@@ -25,15 +20,17 @@ export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
           set(newChartData, `${generatedKey}`, datum);
 
           if (
-            Array.isArray(children.dynamicBindingPathList) &&
-            children.dynamicBindingPathList?.findIndex(
+            isArray(children.dynamicBindingPathList) &&
+            findIndex(
+              children.dynamicBindingPathList,
               (path: { key: string }) =>
-                (path.key = `chartData[${index}].data`),
+                path.key === `chartData[${index}].data`,
             ) > -1
           ) {
-            const foundIndex = children.dynamicBindingPathList.findIndex(
+            const foundIndex = findIndex(
+              children.dynamicBindingPathList,
               (path: { key: string }) =>
-                (path.key = `chartData[${index}].data`),
+                path.key === `chartData[${index}].data`,
             );
 
             dynamicBindingPathList[foundIndex] = {

@@ -21,7 +21,7 @@ import { TableWrapperClassName } from "./Table.constants";
 import { Icon } from "../Icon";
 import { Text } from "../Text";
 import { Flex } from "../Flex";
-import { orderBy } from "lodash";
+import orderBy from "lodash/orderBy";
 
 function Table<T extends DefaultRecordType = DefaultRecordType>({
   className,

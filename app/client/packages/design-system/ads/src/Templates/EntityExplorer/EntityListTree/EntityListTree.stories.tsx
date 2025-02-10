@@ -9,7 +9,7 @@ import type {
 } from "./EntityListTree.types";
 import { ExplorerContainer } from "../ExplorerContainer";
 import { Flex, Icon } from "../../..";
-import { noop } from "lodash";
+import noop from "lodash/noop";
 
 const meta: Meta<typeof EntityListTree> = {
   title: "ADS/Templates/Entity Explorer/Entity List Tree",

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { escapeRegExp } from "lodash";
+import escapeRegExp from "lodash/escapeRegExp";
 
 const TextHighlighter = styled.mark`
   color: var(--ads-highlight-text-default-text-color);

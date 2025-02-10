@@ -1,6 +1,5 @@
 import type { LoDashStatic } from "lodash";
-import { set } from "lodash";
-import _ from "lodash";
+import set from "lodash/set";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { SelectWidgetProps } from ".";
@@ -17,7 +16,7 @@ describe("defaultOptionValueValidation - ", () => {
     const input = "";
 
     expect(
-      defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      defaultOptionValueValidation(input, {} as SelectWidgetProps, {} as LoDashStatic),
     ).toEqual({
       isValid: true,
       parsed: "",

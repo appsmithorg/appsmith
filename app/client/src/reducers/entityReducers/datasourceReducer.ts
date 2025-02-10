@@ -14,7 +14,7 @@ import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "@appsmith/ads-old";
 import { create } from "mutative";
-import { assign } from "lodash";
+import assign from "lodash/assign";
 
 export interface DatasourceDataState {
   list: Datasource[];
