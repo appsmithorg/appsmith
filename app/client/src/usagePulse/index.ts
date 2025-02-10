@@ -131,12 +131,23 @@ class UsagePulse {
     isAnonymousUser: boolean,
     isFree: boolean,
   ) {
-    UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
-    UsagePulse.isAnonymousUser = isAnonymousUser;
-    UsagePulse.isFreePlan = isFree;
+    try {
+      UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
+      UsagePulse.isAnonymousUser = isAnonymousUser;
+      UsagePulse.isFreePlan = isFree;
 
-    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-      await UsagePulse.sendPulseAndScheduleNext();
+      // Add retry logic
+      let retries = 3;
+      while (retries > 0) {
+        if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
+          UsagePulse.registerActivityListener();
+          break;
+        }
+        retries--;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    } catch (error) {
+      console.error("Failed to start activity tracking:", error);
     }
   }
 
@@ -163,5 +174,22 @@ class UsagePulse {
     UsagePulse.deregisterActivityListener();
   }
 }
+
+const getCurrentActivity = () => {
+  // Add message loading state check
+  if (!props.messages || props.messages.length === 0) {
+    return Activities.LOADING;
+  }
+
+  let activity = props.type === WidgetTypes.MODAL_WIDGET 
+    ? Activities.HOVERING 
+    : Activities.NONE;
+    
+  if (isFocused) activity = Activities.HOVERING;
+  if (showAsSelected) activity = Activities.SELECTED;
+  if (showAsSelected && isActiveInPropertyPane) activity = Activities.ACTIVE;
+  
+  return activity;
+};
 
 export default UsagePulse;
