@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { EditorState } from "IDE/enums";
+import { EditorState } from "../enums";
 import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 

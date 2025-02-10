@@ -1,9 +1,9 @@
 import { Button, Tooltip } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
-import { showConnectGitModal } from "actions/gitSyncActions";
+import { showConnectGitModal } from "../../../../actions/gitSyncActions";
 import { publishApplication } from "ee/actions/applicationActions";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "../../../../constants/AppConstants";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,

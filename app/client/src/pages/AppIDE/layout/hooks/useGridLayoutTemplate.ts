@@ -3,7 +3,7 @@ import type { AnimatedGridUnit } from "../../../../components/AnimatedGridLayout
 import { useSelector } from "react-redux";
 import useWindowDimensions from "../../../../utils/hooks/useWindowDimensions";
 import { useCurrentEditorState } from "../../../Editor/IDE/hooks";
-import { useCurrentAppState } from "../../../Editor/IDE/hooks/useCurrentAppState";
+import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
 import { getPropertyPaneWidth } from "../../../../selectors/propertyPaneSelectors";
 import { previewModeSelector } from "../../../../selectors/editorSelectors";
 import { getIDEViewMode } from "../../../../selectors/ideSelectors";
