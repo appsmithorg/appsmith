@@ -111,6 +111,7 @@ export interface TableWidgetProps
   onTableFilterUpdate: string;
   customIsLoading: boolean;
   customIsLoadingValue: boolean;
+  infiniteScrollEnabled: boolean;
 }
 
 export enum TableVariantTypes {
