@@ -5,3 +5,4 @@
 cypress/e2e/Regression/ClientSide/Anvil/Widgets/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
+#sample
