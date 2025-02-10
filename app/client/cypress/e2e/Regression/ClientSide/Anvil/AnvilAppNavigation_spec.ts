@@ -12,7 +12,7 @@ import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
-  { tags: ["@tag.Anvil", "@tag.IDE", "@tag.PropertyPane"] },
+  { tags: ["@tag.Anvil", "@tag.IDE", "@tag.PropertyPane", "@tag.Testing"] },
   function () {
     beforeEach(() => {
       // intercept features call for Anvil + WDS tests
@@ -24,6 +24,7 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Change App navigation settings and valdiate the layout settings", () => {
+      expect(true).to.be.false;
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSINPUT,
         5,

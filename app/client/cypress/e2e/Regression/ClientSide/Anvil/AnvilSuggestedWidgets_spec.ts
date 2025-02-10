@@ -5,7 +5,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   `${ANVIL_EDITOR_TEST}:Check Suggested Widgets Feature`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Testing"] },
   function () {
     beforeEach(() => {
       // intercept features call for Anvil + WDS tests
