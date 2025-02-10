@@ -12,7 +12,7 @@ import type {
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import type { UpdatePageResponse } from "api/PageApi";
-import { sortBy } from "lodash";
+import sortBy from "lodash/sortBy";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
 import type { Page } from "entities/Page";

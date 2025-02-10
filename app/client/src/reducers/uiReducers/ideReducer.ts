@@ -3,7 +3,9 @@ import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
-import { get, remove, set } from "lodash";
+import get from "lodash/get";
+import remove from "lodash/remove";
+import set from "lodash/set";
 
 export const IDETabsDefaultValue = {
   [EditorEntityTab.JS]: [],

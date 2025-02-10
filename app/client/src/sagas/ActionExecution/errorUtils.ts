@@ -3,7 +3,7 @@ import {
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "ee/constants/messages";
 import type { ApiResponse } from "api/ApiResponses";
-import { isString } from "lodash";
+import isString from "lodash/isString";
 import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns";
 import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";

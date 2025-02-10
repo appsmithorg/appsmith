@@ -4,7 +4,7 @@ import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import type { Datasource } from "entities/Datasource";
-import { get } from "lodash";
+import get from "lodash/get";
 import { FocusEntity } from "navigation/FocusEntity";
 import { select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "./selectors";

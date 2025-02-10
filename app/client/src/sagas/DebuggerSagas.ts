@@ -26,7 +26,11 @@ import {
   take,
   takeEvery,
 } from "redux-saga/effects";
-import { findIndex, get, isEmpty, isMatch, set } from "lodash";
+import findIndex from "lodash/findIndex";
+import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
+import isMatch from "lodash/isMatch";
+import set from "lodash/set";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import {
   getAction,

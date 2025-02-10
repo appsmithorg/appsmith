@@ -21,7 +21,9 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { flattenDeep, omit, orderBy } from "lodash";
+import flattenDeep from "lodash/flattenDeep";
+import omit from "lodash/omit";
+import orderBy from "lodash/orderBy";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,

@@ -1,6 +1,6 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { klona } from "klona";
-import { get } from "lodash";
+import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";

@@ -4,7 +4,7 @@ import {
   Classes as BlueprintClasses,
 } from "@blueprintjs/core";
 import styled from "styled-components";
-import type { noop } from "lodash";
+import noop from "lodash/noop";
 import { Icon, Spinner } from "@appsmith/ads";
 import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";

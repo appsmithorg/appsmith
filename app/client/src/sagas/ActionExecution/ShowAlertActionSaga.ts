@@ -5,7 +5,7 @@ import type { ToastKind } from "@appsmith/ads";
 import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { call } from "redux-saga/effects";
 import showToast from "sagas/ToastSagas";
-import { uniqueId } from "lodash";
+import uniqueId from "lodash/uniqueId";
 import type { SourceEntity } from "entities/AppsmithConsole";
 
 export default function* showAlertSaga(

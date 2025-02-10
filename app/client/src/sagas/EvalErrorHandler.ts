@@ -13,7 +13,7 @@ import {
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { get } from "lodash";
+import get from "lodash/get";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";

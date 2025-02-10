@@ -18,7 +18,9 @@ import {
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { find, get, some } from "lodash";
+import find from "lodash/find";
+import get from "lodash/get";
+import some from "lodash/some";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "actions/ReduxActionTypes";

@@ -7,7 +7,7 @@ import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgets
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call, select } from "redux-saga/effects";
-import { get } from "lodash";
+import get from "lodash/get";
 import WidgetFactory from "WidgetProvider/factory";
 
 import type { WidgetType } from "constants/WidgetConstants";

@@ -3,7 +3,7 @@ import {
   showToastOnExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
-import { isEmpty } from "lodash";
+import isEmpty from "lodash/isEmpty";
 import type { TPostWindowMessageDescription } from "workers/Evaluation/fns/postWindowMessage";
 
 export function* postMessageSaga(action: TPostWindowMessageDescription) {
