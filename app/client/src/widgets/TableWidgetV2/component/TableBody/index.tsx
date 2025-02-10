@@ -1,6 +1,6 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { Ref } from "react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
@@ -12,6 +12,7 @@ import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
 import { EmptyRow, EmptyRows, Row } from "./Row";
+import _ from "lodash";
 
 export type BodyContextType = {
   accentColor: string;
@@ -79,11 +80,44 @@ interface BodyPropsType {
 const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
   const { height, rows, tableSizes } = props;
 
+  // Use a ref to store the accumulated data
+  const accumulatedDataRef = useRef<
+    ReactTableRowType<Record<string, unknown>>[]
+  >([]);
+
+  useEffect(() => {
+    if (!rows.length) return;
+
+    // Create a map of existing IDs for quick lookup
+    const existingIds = new Set(
+      accumulatedDataRef.current.map((row) => row.id),
+    );
+
+    // Filter out rows that already exist and add new unique rows
+    const newUniqueRows = rows.filter((row) => !existingIds.has(row.id));
+
+    if (newUniqueRows.length) {
+      // Combine existing and new rows, then sort by ID
+      const combinedRows = [...accumulatedDataRef.current, ...newUniqueRows];
+
+      // Sort the combined rows based on ID
+      // If IDs are numbers, sort numerically; if strings, sort alphabetically
+      const sortedRows = _.sortBy(combinedRows, (row) => {
+        return typeof row.id === "number"
+          ? row.id
+          : row.id.toString().toLowerCase();
+      });
+
+      // Update the accumulated data with sorted unique rows
+      accumulatedDataRef.current = sortedRows;
+    }
+  }, [rows]);
+
   return (
     <div>
       <Virtuoso
         components={{ Footer }}
-        data={rows}
+        data={accumulatedDataRef.current}
         endReached={() => props.loadMore()}
         itemContent={(index) => {
           if (index < rows.length) {
@@ -101,7 +135,13 @@ const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
               />
             );
           } else {
-            return <EmptyRow />;
+            return (
+              <EmptyRow
+                style={{
+                  width: `calc(100% + ${2 * WIDGET_PADDING}px)`,
+                }}
+              />
+            );
           }
         }}
         overscan={200}
@@ -110,6 +150,7 @@ const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
             height -
             tableSizes.TABLE_HEADER_HEIGHT -
             2 * tableSizes.VERTICAL_PADDING,
+          width: `calc(100% + ${2 * WIDGET_PADDING}px)`,
         }}
       />
     </div>

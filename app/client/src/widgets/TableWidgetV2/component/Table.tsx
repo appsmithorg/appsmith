@@ -446,7 +446,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={
-            props.isLoading
+            props.isLoading && !props.data.length
               ? Classes.SKELETON
               : shouldUseVirtual
                 ? "tableWrap virtual"
