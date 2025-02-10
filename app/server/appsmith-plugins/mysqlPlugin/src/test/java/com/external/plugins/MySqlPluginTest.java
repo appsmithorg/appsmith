@@ -76,7 +76,15 @@ import static reactor.core.publisher.Mono.zip;
 @Testcontainers
 public class MySqlPluginTest {
 
-    static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
+    static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
 
     ConnectionContext<ConnectionPool> instanceConnectionContext;
 
