@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -29,20 +29,20 @@ public class Migration055AddIsAtomicPushAllowedEnvVarToTenantConfiguration {
     @Execution
     public void executeMigration() throws IOException {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization defaultOrganization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         boolean isAtomicPushAllowed = false;
 
-        OrganizationConfiguration defaultTenantConfiguration = new OrganizationConfiguration();
-        if (defaultOrganization == null) {
+        TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
+        if (defaultTenant == null) {
             throw new IllegalStateException("Default tenant not found");
         }
-        if (Objects.nonNull(defaultOrganization.getOrganizationConfiguration())) {
-            defaultTenantConfiguration = defaultOrganization.getOrganizationConfiguration();
+        if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {
+            defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         }
         defaultTenantConfiguration.setIsAtomicPushAllowed(isAtomicPushAllowed);
-        defaultOrganization.setOrganizationConfiguration(defaultTenantConfiguration);
-        mongoTemplate.save(defaultOrganization);
+        defaultTenant.setTenantConfiguration(defaultTenantConfiguration);
+        mongoTemplate.save(defaultTenant);
     }
 }

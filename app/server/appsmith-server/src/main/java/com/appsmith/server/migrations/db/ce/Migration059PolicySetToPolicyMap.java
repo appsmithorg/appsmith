@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
@@ -88,13 +88,16 @@ public class Migration059PolicySetToPolicyMap {
 
         // Evict the default tenant from the cache to ensure that the updated tenant object is fetched from the database
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is(DEFAULT));
-        Organization defaultOrganization =
-                mongoTemplate.findOne(tenantQuery, Organization.class).block();
-        assert defaultOrganization != null : "Default tenant not found";
-        cacheableRepositoryHelper
-                .evictCachedOrganization(defaultOrganization.getId())
-                .block();
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class).block();
+        assert defaultTenant != null : "Default tenant not found";
+
+        // The following code line has been commented as part of Tenant to Organization migration. The function does not
+        // exist
+        // anymore and no need to evict the cached tenant anymore because Migration 065 would migrate the tenant to
+        // organization
+        // and a new cache line would be set for the organization.
+        //        cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
     }
 
     private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {

@@ -20,6 +20,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
@@ -151,20 +152,20 @@ public class DatabaseChangelog2 {
     public void addDefaultTenant(MongoTemplate mongoTemplate) {
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization organization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
-        // if organization already exists, don't create a new one.
-        if (organization != null) {
+        // if tenant already exists, don't create a new one.
+        if (tenant != null) {
             return;
         }
 
-        Organization defaultOrganization = new Organization();
-        defaultOrganization.setDisplayName("Default");
-        defaultOrganization.setSlug("default");
-        defaultOrganization.setPricingPlan(PricingPlan.FREE);
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Default");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
 
-        mongoTemplate.save(defaultOrganization);
+        mongoTemplate.save(defaultTenant);
     }
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
@@ -200,13 +201,13 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization organization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
                 .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(User.Fields.tenantId).is(organization.getId()));
+                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         if (anonymousUser == null) {
@@ -215,7 +216,7 @@ public class DatabaseChangelog2 {
             anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
             anonymousUser.setWorkspaceIds(new HashSet<>());
             anonymousUser.setIsAnonymous(true);
-            anonymousUser.setTenantId(organization.getId());
+            anonymousUser.setTenantId(tenant.getId());
 
             mongoTemplate.save(anonymousUser);
         }
@@ -307,13 +308,13 @@ public class DatabaseChangelog2 {
         publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization organization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
                 .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(User.Fields.tenantId).is(organization.getId()));
+                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         // Give access to anonymous user to the permission group.
@@ -472,9 +473,9 @@ public class DatabaseChangelog2 {
                 .include(PermissionGroup.Fields.assignedToUserIds);
         PermissionGroup instanceAdminPG = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization organization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        Query organizationQuery = new Query();
+        organizationQuery.addCriteria(where(Organization.Fields.slug).is("default"));
+        Organization organization = mongoTemplate.findOne(organizationQuery, Organization.class);
 
         Set<String> userIds = adminEmails.stream()
                 .map(email -> email.trim())
@@ -586,8 +587,8 @@ public class DatabaseChangelog2 {
     public void addTenantAdminPermissionsToInstanceAdmin(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Organization.Fields.slug).is("default"));
-        Organization defaultOrganization = mongoTemplate.findOne(tenantQuery, Organization.class);
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
@@ -614,7 +615,7 @@ public class DatabaseChangelog2 {
 
         // Now add admin permissions to the tenant
         Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
-                .map(permission -> new Permission(defaultOrganization.getId(), permission))
+                .map(permission -> new Permission(defaultTenant.getId(), permission))
                 .collect(Collectors.toSet());
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
         permissions.addAll(tenantPermissions);
@@ -623,11 +624,10 @@ public class DatabaseChangelog2 {
         mongoTemplate.save(instanceAdminPG);
 
         Map<String, Policy> tenantPolicy =
-                policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultOrganization.getId());
-        Organization updatedOrganization =
-                policySolution.addPoliciesToExistingObject(tenantPolicy, defaultOrganization);
-        updatedOrganization.setPolicies(updatedOrganization.getPolicies(), false);
-        mongoTemplate.save(updatedOrganization);
+                policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        updatedTenant.setPolicies(updatedTenant.getPolicies(), false);
+        mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
