@@ -25,7 +25,14 @@ import static com.appsmith.external.models.Connection.Mode.READ_WRITE;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MySQLDatasourceValidationTest {
-    static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
+    static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
 
     private DatasourceConfiguration getDatasourceConfigurationWithStandardConnectionMethod() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
