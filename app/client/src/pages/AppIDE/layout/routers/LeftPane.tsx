@@ -11,10 +11,10 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
-import AppSettingsPane from "../../../Editor/IDE/LeftPane/AppSettings";
-import DataSidePane from "../../../Editor/IDE/LeftPane/DataSidePane";
+import AppSettingsPane from "../../components/AppSettings";
+import { DataSidePane } from "pages/Editor/DataSidePane";
 import EditorPane from "../../../Editor/IDE/EditorPane";
-import LibrarySidePane from "ee/pages/Editor/IDE/LeftPane/LibrarySidePane";
+import LibrarySidePane from "ee/pages/AppIDE/components/LibrariesList/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { Flex } from "@appsmith/ads";

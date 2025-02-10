@@ -11,7 +11,7 @@ import history from "utils/history";
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { getSelectedDatasourceId } from "ee/navigation/FocusSelectors";
 import { get, keyBy } from "lodash";
-import CreateDatasourcePopover from "./CreateDatasourcePopover";
+import CreateDatasourceButton from "./CreateDatasourceButton";
 import { useLocation } from "react-router";
 import {
   createMessage,
@@ -19,7 +19,7 @@ import {
   DATASOURCE_BLANK_STATE_CTA,
   DATASOURCE_LIST_BLANK_DESCRIPTION,
 } from "ee/constants/messages";
-import PaneHeader from "./PaneHeader";
+import PaneHeader from "IDE/Components/PaneHeader";
 import { INTEGRATION_TABS } from "constants/routes";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -45,7 +45,7 @@ interface DataSidePaneProps {
   dsUsageMap: Record<string, string>;
 }
 
-const DataSidePane = (props: DataSidePaneProps) => {
+export const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageMap } = props;
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
@@ -99,7 +99,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
-            <CreateDatasourcePopover />
+            <CreateDatasourceButton />
           ) : undefined
         }
         title={createMessage(DATA_PANE_TITLE)}
@@ -143,5 +143,3 @@ const DataSidePane = (props: DataSidePaneProps) => {
     </Flex>
   );
 };
-
-export default DataSidePane;

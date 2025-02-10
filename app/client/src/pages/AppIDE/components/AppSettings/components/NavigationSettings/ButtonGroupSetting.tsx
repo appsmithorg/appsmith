@@ -8,7 +8,7 @@ import type {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import { logEvent } from "./utils";
-import type { UpdateSetting } from ".";
+import type { UpdateSetting } from "../../types";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   > .ads-v2-segmented-control__segments-container {

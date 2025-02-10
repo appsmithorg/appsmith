@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
-import DataSidePane from "./DataSidePane";
+import { DataSidePane } from "./DataSidePane";
 import { datasourceFactory } from "test/factories/DatasourceFactory";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PostgresFactory } from "test/factories/Actions/Postgres";

@@ -5,11 +5,13 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
-import GeneralSettings from "./GeneralSettings";
-import type { SectionHeaderProps } from "./SectionHeader";
-import SectionHeader from "./SectionHeader";
-import DraggablePageList from "./DraggablePageList";
-import PageSettings from "./PageSettings";
+import GeneralSettings from "./components/GeneralSettings";
+import {
+  SectionHeader,
+  type SectionHeaderProps,
+} from "IDE/Components/SectionHeader";
+import DraggablePageList from "./components/DraggablePageList";
+import PageSettings from "./components/PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
   APP_NAVIGATION_SETTING,
@@ -25,12 +27,12 @@ import {
   UPDATE_VIA_IMPORT_SETTING,
 } from "ee/constants/messages";
 import { Colors } from "constants/Colors";
-import EmbedSettings from "./EmbedSettings";
-import NavigationSettings from "./NavigationSettings";
+import EmbedSettings from "./components/EmbedSettings";
+import NavigationSettings from "./components/NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Divider } from "@appsmith/ads";
-import { ImportAppSettings } from "./ImportAppSettings";
+import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export enum AppSettingsTabs {

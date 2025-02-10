@@ -29,8 +29,8 @@ import {
 import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
-import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
+import TextLoaderIcon from "./TextLoaderIcon";
+import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../utils";
 import type { AppState } from "ee/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, toValidPageName } from "utils/helpers";

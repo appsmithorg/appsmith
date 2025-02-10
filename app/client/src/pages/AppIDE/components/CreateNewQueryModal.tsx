@@ -12,7 +12,7 @@ import { CREATE_A_NEW_ITEM, createMessage } from "ee/constants/messages";
 import { useGroupedAddQueryOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { getShowCreateNewModal } from "selectors/ideSelectors";
 import { setShowQueryCreateNewModal } from "actions/ideActions";
-import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
+import { DEFAULT_GROUP_LIST_SIZE } from "../constants";
 
 const CreateNewQueryModal: React.FC = () => {
   const dispatch = useDispatch();

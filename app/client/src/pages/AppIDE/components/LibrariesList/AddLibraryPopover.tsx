@@ -8,7 +8,7 @@ import {
 } from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import { Installer } from "../../Explorer/Libraries/Installer";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { clearInstalls } from "actions/JSLibraryActions";
 import { useDispatch } from "react-redux";
 

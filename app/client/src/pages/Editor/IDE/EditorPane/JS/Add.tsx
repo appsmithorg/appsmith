@@ -21,7 +21,7 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
+import { DEFAULT_GROUP_LIST_SIZE } from "../../../../AppIDE/constants";
 
 const AddJS = () => {
   const dispatch = useDispatch();

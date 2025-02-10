@@ -1,7 +1,7 @@
 import React from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { Switch } from "@appsmith/ads";
-import type { LogoConfigurationSwitches } from ".";
+import type { LogoConfigurationSwitches } from "../../types";
 import kebabCase from "lodash/kebabCase";
 
 const SwitchSettingForLogoConfiguration = (props: {

@@ -1,4 +1,4 @@
-import { Button, Popover, PopoverTrigger } from "@appsmith/ads";
+import { Button } from "@appsmith/ads";
 import React from "react";
 import history from "utils/history";
 import { builderURL } from "ee/RouteBuilder";
@@ -9,7 +9,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
-const CreateDatasourcePopover = () => {
+const CreateDatasourceButton = () => {
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
@@ -26,25 +26,21 @@ const CreateDatasourcePopover = () => {
   }
 
   return (
-    <Popover open={false}>
-      <PopoverTrigger>
-        <Button
-          className={"t--add-datasource-button"}
-          isIconButton
-          kind="tertiary"
-          onClick={() =>
-            history.push(
-              builderURL({
-                suffix: "datasources/NEW",
-              }),
-            )
-          }
-          size="sm"
-          startIcon="add-line"
-        />
-      </PopoverTrigger>
-    </Popover>
+    <Button
+      className={"t--add-datasource-button"}
+      isIconButton
+      kind="tertiary"
+      onClick={() =>
+        history.push(
+          builderURL({
+            suffix: "datasources/NEW",
+          }),
+        )
+      }
+      size="sm"
+      startIcon="add-line"
+    />
   );
 };
 
-export default CreateDatasourcePopover;
+export default CreateDatasourceButton;

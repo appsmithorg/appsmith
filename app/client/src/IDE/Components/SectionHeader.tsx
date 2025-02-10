@@ -37,7 +37,7 @@ const SubTitle = styled.div`
   color: var(--ads-v2-color-fg);
 `;
 
-class SectionHeader extends React.Component<SectionHeaderProps> {
+export class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
     return (
       <StyledWrapper
@@ -57,5 +57,3 @@ class SectionHeader extends React.Component<SectionHeaderProps> {
     );
   }
 }
-
-export default SectionHeader;

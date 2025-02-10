@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
+import { ImageInput } from "./ImageInput";
 import { Text } from "@appsmith/ads";
 import { createMessage, APP_NAVIGATION_SETTING } from "ee/constants/messages";
-import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
+import type { UpdateSetting } from "../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
+import { logoImageValidation } from "./utils";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,

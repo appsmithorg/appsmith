@@ -19,7 +19,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import TextLoaderIcon from "../Components/TextLoaderIcon";
+import TextLoaderIcon from "./TextLoaderIcon";
 
 const IconSelectorWrapper = styled.div`
   position: relative;

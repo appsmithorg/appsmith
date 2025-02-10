@@ -1,5 +1,5 @@
 import React from "react";
-import JSLibrariesSection from "pages/Editor/IDE/LeftPane/JSLibrariesSection";
+import JSLibrariesSection from "pages/AppIDE/components/LibrariesList/JSLibrariesSection";
 import { IDESidePaneWrapper } from "IDE";
 
 const LibrarySidePane = () => {

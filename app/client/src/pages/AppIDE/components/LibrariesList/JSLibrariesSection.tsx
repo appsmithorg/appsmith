@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 
-import PaneHeader from "pages/Editor/IDE/LeftPane/PaneHeader";
-import AddLibraryPopover from "pages/Editor/IDE/LeftPane/AddLibraryPopover";
+import PaneHeader from "IDE/Components/PaneHeader";
+import AddLibraryPopover from "./AddLibraryPopover";
 import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { animated, useTransition } from "react-spring";

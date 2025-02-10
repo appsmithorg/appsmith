@@ -5,7 +5,7 @@ import type {
 } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import { Switch } from "@appsmith/ads";
-import type { UpdateSetting } from ".";
+import type { UpdateSetting } from "../../types";
 import kebabCase from "lodash/kebabCase";
 import { logEvent } from "./utils";
 

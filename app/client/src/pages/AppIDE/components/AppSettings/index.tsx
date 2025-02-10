@@ -1,10 +1,11 @@
 import React from "react";
-import AppSettingsPane from "../../AppSettingsPane/AppSettings";
+import AppSettings from "./AppSettings";
 import EditorSettingsPaneContainer from "pages/Editor/commons/EditorSettingsPaneContainer";
+
 const SettingsPane = () => {
   return (
     <EditorSettingsPaneContainer title="App Settings">
-      <AppSettingsPane />
+      <AppSettings />
     </EditorSettingsPaneContainer>
   );
 };
