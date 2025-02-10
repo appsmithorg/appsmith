@@ -11,10 +11,10 @@ async function commitRequestOld(
   branchedApplicationId: string,
   params: CommitRequestParams,
 ): AxiosPromise<CommitResponse> {
-  return Api.post(
-    `${GIT_BASE_URL}/commit/app/${branchedApplicationId}`,
-    params,
-  );
+  return Api.post(`${GIT_BASE_URL}/commit/app/${branchedApplicationId}`, {
+    commitMessage: params.message,
+    doPush: params.doPush,
+  });
 }
 
 async function commitRequestNew(

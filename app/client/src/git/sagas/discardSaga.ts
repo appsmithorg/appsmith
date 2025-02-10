@@ -1,7 +1,6 @@
 import { toast } from "@appsmith/ads";
 import { captureException } from "@sentry/react";
 import { builderURL } from "ee/RouteBuilder";
-import { createMessage, DISCARD_SUCCESS } from "ee/constants/messages";
 import discardRequest from "git/requests/discardRequest";
 import type { DiscardResponse } from "git/requests/discardRequest.types";
 import type { DiscardInitPayload } from "git/store/actions/discardActions";
@@ -15,7 +14,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 export default function* discardSaga(
   action: GitArtifactPayloadAction<DiscardInitPayload>,
 ) {
-  const { artifactDef, artifactId } = action.payload;
+  const { artifactDef, artifactId, successMessage } = action.payload;
 
   let response: DiscardResponse | undefined;
 
@@ -34,9 +33,11 @@ export default function* discardSaga(
 
     if (response && isValidResponse) {
       yield put(gitArtifactActions.discardSuccess({ artifactDef }));
-      toast.show(createMessage(DISCARD_SUCCESS), {
-        kind: "success",
-      });
+
+      if (successMessage) {
+        toast.show(successMessage, { kind: "success" });
+      }
+
       // adding delay to show toast animation before reloading
       yield delay(500);
       const basePageId: string =

@@ -16,7 +16,7 @@ import {
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 

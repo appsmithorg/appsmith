@@ -19,7 +19,7 @@ import { createAddClassName } from "../utils";
 import { FocusEntity } from "navigation/FocusEntity";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import type { FlexProps } from "@appsmith/ads";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 

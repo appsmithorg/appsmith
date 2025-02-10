@@ -43,7 +43,7 @@ import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "ee/
 
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "ee/utils/permissionHelpers";
-import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,

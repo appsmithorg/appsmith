@@ -4,7 +4,7 @@ import { useEventCallback } from "usehooks-ts";
 
 import { EditableDismissibleTab } from "@appsmith/ads";
 
-import { type EntityItem } from "ee/entities/IDE/constants";
+import { type EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
 
