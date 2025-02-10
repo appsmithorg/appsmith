@@ -23,4 +23,4 @@ export const BottomButtons = (datasourcesExist: boolean) => [
   LibrariesButton("libraries"),
   SettingsButton("settings"),
 ];
-export const TopButtons = [EditorButton("editor")];
+export const TopButtons = [EditorButton("")];
