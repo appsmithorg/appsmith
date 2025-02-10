@@ -34,29 +34,9 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import type { RouteProps } from "react-router";
 import { useSelector } from "react-redux";
-import { lazy, Suspense } from "react";
-import React from "react";
-
-import { retryPromise } from "utils/AppsmithUtils";
-import Skeleton from "widgets/Skeleton";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import { FirstTimeUserOnboardingChecklist } from "pages/Editor/FirstTimeUserOnboarding/loader";
 
-const FirstTimeUserOnboardingChecklist = lazy(async () =>
-  retryPromise(
-    async () =>
-      import(
-        /* webpackChunkName: "FirstTimeUserOnboardingChecklist" */ "pages/Editor/FirstTimeUserOnboarding/Checklist"
-      ),
-  ),
-);
-
-export const LazilyLoadedFirstTimeUserOnboardingChecklist = () => {
-  return (
-    <Suspense fallback={<Skeleton />}>
-      <FirstTimeUserOnboardingChecklist />
-    </Suspense>
-  );
-};
 export interface RouteReturnType extends RouteProps {
   key: string;
 }
@@ -66,7 +46,7 @@ export interface RouteReturnType extends RouteProps {
  * signature; it might break the implementation in EE.
  */
 
-function useRoutes(path: string): RouteReturnType[] {
+function useMainPaneRoutes(path: string): RouteReturnType[] {
   const isPreviewMode = useSelector(selectCombinedPreviewMode);
 
   return [
@@ -140,4 +120,4 @@ function useRoutes(path: string): RouteReturnType[] {
   ];
 }
 
-export default useRoutes;
+export default useMainPaneRoutes;
