@@ -1327,7 +1327,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testNullObjectWithPreparedStatement() {
-        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor());
+        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig()));
         doReturn(false).when(pluginExecutor).isIsOperatorUsed(any());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
