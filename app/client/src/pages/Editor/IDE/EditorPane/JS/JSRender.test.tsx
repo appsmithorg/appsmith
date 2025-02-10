@@ -1,7 +1,7 @@
 import { render, waitFor } from "test/testUtils";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
-import IDE from "pages/Editor/IDE/index";
+import IDE from "../../../../AppIDE/layout";
 import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";

@@ -6,7 +6,7 @@ import configureStore from "redux-mock-store";
 import { BrowserRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import store from "store";
+import store from "../../../../store";
 import ProtectedCallout from "./ProtectedCallout";
 
 // TODO: Fix this the next time the file is edited
@@ -41,11 +41,11 @@ const getMockStore = (override: Record<string, any> = {}): any => {
   });
 };
 
-jest.mock("./MainPane", () => () => <div />);
-jest.mock("./LeftPane", () => () => <div />);
-jest.mock("./RightPane", () => () => <div />);
-jest.mock("./Sidebar", () => () => <div />);
-jest.mock("components/BottomBar", () => () => <div />);
+jest.mock("../../layout/routers/MainPane.tsx", () => () => <div />);
+jest.mock("../../layout/routers/LeftPane", () => () => <div />);
+jest.mock("../../layout/routers/RightPane", () => () => <div />);
+jest.mock("../../layout/routers/Sidebar", () => () => <div />);
+jest.mock("../../../../components/BottomBar", () => () => <div />);
 
 const dispatch = jest.fn();
 

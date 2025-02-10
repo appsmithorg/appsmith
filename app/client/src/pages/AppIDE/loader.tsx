@@ -1,13 +1,14 @@
 import React from "react";
+import type { RouteComponentProps } from "react-router";
+import { connect } from "react-redux";
+
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
-import { connect } from "react-redux";
 import type { InitEditorActionPayload } from "actions/initActions";
 import { initEditorAction } from "actions/initActions";
-import { getSearchQuery } from "../../utils/helpers";
-import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
-import { APP_MODE } from "../../entities/App";
-import type { RouteComponentProps } from "react-router";
+import { getSearchQuery } from "utils/helpers";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import { APP_MODE } from "entities/App";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 type Props = {
@@ -15,12 +16,11 @@ type Props = {
   clearCache: () => void;
 } & RouteComponentProps<{ basePageId: string }>;
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-class EditorLoader extends React.PureComponent<Props, { Page: any }> {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(props: any) {
+class AppIDELoader extends React.PureComponent<
+  Props,
+  { Page: React.ComponentType | null }
+> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -50,7 +50,7 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
   componentDidMount() {
     this.initialise();
     retryPromise(
-      async () => import(/* webpackChunkName: "editor" */ "./index"),
+      async () => import(/* webpackChunkName: "appIDE" */ "./AppIDE"),
     ).then((module) => {
       this.setState({ Page: module.default });
     });
@@ -68,16 +68,9 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
   }
 }
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    initEditor: (payload: InitEditorActionPayload) =>
-      dispatch(initEditorAction(payload)),
-    clearCache: () => {
-      dispatch({ type: ReduxActionTypes.CLEAR_CACHE });
-    },
-  };
+const mapDispatchToProps = {
+  initEditor: (payload: InitEditorActionPayload) => initEditorAction(payload),
+  clearCache: () => ({ type: ReduxActionTypes.CLEAR_CACHE }),
 };
 
-export default connect(null, mapDispatchToProps)(EditorLoader);
+export default connect(null, mapDispatchToProps)(AppIDELoader);

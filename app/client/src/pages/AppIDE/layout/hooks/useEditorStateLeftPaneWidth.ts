@@ -1,17 +1,20 @@
-import useWindowDimensions from "utils/hooks/useWindowDimensions";
+import useWindowDimensions from "../../../../utils/hooks/useWindowDimensions";
 import { useEffect, useState } from "react";
 import {
   APP_SIDEBAR_WIDTH,
   DEFAULT_EXPLORER_PANE_WIDTH,
   SPLIT_SCREEN_RATIO,
-} from "constants/AppConstants";
+} from "../../../../constants/AppConstants";
 import { useSelector } from "react-redux";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
-import { useCurrentEditorState } from "../../hooks";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
+import { getIDEViewMode } from "../../../../selectors/ideSelectors";
+import { getPropertyPaneWidth } from "../../../../selectors/propertyPaneSelectors";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "../../../../IDE/Interfaces/EditorTypes";
+import { useCurrentEditorState } from "../../../Editor/IDE/hooks";
+import { previewModeSelector } from "../../../../selectors/editorSelectors";
+import { useGitProtectedMode } from "../../../Editor/gitSync/hooks/modHooks";
 
 export const useEditorStateLeftPaneWidth = (): number => {
   const [windowWidth] = useWindowDimensions();

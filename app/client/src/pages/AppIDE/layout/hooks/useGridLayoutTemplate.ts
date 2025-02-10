@@ -1,22 +1,25 @@
 import React from "react";
-import type { AnimatedGridUnit } from "components/AnimatedGridLayout";
+import type { AnimatedGridUnit } from "../../../../components/AnimatedGridLayout";
 import { useSelector } from "react-redux";
-import useWindowDimensions from "utils/hooks/useWindowDimensions";
-import { useCurrentEditorState } from "../../hooks";
-import { useCurrentAppState } from "../../hooks/useCurrentAppState";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorState } from "IDE/enums";
-import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import useWindowDimensions from "../../../../utils/hooks/useWindowDimensions";
+import { useCurrentEditorState } from "../../../Editor/IDE/hooks";
+import { useCurrentAppState } from "../../../Editor/IDE/hooks/useCurrentAppState";
+import { getPropertyPaneWidth } from "../../../../selectors/propertyPaneSelectors";
+import { previewModeSelector } from "../../../../selectors/editorSelectors";
+import { getIDEViewMode } from "../../../../selectors/ideSelectors";
+import { EditorState } from "../../../../IDE/enums";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "../../../../IDE/Interfaces/EditorTypes";
 import {
   APP_SETTINGS_PANE_WIDTH,
   APP_SIDEBAR_WIDTH,
   APP_LIBRARIES_PANE_WIDTH,
-} from "constants/AppConstants";
+} from "../../../../constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
 import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
-import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
+import { useGitProtectedMode } from "../../../Editor/gitSync/hooks/modHooks";
 
 interface ReturnValue {
   areas: Area[][];

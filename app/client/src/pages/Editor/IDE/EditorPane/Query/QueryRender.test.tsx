@@ -1,7 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import { render } from "test/testUtils";
-import IDE from "pages/Editor/IDE/index";
+import IDE from "../../../../AppIDE/layout";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";

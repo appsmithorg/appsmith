@@ -26,7 +26,7 @@ const StyledCallout = styled(Callout)`
   overflow-y: hidden;
 `;
 
-function ProtectedCallout() {
+export function ProtectedCallout() {
   const dispatch = useDispatch();
   const isLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const currentBranch = useSelector(getCurrentGitBranch);
@@ -75,5 +75,3 @@ function ProtectedCallout() {
     </StyledCallout>
   );
 }
-
-export default ProtectedCallout;

@@ -28,7 +28,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import IDE from "../IDE";
+import IDE from "../../AppIDE/layout";
 import GlobalHotKeys from "./GlobalHotKeys";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

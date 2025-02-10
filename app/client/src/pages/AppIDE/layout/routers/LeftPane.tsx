@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
@@ -12,19 +11,13 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
-import AppSettingsPane from "./AppSettings";
-import DataSidePane from "./DataSidePane";
-import EditorPane from "../EditorPane";
+import AppSettingsPane from "../../../Editor/IDE/LeftPane/AppSettings";
+import DataSidePane from "../../../Editor/IDE/LeftPane/DataSidePane";
+import EditorPane from "../../../Editor/IDE/EditorPane";
 import LibrarySidePane from "ee/pages/Editor/IDE/LeftPane/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
-
-export const LeftPaneContainer = styled.div`
-  height: 100%;
-  border-right: 1px solid var(--ads-v2-color-border);
-  background: var(--ads-v2-color-bg);
-  overflow: hidden;
-`;
+import { Flex } from "@appsmith/ads";
 
 const LeftPane = () => {
   const { path } = useRouteMatch();
@@ -52,7 +45,12 @@ const LeftPane = () => {
   );
 
   return (
-    <LeftPaneContainer>
+    <Flex
+      backgroundColor="var(--ads-v2-color-bg)"
+      borderRight="1px solid var(--ads-v2-color-border)"
+      height="100%"
+      overflow="hidden"
+    >
       <Switch>
         <SentryRoute
           exact
@@ -73,7 +71,7 @@ const LeftPane = () => {
         />
         <SentryRoute component={EditorPane} />
       </Switch>
-    </LeftPaneContainer>
+    </Flex>
   );
 };
 

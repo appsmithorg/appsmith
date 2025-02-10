@@ -1,20 +1,21 @@
 import React from "react";
-
-import BottomBar from "components/BottomBar";
-import EditorWrapperContainer from "../../commons/EditorWrapperContainer";
-import Sidebar from "pages/Editor/IDE/Sidebar";
-import LeftPane from "../LeftPane";
-import MainPane from "../MainPane";
-import RightPane from "../RightPane";
-import ProtectedCallout from "../ProtectedCallout";
-import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import styled from "styled-components";
-import { Areas } from "./constants";
+
 import {
   useGitModEnabled,
   useGitProtectedMode,
 } from "pages/Editor/gitSync/hooks/modHooks";
 import { GitProtectedBranchCallout as GitProtectedBranchCalloutNew } from "git";
+import BottomBar from "components/BottomBar";
+import EditorWrapperContainer from "pages/Editor/commons/EditorWrapperContainer";
+
+import Sidebar from "./routers/Sidebar";
+import LeftPane from "./routers/LeftPane";
+import MainPane from "./routers/MainPane";
+import RightPane from "./routers/RightPane";
+import { ProtectedCallout } from "../components/ProtectedCallout";
+import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
+import { Areas } from "./constants";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();
