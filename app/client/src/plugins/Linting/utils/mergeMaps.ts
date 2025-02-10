@@ -1,4 +1,5 @@
-import { mergeWith, union } from "lodash";
+import mergeWith from "lodash/mergeWith";
+import union from "lodash/union";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export function mergeMaps(firstMap: DependencyMap, secondMap: DependencyMap) {

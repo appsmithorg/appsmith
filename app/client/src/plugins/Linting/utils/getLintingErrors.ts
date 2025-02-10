@@ -2,7 +2,10 @@ import type { Position } from "codemirror";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
-import { get, isEmpty, isNumber, keys } from "lodash";
+import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
+import isNumber from "lodash/isNumber";
+import keys from "lodash/keys";
 import type {
   MemberExpressionData,
   AssignmentExpressionData,
@@ -31,7 +34,7 @@ import type { getLintingErrorsProps } from "../types";
 import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import { last } from "lodash";
+import last from "lodash/last";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";

@@ -4,7 +4,8 @@ import {
   getEntityNameAndPropertyPath,
   isTrueObject,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { toPath, union } from "lodash";
+import toPath from "lodash/toPath";
+import union from "lodash/union";
 import { isDynamicEntity } from "ee/plugins/Linting/lib/entity/isDynamicEntity";
 import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 

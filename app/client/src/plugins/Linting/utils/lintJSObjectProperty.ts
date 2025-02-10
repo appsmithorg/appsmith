@@ -10,7 +10,7 @@ import type {
 import { globalData } from "../globalData";
 import getLintSeverity from "./getLintSeverity";
 import lintJSProperty from "./lintJSProperty";
-import { isEmpty } from "lodash";
+import isEmpty from "lodash/isEmpty";
 import type { WebworkerTelemetryAttribute } from "../types";
 
 export default function lintJSObjectProperty(

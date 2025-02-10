@@ -1,4 +1,7 @@
-import { get, intersection, isEmpty, uniq } from "lodash";
+import get from "lodash/get";
+import intersection from "lodash/intersection";
+import isEmpty from "lodash/isEmpty";
+import uniq from "lodash/uniq";
 import {
   convertPathToString,
   getAllPaths,

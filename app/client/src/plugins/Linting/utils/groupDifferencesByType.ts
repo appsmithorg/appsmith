@@ -5,7 +5,8 @@ import type {
   DiffEdit,
   DiffNew,
 } from "deep-diff";
-import { isEmpty, partition } from "lodash";
+import isEmpty from "lodash/isEmpty";
+import partition from "lodash/partition";
 
 export function groupDifferencesByType(differences: Diff<unknown>[]): {
   edits: DiffEdit<unknown, unknown>[];

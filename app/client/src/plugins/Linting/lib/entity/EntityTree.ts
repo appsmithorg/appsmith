@@ -18,7 +18,7 @@ import {
   DefaultDiffGenerator,
   JSLintDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
-import { union } from "lodash";
+import union from "lodash/union";
 
 export abstract class EntityTree {
   protected tree = new Map<string, IEntity>();
