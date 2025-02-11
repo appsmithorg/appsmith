@@ -42,9 +42,9 @@ export function useTheme(props: UseThemeProps = {}) {
   );
   const { typography } = useTypography(
     tokensConfigs.typography,
-    fontFamily,
     userDensity,
     userSizing,
+    fontFamily,
   );
   const { iconSize } = useIconSizing(tokensConfigs.icon.sizing, userSizing);
   const { strokeWidth } = useIconDensity(
