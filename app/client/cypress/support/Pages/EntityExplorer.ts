@@ -273,7 +273,8 @@ export class EntityExplorer {
         entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
-    cy.xpath(this.locator._entityNameEditing(entityName))
+    cy.xpath(this.locator._entityNameEditing())
+      .clear()
       .type(renameVal)
       .wait(500)
       .type("{enter}")

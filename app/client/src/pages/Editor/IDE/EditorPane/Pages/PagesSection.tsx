@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { ListItemContainer, ListWithHeader } from "@appsmith/ads";
+import { ListWithHeader } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
 
 import { selectAllPages } from "ee/selectors/entitiesSelector";
 import type { Page } from "entities/Page";
@@ -22,7 +21,6 @@ import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
-  const location = useLocation();
   const pages: Page[] = useSelector(selectAllPages);
   const applicationId = useSelector(getCurrentApplicationId);
   const userAppPermissions = useSelector(
@@ -56,11 +54,9 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const pageElements = useMemo(
     () =>
       pages.map((page) => (
-        <ListItemContainer key={page.pageId}>
-          <PageElement onClick={onItemSelected} page={page} />
-        </ListItemContainer>
+        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
       )),
-    [pages, location.pathname, onItemSelected],
+    [pages, onItemSelected],
   );
 
   const createPageContextMenu = useMemo(() => {

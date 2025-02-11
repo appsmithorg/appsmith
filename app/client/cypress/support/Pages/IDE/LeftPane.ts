@@ -12,6 +12,7 @@ export class LeftPane {
       `//span[contains(@class, 't--entity-name')][text()="${name}"]/ancestor::div//*[@data-testid="t--entity-collapse-toggle"]`,
     activeItemSelector: "",
     selector: "",
+    entityItem: (name: string) => `div[data-testid='t--entity-item-${name}']`,
   };
   public listView: ListView;
 
@@ -37,7 +38,7 @@ export class LeftPane {
 
   public assertPresence(name: string) {
     ObjectsRegistry.AggregateHelper.AssertElementLength(
-      this.listItemSelector(name),
+      this.locators.entityItem(name),
       1,
     );
   }

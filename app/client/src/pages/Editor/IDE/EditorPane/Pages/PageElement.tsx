@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -16,13 +16,14 @@ import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { AppState } from "ee/reducers";
-import { StyledEntity } from "pages/Editor/Explorer/Common/components";
-import { toValidPageName } from "utils/helpers";
 import { updatePageAction } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
+import { EntityItem } from "@appsmith/ads";
+import { useNameEditorState } from "../hooks/useNameEditorState";
+import { useValidateEntityName } from "IDE";
 
 const PageElement = ({
   onClick,
@@ -43,6 +44,12 @@ const PageElement = ({
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
 
+  const { editingEntity, enterEditMode, exitEditMode, updatingEntity } =
+    useNameEditorState();
+  const validateName = useValidateEntityName({
+    entityName: page.pageName,
+  });
+
   const icon = page.isDefault ? defaultPageIcon : pageIcon;
   const isCurrentPage = currentPageId === page.pageId;
   const pagePermissions = page.userPermissions;
@@ -56,34 +63,41 @@ const PageElement = ({
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
 
-  useEffect(() => {
-    if (ref.current && isCurrentPage) {
-      ref.current.scrollIntoView({
-        inline: "nearest",
-        block: "nearest",
-      });
-    }
-  }, [ref, isCurrentPage]);
-
-  const switchPage = useCallback(
-    (page: Page) => {
-      AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
-        name: page.pageName,
-        fromUrl: location.pathname,
-        type: "PAGES",
-        toUrl: navigateToUrl,
-      });
-      dispatch(toggleInOnboardingWidgetSelection(true));
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EntityExplorer,
-      });
-
-      if (onClick) {
-        onClick();
+  useEffect(
+    function scrollPageIntoView() {
+      if (ref.current && isCurrentPage) {
+        ref.current.scrollIntoView({
+          inline: "nearest",
+          block: "nearest",
+        });
       }
     },
-    [location.pathname, currentPageId, navigateToUrl],
+    [ref, isCurrentPage],
   );
+
+  const switchPage = useCallback(() => {
+    AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
+      name: page.pageName,
+      fromUrl: location.pathname,
+      type: "PAGES",
+      toUrl: navigateToUrl,
+    });
+    dispatch(toggleInOnboardingWidgetSelection(true));
+    history.push(navigateToUrl, {
+      invokedBy: NavigationMethod.EntityExplorer,
+    });
+
+    if (onClick) {
+      onClick();
+    }
+  }, [
+    location.pathname,
+    currentPageId,
+    navigateToUrl,
+    dispatch,
+    page.pageName,
+    onClick,
+  ]);
 
   const contextMenu = (
     <PageContextMenu
@@ -100,26 +114,46 @@ const PageElement = ({
     />
   );
 
+  const nameEditorConfig = useMemo(() => {
+    return {
+      canEdit: canManagePages,
+      isEditing: editingEntity === page.pageId,
+      isLoading: updatingEntity === page.pageId,
+      onEditComplete: exitEditMode,
+      onNameSave: (newName: string) =>
+        dispatch(
+          updatePageAction({
+            id: page.pageId,
+            name: newName,
+            isHidden: !!page.isHidden,
+          }),
+        ),
+      validateName: (newName: string) => validateName(newName, page.pageName),
+    };
+  }, [
+    canManagePages,
+    dispatch,
+    editingEntity,
+    exitEditMode,
+    page,
+    updatingEntity,
+    validateName,
+  ]);
+
   return (
-    <StyledEntity
-      action={() => switchPage(page)}
-      active={isCurrentPage}
-      canEditEntityName={canManagePages}
+    <EntityItem
       className={`page fullWidth ${isCurrentPage && "activePage"}`}
-      contextMenu={contextMenu}
-      disabled={page.isHidden}
-      entityId={page.pageId}
-      icon={icon}
-      isDefaultExpanded={isCurrentPage}
+      id={page.pageId}
+      isDisabled={page.isHidden}
+      isSelected={isCurrentPage}
       key={page.pageId}
-      name={page.pageName}
-      onNameEdit={toValidPageName}
-      ref={ref}
-      searchKeyword={""}
-      step={0}
-      updateEntityName={(id, name) =>
-        updatePageAction({ id, name, isHidden: !!page.isHidden })
-      }
+      nameEditorConfig={nameEditorConfig}
+      onClick={switchPage}
+      onDoubleClick={() => enterEditMode(page.pageId)}
+      rightControl={contextMenu}
+      rightControlVisibility="hover"
+      startIcon={icon}
+      title={page.pageName}
     />
   );
 };
