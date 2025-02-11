@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_DEFAULT_ORGANIZATION_SPAN;
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_ORGANIZATION_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -90,7 +90,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             String organizationId, OrganizationConfiguration organizationConfiguration) {
         Mono<Void> evictOrganizationCache = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
         return repository
-                .findById(organizationId, MANAGE_TENANT)
+                .findById(organizationId, MANAGE_ORGANIZATION)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
                 .flatMap(organization -> {
@@ -119,7 +119,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
-                            .updateById(organizationId, organization, MANAGE_TENANT)
+                            .updateById(organizationId, organization, MANAGE_ORGANIZATION)
                             .cache();
                     // Firstly updating the Organization object in the database and then evicting the cache.
                     // returning the updatedOrganization, notice the updatedOrganizationMono is cached using .cache()
