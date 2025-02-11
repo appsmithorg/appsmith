@@ -124,7 +124,7 @@
     "craco-alias": "^2.1.1",
     "craco-babel-loader": "^1.0.4",
     "cypress-log-to-output": "^1.1.2",
-    "cypress-repeat-pro": "^1.0.5",
+    "cypress-repeat-pro": "^1.0.6",
     "d3-geo": "^3.1.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.10.6",

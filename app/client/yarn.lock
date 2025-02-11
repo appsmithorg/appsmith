@@ -13272,7 +13272,7 @@ __metadata:
     cypress-network-idle: ^1.14.2
     cypress-plugin-tab: ^1.0.5
     cypress-real-events: ^1.8.1
-    cypress-repeat-pro: ^1.0.5
+    cypress-repeat-pro: ^1.0.6
     cypress-tags: ^1.1.2
     cypress-terminal-report: ^5.3.6
     cypress-wait-until: ^1.7.2
@@ -16571,9 +16571,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-repeat-pro@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "cypress-repeat-pro@npm:1.0.5"
+"cypress-repeat-pro@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "cypress-repeat-pro@npm:1.0.6"
   dependencies:
     "@cypress/grep": ^4.0.1
     arg: 5.0.2
@@ -16584,7 +16584,7 @@ __metadata:
     cypress: ">=5.3.0"
   bin:
     cypress-repeat-pro: index.js
-  checksum: f217b7c24a8e65a578ca477cbf26a455123d5b5e6972446e843de5a2d6b106cdb9a9af44a4b1803a2d77c8486fd46e1ebe631a2ece99e18e6971506f582d679b
+  checksum: 4207a798e6e70fde3cb55d0cf8944bd76817a940ae817d61b72e3624daf0d26212cda05c70a6b2e0caf137ad06df4623d3869a2288de4568cd4a1f58b2b77b81
   languageName: node
   linkType: hard
 

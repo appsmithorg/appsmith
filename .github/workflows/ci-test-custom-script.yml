@@ -373,14 +373,15 @@ jobs:
           NODE_ENV: development
         run: |
             cd app/client
+            ls -la
             if [[ -n "${{ inputs.spec }}" ]]; then
               npx cypress-repeat-pro run -n 3 --rerun-failed-only \
                 --spec "${{ inputs.spec }}" \
-                --config-file cypress_ci_custom.config.ts \
+                --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
             else
               npx cypress-repeat-pro run -n 3 --rerun-failed-only \
-                --config-file cypress_ci_custom.config.ts \
+                --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
             fi
             cat cy-repeat-summary.txt
