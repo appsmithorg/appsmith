@@ -19,8 +19,6 @@
     "start": "DISABLE_ESLINT_PLUGIN=true BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug node --max_old_space_size=4096 scripts/start.js",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
-    "build-local": "node --max-old-space-size=4096 scripts/build.js",
-    "build-staging": "REACT_APP_ENVIRONMENT=STAGING node --max-old-space-size=4096 scripts/build.js ",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION node scripts/start.js",

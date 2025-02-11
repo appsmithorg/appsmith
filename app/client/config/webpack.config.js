@@ -202,7 +202,7 @@ module.exports = function (webpackEnv) {
     target: ["browserslist"],
     // Webpack noise constrained to errors and warnings
     stats: "errors-warnings",
-    mode: isEnvProduction ? "production" : isEnvDevelopment && "development",
+    mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
     devtool: devtool,
@@ -846,52 +846,51 @@ module.exports = function (webpackEnv) {
           ],
         }),
       // TypeScript type checking
-      new ForkTsCheckerWebpackPlugin({
-        async: isEnvDevelopment,
-        typescript: {
-          typescriptPath: resolve.sync("typescript", {
-            basedir: paths.appNodeModules,
-          }),
-          configOverwrite: {
-            compilerOptions: {
-              sourceMap: isEnvProduction
-                ? shouldUseSourceMap
-                : isEnvDevelopment,
-              skipLibCheck: true,
-              inlineSourceMap: false,
-              declarationMap: false,
-              noEmit: true,
-              incremental: true,
-              tsBuildInfoFile: paths.appTsBuildInfoFile,
+      !isEnvDevelopment &&
+        new ForkTsCheckerWebpackPlugin({
+          async: isEnvDevelopment,
+          typescript: {
+            typescriptPath: resolve.sync("typescript", {
+              basedir: paths.appNodeModules,
+            }),
+            configOverwrite: {
+              compilerOptions: {
+                sourceMap: isEnvProduction ? shouldUseSourceMap : false,
+                skipLibCheck: true,
+                inlineSourceMap: false,
+                declarationMap: false,
+                noEmit: true,
+                incremental: true,
+                tsBuildInfoFile: paths.appTsBuildInfoFile,
+              },
             },
+            context: paths.appPath,
+            diagnosticOptions: {
+              syntactic: true,
+            },
+            mode: "write-references",
+            // profile: true,
           },
-          context: paths.appPath,
-          diagnosticOptions: {
-            syntactic: true,
+          issue: {
+            // This one is specifically to match during CI tests,
+            // as micromatch doesn't match
+            // '../cra-template-typescript/template/src/App.tsx'
+            // otherwise.
+            include: [
+              { file: "../**/src/**/*.{ts,tsx}" },
+              { file: "**/src/**/*.{ts,tsx}" },
+            ],
+            exclude: [
+              { file: "**/src/**/__tests__/**" },
+              { file: "**/src/**/?(*.){spec|test}.*" },
+              { file: "**/src/setupProxy.*" },
+              { file: "**/src/setupTests.*" },
+            ],
           },
-          mode: "write-references",
-          // profile: true,
-        },
-        issue: {
-          // This one is specifically to match during CI tests,
-          // as micromatch doesn't match
-          // '../cra-template-typescript/template/src/App.tsx'
-          // otherwise.
-          include: [
-            { file: "../**/src/**/*.{ts,tsx}" },
-            { file: "**/src/**/*.{ts,tsx}" },
-          ],
-          exclude: [
-            { file: "**/src/**/__tests__/**" },
-            { file: "**/src/**/?(*.){spec|test}.*" },
-            { file: "**/src/setupProxy.*" },
-            { file: "**/src/setupTests.*" },
-          ],
-        },
-        logger: {
-          infrastructure: "silent",
-        },
-      }),
+          logger: {
+            infrastructure: "silent",
+          },
+        }),
       !disableESLintPlugin &&
         new ESLintPlugin({
           // Plugin options
