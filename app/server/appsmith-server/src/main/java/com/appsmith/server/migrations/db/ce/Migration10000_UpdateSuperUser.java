@@ -105,5 +105,9 @@ public class Migration10000_UpdateSuperUser {
 
         Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
+
+        // Assign all super users to the default role
+        updateSuperUserMigrationHelper.assignAllSuperUsersToDefaultRole(
+                userIds, mongoTemplate, cacheableRepositoryHelper);
     }
 }

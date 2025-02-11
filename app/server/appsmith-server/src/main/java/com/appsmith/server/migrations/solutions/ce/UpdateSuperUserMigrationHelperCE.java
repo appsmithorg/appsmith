@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.PolicySolution;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -78,5 +79,10 @@ public class UpdateSuperUserMigrationHelperCE {
 
         PermissionGroup savedPermissionGroup = mongoTemplate.save(userManagementPermissionGroup);
         return savedPermissionGroup;
+    }
+
+    public void assignAllSuperUsersToDefaultRole(
+            Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        // Empty function in CE to override in EE
     }
 }
