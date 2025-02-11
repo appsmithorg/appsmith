@@ -45,7 +45,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     }
 
     return icon;
-  }, [isLoading, icon]);
+  }, [isLoading, icon, size]);
 
   const inputProps = useMemo(
     () => ({

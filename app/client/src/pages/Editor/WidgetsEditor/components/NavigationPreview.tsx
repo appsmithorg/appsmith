@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 /**

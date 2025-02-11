@@ -1,4 +1,4 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
 
 export const getJSEntityItemUrl = (

@@ -24,7 +24,7 @@ import {
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";

@@ -24,8 +24,8 @@ import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import { JSEntity } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {

@@ -10,7 +10,7 @@ import { JSEditorPane } from "./JS";
 import { QueryEditor } from "./Query";
 import EditorTabs from "../EditorTabs";
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
 
 const Container = styled(Flex)`

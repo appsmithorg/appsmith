@@ -105,7 +105,7 @@ export class ApiPage {
   public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public splitPaneContextMenuTrigger = ".entity-context-menu";
   public moreActionsTrigger = "[data-testid='t--more-action-trigger']";
-  private apiNameInput = ".editor-tab.active > .ads-v2-text input";
+  private apiNameInput = this.locator._activeEntityTabInput;
   public pageList = ".ads-v2-sub-menu > .ads-v2-menu__menu-item";
 
   CreateApi(
