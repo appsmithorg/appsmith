@@ -114,6 +114,7 @@ export interface DropDownControlProps extends ControlProps {
   options: SelectOptionProps[];
   optionGroupConfig?: Record<string, DropDownGroupedOptionsInterface>;
   optionWidth?: string;
+  maxTagCount?: number;
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
@@ -415,6 +416,7 @@ function renderDropdown(
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={isMultiSelect}
+      maxTagCount={props.maxTagCount}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onPopupScroll={handlePopupScroll}
@@ -446,6 +448,7 @@ function renderOptionWithIcon(option: SelectOptionProps) {
       disabled={option.disabled}
       isDisabled={option.isDisabled}
       key={option.value}
+      label={option.label}
       value={option.value}
     >
       {option.icon && <Icon color={option.color} name={option.icon} />}
