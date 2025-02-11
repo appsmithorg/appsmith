@@ -11,7 +11,7 @@ import { getDatasources } from "ee/selectors/entitiesSelector";
 import {
   BottomButtons,
   TopButtons,
-} from "ee/pages/Editor/IDE/constants/SidebarButtons";
+} from "ee/pages/AppIDE/constants/SidebarButtons";
 
 function Sidebar() {
   const dispatch = useDispatch();
