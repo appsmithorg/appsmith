@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,6 +31,7 @@ import { useBoolean } from "usehooks-ts";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(

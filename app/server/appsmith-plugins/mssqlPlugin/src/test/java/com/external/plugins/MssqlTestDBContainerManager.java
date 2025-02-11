@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -8,6 +9,7 @@ import com.external.plugins.utils.MssqlDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
+import reactor.core.publisher.Mono;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,7 +20,15 @@ import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostEx
 
 public class MssqlTestDBContainerManager {
 
-    static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
+    static MssqlPlugin.MssqlPluginExecutor mssqlPluginExecutor =
+            new MssqlPlugin.MssqlPluginExecutor(new MockConnectionPoolConfig());
 
     public static MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 

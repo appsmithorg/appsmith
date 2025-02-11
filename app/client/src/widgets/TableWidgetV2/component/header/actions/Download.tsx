@@ -91,10 +91,6 @@ const dowloadOptions: DownloadOptionProps[] = [
     label: "Download as CSV",
     value: "CSV",
   },
-  {
-    label: "Download as Excel",
-    value: "EXCEL",
-  },
 ];
 
 const downloadDataAsCSV = (props: {

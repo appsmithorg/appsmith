@@ -5,6 +5,7 @@ import {
   AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   COMMIT_CHANGES,
   createMessage,
+  DISCARD_AND_PULL_SUCCESS,
   GIT_SETTINGS,
   MERGE,
 } from "ee/constants/messages";
@@ -27,7 +28,7 @@ const Container = styled.div`
 
 interface QuickActionsViewProps {
   currentBranch: string | null;
-  discard: () => void;
+  discard: (successMessage: string) => void;
   isAutocommitEnabled: boolean;
   isAutocommitPolling: boolean;
   isBranchPopupOpen: boolean;
@@ -105,7 +106,7 @@ function QuickActionsView({
       });
 
       if (isProtectedMode) {
-        discard();
+        discard(createMessage(DISCARD_AND_PULL_SUCCESS));
       } else {
         pull();
       }

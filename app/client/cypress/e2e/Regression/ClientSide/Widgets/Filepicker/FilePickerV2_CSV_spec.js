@@ -29,7 +29,7 @@ describe(
       );
 
       agHelper.AssertText(
-        commonlocators.filePickerDataFormat,
+        `${commonlocators.filePickerDataFormat} .rc-select-selection-item .ads-v2-text`,
         "text",
         "Array of Objects (CSV, XLS(X), JSON, TSV)",
       );

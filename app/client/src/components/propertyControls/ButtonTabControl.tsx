@@ -3,7 +3,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ToggleGroupOption } from "@appsmith/ads";
 import { ToggleButtonGroup } from "@appsmith/ads";
-import produce from "immer";
+import { create } from "mutative";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -62,7 +62,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
         isUpdatedViaKeyboard,
       );
     } else {
-      const updatedValues: string[] = produce(values, (draft: string[]) => {
+      const updatedValues: string[] = create(values, (draft: string[]) => {
         draft.push(value);
       });
 

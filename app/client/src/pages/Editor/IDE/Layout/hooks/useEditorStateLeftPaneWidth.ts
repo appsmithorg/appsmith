@@ -8,7 +8,7 @@ import {
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { useCurrentEditorState } from "../../hooks";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";

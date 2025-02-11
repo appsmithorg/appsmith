@@ -33,7 +33,9 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.tracing.Span;
@@ -648,6 +650,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     @NotNull public String computeConsolidatedAPIResponseEtag(
             ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId) {
         if (isBlank(defaultPageId) && isBlank(applicationId)) {
+            log.debug(
+                    "Skipping etag computation: Both defaultPageId '{}', and applicationId '{}' are blank",
+                    defaultPageId,
+                    applicationId);
             return "";
         }
 
@@ -664,6 +670,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     : null;
 
             if (lastDeployedAt == null) {
+                log.debug(
+                        "Skipping etag computation: lastDeployedAt is null for applicationId '{}', pageId '{}'",
+                        applicationId,
+                        defaultPageId);
                 return "";
             }
 
@@ -684,6 +694,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     "lastDeployedAt", lastDeployedAt);
 
             ObjectMapper objectMapper = new ObjectMapper();
+            // For deterministic map key ordering.
+            objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+            // For deterministic ordering of bean properties.
+            objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
             objectMapper.registerModule(new JavaTimeModule());
 
             String consolidateAPISignatureJSON = objectMapper.writeValueAsString(consolidateAPISignature);

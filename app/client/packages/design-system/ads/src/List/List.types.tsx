@@ -36,6 +36,8 @@ export interface ListItemProps {
   id?: string;
   /** customTitleComponent for the list item to use input component for name editing */
   customTitleComponent?: ReactNode | ReactNode[];
+  /** dataTestId which will be used in automated tests */
+  dataTestId?: string;
 }
 
 export interface ListProps {

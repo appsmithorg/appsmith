@@ -1,6 +1,5 @@
 package com.appsmith.server.git;
 
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -437,7 +436,7 @@ public class GitBranchesITWithCentralService {
         // Delete foo locally and re-populate from remote
         List<String> branchList = centralGitService.listBranchForArtifact(artifactId, artifactType, false, GitType.FILE_SYSTEM)
             .flatMapMany(Flux::fromIterable)
-            .map(GitBranchDTO::getBranchName)
+            .map(GitRefDTO::getRefName)
             .collectList()
             .block();
         assertThat(branchList).containsExactlyInAnyOrder(
@@ -448,7 +447,7 @@ public class GitBranchesITWithCentralService {
             barMetadata.getRefName(),
             "origin/" + barMetadata.getRefName());
 
-        Mono<? extends Artifact> deleteBranchAttemptMono = centralGitService.deleteGitReference(artifactId, artifactType, gitRefDTO, GitType.FILE_SYSTEM);
+        Mono<? extends Artifact> deleteBranchAttemptMono = centralGitService.deleteGitReference(artifactId, artifactType, gitRefDTO.getRefName(), gitRefDTO.getRefType(), GitType.FILE_SYSTEM);
         StepVerifier
             .create(deleteBranchAttemptMono)
             .expectErrorSatisfies(e -> assertThat(e.getMessage()).contains("Cannot delete current checked out branch"))
@@ -461,14 +460,11 @@ public class GitBranchesITWithCentralService {
             git.checkout().setName("bar").call();
         }
 
-        GitRefDTO deleteFooDTO = new GitRefDTO();
-        deleteFooDTO.setRefType(RefType.branch);
-        deleteFooDTO.setRefName("foo");
-        centralGitService.deleteGitReference(artifactId, artifactType, deleteFooDTO, GitType.FILE_SYSTEM).block();
+        centralGitService.deleteGitReference(artifactId, artifactType, "foo", RefType.branch, GitType.FILE_SYSTEM).block();
 
         List<String> branchList2 = centralGitService.listBranchForArtifact(artifactId, artifactType, false, GitType.FILE_SYSTEM)
             .flatMapMany(Flux::fromIterable)
-            .map(GitBranchDTO::getBranchName)
+            .map(GitRefDTO::getRefName)
             .collectList()
             .block();
         assertThat(branchList2).containsExactlyInAnyOrder(
@@ -486,7 +482,7 @@ public class GitBranchesITWithCentralService {
         assertThat(checkedOutFooArtifact).isNotNull();
         List<String> branchList3 = centralGitService.listBranchForArtifact(artifactId, artifactType, false, GitType.FILE_SYSTEM)
             .flatMapMany(Flux::fromIterable)
-            .map(GitBranchDTO::getBranchName)
+            .map(GitRefDTO::getRefName)
             .collectList()
             .block();
         assertThat(branchList3).containsExactlyInAnyOrder(

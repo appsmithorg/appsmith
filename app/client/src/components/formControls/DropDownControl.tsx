@@ -29,17 +29,24 @@ import type {
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 
-/* -------------------------------------------------------------------------
-   1) Memoized Grouping Logic
-   ------------------------------------------------------------------------- */
+/**
+ * Interface for grouped dropdown options with label and children
+ * @interface DropDownGroupedOptionsInterface
+ * @property {string} label - Display label for the option group
+ * @property {SelectOptionProps[]} children - Array of options within this group
+ */
 export interface DropDownGroupedOptionsInterface {
   label: string;
   children: SelectOptionProps[];
 }
 
 /**
- * Distribute the given options into labeled groups if an `optionGroupConfig`
- * is provided; otherwise return null to indicate "no grouping."
+ * Groups dropdown options based on provided configuration
+ * The grouping is only done if the optionGroupConfig is provided
+ * The default group is "others" if not provided
+ * @param {SelectOptionProps[]} options - Array of options to be grouped
+ * @param {Record<string, DropDownGroupedOptionsInterface>} [optionGroupConfig] - Configuration for grouping options
+ * @returns {DropDownGroupedOptionsInterface[] | null} Grouped options array or null if no grouping needed
  */
 function buildGroupedOptions(
   options: SelectOptionProps[],
@@ -53,23 +60,23 @@ function buildGroupedOptions(
     children: [],
   };
 
-  // 1) Copy group config so we don’t mutate the original
+  // Copy group config so we don't mutate the original
   const groupMap = { ...optionGroupConfig };
 
-  // 2) Re-initialize every group's children to an empty array
+  // Re-initialize every group's children to an empty array
   objectKeys(groupMap).forEach((key) => {
     groupMap[key] = { ...groupMap[key], children: [] };
   });
 
-  // 3) Ensure we have an "others" group
+  // Ensure we have an "others" group
   if (!Object.hasOwn(groupMap, defaultGroupKey)) {
     groupMap[defaultGroupKey] = { ...defaultGroupConfig };
   } else {
-    // Also re-init "others" if it already existed
+    // Re-initialize "others" group's children to an empty array
     groupMap[defaultGroupKey] = { ...groupMap[defaultGroupKey], children: [] };
   }
 
-  // 4) Distribute each option to the correct group
+  // Distribute each option to the correct group
   options.forEach((opt) => {
     const groupKey =
       Object.hasOwn(opt, "optionGroupType") && opt.optionGroupType
@@ -86,7 +93,7 @@ function buildGroupedOptions(
     groupMap[groupKey].children.push(opt);
   });
 
-  // 5) Return only groups that actually have children
+  // Return only groups that actually have children
   const grouped: DropDownGroupedOptionsInterface[] = [];
 
   objectKeys(groupMap).forEach((key) => {
@@ -98,12 +105,11 @@ function buildGroupedOptions(
   return grouped;
 }
 
-// Wrap with `memoizeOne`
+/**
+ * Memoized version of buildGroupedOptions for performance
+ */
 const memoizedBuildGroupedOptions = memoizeOne(buildGroupedOptions);
 
-/* -------------------------------------------------------------------------
-   2) Main DropDownControl
-   ------------------------------------------------------------------------- */
 export interface DropDownControlProps extends ControlProps {
   options: SelectOptionProps[];
   optionGroupConfig?: Record<string, DropDownGroupedOptionsInterface>;
@@ -132,18 +138,28 @@ interface ReduxDispatchProps {
   updateConfigPropertyValue: (
     formName: string,
     field: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
+    value: unknown,
   ) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fetchFormTriggerNextPage: (paginationPayload?: any) => void;
+  fetchFormTriggerNextPage: (paginationPayload: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  }) => void;
 }
 
 type Props = DropDownControlProps & ReduxDispatchProps;
 
+/**
+ * Main dropdown control component supporting single/multi select functionality
+ * @class DropDownControl
+ * @extends {BaseControl<Props>}
+ */
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
-    // 1) If dependencies changed in multi-select, reset values
+    // If dependencies changed in multi-select, reset values
     if (this.props.fetchOptionsConditionally && this.props.isMultiSelect) {
       const dependencies = matchExact(
         MATCH_ACTION_CONFIG_PROPERTY,
@@ -169,7 +185,7 @@ class DropDownControl extends BaseControl<Props> {
       }
     }
 
-    // 2) Clear entity type if the command changed
+    // Clear entity type if the command changed
     if (this.props.configProperty === FormDataPaths.ENTITY_TYPE) {
       const prevCommandValue = get(prevProps.formValues, FormDataPaths.COMMAND);
       const currCommandValue = get(
@@ -184,12 +200,6 @@ class DropDownControl extends BaseControl<Props> {
           "",
         );
       }
-    }
-
-    // 3) Detect if options length has changed (an example usage)
-    if (prevProps.options.length !== this.props.options.length) {
-      // e.g. console.log("Options array length changed from", prevProps.options.length, "to", this.props.options.length);
-      // Potentially do more logic if needed
     }
   }
 
@@ -222,9 +232,11 @@ class DropDownControl extends BaseControl<Props> {
   }
 }
 
-/* -------------------------------------------------------------------------
-   3) The render function passed to <Field />
-   ------------------------------------------------------------------------- */
+/**
+ * Renders the dropdown field component
+ * @param {Object} props - Component props
+ * @returns {JSX.Element} Rendered dropdown component
+ */
 function renderDropdown(
   props: {
     input?: {
@@ -319,10 +331,13 @@ function renderDropdown(
     }
   }
 
-  /* ---------------------------------------------------
-     Handlers for onSelect, onDeselect, onClear, onScroll
-     --------------------------------------------------- */
-  const onSelectOptions = (value: string | undefined) => {
+  /**
+   * Handles the selection of options
+   * If multi select is enabled, we need to add the value to the current array
+   * If multi select is not enabled, we just set the value
+   * @param {string | undefined} value - The selected value
+   */
+  function onSelectOptions(value: string | undefined) {
     if (isNil(value)) return;
 
     if (!isMultiSelect) {
@@ -336,9 +351,15 @@ function renderDropdown(
     if (!currentArray.includes(value)) currentArray.push(value);
 
     input?.onChange(currentArray);
-  };
+  }
 
-  const onRemoveOptions = (value: string | undefined) => {
+  /**
+   * Handles the removal of options
+   * If multi select is enabled, we need to remove the value from the current array
+   * If multi select is not enabled, we just set the value to an empty string
+   * @param {string | undefined} value - The value to remove
+   */
+  function onRemoveOptions(value: string | undefined) {
     if (isNil(value)) return;
 
     if (!isMultiSelect) {
@@ -351,9 +372,14 @@ function renderDropdown(
     const filtered = currentArray.filter((v) => v !== value);
 
     input?.onChange(filtered);
-  };
+  }
 
-  const clearAllOptions = () => {
+  /**
+   * Clears all options
+   * If multi select is enabled, we need to set the value to an empty array
+   * If multi select is not enabled, we just set the value to an empty string
+   */
+  function clearAllOptions() {
     if (isNil(selectedValue)) return;
 
     if (isMultiSelect) {
@@ -361,9 +387,14 @@ function renderDropdown(
     } else {
       input?.onChange("");
     }
-  };
+  }
 
-  const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  /**
+   * Subscribes to the scroll event of the popup and notifies when end of scroll is reached
+   * If pagination is needed and there is a payload, we need to fetch the next page on end of scroll
+   * @param {React.UIEvent<HTMLDivElement>} e - The event object
+   */
+  function handlePopupScroll(e: React.UIEvent<HTMLDivElement>) {
     if (!props.nextPageNeeded || !props.paginationPayload) return;
 
     const target = e.currentTarget;
@@ -371,7 +402,7 @@ function renderDropdown(
     if (target.scrollHeight - target.scrollTop === target.clientHeight) {
       props.fetchFormTriggerNextPage(props.paginationPayload);
     }
-  };
+  }
 
   /* ---------------------------------------------------
      Rendering the final <Select />
@@ -403,9 +434,11 @@ function renderDropdown(
   );
 }
 
-/* -------------------------------------------------------------------------
-   4) Rendering option with icon
-   ------------------------------------------------------------------------- */
+/**
+ * Renders a single option with optional icon
+ * @param {SelectOptionProps} option - Option configuration
+ * @returns {JSX.Element} Rendered option component
+ */
 function renderOptionWithIcon(option: SelectOptionProps) {
   return (
     <Option
@@ -421,9 +454,6 @@ function renderOptionWithIcon(option: SelectOptionProps) {
   );
 }
 
-/* -------------------------------------------------------------------------
-   5) Redux Connections
-   ------------------------------------------------------------------------- */
 const mapStateToProps = (
   state: AppState,
   ownProps: DropDownControlProps,
@@ -522,7 +552,14 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },
-  fetchFormTriggerNextPage: (paginationPayload) => {
+  fetchFormTriggerNextPage: (paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  }) => {
     dispatch(fetchFormDynamicValNextPage(paginationPayload));
   },
 });

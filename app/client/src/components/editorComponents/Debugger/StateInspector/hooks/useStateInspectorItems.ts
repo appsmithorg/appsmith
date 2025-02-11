@@ -6,95 +6,54 @@ import { useGetJSItemsForStateInspector } from "./useGetJSItemsForStateInspector
 import { useGetUIItemsForStateInspector } from "./useGetUIItemsForStateInspector";
 import type { GroupedItems } from "../types";
 import { enhanceItemForListItem } from "../utils";
-import type { GenericEntityItem } from "ee/entities/IDE/constants";
-import { filterInternalProperties } from "utils/FilterInternalProperties";
-import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
-import { getJSCollections } from "ee/selectors/entitiesSelector";
-import { useSelector } from "react-redux";
+import type { GenericEntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 export const useStateInspectorItems: () => [
   GenericEntityItem | undefined,
   GroupedItems[],
-  unknown,
 ] = () => {
-  const [selectedItem, setSelectedItem] = useStateInspectorState();
+  const [selectedItemId, setSelectedItem] = useStateInspectorState();
 
   const queries = useGetQueryItemsForStateInspector();
   const jsItems = useGetJSItemsForStateInspector();
   const uiItems = useGetUIItemsForStateInspector();
   const globalItems = useGetGlobalItemsForStateInspector();
 
-  const groups = useMemo(() => {
-    const returnValue: GroupedItems[] = [];
+  const [groups, selectedItem] = useMemo(() => {
+    const allGroups = [queries, jsItems, uiItems, globalItems];
 
-    if (queries.items.length) {
-      returnValue.push({
-        ...queries,
-        items: queries.items.map((query) =>
-          enhanceItemForListItem(query, selectedItem, setSelectedItem),
+    const processedGroups = allGroups
+      .filter((groupedItems) => groupedItems.items.length > 0)
+      .map((groupedItems) => ({
+        group: groupedItems.group,
+        items: groupedItems.items.map((item) =>
+          enhanceItemForListItem(item, selectedItemId, setSelectedItem),
         ),
-      });
-    }
+      }));
 
-    if (jsItems.items.length) {
-      returnValue.push({
-        ...jsItems,
-        items: jsItems.items.map((jsItem) =>
-          enhanceItemForListItem(jsItem, selectedItem, setSelectedItem),
-        ),
-      });
-    }
+    const selectedItemFromGroups = processedGroups
+      .flatMap((group) => group.items)
+      .find((item) => item.id === selectedItemId);
 
-    if (uiItems.items.length) {
-      returnValue.push({
-        ...uiItems,
-        items: uiItems.items.map((uiItem) =>
-          enhanceItemForListItem(uiItem, selectedItem, setSelectedItem),
-        ),
-      });
-    }
+    const selectedItem: GenericEntityItem | undefined = {
+      key: selectedItemFromGroups?.id || "",
+      title: selectedItemFromGroups?.title || "",
+      icon: selectedItemFromGroups?.startIcon,
+    };
 
-    if (globalItems.items.length) {
-      returnValue.push({
-        ...globalItems,
-        items: globalItems.items.map((globalItem) =>
-          enhanceItemForListItem(globalItem, selectedItem, setSelectedItem),
-        ),
-      });
-    }
-
-    return returnValue;
-  }, [globalItems, jsItems, queries, selectedItem, setSelectedItem, uiItems]);
-
-  const dataTree = useSelector(getDataTree);
-  const configTree = useSelector(getConfigTree);
-  const jsActions = useSelector(getJSCollections);
-  let filteredData: unknown = "";
-
-  if (selectedItem && selectedItem.title in dataTree) {
-    filteredData = filterInternalProperties(
-      selectedItem.title,
-      dataTree[selectedItem.title],
-      jsActions,
-      dataTree,
-      configTree,
-    );
-  }
+    return [processedGroups, selectedItem];
+  }, [globalItems, jsItems, queries, selectedItemId, setSelectedItem, uiItems]);
 
   useEffect(
     function handleNoItemSelected() {
-      if (!selectedItem || !(selectedItem.title in dataTree)) {
+      if (!selectedItemId) {
         const firstItem = groups[0].items[0];
 
-        setSelectedItem({
-          key: firstItem.id as string,
-          icon: firstItem.startIcon,
-          title: firstItem.title,
-        });
+        setSelectedItem(firstItem.id as string);
       }
     },
-    [dataTree, groups, selectedItem, setSelectedItem],
+    [groups, selectedItemId, setSelectedItem],
   );
 
-  return [selectedItem, groups, filteredData];
+  return [selectedItem, groups];
 };

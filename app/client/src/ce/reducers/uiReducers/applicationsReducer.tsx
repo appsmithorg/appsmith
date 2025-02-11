@@ -22,7 +22,7 @@ import {
   defaultNavigationSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
-import produce from "immer";
+import { create } from "mutative";
 import { isEmpty } from "lodash";
 import type { ApplicationPayload } from "entities/Application";
 import { gitConnectSuccess, type GitConnectSuccessPayload } from "git";
@@ -530,7 +530,7 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<NavigationSetting["logoAssetId"]>,
   ) => {
-    return produce(state, (draftState: ApplicationsReduxState) => {
+    return create(state, (draftState: ApplicationsReduxState) => {
       draftState.isUploadingNavigationLogo = false;
 
       if (

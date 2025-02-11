@@ -8,7 +8,7 @@ import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Plugin";
 import "@testing-library/jest-dom/extend-expect";
