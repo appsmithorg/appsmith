@@ -8,6 +8,7 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@FieldNameConstants
 public class TenantConfigurationCE implements Serializable {
 
     private String googleMapsKey;
@@ -86,4 +88,6 @@ public class TenantConfigurationCE implements Serializable {
     public Boolean isEmailVerificationEnabled() {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
     }
+
+    public static class Fields {}
 }

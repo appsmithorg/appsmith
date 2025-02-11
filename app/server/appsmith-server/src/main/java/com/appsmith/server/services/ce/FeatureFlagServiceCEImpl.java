@@ -38,7 +38,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
-    private CachedFeatures cachedTenantFeatureFlags;
+    private Map<String, CachedFeatures> cachedTenantFeatureFlags = new HashMap<>();
 
     /**
      * This function checks if the feature is enabled for the current user. In case the user object is not present,
@@ -116,39 +116,36 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     /**
      * To get all features of the tenant from Cloud Services and store them locally
-     * @return Mono of Void
+     * @return Mono updated tenant
      */
-    public Mono<Void> getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations() {
-        return tenantService
-                .getDefaultTenant()
-                .flatMap(defaultTenant ->
-                        // 1. Fetch current/saved feature flags from cache
-                        // 2. Force update the tenant flags keeping existing flags as fallback in case the API
-                        //    call to fetch the flags fails for some reason
-                        // 3. Get the diff and update the flags with pending migrations to be used to run
-                        //    migrations selectively
-                        featureFlagMigrationHelper
-                                .getUpdatedFlagsWithPendingMigration(defaultTenant)
-                                .flatMap(featureFlagWithPendingMigrations -> {
-                                    TenantConfiguration tenantConfig = defaultTenant.getTenantConfiguration() == null
-                                            ? new TenantConfiguration()
-                                            : defaultTenant.getTenantConfiguration();
-                                    // We expect the featureFlagWithPendingMigrations to be empty hence
-                                    // verifying only for null
-                                    if (featureFlagWithPendingMigrations != null
-                                            && !featureFlagWithPendingMigrations.equals(
-                                                    tenantConfig.getFeaturesWithPendingMigration())) {
-                                        tenantConfig.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
-                                        if (!featureFlagWithPendingMigrations.isEmpty()) {
-                                            tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
-                                        } else {
-                                            tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
-                                        }
-                                        return tenantService.update(defaultTenant.getId(), defaultTenant);
-                                    }
-                                    return Mono.just(defaultTenant);
-                                }))
-                .then();
+    @Override
+    public Mono<Tenant> getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations(Tenant tenant) {
+        // 1. Fetch current/saved feature flags from cache
+        // 2. Force update the tenant flags keeping existing flags as fallback in case the API
+        //    call to fetch the flags fails for some reason
+        // 3. Get the diff and update the flags with pending migrations to be used to run
+        //    migrations selectively
+        return featureFlagMigrationHelper
+                .getUpdatedFlagsWithPendingMigration(tenant)
+                .flatMap(featureFlagWithPendingMigrations -> {
+                    TenantConfiguration tenantConfig = tenant.getTenantConfiguration() == null
+                            ? new TenantConfiguration()
+                            : tenant.getTenantConfiguration();
+                    // We expect the featureFlagWithPendingMigrations to be empty hence
+                    // verifying only for null
+                    if (featureFlagWithPendingMigrations != null
+                            && !featureFlagWithPendingMigrations.equals(
+                                    tenantConfig.getFeaturesWithPendingMigration())) {
+                        tenantConfig.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
+                        if (!featureFlagWithPendingMigrations.isEmpty()) {
+                            tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                        } else {
+                            tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
+                        }
+                        return tenantService.update(tenant.getId(), tenant);
+                    }
+                    return Mono.just(tenant);
+                });
     }
 
     /**
@@ -158,9 +155,11 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Map<String, Boolean>> getTenantFeatures() {
         return tenantService
                 .getDefaultTenantId()
-                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
-                .map(cachedFeatures -> {
-                    cachedTenantFeatureFlags = cachedFeatures;
+                .zipWhen(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
+                .map(tuple2 -> {
+                    String tenantId = tuple2.getT1();
+                    CachedFeatures cachedFeatures = tuple2.getT2();
+                    cachedTenantFeatureFlags.put(tenantId, cachedFeatures);
                     return cachedFeatures.getFeatures();
                 })
                 .switchIfEmpty(Mono.just(new HashMap<>()));
@@ -178,6 +177,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     @Override
     public CachedFeatures getCachedTenantFeatureFlags() {
-        return this.cachedTenantFeatureFlags;
+        // TODO Avoid blocking call
+        return tenantService
+                .getDefaultTenantId()
+                .map(id -> this.cachedTenantFeatureFlags.get(id))
+                .block();
     }
 }

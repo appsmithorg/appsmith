@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -313,17 +314,18 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      */
     @Override
     public Mono<Void> restartTenant() {
-        // Avoid dependency on user context as this method will be called internally by the server
-        Mono<Tenant> defaultTenantMono = this.getDefaultTenantId().flatMap(this::retrieveById);
-        return defaultTenantMono.flatMap(updatedTenant -> {
-            if (TRUE.equals(updatedTenant.getTenantConfiguration().getIsRestartRequired())) {
-                log.debug("Triggering tenant restart after the feature flag migrations are executed");
-                TenantConfiguration tenantConfiguration = updatedTenant.getTenantConfiguration();
-                tenantConfiguration.setIsRestartRequired(false);
-                return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());
-            }
-            return Mono.empty();
-        });
+        // TODO remove this method once we move the form login env to DB variable which is currently required as a part
+        //  of downgrade migration for SSO
+        return this.findAll()
+                .filter(tenant -> TRUE.equals(tenant.getTenantConfiguration().getIsRestartRequired()))
+                .take(1)
+                .hasElements()
+                .flatMap(hasElement -> {
+                    if (hasElement) {
+                        return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
+                    }
+                    return Mono.empty();
+                });
     }
 
     private boolean isMigrationRequired(Tenant tenant) {
@@ -334,5 +336,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                         tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
                                 && !MigrationStatus.COMPLETED.equals(
                                         tenant.getTenantConfiguration().getMigrationStatus())));
+    }
+
+    @Override
+    public Flux<Tenant> findAll() {
+        return repository.findAll();
     }
 }

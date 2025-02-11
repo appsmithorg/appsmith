@@ -206,7 +206,7 @@ public class FeatureFlagServiceCETest {
                 .thenReturn(Mono.just(new HashMap<>()));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
@@ -226,7 +226,7 @@ public class FeatureFlagServiceCETest {
                 .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, DISABLE)));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
@@ -245,7 +245,7 @@ public class FeatureFlagServiceCETest {
                 .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, ENABLE)));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {

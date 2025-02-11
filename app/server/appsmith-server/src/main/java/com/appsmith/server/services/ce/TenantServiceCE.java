@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.services.CrudService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface TenantServiceCE extends CrudService<Tenant, String> {
@@ -29,4 +30,6 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
     Mono<Tenant> retrieveById(String id);
 
     Mono<Void> restartTenant();
+
+    Flux<Tenant> findAll();
 }

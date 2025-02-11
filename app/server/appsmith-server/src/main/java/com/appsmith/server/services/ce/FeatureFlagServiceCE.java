@@ -29,7 +29,7 @@ public interface FeatureFlagServiceCE {
      * To get all features of the tenant from Cloud Services and store them locally
      * @return Mono of Void
      */
-    Mono<Void> getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations();
+    Mono<Tenant> getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations(Tenant tenant);
 
     /**
      * To get all features of the current tenant.

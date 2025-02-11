@@ -12,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
+
 @Getter
 @Setter
 @ToString
@@ -35,4 +37,9 @@ public class Tenant extends BaseDomain implements Serializable {
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration
+
+    public static class Fields {
+        public static final String tenantConfiguration_isRestartRequired =
+                dotted(tenantConfiguration, TenantConfiguration.Fields.isRestartRequired);
+    }
 }

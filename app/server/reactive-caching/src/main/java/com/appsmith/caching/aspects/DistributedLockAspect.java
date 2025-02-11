@@ -6,21 +6,26 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Aspect
 @Component
 @Slf4j
 public class DistributedLockAspect {
-    private final ReactiveRedisOperations<String, String> redisOperations;
 
-    public DistributedLockAspect(ReactiveRedisOperations<String, String> redisOperations) {
+    private final RedisOperations<String, String> redisOperations;
+
+    private static final String LOCK_PREFIX = "lock:";
+
+    public DistributedLockAspect(RedisOperations<String, String> redisOperations) {
         this.redisOperations = redisOperations;
     }
 
@@ -35,25 +40,24 @@ public class DistributedLockAspect {
         if (isReactive) {
             // If method does returns Mono<T> or Flux<T> raise exception
             throw new IllegalAccessException(
-                    "Invalid usage of @DistributedLock annotation. Only non-reactive objects are supported for locking.");
+                    "Invalid usage of @DistributedLock annotation. Only non-reactive methods are supported for locking.");
         }
         return handleBlocking(joinPoint, lockAnnotation);
     }
 
     private Object handleBlocking(ProceedingJoinPoint joinPoint, DistributedLock lock) throws Throwable {
-        String lockKey = "lock:" + lock.key();
+        String lockKey = LOCK_PREFIX + lock.key();
         long ttl = lock.ttl(); // Time-to-live for the lock
-        Boolean acquired = redisOperations
-                .opsForValue()
-                .setIfAbsent(lockKey, "locked", Duration.ofSeconds(ttl))
-                .block(); // Blocking call
+        String value = "locked until "
+                + Instant.now().plus(ttl, ChronoUnit.SECONDS).toString(); // Value to set in the lock key
+        Boolean acquired = redisOperations.opsForValue().setIfAbsent(lockKey, value, Duration.ofSeconds(ttl));
 
         if (Boolean.TRUE.equals(acquired)) {
             try {
                 return joinPoint.proceed(); // Execute method
             } finally {
                 if (lock.shouldReleaseLock()) {
-                    redisOperations.delete(lock.key()).block(); // Release lock
+                    redisOperations.delete(lock.key()); // Release lock
                 }
             }
         } else {
