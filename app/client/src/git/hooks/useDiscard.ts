@@ -12,11 +12,20 @@ export default function useDiscard() {
 
   const discardState = useArtifactSelector(selectDiscardState);
 
-  const discard = useCallback(() => {
-    if (artifactDef && artifactId) {
-      dispatch(gitArtifactActions.discardInit({ artifactDef, artifactId }));
-    }
-  }, [artifactDef, artifactId, dispatch]);
+  const discard = useCallback(
+    (successMessage: string) => {
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.discardInit({
+            artifactDef,
+            artifactId,
+            successMessage,
+          }),
+        );
+      }
+    },
+    [artifactDef, artifactId, dispatch],
+  );
 
   const clearDiscardError = useCallback(() => {
     if (artifactDef) {

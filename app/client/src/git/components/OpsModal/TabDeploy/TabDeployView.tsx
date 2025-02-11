@@ -75,7 +75,7 @@ interface TabDeployViewProps {
   commit: (commitMessage: string) => void;
   commitError: GitApiError | null;
   currentBranch: string | null;
-  discard: () => void;
+  discard: (successMessage: string) => void;
   discardError: GitApiError | null;
   isCommitLoading: boolean;
   isDiscardLoading: boolean;
@@ -239,7 +239,7 @@ function TabDeployView({
     AnalyticsUtil.logEvent("GIT_DISCARD", {
       source: "GIT_DISCARD_BUTTON_PRESS_2",
     });
-    discard();
+    discard(createMessage(DISCARD_CHANGES));
     setShowDiscardWarning(false);
     setShouldDiscard(true);
     setIsDiscarding(true);
