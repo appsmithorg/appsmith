@@ -363,17 +363,14 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.");
-            return Mono.defer(() -> connectionPoolConfig
-                            .getMaxConnectionPoolSize()
-                            .flatMap(maxPoolSize -> {
-                                return Mono.fromCallable(() -> {
-                                            log.debug(
-                                                    Thread.currentThread().getName() + ": Connecting to SQL Server db");
-                                            return createConnectionPool(datasourceConfiguration, maxPoolSize);
-                                        })
-                                        .subscribeOn(scheduler);
-                            }))
-                    .subscribeOn(scheduler);
+            return Mono.defer(
+                    () -> connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> {
+                        return Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                                    return createConnectionPool(datasourceConfiguration, maxPoolSize);
+                                })
+                                .subscribeOn(scheduler);
+                    }));
         }
 
         @Override
