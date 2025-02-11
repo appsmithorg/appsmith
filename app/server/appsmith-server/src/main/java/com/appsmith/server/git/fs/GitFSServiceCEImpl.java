@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
+import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
@@ -70,6 +71,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.EMPTY_COMMIT_ERROR_MESSAGE;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_CONFIG_ERROR;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
@@ -252,8 +254,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .listBranches(repoSuffix)
                 .flatMapMany(Flux::fromIterable)
                 .filter(gitBranchDTO -> {
-                    boolean branchToBeListed = !gitBranchDTO.getBranchName().startsWith("origin")
-                            || Boolean.TRUE.equals(listRemoteBranches);
+                    boolean branchToBeListed =
+                            !gitBranchDTO.getBranchName().startsWith("origin") || TRUE.equals(listRemoteBranches);
 
                     return StringUtils.hasText(gitBranchDTO.getBranchName()) && branchToBeListed;
                 })
@@ -321,11 +323,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         Path readmePath = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
                 jsonTransformationDTO.getBaseArtifactId(),
-                jsonTransformationDTO.getRepoName());
+                jsonTransformationDTO.getRepoName(),
+                readmeFileName);
         try {
             return gitArtifactHelper
                     .intialiseReadMe(artifact, readmePath, originHeader)
-                    .map(path -> Boolean.TRUE);
+                    .map(path -> TRUE);
         } catch (IOException ioException) {
             log.error("Error while creating readme file in the repository, {}", ioException.getMessage());
             return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, ioException.getMessage()));
@@ -367,7 +370,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         return commonGitFileUtils
                 .saveArtifactToLocalRepoNew(repoSuffix, artifactExchangeJson, branchName)
-                .map(ignore -> Boolean.TRUE)
+                .map(ignore -> TRUE)
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
                     if (e instanceof RepositoryNotFoundException) {
@@ -512,8 +515,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .flatMap(tuple2 -> {
                     String pushStatus = tuple2.getT1();
                     Artifact artifact = tuple2.getT2();
-                    Mono<Boolean> fileLockReleasedMono = Mono.just(Boolean.TRUE).flatMap(flag -> {
-                        if (!Boolean.TRUE.equals(isFileLock)) {
+                    Mono<Boolean> fileLockReleasedMono = Mono.just(TRUE).flatMap(flag -> {
+                        if (!TRUE.equals(isFileLock)) {
                             return Mono.just(flag);
                         }
                         return Mono.defer(() -> gitRedisUtils.releaseFileLock(
@@ -617,7 +620,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         String publicKey = gitAuth.getPublicKey();
         String privateKey = gitAuth.getPrivateKey();
 
-        if (CollectionUtils.isNullOrEmpty(fetchRemoteDTO.getRefNames())) {
+        if (CollectionUtils.isNullOrEmpty(fetchRemoteDTO.getRefNames())
+                && !TRUE.equals(fetchRemoteDTO.getIsFetchAll())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
         }
 
@@ -688,16 +692,30 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     }
 
     @Override
-    public Mono<String> createGitReference(ArtifactJsonTransformationDTO jsonTransformationDTO, GitRefDTO gitRefDTO) {
+    public Mono<String> createGitReference(
+            ArtifactJsonTransformationDTO baseRefJsonTransformationDTO,
+            ArtifactJsonTransformationDTO jsonTransformationDTO,
+            GitArtifactMetadata baseGitData,
+            GitRefDTO gitRefDTO) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
+
+        String baseRefName = baseRefJsonTransformationDTO.getRefName();
+
+        String remoteUrl = baseGitData.getRemoteUrl();
+        String publicKey = baseGitData.getGitAuth().getPublicKey();
+        String privateKey = baseGitData.getGitAuth().getPrivateKey();
 
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
                 jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
-        return fsGitHandler.createAndCheckoutReference(repoSuffix, gitRefDTO);
+        // TODO: add the checkout to the current branch as well.
+        return fsGitHandler.checkoutToBranch(repoSuffix, baseRefName).flatMap(isCheckedOut -> fsGitHandler
+                .createAndCheckoutReference(repoSuffix, gitRefDTO)
+                .flatMap(newRef -> fsGitHandler.pushApplication(
+                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName())));
     }
 
     @Override
@@ -729,7 +747,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     log.error("Delete branch failed {}", throwable.getMessage());
 
                     Mono<Boolean> releaseLockMono = gitRedisUtils.releaseFileLock(
-                            artifactType, jsonTransformationDTO.getBaseArtifactId(), Boolean.TRUE);
+                            artifactType, jsonTransformationDTO.getBaseArtifactId(), TRUE);
 
                     if (throwable instanceof CannotDeleteCurrentBranchException) {
                         return releaseLockMono.then(Mono.error(new AppsmithException(
@@ -770,16 +788,15 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
         String branchName = jsonTransformationDTO.getRefName();
 
-        // git checkout and pull origin branchName
+        // pull remote branchName
         try {
             return fsGitHandler
-                    .checkoutToBranch(repoSuffix, jsonTransformationDTO.getRefName())
-                    .then(fsGitHandler.pullApplication(
+                    .pullArtifactWithoutCheckout(
                             repoSuffix,
                             baseMetadata.getRemoteUrl(),
                             branchName,
                             baseMetadata.getGitAuth().getPrivateKey(),
-                            baseMetadata.getGitAuth().getPublicKey()))
+                            baseMetadata.getGitAuth().getPublicKey())
                     .onErrorResume(error -> {
                         if (error.getMessage().contains("conflict")) {
                             return Mono.error(
@@ -790,8 +807,9 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                             mergeStatus.setMergeAble(true);
                             return Mono.just(mergeStatus);
                         }
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
+
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED, GitCommandConstants.PULL, error.getMessage()));
                     });
         } catch (IOException e) {
             return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));

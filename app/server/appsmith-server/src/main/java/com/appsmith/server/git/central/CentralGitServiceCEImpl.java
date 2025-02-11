@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.constants.GitConstants;
+import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
@@ -78,7 +79,6 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,9 +95,9 @@ import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_STATUS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.constants.FieldName.BRANCH_NAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.FieldName.REF_NAME;
+import static com.appsmith.server.constants.FieldName.REF_TYPE;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
-import static com.appsmith.server.constants.ce.FieldNameCE.REF_NAME;
-import static com.appsmith.server.constants.ce.FieldNameCE.REF_TYPE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.hasText;
@@ -415,10 +415,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
         Mono<Boolean> acquireFileLock = gitRedisUtils.acquireGitLock(
-                baseArtifact.getArtifactType(),
-                baseArtifactId,
-                GitConstants.GitCommandConstants.CHECKOUT_BRANCH,
-                addFileLock);
+                baseArtifact.getArtifactType(), baseArtifactId, GitCommandConstants.CHECKOUT_REF, addFileLock);
 
         Mono<? extends Artifact> checkedOutArtifactMono;
         // If the user is trying to check out remote reference, create a new reference if it does not exist already
@@ -428,7 +425,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
         jsonTransformationDTO.setRefName(finalRefName);
         jsonTransformationDTO.setRefType(refType);
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+        jsonTransformationDTO.setArtifactType(artifactType);
         jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
 
         if (gitRefDTO.getRefName().startsWith(ORIGIN)) {
@@ -446,7 +443,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                         return Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
-                                "checkout",
+                                GitCommandConstants.CHECKOUT_REF,
                                 gitRefDTO.getRefName() + " already exists in local - " + finalRefName));
                     });
         } else {
@@ -510,13 +507,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         final String workspaceId = baseArtifact.getWorkspaceId();
         final String finalRemoteRefName = gitRefDTO.getRefName().replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
 
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setRepoName(repoName);
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO(
+                workspaceId, baseArtifactId, repoName, baseArtifact.getArtifactType());
+
         jsonTransformationDTO.setRefType(gitRefDTO.getRefType());
         jsonTransformationDTO.setRefName(finalRemoteRefName);
-        jsonTransformationDTO.setWorkspaceId(workspaceId);
-        jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+
+        FetchRemoteDTO fetchRemoteDTO = new FetchRemoteDTO(List.of(finalRemoteRefName), gitRefDTO.getRefType(), false);
 
         Mono<? extends Artifact> artifactMono;
         if (baseRefName.equals(finalRemoteRefName)) {
@@ -528,11 +525,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             artifactMono = Mono.just(baseArtifact);
         } else {
             // create new Artifact
-            artifactMono = gitArtifactHelper.createNewArtifactForCheckout(baseArtifact, finalRemoteRefName);
+            artifactMono = generateArtifactForRefCreation(baseArtifact, finalRemoteRefName, gitRefDTO.getRefType());
         }
 
         Mono<? extends Artifact> checkedOutRemoteArtifactMono = gitHandlingService
-                .fetchRemoteReferences(jsonTransformationDTO, baseGitMetadata.getGitAuth(), false)
+                .fetchRemoteReferences(jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+                .flatMap(ignoredFetchString -> gitHandlingService.checkoutRemoteReference(jsonTransformationDTO))
                 .onErrorResume(error -> Mono.error(
                         new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout branch", error.getMessage())))
                 .flatMap(ignoreRemoteChanges -> {
@@ -600,18 +598,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
         GitAuth baseGitAuth = baseGitMetadata.getGitAuth();
         GitArtifactMetadata sourceGitMetadata = sourceArtifact.getGitArtifactMetadata();
-        ArtifactType artifactType = baseArtifact.getArtifactType();
-
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
-
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-        jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
-        jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-        jsonTransformationDTO.setRefType(refType);
-        jsonTransformationDTO.setRefName(refDTO.getRefName());
 
         if (sourceGitMetadata == null
                 || !hasText(sourceGitMetadata.getDefaultArtifactId())
@@ -622,19 +608,42 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     "Unable to find the parent reference. Please create a reference from other available references"));
         }
 
+        ArtifactType artifactType = baseArtifact.getArtifactType();
+        String workspaceId = baseArtifact.getWorkspaceId();
+        String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
+        String repoName = baseGitMetadata.getRepoName();
+
+        String sourceArtifactId = sourceArtifact.getId();
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        ArtifactJsonTransformationDTO baseRefTransformationDTO =
+                new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
+        baseRefTransformationDTO.setRefName(sourceGitMetadata.getRefName());
+        baseRefTransformationDTO.setRefType(refType);
+
+        ArtifactJsonTransformationDTO createRefTransformationDTO =
+                new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
+        createRefTransformationDTO.setRefType(refType);
+        createRefTransformationDTO.setRefName(refDTO.getRefName());
+
         Mono<Boolean> acquireGitLockMono = gitRedisUtils.acquireGitLock(
-                artifactType,
-                baseGitMetadata.getDefaultArtifactId(),
-                GitConstants.GitCommandConstants.CREATE_BRANCH,
-                FALSE);
+                artifactType, baseGitMetadata.getDefaultArtifactId(), GitCommandConstants.CREATE_REF, FALSE);
+
+        FetchRemoteDTO fetchRemoteDTO = new FetchRemoteDTO();
+        fetchRemoteDTO.setRefType(refType);
+        fetchRemoteDTO.setIsFetchAll(TRUE);
+
         Mono<String> fetchRemoteMono =
-                gitHandlingService.fetchRemoteReferences(jsonTransformationDTO, baseGitAuth, TRUE);
+                gitHandlingService.fetchRemoteReferences(baseRefTransformationDTO, fetchRemoteDTO, baseGitAuth);
 
         Mono<? extends Artifact> createBranchMono = acquireGitLockMono
-                .flatMap(ignoreLockAcquisition -> fetchRemoteMono.onErrorResume(
-                        error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error))))
+                .flatMap(ignoreLockAcquisition ->
+                        fetchRemoteMono.onErrorResume(error -> Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED, GitCommandConstants.FETCH_REMOTE, error))))
                 .flatMap(ignoreFetchString -> gitHandlingService
-                        .listReferences(jsonTransformationDTO, TRUE)
+                        .listReferences(createRefTransformationDTO, TRUE)
                         .flatMap(refList -> {
                             boolean isDuplicateName = refList.stream()
                                     // We are only supporting origin as the remote name so this is safe
@@ -655,11 +664,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                             Mono<? extends ArtifactExchangeJson> artifactExchangeJsonMono =
                                     exportService.exportByArtifactId(
-                                            sourceArtifact.getId(), VERSION_CONTROL, baseArtifact.getArtifactType());
+                                            sourceArtifactId, VERSION_CONTROL, baseArtifact.getArtifactType());
 
-                            Mono<? extends Artifact> newArtifactFromSourceMono =
-                                    // TODO: add refType support over here
-                                    gitArtifactHelper.createNewArtifactForCheckout(sourceArtifact, refDTO.getRefName());
+                            Mono<? extends Artifact> newArtifactFromSourceMono = generateArtifactForRefCreation(
+                                    sourceArtifact, refDTO.getRefName(), refDTO.getRefType());
 
                             return refCreationValidationMono.flatMap(isOkayToProceed -> {
                                 if (!TRUE.equals(isOkayToProceed)) {
@@ -675,7 +683,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     Artifact newRefArtifact = tuple.getT1();
 
                     Mono<String> refCreationMono = gitHandlingService
-                            .createGitReference(jsonTransformationDTO, refDTO)
+                            .createGitReference(
+                                    baseRefTransformationDTO, createRefTransformationDTO, baseGitMetadata, refDTO)
                             // TODO: this error could be shipped to handling layer as well?
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED, "ref creation preparation", error.getMessage())));
@@ -692,15 +701,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return gitArtifactHelper.publishArtifactPostRefCreation(
                                         importedArtifact, refType, TRUE);
                             })
-                            // after the branch is created, we need to reset the older branch to the
+                            // after the ref is created, the older ref should be reset to a
                             // clean status, i.e. last commit
-                            .flatMap(newImportedArtifact -> discardChanges(sourceArtifact, gitType));
+                            .flatMap(newImportedArtifact ->
+                                    discardChanges(sourceArtifact, gitType).thenReturn(newImportedArtifact));
                 })
                 .flatMap(newImportedArtifact -> gitRedisUtils
-                        .releaseFileLock(
-                                artifactType,
-                                newImportedArtifact.getGitArtifactMetadata().getDefaultArtifactId(),
-                                TRUE)
+                        .releaseFileLock(artifactType, baseArtifactId, TRUE)
                         .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_CREATE_BRANCH,
                                 newImportedArtifact,
@@ -708,8 +715,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .onErrorResume(error -> {
                     log.error("An error occurred while creating reference. error {}", error.getMessage());
                     return gitRedisUtils
-                            .releaseFileLock(artifactType, baseGitMetadata.getDefaultArtifactId(), TRUE)
-                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout")));
+                            .releaseFileLock(artifactType, baseArtifactId, TRUE)
+                            .then(Mono.error(new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED,
+                                    GitCommandConstants.CREATE_REF,
+                                    error.getMessage())));
                 })
                 .name(GitSpan.OPS_CREATE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
@@ -734,10 +744,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     @Override
     public Mono<? extends Artifact> deleteGitReference(
-            String baseArtifactId, ArtifactType artifactType, GitRefDTO gitRefDTO, GitType gitType) {
-
-        String refName = gitRefDTO.getRefName();
-        RefType refType = gitRefDTO.getRefType();
+            String baseArtifactId, ArtifactType artifactType, String refName, RefType refType, GitType gitType) {
 
         if (refType == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
@@ -1066,14 +1073,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setArtifactType(artifactType);
                     jsonTransformationDTO.setRepoName(repoName);
 
-                    final String README_FILE_NAME = "README.md";
+                    final String README_FILE_NAME = GitConstants.README_FILE_NAME;
                     Mono<Boolean> readMeIntialisationMono = gitHandlingService.initialiseReadMe(
                             jsonTransformationDTO, artifact, README_FILE_NAME, originHeader);
 
                     return Mono.zip(readMeIntialisationMono, gitUserMono)
                             .flatMap(tuple2 -> {
-                                String commitMessage =
-                                        DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason();
+                                String commitMessage = GitConstants.FIRST_COMMIT;
                                 GitUser author = tuple2.getT2();
                                 CommitDTO commitDTO = new CommitDTO();
                                 commitDTO.setAuthor(author);
@@ -1095,30 +1101,31 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 commitDTO.setMessage(commitMessage);
 
                                 return this.commitArtifact(commitDTO, artifact.getId(), artifactType, gitType)
-                                        .onErrorResume(error ->
-                                                // If the push fails remove all the cloned files from local repo
-                                                this.detachRemote(baseArtifactId, artifactType, gitType)
-                                                        .flatMap(isDeleted -> {
-                                                            if (error instanceof TransportException) {
-                                                                return gitAnalyticsUtils
-                                                                        .addAnalyticsForGitOperation(
-                                                                                AnalyticsEvents.GIT_CONNECT,
-                                                                                artifact,
-                                                                                error.getClass()
-                                                                                        .getName(),
-                                                                                error.getMessage(),
-                                                                                artifact.getGitArtifactMetadata()
-                                                                                        .getIsRepoPrivate())
-                                                                        .then(Mono.error(new AppsmithException(
-                                                                                AppsmithError
-                                                                                        .INVALID_GIT_SSH_CONFIGURATION,
-                                                                                error.getMessage())));
-                                                            }
-                                                            return Mono.error(new AppsmithException(
-                                                                    AppsmithError.GIT_ACTION_FAILED,
-                                                                    "push",
-                                                                    error.getMessage()));
-                                                        }));
+                                        .onErrorResume(error -> {
+                                            log.error("Error while committing", error);
+                                            // If the push fails remove all the cloned files from local repo
+                                            return this.detachRemote(baseArtifactId, artifactType, gitType)
+                                                    .flatMap(isDeleted -> {
+                                                        if (error instanceof TransportException) {
+                                                            return gitAnalyticsUtils
+                                                                    .addAnalyticsForGitOperation(
+                                                                            AnalyticsEvents.GIT_CONNECT,
+                                                                            artifact,
+                                                                            error.getClass()
+                                                                                    .getName(),
+                                                                            error.getMessage(),
+                                                                            artifact.getGitArtifactMetadata()
+                                                                                    .getIsRepoPrivate())
+                                                                    .then(Mono.error(new AppsmithException(
+                                                                            AppsmithError.INVALID_GIT_SSH_CONFIGURATION,
+                                                                            error.getMessage())));
+                                                        }
+                                                        return Mono.error(new AppsmithException(
+                                                                AppsmithError.GIT_ACTION_FAILED,
+                                                                "push",
+                                                                error.getMessage()));
+                                                    });
+                                        });
                             })
                             .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CONNECT,
@@ -1429,23 +1436,26 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
 
                     // Remove the git contents from file system
-                    return Mono.zip(gitHandlingService.listBranches(jsonTransformationDTO), Mono.just(baseArtifact));
+                    return Mono.zip(
+                            gitHandlingService.listReferences(jsonTransformationDTO, false), Mono.just(baseArtifact));
                 })
                 .flatMap(tuple -> {
                     List<String> localBranches = tuple.getT1();
                     Artifact baseArtifact = tuple.getT2();
 
+                    GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+                    localBranches.remove(baseGitMetadata.getRefName());
+
                     baseArtifact.setGitArtifactMetadata(null);
                     gitArtifactHelper.resetAttributeInBaseArtifact(baseArtifact);
 
-                    GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
                     jsonTransformationDTO.setRefType(RefType.branch);
                     jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-                    jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
-                    jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
+                    jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
+                    jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
                     jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
+                    jsonTransformationDTO.setRefName(baseGitMetadata.getRefName());
 
                     // Remove the parent artifact branch name from the list
                     Mono<Boolean> removeRepoMono = gitHandlingService.removeRepository(jsonTransformationDTO);
@@ -1522,79 +1532,88 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             boolean compareRemote,
             GitType gitType) {
 
-        ArtifactType artifactType = baseArtifact.getArtifactType();
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
-
         GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
-        final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
 
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
         branchedGitMetadata.setGitAuth(baseGitMetadata.getGitAuth());
 
         final String finalBranchName = branchedGitMetadata.getRefName();
+        RefType refType = branchedGitMetadata.getRefType();
 
         if (!StringUtils.hasText(finalBranchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
-        Mono<? extends ArtifactExchangeJson> exportedArtifactJsonMono =
-                exportService.exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactType);
+        ArtifactType artifactType = baseArtifact.getArtifactType();
+        final String baseArtifactId = baseGitMetadata.getDefaultArtifactId();
+        String workspaceId = baseArtifact.getWorkspaceId();
+        String repoName = baseGitMetadata.getRepoName();
 
-        Mono<GitStatusDTO> statusMono = exportedArtifactJsonMono
-                .flatMap(artifactExchangeJson -> {
-                    return gitRedisUtils
-                            .acquireGitLock(
-                                    artifactType, baseArtifactId, GitConstants.GitCommandConstants.STATUS, isFileLock)
-                            .thenReturn(artifactExchangeJson);
-                })
-                .flatMap(artifactExchangeJson -> {
-                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.branch);
-                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-                    jsonTransformationDTO.setBaseArtifactId(baseArtifact.getId());
-                    jsonTransformationDTO.setRepoName(
-                            branchedArtifact.getGitArtifactMetadata().getRepoName());
-                    jsonTransformationDTO.setArtifactType(artifactExchangeJson.getArtifactJsonType());
-                    jsonTransformationDTO.setRefName(finalBranchName);
+        ArtifactJsonTransformationDTO jsonTransformationDTO =
+                new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
+        jsonTransformationDTO.setRefName(finalBranchName);
+        jsonTransformationDTO.setRefType(refType);
 
+        FetchRemoteDTO fetchRemoteDTO = new FetchRemoteDTO();
+        fetchRemoteDTO.setRefNames(List.of(finalBranchName));
+        fetchRemoteDTO.setRefType(refType);
+        fetchRemoteDTO.setIsFetchAll(false);
+
+        Mono<? extends ArtifactExchangeJson> exportedArtifactJsonMono = exportService
+                .exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactType)
+                .zipWhen(exportedArtifactJson -> gitRedisUtils.acquireGitLock(
+                        artifactType, baseArtifactId, GitCommandConstants.STATUS, isFileLock))
+                .map(Tuple2::getT1);
+
+        // This block only enters when a redis lock is acquired
+        Mono<GitStatusDTO> lockHandledStatusMono = Mono.usingWhen(
+                exportedArtifactJsonMono,
+                artifactExchangeJson -> {
                     Mono<Boolean> prepareForStatus =
                             gitHandlingService.prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson);
-                    Mono<String> fetchRemoteMono;
+
+                    Mono<String> fetchRemoteMono = Mono.just("ignored");
 
                     if (compareRemote) {
-                        fetchRemoteMono = Mono.defer(
-                                () -> fetchRemoteChanges(baseArtifact, branchedArtifact, FALSE, gitType, RefType.branch)
-                                        .onErrorResume(error -> Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
-                    } else {
-                        fetchRemoteMono = Mono.just("ignored");
+                        if (isBaseGitMetadataInvalid(baseGitMetadata, gitType)) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION));
+                        }
+
+                        fetchRemoteMono = Mono.defer(() -> gitHandlingService
+                                .fetchRemoteReferences(
+                                        jsonTransformationDTO, fetchRemoteDTO, baseGitMetadata.getGitAuth())
+                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED,
+                                        GitCommandConstants.FETCH_REMOTE,
+                                        error.getMessage()))));
                     }
 
-                    return Mono.zip(prepareForStatus, fetchRemoteMono).flatMap(tuple2 -> {
-                        return gitHandlingService
-                                .getStatus(jsonTransformationDTO)
-                                .flatMap(gitStatusDTO -> {
-                                    return gitRedisUtils
-                                            .releaseFileLock(artifactType, baseArtifactId, isFileLock)
-                                            .thenReturn(gitStatusDTO);
-                                });
-                    });
-                })
-                .onErrorResume(throwable -> {
-                    /*
-                     in case of any error, the global exception handler will release the lock
-                     hence we don't need to do that manually
-                    */
-                    log.error(
-                            "Error to get status for artifact: {}, branch: {}",
-                            baseArtifactId,
-                            finalBranchName,
-                            throwable);
-                    return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
-                });
+                    return Mono.zip(prepareForStatus, fetchRemoteMono)
+                            .then(Mono.defer(() -> gitHandlingService.getStatus(jsonTransformationDTO)))
+                            .onErrorResume(throwable -> {
+                                /*
+                                 in case of any error, the global exception handler will release the lock
+                                 hence we don't need to do that manually
+                                */
+                                log.error(
+                                        "Error to get status for artifact: {}, branch: {}",
+                                        baseArtifactId,
+                                        finalBranchName,
+                                        throwable);
+                                if (throwable instanceof AppsmithException) {
+                                    return Mono.error(throwable);
+                                }
 
-        return Mono.zip(statusMono, sessionUserService.getCurrentUser())
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED,
+                                        GitCommandConstants.STATUS,
+                                        throwable.getMessage()));
+                            });
+                },
+                artifactExchangeJson -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, isFileLock));
+
+        return Mono.zip(lockHandledStatusMono, sessionUserService.getCurrentUser())
                 .elapsed()
                 .flatMap(objects -> {
                     Long elapsedTime = objects.getT1();
@@ -1651,49 +1670,44 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected Mono<GitPullDTO> pullArtifact(Artifact baseArtifact, Artifact branchedArtifact, GitType gitType) {
 
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
-        Mono<GitStatusDTO> statusMono = getStatus(baseArtifact, branchedArtifact, false, true, gitType);
         ArtifactType artifactType = baseArtifact.getArtifactType();
+        String baseArtifactId = branchedGitMetadata.getDefaultArtifactId();
 
-        Mono<GitPullDTO> pullDTOMono = gitRedisUtils
-                .acquireGitLock(
-                        artifactType,
-                        branchedGitMetadata.getDefaultArtifactId(),
-                        GitConstants.GitCommandConstants.PULL,
-                        TRUE)
-                .then(Mono.defer(() -> statusMono))
-                .flatMap(status -> {
-                    // Check if the repo is clean
-                    if (!CollectionUtils.isEmpty(status.getModified())) {
-                        return gitRedisUtils
-                                .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
-                                .then(
-                                        Mono.error(
-                                                new AppsmithException(
-                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                        "pull",
-                                                        "There are uncommitted changes present in your local. Please commit them first and then try git pull")));
-                    }
+        Mono<GitPullDTO> lockHandledpullDTOMono = Mono.usingWhen(
+                        gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.PULL, TRUE),
+                        ignoreLock -> {
+                            // TODO: verifying why remote needs to be fetched for status, when only modified is checked
+                            Mono<GitStatusDTO> statusMono =
+                                    getStatus(baseArtifact, branchedArtifact, false, false, gitType);
 
-                    return pullAndRehydrateArtifact(baseArtifact, branchedArtifact, gitType)
-                            // Release file lock after the pull operation
-                            .flatMap(gitPullDTO -> gitRedisUtils
-                                    .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
-                                    .then(Mono.just(gitPullDTO)));
-                })
-                .onErrorResume(error -> {
-                    log.error(
-                            "An error occurred while trying to pull the artifact with base id: {} and branchName: {}",
-                            branchedGitMetadata.getDefaultArtifactId(),
-                            branchedGitMetadata.getRefName());
+                            return statusMono.flatMap(gitStatusDTO -> {
+                                // Check if the repo is clean
+                                if (!CollectionUtils.isEmpty(gitStatusDTO.getModified())) {
+                                    return Mono.error(
+                                            new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED,
+                                                    GitCommandConstants.PULL,
+                                                    "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
+                                }
+                                return pullAndRehydrateArtifact(baseArtifact, branchedArtifact, gitType)
+                                        .onErrorResume(exception -> {
+                                            if (exception instanceof AppsmithException) {
+                                                return Mono.error(exception);
+                                            }
 
-                    return gitRedisUtils
-                            .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
-                            .then(Mono.error(error));
-                })
+                                            return Mono.error(new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED,
+                                                    GitCommandConstants.PULL,
+                                                    exception.getMessage()));
+                                        });
+                            });
+                        },
+                        ignoreLock -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, TRUE))
                 .name(GitSpan.OPS_PULL)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink -> pullDTOMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(
+                sink -> lockHandledpullDTOMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
@@ -1730,22 +1744,18 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         final String repoName = branchedGitMetadata.getRepoName();
         final String branchName = branchedGitMetadata.getRefName();
 
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setRepoName(repoName);
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO(
+                workspaceId, baseArtifactId, repoName, baseArtifact.getArtifactType());
+
         jsonTransformationDTO.setRefType(RefType.branch);
         jsonTransformationDTO.setRefName(branchName);
-        jsonTransformationDTO.setWorkspaceId(workspaceId);
-        jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-
-        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
 
         return Mono.defer(() -> {
                     // Rehydrate the artifact from git system
-
                     Mono<MergeStatusDTO> mergeStatusDTOMono = gitHandlingService
                             .pullArtifact(jsonTransformationDTO, baseGitMetadata)
                             .cache();
+
                     Mono<ArtifactExchangeJson> artifactExchangeJsonMono = mergeStatusDTOMono.flatMap(status ->
                             gitHandlingService.reconstructArtifactJsonFromGitRepository(jsonTransformationDTO));
 
@@ -1766,25 +1776,27 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             .getGitArtifactMetadata()
                                             .getIsRepoPrivate()))
                             .flatMap(importedBranchedArtifact -> {
-                                CommitDTO commitDTO = new CommitDTO();
-                                commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
-                                        + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
-
-                                GitPullDTO gitPullDTO = new GitPullDTO();
-                                gitPullDTO.setMergeStatus(status);
-                                gitPullDTO.setArtifact(importedBranchedArtifact);
-
                                 return gitArtifactHelper
                                         .publishArtifact(importedBranchedArtifact, false)
-                                        // TODO: Verify if we need to commit after pulling? (Gonna be a product
-                                        // decision, hence got
-                                        .then(Mono.defer(() -> commitArtifact(
-                                                        commitDTO,
-                                                        baseArtifact,
-                                                        importedBranchedArtifact,
-                                                        gitType,
-                                                        false))
-                                                .thenReturn(gitPullDTO));
+                                        .then(getGitUserForArtifactId(baseArtifactId))
+                                        .flatMap(gitAuthor -> {
+                                            CommitDTO commitDTO = new CommitDTO();
+                                            commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE
+                                                    + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+                                            commitDTO.setAuthor(gitAuthor);
+
+                                            GitPullDTO gitPullDTO = new GitPullDTO();
+                                            gitPullDTO.setMergeStatus(status);
+                                            gitPullDTO.setArtifact(importedBranchedArtifact);
+
+                                            return Mono.defer(() -> commitArtifact(
+                                                            commitDTO,
+                                                            baseArtifact,
+                                                            importedBranchedArtifact,
+                                                            gitType,
+                                                            false))
+                                                    .thenReturn(gitPullDTO);
+                                        });
                             });
                 });
     }
@@ -1960,20 +1972,21 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     private Mono<? extends Artifact> updateArtifactWithGitMetadataGivenPermission(
-            Artifact artifact, GitArtifactMetadata gitMetadata) {
+            Artifact branchedArtifact, GitArtifactMetadata branchedGitMetadata) {
 
-        if (gitMetadata == null) {
+        if (branchedGitMetadata == null) {
             return Mono.error(
                     new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
         }
 
-        artifact.setGitArtifactMetadata(gitMetadata);
-        // For base artifact we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
-        // @Encrypted annotation used for private SSH keys
+        branchedGitMetadata.setLastCommittedAt(Instant.now());
+        branchedArtifact.setGitArtifactMetadata(branchedGitMetadata);
+        // For base branchedArtifact we expect a GitAuth to be a part of branchedGitMetadata.
+        // We are using save method to leverage @Encrypted annotation used for private SSH keys
         // saveArtifact method sets the transient fields so no need to set it again from this method
         return gitArtifactHelperResolver
-                .getArtifactHelper(artifact.getArtifactType())
-                .saveArtifact(artifact);
+                .getArtifactHelper(branchedArtifact.getArtifactType())
+                .saveArtifact(branchedArtifact);
     }
 
     /**
@@ -2002,80 +2015,79 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected Mono<? extends Artifact> discardChanges(Artifact branchedArtifact, GitType gitType) {
 
         ArtifactType artifactType = branchedArtifact.getArtifactType();
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
-
         GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
+
         if (branchedGitData == null || !hasText(branchedGitData.getDefaultArtifactId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
         }
 
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setArtifactType(branchedArtifact.getArtifactType());
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        final String workspaceId = branchedArtifact.getWorkspaceId();
+        final String baseArtifactId = branchedGitData.getDefaultArtifactId();
+        final String repoName = branchedGitData.getRepoName();
+        final String branchName = branchedGitData.getRefName();
+
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO(
+                workspaceId, baseArtifactId, repoName, branchedArtifact.getArtifactType());
+
         // Because this operation is only valid for branches
         jsonTransformationDTO.setRefType(RefType.branch);
-        jsonTransformationDTO.setWorkspaceId(branchedArtifact.getWorkspaceId());
-        jsonTransformationDTO.setBaseArtifactId(branchedGitData.getDefaultArtifactId());
-        jsonTransformationDTO.setRefName(branchedGitData.getRefName());
-        jsonTransformationDTO.setRepoName(branchedGitData.getRepoName());
+        jsonTransformationDTO.setRefName(branchName);
 
-        Mono<? extends Artifact> recreatedArtifactFromLastCommit = gitRedisUtils
-                .acquireGitLock(
-                        artifactType,
-                        branchedGitData.getDefaultArtifactId(),
-                        GitConstants.GitCommandConstants.DISCARD,
-                        TRUE)
-                .then(gitHandlingService
-                        .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
-                        .onErrorResume(throwable -> {
-                            log.error("Git recreate ArtifactJsonFailed : {}", throwable.getMessage());
-                            return gitRedisUtils
-                                    .releaseFileLock(artifactType, branchedGitData.getDefaultArtifactId(), TRUE)
-                                    .then(
-                                            Mono.error(
-                                                    new AppsmithException(
-                                                            AppsmithError.GIT_ACTION_FAILED,
-                                                            "discard changes",
-                                                            "Please create a new branch and resolve conflicts in the remote repository before proceeding.")));
-                        }))
-                .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
-                        branchedArtifact.getWorkspaceId(),
-                        branchedArtifact.getId(),
-                        artifactExchangeJson,
-                        branchedGitData.getRefName()))
-                // Update the last deployed status after the rebase
-                .flatMap(importedArtifact -> gitArtifactHelper.publishArtifact(importedArtifact, true))
-                .flatMap(publishedArtifact -> {
-                    return gitRedisUtils
-                            .releaseFileLock(
-                                    artifactType,
-                                    publishedArtifact.getGitArtifactMetadata().getDefaultArtifactId(),
-                                    TRUE)
-                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null));
-                })
-                .onErrorResume(error -> {
-                    log.error(
-                            "An error occurred while discarding branch with artifact id {}. error {}",
-                            branchedGitData.getDefaultArtifactId(),
-                            error.getMessage());
-                    return gitRedisUtils
-                            .releaseFileLock(artifactType, branchedGitData.getDefaultArtifactId(), TRUE)
-                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout")));
-                })
+        Mono<? extends Artifact> artifactFromLastCommitMono = Mono.usingWhen(
+                        gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.DISCARD, TRUE),
+                        ignoreLockAcquisition -> {
+                            Mono<? extends ArtifactExchangeJson> artifactJsonFromLastCommitMono = gitHandlingService
+                                    .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
+                                    .onErrorResume(exception -> {
+                                        log.error("Git recreate Artifact Json Failed : {}", exception.getMessage());
+
+                                        return Mono.error(
+                                                new AppsmithException(
+                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                        GitCommandConstants.DISCARD,
+                                                        "Please create a new branch and resolve conflicts in the remote repository before proceeding."));
+                                    });
+
+                            return artifactJsonFromLastCommitMono
+                                    .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
+                                            workspaceId, branchedArtifact.getId(), artifactExchangeJson, branchName))
+                                    .flatMap(artifactFromLastCommit ->
+                                            gitArtifactHelper.publishArtifact(artifactFromLastCommit, true))
+                                    .flatMap(publishedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                            AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null))
+                                    .onErrorResume(exception -> {
+                                        log.error(
+                                                "An error occurred while discarding branched artifact id {}. error {}",
+                                                branchedArtifact.getId(),
+                                                exception.getMessage());
+
+                                        if (exception instanceof AppsmithException) {
+                                            return Mono.error(exception);
+                                        }
+
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED,
+                                                GitCommandConstants.DISCARD,
+                                                exception.getMessage()));
+                                    });
+                        },
+                        ignoreLockAcquisition -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, TRUE))
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink ->
-                recreatedArtifactFromLastCommit.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(
+                sink -> artifactFromLastCommitMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
-    public Mono<List<GitBranchDTO>> listBranchForArtifact(
+    public Mono<List<GitRefDTO>> listBranchForArtifact(
             String branchedArtifactId, ArtifactType artifactType, Boolean pruneBranches, GitType gitType) {
         return getBranchList(branchedArtifactId, artifactType, pruneBranches, true, gitType);
     }
 
-    protected Mono<List<GitBranchDTO>> getBranchList(
+    protected Mono<List<GitRefDTO>> getBranchList(
             String branchedArtifactId,
             ArtifactType artifactType,
             Boolean pruneBranches,
@@ -2098,7 +2110,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         });
     }
 
-    protected Mono<List<GitBranchDTO>> getBranchList(
+    protected Mono<List<GitRefDTO>> getBranchList(
             Artifact baseArtifact,
             Artifact branchedArtifact,
             Boolean pruneBranches,
@@ -2117,15 +2129,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         final String repoName = baseGitData.getRepoName();
         final String currentBranch = branchedGitData.getRefName();
 
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setRepoName(repoName);
-        jsonTransformationDTO.setWorkspaceId(workspaceId);
-        jsonTransformationDTO.setBaseArtifactId(baseArtifactId);
-        jsonTransformationDTO.setRefName(currentBranch);
-        // not that it matters
-        jsonTransformationDTO.setRefType(branchedGitData.getRefType());
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-
         if (!hasText(baseArtifactId) || !hasText(repoName) || !hasText(currentBranch)) {
             log.error(
                     "Git config is not present for artifact {} of type {}",
@@ -2134,6 +2137,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
         }
 
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO(
+                workspaceId, baseArtifactId, repoName, baseArtifact.getArtifactType());
+
+        jsonTransformationDTO.setRefName(currentBranch);
+        jsonTransformationDTO.setRefType(branchedGitData.getRefType());
+
         Mono<String> baseBranchMono;
         if (TRUE.equals(pruneBranches) && syncDefaultBranchWithRemote) {
             baseBranchMono = syncDefaultBranchNameFromRemote(baseGitData, jsonTransformationDTO, gitType);
@@ -2141,7 +2150,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             baseBranchMono = Mono.just(GitUtils.getDefaultBranchName(baseGitData));
         }
 
-        Mono<List<GitBranchDTO>> branchMono = baseBranchMono
+        Mono<List<GitRefDTO>> branchMono = baseBranchMono
                 .flatMap(baseBranchName -> {
                     return getBranchListWithDefaultBranchName(
                             baseArtifact, baseBranchName, currentBranch, pruneBranches, gitType);
@@ -2247,7 +2256,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 });
     }
 
-    private Mono<List<GitBranchDTO>> handleRepoNotFoundException(
+    private Mono<List<GitRefDTO>> handleRepoNotFoundException(
             ArtifactJsonTransformationDTO jsonTransformationDTO, GitType gitType) {
         // clone artifact to the local git system again and update the defaultBranch for the artifact
         // list branch and compare with branch artifacts and checkout if not exists
@@ -2272,13 +2281,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     .flatMap(defaultBranch -> gitHandlingService.listReferences(jsonTransformationDTO, true))
                     .flatMap(branches -> {
                         List<String> branchesToCheckout = new ArrayList<>();
-                        List<GitBranchDTO> gitBranchDTOList = new ArrayList<>();
+
+                        List<GitRefDTO> gitRefDTOs = new ArrayList<>();
                         for (String branch : branches) {
                             GitBranchDTO gitBranchDTO = new GitBranchDTO();
                             gitBranchDTO.setBranchName(branch);
 
                             if (branch.startsWith(ORIGIN)) {
-                                // remove origin/ prefix from the remote branch name
+                                // remove `origin/` prefix from the remote branch name
                                 String branchName = branch.replace(ORIGIN, REMOTE_NAME_REPLACEMENT);
                                 // The root defaultArtifact is always there, no need to check out it again
                                 if (!branchName.equals(gitArtifactMetadata.getBranchName())) {
@@ -2308,90 +2318,102 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         // checkout the branch locally
                                         .flatMap(artifact -> {
                                             // Add the locally checked out branch to the branchList
-                                            GitBranchDTO gitBranchDTO = new GitBranchDTO();
-                                            gitBranchDTO.setBranchName(branchName);
+                                            GitRefDTO gitRefDTO = new GitRefDTO();
+                                            gitRefDTO.setRefName(branchName);
+
                                             // set the default branch flag if there's a match.
                                             // This can happen when user has changed the default branch other
-                                            // than
-                                            // remote
-                                            gitBranchDTO.setDefault(gitArtifactMetadata
+                                            // than remote
+                                            gitRefDTO.setDefault(gitArtifactMetadata
                                                     .getDefaultBranchName()
                                                     .equals(branchName));
-                                            gitBranchDTOList.add(gitBranchDTO);
 
+                                            gitRefDTOs.add(gitRefDTO);
                                             branchCheckoutDTO.setRefName(branchName);
                                             return gitHandlingService.checkoutRemoteReference(branchCheckoutDTO);
                                         })
                                         // Return empty mono when the branched defaultArtifact is not in db
                                         .onErrorResume(throwable -> Mono.empty()))
-                                .then(Mono.just(gitBranchDTOList));
+                                .then(Mono.just(gitRefDTOs));
                     });
         });
     }
 
-    private Mono<List<GitBranchDTO>> getBranchListWithDefaultBranchName(
+    private Mono<List<GitRefDTO>> getBranchListWithDefaultBranchName(
             Artifact baseArtifact,
             String defaultBranchName,
             String currentBranch,
             boolean pruneBranches,
             GitType gitType) {
 
-        ArtifactType artifactType = baseArtifact.getArtifactType();
         GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
 
-        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setRepoName(baseGitData.getRepoName());
-        jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-        jsonTransformationDTO.setBaseArtifactId(baseGitData.getDefaultArtifactId());
-        jsonTransformationDTO.setRefName(currentBranch);
-        jsonTransformationDTO.setRefType(baseGitData.getRefType());
-        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+        String workspaceId = baseArtifact.getWorkspaceId();
+        String baseArtifactId = baseGitData.getDefaultArtifactId();
+        String repoName = baseGitData.getRepoName();
+        RefType refType = RefType.branch; // baseGitData.getRefType();
+        ArtifactType artifactType = baseArtifact.getArtifactType();
 
-        return gitRedisUtils
-                .acquireGitLock(
-                        artifactType,
-                        baseGitData.getDefaultArtifactId(),
-                        GitConstants.GitCommandConstants.LIST_BRANCH,
-                        TRUE)
-                .flatMap(ignoredLock -> {
-                    Mono<List<String>> listBranchesMono =
-                            Mono.defer(() -> gitHandlingService.listReferences(jsonTransformationDTO, false));
+        return Mono.usingWhen(
+                gitRedisUtils.acquireGitLock(
+                        artifactType, baseArtifactId, GitConstants.GitCommandConstants.LIST_BRANCH, TRUE),
+                ignoreLock -> {
+                    GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+                    ArtifactJsonTransformationDTO jsonTransformationDTO =
+                            new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
+                    jsonTransformationDTO.setRefName(currentBranch);
+                    jsonTransformationDTO.setRefType(refType);
+
+                    Mono<String> fetchRemoteMono = Mono.just("");
 
                     if (TRUE.equals(pruneBranches)) {
-                        return gitHandlingService
-                                .fetchRemoteReferences(jsonTransformationDTO, baseGitData.getGitAuth(), TRUE)
-                                .then(listBranchesMono);
+                        fetchRemoteMono = gitHandlingService.fetchRemoteReferences(
+                                jsonTransformationDTO, baseGitData.getGitAuth(), TRUE);
                     }
-                    return listBranchesMono;
-                })
-                .onErrorResume(error -> {
-                    return gitRedisUtils
-                            .releaseFileLock(artifactType, baseGitData.getDefaultArtifactId(), TRUE)
-                            .then(Mono.error(error));
-                })
-                .flatMap(branches -> {
-                    return gitRedisUtils
-                            .releaseFileLock(artifactType, baseGitData.getDefaultArtifactId(), TRUE)
-                            .thenReturn(branches.stream()
-                                    .map(branchName -> {
-                                        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-                                        gitBranchDTO.setBranchName(branchName);
-                                        if (branchName.equalsIgnoreCase(defaultBranchName)) {
-                                            gitBranchDTO.setDefault(true);
-                                        }
-                                        return gitBranchDTO;
-                                    })
-                                    .toList());
-                })
-                .flatMap(gitBranchDTOList -> FALSE.equals(pruneBranches)
-                        ? Mono.just(gitBranchDTOList)
-                        : gitAnalyticsUtils
-                                .addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_PRUNE,
-                                        baseArtifact,
-                                        baseArtifact.getGitArtifactMetadata().getIsRepoPrivate())
-                                .thenReturn(gitBranchDTOList));
+
+                    Mono<List<String>> listBranchesMono =
+                            Mono.defer(() -> gitHandlingService.listReferences(jsonTransformationDTO, true));
+
+                    return fetchRemoteMono
+                            .then(listBranchesMono)
+                            .onErrorResume(Mono::error)
+                            .map(branches -> {
+                                List<GitRefDTO> gitRefDTOs = new ArrayList<>();
+                                List<GitBranchDTO> gitBranchDTOs = new ArrayList<>();
+
+                                branches.forEach(branch -> {
+                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                    gitBranchDTO.setBranchName(branch);
+                                    gitBranchDTO.setDefault(branch.equalsIgnoreCase(defaultBranchName));
+                                    gitBranchDTOs.add(gitBranchDTO);
+                                });
+
+                                branches.forEach(branch -> {
+                                    GitRefDTO gitRefDTO = new GitRefDTO();
+                                    gitRefDTO.setRefName(branch);
+                                    gitRefDTO.setRefType(jsonTransformationDTO.getRefType());
+                                    gitRefDTO.setDefault(branch.equalsIgnoreCase(defaultBranchName));
+                                    gitRefDTOs.add(gitRefDTO);
+                                });
+
+                                return gitRefDTOs;
+                            })
+                            .flatMap(gitRefDTOs -> {
+                                if (!TRUE.equals(pruneBranches)) {
+                                    return Mono.just(gitRefDTOs);
+                                }
+
+                                return gitAnalyticsUtils
+                                        .addAnalyticsForGitOperation(
+                                                AnalyticsEvents.GIT_PRUNE,
+                                                baseArtifact,
+                                                baseArtifact
+                                                        .getGitArtifactMetadata()
+                                                        .getIsRepoPrivate())
+                                        .thenReturn(gitRefDTOs);
+                            });
+                },
+                ignoreLock -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, TRUE));
     }
 
     @Override
@@ -2578,6 +2600,17 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         });
     }
 
+    protected Mono<? extends Artifact> generateArtifactForRefCreation(
+            Artifact branchedArtifact, String refName, RefType refType) {
+        ArtifactType artifactType = branchedArtifact.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission editPermission = gitArtifactHelper.getArtifactEditPermission();
+
+        return gitArtifactHelper
+                .getArtifactById(branchedArtifact.getId(), editPermission)
+                .flatMap(sourceArtifact -> gitArtifactHelper.createNewArtifactForCheckout(sourceArtifact, refName));
+    }
+
     /**
      * In some scenarios:
      * connect: after loading the modal, keyTypes is not available, so a network call has to be made to ssh-keypair.
@@ -2703,7 +2736,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                             baseArtifact, destinationArtifact, false, false, gitType)
                                                     .flatMap(destinationBranchStatus -> {
                                                         if (destinationBranchStatus.getIsClean()) {
-                                                            Mono.just(destinationBranchStatus);
+                                                            return Mono.just(destinationBranchStatus);
                                                         }
 
                                                         AppsmithException statusFailureException;
@@ -2723,7 +2756,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                         return Mono.error(statusFailureException);
                                                     }));
 
-                                            return sourceBranchStatusMono.zipWith(destinationBranchStatusMono);
+                                            return sourceBranchStatusMono.zipWhen(
+                                                    sourceStatusDTO -> destinationBranchStatusMono);
                                         })
                                         .onErrorResume(error -> {
                                             log.error(
@@ -2802,7 +2836,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                                         commitDTO,
                                                                         importedDestinationArtifact.getId(),
                                                                         artifactType,
-                                                                        gitType)
+                                                                        gitType,
+                                                                        false)
                                                                 .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                                                         AnalyticsEvents.GIT_MERGE,
                                                                         importedDestinationArtifact,
@@ -2965,7 +3000,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                                 .then(Mono.error(uncleanStatusException));
                                                     }));
 
-                                            return sourceBranchStatusMono.zipWith(destinationBranchStatusMono);
+                                            return sourceBranchStatusMono.zipWhen(
+                                                    sourceStatusDTO -> destinationBranchStatusMono);
                                         })
                                         .onErrorResume(error -> {
                                             log.error(
@@ -2980,32 +3016,30 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     AppsmithError.GIT_ACTION_FAILED, "status", error));
                                         });
 
-                                return statusTupleMono.flatMap(statusTuple -> {
-                                    GitMergeDTO mergeDTO = new GitMergeDTO();
-                                    mergeDTO.setSourceBranch(sourceBranch);
-                                    mergeDTO.setDestinationBranch(destinationBranch);
+                                return statusTupleMono
+                                        .flatMap(statusTuple -> {
+                                            GitMergeDTO mergeDTO = new GitMergeDTO();
+                                            mergeDTO.setSourceBranch(sourceBranch);
+                                            mergeDTO.setDestinationBranch(destinationBranch);
+                                            return gitHandlingService.isBranchMergable(jsonTransformationDTO, mergeDTO);
+                                        })
+                                        .onErrorResume(error -> {
+                                            MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                            mergeStatus.setMergeAble(false);
+                                            mergeStatus.setStatus("Merge check failed!");
+                                            mergeStatus.setMessage(error.getMessage());
 
-                                    Mono<MergeStatusDTO> isBranchMergable =
-                                            gitHandlingService.isBranchMergable(jsonTransformationDTO, mergeDTO);
-
-                                    return isBranchMergable.onErrorResume(error -> {
-                                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                                        mergeStatus.setMergeAble(false);
-                                        mergeStatus.setStatus("Merge check failed!");
-                                        mergeStatus.setMessage(error.getMessage());
-
-                                        return gitAnalyticsUtils
-                                                .addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_MERGE_CHECK,
-                                                        baseArtifact,
-                                                        error.getClass().getName(),
-                                                        error.getMessage(),
-                                                        baseGitMetadata.getIsRepoPrivate(),
-                                                        false,
-                                                        false)
-                                                .thenReturn(mergeStatus);
-                                    });
-                                });
+                                            return gitAnalyticsUtils
+                                                    .addAnalyticsForGitOperation(
+                                                            AnalyticsEvents.GIT_MERGE_CHECK,
+                                                            baseArtifact,
+                                                            error.getClass().getName(),
+                                                            error.getMessage(),
+                                                            baseGitMetadata.getIsRepoPrivate(),
+                                                            false,
+                                                            false)
+                                                    .thenReturn(mergeStatus);
+                                        });
                             },
                             ignoreLock -> gitRedisUtils.releaseFileLock(artifactType, baseArtifactId, TRUE));
                 });

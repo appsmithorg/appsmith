@@ -35,7 +35,7 @@ import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
   height: calc(100vh - 120px);
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 const DatasourceIcon = styled.img`

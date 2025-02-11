@@ -254,7 +254,7 @@ export const getEntityId = (entity: {
     case FocusEntity.QUERY:
     case FocusEntity.JS_OBJECT:
       return entity.config?.id;
-    case FocusEntity.PROPERTY_PANE:
+    case FocusEntity.WIDGET:
       return entity.widgetId;
     case FocusEntity.CANVAS:
     case FocusEntity.EDITOR:

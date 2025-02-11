@@ -179,7 +179,7 @@ const FormRender = (props: Props) => {
         const modifiedSection = modifySectionConfig(section, enabled);
 
         return (
-          // TODO: Remove classname once action redesign epic is done
+          // TODO: Remove classname once DB configs are migrated
           <FieldWrapper
             className="uqi-form-wrapper"
             key={`${configProperty}_${idx}`}

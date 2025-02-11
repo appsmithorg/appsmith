@@ -334,15 +334,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
             if (action.getPluginType() != PluginType.JS) {
                 if (action.getDatasource().getId() == null) {
-
-                    // This is a nested datasource. If the action is in bad state (aka without workspace id, add the
-                    // same)
-                    if (action.getDatasource().getWorkspaceId() == null
-                            && action.getDatasource().getOrganizationId() != null) {
-                        action.getDatasource()
-                                .setWorkspaceId(action.getDatasource().getOrganizationId());
-                    }
-
                     datasourceMono = Mono.just(action.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
                     // TODO: check if datasource should be fetched with edit during action create or update.
@@ -1379,7 +1370,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
         analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedAction.getPageId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
         analyticsProperties.put("pluginId", ObjectUtils.defaultIfNull(savedAction.getPluginId(), ""));
         analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
         analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
