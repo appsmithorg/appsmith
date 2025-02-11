@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug node --max_old_space_size=4096 scripts/start.js",
+    "start": "DISABLE_ESLINT_PLUGIN=true BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug node --max_old_space_size=4096 scripts/start.js",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "build-local": "node --max-old-space-size=4096 scripts/build.js",
@@ -423,8 +423,5 @@
     "@blueprintjs/icons": "3.22.0",
     "@types/react": "^17.0.2",
     "postcss": "8.4.31"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }

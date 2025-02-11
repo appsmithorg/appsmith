@@ -29,7 +29,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
 const FaroSourceMapUploaderPlugin = require("@grafana/faro-webpack-plugin");
 
-const createEnvironmentHash = require("./webpack/persistentCache/createEnvironmentHash");
+const createEnvironmentHash = require("./createEnvironmentHash");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
