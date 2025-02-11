@@ -45,7 +45,7 @@ describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
     entityExplorer.RenameEntityFromExplorer(
       "Page1",
       "Renamed",
-      false,
+      true,
       EntityItems.Page,
     );
     assertHelper.AssertNetworkStatus("updatePage");

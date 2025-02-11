@@ -12,8 +12,6 @@ export interface ListItemProps {
   rightControlVisibility?: "hover" | "always";
   /** callback for when the list item is clicked */
   onClick: (e: MouseEvent) => void;
-  /** callback for when the list item is double-clicked */
-  onDoubleClick?: () => void;
   /** Whether the list item is disabled. */
   isDisabled?: boolean;
   /** Whether the list item is selected. */

@@ -1013,7 +1013,7 @@ export class AggregateHelper {
 
     if (value === "") return element;
 
-    return element.wait(100).type(value, {
+    return element.wait(100).clear().type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       delay: delay,
       force: true,

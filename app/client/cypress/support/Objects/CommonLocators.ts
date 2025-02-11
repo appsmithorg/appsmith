@@ -98,8 +98,7 @@ export class CommonLocators {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code";
-  _entityNameEditing = () =>
-    "//span[contains(@class, 't--entity-name editing')]/input";
+  _entityNameEditing = ".t--entity-name.editing input";
   _jsToggle = (controlToToggle: string) =>
     `.t--property-control-${controlToToggle} .t--js-toggle, [data-guided-tour-iid='${controlToToggle}']`;
   _buttonByText = (btnVisibleText: string) =>

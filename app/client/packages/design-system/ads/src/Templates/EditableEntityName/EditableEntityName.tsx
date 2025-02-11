@@ -16,6 +16,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     isFixedWidth,
     isLoading,
     name,
+    onDoubleClick,
     onExitEditing,
     onNameSave,
     size = "small",
@@ -80,6 +81,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
           inputRef={inputRef}
           isEditable={inEditMode}
           kind={size === "small" ? "body-s" : "body-m"}
+          onDoubleClick={onDoubleClick}
         >
           {editableName}
         </Styled.Text>

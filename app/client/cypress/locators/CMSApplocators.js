@@ -12,7 +12,7 @@ export default {
   confirmButton: "span:contains('Confirm')",
   closeButton: "span:contains('Close')",
   datasourcesbutton: "//div[text()='Datasources']",
-  postApi: "//div[text()='send_mail']",
+  postApi: "//span[text()='send_mail']",
   deleteButton: "//span[text()='Delete Proposal']",
   deleteTaskText: "//span[text()='Delete this task']",
 };
