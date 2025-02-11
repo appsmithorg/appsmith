@@ -1,5 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
@@ -20,8 +22,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -67,24 +72,60 @@ public class Migration065_CopyTenantIdToOrganizationId {
 
             try {
                 // Create new organization document
-                Document organization = new Document();
+                Document organizationDocument = new Document();
 
                 // Copy all fields from tenant to organization
-                organization.putAll(tenant);
+                organizationDocument.putAll(tenant);
 
                 // Ensure the _id is preserved
                 String tenantId = tenant.getObjectId("_id").toString();
-                organization.put("_id", new ObjectId(tenantId));
+                organizationDocument.put("_id", new ObjectId(tenantId));
 
                 // Handle configuration key rename
                 if (tenant.containsKey("tenantConfiguration")) {
-                    organization.put("organizationConfiguration", tenant.get("tenantConfiguration"));
-                    organization.remove("tenantConfiguration");
+                    organizationDocument.put("organizationConfiguration", tenant.get("tenantConfiguration"));
+                    organizationDocument.remove("tenantConfiguration");
                 }
+
+                Organization organization = mongoTemplate.getConverter().read(Organization.class, organizationDocument);
+
+                Map<String, Policy> existingPolicyMap = organization.getPolicyMap();
+                if (existingPolicyMap == null || existingPolicyMap.isEmpty()) {
+                    return;
+                }
+
+                Map<String, Policy> updatedPolicyMap = new HashMap<>(existingPolicyMap); // Copy existing policies
+                Set<Policy> updatedPolicies =
+                        new HashSet<>(organization.getPolicies()); // Copy existing deprecated policies
+
+                // Process each policy
+                for (Map.Entry<String, Policy> entry : existingPolicyMap.entrySet()) {
+                    Policy existingPolicy = entry.getValue();
+                    String permission = existingPolicy.getPermission();
+
+                    // Only process policies that contain 'tenant'
+                    if (permission.toLowerCase().contains("tenant")) {
+                        // Create new policy with 'organization' instead of 'tenant'
+                        String newPermission = permission.replaceAll("(?i)tenant", "organization");
+
+                        // Skip if the new permission already exists
+                        if (!updatedPolicyMap.containsKey(newPermission)) {
+                            // Create a new policy object with the same permissions but new name
+                            Policy newPolicy =
+                                    new Policy(newPermission, new HashSet<>(existingPolicy.getPermissionGroups()));
+
+                            updatedPolicyMap.put(newPermission, newPolicy);
+                            updatedPolicies.add(newPolicy);
+                        }
+                    }
+                }
+
+                organization.setPolicyMap(updatedPolicyMap);
+                organization.setPolicies(updatedPolicies);
 
                 // Insert into organization collection
                 try {
-                    mongoTemplate.insert(organization, "organization");
+                    mongoTemplate.save(organization);
                     log.info("Successfully migrated tenant to organization with id: {}", tenantId);
                 } catch (DuplicateKeyException e) {
                     log.warn("Organization already exists for tenant: {}", tenantId);
