@@ -29,4 +29,7 @@ public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
             AclPermission permission,
             User currentUser,
             EntityManager entityManager);
+
+    Optional<Integer> executeThemeImportProcedure(
+            String id, String themeId, String publishThemeId, EntityManager entityManager);
 }

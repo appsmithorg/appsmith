@@ -8,6 +8,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
@@ -91,5 +92,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                         Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);
         return archiveThemeByCriteria(criteria, permission, currentUser, entityManager);
+    }
+
+    @Override
+    public Optional<Integer> executeThemeImportProcedure(
+            String id, String unpublishedThemeId, String publishedThemeId, EntityManager entityManager) {
+        Query query = entityManager.createNativeQuery(
+                "CALL import_theme_to_application(:appId, :unpublishedThemeId, :publishedThemeId)");
+        query.setParameter("appId", id);
+        query.setParameter("unpublishedThemeId", unpublishedThemeId);
+        query.setParameter("publishedThemeId", publishedThemeId);
+
+        return Optional.of(query.executeUpdate());
     }
 }
