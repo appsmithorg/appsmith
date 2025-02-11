@@ -76,7 +76,13 @@ if (!portalContainer) {
 function TooltipComponent(props: TooltipProps) {
   const modifiers = useMemo(
     () => ({
-      preventOverflow: { enabled: false },
+      preventOverflow: {
+        enabled: true,
+        boundariesElement: "viewport",
+      },
+      flip: {
+        enabled: true,
+      },
       ...props.modifiers,
     }),
     [props.modifiers],
