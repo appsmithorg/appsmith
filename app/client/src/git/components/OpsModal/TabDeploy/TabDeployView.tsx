@@ -12,6 +12,7 @@ import {
   COMMITTING_AND_PUSHING_CHANGES,
   createMessage,
   DISCARD_CHANGES,
+  DISCARD_SUCCESS,
   DISCARDING_AND_PULLING_CHANGES,
   GIT_NO_UPDATED_TOOLTIP,
   PULL_CHANGES,
@@ -239,7 +240,7 @@ function TabDeployView({
     AnalyticsUtil.logEvent("GIT_DISCARD", {
       source: "GIT_DISCARD_BUTTON_PRESS_2",
     });
-    discard(createMessage(DISCARD_CHANGES));
+    discard(createMessage(DISCARD_SUCCESS));
     setShowDiscardWarning(false);
     setShouldDiscard(true);
     setIsDiscarding(true);
