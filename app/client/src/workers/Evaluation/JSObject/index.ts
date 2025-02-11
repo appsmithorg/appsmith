@@ -286,7 +286,7 @@ export function parseJSActions(
       }
     });
   } else {
-    objectKeys(unEvalDataTree).forEach((entityName) => {
+    objectKeys(unEvalDataTree).forEach((entityName: string) => {
       const entity = unEvalDataTree[entityName];
 
       if (!isJSAction(entity)) {
@@ -303,7 +303,7 @@ export function parseJSActions(
     });
   }
 
-  objectKeys(jsUpdates).forEach((entityName) => {
+  objectKeys(jsUpdates).forEach((entityName: string) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
 
     if (!parsedBody) return;
@@ -321,7 +321,7 @@ export function parseJSActions(
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, JSActionEntity> = {};
 
-  objectKeys(dataTree).forEach((entityName) => {
+  objectKeys(dataTree).forEach((entityName: string) => {
     const entity = dataTree[entityName];
 
     if (isJSAction(entity)) {
