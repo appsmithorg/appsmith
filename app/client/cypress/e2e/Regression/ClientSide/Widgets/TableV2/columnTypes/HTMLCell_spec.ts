@@ -12,6 +12,9 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
+      featureFlagIntercept({
+        release_table_html_column_type_enabled: true,
+      });
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
       propPane.EnterJSContext("Table data", JSON.stringify(htmlTableData));
     });

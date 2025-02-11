@@ -9,12 +9,13 @@ import {
   hideByColumnType,
   uniqueColumnAliasValidation,
 } from "../../../propertyUtils";
-import { columnTypeConfig } from "./ColumnType";
+import { columnTypeConfig, columnTypeWithHtmlConfig } from "./ColumnType";
 
 export default {
   sectionName: "Data",
   children: [
     columnTypeConfig,
+    columnTypeWithHtmlConfig,
     {
       helpText: "The alias that you use in selectedrow",
       propertyName: "alias",
