@@ -5,6 +5,7 @@ import { PluginType } from "entities/Plugin";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { MessageType } from "utils/MessageUtil";
+import { objectKeys } from "@appsmith/utils";
 import {
   getDataTreeContext,
   addPlatformFunctionsToEvalContext,
@@ -573,7 +574,7 @@ describe("Test addDataTreeToContext method", () => {
       postWindowMessage: true,
     };
 
-    for (const actionName of Object.keys(frameworkActions)) {
+    for (const actionName of objectKeys(frameworkActions)) {
       expect(evalContext).toHaveProperty(actionName);
       expect(typeof evalContext[actionName]).toBe("function");
     }

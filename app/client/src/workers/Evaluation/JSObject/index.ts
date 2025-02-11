@@ -320,7 +320,7 @@ export function parseJSActions(
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, JSActionEntity> = {};
 
-  Object.keys(dataTree).forEach((entityName: string) => {
+  Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
 
     if (isJSAction(entity)) {

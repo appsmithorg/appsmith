@@ -3,6 +3,7 @@ import setters from "../setters";
 import TableWidget from "widgets/TableWidgetV2/widget";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { objectKeys } from "@appsmith/utils";
 import { createEvaluationContext } from "../evaluate";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
@@ -85,7 +86,7 @@ describe("Setter class test", () => {
 
     Object.assign(globalContext, evalContext);
 
-    expect(Object.keys(methodMap)).toEqual([
+    expect(objectKeys(methodMap)).toEqual([
       "setVisibility",
       "setSelectedRowIndex",
       "setData",

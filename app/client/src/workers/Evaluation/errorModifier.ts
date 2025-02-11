@@ -9,6 +9,7 @@ import {
 } from "workers/common/DataTreeEvaluator/utils";
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
 import { get, isEmpty, toPath } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 import { APP_MODE } from "entities/App";
 import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
@@ -63,7 +64,7 @@ class ErrorModifier {
       dataTree,
       jsPropertiesState.getMap(),
       dependencyMap,
-      Object.keys(allAsyncEntityFunctions),
+      objectKeys(allAsyncEntityFunctions),
     );
 
     this.asyncFunctionsNameMap = allAsyncEntityFunctions;
@@ -250,7 +251,7 @@ export const ActionInDataFieldErrorModifier: Modifier = (
 
   if (!["ReferenceError", "TypeError"].includes(error.name)) return {};
 
-  for (const asyncFunctionFullPath of Object.keys(asynFns)) {
+  for (const asyncFunctionFullPath of objectKeys(asynFns)) {
     const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
 
     if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {

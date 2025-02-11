@@ -10,6 +10,7 @@ import type {
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
@@ -237,7 +238,7 @@ export const removeFunctionsAndVariableJSCollection = (
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
 
-  Object.keys(oldConfig.meta).forEach((action) => {
+  objectKeys(oldConfig.meta).forEach((action: string) => {
     functionsList.push(action);
   });
   //removed variables
@@ -381,7 +382,7 @@ export function* sortJSExecutionDataByCollectionId(
   const JSCollectionsForCurrentPage: JSCollectionData[] =
     yield select(getAllJSCollections);
 
-  for (const jsfuncFullName of Object.keys(data)) {
+  for (const jsfuncFullName of objectKeys(data)) {
     const jsAction = getJSActionFromJSCollections(
       JSCollectionsForCurrentPage,
       jsfuncFullName,
