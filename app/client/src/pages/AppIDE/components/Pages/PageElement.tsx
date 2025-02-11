@@ -19,7 +19,7 @@ import type { AppState } from "ee/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
 import { toValidPageName } from "utils/helpers";
 import { updatePageAction } from "actions/pageActions";
-import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
+import { useGetPageFocusUrl } from "./hooks/useGetPageFocusUrl";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";

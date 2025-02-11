@@ -8,8 +8,8 @@ import {
 } from "ee/pages/Editor/IDE/EditorPane/constants";
 import { JSEditorPane } from "./JS";
 import { QueryEditor } from "./Query";
-import EditorTabs from "../EditorTabs";
-import { useCurrentEditorState } from "../hooks";
+import EditorTabs from "../../../AppIDE/components/EditorTabs";
+import { useCurrentEditorState } from "../../../AppIDE/hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
 import useMainPaneRoutes from "ee/pages/AppIDE/layouts/hooks/useMainPaneRoutes";
-import { useWidgetSelectionBlockListener } from "pages/Editor/IDE/hooks";
+import { useWidgetSelectionBlockListener } from "../hooks/useWidgetSelectionBlockListener";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

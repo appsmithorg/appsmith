@@ -22,7 +22,7 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import * as useCanvasWidthAutoResize from "pages/hooks";
+import * as useCanvasWidthAutoResize from "../../hooks";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "../GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
@@ -144,7 +144,7 @@ describe("Drag and Drop widgets into Main container", () => {
     }));
 
     // only the deafault exports are mocked to avoid overriding utilities exported out of them. defaults are marked to avoid worker initiation and page api calls in tests.
-    jest.mock("sagas/EvaluationsSaga", () => ({
+    jest.mock("../../../sagas/EvaluationsSaga", () => ({
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
@@ -885,7 +885,7 @@ describe("Drag in a nested container", () => {
     }));
 
     // only the deafault exports are mocked to avoid overriding utilities exported out of them. defaults are marked to avoid worker initiation and page api calls in tests.
-    jest.mock("sagas/EvaluationsSaga", () => ({
+    jest.mock("../../../sagas/EvaluationsSaga", () => ({
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));

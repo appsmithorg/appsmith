@@ -2,13 +2,10 @@ import React from "react";
 import { IDEHeaderSwitcher } from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
-import { PagesSection } from "../../../Editor/IDE/EditorPane/Pages/PagesSection";
+import { PagesSection } from "../Pages/PagesSection";
 import { useBoolean } from "usehooks-ts";
 import { useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  getPageById,
-} from "../../../../selectors/editorSelectors";
+import { getCurrentPageId, getPageById } from "selectors/editorSelectors";
 
 const EditorTitle = () => {
   const {

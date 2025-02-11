@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
-import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
+import { useSegmentNavigation } from "./useSegmentNavigation";
+import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 import { EditorSegments } from "@appsmith/ads";
 
 const SegmentSwitcher = () => {

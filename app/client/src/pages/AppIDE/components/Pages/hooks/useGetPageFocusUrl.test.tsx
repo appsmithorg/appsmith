@@ -2,12 +2,12 @@ import { renderHook } from "@testing-library/react-hooks";
 import { hookWrapper } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { useGetPageFocusUrl } from "./hooks";
+import { useGetPageFocusUrl } from "./useGetPageFocusUrl";
 import { createPageFocusInfo } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 
 const mockUseGitCurrentBranch = jest.fn<string | null, []>(() => null);
 
-jest.mock("../gitSync/hooks/modHooks", () => ({
+jest.mock("pages/Editor/gitSync/hooks/modHooks", () => ({
   useGitCurrentBranch: () => mockUseGitCurrentBranch(),
 }));
 

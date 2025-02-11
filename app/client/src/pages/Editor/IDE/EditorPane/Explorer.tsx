@@ -15,12 +15,12 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import SegmentSwitcher from "./components/SegmentSwitcher";
+import SegmentSwitcher from "../../../AppIDE/components/SegmentSwitcher/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
-import { useCurrentEditorState } from "../hooks";
+import { useCurrentEditorState } from "../../../AppIDE/hooks/useCurrentEditorState";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();

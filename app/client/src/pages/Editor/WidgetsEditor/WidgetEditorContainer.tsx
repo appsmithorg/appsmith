@@ -2,7 +2,7 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import type { ReactNode } from "react";
 import React from "react";
 import classNames from "classnames";
-import { useCurrentAppState } from "../../../IDE/hooks/useCurrentAppState";
+import { useCurrentAppState } from "IDE/hooks";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EditorState } from "IDE/enums";

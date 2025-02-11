@@ -21,11 +21,8 @@ import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { setListViewActiveState } from "actions/ideActions";
 
-import {
-  useCurrentEditorState,
-  useIDETabClickHandlers,
-  useShowSideBySideNudge,
-} from "../hooks";
+import { useIDETabClickHandlers, useShowSideBySideNudge } from "./hooks";
+import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 import { EditableTab } from "./EditableTab";
