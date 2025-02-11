@@ -65,7 +65,7 @@ spec:
       {{- if ((.Values.initContainer.redis).image) }}
         image: {{ .Values.initContainer.redis.image }}
       {{- else }}
-        image: "docker.io/bitnami/redis:7.0.13-debian-11-r10"
+        image: "docker.io/redis:7.0.15"
       {{- end }}
         command: ['sh', '-c', "until redis-cli -h {{.Release.Name}}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done"]
       {{- end }}

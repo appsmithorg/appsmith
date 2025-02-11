@@ -1,4 +1,6 @@
+import { toast } from "@appsmith/ads";
 import { captureException } from "@sentry/react";
+import { createMessage, PROTECT_BRANCH_SUCCESS } from "ee/constants/messages";
 import updateProtectedBranchesRequest from "git/requests/updateProtectedBranchesRequest";
 import type {
   UpdateProtectedBranchesRequestParams,
@@ -41,6 +43,10 @@ export default function* updateProtectedBranchesSaga(
         gitArtifactActions.updateProtectedBranchesSuccess({ artifactDef }),
       );
       yield put(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
+
+      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
+        kind: "success",
+      });
     }
   } catch (e) {
     if (response && response.responseMeta.error) {
