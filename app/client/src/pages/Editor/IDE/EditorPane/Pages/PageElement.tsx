@@ -90,14 +90,7 @@ const PageElement = ({
     if (onClick) {
       onClick();
     }
-  }, [
-    location.pathname,
-    currentPageId,
-    navigateToUrl,
-    dispatch,
-    page.pageName,
-    onClick,
-  ]);
+  }, [location.pathname, navigateToUrl, dispatch, page.pageName, onClick]);
 
   const contextMenu = (
     <PageContextMenu
