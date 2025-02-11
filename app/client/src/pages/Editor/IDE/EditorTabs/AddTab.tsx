@@ -1,12 +1,14 @@
 import React from "react";
+import { useEventCallback } from "usehooks-ts";
 
-import { FileTab } from "IDE/Components/FileTab";
-import { useCurrentEditorState } from "../hooks";
+import { DismissibleTab, Text } from "@appsmith/ads";
+
 import {
   EditorEntityTab,
   EditorEntityTabState,
-} from "ee/entities/IDE/constants";
-import { Text } from "@appsmith/ads";
+} from "IDE/Interfaces/EditorTypes";
+
+import { useCurrentEditorState } from "../hooks";
 
 const AddTab = ({
   isListActive,
@@ -19,24 +21,26 @@ const AddTab = ({
 }) => {
   const { segment, segmentMode } = useCurrentEditorState();
 
-  if (segmentMode !== EditorEntityTabState.Add) return null;
-
-  const onCloseClick = (e: React.MouseEvent) => {
+  const onCloseClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onClose();
-  };
+  });
 
-  const content = `New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`;
+  if (segmentMode !== EditorEntityTabState.Add) return null;
+
+  const segmentName = segment === EditorEntityTab.JS ? "JS" : "Query";
+  const content = `New ${segmentName}`;
+  const dataTestId = `t--ide-tab-new_${segmentName.toLowerCase()}`;
 
   return (
-    <FileTab
+    <DismissibleTab
+      dataTestId={dataTestId}
       isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
-      onClose={(e) => onCloseClick(e)}
-      title={content}
+      onClose={onCloseClick}
     >
       <Text kind="body-s">{content}</Text>
-    </FileTab>
+    </DismissibleTab>
   );
 };
 

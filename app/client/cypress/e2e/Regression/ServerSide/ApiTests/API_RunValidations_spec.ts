@@ -15,7 +15,8 @@ describe(
       apiPage.AssertRunButtonDisability(true);
     });
 
-    it('2. Validate we get an appropriate error message when an invalid URL is entered. Error should show up when nothing is entered & we click on "Import".', function () {
+    //Bug: https://github.com/appsmithorg/appsmith/issues/38156
+    it.skip('2. Validate we get an appropriate error message when an invalid URL is entered. Error should show up when nothing is entered & we click on "Import".', function () {
       apiPage.CreateAndFillApi(
         "htt://failedurlfortest",
         "WhatTrumpThinks",

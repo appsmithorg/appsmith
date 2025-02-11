@@ -7,23 +7,45 @@ import * as Styled from "./EditableEntityName.styles";
 
 import type { EditableEntityNameProps } from "./EditableEntityName.types";
 
-export const EditableEntityName = ({
-  icon,
-  inputTestId,
-  isEditing,
-  isLoading = false,
-  name,
-  onExitEditing,
-  onNameSave,
-  validateName,
-}: EditableEntityNameProps) => {
+export const EditableEntityName = (props: EditableEntityNameProps) => {
+  const {
+    canEdit,
+    icon,
+    inputTestId,
+    isEditing,
+    isFixedWidth,
+    isLoading,
+    name,
+    onExitEditing,
+    onNameSave,
+    size = "small",
+    validateName,
+  } = props;
+
+  const inEditMode = canEdit ? isEditing : false;
+
   const [
     inputRef,
     editableName,
     validationError,
     handleKeyUp,
     handleTitleChange,
-  ] = useEditableText(isEditing, name, onExitEditing, validateName, onNameSave);
+  ] = useEditableText(
+    inEditMode,
+    name,
+    onExitEditing,
+    validateName,
+    onNameSave,
+  );
+
+  // When in loading state, start icon becomes the loading icon
+  const startIcon = useMemo(() => {
+    if (isLoading) {
+      return <Spinner size={size === "small" ? "sm" : "md"} />;
+    }
+
+    return icon;
+  }, [isLoading, icon, size]);
 
   const inputProps = useMemo(
     () => ({
@@ -32,29 +54,31 @@ export const EditableEntityName = ({
       onChange: handleTitleChange,
       autoFocus: true,
       style: {
-        paddingTop: 4,
-        paddingBottom: 4,
-        left: -1,
-        top: -5,
+        backgroundColor: "var(--ads-v2-color-bg)",
+        paddingTop: "4px",
+        paddingBottom: "4px",
+        top: "-5px",
       },
     }),
     [handleKeyUp, handleTitleChange, inputTestId],
   );
 
   return (
-    <Styled.Root>
-      {isLoading ? (
-        <Spinner size="sm" />
-      ) : (
-        <Styled.IconContainer>{icon}</Styled.IconContainer>
-      )}
-      <Tooltip content={validationError} visible={Boolean(validationError)}>
+    <Styled.Root data-size={size}>
+      {startIcon}
+      <Tooltip
+        content={validationError}
+        placement="bottom"
+        visible={Boolean(validationError)}
+      >
         <Styled.Text
           aria-invalid={Boolean(validationError)}
+          data-isediting={inEditMode}
+          data-isfixedwidth={isFixedWidth}
           inputProps={inputProps}
           inputRef={inputRef}
-          isEditable={isEditing}
-          kind="body-s"
+          isEditable={inEditMode}
+          kind={size === "small" ? "body-s" : "body-m"}
         >
           {editableName}
         </Styled.Text>

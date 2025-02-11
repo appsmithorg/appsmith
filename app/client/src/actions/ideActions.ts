@@ -1,4 +1,4 @@
-import type { EditorViewMode } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 

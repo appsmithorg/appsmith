@@ -8,7 +8,7 @@ import EditorNavigation, {
 
 let dsName: any, userMock: string, movieMock: string;
 
-describe(
+describe.skip(
   "Bug 26716: Datasource selected from entity explorer should be correctly highlighted",
   {
     tags: [

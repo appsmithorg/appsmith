@@ -1,11 +1,6 @@
-import { precacheAndRoute } from "workbox-precaching";
-import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
+import { clientsClaim, skipWaiting } from "workbox-core";
 import { registerRoute, Route } from "workbox-routing";
-import {
-  CacheFirst,
-  NetworkOnly,
-  StaleWhileRevalidate,
-} from "workbox-strategies";
+import { NetworkOnly } from "workbox-strategies";
 import {
   cachedApiUrlRegex,
   getApplicationParamsFromUrl,
@@ -14,32 +9,11 @@ import {
 } from "ee/utils/serviceWorkerUtils";
 import type { RouteHandlerCallback } from "workbox-core/types";
 
-setCacheNameDetails({
-  prefix: "appsmith",
-  suffix: "",
-  precache: "precache-v1",
-  runtime: "runtime",
-  googleAnalytics: "appsmith-ga",
-});
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+const wbManifest = (self as any).__WB_MANIFEST;
 
-const regexMap = {
-  appViewPage: new RegExp(/api\/v1\/pages\/\w+\/view$/),
-  static3PAssets: new RegExp(
-    /(tiny.cloud|googleapis|gstatic|cloudfront).*.(js|css|woff2)/,
-  ),
-  shims: new RegExp(/shims\/.*.js/),
-  profile: new RegExp(/v1\/(users\/profile|workspaces)/),
-};
-
-/* eslint-disable no-restricted-globals */
-// Note: if you need to filter out some files from precaching,
-
-// do that in webpack.config.js → workbox webpack plugin options
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toPrecache = (self as any).__WB_MANIFEST;
-
-precacheAndRoute(toPrecache);
+// Delete the old pre-fetch cache. All static files are now cached by cache control headers.
+caches.delete("appsmith-precache-v1");
 
 self.__WB_DISABLE_DEV_LOGS = true;
 skipWaiting();
@@ -74,23 +48,6 @@ const htmlRouteHandlerCallback: RouteHandlerCallback = async ({
 
   return networkHandler.handle({ event, request });
 };
-
-// This route's caching seems too aggressive.
-// TODO(abhinav): Figure out if this is really necessary.
-// Maybe add the assets locally?
-registerRoute(({ url }) => {
-  return (
-    regexMap.shims.test(url.pathname) || regexMap.static3PAssets.test(url.href)
-  );
-}, new CacheFirst());
-
-registerRoute(({ url }) => {
-  return regexMap.profile.test(url.pathname);
-}, new NetworkOnly());
-
-registerRoute(({ url }) => {
-  return regexMap.appViewPage.test(url.pathname);
-}, new StaleWhileRevalidate());
 
 registerRoute(
   new Route(({ request, sameOrigin }) => {

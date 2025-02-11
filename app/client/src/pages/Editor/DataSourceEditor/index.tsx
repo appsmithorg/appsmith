@@ -1237,6 +1237,8 @@ const mapDispatchToProps = (
   switchDatasource: (id: string) => {
     // on reconnect data modal, it shouldn't be redirected to datasource edit page
     dispatch(switchDatasource(id, ownProps.isInsideReconnectModal));
+    // Set view mode to true after switching datasource
+    dispatch(setDatasourceViewModeFlag(true));
   },
   setDatasourceViewMode: (payload: {
     datasourceId: string;

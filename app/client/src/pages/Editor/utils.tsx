@@ -35,9 +35,9 @@ import { Icon } from "@appsmith/ads";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-  EditorState,
   EditorViewMode,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
+import { EditorState } from "IDE/enums";
 import { FocusEntity } from "navigation/FocusEntity";
 import { objectKeys } from "@appsmith/utils";
 

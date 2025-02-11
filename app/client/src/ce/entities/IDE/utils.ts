@@ -1,5 +1,6 @@
-import type { IDEType, EditorState } from "ee/entities/IDE/constants";
-import { IDE_TYPE, IDEBasePaths } from "ee/entities/IDE/constants";
+import type { EditorState } from "IDE/enums";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { IDEBasePaths } from "ee/IDE/constants/routes";
 import { matchPath } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import {
@@ -9,7 +10,8 @@ import {
 } from "ee/constants/routes/appRoutes";
 import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export interface SaveEntityName {
