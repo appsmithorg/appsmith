@@ -162,6 +162,7 @@ function* fetchPluginFormConfigsSaga(action?: {
     // Initialize default settings for all plugin types first
     Array.from(pluginIdFormsToFetch).forEach((pluginId) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
+
       if (plugin) {
         settingConfigs[pluginId] = defaultActionSettings[plugin.type] || [];
       }
