@@ -20,6 +20,7 @@ public class EqualityTest {
             // Note: Adding a class here means that we have a test for its equality in this file.
             ApplicationDetail.class,
             OrganizationConfiguration.class,
+            TenantConfiguration.class,
             Application.AppLayout.class,
             Application.EmbedSetting.class,
             GitArtifactMetadata.class);
