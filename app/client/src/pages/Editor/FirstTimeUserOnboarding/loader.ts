@@ -5,7 +5,7 @@ export const FirstTimeUserOnboardingChecklist = lazy(async () =>
   retryPromise(
     async () =>
       import(
-        /* webpackChunkName: "FirstTimeUserOnboardingChecklist" */ "pages/Editor/FirstTimeUserOnboarding/Checklist"
+        /* webpackChunkName: "FirstTimeUserOnboardingChecklist" */ "./Checklist"
       ),
   ),
 );
