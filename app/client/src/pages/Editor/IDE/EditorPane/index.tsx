@@ -1,10 +1,10 @@
 import React from "react";
-import { ExplorerContainerBorder, Flex } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = () => {
@@ -12,11 +12,6 @@ const EditorPane = () => {
 
   return (
     <Flex
-      borderRight={
-        ideViewMode === EditorViewMode.SplitScreen
-          ? ExplorerContainerBorder.STANDARD
-          : ExplorerContainerBorder.NONE
-      }
       className="ide-editor-left-pane"
       flexDirection={
         ideViewMode === EditorViewMode.SplitScreen ? "column" : "row"

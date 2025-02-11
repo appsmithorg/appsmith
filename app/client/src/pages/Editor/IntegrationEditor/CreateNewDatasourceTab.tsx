@@ -169,6 +169,7 @@ class CreateNewDatasourceTab extends React.Component<
             isPremiumDatasourcesViewEnabled={
               this.props.isPremiumDatasourcesViewEnabled
             }
+            mockDatasources={this.props.mockDatasources}
           />
         </NewIntegrationsContainer>
         {isRequestNewIntegrationEnabled && <RequestNewIntegration />}

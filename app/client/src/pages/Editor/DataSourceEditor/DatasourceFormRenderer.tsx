@@ -10,7 +10,7 @@ import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 import { Text } from "@appsmith/ads";
 import { Table } from "@appsmith/ads-old";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import { RagDocuments } from "ee/components/formControls/RagDocuments";
+import { RagDocuments } from "ee/components/formControls/Rag";
 import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 
@@ -164,7 +164,7 @@ export default function DatasourceFormRenderer({
               `datasourceStorages.${currentEnvironment}.` + configProperty;
             const reactKey = datasource.id + "_" + label;
 
-            if (controlType === "RAG_DOCUMENTS") {
+            if (controlType === "RAG_INTEGRATIONS") {
               return (
                 <RagDocuments
                   datasourceId={datasource.id}

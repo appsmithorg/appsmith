@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -32,9 +33,15 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -46,7 +53,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +75,7 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CUR
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CURRENT_THEME_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CUSTOM_JS_LIB_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.DATASOURCES_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ETAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FEATURE_FLAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FORM_CONFIG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.MOCK_DATASOURCES_SPAN;
@@ -106,6 +118,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final ObservationHelper observationHelper;
 
     protected <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
@@ -632,5 +645,77 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
     private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {
         return PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE.contains(plugin.getPackageName());
+    }
+
+    @NotNull public String computeConsolidatedAPIResponseEtag(
+            ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId) {
+        if (isBlank(defaultPageId) && isBlank(applicationId)) {
+            log.debug(
+                    "Skipping etag computation: Both defaultPageId '{}', and applicationId '{}' are blank",
+                    defaultPageId,
+                    applicationId);
+            return "";
+        }
+
+        Span computeEtagSpan = observationHelper.createSpan(ETAG_SPAN).start();
+
+        try {
+            String lastDeployedAt = consolidatedAPIResponseDTO.getPages() != null
+                    ? consolidatedAPIResponseDTO
+                            .getPages()
+                            .getData()
+                            .getApplication()
+                            .getLastDeployedAt()
+                            .toString()
+                    : null;
+
+            if (lastDeployedAt == null) {
+                log.debug(
+                        "Skipping etag computation: lastDeployedAt is null for applicationId '{}', pageId '{}'",
+                        applicationId,
+                        defaultPageId);
+                return "";
+            }
+
+            Object currentTheme = consolidatedAPIResponseDTO.getCurrentTheme() != null
+                    ? consolidatedAPIResponseDTO.getCurrentTheme()
+                    : "";
+            Object themes = consolidatedAPIResponseDTO.getThemes() != null
+                    ? consolidatedAPIResponseDTO.getThemes()
+                    : Collections.emptyList();
+
+            Map<String, Object> consolidateAPISignature = Map.of(
+                    "userProfile", consolidatedAPIResponseDTO.getUserProfile(),
+                    "featureFlags", consolidatedAPIResponseDTO.getFeatureFlags(),
+                    "tenantConfig", consolidatedAPIResponseDTO.getTenantConfig(),
+                    "productAlert", consolidatedAPIResponseDTO.getProductAlert(),
+                    "currentTheme", currentTheme,
+                    "themes", themes,
+                    "lastDeployedAt", lastDeployedAt);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            // For deterministic map key ordering.
+            objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+            // For deterministic ordering of bean properties.
+            objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+            objectMapper.registerModule(new JavaTimeModule());
+
+            String consolidateAPISignatureJSON = objectMapper.writeValueAsString(consolidateAPISignature);
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(consolidateAPISignatureJSON.getBytes(StandardCharsets.UTF_8));
+            String etag = Base64.getEncoder().encodeToString(hashBytes);
+
+            // Strong Etags are removed by nginx if gzip is enabled. Hence, we are using weak etags.
+            // Ref: https://github.com/kubernetes/ingress-nginx/issues/1390
+            // Weak Etag format is: W/"<etag>"
+            // Ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+            return "W/\"" + etag + "\"";
+        } catch (Exception e) {
+            log.error("Error while computing etag for ConsolidatedAPIResponseDTO", e);
+            return "";
+        } finally {
+            observationHelper.endSpan(computeEtagSpan, true);
+        }
     }
 }

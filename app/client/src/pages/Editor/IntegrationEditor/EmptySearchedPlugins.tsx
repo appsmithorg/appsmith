@@ -11,8 +11,12 @@ import {
 import { useSelector } from "react-redux";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import { getPlugins } from "ee/selectors/entitiesSelector";
-import { PREMIUM_INTEGRATIONS } from "./PremiumDatasources/Constants";
+import { getFilteredPremiumIntegrations } from "./PremiumDatasources/Constants";
 import styled from "styled-components";
+import { filterSearch } from "./util";
+import type { MockDatasource } from "entities/Datasource";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const EmptyImage = styled.img`
   margin-bottom: var(--ads-v2-spaces-6);
@@ -21,8 +25,10 @@ const EmptyImage = styled.img`
 
 export default function EmptySearchedPlugins({
   isPremiumDatasourcesViewEnabled,
+  mockDatasources,
 }: {
   isPremiumDatasourcesViewEnabled: boolean;
+  mockDatasources: MockDatasource[];
 }) {
   let searchedPlugin = useSelector((state) =>
     pluginSearchSelector(state, "search"),
@@ -30,19 +36,26 @@ export default function EmptySearchedPlugins({
 
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
   const plugins = useSelector(getPlugins);
-  let searchedItems = plugins.some((p) =>
-    p.name.toLocaleLowerCase().includes(searchedPlugin),
+
+  const isExternalSaasEnabled = useSelector((state) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.release_external_saas_plugins_enabled,
+    ),
   );
 
-  searchedItems =
-    searchedItems ||
-    createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API)
-      .toLocaleLowerCase()
-      .includes(searchedPlugin) ||
-    (isPremiumDatasourcesViewEnabled &&
-      PREMIUM_INTEGRATIONS.some((p) =>
-        p.name.toLocaleLowerCase().includes(searchedPlugin),
-      ));
+  const searchedItems =
+    filterSearch(
+      [
+        ...plugins,
+        { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
+        ...mockDatasources,
+        ...(isPremiumDatasourcesViewEnabled
+          ? getFilteredPremiumIntegrations(isExternalSaasEnabled)
+          : []),
+      ],
+      searchedPlugin,
+    ).length > 0;
 
   if (searchedItems) return null;
 

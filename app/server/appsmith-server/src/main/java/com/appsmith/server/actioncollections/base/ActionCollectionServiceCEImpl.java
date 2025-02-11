@@ -454,7 +454,7 @@ public class ActionCollectionServiceCEImpl
         analyticsProperties.put(
                 "applicationId", ObjectUtils.defaultIfNull(savedActionCollection.getApplicationId(), ""));
         analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedCollection.getPageId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
         return analyticsProperties;
     }
 

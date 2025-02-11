@@ -334,7 +334,7 @@ public class ApplicationServiceCEImpl
                         if (error instanceof DataIntegrityViolationException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
                             // workspace_app_deleted_git_application_metadata dup key:
-                            // { organizationId: "******", name: "AppName", deletedAt: null }
+                            // { workspaceId: "******", name: "AppName", deletedAt: null }
                             if (error.getCause()
                                     .getMessage()
                                     .contains("workspace_app_deleted_git_application_metadata")) {
@@ -942,7 +942,7 @@ public class ApplicationServiceCEImpl
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
         return analyticsProperties;
     }
 

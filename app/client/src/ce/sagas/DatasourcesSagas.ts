@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { all, call, fork, put, select, take } from "redux-saga/effects";
 import {
   change,
@@ -88,7 +87,8 @@ import {
 } from "ee/constants/forms";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { setIdeEditorViewMode } from "../../actions/ideActions";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { getIsAnvilEnabledInCurrentApplication } from "../../layoutSystems/anvil/integrations/selectors";
 import { createActionRequestSaga } from "../../sagas/ActionSagas";
 import { validateResponse } from "../../sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -543,6 +543,9 @@ export function* updateDatasourceSaga(
       getPluginPackageFromDatasourceId,
       datasourcePayload?.id,
     );
+    const isAnvilEnabled: boolean = yield select(
+      getIsAnvilEnabledInCurrentApplication,
+    );
 
     // when clicking save button, it should be changed as configured
     set(datasourceStoragePayload, `isConfigured`, true);
@@ -672,7 +675,14 @@ export function* updateDatasourceSaga(
       // or update initial values as the next form open will be from the reconnect modal itself
       if (!datasourcePayload.isInsideReconnectModal) {
         // Don't redirect to view mode if the plugin is google sheets
-        if (pluginPackageName !== PluginPackageName.GOOGLE_SHEETS) {
+        // Also don't redirect to view mode if anvil is enabled and plugin is APPSMITH_AI
+        if (
+          pluginPackageName !== PluginPackageName.GOOGLE_SHEETS &&
+          !(
+            isAnvilEnabled &&
+            pluginPackageName === PluginPackageName.APPSMITH_AI
+          )
+        ) {
           yield put(
             setDatasourceViewMode({
               datasourceId: response.data.id,

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Select, Option } from "./Select";
+import { Select, Option, OptGroup } from "./Select";
 import { Icon } from "../Icon";
 import { Checkbox } from "../Checkbox";
 import type { SelectProps } from "./Select.types";
 import type { StoryObj } from "@storybook/react";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 export default {
   title: "ADS/Components/Select",
@@ -966,6 +967,78 @@ export function SelectWithCheckbox() {
             {option.label}
           </Checkbox>
         </Option>
+      ))}
+    </Select>
+  );
+}
+
+const groupOptions = [
+  {
+    label: "Group 1",
+    options: [
+      {
+        label: "Option 1",
+        value: "value 11",
+      },
+      {
+        label: "Very long label to force a line break in the option",
+        value: "Very long label to force a line break in the option",
+      },
+    ],
+  },
+  {
+    label: "Group 2",
+    options: Array.from({ length: 1000 }, (_, i) => ({
+      label: `Option ${i + 1}`,
+      value: `value ${i + 1}`,
+    })),
+  },
+];
+
+export function SelectWithCheckboxAndGroup() {
+  const [selectedOptions, setSelectedOptions] = useState<DefaultOptionType[]>(
+    [],
+  );
+
+  return (
+    <Select
+      isMultiSelect
+      onDeselect={(value, unselectedOption) =>
+        setSelectedOptions(
+          selectedOptions.filter((opt) => opt.value !== unselectedOption.value),
+        )
+      }
+      onSelect={(value, newSelectedOption) =>
+        setSelectedOptions([...selectedOptions, newSelectedOption])
+      }
+      placeholder="Select options"
+      showSearch
+      value={selectedOptions}
+      virtual
+    >
+      {groupOptions.map((group, groupIndex) => (
+        <OptGroup key={`${group.label}-${groupIndex}`} label={group.label}>
+          {group.options.map((option, optionIndex) => (
+            <Option
+              key={`${option.value}-${groupIndex}-${optionIndex}`}
+              label={option.label}
+              title={option.label}
+              value={option.value}
+            >
+              <Checkbox
+                // making it read only as it is interfering with selection of options of rc-select
+                isReadOnly
+                isSelected={Boolean(
+                  selectedOptions.find(
+                    (selectedOption) => selectedOption.value == option.value,
+                  ),
+                )}
+              >
+                {option.label}
+              </Checkbox>
+            </Option>
+          ))}
+        </OptGroup>
       ))}
     </Select>
   );

@@ -70,11 +70,10 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
+        id: info_json
         run: |
-          if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
-          fi
-      
+          scripts/generate_info_json.sh
+
       - name: Place server artifacts-es
         env:
           EDITION: ${{ vars.EDITION }}
@@ -109,6 +108,9 @@ jobs:
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
           fi
           args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
+          args+=(--label "org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}")
+          args+=(--label "org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}")
+          args+=(--label "org.opencontainers.image.version=${{ steps.info_json.outputs.version }}")
           docker build -t cicontainer "${args[@]}" .
 
       # Saving the docker image to tar file

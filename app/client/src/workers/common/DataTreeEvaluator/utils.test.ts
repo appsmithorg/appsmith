@@ -6,7 +6,7 @@ import {
   getAllPathsBasedOnDiffPaths,
   type DataTreeDiff,
 } from "ee/workers/Evaluation/evaluationUtils";
-import produce from "immer";
+import { create } from "mutative";
 
 describe("getOnlyAffectedJSObjects", () => {
   const dataTree = {
@@ -170,7 +170,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
     expect(initialAllKeys).toEqual(updatedAllKeys);
   });
   test("should delete the correct paths within allKeys when a node within a widget is deleted", () => {
-    const deletedWidgetName = produce(initialTree, (draft) => {
+    const deletedWidgetName = create(initialTree, (draft) => {
       // a property within the widget is deleted
       delete draft.WidgetName.name;
     });
@@ -187,7 +187,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const deletedWidgetNameInAllKeys = produce(initialAllKeys, (draft) => {
+    const deletedWidgetNameInAllKeys = create(initialAllKeys, (draft) => {
       delete draft["WidgetName.name"];
     });
 
@@ -195,7 +195,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
   });
 
   test("should add the correct paths to the allKeys when a node within a widget is added", () => {
-    const addedNewWidgetProperty = produce(initialTree, (draft) => {
+    const addedNewWidgetProperty = create(initialTree, (draft) => {
       // new property is added to the widget
       draft.WidgetName.widgetNewProperty = "newValue";
     });
@@ -213,7 +213,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const addedNewWidgetPropertyInAllKeys = produce(initialAllKeys, (draft) => {
+    const addedNewWidgetPropertyInAllKeys = create(initialAllKeys, (draft) => {
       draft["WidgetName.widgetNewProperty"] = true;
     });
 
@@ -221,7 +221,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
   });
 
   test("should generate the correct paths when the value changes form a simple primitive to a collection, this is for EDIT diffs", () => {
-    const addedNewWidgetProperty = produce(initialTree, (draft) => {
+    const addedNewWidgetProperty = create(initialTree, (draft) => {
       //existing property within the widget is edited
       draft.WidgetName.name = [{ a: 1 }];
     });
@@ -239,7 +239,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const addedACollectionInAllKeys = produce(initialAllKeys, (draft) => {
+    const addedACollectionInAllKeys = create(initialAllKeys, (draft) => {
       draft["WidgetName.name[0]"] = true;
       draft["WidgetName.name[0].a"] = true;
     });

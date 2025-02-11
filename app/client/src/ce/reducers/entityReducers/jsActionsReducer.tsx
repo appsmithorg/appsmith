@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
-import produce from "immer";
+import { create } from "mutative";
 import { klona } from "klona";
 
 export const initialState: JSCollectionDataState = [];
@@ -400,7 +400,7 @@ export const handlers = {
       }>
     >,
   ) => {
-    return produce(state, (draft) => {
+    return create(state, (draft) => {
       const CollectionUpdateSearch = keyBy(action.payload, "collectionId");
       const actionUpdateSearch = keyBy(action.payload, "id");
 

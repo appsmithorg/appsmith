@@ -159,7 +159,7 @@ jobs:
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
           echo COMMIT_INFO_TIMESTAMP=$(git show -s --pretty=%ct) >> $GITHUB_ENV
           echo COMMIT_INFO_REMOTE=$(git config --get remote.origin.url) >> $GITHUB_ENV
-          # delete the .git folder afterwords to use the environment values
+          # delete the .git folder afterwords to use the environment values 
           rm -rf .git
 
       - name: Show Git values
@@ -183,7 +183,6 @@ jobs:
           fi
 
       - name: Run the cypress test
-        uses: cypress-io/github-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -245,12 +244,16 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
-        with:
-          browser: ${{ env.BROWSER_PATH }}
-          install: false
-          config-file: cypress_ci_hosted.config.ts
-          working-directory: app/client
-          env: "NODE_ENV=development"
+          CYPRESS_SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+          CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+          CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          NODE_ENV: development
+        run: |
+            cd app/client
+            npx cypress-repeat-pro run -n 3 --rerun-failed-only \
+                --config-file "cypress_ci_hosted.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}"
+            cat cy-repeat-summary.txt
 
       - name: Rename reports
         if: failure()

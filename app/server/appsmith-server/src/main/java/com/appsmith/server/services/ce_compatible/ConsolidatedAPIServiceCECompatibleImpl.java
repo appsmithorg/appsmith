@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -38,7 +39,8 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             DatasourceService datasourceService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            ObservationHelper observationHelper) {
         super(
                 sessionUserService,
                 userService,
@@ -56,6 +58,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 datasourceService,
                 mockDataService,
                 observationRegistry,
-                cacheableRepositoryHelper);
+                cacheableRepositoryHelper,
+                observationHelper);
     }
 }

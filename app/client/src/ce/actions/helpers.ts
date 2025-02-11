@@ -10,7 +10,7 @@ import {
   saveActionName,
 } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 export const createNewQueryBasedOnParentEntity = (
   entityId: string,

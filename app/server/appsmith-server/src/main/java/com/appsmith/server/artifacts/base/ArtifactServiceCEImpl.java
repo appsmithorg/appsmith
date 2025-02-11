@@ -4,12 +4,15 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
 import com.appsmith.server.artifacts.permissions.ArtifactPermission;
 import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -98,7 +102,7 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
                             artifact.getId(),
-                            "organizationId",
+                            "workspaceId",
                             artifact.getWorkspaceId(),
                             "isRegeneratedKey",
                             gitAuth.isRegeneratedKey(),
@@ -112,5 +116,60 @@ public class ArtifactServiceCEImpl implements ArtifactServiceCE {
                             });
                 })
                 .thenReturn(gitAuth);
+    }
+
+    /**
+     * Method to get the SSH public key
+     *
+     * @param branchedArtifactId artifact for which the SSH key is requested
+     * @return public SSH key
+     */
+    @Override
+    public Mono<GitAuthDTO> getSshKey(ArtifactType artifactType, String branchedArtifactId) {
+        ArtifactBasedService<?> artifactBasedService = getArtifactBasedService(artifactType);
+        ArtifactPermission artifactPermission = artifactBasedService.getPermissionService();
+        return artifactBasedService
+                .findById(branchedArtifactId, artifactPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ARTIFACT_ID, branchedArtifactId)))
+                .flatMap(artifact -> {
+                    GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+                    List<GitDeployKeyDTO> gitDeployKeyDTOList = GitDeployKeyGenerator.getSupportedProtocols();
+                    if (gitData == null) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Can't find valid SSH key. Please configure the artifact with git"));
+                    }
+                    // Check if the artifact is base artifact
+                    if (branchedArtifactId.equals(gitData.getDefaultArtifactId())) {
+                        gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                        GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                        gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
+                        gitAuthDTO.setPrivateKey(gitData.getGitAuth().getPrivateKey());
+                        gitAuthDTO.setDocUrl(gitData.getGitAuth().getDocUrl());
+                        gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                        return Mono.just(gitAuthDTO);
+                    }
+
+                    if (gitData.getDefaultArtifactId() == null) {
+                        throw new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Can't find root artifact. Please configure the artifact with git");
+                    }
+
+                    return artifactBasedService
+                            .findById(gitData.getDefaultArtifactId(), artifactPermission.getEditPermission())
+                            .map(baseArtifact -> {
+                                GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                                GitAuth gitAuth =
+                                        baseArtifact.getGitArtifactMetadata().getGitAuth();
+                                gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                                gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
+                                gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuthDTO.setDocUrl(gitAuth.getDocUrl());
+                                gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                                return gitAuthDTO;
+                            });
+                });
     }
 }

@@ -2,7 +2,7 @@ import React from "react";
 import List from "./List";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 
 const JSExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);

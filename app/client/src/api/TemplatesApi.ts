@@ -94,12 +94,12 @@ class TemplatesAPI extends Api {
   static async importTemplateToApplication(
     templateId: string,
     applicationId: string,
-    organizationId: string,
+    workspaceId: string,
     body?: string[],
   ): Promise<AxiosPromise<ImportTemplateResponse>> {
     return Api.post(
       TemplatesAPI.baseUrl +
-        `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
+        `/app-templates/${templateId}/merge/${applicationId}/${workspaceId}`,
       body,
     );
   }

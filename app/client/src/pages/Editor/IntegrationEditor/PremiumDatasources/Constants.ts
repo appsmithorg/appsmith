@@ -25,6 +25,17 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   },
 ];
 
+export const getFilteredPremiumIntegrations = (
+  isExternalSaasEnabled: boolean,
+) => {
+  return isExternalSaasEnabled
+    ? PREMIUM_INTEGRATIONS.filter(
+        (integration) =>
+          integration.name !== "Salesforce" && integration.name !== "Zendesk",
+      )
+    : PREMIUM_INTEGRATIONS;
+};
+
 export const PREMIUM_INTEGRATION_CONTACT_FORM =
   "PREMIUM_INTEGRATION_CONTACT_FORM";
 

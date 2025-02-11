@@ -3,7 +3,8 @@ import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
 import { noFloatingPromisesLintRule } from "./customRules/no-floating-promises";
 import { getLintRulesBasedOnContext } from "ee/utils/lintRulesHelpers";
-import type { IDEType } from "ee/entities/IDE/constants";
+
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 export enum LINTER_TYPE {
   "JSHINT" = "JSHint",

@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
@@ -113,6 +114,12 @@ public class MssqlPlugin extends BasePlugin {
         public static final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        private final ConnectionPoolConfig connectionPoolConfig;
+
+        public MssqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+            this.connectionPoolConfig = connectionPoolConfig;
+        }
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -356,9 +363,13 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.");
-            return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
-                        return createConnectionPool(datasourceConfiguration);
+            return connectionPoolConfig
+                    .getMaxConnectionPoolSize()
+                    .flatMap(maxPoolSize -> {
+                        return Mono.fromCallable(() -> {
+                            log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                            return createConnectionPool(datasourceConfiguration, maxPoolSize);
+                        });
                     })
                     .subscribeOn(scheduler);
         }
@@ -561,8 +572,8 @@ public class MssqlPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
-            throws AppsmithPluginException {
+    private static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize) throws AppsmithPluginException {
 
         DBAuth authentication = null;
         StringBuilder urlBuilder = null;
@@ -572,7 +583,11 @@ public class MssqlPlugin extends BasePlugin {
         hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(JDBC_DRIVER);
         hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
-        hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+        // Use maxPoolSize from config if available, otherwise use default
+        int maximumPoolSize = maxPoolSize != null ? maxPoolSize : MAXIMUM_POOL_SIZE;
+        hikariConfig.setMaximumPoolSize(maximumPoolSize);
+
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);

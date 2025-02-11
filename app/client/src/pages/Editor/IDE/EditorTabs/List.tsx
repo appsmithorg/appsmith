@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Flex } from "@appsmith/ads";
 
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import ListQuery from "../EditorPane/Query/List";
 import ListJSObjects from "../EditorPane/JS/List";
 

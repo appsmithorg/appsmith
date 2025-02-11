@@ -14,6 +14,8 @@ import { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import { toast } from "@appsmith/ads";
+import { createMessage, DISCARD_AND_PULL_SUCCESS } from "ee/constants/messages";
 
 export default function* pullSaga(
   action: GitArtifactPayloadAction<PullInitPayload>,
@@ -50,6 +52,10 @@ export default function* pullSaga(
           mode: APP_MODE.EDIT,
         }),
       );
+
+      toast.show(createMessage(DISCARD_AND_PULL_SUCCESS), {
+        kind: "success",
+      });
     }
   } catch (e) {
     if (response && response.responseMeta.error) {

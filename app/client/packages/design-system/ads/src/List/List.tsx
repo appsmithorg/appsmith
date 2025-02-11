@@ -124,6 +124,7 @@ function ListItem(props: ListItemProps) {
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}
       data-selected={props.isSelected}
+      data-testid={props.dataTestId}
       id={props.id}
       onClick={handleOnClick}
       onDoubleClick={handleDoubleClick}

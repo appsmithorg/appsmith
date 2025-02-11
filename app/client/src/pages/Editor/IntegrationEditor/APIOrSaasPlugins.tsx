@@ -43,12 +43,15 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
-  PREMIUM_INTEGRATIONS,
+  getFilteredPremiumIntegrations,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { IDEType } from "ee/entities/IDE/constants";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { filterSearch } from "./util";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -300,40 +303,51 @@ const mapStateToProps = (
         p.type === PluginType.EXTERNAL_SAAS,
   );
 
-  plugins = plugins
-    .sort((a, b) => {
+  plugins = filterSearch(
+    plugins.sort((a, b) => {
       // Sort the AI plugins alphabetically
       return a.name.localeCompare(b.name);
-    })
-    .filter((p) => p.name.toLocaleLowerCase().includes(searchedPlugin));
+    }),
+    searchedPlugin,
+  ) as Plugin[];
 
   let authApiPlugin = !props.showSaasAPIs
     ? allPlugins.find((p) => p.name === "REST API")
     : undefined;
 
-  authApiPlugin = createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API)
-    .toLocaleLowerCase()
-    .includes(searchedPlugin)
-    ? authApiPlugin
-    : undefined;
+  authApiPlugin =
+    filterSearch(
+      [{ name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) }],
+      searchedPlugin,
+    ).length > 0
+      ? authApiPlugin
+      : undefined;
+
+  const isExternalSaasEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_external_saas_plugins_enabled,
+  );
 
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
-      ? PREMIUM_INTEGRATIONS.filter((p) =>
-          p.name.toLocaleLowerCase().includes(searchedPlugin),
-        )
+      ? (filterSearch(
+          getFilteredPremiumIntegrations(isExternalSaasEnabled),
+          searchedPlugin,
+        ) as PremiumIntegration[])
       : [];
 
   const restAPIVisible =
     !props.showSaasAPIs &&
-    createMessage(CREATE_NEW_DATASOURCE_REST_API)
-      .toLocaleLowerCase()
-      .includes(searchedPlugin);
+    filterSearch(
+      [{ name: createMessage(CREATE_NEW_DATASOURCE_REST_API) }],
+      searchedPlugin,
+    ).length > 0;
   const graphQLAPIVisible =
     !props.showSaasAPIs &&
-    createMessage(CREATE_NEW_DATASOURCE_GRAPHQL_API)
-      .toLocaleLowerCase()
-      .includes(searchedPlugin);
+    filterSearch(
+      [{ name: createMessage(CREATE_NEW_DATASOURCE_GRAPHQL_API) }],
+      searchedPlugin,
+    ).length > 0;
 
   return {
     plugins,

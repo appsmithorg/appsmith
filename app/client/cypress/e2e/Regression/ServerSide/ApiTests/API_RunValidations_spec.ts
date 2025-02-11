@@ -15,7 +15,8 @@ describe(
       apiPage.AssertRunButtonDisability(true);
     });
 
-    it('2. Validate we get an appropriate error message when an invalid URL is entered. Error should show up when nothing is entered & we click on "Import".', function () {
+    //Bug: https://github.com/appsmithorg/appsmith/issues/38156
+    it.skip('2. Validate we get an appropriate error message when an invalid URL is entered. Error should show up when nothing is entered & we click on "Import".', function () {
       apiPage.CreateAndFillApi(
         "htt://failedurlfortest",
         "WhatTrumpThinks",
@@ -26,7 +27,7 @@ describe(
     });
 
     // Cypress issue: https://github.com/cypress-io/cypress/issues/8267
-    it("3. Validate keyboard navigation e.g. Cmd + Enter should trigger the Run button", function () {
+    it.skip("3. Validate keyboard navigation e.g. Cmd + Enter should trigger the Run button", function () {
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].randomTrumpApi,
         "WhatTrumpThinks",

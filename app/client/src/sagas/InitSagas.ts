@@ -1,4 +1,4 @@
-import { get, identity, pickBy } from "lodash";
+import get from "lodash/get";
 import {
   all,
   call,
@@ -221,6 +221,7 @@ function* executeActionDuringUserDetailsInitialisation(
 export function* getInitResponses({
   applicationId,
   basePageId,
+  branch,
   mode,
   shouldInitialiseUserDetails,
 }: {
@@ -228,16 +229,13 @@ export function* getInitResponses({
   basePageId?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): any {
-  const params = pickBy(
-    {
-      applicationId,
-      defaultPageId: basePageId,
-    },
-    identity,
-  );
+  branch?: string;
+}) {
+  const params = {
+    applicationId,
+    defaultPageId: basePageId,
+    branchName: branch,
+  };
   let response: InitConsolidatedApi | undefined;
 
   try {
