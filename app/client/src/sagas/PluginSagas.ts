@@ -159,11 +159,18 @@ function* fetchPluginFormConfigsSaga(action?: {
     const dependencies: FormDependencyConfigs = {};
     const datasourceFormButtonConfigs: FormDatasourceButtonConfigs = {};
 
+    // Initialize default settings for all plugin types first
+    Array.from(pluginIdFormsToFetch).forEach((pluginId) => {
+      const plugin = plugins.find((plugin) => plugin.id === pluginId);
+      if (plugin) {
+        settingConfigs[pluginId] = defaultActionSettings[plugin.type] || [];
+      }
+    });
+
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
 
       if (plugin && plugin.type === PluginType.JS) {
-        settingConfigs[pluginId] = defaultActionSettings[plugin.type];
         editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
         formConfigs[pluginId] = [];
         dependencies[pluginId] = defaultActionDependenciesConfig[plugin.type];
@@ -179,10 +186,8 @@ function* fetchPluginFormConfigsSaga(action?: {
             editorConfigs[pluginId] = pluginFormData[index].editor;
           }
 
-          // Action settings form if not available use default
-          if (plugin && !pluginFormData[index].setting) {
-            settingConfigs[pluginId] = defaultActionSettings[plugin.type];
-          } else {
+          // Only override settings if server provides them
+          if (plugin && pluginFormData[index].setting) {
             settingConfigs[pluginId] = pluginFormData[index].setting;
           }
 
