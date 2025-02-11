@@ -14,6 +14,7 @@ import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "ee/workers/Evaluation/evaluationUtils";
+import { objectKeys } from "@appsmith/utils";
 import type { EvalTreeRequestData, EvalWorkerASyncRequest } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
@@ -240,7 +241,7 @@ export async function evalTree(
             evalOrder,
             configTree,
             unEvalUpdates,
-            Object.keys(metaWidgets),
+            objectKeys(metaWidgets) as string[],
           ),
       );
 

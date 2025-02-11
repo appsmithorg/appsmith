@@ -58,8 +58,7 @@ export class ApiPage {
   _bodyTypeDropdown =
     "//span[text()='Type'][@class='rc-select-selection-placeholder']/ancestor::div";
   _apiRunBtn = '[data-testid="t--run-action"]';
-  private _queryTimeout =
-    "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  private _queryTimeout = "[data-testid='t--action-settings-timeout-input']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
   private _blankAPI = "span:contains('REST API')";
   private _apiVerbDropdown = ".t--apiFormHttpMethod div";
@@ -270,7 +269,10 @@ export class ApiPage {
 
   SetAPITimeout(timeout: number, toVerifySave = true) {
     this.pluginActionForm.toolbar.toggleSettings();
-    cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
+    cy.get(this._queryTimeout)
+      .should("be.visible")
+      .clear()
+      .type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     toVerifySave && this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
@@ -504,7 +506,7 @@ export class ApiPage {
   }
 
   ToggleOnPageLoadRunJsObject(enable = true || false) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
     else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
   }

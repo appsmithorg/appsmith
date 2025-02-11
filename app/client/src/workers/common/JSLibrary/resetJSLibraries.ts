@@ -4,6 +4,7 @@ import forge from "node-forge";
 import { defaultLibraries, JSLibraryAccessor } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
+import { objectKeys } from "@appsmith/utils";
 const defaultLibImplementations = {
   lodash: _,
   moment: moment,
@@ -19,15 +20,15 @@ export function resetJSLibraries() {
     (lib) => lib.accessor[0],
   );
 
-  for (const key of Object.keys(libraryReservedIdentifiers)) {
-    if (defaultLibraryAccessors.includes(key)) continue;
+  for (const key of objectKeys(libraryReservedIdentifiers)) {
+    if (defaultLibraryAccessors.includes(String(key))) continue;
 
     try {
       // @ts-expect-error: Types are not available
-      delete self[key];
+      delete self[String(key)];
     } catch (e) {
       // @ts-expect-error: Types are not available
-      self[key] = undefined;
+      self[String(key)] = undefined;
     }
     //we have to update invalidEntityIdentifiers as well
     delete libraryReservedIdentifiers[key];

@@ -17,6 +17,7 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
+import { objectKeys } from "@appsmith/utils";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
@@ -184,7 +185,7 @@ class Setters {
     if (!entityConfig) return setterMethodMap;
 
     if (entityConfig.__setters) {
-      for (const setterMethodName of Object.keys(entityConfig.__setters)) {
+      for (const setterMethodName of objectKeys(entityConfig.__setters)) {
         const pathToSet = entityConfig.__setters[setterMethodName].path;
 
         if (!shouldAddSetter(entityConfig.__setters[setterMethodName], entity))

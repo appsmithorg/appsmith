@@ -12,6 +12,7 @@ import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
 import log from "loglevel";
+import { objectKeys } from "@appsmith/utils";
 
 declare global {
   interface WorkerGlobalScope {
@@ -50,7 +51,7 @@ const removeDataTreeFromContext = () => {
   if (!dataTreeEvaluator) return {};
 
   const evalTree = dataTreeEvaluator?.getEvalTree();
-  const dataTreeEntityNames = Object.keys(evalTree);
+  const dataTreeEntityNames = objectKeys(evalTree);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tempDataTreeStore: Record<string, any> = {};
@@ -68,7 +69,7 @@ function addTempStoredDataTreeToContext(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tempDataTreeStore: Record<string, any>,
 ) {
-  const dataTreeEntityNames = Object.keys(tempDataTreeStore);
+  const dataTreeEntityNames = objectKeys(tempDataTreeStore);
 
   for (const entityName of dataTreeEntityNames) {
     self[entityName] = tempDataTreeStore[entityName];
@@ -103,7 +104,9 @@ export async function installLibrary(
   );
 
   try {
-    const envKeysBeforeInstallation = Object.keys(self);
+    const envKeysBeforeInstallation = objectKeys(
+      self as Record<string, unknown>,
+    );
 
     /** Holds keys of uninstalled libraries that cannot be removed from worker global.
      * Certain libraries are added to the global scope with { configurable: false }
@@ -125,7 +128,7 @@ export async function installLibrary(
       self.importScripts(url);
 
       // Find keys add that were installed to the global scope.
-      const keysAfterInstallation = Object.keys(self);
+      const keysAfterInstallation = objectKeys(self as Record<string, unknown>);
 
       let differentiatingKeys = difference(
         keysAfterInstallation,
@@ -145,7 +148,9 @@ export async function installLibrary(
       );
 
       // Following the same process which was happening earlier
-      const keysAfterDefaultOperation = Object.keys(self);
+      const keysAfterDefaultOperation = objectKeys(
+        self as Record<string, unknown>,
+      );
 
       differentiatingKeys = difference(
         keysAfterDefaultOperation,
@@ -164,7 +169,7 @@ export async function installLibrary(
        * If it has changed, we add the new value to the global scope with a unique name.
        * */
       accessors.push(
-        ...Object.keys(libStore).filter((k) => {
+        ...objectKeys(libStore).filter((k) => {
           return libStore[k] !== self[k];
         }),
       );
@@ -243,7 +248,7 @@ export async function installLibrary(
 
     // Restore the libraries from libStore to the global scope.
     // This is done to ensure that the libraries are not overwritten by the newly installed library.
-    Object.keys(libStore).forEach((k) => (self[k] = libStore[k]));
+    objectKeys(libStore).forEach((k) => (self[k] = libStore[k]));
 
     //Reserve accessor names.
     for (const acc of accessors) {
@@ -293,12 +298,12 @@ export async function loadLibraries(
     for (const lib of libs) {
       const url = lib.url as string;
       const accessors = lib.accessor;
-      const keysBefore = Object.keys(self);
+      const keysBefore = objectKeys(self as Record<string, unknown>);
       let module = null;
 
       try {
         self.importScripts(url);
-        const keysAfter = Object.keys(self);
+        const keysAfter = objectKeys(self as Record<string, unknown>);
         let defaultAccessors = difference(keysAfter, keysBefore);
 
         // Changing default export to library accessors name which was saved when it was installed, if default export present
@@ -308,7 +313,9 @@ export async function loadLibraries(
         );
 
         // Following the same process which was happening earlier
-        const keysAfterDefaultOperation = Object.keys(self);
+        const keysAfterDefaultOperation = objectKeys(
+          self as Record<string, unknown>,
+        );
 
         defaultAccessors = difference(keysAfterDefaultOperation, keysBefore);
 
@@ -320,7 +327,9 @@ export async function loadLibraries(
          * If the references changes it means that it a valid accessor.
          */
         defaultAccessors.push(
-          ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
+          ...objectKeys(libStore as Record<string, unknown>).filter(
+            (k) => libStore[k] !== self[k],
+          ),
         );
 
         /**
@@ -432,7 +441,7 @@ function generateUniqueAccessor(
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function flattenModule(module: Record<string, any>) {
-  const keys = Object.keys(module);
+  const keys = objectKeys(module);
 
   // If there are no keys other than default, return default.
   if (keys.length === 1 && keys[0] === "default") return module.default;
@@ -441,7 +450,7 @@ export function flattenModule(module: Record<string, any>) {
   // and set its prototype of default export.
   const libModule = Object.create(module.default || {});
 
-  for (const key of Object.keys(module)) {
+  for (const key of objectKeys(module)) {
     if (key === "default") continue;
 
     libModule[key] = module[key];

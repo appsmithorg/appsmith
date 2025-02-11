@@ -24,6 +24,7 @@ import {
   findDuplicateIndex,
   stringifyFnsInObject,
 } from "./helpers";
+import { objectKeys } from "@appsmith/utils";
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -54,7 +55,7 @@ function getPropertyEntry(
   if (!ignoreCase) {
     return name;
   } else {
-    const keys = Object.getOwnPropertyNames(obj);
+    const keys = objectKeys(obj);
 
     return keys.find((key) => key.toLowerCase() === name.toLowerCase()) || name;
   }
@@ -316,7 +317,7 @@ function validateExcessLength(text: string, maxLength: number): boolean {
 function validateObjectValues(obj: any): any {
   if (!obj) return;
 
-  Object.keys(obj).forEach((key) => {
+  objectKeys(obj).forEach((key) => {
     if (typeof obj[key] === "string" && obj[key].length > 100000) {
       obj[key] = obj[key].substring(0, 100000);
     } else if (isObject(obj[key])) {

@@ -84,6 +84,7 @@ import {
 
 import type { Diff } from "deep-diff";
 import { applyChange, diff } from "deep-diff";
+import { objectKeys } from "@appsmith/utils";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -515,22 +516,41 @@ export default class DataTreeEvaluator {
     //add functions and variables to unevalTree
     const unEvalJSCollection = JSObjectCollection.getUnEvalState();
 
-    Object.keys(unEvalJSCollection).forEach((entityName) => {
-      const entity = unevalTree[entityName];
+    objectKeys(unEvalJSCollection).forEach((entityName) => {
+      const entity = unevalTree[String(entityName)];
 
       if (!isJSAction(entity)) return;
 
-      const updates = unEvalJSCollection[entityName];
+      const updates = unEvalJSCollection[String(entityName)];
 
-      if (unevalTree[entityName]) {
-        Object.keys(updates).forEach((key) => {
-          const data = get(unevalTree, `${entityName}.${key}.data`, undefined);
+      if (unevalTree[String(entityName)]) {
+        objectKeys(updates).forEach((key) => {
+          const data = get(
+            unevalTree,
+            `${String(entityName)}.${String(key)}.data`,
+            undefined,
+          );
 
-          if (isJSObjectFunction(unevalTree, entityName, key, configTree)) {
-            set(unevalTree, `${entityName}.${key}`, new String(updates[key]));
-            set(unevalTree, `${entityName}.${key}.data`, data);
+          if (
+            isJSObjectFunction(
+              unevalTree,
+              String(entityName),
+              String(key),
+              configTree,
+            )
+          ) {
+            set(
+              unevalTree,
+              `${String(entityName)}.${String(key)}`,
+              new String(updates[String(key)]),
+            );
+            set(unevalTree, `${String(entityName)}.${String(key)}.data`, data);
           } else {
-            set(unevalTree, `${entityName}.${key}`, updates[key]);
+            set(
+              unevalTree,
+              `${String(entityName)}.${String(key)}`,
+              updates[String(key)],
+            );
           }
         });
       }
@@ -1047,8 +1067,8 @@ export default class DataTreeEvaluator {
   getPrivateWidgets(dataTree: DataTree): PrivateWidgets {
     let privateWidgets: PrivateWidgets = {};
 
-    Object.keys(dataTree).forEach((entityName) => {
-      const entity = dataTree[entityName];
+    objectKeys(dataTree).forEach((entityName) => {
+      const entity = dataTree[String(entityName)];
 
       if (isWidget(entity) && !isEmpty(entity.privateWidgets)) {
         privateWidgets = {
@@ -1836,11 +1856,11 @@ export default class DataTreeEvaluator {
           });
         }
 
-        Object.keys(entityConfig.reactivePaths).forEach((reactivePath) => {
-          const childPropertyPath = `${entityName}.${reactivePath}`;
+        objectKeys(entityConfig.reactivePaths).forEach((reactivePath) => {
+          const childPropertyPath = `${String(entityName)}.${String(reactivePath)}`;
 
           // Check if relative path has dynamic binding
-          if (entityDynamicBindingPathsSet.has(reactivePath)) {
+          if (entityDynamicBindingPathsSet.has(String(reactivePath))) {
             changePaths.add(childPropertyPath);
           }
 

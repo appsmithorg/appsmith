@@ -21,6 +21,7 @@ import {
   getEntityDependencies,
   getEntityPathDependencies,
 } from "./utils/getEntityDependencies";
+import { objectKeys } from "@appsmith/utils";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import {
@@ -76,16 +77,16 @@ export async function createDependencyMap(
   } else {
     let shouldCache = true;
 
-    Object.keys(configTree).forEach((entityName) => {
-      const entity = unEvalTree[entityName];
-      const entityConfig = configTree[entityName];
+    objectKeys(configTree).forEach((entityName) => {
+      const entity = unEvalTree[String(entityName)];
+      const entityConfig = configTree[String(entityName)];
       const entityDependencies = getEntityDependencies(
         entity as DataTreeEntityObject,
         entityConfig,
         allKeys,
       );
 
-      for (const path of Object.keys(entityDependencies)) {
+      for (const path of objectKeys(entityDependencies)) {
         const pathDependencies = entityDependencies[path];
         const { errors, references } = extractInfoFromBindings(
           pathDependencies,
@@ -130,7 +131,7 @@ const addNodesToDependencyMap =
     const didUpdateDep = dependencyMap.addNodes(addedNodes, strict);
 
     if (didUpdateDep) {
-      addingAffectedNodesToList(affectedNodes, Object.keys(addedNodes));
+      addingAffectedNodesToList(affectedNodes, objectKeys(addedNodes));
     }
 
     return didUpdateDep;
@@ -272,9 +273,10 @@ export const updateDependencyMap = ({
             if (didUpdateDep) didUpdateDependencyMap = true;
           }
 
-          for (const deletedPath of Object.keys(allDeletedPaths)) {
-            const pathsThatDependOnDeletedPath =
-              dependencyMap.getDependents(deletedPath);
+          for (const deletedPath of objectKeys(allDeletedPaths)) {
+            const pathsThatDependOnDeletedPath = dependencyMap.getDependents(
+              String(deletedPath),
+            );
 
             dependenciesOfRemovedPaths.push(...pathsThatDependOnDeletedPath);
           }
@@ -286,7 +288,7 @@ export const updateDependencyMap = ({
           if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
 
-            for (const deletedPath of Object.keys(allDeletedPaths)) {
+            for (const deletedPath of objectKeys(allDeletedPaths)) {
               removedPaths.push({
                 entityId: entityId || "",
                 fullpath: deletedPath,

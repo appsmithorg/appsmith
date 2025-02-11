@@ -23,6 +23,7 @@ import type {
   JSActionEntity,
 } from "ee/entities/DataTree/types";
 import { isObject } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
 
@@ -55,7 +56,7 @@ export function getAllAsyncJSFunctions(
   for (const [entityName, entity] of Object.entries(unevalTree)) {
     if (!isJSAction(entity)) continue;
 
-    const jsEntityState = jsPropertiesState[entityName];
+    const jsEntityState = jsPropertiesState[String(entityName)];
 
     if (!jsEntityState) continue;
 
@@ -122,13 +123,13 @@ export function getOnlyAffectedJSObjects(
 
   const idsSet = new Set(ids);
 
-  return Object.keys(jsDataTree).reduce(
+  return objectKeys(jsDataTree).reduce(
     (acc, jsObjectName) => {
-      const { actionId } = jsDataTree[jsObjectName];
+      const { actionId } = jsDataTree[String(jsObjectName)];
 
       //only matching action id will be included in the reduced jsDataTree
       if (idsSet.has(actionId)) {
-        acc[jsObjectName] = jsDataTree[jsObjectName];
+        acc[String(jsObjectName)] = jsDataTree[String(jsObjectName)];
       }
 
       return acc;
