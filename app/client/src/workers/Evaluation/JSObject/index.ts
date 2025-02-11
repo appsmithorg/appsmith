@@ -1,4 +1,5 @@
 import { get, isEmpty, isUndefined, set } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
@@ -285,7 +286,7 @@ export function parseJSActions(
       }
     });
   } else {
-    Object.keys(unEvalDataTree).forEach((entityName) => {
+    objectKeys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
 
       if (!isJSAction(entity)) {
@@ -302,7 +303,7 @@ export function parseJSActions(
     });
   }
 
-  Object.keys(jsUpdates).forEach((entityName) => {
+  objectKeys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
 
     if (!parsedBody) return;
@@ -320,7 +321,7 @@ export function parseJSActions(
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, JSActionEntity> = {};
 
-  Object.keys(dataTree).forEach((entityName) => {
+  objectKeys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
 
     if (isJSAction(entity)) {
