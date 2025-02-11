@@ -276,10 +276,5 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY2 }}
             BASE=appsmith/base-ce:nightly
           tags: |
-            ${{ needs.prelude.outputs.docker_tags }}
-          labels: |
-            org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}
-            org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}
-            org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
-            ${{ secrets.DOCKER_HUB_USERNAME2 }}/appsmith-ce:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_USERNAME2 }}/appsmith-ce:${{ needs.prelude.outputs.tag }}
             ${{ secrets.DOCKER_HUB_USERNAME2 }}/appsmith-ce:latest
