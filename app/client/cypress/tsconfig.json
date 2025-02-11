@@ -1,8 +1,43 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["cypress", "node"],
-    "isolatedModules": false
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "es5",
+      "es2015.collection",
+      "es2015.iterable",
+      "es2020.string"
+    ],
+    "strict": true,
+    "outDir": "./out/js/cypress",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": true,
+    "jsx": "react",
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "typeRoots": ["./typings", "./node_modules/@types"],
+    "sourceMap": true,
+    "baseUrl": "./cypress",
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "cypress",
+      "node",
+      "cypress-tags",
+      "cypress-real-events",
+      "@simonsmith/cypress-image-snapshot/types"
+    ]
   },
-  "include": ["**/*.ts"]
+  "include": ["./", "../packages/rts/src/version.js"]
 }
