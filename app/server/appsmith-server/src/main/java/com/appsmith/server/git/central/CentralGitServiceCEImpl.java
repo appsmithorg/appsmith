@@ -2055,7 +2055,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
                                             workspaceId, branchedArtifact.getId(), artifactExchangeJson, branchName))
                                     .flatMap(artifactFromLastCommit ->
-                                            gitArtifactHelper.publishArtifact(artifactFromLastCommit, true))
+                                            gitArtifactHelper.validateAndPublishArtifact(artifactFromLastCommit, true))
                                     .flatMap(publishedArtifact -> gitAnalyticsUtils.addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_DISCARD_CHANGES, publishedArtifact, null))
                                     .onErrorResume(exception -> {
