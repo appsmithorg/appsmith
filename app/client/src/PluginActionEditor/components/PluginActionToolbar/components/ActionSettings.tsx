@@ -46,7 +46,8 @@ function ActionSettings(props: ActionSettingsProps): JSX.Element {
       {!props.actionSettingsConfig ? (
         <CenteredWrapper>
           <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
-            Error: Settings configuration is missing. Please check plugin configuration.
+            Error: Settings configuration is missing. Please check plugin
+            configuration.
           </Text>
         </CenteredWrapper>
       ) : !Array.isArray(props.actionSettingsConfig) ? (
