@@ -1,7 +1,9 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  endExplorerEntityNameEdit,
+  initExplorerEntityNameEdit,
+} from "actions/explorerActions";
 import {
   getUpdatingEntity,
   getEditingEntityName,
@@ -22,9 +24,7 @@ export function useNameEditorState() {
   );
 
   const exitEditMode = useCallback(() => {
-    dispatch({
-      type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
-    });
+    dispatch(endExplorerEntityNameEdit());
   }, [dispatch]);
 
   return {

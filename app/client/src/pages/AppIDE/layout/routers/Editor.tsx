@@ -5,11 +5,11 @@ import { SentryRoute } from "ee/AppRouter";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
-} from "ee/pages/Editor/IDE/EditorPane/constants";
-import { JSEditorPane } from "./JS";
-import { QueryEditor } from "./Query";
-import EditorTabs from "../../../AppIDE/components/EditorTabs";
-import { useCurrentEditorState } from "../../../AppIDE/hooks/useCurrentEditorState";
+} from "ee/pages/AppIDE/layouts/constants";
+import { JSEditorPane } from "../../../Editor/IDE/EditorPane/JS";
+import { QueryEditor } from "../../../Editor/IDE/EditorPane/Query";
+import EditorTabs from "../../components/EditorTabs";
+import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
 

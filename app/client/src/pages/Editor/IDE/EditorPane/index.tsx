@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex } from "@appsmith/ads";
-import EditorPaneExplorer from "./Explorer";
-import Editor from "./Editor";
+import EditorPaneExplorer from "../../../AppIDE/layout/routers/Explorer";
+import Editor from "../../../AppIDE/layout/routers/Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";

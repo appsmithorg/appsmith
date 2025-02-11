@@ -6,21 +6,21 @@ import {
   jsSegmentRoutes,
   querySegmentRoutes,
   widgetSegmentRoutes,
-} from "ee/pages/Editor/IDE/EditorPane/constants";
-import { JSExplorer } from "./JS";
-import { QueryExplorer } from "./Query";
-import WidgetsSegment from "./UI";
+} from "ee/pages/AppIDE/layouts/constants";
+import { JSExplorer } from "../../../Editor/IDE/EditorPane/JS";
+import { QueryExplorer } from "../../../Editor/IDE/EditorPane/Query";
+import WidgetsSegment from "../../../Editor/IDE/EditorPane/UI";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import SegmentSwitcher from "../../../AppIDE/components/SegmentSwitcher/SegmentSwitcher";
+import SegmentSwitcher from "../../components/SegmentSwitcher/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
-import { useCurrentEditorState } from "../../../AppIDE/hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
