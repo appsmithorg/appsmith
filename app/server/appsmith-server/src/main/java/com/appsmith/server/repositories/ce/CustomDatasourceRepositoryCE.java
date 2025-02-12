@@ -20,4 +20,6 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
     List<Datasource> findByIdIn(List<String> ids, EntityManager entityManager);
 
     Optional<Long> countByDeletedAtNull(EntityManager entityManager);
+
+    // Optional<Integer> executeDatasourceImport(, EntityManager entityManager);
 }

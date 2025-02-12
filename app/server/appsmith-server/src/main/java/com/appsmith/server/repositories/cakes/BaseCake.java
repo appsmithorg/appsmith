@@ -180,8 +180,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         try {
                             if (isNew) {
                                 entity.setId(generateId());
+                                em.persist(entity);
+                            } else {
+                                em.merge(entity);
                             }
-                            em.persist(entity);
                             stopwatch.stopAndLogTimeInMillis();
                             return entity;
                         } catch (Exception e) {
