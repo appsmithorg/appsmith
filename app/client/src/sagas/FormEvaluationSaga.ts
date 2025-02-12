@@ -10,7 +10,7 @@ import {
 } from "redux-saga/effects";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import log, { error } from "loglevel";
+import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
@@ -39,6 +39,7 @@ import { buffers } from "redux-saga";
 import type { Plugin } from "entities/Plugin";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { objectKeys } from "@appsmith/utils";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -146,7 +147,7 @@ export function* fetchDynamicValuesSaga(
   datasourceId: string,
   pluginId: string,
 ) {
-  for (const key of Object.keys(queueOfValuesToBeFetched)) {
+  for (const key of objectKeys(queueOfValuesToBeFetched)) {
     queueOfValuesToBeFetched[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
@@ -209,7 +210,7 @@ function* fetchPaginatedDynamicValuesSaga(
       },
     });
   } catch (e) {
-    error("ayush SOme issues", e, action);
+    log.error(e);
   }
 }
 
