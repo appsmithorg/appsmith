@@ -76,13 +76,12 @@ import {
 import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { startFormEvaluations } from "actions/evaluationActions";
+import { startFormEvaluations } from "actions/formEvaluationActions";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { type Plugin, UIComponentTypes } from "entities/Plugin";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;
@@ -358,7 +357,7 @@ function* replayActionSaga(
                 replayEntity.actionConfiguration,
                 replayEntity.datasource.id || "",
                 replayEntity.pluginId,
-                replayEntity.contextType || ActionParentEntityType.PAGE,
+                replayEntity.contextType,
                 u.modifiedProperty,
                 true,
                 datasource?.datasourceStorages[currentEnvironment]
