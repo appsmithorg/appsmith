@@ -456,6 +456,7 @@ jobs:
             fi
 
             cat "$FAILURE_FLAG_FILE"
+            
       - name: Trim number of cypress log files
         if: failure()
         run: |
