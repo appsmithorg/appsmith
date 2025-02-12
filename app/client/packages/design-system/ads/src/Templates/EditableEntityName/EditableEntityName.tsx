@@ -20,7 +20,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     isFixedWidth,
     isLoading,
     name,
-    normalizeName,
+    normalizeName = false,
     onExitEditing,
     onNameSave,
     size = "small",
