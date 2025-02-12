@@ -1,13 +1,15 @@
 import { call, put, select, take } from "redux-saga/effects";
 import type { CheckoutBranchInitPayload } from "../store/actions/checkoutBranchActions";
 import { GitArtifactType } from "../constants/enums";
-import checkoutBranchRequest from "../requests/checkoutBranchRequest";
-import type {
-  CheckoutBranchRequestParams,
-  CheckoutBranchResponse,
-} from "../requests/checkoutBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import type {
+  CheckoutRefRequestParams,
+  CheckoutRefResponse,
+} from "git/requests/checkoutRefRequest.types";
 
 // internal dependencies
 import { builderURL } from "ee/RouteBuilder";
@@ -19,27 +21,34 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
+import checkoutRefRequest from "git/requests/checkoutRefRequest";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
 ) {
-  const { artifactType, baseArtifactId, branchName } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
-  let response: CheckoutBranchResponse | undefined;
+  const { artifactDef, artifactId, branchName } = action.payload;
+  let response: CheckoutRefResponse | undefined;
 
   try {
-    const params: CheckoutBranchRequestParams = {
-      branchName,
+    const params: CheckoutRefRequestParams = {
+      refType: "branch",
+      refName: branchName,
     };
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
 
-    response = yield call(checkoutBranchRequest, baseArtifactId, params);
+    response = yield call(
+      checkoutRefRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      if (artifactType === GitArtifactType.Application) {
-        yield put(gitArtifactActions.checkoutBranchSuccess(basePayload));
+      if (artifactDef.artifactType === GitArtifactType.Application) {
         const trimmedBranch = branchName.replace(/^origin\//, "");
         const destinationHref = addBranchParam(trimmedBranch);
 
@@ -48,11 +57,10 @@ export default function* checkoutBranchSaga(
         );
 
         yield put(
-          gitArtifactActions.toggleBranchPopup({
-            ...basePayload,
-            open: false,
-          }),
+          gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
         );
+        yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
+
         // Check if page exists in the branch. If not, instead of 404, take them to
         // the app home page
         const existingPage = response.data.pages.find(
@@ -118,7 +126,7 @@ export default function* checkoutBranchSaga(
 
       yield put(
         gitArtifactActions.checkoutBranchError({
-          ...basePayload,
+          artifactDef,
           error,
         }),
       );

@@ -5,26 +5,16 @@ import { Button, Tooltip, Text } from "@appsmith/ads";
 import { getTypographyByKey } from "@appsmith/ads-old";
 import { capitalizeFirstLetter } from "utils/helpers";
 
-interface QuickActionButtonProps {
-  className?: string;
-  count?: number;
-  disabled?: boolean;
-  icon: string;
-  loading?: boolean;
-  onClick: () => void;
-  tooltipText: string;
-}
-
 const SpinnerContainer = styled.div`
   padding: 0 10px;
 `;
 
-const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
+const QuickActionButtonContainer = styled.div<{ faded?: boolean }>`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
   display: block;
   position: relative;
   overflow: visible;
-  opacity: ${({ disabled = false }) => (disabled ? 0.6 : 1)};
+  opacity: ${({ faded = false }) => (faded ? 0.6 : 1)};
 `;
 
 const StyledCountText = styled(Text)`
@@ -44,21 +34,36 @@ const StyledCountText = styled(Text)`
     ${(props) => props.theme.spaces[2]}px;
 `;
 
+interface QuickActionButtonProps {
+  count?: number;
+  disabled?: boolean;
+  icon: string;
+  loading?: boolean;
+  onClick: () => void;
+  testKey: string;
+  tooltipText: string;
+}
+
 function QuickActionButton({
-  className = "",
   count = 0,
   disabled = false,
   icon,
   loading = false,
   onClick,
+  testKey = "",
   tooltipText,
 }: QuickActionButtonProps) {
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <QuickActionButtonContainer className={className} disabled={disabled}>
+    <QuickActionButtonContainer
+      data-testid={`t--git-quick-actions-${testKey}`}
+      faded={disabled}
+    >
       {loading ? (
-        <SpinnerContainer className="t--loader-quick-git-action">
+        <SpinnerContainer
+          data-testid={`t--git-quick-actions-${testKey}-spinner`}
+        >
           <SpinnerLoader size="md" />
         </SpinnerContainer>
       ) : (
@@ -73,7 +78,9 @@ function QuickActionButton({
               startIcon={icon}
             />
             {count > 0 && (
-              <StyledCountText data-testid="t--bottom-bar-count">
+              <StyledCountText
+                data-testid={`t--git-quick-actions-${testKey}-count`}
+              >
                 {count}
               </StyledCountText>
             )}

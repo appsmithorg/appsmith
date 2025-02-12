@@ -32,8 +32,10 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import {
+  EvaluationSubstitutionType,
+  ENTITY_TYPE,
+} from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
@@ -142,10 +144,7 @@ import microDiff from "microdiff";
 import {
   profileAsyncFn,
   profileFn,
-  type WebworkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+} from "instrumentation/generateWebWorkerTraces";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import appComputationCache from "../AppComputationCache";
 import {
@@ -154,6 +153,9 @@ import {
 } from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import type { WebworkerSpanData, Attributes } from "instrumentation/types";
+import type { AffectedJSObjects } from "actions/EvaluationReduxActionTypes";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -252,7 +254,7 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
     cacheProps: ICacheProps,
   ) {
     this.setConfigTree(configTree);
@@ -550,7 +552,7 @@ export default class DataTreeEvaluator {
   }: {
     unEvalTree: UnEvalTree;
     configTree: ConfigTree;
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes>;
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes>;
     affectedJSObjects: AffectedJSObjects;
   }) {
     //get difference in js collection body to be parsed
@@ -634,8 +636,9 @@ export default class DataTreeEvaluator {
   setupUpdateTree(
     unEvalTree: UnEvalTree,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | Attributes> = {},
     affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
+    actionDataPayloadConsolidated?: UpdateActionProps[],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -676,7 +679,7 @@ export default class DataTreeEvaluator {
 
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
-    if (differences.length === 0) {
+    if (differences.length === 0 && !actionDataPayloadConsolidated?.length) {
       return {
         removedPaths: [],
         unEvalUpdates: [],
@@ -723,7 +726,12 @@ export default class DataTreeEvaluator {
     this.dependencies = dependencies;
     this.inverseDependencies = inverseDependencies;
 
-    const pathsChangedSet = new Set<string[]>();
+    const pathsChangedSet = new Set<string[]>(
+      actionDataPayloadConsolidated?.map(({ dataPath, entityName }) => [
+        entityName,
+        dataPath,
+      ]) || [],
+    );
 
     for (const diff of differences) {
       if (isArray(diff.path)) {
@@ -734,16 +742,23 @@ export default class DataTreeEvaluator {
     const updatedValuePaths = [...pathsChangedSet];
 
     this.updateEvalTreeWithChanges({ differences });
-
     const setupUpdateTreeOutput = profileFn(
       "setupTree",
       undefined,
       webworkerTelemetry,
       () => {
+        const pathsToSkipFromEval =
+          actionDataPayloadConsolidated
+            ?.map(({ dataPath, entityName }) => {
+              return [entityName, dataPath];
+            })
+            .map((path: string[]) => path.join(".")) || [];
+
         return this.setupTree(updatedUnEvalTreeJSObjects, updatedValuePaths, {
           dependenciesOfRemovedPaths,
           removedPaths,
           translatedDiffs,
+          pathsToSkipFromEval,
         });
       },
     );

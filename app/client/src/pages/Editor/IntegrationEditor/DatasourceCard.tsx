@@ -1,5 +1,5 @@
 import type { Datasource } from "entities/Datasource";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { debounce, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,11 @@ import { getQueryParams } from "utils/URLUtils";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import {
+  type GenerateCRUDEnabledPluginMap,
+  type Plugin,
+  PluginType,
+} from "entities/Plugin";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
@@ -54,9 +58,9 @@ import {
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { openGeneratePageModal } from "../GeneratePage/store/generatePageActions";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -175,7 +179,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
@@ -186,7 +190,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     isEnabled: isFeatureEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const canEditDatasource = getHasManageDatasourcePermission(

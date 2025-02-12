@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,20 +14,24 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./EditorTabs/constants";
-import { createEditorFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { createPageFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 import { FocusElement } from "navigation/FocusElements";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useGitCurrentBranch } from "../gitSync/hooks/modHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { useBoolean } from "usehooks-ts";
+import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
+import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
@@ -60,9 +63,8 @@ export const useCurrentEditorState = () => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId: baseParentEntityId } =
-    useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId: baseParentEntityId } = useParentEntityInfo(ideType);
 
   /**
    * Callback to handle the segment change
@@ -97,19 +99,23 @@ export const useSegmentNavigation = (): {
 export const useGetPageFocusUrl = (basePageId: string): string => {
   const [focusPageUrl, setFocusPageUrl] = useState(builderURL({ basePageId }));
 
-  const branch = useSelector(getCurrentGitBranch);
-  const editorStateFocusInfo = useSelector((appState) =>
-    getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
+  const branch = useGitCurrentBranch();
+
+  const pageStateFocusInfo = useSelector((appState) =>
+    getCurrentFocusInfo(appState, createPageFocusInfoKey(basePageId, branch)),
   );
 
-  useEffect(() => {
-    if (editorStateFocusInfo) {
-      const lastSelectedEntity =
-        editorStateFocusInfo.state[FocusElement.SelectedEntity];
+  useEffect(
+    function handleUpdateOfPageLink() {
+      if (pageStateFocusInfo) {
+        const lastSelectedEntity =
+          pageStateFocusInfo.state[FocusElement.SelectedEntity];
 
-      setFocusPageUrl(builderURL({ basePageId, suffix: lastSelectedEntity }));
-    }
-  }, [editorStateFocusInfo, branch]);
+        setFocusPageUrl(builderURL({ basePageId, suffix: lastSelectedEntity }));
+      }
+    },
+    [pageStateFocusInfo, branch, basePageId],
+  );
 
   return focusPageUrl;
 };
@@ -124,7 +130,7 @@ export function useWidgetSelectionBlockListener() {
   useEffect(() => {
     const inUIMode = [
       FocusEntity.CANVAS,
-      FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET,
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
 
@@ -197,4 +203,23 @@ export const useIDETabClickHandlers = () => {
   );
 
   return { addClickHandler, tabClickHandler, closeClickHandler };
+};
+
+export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
+  const widgetBindingsExist = useSelector(isWidgetActionConnectionPresent);
+
+  const localStorageFlag = localStorage.getItem(
+    LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE,
+  );
+
+  const { setFalse, value } = useBoolean(
+    widgetBindingsExist && !localStorageFlag,
+  );
+
+  const dismissNudge = useCallback(() => {
+    setFalse();
+    localStorage.setItem(LOCAL_STORAGE_KEYS.NUDGE_SHOWN_SPLIT_PANE, "true");
+  }, [setFalse]);
+
+  return [value, dismissNudge];
 };

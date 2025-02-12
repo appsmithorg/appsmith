@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { GitArtifactReduxState } from "./types";
+import type { GitArtifactRootReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
 import {
   connectErrorAction,
@@ -57,11 +57,11 @@ import {
   toggleConnectModalAction,
   toggleOpsModalAction,
   toggleSettingsModalAction,
-  toggleRepoLimitErrorModalAction,
   toggleConflictErrorModalAction,
   openDisconnectModalAction,
   closeDisconnectModalAction,
   toggleAutocommitDisableModalAction,
+  toggleConnectSuccessModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -84,6 +84,8 @@ import {
   mergeErrorAction,
   mergeInitAction,
   mergeSuccessAction,
+  resetMergeStateAction,
+  resetMergeSuccessAction,
 } from "./actions/mergeActions";
 import {
   pollAutocommitProgressStopAction,
@@ -107,7 +109,10 @@ import {
   updateProtectedBranchesInitAction,
   updateProtectedBranchesSuccessAction,
 } from "./actions/updateProtectedBranchesActions";
-import { initGitForEditorAction } from "./actions/initGitActions";
+import {
+  initGitForEditorAction,
+  initGitForEditorSuccessAction,
+} from "./actions/initGitActions";
 import {
   fetchAutocommitProgressErrorAction,
   fetchAutocommitProgressInitAction,
@@ -119,11 +124,6 @@ import {
   disconnectInitAction,
   disconnectSuccessAction,
 } from "./actions/disconnectActions";
-import {
-  gitImportErrorAction,
-  gitImportInitAction,
-  gitImportSuccessAction,
-} from "./actions/gitImportActions";
 import {
   fetchSSHKeyErrorAction,
   fetchSSHKeyInitAction,
@@ -137,7 +137,7 @@ import {
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
 
-const initialState: GitArtifactReduxState = {};
+const initialState: GitArtifactRootReduxState = {};
 
 export const gitArtifactSlice = createSlice({
   name: "git/artifact",
@@ -146,6 +146,7 @@ export const gitArtifactSlice = createSlice({
   reducers: {
     // init
     initGitForEditor: initGitForEditorAction,
+    initGitForEditorSuccess: initGitForEditorSuccessAction,
     mount: mountAction,
     unmount: unmountAction,
     fetchMetadataInit: fetchMetadataInitAction,
@@ -156,9 +157,6 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    gitImportInit: gitImportInitAction,
-    gitImportSuccess: gitImportSuccessAction,
-    gitImportError: gitImportErrorAction,
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,
@@ -171,9 +169,9 @@ export const gitArtifactSlice = createSlice({
     disconnectSuccess: disconnectSuccessAction,
     disconnectError: disconnectErrorAction,
     toggleConnectModal: toggleConnectModalAction,
+    toggleConnectSuccessModal: toggleConnectSuccessModalAction,
     openDisconnectModal: openDisconnectModalAction,
     closeDisconnectModal: closeDisconnectModalAction,
-    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
     commitInit: commitInitAction,
@@ -194,6 +192,8 @@ export const gitArtifactSlice = createSlice({
     mergeInit: mergeInitAction,
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,
+    resetMergeState: resetMergeStateAction,
+    resetMergeSuccessState: resetMergeSuccessAction,
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,

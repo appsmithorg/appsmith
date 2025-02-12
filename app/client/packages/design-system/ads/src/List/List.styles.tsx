@@ -6,6 +6,8 @@ import {
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
+import { Flex } from "../Flex";
+import { Text } from "../Text";
 
 const Variables = css`
   --listitem-title-font-size: var(--ads-v2-font-size-4);
@@ -26,6 +28,51 @@ const Sizes = {
   `,
 };
 
+export const TooltipTextWrapper = styled.div`
+  display: flex;
+  min-width: 0;
+
+  &.${ListItemIDescClassName}-wrapper {
+    min-width: unset;
+  }
+`;
+
+export const RightControlWrapper = styled.div`
+  height: 100%;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+
+  button {
+    margin-left: -4px;
+  }
+`;
+
+export const TopContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+  min-width: 0;
+  height: 24px;
+  width: 100%;
+`;
+
+export const BottomContentWrapper = styled.div`
+  padding-bottom: var(--ads-v2-spaces-2);
+
+  &[data-isiconpresent="true"] {
+    padding-left: var(--ads-v2-spaces-7);
+  }
+`;
+
+export const InlineDescriptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+`;
+
 export const StyledList = styled.div`
   width: 100%;
   height: 100%;
@@ -33,99 +80,52 @@ export const StyledList = styled.div`
   padding: var(--ads-v2-spaces-1);
   display: flex;
   flex-direction: column;
-  gap: var(--ads-v2-spaces-2);
-`;
-
-export const Wrapper = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: var(--ads-v2-spaces-3);
-  cursor: pointer;
-  box-sizing: border-box;
-  position: relative;
-`;
-
-export const TooltipTextWrapper = styled.div`
-  display: flex;
-  min-width: 0;
-`;
-
-export const ContentWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-`;
-
-export const ContentTextWrapper = styled.div`
-  display: flex;
-  gap: var(--ads-v2-spaces-3);
-  flex: 1;
-  min-width: 0;
-`;
-
-export const DescriptionWrapper = styled.div`
-  flex-direction: column;
-  min-width: 0;
-  gap: var(--ads-v2-spaces-3);
-  display: flex;
-`;
-
-export const InlineDescriptionWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 0;
-  gap: var(--ads-v2-spaces-3);
-  flex: 1;
-`;
-
-export const EndIconWrapper = styled.div`
-  position: absolute;
-  right: var(--ads-v2-spaces-3);
 `;
 
 export const StyledListItem = styled.div<{
   size: ListSizes;
-  endIcon?: string;
-  isBlockDescription: boolean;
 }>`
   ${Variables};
 
   display: flex;
   width: 100%;
-  align-items: center;
-  border-radius: var(--ads-v2-border-radius);
-  padding: var(--ads-v2-spaces-3);
+  cursor: pointer;
   box-sizing: border-box;
-  // 40px is the offset to make it look like the end icon is part of this div
-  ${(props) => !!props.endIcon && `padding: 8px 40px 8px 8px;`}}
+  position: relative;
+  border-radius: var(--ads-v2-border-radius);
+  padding: var(--ads-v2-spaces-2);
+  padding-left: var(--ads-v2-spaces-3);
+  gap: var(--ads-v2-spaces-1);
+  flex-shrink: 0;
+  flex-direction: column;
+  max-height: 32px;
 
   ${({ size }) => Sizes[size]}
 
-
-  & .${ListItemTextOverflowClassName} {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  &[data-isblockdescription="true"] {
+    max-height: 54px;
   }
 
-  & .${ListItemTitleClassName} {
-    font-size: var(--listitem-title-font-size);
-    line-height: 16px;
+  &[data-rightcontrolvisibility="hover"] {
+    ${RightControlWrapper} {
+      display: none;
+    }
+
+    &:hover ${RightControlWrapper} {
+      display: block;
+    }
   }
 
-  & .${ListItemBDescClassName} {
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    text-overflow: initial;
-    white-space: initial;
-    font-size: var(--listitem-bdescription-font-size);
-    line-height: normal;
+  &[data-selected="true"] {
+    background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
-  & .${ListItemIDescClassName} {
-    font-size: var(--listitem-idescription-font-size);
+  /* disabled style */
+
+  &[data-disabled="true"] {
+    cursor: not-allowed;
+    opacity: var(--ads-v2-opacity-disabled);
+    background-color: var(--ads-v2-colors-content-surface-default-bg);
   }
 
   &:hover {
@@ -136,20 +136,51 @@ export const StyledListItem = styled.div<{
     background-color: var(--ads-v2-colors-content-surface-active-bg);
   }
 
-  &[data-selected="true"] {
-    background-color: var(--ads-v2-colors-content-surface-active-bg);
+  & .${ListItemTextOverflowClassName} {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+    padding-right: var(--ads-v2-spaces-2);
   }
 
-  /* disabled style */
-  &[data-disabled="true"] {
-    cursor: not-allowed;
-    opacity: var(--ads-v2-opacity-disabled);
+  & .${ListItemTitleClassName} {
+    font-size: var(--listitem-title-font-size);
+    line-height: 16px;
   }
 
-  /* Focus styles */
-  &:focus-visible {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+  & .${ListItemBDescClassName} {
+    -webkit-line-clamp: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    text-overflow: initial;
+    white-space: initial;
+    font-size: var(--listitem-bdescription-font-size);
+    line-height: normal;
   }
+
+  & .${ListItemIDescClassName} {
+    font-size: var(--listitem-idescription-font-size);
+    line-height: 16px;
+    padding-right: var(--ads-v2-spaces-2);
+  }
+`;
+
+export const StyledGroup = styled(Flex)`
+  & .ads-v2-listitem .ads-v2-listitem__idesc {
+    opacity: 0;
+  }
+
+  & .ads-v2-listitem:hover .ads-v2-listitem__idesc {
+    opacity: 1;
+  }
+`;
+
+export const GroupedList = styled(StyledList)`
+  padding: 0;
+`;
+
+export const GroupTitle = styled(Text)`
+  padding: var(--ads-v2-spaces-1) 0;
+  color: var(--ads-v2-color-fg-muted);
 `;

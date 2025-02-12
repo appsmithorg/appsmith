@@ -40,7 +40,16 @@ jq -n \
   --argjson isCI "${CI:-false}" \
   '$ARGS.named' | tee "$(git rev-parse --show-toplevel)/deploy/docker/fs/opt/appsmith/info.json"
 
-# Usage 
+# If running in GitHub Actions, also output the values to GITHUB_OUTPUT
+if [[ -n "${GITHUB_OUTPUT-}" ]]; then
+  {
+    echo "commitSha=$commit_sha"
+    echo "repo=$base_url"
+    echo "version=$version"
+  } >> "$GITHUB_OUTPUT"
+fi
+
+# Usage
 # ./scripts/generate_info_json.sh v0.0.1
 # ./scripts/generate_info_json.sh v0.1
 # ./scripts/generate_info_json.sh

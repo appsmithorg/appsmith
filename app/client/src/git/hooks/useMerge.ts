@@ -3,10 +3,11 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectMergeState,
   selectMergeStatusState,
-} from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+  selectMergeSuccess,
+} from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useMerge() {
   const { artifact, artifactDef } = useGitContext();
@@ -14,45 +15,74 @@ export default function useMerge() {
   const dispatch = useDispatch();
 
   // merge
-  const mergeState = useSelector((state: GitRootState) =>
-    selectMergeState(state, artifactDef),
-  );
+  const mergeState = useArtifactSelector(selectMergeState);
 
-  const merge = useCallback(() => {
-    dispatch(gitArtifactActions.mergeInit(artifactDef));
-  }, [artifactDef, dispatch]);
+  const merge = useCallback(
+    (sourceBranch, destinationBranch) => {
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.mergeInit({
+            artifactDef,
+            artifactId,
+            sourceBranch,
+            destinationBranch,
+          }),
+        );
+      }
+    },
+    [artifactDef, artifactId, dispatch],
+  );
 
   // merge status
-  const mergeStatusState = useSelector((state: GitRootState) =>
-    selectMergeStatusState(state, artifactDef),
-  );
+  const mergeStatusState = useArtifactSelector(selectMergeStatusState);
 
   const fetchMergeStatus = useCallback(
     (sourceBranch: string, destinationBranch: string) => {
-      dispatch(
-        gitArtifactActions.fetchMergeStatusInit({
-          ...artifactDef,
-          artifactId: artifactId ?? "",
-          sourceBranch,
-          destinationBranch,
-        }),
-      );
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.fetchMergeStatusInit({
+            artifactDef,
+            artifactId,
+            sourceBranch,
+            destinationBranch,
+          }),
+        );
+      }
     },
     [artifactId, artifactDef, dispatch],
   );
 
   const clearMergeStatus = useCallback(() => {
-    dispatch(gitArtifactActions.clearMergeStatus(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.clearMergeStatus({ artifactDef }));
+    }
+  }, [artifactDef, dispatch]);
+
+  const isMergeSuccess = useArtifactSelector(selectMergeSuccess);
+
+  const resetMergeState = useCallback(() => {
+    if (artifactDef) {
+      dispatch(gitArtifactActions.resetMergeState({ artifactDef }));
+    }
+  }, [artifactDef, dispatch]);
+
+  const resetMergeSuccessState = useCallback(() => {
+    if (artifactDef) {
+      dispatch(gitArtifactActions.resetMergeSuccessState({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {
     isMergeLoading: mergeState?.loading ?? false,
-    mergeError: mergeState?.error,
+    mergeError: mergeState?.error ?? null,
     merge,
-    mergeStatus: mergeStatusState?.value,
+    mergeStatus: mergeStatusState?.value ?? null,
     isFetchMergeStatusLoading: mergeStatusState?.loading ?? false,
-    fetchMergeStatusError: mergeStatusState?.error,
+    fetchMergeStatusError: mergeStatusState?.error ?? null,
     fetchMergeStatus,
     clearMergeStatus,
+    isMergeSuccess: isMergeSuccess ?? false,
+    resetMergeState,
+    resetMergeSuccessState,
   };
 }

@@ -1,8 +1,8 @@
 package com.appsmith.server.imports.importable.artifactbased;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.GitSyncedDomain;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -27,15 +27,16 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
             Object dtoObject, Map<String, ? extends Context> contextMap, String fallbackBaseContextId);
 
     default void populateBaseId(ImportingMetaDTO importingMetaDTO, Artifact artifact, T branchedResource, T resource) {
-        BranchAwareDomain branchAwareResource = (BranchAwareDomain) resource;
-        BranchAwareDomain branchAwareBranchedResource = (BranchAwareDomain) branchedResource;
+        RefAwareDomain refAwareResource = (RefAwareDomain) resource;
+        RefAwareDomain refAwareRefResource = (RefAwareDomain) branchedResource;
 
-        branchAwareResource.setBranchName(importingMetaDTO.getBranchName());
+        refAwareResource.setRefType(importingMetaDTO.getRefType());
+        refAwareResource.setRefName(importingMetaDTO.getRefName());
         if (artifact.getGitArtifactMetadata() != null && branchedResource != null) {
-            branchAwareResource.setBaseId(branchAwareBranchedResource.getBaseId());
+            refAwareResource.setBaseId(refAwareRefResource.getBaseId());
 
         } else {
-            branchAwareResource.setBaseId(branchAwareResource.getBaseIdOrFallback());
+            refAwareResource.setBaseId(refAwareResource.getBaseIdOrFallback());
         }
     }
 

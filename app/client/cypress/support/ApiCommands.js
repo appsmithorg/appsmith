@@ -181,9 +181,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
-    cy.get(locator._queryName).should("be.visible");
+    cy.get(locator._activeEntityTab).should("be.visible");
     expect(response.response.body.responseMeta.success).to.eq(true);
-    cy.get(locator._queryName)
+    cy.get(locator._activeEntityTab)
       .invoke("text")
       .then((text) => {
         const someText = text;

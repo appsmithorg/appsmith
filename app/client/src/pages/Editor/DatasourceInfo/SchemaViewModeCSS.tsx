@@ -43,10 +43,7 @@ export const DatasourceListContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-left: var(--ads-v2-spaces-5);
-  .t--entity.datasourceStructure-datasource-view-mode {
-    padding-right: var(--ads-v2-spaces-5);
-  }
+  padding: 0 var(--ads-v2-spaces-5);
   &.t--gsheet-structure {
     padding-bottom: var(--ads-v2-spaces-8);
     .t--gsheet-structure-list {
@@ -203,7 +200,6 @@ export const DatasourceStructureSearchContainer = styled.div`
   margin: var(--ads-v2-spaces-3) 0 var(--ads-v2-spaces-2) 0;
   background: white;
   flex-shrink: 0;
-  padding-right: var(--ads-v2-spaces-5);
   display: flex;
   align-items: center;
   gap: var(--ads-v2-spaces-2);
@@ -212,7 +208,6 @@ export const DatasourceStructureSearchContainer = styled.div`
     margin-bottom: var(--ads-v2-spaces-2);
   }
   &.t--search-container--query-editor {
-    padding-right: 0;
     margin: 0;
   }
 `;

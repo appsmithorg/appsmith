@@ -1,5 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 const initialState: ModalActionReduxState = {
@@ -30,6 +30,7 @@ export interface ModalInfo {
   modalOpen: boolean;
   modalType: ModalType;
 }
+
 export interface ModalActionReduxState {
   modals: ModalInfo[];
 }

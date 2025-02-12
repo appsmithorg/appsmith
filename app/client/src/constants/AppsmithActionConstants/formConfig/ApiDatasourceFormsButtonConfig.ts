@@ -4,4 +4,5 @@ export default {
   SAAS: ["CANCEL", "SAVE_AND_AUTHORIZE"],
   REMOTE: ["CANCEL", "SAVE"],
   AI: ["TEST", "CANCEL", "SAVE"],
+  EXTERNAL_SAAS: ["CANCEL", "CONNECT_DATASOURCE"],
 };

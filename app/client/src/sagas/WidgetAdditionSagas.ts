@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -20,7 +20,7 @@ import {
 } from "constants/WidgetConstants";
 import { toast } from "@appsmith/ads";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import produce from "immer";
+import { create } from "mutative";
 import { klona as clone } from "klona/full";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -112,7 +112,7 @@ function* getChildWidgetProps(
     // if (props) props.children = [];
 
     if (props) {
-      props = produce(props, (draft: WidgetProps) => {
+      props = create(props, (draft) => {
         if (!draft.children || !Array.isArray(draft.children)) {
           draft.children = [];
         }

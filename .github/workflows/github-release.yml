@@ -1,4 +1,4 @@
-name: Appsmith Github Release Workflow
+name: Github Release
 
 # This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
 # The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
@@ -17,30 +17,33 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.get_version.outputs.tag }}
+      tag: ${{ steps.main.outputs.tag }}
+      docker_tags: ${{ steps.main.outputs.docker_tags }}
 
     steps:
-      - name: Environment details
-        run: |
-          echo "PWD: $PWD"
-          echo "GITHUB_REF: $GITHUB_REF"
-          echo "GITHUB_SHA: $GITHUB_SHA"
-          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: "5"
+          fetch-tags: "true"
 
-      - name: Get the version
-        id: get_version
-        run: |
-          if ! [[ ${GITHUB_REF-} =~ ^refs/tags/v[[:digit:]]\.[[:digit:]]+(\.[[:digit:]]+)?$ ]]; then
-            echo "Invalid tag: '${GITHUB_REF-}'. Has to be like `v1.22`, `v1.22.33` only."
-            exit 1
-          fi
-          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Prelude checks and preparations
+        uses: actions/github-script@v7
+        id: main
+        with:
+          script: |
+            require(
+              "${{ github.workspace }}/.github/workflows/scripts/github-release/prelude.js",
+            )(
+              { core, context, github },
+              "${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}",
+            )
 
   client-build:
     needs:
       - prelude
 
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest-8-cores
 
     defaults:
       run:
@@ -162,7 +165,7 @@ jobs:
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn't work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
@@ -244,6 +247,7 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
+        id: info_json
         run: |
           scripts/generate_info_json.sh
 
@@ -273,5 +277,8 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{needs.prelude.outputs.tag}}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:latest
+            ${{ needs.prelude.outputs.docker_tags }}
+          labels: |
+            org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}
+            org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}
+            org.opencontainers.image.version=${{ steps.info_json.outputs.version }}

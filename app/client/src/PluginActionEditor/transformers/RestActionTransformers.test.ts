@@ -3,7 +3,7 @@ import {
   transformRestAction,
 } from "./RestActionTransformer";
 import type { ApiAction } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import {
   HTTP_PROTOCOL,
   MultiPartOptionTypes,

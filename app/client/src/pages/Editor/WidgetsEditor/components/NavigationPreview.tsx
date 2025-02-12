@@ -2,10 +2,10 @@ import type { LegacyRef } from "react";
 import React, { forwardRef } from "react";
 import classNames from "classnames";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 /**
@@ -22,7 +22,7 @@ const NavigationPreview = forwardRef(
     const appState = useCurrentAppState();
     const isAppSettingsPaneWithNavigationTabOpen =
       appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
-    const isPreviewMode = useSelector(combinedPreviewModeSelector);
+    const isPreviewMode = useSelector(selectCombinedPreviewMode);
 
     return (
       <div

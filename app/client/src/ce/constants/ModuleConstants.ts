@@ -1,4 +1,4 @@
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 
 type ID = string;
 
@@ -20,6 +20,7 @@ export interface ModuleInputSection {
 export interface Module
   extends Pick<ModuleMetadata, "pluginId" | "pluginType" | "datasourceId"> {
   id: ID;
+  baseId: ID;
   name: string;
   packageId: ID;
   inputsForm: ModuleInputSection[];

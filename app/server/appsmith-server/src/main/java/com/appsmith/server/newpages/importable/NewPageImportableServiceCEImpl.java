@@ -126,7 +126,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .toList();
         return Flux.fromIterable(newPages)
                 .flatMap(newPage -> {
-                    newPage.setBranchName(importingMetaDTO.getBranchName());
+                    newPage.setRefType(importingMetaDTO.getRefType());
+                    newPage.setRefName(importingMetaDTO.getRefName());
                     return mapActionAndCollectionIdWithPageLayout(
                             newPage,
                             importActionResultDTO.getActionIdMap(),
@@ -452,7 +453,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             Set<Policy> existingPagePolicy = existingPage.getPolicies();
                             copyNestedNonNullProperties(newPage, existingPage);
                             // Update branchName
-                            existingPage.setBranchName(importingMetaDTO.getBranchName());
+                            existingPage.setRefType(importingMetaDTO.getRefType());
+                            existingPage.setRefName(importingMetaDTO.getRefName());
                             // Recover the deleted state present in DB from imported page
                             existingPage
                                     .getUnpublishedPage()
@@ -474,12 +476,13 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             if (application.getGitApplicationMetadata() != null) {
 
                                 if (!pagesFromOtherBranches.containsKey(newPage.getGitSyncId())) {
-                                    return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO.getBranchName());
+                                    return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
                                 }
 
                                 NewPage branchedPage = pagesFromOtherBranches.get(newPage.getGitSyncId());
                                 newPage.setBaseId(branchedPage.getBaseId());
-                                newPage.setBranchName(importingMetaDTO.getBranchName());
+                                newPage.setRefType(importingMetaDTO.getRefType());
+                                newPage.setRefName(importingMetaDTO.getRefName());
                                 newPage.getUnpublishedPage()
                                         .setDeletedAt(branchedPage
                                                 .getUnpublishedPage()
@@ -489,7 +492,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 newPage.setPolicies(branchedPage.getPolicies());
                                 return newPageService.save(newPage);
                             }
-                            return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO.getBranchName());
+                            return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
                         }
                     });
                 })
@@ -499,9 +502,10 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 });
     }
 
-    private Mono<NewPage> saveNewPageAndUpdateBaseId(NewPage newPage, String branchName) {
+    private Mono<NewPage> saveNewPageAndUpdateBaseId(NewPage newPage, ImportingMetaDTO importingMetaDTO) {
         NewPage update = new NewPage();
-        newPage.setBranchName(branchName);
+        newPage.setRefType(importingMetaDTO.getRefType());
+        newPage.setRefName(importingMetaDTO.getRefName());
         return newPageService.save(newPage).flatMap(page -> {
             if (StringUtils.isEmpty(page.getBaseId())) {
                 update.setBaseId(page.getId());

@@ -1,7 +1,6 @@
 import type { ApiResponse } from "api/types";
+import type { GitArtifact } from "git/store/types";
 
-export interface DisconnectResponseData {
-  [key: string]: string;
-}
+export type DisconnectResponseData = GitArtifact;
 
 export type DisconnectResponse = ApiResponse<DisconnectResponseData>;

@@ -17,11 +17,11 @@ import {
 import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import type { Plugin } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export interface FocusPath {
   key: string;
@@ -93,10 +93,9 @@ class FocusRetention {
     previousPath: string,
     state: AppsmithLocationState,
   ) {
-    this.updateFocusStrategy(currentPath);
-
     /* STORE THE UI STATE OF PREVIOUS URL */
     if (previousPath) {
+      this.updateFocusStrategy(previousPath);
       const toStore: Array<FocusPath> = yield call(
         this.focusStrategy.getEntitiesForStore,
         previousPath,
@@ -108,6 +107,7 @@ class FocusRetention {
       }
     }
 
+    this.updateFocusStrategy(currentPath);
     /* RESTORE THE UI STATE OF THE NEW URL */
     yield call(this.focusStrategy.waitForPathLoad, currentPath, previousPath);
     const setPaths: Array<FocusPath> = yield call(
@@ -123,7 +123,9 @@ class FocusRetention {
   }
 
   public *handleRemoveFocusHistory(url: string) {
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
     const removeKeys: string[] = [];
     const focusEntityInfo = identifyEntityFromPath(url);
 
@@ -255,6 +257,7 @@ class FocusRetention {
       return config.selector(previousURL);
     }
   }
+
   private *setState(config: FocusElementConfig, value: unknown): unknown {
     if (config.type === FocusElementConfigType.Redux) {
       yield put(config.setter(value));

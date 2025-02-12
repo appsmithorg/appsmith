@@ -6,6 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
@@ -28,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -125,16 +125,8 @@ public class ActionCollectionServiceCEImpl
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
-        collections.forEach(collection -> {
-            setGitSyncIdInActionCollection(collection);
-        });
+        collections.forEach(this::setGitSyncIdInActionCollection);
         return repository.saveAll(collections);
-    }
-
-    @Override
-    public Mono<ActionCollection> findByBaseIdAndBranchName(String id, String branchName) {
-        // TODO sanitise response for default IDs
-        return this.findByBranchNameAndBaseCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
     @Override
@@ -142,16 +134,6 @@ public class ActionCollectionServiceCEImpl
             MultiValueMap<String, String> params, Boolean viewMode) {
         return this.getNonComposedActionCollectionsByViewMode(params, viewMode)
                 .flatMap(actionCollectionDTO -> this.populateActionCollectionByViewMode(actionCollectionDTO, viewMode));
-    }
-
-    @Override
-    public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
-            MultiValueMap<String, String> params, Boolean viewMode, String branchName) {
-        MultiValueMap<String, String> updatedMap = new LinkedMultiValueMap<>(params);
-        if (StringUtils.hasLength(branchName)) {
-            updatedMap.add(FieldName.BRANCH_NAME, branchName);
-        }
-        return this.getPopulatedActionCollectionsByViewMode(updatedMap, viewMode);
     }
 
     @Override
@@ -465,23 +447,6 @@ public class ActionCollectionServiceCEImpl
     }
 
     @Override
-    public Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission) {
-
-        if (StringUtils.isEmpty(baseCollectionId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID));
-        } else if (StringUtils.isEmpty(branchName)) {
-            return this.findById(baseCollectionId, permission)
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, baseCollectionId)));
-        }
-        return repository
-                .findByBranchNameAndBaseCollectionId(branchName, baseCollectionId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, baseCollectionId)));
-    }
-
-    @Override
     public Map<String, Object> getAnalyticsProperties(ActionCollection savedActionCollection) {
         final ActionCollectionDTO unpublishedCollection = savedActionCollection.getUnpublishedCollection();
         Map<String, Object> analyticsProperties = new HashMap<>();
@@ -489,7 +454,7 @@ public class ActionCollectionServiceCEImpl
         analyticsProperties.put(
                 "applicationId", ObjectUtils.defaultIfNull(savedActionCollection.getApplicationId(), ""));
         analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedCollection.getPageId(), ""));
-        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
+        analyticsProperties.put("workspaceId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
         return analyticsProperties;
     }
 
@@ -549,7 +514,8 @@ public class ActionCollectionServiceCEImpl
 
         newAction.setPolicies(actionCollectionPolicies);
         newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-        newAction.setBranchName(actionCollection.getBranchName());
+        newAction.setRefType(actionCollection.getRefType());
+        newAction.setRefName(actionCollection.getRefName());
 
         Mono<NewAction> sendAnalyticsMono =
                 analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
@@ -652,5 +618,10 @@ public class ActionCollectionServiceCEImpl
     public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
         // Do nothing as this is already taken care for JS objects in the context of page
         return Mono.empty().then();
+    }
+
+    @Override
+    public Flux<ActionCollection> findByArtifactIdAndArtifactType(String artifactId, ArtifactType artifactType) {
+        return repository.findByApplicationId(artifactId);
     }
 }

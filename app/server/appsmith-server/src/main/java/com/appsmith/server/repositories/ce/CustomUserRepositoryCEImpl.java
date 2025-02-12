@@ -42,14 +42,14 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Optional<Boolean> isUsersEmpty(EntityManager entityManager) {
         return Optional.of(queryBuilder()
-                .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
+                .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails(entityManager)))
                 .limit(1)
                 .entityManager(entityManager)
                 .all(IdOnly.class)
                 .isEmpty());
     }
 
-    protected Set<String> getSystemGeneratedUserEmails() {
+    private Set<String> getSystemGeneratedUserEmails(EntityManager entityManager) {
         Set<String> systemGeneratedEmails = new HashSet<>();
         systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
         return systemGeneratedEmails;

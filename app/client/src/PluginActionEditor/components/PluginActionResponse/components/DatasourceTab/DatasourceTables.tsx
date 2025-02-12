@@ -9,7 +9,7 @@ import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import { SchemaTableContainer } from "./styles";
 import DatasourceInfo from "./DatasourceInfo";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 
 interface Props {
   datasourceId: string;

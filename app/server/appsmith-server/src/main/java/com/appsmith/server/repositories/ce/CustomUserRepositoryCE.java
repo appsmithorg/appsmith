@@ -14,5 +14,7 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Optional<Boolean> isUsersEmpty(EntityManager entityManager);
 
+    // Set<String> getSystemGeneratedUserEmails(EntityManager entityManager);
+
     Optional<Integer> updateById(String id, BridgeUpdate updateObj, EntityManager entityManager);
 }

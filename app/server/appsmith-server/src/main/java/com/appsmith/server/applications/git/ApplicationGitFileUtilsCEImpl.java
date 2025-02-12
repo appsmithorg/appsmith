@@ -1,6 +1,7 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.external.git.models.GitResourceType;
@@ -29,6 +30,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -65,10 +67,12 @@ import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.git.constants.CommonConstants.DELIMITER_PATH;
+import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
 import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.MAIN_CONTAINER;
 import static com.appsmith.git.constants.CommonConstants.WIDGETS;
-import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
+import static com.appsmith.git.constants.CommonConstants.fileFormatVersion;
+import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
 import static com.appsmith.server.constants.FieldName.CHILDREN;
@@ -85,7 +89,7 @@ import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwanted
 @Slf4j
 @Component
 @Import({FileUtilsImpl.class})
-public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
+public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationJson> {
 
     private final Gson gson;
     private final ObjectMapper objectMapper;
@@ -187,6 +191,10 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         copyProperties(applicationJson, applicationMetadata, keys);
         final String metadataFilePath = CommonConstants.METADATA + JSON_EXTENSION;
         ObjectNode metadata = objectMapper.valueToTree(applicationMetadata);
+
+        // put file format version;
+        metadata.put(FILE_FORMAT_VERSION, fileFormatVersion);
+
         GitResourceIdentity metadataIdentity =
                 new GitResourceIdentity(GitResourceType.ROOT_CONFIG, metadataFilePath, metadataFilePath);
         resourceMap.put(metadataIdentity, metadata);
@@ -467,8 +475,18 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
             return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
-                    applicationJson, baseArtifactId, branchName);
+                    applicationJson, baseArtifactId, branchName, RefType.branch);
         });
+    }
+
+    @Override
+    public Mono<? extends ArtifactExchangeJson> performJsonMigration(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String refName = jsonTransformationDTO.getRefName();
+        RefType refType = jsonTransformationDTO.getRefType();
+        return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                artifactExchangeJson, baseArtifactId, refName, refType);
     }
 
     protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
@@ -705,7 +723,6 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         artifactExchangeJson.setContextList(pageList);
 
         // widgets
-
         pageList.parallelStream().forEach(newPage -> {
             Map<String, org.json.JSONObject> widgetsData = resourceMap.entrySet().stream()
                     .filter(entry -> {
@@ -718,13 +735,23 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                                     .getFilePath()
                                     .replaceFirst(
                                             PAGE_DIRECTORY
+                                                    + DELIMITER_PATH
                                                     + newPage.getUnpublishedPage()
                                                             .getName()
                                                     + DELIMITER_PATH
                                                     + WIDGETS
                                                     + DELIMITER_PATH,
                                             MAIN_CONTAINER + DELIMITER_PATH),
-                            entry -> (org.json.JSONObject) entry.getValue()));
+                            entry -> {
+                                try {
+                                    return new org.json.JSONObject(objectMapper.writeValueAsString(entry.getValue()));
+                                } catch (JsonProcessingException jsonProcessingException) {
+                                    log.error(
+                                            "Error while deserializing widget with file path {}",
+                                            entry.getKey().getFilePath());
+                                    throw new RuntimeException(jsonProcessingException);
+                                }
+                            }));
 
             Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
             org.json.JSONObject mainContainer;

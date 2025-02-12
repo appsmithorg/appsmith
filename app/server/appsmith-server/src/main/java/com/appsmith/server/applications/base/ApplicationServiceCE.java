@@ -3,7 +3,7 @@ package com.appsmith.server.applications.base;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
@@ -29,7 +29,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Flux<Application> findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(String workspaceId);
 
-    Mono<Application> save(Application application);
+    Mono<Application> save(Artifact application);
 
     Mono<Application> updateApplicationWithPresets(String branchedApplicationId, Application application);
 
@@ -52,8 +52,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> saveLastEditInformation(String applicationId);
 
     Mono<Application> setTransientFields(Application application);
-
-    Mono<GitAuth> createOrUpdateSshKeyPair(String branchedApplicationId, String keyType);
 
     Mono<GitAuthDTO> getSshKey(String applicationId);
 

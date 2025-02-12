@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import { EditorSegments } from "@appsmith/ads";
 

@@ -7,12 +7,8 @@ import { useCurrentAppState } from "../../hooks/useCurrentAppState";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import {
-  EditorEntityTab,
-  EditorState,
-  EditorViewMode,
-} from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import {
   APP_SETTINGS_PANE_WIDTH,
   APP_SIDEBAR_WIDTH,
@@ -20,6 +16,7 @@ import {
 } from "constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
 import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
+import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
 
 interface ReturnValue {
   areas: Area[][];
@@ -43,7 +40,7 @@ function useGridLayoutTemplate(): ReturnValue {
   const appState = useCurrentAppState();
   const isPreviewMode = useSelector(previewModeSelector);
   const editorMode = useSelector(getIDEViewMode);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isProtectedMode = useGitProtectedMode();
 
   React.useEffect(
     function updateIDEColumns() {

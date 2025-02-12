@@ -1,24 +1,36 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectDiscardState } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import { selectDiscardState } from "git/store/selectors/gitArtifactSelectors";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useArtifactSelector from "./useArtifactSelector";
 
 export default function useDiscard() {
-  const { artifactDef } = useGitContext();
+  const { artifact, artifactDef } = useGitContext();
+  const artifactId = artifact?.id;
   const dispatch = useDispatch();
 
-  const discardState = useSelector((state: GitRootState) =>
-    selectDiscardState(state, artifactDef),
+  const discardState = useArtifactSelector(selectDiscardState);
+
+  const discard = useCallback(
+    (successMessage: string) => {
+      if (artifactDef && artifactId) {
+        dispatch(
+          gitArtifactActions.discardInit({
+            artifactDef,
+            artifactId,
+            successMessage,
+          }),
+        );
+      }
+    },
+    [artifactDef, artifactId, dispatch],
   );
 
-  const discard = useCallback(() => {
-    dispatch(gitArtifactActions.discardInit(artifactDef));
-  }, [artifactDef, dispatch]);
-
   const clearDiscardError = useCallback(() => {
-    dispatch(gitArtifactActions.clearDiscardError(artifactDef));
+    if (artifactDef) {
+      dispatch(gitArtifactActions.clearDiscardError({ artifactDef }));
+    }
   }, [artifactDef, dispatch]);
 
   return {

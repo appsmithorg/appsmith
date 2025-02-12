@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import { ApiCard, CardContentWrapper } from "../NewApi";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Modal, ModalContent, Tag, Text } from "@appsmith/ads";
+import { Modal, ModalContent, Tag } from "@appsmith/ads";
 import styled from "styled-components";
 import ContactForm from "./ContactForm";
-import { PREMIUM_INTEGRATIONS } from "constants/PremiumDatasourcesConstants";
-import {
-  getTagText,
-  handlePremiumDatasourceClick,
-} from "utils/PremiumDatasourcesHelpers";
-import { isFreePlan } from "ee/selectors/tenantSelectors";
-import { useSelector } from "react-redux";
+import { getTagText, handlePremiumDatasourceClick } from "./Helpers";
+import DatasourceItem from "../DatasourceItem";
+import type { PremiumIntegration } from "./Constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
@@ -35,11 +32,14 @@ const PremiumTag = styled(Tag)<{ isBusinessOrEnterprise: boolean }>`
   }
 `;
 
-export default function PremiumDatasources() {
+export default function PremiumDatasources(props: {
+  plugins: PremiumIntegration[];
+}) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
-  const isFreePlanInstance = useSelector(isFreePlan);
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const handleOnClick = (name: string) => {
-    handlePremiumDatasourceClick(name, !isFreePlanInstance);
+    handlePremiumDatasourceClick(name, isGACEnabled);
     setSelectedIntegration(name);
   };
 
@@ -51,32 +51,25 @@ export default function PremiumDatasources() {
 
   return (
     <>
-      {PREMIUM_INTEGRATIONS.map((integration) => (
-        <ApiCard
+      {props.plugins.map((integration) => (
+        <DatasourceItem
           className={`t--create-${integration.name}`}
-          key={integration.name}
-          onClick={() => {
+          handleOnClick={() => {
             handleOnClick(integration.name);
           }}
-        >
-          <CardContentWrapper>
-            <img
-              alt={integration.name}
-              className={"content-icon saasImage"}
-              src={getAssetUrl(integration.icon)}
-            />
-            <Text className="t--plugin-name textBtn" renderAs="p">
-              {integration.name}
-            </Text>
+          icon={getAssetUrl(integration.icon)}
+          key={integration.name}
+          name={integration.name}
+          rightSibling={
             <PremiumTag
-              isBusinessOrEnterprise={!isFreePlanInstance}
+              isBusinessOrEnterprise={isGACEnabled}
               isClosable={false}
               kind={"premium"}
             >
-              {getTagText(!isFreePlanInstance)}
+              {getTagText(isGACEnabled)}
             </PremiumTag>
-          </CardContentWrapper>
-        </ApiCard>
+          }
+        />
       ))}
       <Modal onOpenChange={onOpenChange} open={!!selectedIntegration}>
         <ModalContentWrapper>

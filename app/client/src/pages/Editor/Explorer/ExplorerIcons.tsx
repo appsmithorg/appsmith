@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
 import {
@@ -12,6 +12,9 @@ import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { importSvg } from "@appsmith/ads-old";
+import WidgetFactory from "WidgetProvider/factory";
+import WidgetTypeIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import type { WidgetType } from "constants/WidgetConstants";
 
 const ApiIcon = importSvg(
   async () => import("assets/icons/menu/api-colored.svg"),
@@ -94,7 +97,9 @@ export const datasourceIcon = (
   />
 );
 
-export const datasourceTableIcon = <Icon name="layout-5-line" size="md" />;
+export const datasourceTableIcon = (
+  <Icon className="datasource-table-icon" name="layout-5-line" size="md" />
+);
 
 export const primaryKeyIcon = <Icon name="key-2-line" size="md" />;
 
@@ -225,6 +230,7 @@ const EntityIconWrapper = styled.div<{
   justify-content: center;
   text-align: center;
   border-radius: var(--ads-v2-border-radius);
+
   svg,
   img {
     height: 100% !important;
@@ -266,8 +272,8 @@ export { EntityIcon };
 // fontSize is set to 56% by default.
 export function ApiMethodIcon(
   type: keyof typeof HTTP_METHOD,
-  height = "18px",
-  width = "36px",
+  height = "16px",
+  width = "34px",
   fontSize = 52,
 ) {
   return (
@@ -346,8 +352,8 @@ export function AppsmithAIIcon() {
   );
 }
 
-export function ActionUrlIcon(url: string) {
-  return <img src={url} />;
+export function ActionUrlIcon(url: string, height?: string, width?: string) {
+  return <img height={height} src={url} width={width} />;
 }
 
 export function DefaultModuleIcon() {
@@ -356,4 +362,14 @@ export function DefaultModuleIcon() {
       <Icon name="module" size="sm" />
     </EntityIcon>
   );
+}
+
+export function WidgetIconByType(widgetType: WidgetType) {
+  const { IconCmp } = WidgetFactory.getWidgetMethods(widgetType);
+
+  return IconCmp ? <IconCmp /> : <WidgetTypeIcon type={widgetType} />;
+}
+
+export function GlobeIcon() {
+  return <Icon name="global-line" size="md" />;
 }

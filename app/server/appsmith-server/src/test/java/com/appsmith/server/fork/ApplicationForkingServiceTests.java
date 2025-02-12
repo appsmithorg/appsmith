@@ -1004,7 +1004,7 @@ public class ApplicationForkingServiceTests {
         theme.setDisplayName("theme_" + uniqueString);
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         gitArtifactMetadata.setDefaultApplicationId(createdSrcApplication.getId());
-        gitArtifactMetadata.setBranchName("master");
+        gitArtifactMetadata.setRefName("master");
         gitArtifactMetadata.setDefaultBranchName("feature1");
         gitArtifactMetadata.setIsRepoPrivate(false);
         gitArtifactMetadata.setRepoName("testRepo");
@@ -1026,7 +1026,7 @@ public class ApplicationForkingServiceTests {
 
         GitArtifactMetadata gitArtifactMetadata1 = new GitArtifactMetadata();
         gitArtifactMetadata1.setDefaultApplicationId(createdSrcApplication.getId());
-        gitArtifactMetadata1.setBranchName("feature1");
+        gitArtifactMetadata1.setRefName("feature1");
         gitArtifactMetadata1.setDefaultBranchName("feature1");
         gitArtifactMetadata1.setIsRepoPrivate(false);
         gitArtifactMetadata1.setRepoName("testRepo");

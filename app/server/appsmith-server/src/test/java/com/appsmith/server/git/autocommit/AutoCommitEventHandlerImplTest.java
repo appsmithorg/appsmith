@@ -3,6 +3,7 @@ package com.appsmith.server.git.autocommit;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.configurations.ProjectProperties;
@@ -438,7 +439,7 @@ public class AutoCommitEventHandlerImplTest {
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
                 .migrateApplicationJsonToLatestSchema(
-                        Mockito.eq(applicationJson), Mockito.anyString(), Mockito.anyString());
+                        Mockito.eq(applicationJson), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         doReturn(Mono.just("success"))
                 .when(gitExecutor)
@@ -517,7 +518,8 @@ public class AutoCommitEventHandlerImplTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(), Mockito.anyString(), Mockito.anyString());
+                .migrateApplicationJsonToLatestSchema(
+                        any(), Mockito.anyString(), Mockito.anyString(), any(RefType.class));
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
 

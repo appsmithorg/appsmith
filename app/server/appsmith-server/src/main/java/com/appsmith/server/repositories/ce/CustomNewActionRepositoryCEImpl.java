@@ -487,7 +487,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
                 .entityManager(entityManager)
-                .all(PluginTypeAndCountDTO.class);
+                .all()
+            .stream().map(newAction -> {
+                PluginTypeAndCountDTO pluginTypeAndCountDTO = new PluginTypeAndCountDTO(newAction.getPluginType(), 1l);
+
+                return pluginTypeAndCountDTO;
+            }).toList();
     }
 
     @Override

@@ -1,15 +1,25 @@
-import type { FetchMetadataResponseData } from "git/requests/fetchMetadataRequest.types";
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
+import type { ApplicationPayload } from "entities/Application";
 
 export interface InitGitForEditorPayload {
-  artifact: {
-    id: string;
-    baseId: string;
-    gitApplicationMetadata?: Partial<FetchMetadataResponseData>;
-  };
+  artifact: ApplicationPayload | null;
 }
 
 export const initGitForEditorAction =
-  createSingleArtifactAction<InitGitForEditorPayload>((state) => {
-    return state;
+  createArtifactAction<InitGitForEditorPayload>((state) => {
+    // need to do this to avoid mutation, bug with redux-toolkit immer
+    const ui = {
+      ...state.ui,
+      initializing: true,
+      initialized: false,
+    };
+
+    return { ...state, ui };
   });
+
+export const initGitForEditorSuccessAction = createArtifactAction((state) => {
+  state.ui.initializing = false;
+  state.ui.initialized = true;
+
+  return state;
+});

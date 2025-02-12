@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -74,7 +74,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -183,7 +183,7 @@ export function* loadBuildingBlocksIntoApplication(
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
-    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const loadWorkspaceId: string = yield select(getCurrentWorkspaceId);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const buildingBlockDragStartTimestamp: number = yield select(
       getBuildingBlockDragStartTimestamp,
@@ -272,7 +272,7 @@ export function* loadBuildingBlocksIntoApplication(
 
       AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_COMPLETED", {
         applicationId,
-        workspaceId,
+        workspaceId: loadWorkspaceId,
         source: "explorer",
         eventData: {
           buildingBlockName: dragDetails.newWidget.displayName,

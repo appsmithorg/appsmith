@@ -53,13 +53,13 @@ describe("Tabs Navigation", { tags: ["@tag.IDE"] }, () => {
     agHelper.GetNClick(editorTabSelector("page1_query1"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page1_Query1");
 
     agHelper.GetNClick(editorTabSelector("page1_query2"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page1_Query2");
   });
 
@@ -93,13 +93,13 @@ describe("Tabs Navigation", { tags: ["@tag.IDE"] }, () => {
     agHelper.GetNClick(editorTabSelector("page2_query1"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page2_Query1");
 
     agHelper.GetNClick(editorTabSelector("page2_query2"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page2_Query2");
   });
 
@@ -108,13 +108,13 @@ describe("Tabs Navigation", { tags: ["@tag.IDE"] }, () => {
     agHelper.GetNClick(editorTabSelector("page1_query1"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page1_Query1");
 
     agHelper.GetNClick(editorTabSelector("page1_query2"));
 
     agHelper
-      .GetElement(locators._queryName)
+      .GetElement(locators._activeEntityTab)
       .should("have.text", "Page1_Query2");
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);

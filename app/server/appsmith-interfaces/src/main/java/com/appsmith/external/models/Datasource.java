@@ -156,5 +156,5 @@ public class Datasource extends GitSyncedDomain {
         this.setMessages(null);
     }
 
-    public static class Fields extends BranchAwareDomain.Fields {}
+    public static class Fields extends RefAwareDomain.Fields {}
 }

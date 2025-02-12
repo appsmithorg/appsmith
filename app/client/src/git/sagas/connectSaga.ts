@@ -8,7 +8,7 @@ import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import type { GitArtifactPayloadAction } from "../store/types";
 import type { ConnectInitPayload } from "../store/actions/connectActions";
 
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 
 // Internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
@@ -17,12 +17,17 @@ import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import log from "loglevel";
 import { captureException } from "@sentry/react";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef } = action.payload;
 
   let response: ConnectResponse | undefined;
 
@@ -32,32 +37,68 @@ export default function* connectSaga(
       gitProfile: action.payload.gitProfile,
     };
 
-    response = yield call(connectRequest, baseArtifactId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      connectRequest,
+      artifactDef.artifactType,
+      artifactDef.baseArtifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
-      yield put(gitArtifactActions.connectSuccess(basePayload));
+      yield put(
+        gitArtifactActions.connectSuccess({
+          artifactDef,
+          responseData: response.data,
+        }),
+      );
 
       // needs to happen only when artifactType is application
-      if (artifactType === GitArtifactType.Application) {
-        const { branchedPageId } = action.payload;
+      if (artifactDef.artifactType === GitArtifactType.Application) {
+        const pageId: string = yield select(getCurrentPageId);
 
-        if (branchedPageId) {
-          yield put(fetchPageAction(branchedPageId));
+        yield put(fetchPageAction(pageId));
+
+        const branch = response.data?.gitApplicationMetadata?.branchName;
+
+        if (branch) {
+          const newUrl = addBranchParam(branch);
+
+          history.replace(newUrl);
         }
 
-        const branch = response.data.gitApplicationMetadata.branchName;
-        const newUrl = addBranchParam(branch);
+        const currentApplication: ApplicationPayload = yield select(
+          getCurrentApplication,
+        );
 
-        history.replace(newUrl);
-        // ! case for updating lastDeployedAt in application manually?
+        if (currentApplication) {
+          currentApplication.lastDeployedAt = new Date().toISOString();
+          yield put({
+            type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+            payload: currentApplication,
+          });
+        }
       }
 
       yield put(
         gitArtifactActions.initGitForEditor({
-          ...basePayload,
+          artifactDef,
           artifact: response.data,
+        }),
+      );
+      yield put(
+        gitArtifactActions.toggleConnectModal({ artifactDef, open: false }),
+      );
+      yield put(
+        gitArtifactActions.toggleConnectSuccessModal({
+          artifactDef,
+          open: true,
         }),
       );
     }
@@ -67,14 +108,19 @@ export default function* connectSaga(
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
         yield put(
-          gitArtifactActions.toggleRepoLimitErrorModal({
-            ...basePayload,
+          gitArtifactActions.toggleConnectModal({
+            artifactDef,
+            open: false,
+          }),
+        );
+        yield put(
+          gitGlobalActions.toggleRepoLimitErrorModal({
             open: true,
           }),
         );
       }
 
-      yield put(gitArtifactActions.connectError({ ...basePayload, error }));
+      yield put(gitArtifactActions.connectError({ artifactDef, error }));
     } else {
       log.error(e);
       captureException(e);

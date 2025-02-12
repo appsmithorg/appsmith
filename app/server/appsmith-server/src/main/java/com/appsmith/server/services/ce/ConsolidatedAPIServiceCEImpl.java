@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -31,9 +33,15 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -45,7 +53,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +75,7 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CUR
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CURRENT_THEME_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CUSTOM_JS_LIB_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.DATASOURCES_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ETAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FEATURE_FLAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FORM_CONFIG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.MOCK_DATASOURCES_SPAN;
@@ -105,6 +118,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final ObservationHelper observationHelper;
 
     protected <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
@@ -138,7 +152,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String basePageId, String baseApplicationId, String branchName, ApplicationMode mode) {
+            String basePageId, String baseApplicationId, RefType refType, String refName, ApplicationMode mode) {
 
         /* if either of pageId or defaultApplicationId are provided then application mode must also be provided */
         if (mode == null && (!isBlank(basePageId) || !isBlank(baseApplicationId))) {
@@ -149,7 +163,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = new ConsolidatedAPIResponseDTO();
 
         List<Mono<?>> fetches =
-                getAllFetchableMonos(consolidatedAPIResponseDTO, basePageId, baseApplicationId, branchName, mode);
+                getAllFetchableMonos(consolidatedAPIResponseDTO, basePageId, baseApplicationId, refType, refName, mode);
 
         return Mono.when(fetches).thenReturn(consolidatedAPIResponseDTO);
     }
@@ -158,7 +172,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO,
             String basePageId,
             String baseApplicationId,
-            String branchName,
+            RefType refType,
+            String refName,
             ApplicationMode mode) {
         final List<Mono<?>> fetches = new ArrayList<>();
 
@@ -222,7 +237,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Mono<String> baseApplicationIdMono = getBaseApplicationIdMono(basePageId, baseApplicationId, mode, isViewMode);
 
         Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono =
-                getApplicationAndPageTupleMono(basePageId, branchName, mode, baseApplicationIdMono, isViewMode);
+                getApplicationAndPageTupleMono(basePageId, refType, refName, mode, baseApplicationIdMono, isViewMode);
 
         Mono<NewPage> branchedPageMonoCached =
                 applicationAndPageTupleMono.map(Tuple2::getT2).cache();
@@ -499,7 +514,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
     protected Mono<Tuple2<Application, NewPage>> getApplicationAndPageTupleMono(
             String basePageId,
-            String branchName,
+            RefType refType,
+            String refName,
             ApplicationMode mode,
             Mono<String> baseApplicationIdMono,
             boolean isViewMode) {
@@ -509,13 +525,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     Mono<NewPage> branchedPageMonoCached;
 
                     branchedPageMonoCached = newPageService
-                            .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                            .findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(refType, refName, basePageId, mode)
                             .cache();
 
                     if (StringUtils.hasText(cachedBaseApplicationId)) {
                         // Handle non-empty baseApplicationId
                         applicationMono = applicationService.findByBaseIdBranchNameAndApplicationMode(
-                                cachedBaseApplicationId, branchName, mode);
+                                cachedBaseApplicationId, refName, mode);
                     } else {
                         // Handle empty or null baseApplicationId
                         applicationMono = branchedPageMonoCached.flatMap(branchedPage ->
@@ -538,7 +554,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                         }));
                     }
 
-                    if (StringUtils.hasText(branchName)) {
+                    if (StringUtils.hasText(refName)) {
 
                         // If in case the application is a non git connected application and the branch name url param
                         // is present, then we must default to the app without any branches.
@@ -548,16 +564,16 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                             // called errors out on empty returns.
 
                             log.info(
-                                    "application or page has for base pageId {} and branchName {} has not been found.",
+                                    "application or page has for base pageId {} and refName {} has not been found.",
                                     basePageId,
-                                    branchName);
+                                    refName);
                             if (error instanceof AppsmithException) {
                                 Mono<NewPage> basePageMono =
-                                        newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
-                                                null, basePageId, mode);
+                                        newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                                                null, null, basePageId, mode);
 
                                 return basePageMono.flatMap(basePage -> {
-                                    if (StringUtils.hasText(basePage.getBranchName())) {
+                                    if (StringUtils.hasText(basePage.getRefName())) {
                                         // If the branch name is present then the application is git connected
                                         // the error should be thrown.
                                         // TODO: verify if branch name could be residue from old git connection
@@ -571,7 +587,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                             .zipWith(basePageMono)
                                             .map(tuple2 -> {
                                                 log.info(
-                                                        "The branchName url param should not be associated with application {} as this is not a git connected application",
+                                                        "The refName url param should not be associated with application {} as this is not a git connected application",
                                                         tuple2.getT1().getId());
                                                 return tuple2;
                                             });
@@ -592,7 +608,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         boolean isDefaultBranchNameAbsent =
                                 isNotAGitApp || !StringUtils.hasText(gitMetadata.getDefaultBranchName());
                         boolean isBranchDefault = !isDefaultBranchNameAbsent
-                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getBranchName());
+                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getRefName());
 
                         // This last check is specially for view mode, when a queried page which is not present
                         // in default branch, and cacheable repository refers to the base application
@@ -619,8 +635,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
                         return applicationService
                                 .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
-                                .zipWith(newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
-                                        defaultBranchName, basePageId, mode));
+                                .zipWith(newPageService.findByRefTypeAndRefNameAndBasePageIdAndApplicationMode(
+                                        RefType.branch, defaultBranchName, basePageId, mode));
                     });
                 })
                 .cache();
@@ -629,5 +645,77 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
     private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {
         return PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE.contains(plugin.getPackageName());
+    }
+
+    @NotNull public String computeConsolidatedAPIResponseEtag(
+            ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO, String defaultPageId, String applicationId) {
+        if (isBlank(defaultPageId) && isBlank(applicationId)) {
+            log.debug(
+                    "Skipping etag computation: Both defaultPageId '{}', and applicationId '{}' are blank",
+                    defaultPageId,
+                    applicationId);
+            return "";
+        }
+
+        Span computeEtagSpan = observationHelper.createSpan(ETAG_SPAN).start();
+
+        try {
+            String lastDeployedAt = consolidatedAPIResponseDTO.getPages() != null
+                    ? consolidatedAPIResponseDTO
+                            .getPages()
+                            .getData()
+                            .getApplication()
+                            .getLastDeployedAt()
+                            .toString()
+                    : null;
+
+            if (lastDeployedAt == null) {
+                log.debug(
+                        "Skipping etag computation: lastDeployedAt is null for applicationId '{}', pageId '{}'",
+                        applicationId,
+                        defaultPageId);
+                return "";
+            }
+
+            Object currentTheme = consolidatedAPIResponseDTO.getCurrentTheme() != null
+                    ? consolidatedAPIResponseDTO.getCurrentTheme()
+                    : "";
+            Object themes = consolidatedAPIResponseDTO.getThemes() != null
+                    ? consolidatedAPIResponseDTO.getThemes()
+                    : Collections.emptyList();
+
+            Map<String, Object> consolidateAPISignature = Map.of(
+                    "userProfile", consolidatedAPIResponseDTO.getUserProfile(),
+                    "featureFlags", consolidatedAPIResponseDTO.getFeatureFlags(),
+                    "tenantConfig", consolidatedAPIResponseDTO.getTenantConfig(),
+                    "productAlert", consolidatedAPIResponseDTO.getProductAlert(),
+                    "currentTheme", currentTheme,
+                    "themes", themes,
+                    "lastDeployedAt", lastDeployedAt);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            // For deterministic map key ordering.
+            objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+            // For deterministic ordering of bean properties.
+            objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+            objectMapper.registerModule(new JavaTimeModule());
+
+            String consolidateAPISignatureJSON = objectMapper.writeValueAsString(consolidateAPISignature);
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(consolidateAPISignatureJSON.getBytes(StandardCharsets.UTF_8));
+            String etag = Base64.getEncoder().encodeToString(hashBytes);
+
+            // Strong Etags are removed by nginx if gzip is enabled. Hence, we are using weak etags.
+            // Ref: https://github.com/kubernetes/ingress-nginx/issues/1390
+            // Weak Etag format is: W/"<etag>"
+            // Ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+            return "W/\"" + etag + "\"";
+        } catch (Exception e) {
+            log.error("Error while computing etag for ConsolidatedAPIResponseDTO", e);
+            return "";
+        } finally {
+            observationHelper.endSpan(computeEtagSpan, true);
+        }
     }
 }

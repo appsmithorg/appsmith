@@ -13,7 +13,6 @@ import {
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import _ from "lodash";
 
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
@@ -27,13 +26,16 @@ const StyledDynamicTextField = styled(DynamicTextField)`
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
     background-color: var(--ads-v2-color-bg);
   }
+
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
     background-color: var(--ads-v2-color-bg);
     border-color: var(--ads-v2-color-border-emphasis);
   }
+
   &&& .t--code-editor-wrapper {
     border: none;
   }
+
   .CodeEditorTarget {
     border-radius: var(--ads-v2-border-radius);
   }
@@ -73,25 +75,8 @@ export function InputText(props: {
     };
   }
 
-  let customStyle = { width: "270px", minHeight: "36px" };
-
-  if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
-    customStyle = { ...props.customStyles };
-
-    if ("width" in props.customStyles) {
-      customStyle.width = props.customStyles.width;
-    }
-
-    if ("minHeight" in props.customStyles) {
-      customStyle.minHeight = props.customStyles.minHeight;
-    }
-  }
-
   return (
-    <div
-      className={`t--${props?.name} uqi-dynamic-input-text`}
-      style={customStyle}
-    >
+    <div className={`t--${props?.name} uqi-dynamic-input-text`}>
       {/* <div style={customStyle}> */}
       <StyledDynamicTextField
         dataTreePath={dataTreePath}

@@ -270,8 +270,8 @@ export class AggregateHelper {
 
   public RenameQuery(renameVal: string, willFailError?: string) {
     this.rename({
-      nameLocator: this.locator._queryName,
-      textInputLocator: this.locator._queryNameTxt,
+      nameLocator: this.locator._activeEntityTab,
+      textInputLocator: this.locator._activeEntityTabInput,
       renameVal,
       dblClick: true,
       willFailError,
@@ -575,12 +575,14 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilEleAppear(selector: string) {
+  // Note: isVisible is required in case where item exists but is not visible ( hidden by css ),
+  // For e.g - search input in select widget is not visible,
+  public WaitUntilEleAppear(selector: string, isVisible = true) {
     cy.waitUntil(
       () =>
         this.GetElement(selector)
           .should("exist")
-          .should("be.visible")
+          .should(isVisible ? "be.visible" : "not.be.visible")
           .its("length")
           .should("be.gte", 1),
       {
@@ -1160,7 +1162,7 @@ export class AggregateHelper {
 
   public GetObjectName() {
     //cy.get(this.locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
-    return cy.get(this.locator._queryName).invoke("text");
+    return cy.get(this.locator._activeEntityTab).invoke("text");
   }
 
   public GetElementLength(selector: string) {
@@ -1998,5 +2000,98 @@ export class AggregateHelper {
       cy.spy(win.console, "error").as("error");
       cy.spy(win.console, "warn").as("warn");
     });
+  }
+
+  public waitForEmail({
+    pollInterval,
+    targetEmail,
+    targetSubject,
+    timeout,
+  }: {
+    pollInterval: number;
+    timeout: number;
+    targetSubject: string;
+    targetEmail?: string;
+  }): Cypress.Chainable<any> {
+    const endTime = Date.now() + timeout;
+    let latestEmail: any = null;
+
+    function parseDate(dateString: string): Date {
+      return new Date(dateString.replace(/ \([A-Za-z\s]*\)$/, ""));
+    }
+
+    function fetchEmail(): Cypress.Chainable<any> {
+      return cy
+        .request("http://localhost:5001/api/v1/maildev-emails")
+        .then((res) => {
+          if (res.status !== 200) {
+            cy.log(`Request failed with status ${res.status}`);
+            return cy.wrap(null);
+          }
+
+          const emails: Array<{
+            headers: {
+              subject: string;
+              date: string;
+              to: string;
+              from: string;
+            };
+            text: string;
+          }> = res.body;
+
+          const matchingEmails = emails.filter((email) => {
+            const subjectMatch = email.headers.subject
+              .trim()
+              .toLowerCase()
+              .includes(targetSubject.trim().toLowerCase());
+
+            if (targetEmail) {
+              const emailTo = email.headers.to.trim().toLowerCase();
+              return (
+                subjectMatch && emailTo === targetEmail.trim().toLowerCase()
+              );
+            }
+
+            return subjectMatch;
+          });
+
+          if (matchingEmails.length > 0) {
+            latestEmail = matchingEmails.reduce((latest, email) => {
+              const emailDate = parseDate(email.headers.date);
+              const latestDate = parseDate(
+                latest?.headers?.date || "1970-01-01",
+              );
+
+              return emailDate > latestDate ? email : latest;
+            }, null);
+
+            if (latestEmail) {
+              cy.log("===== Email Details =====");
+              cy.log(`From: ${latestEmail.headers.from}`);
+              cy.log(`To: ${latestEmail.headers.to}`);
+              cy.log(`Subject: ${latestEmail.headers.subject}`);
+              cy.log("=========================");
+            }
+
+            return cy.wrap(latestEmail);
+          }
+
+          if (Date.now() > endTime) {
+            cy.log("===== Info =====");
+            cy.log(
+              `No email with subject "${targetSubject}" found${
+                targetEmail ? ` for recipient "${targetEmail}"` : ""
+              } within the timeout period.`,
+            );
+            cy.log("================");
+
+            return cy.wrap(null);
+          }
+
+          return cy.wait(pollInterval).then(fetchEmail);
+        });
+    }
+
+    return fetchEmail();
   }
 }

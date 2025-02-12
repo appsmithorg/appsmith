@@ -98,7 +98,10 @@ describe(
         "reCAPTCHA v2",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.AssertContains("Google reCAPTCHA token generation failed!");
+      _.agHelper.ValidateToastMessage(
+        "Google reCAPTCHA token generation failed!",
+      );
+      _.agHelper.WaitUntilAllToastsDisappear();
     });
 
     it("4. Validate the Button binding with Text Widget with Recaptcha Token with invalid key (after using valid key)", function () {
@@ -109,14 +112,16 @@ describe(
         testdata.invalidKey,
       );
       _.agHelper.ClickButton("Submit"); //for version 3
-      _.agHelper.WaitUntilToastDisappear(testdata.errorMsg);
+      _.agHelper.ValidateToastMessage(testdata.errorMsg);
+      _.agHelper.WaitUntilAllToastsDisappear();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.SelectPropertiesDropDown(
         "Google reCAPTCHA version",
         "reCAPTCHA v2",
       );
       _.agHelper.ClickButton("Submit");
-      _.agHelper.WaitUntilToastDisappear(testdata.errorMsg);
+      _.agHelper.ValidateToastMessage(testdata.errorMsg);
+      _.agHelper.WaitUntilAllToastsDisappear();
     });
   },
 );

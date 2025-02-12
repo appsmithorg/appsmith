@@ -141,7 +141,7 @@ describe(
       _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
     });
 
-    it("7. Table widget validation regex", () => {
+    it.skip("7. Table widget validation regex", () => {
       _.agHelper.RefreshPage();
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);

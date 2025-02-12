@@ -2,11 +2,11 @@ import { useWidgetSelection } from "./useWidgetSelection";
 import { useSelector } from "react-redux";
 import { isWidgetFocused } from "selectors/widgetSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import type { AppState } from "ee/reducers";
 import type React from "react";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 
 export const useHoverToFocusWidget = (
   widgetId: string,
@@ -35,7 +35,7 @@ export const useHoverToFocusWidget = (
   const isResizingOrDragging = isResizing || isDragging;
   // This state tells us whether space redistribution is in process
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   // When mouse is over this draggable
   const handleMouseOver = (e: React.MouseEvent) => {
     focusWidget &&

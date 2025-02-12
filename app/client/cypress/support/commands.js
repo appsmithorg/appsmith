@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
+
 dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
@@ -54,6 +55,7 @@ export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
+    window.localStorage.setItem("NUDGE_SHOWN_SPLIT_PANE", "true");
   });
 };
 
@@ -814,7 +816,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td mp-mask'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -839,7 +841,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td mp-mask'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting

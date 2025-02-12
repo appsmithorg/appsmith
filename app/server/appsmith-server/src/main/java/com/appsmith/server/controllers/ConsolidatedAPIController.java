@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -10,7 +11,10 @@ import com.appsmith.server.services.ConsolidatedAPIService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +27,7 @@ import java.util.Objects;
 
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @RestController
@@ -47,47 +52,93 @@ public class ConsolidatedAPIController {
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForEditMode(
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String baseApplicationId,
             @RequestParam(name = "defaultPageId", required = false) String basePageId,
-            @RequestHeader(required = false) String branchName) {
+            @RequestParam(required = false, defaultValue = "branch") RefType refType,
+            @RequestParam(required = false) String refName,
+            @RequestParam(required = false) String branchName) {
+
+        if (!StringUtils.hasLength(refName)) {
+            refName = branchName;
+        }
         log.debug(
-                "Going to fetch consolidatedAPI response for baseApplicationId: {}, basePageId: {}, branchName: {}, "
+                "Going to fetch consolidatedAPI response for baseApplicationId: {}, basePageId: {}, {}: {}, "
                         + "mode: {}",
                 baseApplicationId,
                 basePageId,
-                branchName,
+                refType,
+                refName,
                 ApplicationMode.EDIT);
 
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(basePageId, baseApplicationId, branchName, ApplicationMode.EDIT)
+                .getConsolidatedInfoForPageLoad(basePageId, baseApplicationId, refType, refName, ApplicationMode.EDIT)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
                 .tag("pageId", Objects.toString(basePageId))
                 .tag("applicationId", Objects.toString(baseApplicationId))
-                .tag("branchName", Objects.toString(branchName))
+                .tag("refType", Objects.toString(refType))
+                .tag("refName", Objects.toString(refName))
                 .name(CONSOLIDATED_API_ROOT_EDIT)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/view")
-    public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
+    public Mono<ResponseEntity<ResponseDTO<ConsolidatedAPIResponseDTO>>> getAllDataForFirstPageLoadForViewMode(
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestParam(required = false, defaultValue = "branch") RefType refType,
+            @RequestParam(required = false) String refName,
+            @RequestParam(required = false) String branchName,
+            @RequestHeader(required = false, name = "if-none-match") String ifNoneMatch) {
+        if (!StringUtils.hasLength(refName)) {
+            refName = branchName;
+        }
         log.debug(
-                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
+                "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, {}: {}, "
                         + "mode: {}",
                 applicationId,
                 defaultPageId,
-                branchName,
+                refType,
+                refName,
                 ApplicationMode.PUBLISHED);
 
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
-                .map(consolidatedAPIResponseDTO ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
+                .getConsolidatedInfoForPageLoad(
+                        defaultPageId, applicationId, refType, refName, ApplicationMode.PUBLISHED)
+                .map(consolidatedAPIResponseDTO -> {
+                    long startTime = System.currentTimeMillis();
+
+                    String responseHash = consolidatedAPIService.computeConsolidatedAPIResponseEtag(
+                            consolidatedAPIResponseDTO, defaultPageId, applicationId);
+                    long endTime = System.currentTimeMillis();
+                    long duration = endTime - startTime;
+                    log.debug("Time taken to compute ETag: {} ms", duration);
+
+                    // if defaultPageId and applicationId are both null, then don't compute ETag
+                    if (isBlank(responseHash)) {
+                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+                        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+                    }
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("ETag", responseHash);
+                    headers.add("Cache-Control", "private, must-revalidate");
+
+                    if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
+                        ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED.value(), null, null);
+                        return new ResponseEntity<>(responseDTO, headers, HttpStatus.NOT_MODIFIED);
+                    }
+
+                    ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
+                            new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+
+                    return new ResponseEntity<>(responseDTO, headers, HttpStatus.OK);
+                })
                 .tag("pageId", Objects.toString(defaultPageId))
                 .tag("applicationId", Objects.toString(applicationId))
-                .tag("branchName", Objects.toString(branchName))
+                .tag("refType", Objects.toString(refType))
+                .tag("refName", Objects.toString(refName))
                 .name(CONSOLIDATED_API_ROOT_VIEW)
                 .tap(Micrometer.observation(observationRegistry));
     }

@@ -9,11 +9,12 @@ import { toast } from "@appsmith/ads";
 
 export const LOCAL_STORAGE_KEYS = {
   CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
-  SPLITPANE_ANNOUNCEMENT: "SPLITPANE_ANNOUNCEMENT",
+  NUDGE_SHOWN_SPLIT_PANE: "NUDGE_SHOWN_SPLIT_PANE",
 };
 
 class LocalStorageNotSupportedError extends Error {
   name: string;
+
   constructor() {
     super();
     this.name = "LOCAL_STORAGE_NOT_SUPPORTED";
@@ -29,6 +30,7 @@ class WebStorage {
 
     this._isSupported = this.isSupported();
   }
+
   // ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
   isSupported = () => {
     try {

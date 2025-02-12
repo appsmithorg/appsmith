@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   EventType,
@@ -139,10 +139,7 @@ export function* executeActionTriggers(
   return response;
 }
 
-// This function gets called when a user clicks on a button on the canvas UI
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* executeAppAction(payload: ExecuteTriggerPayload): any {
+export function* executeAppAction(payload: ExecuteTriggerPayload): Generator {
   const {
     callbackData,
     dynamicString,

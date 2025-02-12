@@ -1,5 +1,7 @@
 package com.appsmith.server.applications.base;
 
+import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
@@ -23,7 +25,8 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl implements ApplicationService {
+public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl
+        implements ApplicationService, ArtifactBasedService<Application> {
 
     public ApplicationServiceImpl(
             Validator validator,

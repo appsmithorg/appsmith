@@ -1,4 +1,4 @@
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Plugin";
 
 export const DROPDOWN_TRIGGER_DIMENSION = {
   HEIGHT: "36px",

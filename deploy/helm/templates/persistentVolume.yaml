@@ -1,9 +1,8 @@
-{{- if and .Values.persistence.enabled .Values.persistence.localStorage }}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim.enabled) ( .Values.autoscaling.enabled) }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ include "appsmith.fullname" . }}
-  namespace: {{ include "appsmith.namespace" . }}
+  name: {{ include "appsmith.pvName" . }}
 spec:
   capacity:
     storage: {{ .Values.persistence.size | quote }}
@@ -12,8 +11,8 @@ spec:
   {{- range .Values.persistence.accessModes }}
     - {{ . | quote }}
   {{- end }}
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.reclaimPolicy }}
+  {{- if .Values.persistence.localStorage }}
   local:
     path: {{ .Values.persistence.storagePath }} # Path to the directory this PV refers to.
   nodeAffinity: # nodeAffinity is required when using local volumes.
@@ -24,4 +23,18 @@ spec:
           operator: In
           values: 
             {{- toYaml .Values.persistence.localCluster | nindent 12 }}
+  {{- end }}
+  {{- if .Values.persistence.storageClass }}
+  {{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.storageClass }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.persistence.efs.enabled }}
+  csi:
+    driver: {{ .Values.persistence.efs.driver }}
+    nfs:
+    volumeHandle: {{ .Values.persistence.efs.volumeHandle }}
+  {{ end }}
 {{- end }}

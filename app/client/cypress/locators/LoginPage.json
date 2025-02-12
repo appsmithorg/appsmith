@@ -1,6 +1,6 @@
 {
-    "username":"input[name='username']",
-    "password":"input[name='password']",
-    "submitBtn":"button[type='submit']",
-    "signupLink":".t--sign-up"
+    "username": "input[name='username'], input[name='email']",
+    "password": "input[name='password']",
+    "submitBtn": "button[type='submit']",
+    "signupLink": ".t--sign-up"
 }

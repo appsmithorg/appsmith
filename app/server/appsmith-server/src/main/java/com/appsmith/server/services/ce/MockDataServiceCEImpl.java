@@ -258,8 +258,10 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                         AnalyticsEvents.CREATE.getEventName(),
                         user.getUsername(),
                         Map.of(
-                                "MockDataSource", defaultIfNull(name, ""),
-                                "orgId", defaultIfNull(workspaceId, "")))
+                                "MockDataSource",
+                                defaultIfNull(name, ""),
+                                "workspaceId",
+                                defaultIfNull(workspaceId, "")))
                 .thenReturn(user));
     }
 }

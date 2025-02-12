@@ -22,7 +22,7 @@ import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
-import { DatasourceComponentTypes } from "api/PluginApi";
+import { DatasourceComponentTypes } from "entities/Plugin";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
 import {
@@ -31,7 +31,7 @@ import {
 } from "PluginActionEditor/store";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 

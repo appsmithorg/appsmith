@@ -21,44 +21,40 @@ jest.mock("@appsmith/ads", () => ({
 
 const defaultProps = {
   artifactType: "Application",
-  connect: jest.fn(),
-  connectError: null,
-  fetchSSHKey: jest.fn(),
-  generateSSHKey: jest.fn(),
-  gitImport: jest.fn(),
-  isConnectLoading: false,
-  isFetchSSHKeyLoading: false,
-  isGenerateSSHKeyLoading: false,
-  isGitImportLoading: false,
+  error: null,
+  onFetchSSHKey: jest.fn(),
+  onGenerateSSHKey: jest.fn(),
+  isSubmitLoading: false,
+  isSSHKeyLoading: false,
   isImport: false,
+  onSubmit: jest.fn(),
+  onOpenImport: null,
   sshPublicKey: "ssh-rsa AAAAB3...",
-  isCreateArtifactPermitted: true,
-  setImportWorkspaceId: jest.fn(),
   toggleConnectModal: jest.fn(),
 };
 
 function completeChooseProviderStep(isImport = false) {
-  fireEvent.click(screen.getByTestId("t--git-provider-radio-github"));
+  fireEvent.click(screen.getByTestId("t--git-connect-provider-radio-github"));
 
   if (isImport) {
-    fireEvent.click(screen.getByTestId("t--existing-repo-checkbox"));
+    fireEvent.click(screen.getByTestId("t--git-import-existing-repo-checkbox"));
   } else {
-    fireEvent.click(screen.getByTestId("t--existing-empty-repo-yes"));
+    fireEvent.click(screen.getByTestId("t--git-connect-empty-repo-yes"));
   }
 
-  fireEvent.click(screen.getByTestId("t--git-connect-next-button"));
+  fireEvent.click(screen.getByTestId("t--git-connect-next"));
 }
 
 function completeGenerateSSHKeyStep() {
-  fireEvent.change(screen.getByTestId("git-connect-remote-url-input"), {
+  fireEvent.change(screen.getByTestId("t--git-connect-remote-input"), {
     target: { value: "git@example.com:user/repo.git" },
   });
-  fireEvent.click(screen.getByTestId("t--git-connect-next-button"));
+  fireEvent.click(screen.getByTestId("t--git-connect-next"));
 }
 
 function completeAddDeployKeyStep() {
-  fireEvent.click(screen.getByTestId("t--added-deploy-key-checkbox"));
-  fireEvent.click(screen.getByTestId("t--git-connect-next-button"));
+  fireEvent.click(screen.getByTestId("t--git-connect-deploy-key-checkbox"));
+  fireEvent.click(screen.getByTestId("t--git-connect-next"));
 }
 
 describe("ConnectModal Component", () => {
@@ -74,14 +70,14 @@ describe("ConnectModal Component", () => {
     expect(
       screen.getByText("i. To begin with, choose your Git service provider"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("t--git-connect-next-button")).toHaveTextContent(
+    expect(screen.getByTestId("t--git-connect-next")).toHaveTextContent(
       "Configure Git",
     );
   });
 
   it("disables the next button when form data is incomplete in ChooseGitProvider step", () => {
     render(<ConnectInitialize {...defaultProps} />);
-    expect(screen.getByTestId("t--git-connect-next-button")).toBeDisabled();
+    expect(screen.getByTestId("t--git-connect-next")).toBeDisabled();
   });
 
   it("navigates to the next step (GenerateSSH) and validates SSH URL input", () => {
@@ -89,7 +85,7 @@ describe("ConnectModal Component", () => {
 
     completeChooseProviderStep();
 
-    const sshInput = screen.getByTestId("git-connect-remote-url-input");
+    const sshInput = screen.getByTestId("t--git-connect-remote-input");
 
     fireEvent.change(sshInput, { target: { value: "invalid-url" } });
     fireEvent.blur(sshInput);
@@ -126,7 +122,7 @@ describe("ConnectModal Component", () => {
     completeAddDeployKeyStep();
 
     await waitFor(() => {
-      expect(defaultProps.connect).toHaveBeenCalledWith(
+      expect(defaultProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           remoteUrl: "git@example.com:user/repo.git",
           gitProfile: {
@@ -139,14 +135,14 @@ describe("ConnectModal Component", () => {
     });
   });
 
-  it("calls gitImport on completing AddDeployKey step in import mode", async () => {
+  it("calls onSubmit on completing AddDeployKey step in import mode", async () => {
     render(<ConnectInitialize {...defaultProps} isImport />);
     completeChooseProviderStep(true);
     completeGenerateSSHKeyStep();
     completeAddDeployKeyStep();
 
     await waitFor(() => {
-      expect(defaultProps.gitImport).toHaveBeenCalledWith(
+      expect(defaultProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           remoteUrl: "git@example.com:user/repo.git",
           gitProfile: {
@@ -167,13 +163,11 @@ describe("ConnectModal Component", () => {
         message: "",
       };
 
-      rerender(
-        <ConnectInitialize {...defaultProps} connectError={connectError} />,
-      );
+      rerender(<ConnectInitialize {...defaultProps} error={connectError} />);
     });
 
     const { rerender } = render(
-      <ConnectInitialize {...defaultProps} connect={mockConnect} />,
+      <ConnectInitialize {...defaultProps} onSubmit={mockConnect} />,
     );
 
     completeChooseProviderStep();
@@ -209,19 +203,17 @@ describe("ConnectModal Component", () => {
 
   it("disables next button when form data is invalid in any step", () => {
     render(<ConnectInitialize {...defaultProps} />);
-    const nextButton = screen.getByTestId("t--git-connect-next-button");
+    const nextButton = screen.getByTestId("t--git-connect-next");
 
     fireEvent.click(nextButton); // Try to move to next step
     expect(nextButton).toBeDisabled();
   });
 
   it("renders loading state and removes buttons when connecting", () => {
-    render(<ConnectInitialize {...defaultProps} isConnectLoading />);
+    render(<ConnectInitialize {...defaultProps} isSubmitLoading />);
     expect(
       screen.getByText("Please wait while we connect to Git..."),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("t--git-connect-next-button"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("t--git-connect-next")).not.toBeInTheDocument();
   });
 });

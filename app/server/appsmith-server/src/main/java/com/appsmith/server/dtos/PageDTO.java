@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -78,7 +79,11 @@ public class PageDTO {
 
     @Transient
     @JsonView({Views.Internal.class})
-    String branchName;
+    RefType refType;
+
+    @Transient
+    @JsonView({Views.Internal.class})
+    String refName;
 
     @JsonView(Views.Public.class)
     Map<String, List<String>> dependencyMap;

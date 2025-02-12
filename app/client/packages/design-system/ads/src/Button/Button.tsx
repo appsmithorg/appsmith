@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 import clsx from "classnames";
+import { useFocusRing } from "@react-aria/focus";
 
 import { StyledButton, ButtonContent } from "./Button.styles";
 import type { ButtonProps } from "./Button.types";
@@ -15,6 +16,11 @@ import {
   ButtonContentIconEndClassName,
 } from "./Button.constants";
 import { Spinner } from "../Spinner";
+
+// Add this before the Button component definition
+const SPINNER_ICON_PROPS = {
+  className: ButtonLoadingIconClassName,
+};
 
 /**
  * TODO:
@@ -37,21 +43,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ...rest
     } = props;
 
-    // disable button when loading
-    rest.onClick =
+    // Replace the direct mutation of rest.onClick with this
+    const handleClick =
       props.isLoading || props.isDisabled ? undefined : props.onClick;
     const buttonRef = useDOMRef(ref);
+    const { focusProps, isFocusVisible } = useFocusRing();
 
     return (
       <StyledButton
         as={renderAs || "button"}
         {...rest}
+        onClick={handleClick}
+        {...focusProps}
         UNSAFE_height={UNSAFE_height}
         UNSAFE_width={UNSAFE_width}
         className={clsx(ButtonClassName, className)}
         data-disabled={props.isDisabled || false}
         data-loading={isLoading}
         disabled={props.isDisabled}
+        isFocusVisible={isFocusVisible}
         isIconButton={isIconButton}
         kind={kind}
         ref={buttonRef}
@@ -61,9 +71,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading === true && (
           <Spinner
             className={ButtonLoadingClassName}
-            iconProps={{
-              className: ButtonLoadingIconClassName,
-            }}
+            iconProps={SPINNER_ICON_PROPS}
             size="md"
           />
         )}

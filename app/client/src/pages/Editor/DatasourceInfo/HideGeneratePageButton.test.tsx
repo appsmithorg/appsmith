@@ -8,7 +8,7 @@ import {
 import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { DatasourceConnectionMode, type Datasource } from "entities/Datasource";
 import { SSLType } from "entities/Datasource/RestAPIForm";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
@@ -117,7 +117,8 @@ describe("DatasourceViewModeSchema Component", () => {
     const mockHistoryPush = jest.fn();
     const mockHistoryReplace = jest.fn();
     const mockHistoryLocation = {
-      pathname: "/",
+      pathname:
+        "/app/untitled-application-1/page1-678a356f18346f618bc2c80a/edit/datasource/users-ds-id",
       search: "",
       hash: "",
       state: {},

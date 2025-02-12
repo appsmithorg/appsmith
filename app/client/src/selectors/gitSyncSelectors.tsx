@@ -146,10 +146,10 @@ export const getCountOfChangesToCommit = (state: AppState) => {
     modifiedDatasources = 0,
     modifiedJSLibs = 0,
     modifiedJSObjects = 0,
-    modifiedModules = 0,
-    modifiedPackages = 0,
+    modifiedModuleInstances = 0,
     modifiedPages = 0,
     modifiedQueries = 0,
+    modifiedSourceModules = 0,
   } = gitStatus || {};
   const themeCount = modified.includes("theme.json") ? 1 : 0;
   const settingsCount = modified.includes("application.json") ? 1 : 0;
@@ -159,8 +159,8 @@ export const getCountOfChangesToCommit = (state: AppState) => {
     modifiedDatasources +
     modifiedJSLibs +
     modifiedJSObjects +
-    modifiedModules +
-    modifiedPackages +
+    modifiedSourceModules +
+    modifiedModuleInstances +
     modifiedPages +
     modifiedQueries +
     themeCount +

@@ -9,7 +9,7 @@ import { reduxForm } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { convertArrayToSentence } from "utils/helpers";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { AppState } from "ee/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
@@ -17,6 +17,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { Callout } from "@appsmith/ads";
 import store from "store";
+import ExternalSaasConnection from "ee/pages/Editor/DataSourceEditor/ExternalSaasConnection";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -67,6 +68,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     // The viewMode condition is added to allow the conditons only run on the editMode
     if (!initialized && !viewMode) {
       return null;
+    }
+
+    if (this.props.pluginType === PluginType.EXTERNAL_SAAS) {
+      return <ExternalSaasConnection />;
     }
 
     return this.renderDataSourceConfigForm(formConfig);

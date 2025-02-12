@@ -1,7 +1,10 @@
 import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
-import type { Linter } from "eslint-linter-browserify";
+import { noFloatingPromisesLintRule } from "./customRules/no-floating-promises";
+import { getLintRulesBasedOnContext } from "ee/utils/lintRulesHelpers";
+
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 export enum LINTER_TYPE {
   "JSHINT" = "JSHint",
@@ -9,7 +12,9 @@ export enum LINTER_TYPE {
 }
 
 export const lintOptions = (
-  globalData: Record<string, boolean>,
+  globalData: Record<string, boolean | "readonly" | "writable">,
+  asyncFunctions: string[],
+  ideType: IDEType,
   linterType: LINTER_TYPE = LINTER_TYPE.JSHINT,
 ) => {
   if (linterType === LINTER_TYPE.JSHINT) {
@@ -39,25 +44,28 @@ export const lintOptions = (
       loopfunc: true,
     } as LintOptions;
   } else {
-    const eslintGlobals: Record<string, "writable" | "readonly"> = {
-      setTimeout: "readonly",
-      clearTimeout: "readonly",
-      console: "readonly",
-    };
-
-    for (const key in globalData) {
-      if (globalData.hasOwnProperty(key)) {
-        eslintGlobals[key] = "readonly";
-      }
-    }
+    const extraRules = getLintRulesBasedOnContext({ ideType });
 
     return {
       languageOptions: {
         ecmaVersion: ECMA_VERSION,
-        globals: eslintGlobals,
+        globals: globalData,
         sourceType: "script",
       },
+      // Need to pass for custom rules
+      settings: {
+        globalData,
+        asyncFunctions,
+      },
+      plugins: {
+        customRules: {
+          rules: {
+            "no-floating-promises": noFloatingPromisesLintRule,
+          },
+        },
+      },
       rules: {
+        ...extraRules,
         eqeqeq: "off",
         curly: "off",
         "no-extend-native": "error",
@@ -76,7 +84,7 @@ export const lintOptions = (
         "no-unused-expressions": "off",
         "no-loop-func": "off",
       },
-    } as Linter.Config;
+    } as const;
   }
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "../../..";
+import { Text } from "../../../Text";
 import type { NoSearchResultsProps } from "./NoSearchResults.types";
 
 const NoSearchResults = ({ text }: NoSearchResultsProps) => {

@@ -1,14 +1,4 @@
 import { fetchMockDatasources } from "actions/datasourceActions";
-import {
-  fetchGitProtectedBranchesInit,
-  fetchGitStatusInit,
-  remoteUrlInputValue,
-  resetPullMergeStatus,
-  fetchBranchesInit,
-  triggerAutocommitInitAction,
-  getGitMetadataInitAction,
-} from "actions/gitSyncActions";
-import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import {
   fetchAllPageEntityCompletion,
@@ -24,7 +14,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
@@ -33,12 +22,9 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import {
-  getCurrentGitBranch,
-  isGitPersistBranchEnabledSelector,
-} from "selectors/gitSyncSelectors";
+import { isGitPersistBranchEnabledSelector } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import history from "utils/history";
+// import history from "utils/history";
 import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
@@ -66,11 +52,29 @@ import {
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import log from "loglevel";
+import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
+import {
+  fetchBranchesInit,
+  fetchGitProtectedBranchesInit,
+  fetchGitStatusInit,
+  getGitMetadataInitAction,
+  remoteUrlInputValue,
+  resetPullMergeStatus,
+  triggerAutocommitInitAction,
+} from "actions/gitSyncActions";
+import history from "utils/history";
+import { addBranchParam } from "constants/routes";
+import {
+  selectGitApplicationCurrentBranch,
+  selectGitModEnabled,
+} from "selectors/gitModSelectors";
+import { applicationArtifact } from "git/artifact-helpers/application";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -223,8 +227,15 @@ export default class AppEditorEngine extends AppEngine {
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
-      successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
-      errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+      /*
+       * We don't want to restrict the users using the app even if the mock datasources api fails and
+       * the user is not on the airgap instance.
+       * One of those edge cases could be if the user disconnect from the internet but the mock datasources plugins
+       * are returned from the consolidated api. Hence, we want to be independent of mock datasources api response.
+       *
+       * successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
+       * errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+       */
     }
 
     const initActionCalls: boolean = yield call(
@@ -281,6 +292,9 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+    const currentBranch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
 
     const isGitPersistBranchEnabled: boolean = yield select(
       isGitPersistBranchEnabledSelector,
@@ -288,7 +302,6 @@ export default class AppEditorEngine extends AppEngine {
 
     if (isGitPersistBranchEnabled) {
       const currentUser: User = yield select(getCurrentUser);
-      const currentBranch: string = yield select(getCurrentGitBranch);
 
       if (currentUser?.email && currentApplication?.baseId && currentBranch) {
         yield setLatestGitBranchInLocal(
@@ -315,6 +328,15 @@ export default class AppEditorEngine extends AppEngine {
         isAnotherEditorTabOpen,
         currentTabs,
       });
+    }
+
+    if (currentApplication?.id) {
+      yield put(
+        restoreRecentEntitiesRequest({
+          applicationId: currentApplication.id,
+          branch: currentBranch,
+        }),
+      );
     }
 
     if (isFirstTimeUserOnboardingComplete) {
@@ -359,22 +381,32 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string, rootSpan: Span) {
     const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
+    const isGitModEnabled: boolean = yield select(selectGitModEnabled);
 
-    const branchInStore: string = yield select(getCurrentGitBranch);
+    if (isGitModEnabled) {
+      const currentApplication: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
 
-    yield put(
-      restoreRecentEntitiesRequest({
-        applicationId,
-        branch: branchInStore,
-      }),
-    );
-    // init of temporary remote url from old application
-    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
-    // add branch query to path and fetch status
+      yield put(
+        gitArtifactActions.initGitForEditor({
+          artifactDef: applicationArtifact(currentApplication.baseId),
+          artifact: currentApplication,
+        }),
+      );
+    } else {
+      const currentBranch: string = yield select(
+        selectGitApplicationCurrentBranch,
+      );
 
-    if (branchInStore) {
-      history.replace(addBranchParam(branchInStore));
-      yield fork(this.loadGitInBackground);
+      // init of temporary remote url from old application
+      yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
+      // add branch query to path and fetch status
+
+      if (currentBranch) {
+        history.replace(addBranchParam(currentBranch));
+        yield fork(this.loadGitInBackground);
+      }
     }
 
     endSpan(loadGitSpan);
@@ -382,7 +414,6 @@ export default class AppEditorEngine extends AppEngine {
 
   private *loadGitInBackground() {
     yield put(fetchBranchesInit());
-    yield put(fetchGitProtectedBranchesInit());
     yield put(fetchGitProtectedBranchesInit());
     yield put(getGitMetadataInitAction());
     yield put(triggerAutocommitInitAction());

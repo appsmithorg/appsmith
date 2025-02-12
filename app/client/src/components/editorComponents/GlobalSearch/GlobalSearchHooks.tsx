@@ -24,7 +24,7 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { PluginType } from "entities/Action";
+import { type Plugin, PluginType, UIComponentTypes } from "entities/Plugin";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -34,7 +34,6 @@ import {
   getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "ee/actions/helpers";
@@ -314,7 +313,9 @@ export const updateActionOperations = (
   actionOps: ActionOperation[],
 ) => {
   const restApiPlugin = plugins.find(
-    (plugin) => plugin.type === PluginType.API,
+    (plugin) =>
+      plugin.type === PluginType.API &&
+      plugin.uiComponent === UIComponentTypes.ApiEditorForm,
   );
   const newApiActionIdx = actionOps.findIndex(
     (op) => op.title === "New blank API",

@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -31,7 +31,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
 import { toast } from "@appsmith/ads";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 export function parseErrorMessage(text: string) {

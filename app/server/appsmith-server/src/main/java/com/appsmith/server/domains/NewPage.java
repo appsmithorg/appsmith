@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.CustomJsonType;
-import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.models.RefAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
@@ -23,7 +23,7 @@ import java.util.List;
 @Entity
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
-public class NewPage extends BranchAwareDomain implements Context {
+public class NewPage extends RefAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
 
@@ -75,7 +75,7 @@ public class NewPage extends BranchAwareDomain implements Context {
         return this.getUnpublishedPage().getName();
     }
 
-    public static class Fields extends BranchAwareDomain.Fields {
+    public static class Fields extends RefAwareDomain.Fields {
         public static String unpublishedPage_layouts = unpublishedPage + "." + PageDTO.Fields.layouts;
         public static String unpublishedPage_name = unpublishedPage + "." + PageDTO.Fields.name;
         public static String unpublishedPage_icon = unpublishedPage + "." + PageDTO.Fields.icon;

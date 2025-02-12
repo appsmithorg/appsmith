@@ -4,6 +4,7 @@ import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
@@ -147,17 +148,19 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     String workspaceId = tuple2.getT2().getT1();
                     String trueEnvironmentId = tuple2.getT2().getT2();
                     NewPage branchedPage = tuple2.getT2().getT3();
-                    String branchName = null;
+                    String refName = null;
+                    RefType refType = null;
 
-                    if (hasText(branchedPage.getBranchName())) {
-                        branchName = branchedPage.getBranchName();
+                    if (hasText(branchedPage.getRefName())) {
+                        refType = branchedPage.getRefType();
+                        refName = branchedPage.getRefName();
                     }
                     String basePageId = branchedPage.getBaseIdOrFallback();
 
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
-                    final String state = StringUtils.hasText(branchName)
+                    final String state = StringUtils.hasText(refName)
                             ? String.join(
                                     ",",
                                     basePageId,
@@ -165,7 +168,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     trueEnvironmentId,
                                     redirectUri,
                                     workspaceId,
-                                    branchName)
+                                    refType.name(),
+                                    refName)
                             : String.join(",", basePageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
@@ -354,7 +358,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
         final String workspaceId = splitState[4];
-        final String branchName = splitState.length == 6 ? splitState[5] : null;
+        final String refName = splitState.length == 7 ? splitState[6] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
@@ -374,7 +378,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             + responseStatus
                             + "&view_mode=true"
                             + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
-                            + (StringUtils.hasText(branchName) ? "&branch=" + branchName : "");
+                            + (StringUtils.hasText(refName) ? "&branch=" + refName : "");
                 })
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
@@ -549,8 +553,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 pageRedirectionDTO.setId(basePage.getId());
                                 pageRedirectionDTO.setBaseId(basePage.getBaseId());
                                 pageRedirectionDTO.setApplicationId(basePage.getApplicationId());
-                                // the branch name should come from the branched page as it is required for redirecting
-                                pageRedirectionDTO.setBranchName(branchedPage.getBranchName());
+                                // the ref name should come from the ref page as it is required for redirecting
+                                pageRedirectionDTO.setRefName(branchedPage.getRefName());
+                                pageRedirectionDTO.setRefType(branchedPage.getRefType());
                                 return pageRedirectionDTO;
                             });
                 });
@@ -562,8 +567,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         integrationDTO.setPageId(pageRedirectionDTO.getBaseIdOrFallback());
         integrationDTO.setApplicationId(pageRedirectionDTO.getApplicationId());
 
-        if (hasText(pageRedirectionDTO.getBranchName())) {
-            integrationDTO.setBranch(pageRedirectionDTO.getBranchName());
+        if (hasText(pageRedirectionDTO.getRefName())) {
+            integrationDTO.setRefType(pageRedirectionDTO.getRefType());
+            integrationDTO.setRefName(pageRedirectionDTO.getRefName());
         }
         return integrationDTO;
     }

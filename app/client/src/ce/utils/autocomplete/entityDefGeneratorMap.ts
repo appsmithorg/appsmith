@@ -61,6 +61,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       entity as AppsmithEntity,
       extraDefsToDefine,
     );
+    flattenDef(def, "appsmith");
     entityMap.set("appsmith", {
       type: ENTITY_TYPE.APPSMITH,
       subType: ENTITY_TYPE.APPSMITH,

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "@appsmith/ads";
-import ActionSettings from "pages/Editor/ActionSettings";
+import ActionSettings from "../PluginActionToolbar/components/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
 import {
@@ -23,19 +23,10 @@ export interface SettingsProps {
   dataTestId?: string;
 }
 
-/* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
-
-  .t--form-control-INPUT_TEXT,
-  .t--form-control-DROP_DOWN {
-    > div {
-      min-width: unset;
-      width: 100%;
-    }
-  }
 `;
 
 const LearnMoreLink = styled(Link)`

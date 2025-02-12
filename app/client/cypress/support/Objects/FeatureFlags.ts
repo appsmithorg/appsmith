@@ -3,9 +3,8 @@ import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
 
 const defaultFlags = {
-  release_side_by_side_ide_enabled: true,
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
-  release_actions_redesign_enabled: true,
+  release_git_modularisation_enabled: true,
 };
 
 export const featureFlagIntercept = (
@@ -33,6 +32,7 @@ export const getConsolidatedDataApi = (
   reload = true,
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    delete req.headers["if-none-match"];
     req.reply((res: any) => {
       if (
         res.statusCode === 200 ||
@@ -87,6 +87,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
+      delete req.headers["if-none-match"];
       if (res.statusCode === 200) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {

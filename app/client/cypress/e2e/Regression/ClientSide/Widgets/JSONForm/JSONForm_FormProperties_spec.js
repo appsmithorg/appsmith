@@ -65,7 +65,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+    it("2. Disable when form is invalid - disables the submit button when form has invalid field(s)", () => {
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       cy.get("button")

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -181,6 +182,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
+                NewPage.Fields.refType,
+                NewPage.Fields.refName,
                 NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
@@ -220,8 +223,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName,
+    public Optional<NewPage> findPageByRefTypeAndRefNameAndBasePageId(
+            RefType refType,
+            String refName,
             String basePageId,
             AclPermission permission,
             User currentUser,
@@ -232,11 +236,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.baseId, basePageId);
 
-        if (branchName != null) {
+        if (refName != null) {
             // branchCriteria
-            q.equal(NewPage.Fields.branchName, branchName);
+            BridgeQuery<NewPage> refQuery = Bridge.or(
+                    Bridge.equal(NewPage.Fields.branchName, refName),
+                    Bridge.and(
+                            Bridge.equal(NewPage.Fields.refName, refName),
+                            Bridge.equal(NewPage.Fields.refType, refType)));
+            q.and(refQuery);
         } else {
-            q.isNull(NewPage.Fields.branchName);
+            q.and(Bridge.and(Bridge.isNull(NewPage.Fields.branchName), Bridge.isNull(NewPage.Fields.refName)));
         }
 
         return queryBuilder()

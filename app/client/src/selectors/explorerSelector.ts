@@ -34,3 +34,5 @@ export const getExplorerActive = (state: AppState) => {
 export const getUpdatingEntity = (state: AppState) => {
   return state.ui.explorer.entity.updatingEntity;
 };
+export const getEditingEntityName = (state: AppState) =>
+  state.ui.explorer.entity.editingEntityName;

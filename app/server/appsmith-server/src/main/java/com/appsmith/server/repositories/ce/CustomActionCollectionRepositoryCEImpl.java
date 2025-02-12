@@ -125,10 +125,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(
             List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager) {
-        BridgeQuery<ActionCollection> pageIdCriteria =
-                Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder()
-                .criteria(pageIdCriteria)
+                .criteria(Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
                 .permission(permission, currentUser)
                 .entityManager(entityManager)
                 .all();

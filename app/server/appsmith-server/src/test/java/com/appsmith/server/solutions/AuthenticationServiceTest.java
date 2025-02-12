@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -293,7 +294,7 @@ public class AuthenticationServiceTest {
 
         PageDTO testPage = new PageDTO();
         testPage.setName("Test-Page-oauth2-git-redirection");
-        testPage.setBranchName(branchName);
+        testPage.setRefName(branchName);
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
@@ -360,6 +361,7 @@ public class AuthenticationServiceTest {
                                             defaultEnvironmentId,
                                             "https://mock.origin.com",
                                             workspaceId,
+                                            RefType.branch.name(),
                                             branchName)
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));

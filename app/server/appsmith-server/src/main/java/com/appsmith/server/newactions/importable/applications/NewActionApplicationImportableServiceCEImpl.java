@@ -102,7 +102,8 @@ public class NewActionApplicationImportableServiceCEImpl
         // create or update base id for the action
         // values already set to base id are kept unchanged
         newAction.setBaseId(newAction.getBaseIdOrFallback());
-        newAction.setBranchName(importingMetaDTO.getBranchName());
+        newAction.setRefType(importingMetaDTO.getRefType());
+        newAction.setRefName(importingMetaDTO.getRefName());
 
         // generate gitSyncId if it's not present
         if (newAction.getGitSyncId() == null) {
