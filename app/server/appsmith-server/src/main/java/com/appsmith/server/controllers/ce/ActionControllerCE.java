@@ -73,7 +73,9 @@ public class ActionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/execute",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE})
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(
             @RequestBody Flux<Part> partFlux,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
