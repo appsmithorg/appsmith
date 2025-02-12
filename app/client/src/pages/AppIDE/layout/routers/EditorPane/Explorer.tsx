@@ -8,7 +8,7 @@ import {
   widgetSegmentRoutes,
 } from "ee/pages/AppIDE/layouts/constants";
 import { JSExplorer } from "../../../components/JSExplorer";
-import { QueryExplorer } from "../../../../Editor/IDE/EditorPane/Query";
+import { QueryExplorer } from "../../../components/QueryList";
 import WidgetsSegment from "../UISegmentLeftPane/UISegmentLeftPane";
 import {
   BUILDER_CUSTOM_PATH,

@@ -7,7 +7,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { EmptyState } from "@appsmith/ads";
-import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useQueryAdd } from "../QueryAdd/useQueryAdd";
 
 const BlankState: React.FC = () => {
   const pagePermissions = useSelector(getPagePermissions);

@@ -7,7 +7,7 @@ import {
   querySegmentRoutes,
 } from "ee/pages/AppIDE/layouts/constants";
 import { JSEditorPane } from "../JSEditor";
-import { QueryEditor } from "../../../../Editor/IDE/EditorPane/Query";
+import { QueryEditor } from "../QueryEditor";
 import EditorTabs from "../../../components/EditorTabs";
 import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";

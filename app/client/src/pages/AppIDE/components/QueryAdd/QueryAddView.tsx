@@ -10,15 +10,13 @@ import {
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import SegmentAddHeader from "IDE/Components/SegmentAddHeader";
-import {
-  useGroupedAddQueryOperations,
-  useQueryAdd,
-} from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useGroupedAddQueryOperations } from "ee/pages/AppIDE/components/QueryAdd/useGroupedAddQueryOperations";
+import { useQueryAdd } from "./useQueryAdd";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import { DEFAULT_GROUP_LIST_SIZE } from "../../../../AppIDE/constants";
+import { DEFAULT_GROUP_LIST_SIZE } from "../../constants";
 
 const AddQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");

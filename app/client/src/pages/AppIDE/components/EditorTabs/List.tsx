@@ -4,7 +4,7 @@ import { Flex } from "@appsmith/ads";
 
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
-import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
+import ListQuery from "../QueryList/List";
 import ListJSObjects from "../JSExplorer/JSSegmentList";
 
 const ListContainer = styled(Flex)`

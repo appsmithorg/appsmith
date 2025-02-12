@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useJSAdd } from "../JSAdd";
-import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useQueryAdd } from "../QueryAdd/useQueryAdd";
 import { TabSelectors } from "./constants";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { useCallback } from "react";

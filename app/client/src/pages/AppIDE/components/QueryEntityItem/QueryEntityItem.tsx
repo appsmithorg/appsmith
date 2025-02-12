@@ -24,7 +24,8 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import { getQueryContextMenuByIdeType } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryContextMenuByIdeType";
+import { AppQueryContextMenuItems } from "./AppQueryContextMenuItems";
+import EntityContextMenu from "IDE/Components/EntityContextMenu";
 import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem";
 
 export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
@@ -48,7 +49,14 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     entityName: item.title,
   });
   const dispatch = useDispatch();
-  const contextMenu = getQueryContextMenuByIdeType(ideType, action);
+  const contextMenu = useMemo(
+    () => (
+      <EntityContextMenu>
+        <AppQueryContextMenuItems action={action} />
+      </EntityContextMenu>
+    ),
+    [action],
+  );
 
   const actionPermissions = action.userPermissions || [];
 
