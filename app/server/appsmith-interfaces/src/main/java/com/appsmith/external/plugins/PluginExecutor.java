@@ -291,6 +291,32 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return this.trigger(connection, datasourceConfiguration, request);
     }
 
+    default Mono<C> datasourceCreate(
+            DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
+        return datasourceCreate(datasourceConfiguration);
+    }
+
+    default Mono<DatasourceTestResult> testDatasource(
+            DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
+        return this.datasourceCreate(datasourceConfiguration, featureFlagMap)
+                .flatMap(connection -> {
+                    return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));
+                })
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage() == null
+                            ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
+                            : error.getMessage();
+                    if (error instanceof AppsmithPluginException
+                            && StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                        return Mono.just(new DatasourceTestResult(
+                                ((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                    }
+                    return Mono.just(new DatasourceTestResult(errorMessage));
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
     /**
      * This function is responsible for preparing the action and datasource configurations to be ready for execution.
      *

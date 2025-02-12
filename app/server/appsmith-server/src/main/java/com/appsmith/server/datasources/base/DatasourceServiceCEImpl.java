@@ -53,6 +53,7 @@ import reactor.util.function.Tuples;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -635,9 +636,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+        Map<String, Boolean> features = featureFlagService.getCachedTenantFeatureFlags() != null
+                ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                : Collections.emptyMap();
 
-        return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                .testDatasource(datasourceStorage.getDatasourceConfiguration()));
+        return featureFlagService
+                .getAllFeatureFlagsForUser()
+                .flatMap(featureFlagMap ->
+                        pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                .testDatasource(datasourceStorage.getDatasourceConfiguration(), features)));
     }
 
     /*

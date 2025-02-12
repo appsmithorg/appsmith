@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -68,6 +69,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final PluginExecutorHelper pluginExecutorHelper;
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
+    private final FeatureFlagService featureFlagService;
 
     private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
             new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
@@ -79,7 +81,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
             ConfigService configService,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            FeatureFlagService featureFlagService) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.pluginService = pluginService;
@@ -89,6 +92,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;
+        this.featureFlagService = featureFlagService;
     }
 
     private RemovalListener<DatasourceContextIdentifier, DatasourcePluginContext> createRemovalListener() {
@@ -209,9 +213,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
                         /* Create a fresh datasource context */
                         DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-                        Mono<Object> connectionMonoCache = pluginExecutor
-                                .datasourceCreate(datasourceStorage.getDatasourceConfiguration())
-                                .cache();
+                        Mono<Object> connectionMonoCache = featureFlagService
+                                .getAllFeatureFlagsForUser()
+                                .flatMap(featureFlagMap -> pluginExecutor
+                                        .datasourceCreate(
+                                                datasourceStorage.getDatasourceConfiguration(), featureFlagMap)
+                                        .cache());
 
                         Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
                                 .flatMap(connection ->
