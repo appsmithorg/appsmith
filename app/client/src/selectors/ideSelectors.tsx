@@ -1,7 +1,7 @@
 import { createSelector } from "reselect";
 import type { AppState } from "ee/reducers";
 import { getPageActions } from "ee/selectors/entitiesSelector";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import { getCurrentBasePageId } from "./editorSelectors";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 import { get } from "lodash";

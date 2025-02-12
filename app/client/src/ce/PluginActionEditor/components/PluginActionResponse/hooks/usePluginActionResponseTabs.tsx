@@ -3,7 +3,8 @@ import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";
-import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   createMessage,

@@ -1,5 +1,7 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.services.ce.RTSCallerCE;
+import com.appsmith.server.helpers.LogHelper;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
@@ -23,18 +25,18 @@ import static com.appsmith.server.filters.MDCFilter.REQUEST_ID_HEADER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
-public class RTSCaller {
+public class RTSCallerCEImpl implements RTSCallerCE {
 
-    private final ObservationRegistry observationRegistry;
+    protected final ObservationRegistry observationRegistry;
 
     private WebClient webClient;
 
     @Value("${appsmith.rts.port:}")
-    private String rtsPort;
+    protected String rtsPort;
 
-    private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
+    protected static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
 
-    public RTSCaller(ObservationRegistry observationRegistry) {
+    public RTSCallerCEImpl(ObservationRegistry observationRegistry) {
         this.observationRegistry = observationRegistry;
     }
 
@@ -88,18 +90,22 @@ public class RTSCaller {
         });
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> get(@NonNull String path) {
         return makeRequest(HttpMethod.GET, path, null);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> post(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.POST, path, requestBody);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> put(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.PUT, path, requestBody);
     }
 
+    @Override
     public Mono<WebClient.RequestBodySpec> delete(@NonNull String path) {
         return makeRequest(HttpMethod.DELETE, path, null);
     }

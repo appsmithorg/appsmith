@@ -350,7 +350,7 @@ function DatasourceAuth({
 
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
       dsName: datasource?.name,
-      orgId: datasource?.workspaceId,
+      workspaceId: datasource?.workspaceId,
       pluginName: pluginName,
       scopeValue: scopeValue,
     });

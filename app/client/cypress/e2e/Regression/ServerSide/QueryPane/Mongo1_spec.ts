@@ -53,7 +53,7 @@ describe(
       agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 
       GenerateCRUDNValidateDeployPage(
-        "<p>Monica's old friend Rachel moves in with her after leaving her fiancé.</p>",
+        "Monica's old friend Rachel moves in with her after leaving her fiancé.",
         `1994-09-22T00:00:00+00:00`,
         "http://www.tvmaze.com/episodes/40646/friends-1x01-the-one-where-it-all-began",
         11,

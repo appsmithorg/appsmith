@@ -11,7 +11,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import produce from "immer";
+import { create } from "mutative";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import {
   getMetaWidgetResetObj,
@@ -38,7 +38,7 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
-    const nextState = produce(state, (draftMetaState) => {
+    const nextState = create(state, (draftMetaState) => {
       set(
         draftMetaState,
         `${action.payload.widgetId}.${action.payload.propertyName}`,
@@ -54,7 +54,7 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<BatchUpdateWidgetMetaPropertyPayload>,
   ) => {
-    const nextState = produce(state, (draftMetaState) => {
+    const nextState = create(state, (draftMetaState) => {
       const { batchMetaUpdates } = action.payload;
 
       batchMetaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
@@ -70,7 +70,7 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
-    const nextState = produce(state, (draftMetaState) => {
+    const nextState = create(state, (draftMetaState) => {
       set(
         draftMetaState,
         `${action.payload.widgetId}.${action.payload.propertyName}`,

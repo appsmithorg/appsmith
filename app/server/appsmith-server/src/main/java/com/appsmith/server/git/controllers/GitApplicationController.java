@@ -1,9 +1,9 @@
 package com.appsmith.server.git.controllers;
 
+import com.appsmith.server.artifacts.base.ArtifactService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.git.autocommit.AutoCommitService;
 import com.appsmith.server.git.central.CentralGitService;
-import com.appsmith.server.git.utils.GitProfileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GitApplicationController extends GitApplicationControllerCE {
 
     public GitApplicationController(
-            CentralGitService centralGitService, GitProfileUtils gitProfileUtils, AutoCommitService autoCommitService) {
-        super(centralGitService, gitProfileUtils, autoCommitService);
+            CentralGitService centralGitService, AutoCommitService autoCommitService, ArtifactService artifactService) {
+        super(centralGitService, autoCommitService, artifactService);
     }
 }

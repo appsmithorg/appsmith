@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { EntityGroupsList, Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
-  getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
@@ -30,12 +29,11 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
   height: calc(100vh - 120px);
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 const DatasourceIcon = styled.img`
@@ -44,13 +42,11 @@ const DatasourceIcon = styled.img`
 `;
 
 interface DataSidePaneProps {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dsUsageSelector?: (...args: any[]) => Record<string, string>;
+  dsUsageMap: Record<string, string>;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
-  const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
+  const { dsUsageMap } = props;
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
@@ -60,8 +56,6 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
   const location = useLocation();
-  const ideType = getIDETypeByUrl(location.pathname);
-  const dsUsageMap = useSelector((state) => dsUsageSelector(state, ideType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -101,12 +95,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   );
 
   return (
-    <Flex
-      borderRight="1px solid var(--ads-v2-color-border)"
-      flexDirection="column"
-      height="100%"
-      width="100%"
-    >
+    <Flex flexDirection="column" height="100%" width="100%">
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
