@@ -50,7 +50,7 @@ class AppIDELoader extends React.PureComponent<
   componentDidMount() {
     this.initialise();
     retryPromise(
-      async () => import(/* webpackChunkName: "appIDE" */ "./AppIDE"),
+      async () => import(/* webpackChunkName: "AppIDE" */ "./AppIDE"),
     ).then((module) => {
       this.setState({ Page: module.default });
     });
@@ -61,6 +61,7 @@ class AppIDELoader extends React.PureComponent<
 
     clearCache();
   }
+
   render() {
     const { Page } = this.state;
 

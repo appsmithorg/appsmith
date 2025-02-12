@@ -6,7 +6,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useJSAdd } from "ee/pages/AppIDE/components/JSAdd/hooks";
+import { useJSAdd } from "../JSAdd";
 import { EmptyState } from "@appsmith/ads";
 
 const BlankState: React.FC = () => {
