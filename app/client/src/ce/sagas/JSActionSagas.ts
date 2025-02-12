@@ -72,7 +72,7 @@ import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";

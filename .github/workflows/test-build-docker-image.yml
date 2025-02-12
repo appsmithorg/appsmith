@@ -240,7 +240,7 @@ jobs:
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
-        if: ( always() && github.ref == 'refs/heads/release' && github.run_attempt <= 2)
+        if: (always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && github.run_attempt <= 2)
         run: |
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \

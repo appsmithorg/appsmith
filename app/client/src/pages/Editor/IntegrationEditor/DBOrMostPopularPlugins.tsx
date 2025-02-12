@@ -51,7 +51,8 @@ import {
   PluginType,
 } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { IDEType } from "ee/entities/IDE/constants";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
+import { filterSearch } from "./util";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -324,9 +325,7 @@ const mapStateToProps = (
     ? filteredMostPopularPlugins
     : getDBPlugins(state);
 
-  plugins = plugins.filter((plugin) =>
-    plugin.name.toLocaleLowerCase().includes(searchedPlugin),
-  );
+  plugins = filterSearch(plugins, searchedPlugin) as Plugin[];
 
   return {
     pluginImages: getPluginImages(state),

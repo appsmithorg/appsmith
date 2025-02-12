@@ -6,7 +6,7 @@ import { useGetJSItemsForStateInspector } from "./useGetJSItemsForStateInspector
 import { useGetUIItemsForStateInspector } from "./useGetUIItemsForStateInspector";
 import type { GroupedItems } from "../types";
 import { enhanceItemForListItem } from "../utils";
-import type { GenericEntityItem } from "ee/entities/IDE/constants";
+import type { GenericEntityItem } from "ee/IDE/Interfaces/EntityItem";
 
 export const useStateInspectorItems: () => [
   GenericEntityItem | undefined,

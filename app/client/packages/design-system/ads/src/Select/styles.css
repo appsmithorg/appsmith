@@ -19,7 +19,7 @@
 }
 
 .ads-v2-select.rc-select-show-search * {
-  cursor: text;
+  cursor: unset;
 }
 
 /* size sm */
@@ -187,7 +187,10 @@
   display: flex;
   font-size: 12px;
   align-items: center;
-  background: var(--ads-v2-colors-control-pill-default-bg);
+  background: var(--ads-v2-colors-content-surface-info-bg);
+  border: 1px solid var(--ads-v2-colors-content-surface-info-border);
+  color: var(--ads-v2-colors-content-label-info-fg);
+  line-height: normal;
 }
 
 /* typing space */
@@ -208,11 +211,10 @@
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-colors-content-container-default-border);
   box-shadow: var(--ads-v2-shadow-popovers);
-  padding: var(--ads-v2-spaces-2);
+  padding: 0;
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
-  overflow: auto;
   z-index: 1001;
   pointer-events: auto;
 }
@@ -226,15 +228,29 @@
   --select-option-height: 36px;
 
   padding: var(--select-option-padding);
-  margin-bottom: var(--ads-v2-spaces-1);
+  margin-inline: var(--ads-v2-spaces-2);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  background-color: var(--select-option-color-bg);
+}
+
+.ads-v2-select__dropdown .rc-virtual-list {
+  padding-top: var(--ads-v2-spaces-2);
+  padding-bottom: var(--ads-v2-spaces-2);
+}
+
+/* if the dropdown first item is a group, dont add padding-top to virtual list */
+.ads-v2-select__dropdown:has(
+    .rc-select-item:first-child:is(.rc-select-item-group)
+  )
+  .rc-virtual-list {
+  padding-top: 0;
 }
 
 /* Option group */
@@ -249,8 +265,6 @@
   border-radius: var(--ads-v2-border-radius);
   font-weight: 500;
   font-size: var(--ads-v2-font-size-4);
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
@@ -267,12 +281,9 @@
   --select-option-height: 36px;
 
   padding: var(--select-option-padding);
-  padding-left: var(--ads-v2-spaces-5);
-  margin-bottom: var(--ads-v2-spaces-1);
+  margin-left: var(--ads-v2-spaces-2);
   border-radius: var(--ads-v2-border-radius);
   cursor: pointer;
-  /* TODO: remove !important after WDS fix their issue in tree select */
-  background-color: var(--select-option-color-bg) !important;
   position: relative;
   color: var(--ads-v2-colors-content-label-default-fg);
   min-height: var(--select-option-height);
@@ -306,6 +317,18 @@
   font-size: var(--select-option-font-size);
   overflow: hidden;
   overflow-wrap: break-word;
+  width: 100%;
+}
+
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option
+  .rc-select-item-option-content
+  > label
+  > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Option hover */
@@ -314,6 +337,16 @@
   .rc-select-item.rc-select-item-option.rc-select-item-option-active {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
   outline: none;
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
+}
+
+/* selected */
+/* if the option is selected and does not have a checkbox ( identified by label ), then we need to add a background color */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-selected:not(
+    :has(label)
+  ) {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }
 
 /* Option focus */
@@ -326,11 +359,6 @@
 .ads-v2-select__dropdown .rc-select-item.rc-select-item-option:focus-visible {
   outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
-}
-
-/* Option active */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:active {
-  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }
 
 /* Option disabled */
@@ -348,8 +376,42 @@
   color: var(--ads-v2-colors-content-helper-default-fg);
 }
 
-/* Selected option */
-.ads-v2-select__dropdown
-  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
-  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
+/* search input */
+.ads-v2-select__dropdown .ads-v2-search-input input {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  border-radius: 0;
+  outline: none !important;
+}
+
+/* this is required because we want to set the max width of first tag around 60% of the container width */
+.ads-v2-select .rc-select-selector {
+  container-type: inline-size;
+}
+
+/* tags */
+.ads-v2-select
+  .rc-select-selection-overflow-item:first-child
+  .ads-v2-tag
+  > span {
+  max-width: calc(60cqw - 16px);
+}
+
+.ads-v2-select .rc-select-selection-overflow-item .ads-v2-tag > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: calc(100% - 16px);
+}
+
+.ads-v2-select .rc-select-selection-overflow-item-suffix {
+  display: none;
+}
+
+.ads-v2-select__dropdown .rc-virtual-list {
+  padding-top: var(--ads-v2-spaces-2);
+  padding-bottom: var(--ads-v2-spaces-2);
 }

@@ -6,7 +6,7 @@ import type {
 import type { MetaState, WidgetMetaState } from ".";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
-import produce from "immer";
+import { create } from "mutative";
 import { set, unset } from "lodash";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
@@ -82,7 +82,7 @@ export function getNextMetaStateWithUpdates(
   if (!evalMetaUpdates.length) return state;
 
   // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
-  const newMetaState = produce(state, (draftMetaState) => {
+  const newMetaState = create(state, (draftMetaState) => {
     evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
       set(draftMetaState, [widgetId, ...metaPropertyPath], value);
     });

@@ -82,19 +82,13 @@ describe(
 
     it("Update Placement and Verify buttons alignments", function () {
       // check first button placement
-      cy.selectDropdownValue(
-        ".t--property-control-placement .rc-select-selection-item",
-        "Between",
-      );
+      cy.selectDropdownValue(".t--property-control-placement", "Between");
       // 1st btn
       cy.get(firstButton)
         .last()
         .should("have.css", "justify-content", "space-between");
       // update dropdown value
-      cy.selectDropdownValue(
-        ".t--property-control-placement .rc-select-selection-item",
-        "Start",
-      );
+      cy.selectDropdownValue(".t--property-control-placement", "Start");
       cy.get(firstButton).last().should("have.css", "justify-content", "start");
       // other button style stay same
       cy.get(menuButton).should("have.css", "justify-content", "center");

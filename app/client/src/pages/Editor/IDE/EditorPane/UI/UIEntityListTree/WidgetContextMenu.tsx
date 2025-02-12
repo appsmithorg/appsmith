@@ -55,15 +55,15 @@ export const WidgetContextMenu = (props: {
   const menuContent = useMemo(() => {
     return (
       <>
-        <MenuItem onClick={showBinding}>
-          {createMessage(CONTEXT_SHOW_BINDING)}
-        </MenuItem>
         <MenuItem
           disabled={!canManagePages}
           onClick={editWidgetName}
           startIcon="input-cursor-move"
         >
           {createMessage(CONTEXT_RENAME)}
+        </MenuItem>
+        <MenuItem onClick={showBinding} startIcon="binding-new">
+          {createMessage(CONTEXT_SHOW_BINDING)}
         </MenuItem>
         <MenuItem
           className="error-menuitem"

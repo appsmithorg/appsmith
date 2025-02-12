@@ -1,4 +1,4 @@
-import type { IDEType } from "ee/entities/IDE/constants";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 
 interface ContextType {
   ideType: IDEType;
