@@ -59,7 +59,7 @@ export const EntityItem = (props: EntityItemProps) => {
       {...rest}
       className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
-      data-testid={`t--entity-item-${props.title}`}
+      dataTestId={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
       rightControl={rightControl}
     />

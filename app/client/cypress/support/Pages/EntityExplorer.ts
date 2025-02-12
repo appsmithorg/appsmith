@@ -274,7 +274,7 @@ export class EntityExplorer {
         action: "Rename",
         entityType,
       });
-    else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
+    else cy.get(this.locator._entityTestId(entityName)).dblclick();
     cy.get(this.locator._entityNameEditing)
       .clear()
       .type(renameVal)

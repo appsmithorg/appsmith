@@ -150,7 +150,7 @@ Cypress.Commands.add("validateMessage", (value) => {
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
-  cy.xpath(apiwidget.popover).last().click({ force: true });
+  cy.get(apiwidget.popover).last().click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",

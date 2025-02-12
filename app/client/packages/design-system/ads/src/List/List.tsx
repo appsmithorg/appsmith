@@ -119,7 +119,7 @@ function ListItem(props: ListItemProps) {
 
   return (
     <StyledListItem
-      className={clsx(ListItemClassName, props.className)}
+      className={clsx(ListItemClassName, props.className, "t--ide-list-item")}
       data-disabled={props.isDisabled || false}
       data-isblockdescription={isBlockDescription}
       data-rightcontrolvisibility={rightControlVisibility}

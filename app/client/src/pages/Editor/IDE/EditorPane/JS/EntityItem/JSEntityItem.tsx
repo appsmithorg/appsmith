@@ -98,7 +98,6 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   return (
     <EntityItem
       className={`t--jsaction ${canEdit ? "editable" : ""}`}
-      dataTestId={`t--entity-item-${jsAction.name}`}
       id={jsAction.id}
       isSelected={activeActionBaseId === item.key}
       key={jsAction.id}

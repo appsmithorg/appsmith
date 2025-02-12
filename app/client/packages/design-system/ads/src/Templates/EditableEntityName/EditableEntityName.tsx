@@ -59,6 +59,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
         paddingBottom: "4px",
         top: "-5px",
       },
+      placeholder: "Name",
     }),
     [handleKeyUp, handleTitleChange, inputTestId],
   );

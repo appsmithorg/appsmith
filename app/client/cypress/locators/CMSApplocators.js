@@ -12,7 +12,7 @@ export default {
   confirmButton: "span:contains('Confirm')",
   closeButton: "span:contains('Close')",
   datasourcesbutton: "//div[text()='Datasources']",
-  postApi: "//span[text()='send_mail']",
+  postApi: "[data-testid='t--ide-tab-send_mail'",
   deleteButton: "//span[text()='Delete Proposal']",
   deleteTaskText: "//span[text()='Delete this task']",
 };
