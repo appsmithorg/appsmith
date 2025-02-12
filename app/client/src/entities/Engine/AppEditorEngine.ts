@@ -227,8 +227,15 @@ export default class AppEditorEngine extends AppEngine {
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
-      successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
-      errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+      /*
+       * We don't want to restrict the users using the app even if the mock datasources api fails and
+       * the user is not on the airgap instance.
+       * One of those edge cases could be if the user disconnect from the internet but the mock datasources plugins
+       * are returned from the consolidated api. Hence, we want to be independent of mock datasources api response.
+       *
+       * successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
+       * errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+       */
     }
 
     const initActionCalls: boolean = yield call(
