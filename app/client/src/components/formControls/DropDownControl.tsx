@@ -119,6 +119,7 @@ export interface DropDownControlProps extends ControlProps {
   propertyValue: string;
   subtitle?: string;
   isMultiSelect?: boolean;
+  isAllowClear?: boolean;
   isSearchable?: boolean;
   fetchOptionsConditionally?: boolean;
   isLoading: boolean;
@@ -410,7 +411,9 @@ function renderDropdown(
      --------------------------------------------------- */
   return (
     <Select
-      allowClear={isMultiSelect && !isEmpty(selectedValue)}
+      allowClear={
+        (isMultiSelect || props.isAllowClear) && !isEmpty(selectedValue)
+      }
       data-testid={`t--dropdown-${props.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
