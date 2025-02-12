@@ -220,3 +220,77 @@ describe("DropDownControl grouping tests", () => {
     expect(screen.getByText("Option 2")).toBeInTheDocument();
   });
 });
+
+describe("DropdownControl Single select tests", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let store: any;
+
+  const initialValuesSingleSelect = {
+    actionConfiguration: {
+      testPath: "option1",
+    },
+  };
+
+  const mockActionSingleSelect = {
+    type: "API_ACTION",
+    name: "Test API Action",
+    datasource: {
+      id: "datasource1",
+      name: "Datasource 1",
+    },
+    actionConfiguration: {
+      body: "",
+      headers: [],
+      testPath: "option1",
+    },
+  };
+
+  const dropDownPropsSingleSelect = {
+    options: mockOptions,
+    placeholderText: "Select Columns",
+    configProperty: "actionConfiguration.testPath",
+    controlType: "PROJECTION",
+    propertyValue: "",
+    label: "Columns",
+    id: "column",
+    formName: "",
+    isValid: true,
+    formValues: mockActionSingleSelect,
+    isLoading: false,
+    maxTagCount: 3,
+    isAllowClear: true,
+  };
+
+  beforeEach(() => {
+    store = mockStore({
+      form: {
+        TestForm: {
+          values: initialValuesSingleSelect,
+        },
+      },
+      appState: {},
+    });
+  });
+  it("should clear selected option", async () => {
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...dropDownPropsSingleSelect} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    const clearAllButton = document.querySelector(".rc-select-clear");
+
+    expect(clearAllButton).toBeInTheDocument();
+
+    fireEvent.click(clearAllButton!);
+
+    await waitFor(() => {
+      const options = screen.queryAllByText(/Option.../);
+
+      expect(options.length).toBe(0);
+    });
+  });
+});
