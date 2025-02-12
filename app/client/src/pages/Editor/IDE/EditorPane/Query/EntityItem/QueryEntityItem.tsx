@@ -16,7 +16,7 @@ import type { Datasource } from "entities/Datasource";
 import history, { NavigationMethod } from "utils/history";
 import { keyBy } from "lodash";
 import { saveActionNameBasedOnIdeType } from "ee/actions/helpers";
-import { useNameEditorState } from "pages/Editor/IDE/EditorPane/hooks/useNameEditorState";
+import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";

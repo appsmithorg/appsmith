@@ -16,7 +16,7 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "IDE/Interfaces/EditorTypes";
-import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useIsJSAddLoading } from "./hooks";
 
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { setListViewActiveState } from "actions/ideActions";

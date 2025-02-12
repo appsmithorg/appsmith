@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useJSAdd } from "../JSAdd";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./constants";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
@@ -14,6 +14,8 @@ import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { useBoolean } from "usehooks-ts";
 
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export const useIDETabClickHandlers = () => {
   const dispatch = useDispatch();
@@ -77,4 +79,18 @@ export const useShowSideBySideNudge: () => [boolean, () => void] = () => {
   }, [setFalse]);
 
   return [value, dismissNudge];
+};
+
+export const useIsJSAddLoading = () => {
+  const moduleCreationOptions = useModuleOptions();
+  const jsModuleCreationOptions = moduleCreationOptions.filter(
+    (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
+  );
+  const { isCreating } = useSelector((state) => state.ui.jsPane);
+
+  if (jsModuleCreationOptions.length === 0) {
+    return isCreating;
+  }
+
+  return false;
 };

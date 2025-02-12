@@ -8,7 +8,7 @@ import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSEntityItemUrl";
+import { getJSEntityItemUrl } from "ee/pages/AppIDE/layouts/routers/utils/getJSEntityItemUrl";
 import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils/getQueryEntityItemUrl";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 

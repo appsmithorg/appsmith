@@ -9,7 +9,7 @@ import {
 } from "@appsmith/ads";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import SegmentAddHeader from "../components/SegmentAddHeader";
+import SegmentAddHeader from "IDE/Components/SegmentAddHeader";
 import {
   useGroupedAddQueryOperations,
   useQueryAdd,

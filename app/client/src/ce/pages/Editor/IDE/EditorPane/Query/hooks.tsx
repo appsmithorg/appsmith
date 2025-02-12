@@ -1,5 +1,4 @@
-import { lazy, Suspense, useCallback, useMemo } from "react";
-import React from "react";
+import React, { lazy, Suspense, useCallback, useMemo } from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -30,15 +29,16 @@ import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import {
   type EntityGroupProps,
-  type ListItemProps,
   type EntityItemProps,
+  type ListItemProps,
 } from "@appsmith/ads";
-import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
+import { createAddClassName } from "pages/AppIDE/constants";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { setListViewActiveState } from "actions/ideActions";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "widgets/Skeleton";
+import type { GroupedAddOperations } from "IDE/Interfaces/GroupedAddOperations";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -68,12 +68,6 @@ export const useQueryAdd = () => {
 
   return { openAddQuery, closeAddQuery };
 };
-
-export type GroupedAddOperations = Array<{
-  title?: string;
-  className: string;
-  operations: ActionOperation[];
-}>;
 
 export const useGroupedAddQueryOperations = () => {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
