@@ -129,6 +129,7 @@ export class EntityExplorer {
     this.agHelper
       .GetElement(this._visibleTextSpan(dsName))
       .siblings()
+      .children()
       .each(($el: any) => {
         cy.wrap($el)
           .find(".t--entity-name")
