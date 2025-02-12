@@ -31,9 +31,7 @@ describe(
         entityNameinLeftSidebar: "Tab2",
         action: "Rename",
       });
-      cy.get(locators._entityNameEditing)
-        .clear()
-        .type(tabname + "{enter}");
+      agHelper.TypeText(locators._entityNameEditing, tabname, { clear: true });
       agHelper.Sleep(2000);
       entityExplorer.ValidateDuplicateMessageToolTip(tabname);
       cy.get(explorer.editEntity)

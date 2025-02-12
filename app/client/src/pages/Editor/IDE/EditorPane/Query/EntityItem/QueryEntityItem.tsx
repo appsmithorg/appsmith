@@ -66,6 +66,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     action.pluginType,
     pluginGroups[action.pluginId],
   );
+  const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const switchToAction = useCallback(() => {
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
@@ -115,7 +116,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
-      startIcon={item.icon}
+      startIcon={icon}
       title={item.title}
     />
   );

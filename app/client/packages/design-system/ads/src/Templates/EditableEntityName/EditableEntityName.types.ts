@@ -23,4 +23,6 @@ export interface EditableEntityNameProps {
   onNameSave: (name: string) => void;
   /** Function to validate the name. */
   validateName: (name: string) => string | null;
+  /** Whether a name should be normalized on renaming */
+  normalizeName: boolean;
 }

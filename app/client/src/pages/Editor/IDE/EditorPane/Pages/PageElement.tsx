@@ -122,6 +122,7 @@ const PageElement = ({
           }),
         ),
       validateName: (newName: string) => validateName(newName, page.pageName),
+      normalizeName: false,
     };
   }, [
     canManagePages,

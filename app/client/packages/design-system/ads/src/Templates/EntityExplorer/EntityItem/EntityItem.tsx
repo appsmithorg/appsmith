@@ -9,6 +9,7 @@ export const EntityItem = (props: EntityItemProps) => {
     canEdit,
     isEditing,
     isLoading,
+    normalizeName = false,
     onEditComplete,
     onNameSave,
     validateName,
@@ -28,6 +29,7 @@ export const EntityItem = (props: EntityItemProps) => {
         isFixedWidth
         isLoading={isLoading}
         name={props.title}
+        normalizeName={normalizeName}
         onExitEditing={onEditComplete}
         onNameSave={onNameSave}
         size="medium"

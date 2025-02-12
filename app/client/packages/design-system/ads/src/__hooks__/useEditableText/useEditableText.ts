@@ -19,6 +19,7 @@ export function useEditableText(
   exitEditing: () => void,
   validateName: (name: string) => string | null,
   onNameSave: (name: string) => void,
+  normalize?: boolean,
 ): [
   RefObject<HTMLInputElement>,
   string,
@@ -87,7 +88,7 @@ export function useEditableText(
 
   const handleTitleChange = useEventCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const value = normaliseName(e.target.value);
+      const value = normalize ? normaliseName(e.target.value) : e.target.value;
 
       setEditableName(value);
       validate(value);
@@ -125,6 +126,7 @@ export function useEditableText(
       if (isEditing && input) {
         setTimeout(() => {
           input.focus();
+          input.select();
         }, 200);
       }
     },
