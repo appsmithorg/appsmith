@@ -55,9 +55,8 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     private final AnalyticsService analyticsService;
     private final NetworkUtils networkUtils;
     private final ReleaseNotesService releaseNotesService;
-    private final TenantService tenantService;
-
     private final RTSCaller rtsCaller;
+    private final TenantService tenantService;
 
     private boolean isRtsAccessible = false;
 
@@ -233,7 +232,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
      * consumed by {@link com.appsmith.server.aspect.FeatureFlaggedMethodInvokerAspect} in a non-reactive manner.
      * In case the user tries to fetch the feature flags before the cache is updated, the aspect will fallback to the
      * earlier cached data.
-     * @return  Mono that completes when the cache is updated.
+     * @return  Empty Mono
      */
     @Override
     public Mono<Void> updateCacheForTenantFeatureFlags() {

@@ -7,6 +7,7 @@ import com.appsmith.server.helpers.ce.InstanceConfigHelperCEImpl;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -24,7 +25,8 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
             AnalyticsService analyticsService,
             NetworkUtils networkUtils,
             ReleaseNotesService releaseNotesService,
-            RTSCaller rtsCaller) {
+            RTSCaller rtsCaller,
+            TenantService tenantService) {
         super(
                 configService,
                 cloudServicesConfig,
@@ -35,6 +37,7 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
                 analyticsService,
                 networkUtils,
                 releaseNotesService,
-                rtsCaller);
+                rtsCaller,
+                tenantService);
     }
 }
