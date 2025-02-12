@@ -3,7 +3,6 @@ import { ListItem } from "../../../List";
 import type { EntityItemProps } from "./EntityItem.types";
 import clx from "classnames";
 import { EditableEntityName } from "../../EditableEntityName";
-import { useEventCallback } from "usehooks-ts";
 
 export const EntityItem = (props: EntityItemProps) => {
   const {
@@ -19,15 +18,6 @@ export const EntityItem = (props: EntityItemProps) => {
 
   const inEditMode = canEdit ? isEditing : false;
 
-  const handleDoubleClick = useEventCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!props.isDisabled && props.onDoubleClick) {
-      props.onDoubleClick(e);
-    }
-  });
-
   // Use List Item custom title prop to show the editable name
   const customTitle = useMemo(() => {
     return (
@@ -38,7 +28,6 @@ export const EntityItem = (props: EntityItemProps) => {
         isFixedWidth
         isLoading={isLoading}
         name={props.title}
-        onDoubleClick={handleDoubleClick}
         onExitEditing={onEditComplete}
         onNameSave={onNameSave}
         size="medium"

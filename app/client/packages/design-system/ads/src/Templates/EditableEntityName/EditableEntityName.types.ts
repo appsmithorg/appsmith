@@ -23,6 +23,4 @@ export interface EditableEntityNameProps {
   onNameSave: (name: string) => void;
   /** Function to validate the name. */
   validateName: (name: string) => string | null;
-  /** callback for when the list item is double-clicked */
-  onDoubleClick?: (e: React.MouseEvent) => void;
 }

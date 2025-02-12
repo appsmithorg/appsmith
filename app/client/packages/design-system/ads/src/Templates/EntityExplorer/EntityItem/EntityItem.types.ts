@@ -7,8 +7,6 @@ export interface EntityItemProps
   > {
   /** ID of the entity. Will be added to the markup for identification */
   id: string;
-  /** callback for when the list item is double-clicked */
-  onDoubleClick?: (e: React.MouseEvent) => void;
   /** Control the name editing behaviour */
   nameEditorConfig: {
     // Set editable based on user permissions

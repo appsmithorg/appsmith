@@ -105,6 +105,14 @@ function ListItem(props: ListItemProps) {
     }
   });
 
+  const handleDoubleClick = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!props.isDisabled && props.onDoubleClick) {
+      props.onDoubleClick();
+    }
+  });
+
   const handleRightControlClick = useEventCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   });
@@ -119,6 +127,7 @@ function ListItem(props: ListItemProps) {
       data-testid={props.dataTestId}
       id={props.id}
       onClick={handleOnClick}
+      onDoubleClick={handleDoubleClick}
       role="listitem"
       size={size}
     >
