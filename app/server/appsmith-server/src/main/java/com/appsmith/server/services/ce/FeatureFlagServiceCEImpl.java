@@ -152,13 +152,17 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * To get all features of the current tenant.
      * @return Mono of Map
      */
+    @Override
     public Mono<Map<String, Boolean>> getTenantFeatures() {
-        return tenantService
-                .getDefaultTenantId()
-                .zipWhen(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
-                .map(tuple2 -> {
-                    String tenantId = tuple2.getT1();
-                    CachedFeatures cachedFeatures = tuple2.getT2();
+        // TODO change this to use the tenant from the user session for multi-tenancy
+        return tenantService.getDefaultTenantId().flatMap(this::getTenantFeatures);
+    }
+
+    @Override
+    public Mono<Map<String, Boolean>> getTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .fetchCachedTenantFeatures(tenantId)
+                .map(cachedFeatures -> {
                     cachedTenantFeatureFlags.put(tenantId, cachedFeatures);
                     return cachedFeatures.getFeatures();
                 })

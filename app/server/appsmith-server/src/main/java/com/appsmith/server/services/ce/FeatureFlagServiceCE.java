@@ -37,6 +37,8 @@ public interface FeatureFlagServiceCE {
      */
     Mono<Map<String, Boolean>> getTenantFeatures();
 
+    Mono<Map<String, Boolean>> getTenantFeatures(String tenantId);
+
     Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant);
 
     CachedFeatures getCachedTenantFeatureFlags();

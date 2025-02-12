@@ -65,14 +65,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 //  introduced
                 .then(Mono.defer(instanceConfigHelper::isLicenseValid)
                         // Ensure that the tenant feature flags are refreshed with the latest values after completing
-                        // the
-                        // license verification process.
-                        .flatMap(isValid -> {
-                            log.debug(
-                                    "License verification completed with status: {}",
-                                    TRUE.equals(isValid) ? "valid" : "invalid");
-                            return instanceConfigHelper.updateCacheForTenantFeatureFlags();
-                        }));
+                        // the license verification process.
+                        .flatMap(isValid -> instanceConfigHelper.updateCacheForTenantFeatureFlags()));
 
         try {
             startupProcess.block();

@@ -15,6 +15,7 @@ import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import joptsimple.internal.Strings;
@@ -54,6 +55,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     private final AnalyticsService analyticsService;
     private final NetworkUtils networkUtils;
     private final ReleaseNotesService releaseNotesService;
+    private final TenantService tenantService;
 
     private final RTSCaller rtsCaller;
 
@@ -225,8 +227,25 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                 });
     }
 
+    /**
+     * Method to trigger update for the cache of all tenant feature flags. This method is called during the startup of
+     * the application. It's required at the startup to ensure that the feature flags are up-to-date which will then be
+     * consumed by {@link com.appsmith.server.aspect.FeatureFlaggedMethodInvokerAspect} in a non-reactive manner.
+     * In case the user tries to fetch the feature flags before the cache is updated, the aspect will fallback to the
+     * earlier cached data.
+     * @return  Mono that completes when the cache is updated.
+     */
     @Override
     public Mono<Void> updateCacheForTenantFeatureFlags() {
-        return featureFlagService.getTenantFeatures().then();
+        tenantService
+                .retrieveAll()
+                .flatMap(tenant -> featureFlagService.getTenantFeatures(tenant.getId()))
+                .onErrorResume(error -> {
+                    log.error("Error while updating cache for tenant feature flags", error);
+                    return Mono.empty();
+                })
+                .subscribeOn(LoadShifter.elasticScheduler)
+                .subscribe();
+        return Mono.empty();
     }
 }
