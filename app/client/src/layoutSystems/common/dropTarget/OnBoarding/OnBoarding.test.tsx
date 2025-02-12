@@ -23,7 +23,9 @@ jest.mock("pages/AppIDE/hooks/useCurrentEditorState", () => ({
 const mockStore = configureStore([]);
 const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { useCurrentEditorState } = require("IDE/hooks/useCurrentAppState");
+  const {
+    useCurrentEditorState,
+  } = require("pages/AppIDE/hooks/useCurrentEditorState");
 
   useCurrentEditorState.mockImplementation(() => ({
     segment,
