@@ -434,26 +434,28 @@ jobs:
               CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
                 --spec "${{ inputs.specs_to_run }}" \
                 --config-file "cypress_ci_custom.config.ts" \
-                --browser "${{ env.BROWSER_PATH }}"
+                --browser "${{ env.BROWSER_PATH }}" || echo "Cypress tests failed, proceeding with summary check..."
             else
               echo "Running Cypress tests without snapshot updates..."
               npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
                 --spec "${{ env.specs_to_run }}" \
                 --config-file "cypress_ci_custom.config.ts" \
-                --browser "${{ env.BROWSER_PATH }}"
+                --browser "${{ env.BROWSER_PATH }}" || echo "Cypress tests failed, proceeding with summary check..."
             fi
+
             cat cy-repeat-summary.txt
+
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
 
             # Check for test results and store the status in the file
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
-                echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
+              echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
             else
-                echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
+              echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
             fi
-            cat "$FAILURE_FLAG_FILE"
 
+            cat "$FAILURE_FLAG_FILE"
       - name: Trim number of cypress log files
         if: failure()
         run: |
