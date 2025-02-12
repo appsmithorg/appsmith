@@ -29,7 +29,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     @Observed(name = "fetchFeatures")
     public void fetchFeatures() {
         log.info("Fetching features for default tenant");
-        Flux<Tenant> tenantFlux = tenantService.findAll();
+        Flux<Tenant> tenantFlux = tenantService.retrieveAll();
         tenantFlux
                 .flatMap(featureFlagService::getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations)
                 .flatMap(featureFlagService::checkAndExecuteMigrationsForTenantFeatureFlags)

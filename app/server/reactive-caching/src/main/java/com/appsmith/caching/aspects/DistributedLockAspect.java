@@ -38,7 +38,7 @@ public class DistributedLockAspect {
         Class<?> returnType = method.getReturnType();
         boolean isReactive = returnType.isAssignableFrom(Mono.class) || returnType.isAssignableFrom(Flux.class);
         if (isReactive) {
-            // If method does returns Mono<T> or Flux<T> raise exception
+            // Locking for reactive methods can be added with reactive Redis operations if needed.
             throw new IllegalAccessException(
                     "Invalid usage of @DistributedLock annotation. Only non-reactive methods are supported for locking.");
         }

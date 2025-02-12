@@ -316,7 +316,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Void> restartTenant() {
         // TODO remove this method once we move the form login env to DB variable which is currently required as a part
         //  of downgrade migration for SSO
-        return this.findAll()
+        return this.retrieveAll()
                 .filter(tenant -> TRUE.equals(tenant.getTenantConfiguration().getIsRestartRequired()))
                 .take(1)
                 .hasElements()
@@ -339,7 +339,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     }
 
     @Override
-    public Flux<Tenant> findAll() {
-        return repository.findAll();
+    public Flux<Tenant> retrieveAll() {
+        return repository.retrieveAll();
     }
 }

@@ -31,5 +31,5 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
 
     Mono<Void> restartTenant();
 
-    Flux<Tenant> findAll();
+    Flux<Tenant> retrieveAll();
 }

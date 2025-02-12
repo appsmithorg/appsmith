@@ -205,9 +205,10 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(new HashMap<>()));
 
-        featureFlagService
-                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        tenantService
+                .retrieveAll()
+                .flatMap(featureFlagService::getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
@@ -225,9 +226,10 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, DISABLE)));
 
-        featureFlagService
-                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        tenantService
+                .retrieveAll()
+                .flatMap(featureFlagService::getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
@@ -244,9 +246,10 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, ENABLE)));
 
-        featureFlagService
-                .getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        tenantService
+                .retrieveAll()
+                .flatMap(featureFlagService::getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
