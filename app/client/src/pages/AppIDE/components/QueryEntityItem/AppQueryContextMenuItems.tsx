@@ -13,7 +13,7 @@ import {
   Move,
   Rename,
   ShowBindings,
-} from "pages/Editor/AppPluginActionEditor/components/ContextMenuItems";
+} from "../AppPluginActionEditor/components/ContextMenuItems";
 import { MenuSeparator } from "@appsmith/ads";
 
 export interface Props {

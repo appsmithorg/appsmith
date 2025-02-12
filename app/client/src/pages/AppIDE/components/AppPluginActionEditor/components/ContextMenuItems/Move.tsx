@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentPageId } from "../../../../../../selectors/editorSelectors";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import React, { useCallback, useMemo } from "react";
-import { moveActionRequest } from "actions/pluginActionActions";
+import { moveActionRequest } from "../../../../../../actions/pluginActionActions";
 import {
   MenuItem,
   MenuSub,
@@ -11,7 +11,7 @@ import {
 } from "@appsmith/ads";
 import { CONTEXT_MOVE, createMessage } from "ee/constants/messages";
 import { PageMenuItem } from "./PageMenuItem";
-import type { Action } from "entities/Action";
+import type { Action } from "../../../../../../entities/Action";
 
 interface Props {
   action: Action;

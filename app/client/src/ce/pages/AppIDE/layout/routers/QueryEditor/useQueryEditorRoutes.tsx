@@ -15,7 +15,7 @@ const PluginActionEditor = lazy(async () =>
   retryPromise(
     async () =>
       import(
-        /* webpackChunkName: "PluginActionEditor" */ "pages/Editor/AppPluginActionEditor"
+        /* webpackChunkName: "PluginActionEditor" */ "pages/AppIDE/components/AppPluginActionEditor"
       ),
   ),
 );

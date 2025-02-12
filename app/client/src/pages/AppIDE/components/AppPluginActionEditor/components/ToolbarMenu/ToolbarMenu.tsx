@@ -4,14 +4,14 @@ import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { useFeatureFlag } from "../../../../../../utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   usePluginActionContext,
   DocsMenuItem as Docs,
-} from "PluginActionEditor";
+} from "../../../../../../PluginActionEditor";
 import { ConvertToModule, Copy, Delete, Move } from "../ContextMenuItems";
-import { RenameMenuItem } from "IDE";
+import { RenameMenuItem } from "../../../../../../IDE";
 
 export const ToolbarMenu = () => {
   const { action } = usePluginActionContext();

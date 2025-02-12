@@ -6,8 +6,8 @@ import {
 } from "ee/constants/messages";
 import { MenuItem } from "@appsmith/ads";
 import { useDispatch } from "react-redux";
-import { deleteAction } from "actions/pluginActionActions";
-import type { Action } from "entities/Action";
+import { deleteAction } from "../../../../../../actions/pluginActionActions";
+import type { Action } from "../../../../../../entities/Action";
 
 interface Props {
   action: Action;

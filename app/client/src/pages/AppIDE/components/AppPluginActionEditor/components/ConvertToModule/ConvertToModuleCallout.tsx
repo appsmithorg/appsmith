@@ -2,13 +2,13 @@ import React from "react";
 import { Flex, Icon } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getIsActionConverting } from "ee/selectors/entitiesSelector";
-import { usePluginActionContext } from "PluginActionEditor";
+import { usePluginActionContext } from "../../../../../../PluginActionEditor";
 import {
   ENTITY_ICON_SIZE,
   EntityIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
+} from "../../../../../Editor/Explorer/ExplorerIcons";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
-import { resolveIcon } from "pages/Editor/utils";
+import { resolveIcon } from "../../../../../Editor/utils";
 
 const ConvertToModuleCallout = () => {
   const { action, plugin } = usePluginActionContext();
