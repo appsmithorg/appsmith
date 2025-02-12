@@ -11401,12 +11401,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-window@npm:^1.8.2":
-  version: 1.8.2
-  resolution: "@types/react-window@npm:1.8.2"
+"@types/react-window-infinite-loader@npm:^1.0.9":
+  version: 1.0.9
+  resolution: "@types/react-window-infinite-loader@npm:1.0.9"
   dependencies:
     "@types/react": "*"
-  checksum: c127ed420d881510fe647539342e7c494802aab12fd6cb61f9f8ba47ef16d3683e632b7a6a07eb0d284ea8f0953ae7941eafa2c51c0bcb3b176d009eac09c79a
+    "@types/react-window": "*"
+  checksum: 9f2c27f24bfa726ceaef6612a4adbda745f3455c877193f68dfa48591274c670a6df4fa6870785cff5f948e289ceb9a247fb7cbf67e3cd555ab16d11866fd63f
+  languageName: node
+  linkType: hard
+
+"@types/react-window@npm:*, @types/react-window@npm:^1.8.2":
+  version: 1.8.8
+  resolution: "@types/react-window@npm:1.8.8"
+  dependencies:
+    "@types/react": "*"
+  checksum: 253c9d6e0c942f34633edbddcbc369324403c42458ff004457c5bd5972961d8433a909c0cc1a89c918063d5eb85ecbdd774142af2555fae61f4ceb3ba9884b5a
   languageName: node
   linkType: hard
 
@@ -13220,6 +13230,7 @@ __metadata:
     "@types/react-tabs": ^2.3.1
     "@types/react-test-renderer": ^17.0.1
     "@types/react-window": ^1.8.2
+    "@types/react-window-infinite-loader": ^1.0.9
     "@types/redux-form": ^8.1.9
     "@types/redux-mock-store": ^1.0.2
     "@types/showdown": ^1.9.4
@@ -13398,6 +13409,7 @@ __metadata:
     react-virtuoso: ^4.5.0
     react-webcam: ^7.0.1
     react-window: ^1.8.6
+    react-window-infinite-loader: ^1.0.10
     react-zoom-pan-pinch: ^1.6.1
     redux: ^4.0.1
     redux-devtools-extension: ^2.13.8
@@ -29884,6 +29896,16 @@ __metadata:
     react: ">=16.2.0"
     react-dom: ">=16.2.0"
   checksum: b1df32c3bfe3fafdb291b06266b30aa2ba88df2a51e04121fb09509feb88fb25fe3291733a9fb9674b56b964b6e69fe801f99e4fd20418520cd2e7641c46c647
+  languageName: node
+  linkType: hard
+
+"react-window-infinite-loader@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "react-window-infinite-loader@npm:1.0.10"
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 3ee79ce325e45a7d4d9f92c13e7ff4c523578fa454de3a440980b286d964eb951095c012a7f43ca75e9d86ed2b052c81b08134dfa8827144f44b059cc56514c3
   languageName: node
   linkType: hard
 
