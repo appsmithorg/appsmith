@@ -8,49 +8,57 @@ import "./styles.css";
 
 import type { ScrollAreaProps } from "./ScrollArea.types";
 
-function ScrollArea(props: ScrollAreaProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const {
-    children,
-    className,
-    defer,
-    events,
-    options,
-    size = "md",
-    ...rest
-  } = props;
-  const defaultOptions: UseOverlayScrollbarsParams["options"] = {
-    scrollbars: {
-      theme: "ads-v2-scroll-theme",
-      autoHide: "scroll",
-    },
-    ...options,
-  };
-  const [initialize] = useOverlayScrollbars({
-    options: defaultOptions,
-    events,
-    defer,
-  });
+const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
+  (props, ref) => {
+    const localRef = useRef<HTMLDivElement>(null);
+    const {
+      children,
+      className,
+      defer,
+      events,
+      options,
+      size = "md",
+      ...rest
+    } = props;
+    const defaultOptions: UseOverlayScrollbarsParams["options"] = {
+      scrollbars: {
+        theme: "ads-v2-scroll-theme",
+        autoHide: "scroll",
+      },
+      ...options,
+    };
+    const [initialize] = useOverlayScrollbars({
+      options: defaultOptions,
+      events,
+      defer,
+    });
 
-  useEffect(() => {
-    if (ref.current) initialize(ref.current);
-  }, [initialize]);
+    useEffect(
+      function init() {
+        const currentRef =
+          (typeof ref === "function" ? null : ref?.current) || localRef.current;
 
-  return (
-    <div
-      className={clsx(
-        {
-          "scroll-sm": size === "sm",
-        },
-        className,
-      )}
-      ref={ref}
-      {...rest}
-    >
-      {children}
-    </div>
-  );
-}
+        if (currentRef) initialize(currentRef);
+      },
+      [initialize, ref],
+    );
+
+    return (
+      <div
+        className={clsx(
+          {
+            "scroll-sm": size === "sm",
+          },
+          className,
+        )}
+        ref={ref || localRef}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 ScrollArea.displayName = "ScrollArea";
 

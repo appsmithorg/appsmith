@@ -40,6 +40,12 @@ export DBNAME="$edition$PULL_REQUEST_NUMBER"
 export DOMAINNAME="$edition-$PULL_REQUEST_NUMBER.dp.appsmith.com"
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
+export OPENAI_ASSISTANT_ID="$OPENAI_ASSISTANT_ID"
+export OPENAI_API_KEY="$OPENAI_API_KEY"
+export APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY"
+export APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH"
+export APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING"
+export IN_DOCKER="$IN_DOCKER"
 
 
 aws eks update-kubeconfig --region "$region" --name "$cluster_name" --profile eksci
@@ -104,5 +110,10 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_DB_URL="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
-  --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
+  --set applicationConfig.OPENAI_ASSISTANT_ID="$OPENAI_ASSISTANT_ID" \
+  --set applicationConfig.OPENAI_API_KEY="$OPENAI_API_KEY" \
+  --set applicationConfig.APPSMITH_CARBON_API_KEY="$APPSMITH_CARBON_API_KEY" \
+  --set applicationConfig.APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH" \
+  --set applicationConfig.APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING" \
+  --set applicationConfig.IN_DOCKER='$IN_DOCKER' \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com"

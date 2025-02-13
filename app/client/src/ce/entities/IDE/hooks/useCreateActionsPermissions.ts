@@ -1,5 +1,5 @@
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { IDE_TYPE, type IDEType } from "ee/entities/IDE/constants";
+import { IDE_TYPE, type IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useSelector } from "react-redux";
 import { getPagePermissions } from "selectors/editorSelectors";

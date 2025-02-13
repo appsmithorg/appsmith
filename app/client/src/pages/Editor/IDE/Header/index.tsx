@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Flex,
   Divider,
   Modal,
   ModalContent,
@@ -58,7 +57,7 @@ import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "../hooks/useCurrentAppState";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
@@ -158,41 +157,39 @@ const Header = () => {
           <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </IDEHeader.Left>
         <IDEHeader.Center>
-          <Flex alignItems={"center"}>
-            {currentWorkspace.name && (
-              <>
-                <Link className="mr-1.5" to={APPLICATIONS_URL}>
-                  {currentWorkspace.name}
-                </Link>
-                {"/"}
-                <EditorName
-                  applicationId={applicationId}
-                  className="t--application-name editable-application-name max-w-48"
-                  defaultSavingState={
-                    isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                  }
-                  defaultValue={currentApplication?.name || ""}
-                  editInteractionKind={EditInteractionKind.SINGLE}
-                  editorName="Application"
-                  fill
-                  getNavigationMenu={useNavigationMenuData}
-                  isError={isErroredSavingName}
-                  isNewEditor={
-                    applicationList.filter((el) => el.id === applicationId)
-                      .length > 0
-                  }
-                  isPopoverOpen={isPopoverOpen}
-                  onBlur={(value: string) =>
-                    updateApplicationDispatch(applicationId || "", {
-                      name: value,
-                      currentApp: true,
-                    })
-                  }
-                  setIsPopoverOpen={setIsPopoverOpen}
-                />
-              </>
-            )}
-          </Flex>
+          {currentWorkspace.name && (
+            <>
+              <Link className="mr-1.5" to={APPLICATIONS_URL}>
+                {currentWorkspace.name}
+              </Link>
+              {"/"}
+              <EditorName
+                applicationId={applicationId}
+                className="t--application-name editable-application-name max-w-48"
+                defaultSavingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                defaultValue={currentApplication?.name || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Application"
+                fill
+                getNavigationMenu={useNavigationMenuData}
+                isError={isErroredSavingName}
+                isNewEditor={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                isPopoverOpen={isPopoverOpen}
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                setIsPopoverOpen={setIsPopoverOpen}
+              />
+            </>
+          )}
         </IDEHeader.Center>
         <IDEHeader.Right>
           <HelpBar />

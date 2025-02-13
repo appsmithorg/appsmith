@@ -12,6 +12,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
+const appSettings = ObjectsRegistry.AppSettings;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -62,6 +63,7 @@ Cypress.Commands.add("launchApp", () => {
     "response.body.responseMeta.status",
     200,
   );
+  agHelper.AssertElementVisibility(appSettings.locators._applicationName);
 });
 
 Cypress.Commands.add("AppSetupForRename", () => {

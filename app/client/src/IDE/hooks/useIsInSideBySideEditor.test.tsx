@@ -1,7 +1,7 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { Provider } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import type { AppState } from "ee/reducers";

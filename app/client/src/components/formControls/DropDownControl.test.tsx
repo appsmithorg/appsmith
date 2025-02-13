@@ -58,6 +58,7 @@ const dropDownProps = {
   isValid: true,
   formValues: mockAction,
   isLoading: false,
+  maxTagCount: 3,
 };
 
 describe("DropDownControl", () => {
@@ -101,6 +102,181 @@ describe("DropDownControl", () => {
       <Provider store={store}>
         <ReduxFormDecorator>
           <DropDownControl {...dropDownProps} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    const clearAllButton = document.querySelector(".rc-select-clear");
+
+    expect(clearAllButton).toBeInTheDocument();
+
+    fireEvent.click(clearAllButton!);
+
+    await waitFor(() => {
+      const options = screen.queryAllByText(/Option.../);
+
+      expect(options.length).toBe(0);
+    });
+  });
+});
+
+describe("DropDownControl grouping tests", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let store: any;
+
+  beforeEach(() => {
+    store = mockStore({
+      form: {
+        GroupingTestForm: {
+          values: {
+            actionConfiguration: { testPath: [] },
+          },
+        },
+      },
+    });
+  });
+
+  it("should render grouped options correctly when optionGroupConfig is provided", async () => {
+    // These config & options demonstrate grouping
+    const mockOptionGroupConfig = {
+      testGrp1: {
+        label: "Group 1",
+        children: [],
+      },
+      testGrp2: {
+        label: "Group 2",
+        children: [],
+      },
+    };
+
+    const mockGroupedOptions = [
+      {
+        label: "Option 1",
+        value: "option1",
+        children: "Option 1",
+        optionGroupType: "testGrp1",
+      },
+      {
+        label: "Option 2",
+        value: "option2",
+        children: "Option 2",
+        // Intentionally no optionGroupType => Should fall under default "Others" group
+      },
+      {
+        label: "Option 3",
+        value: "option3",
+        children: "Option 3",
+        optionGroupType: "testGrp2",
+      },
+    ];
+
+    const props = {
+      ...dropDownProps,
+      controlType: "DROP_DOWN",
+      options: mockGroupedOptions,
+      optionGroupConfig: mockOptionGroupConfig,
+    };
+
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...props} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // 1. Grab the dropdown container
+    const dropdownSelect = await waitFor(async () =>
+      screen.findByTestId("t--dropdown-actionConfiguration.testPath"),
+    );
+
+    expect(dropdownSelect).toBeInTheDocument();
+
+    // 2. Click to open the dropdown
+    // @ts-expect-error: the test will fail if component doesn't exist
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector"));
+
+    // 3. We expect to see group labels from the config
+    // 'Group 1' & 'Group 2' come from the mockOptionGroupConfig
+    const group1Label = await screen.findByText("Group 1");
+    const group2Label = await screen.findByText("Group 2");
+
+    expect(group1Label).toBeInTheDocument();
+    expect(group2Label).toBeInTheDocument();
+
+    // 4. Check that the 'Others' group also exists because at least one option did not have optionGroupType
+    // The default group label is 'Others' (in your code)
+    const othersGroupLabel = await screen.findByText("Others");
+
+    expect(othersGroupLabel).toBeInTheDocument();
+
+    // 5. Confirm the correct distribution of options
+    // For group1 -> "Option 1"
+    expect(screen.getByText("Option 1")).toBeInTheDocument();
+    // For group2 -> "Option 3"
+    expect(screen.getByText("Option 3")).toBeInTheDocument();
+    // For default "Others" -> "Option 2"
+    expect(screen.getByText("Option 2")).toBeInTheDocument();
+  });
+});
+
+describe("DropdownControl Single select tests", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let store: any;
+
+  const initialValuesSingleSelect = {
+    actionConfiguration: {
+      testPath: "option1",
+    },
+  };
+
+  const mockActionSingleSelect = {
+    type: "API_ACTION",
+    name: "Test API Action",
+    datasource: {
+      id: "datasource1",
+      name: "Datasource 1",
+    },
+    actionConfiguration: {
+      body: "",
+      headers: [],
+      testPath: "option1",
+    },
+  };
+
+  const dropDownPropsSingleSelect = {
+    options: mockOptions,
+    placeholderText: "Select Columns",
+    configProperty: "actionConfiguration.testPath",
+    controlType: "PROJECTION",
+    propertyValue: "",
+    label: "Columns",
+    id: "column",
+    formName: "",
+    isValid: true,
+    formValues: mockActionSingleSelect,
+    isLoading: false,
+    maxTagCount: 3,
+    isAllowClear: true,
+  };
+
+  beforeEach(() => {
+    store = mockStore({
+      form: {
+        TestForm: {
+          values: initialValuesSingleSelect,
+        },
+      },
+      appState: {},
+    });
+  });
+  it("should clear selected option", async () => {
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...dropDownPropsSingleSelect} />
         </ReduxFormDecorator>
       </Provider>,
     );

@@ -240,7 +240,7 @@ jobs:
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
-        if: ( always() && github.ref == 'refs/heads/release' && github.run_attempt <= 2)
+        if: (always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && github.run_attempt <= 2)
         run: |
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
@@ -349,14 +349,16 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
+        id: info_json
         run: |
-          if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
-          fi
+          content="$(scripts/generate_info_json.sh)"
+          echo "$content"
+          echo "commitSha=$(echo "$content" | jq -r .commitSha)" | tee -a "$GITHUB_OUTPUT"
+          echo "repo=$(echo "$content" | jq -r .commitUrl | sed 's,/commit/.*$,,')" | tee -a "$GITHUB_OUTPUT"
+          echo "version=$(echo "$content" | jq -r .version)" | tee -a "$GITHUB_OUTPUT"
 
       - name: Place server artifacts-es
         run: |
-          run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
             scripts/prepare_server_artifacts.sh
           else
@@ -386,6 +388,11 @@ jobs:
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.ref_name }}
+          # Labels taken from https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+          labels: |
+            org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}
+            org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}
+            org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
 
   package-master:
     needs: [ci-test, client-unit-tests, server-unit-tests]

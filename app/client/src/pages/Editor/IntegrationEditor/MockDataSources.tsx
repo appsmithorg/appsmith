@@ -23,6 +23,7 @@ import {
 } from "ee/constants/messages";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import { Flex, Text } from "@appsmith/ads";
+import { filterSearch } from "./util";
 
 interface MockDatasourceCardProps {
   datasource: MockDatasource;
@@ -105,9 +106,10 @@ export default function MockDataSources({
 
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
 
-  const filteredDatasources = mockDatasources.filter((m) =>
-    m.name.toLocaleLowerCase().includes(searchedPlugin),
-  );
+  const filteredDatasources = filterSearch(
+    mockDatasources,
+    searchedPlugin,
+  ) as MockDatasource[];
 
   if (filteredDatasources.length === 0) return null;
 

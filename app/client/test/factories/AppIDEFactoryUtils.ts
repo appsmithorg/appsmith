@@ -1,5 +1,5 @@
 import store from "store";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import type { AppState } from "ee/reducers";
 import MockPluginsState from "test/factories/MockPluginsState";
 import type { Action } from "entities/Action";

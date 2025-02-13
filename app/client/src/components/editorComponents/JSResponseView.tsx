@@ -32,7 +32,8 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import ErrorLogs from "./Debugger/Errors";
 import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
 import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";

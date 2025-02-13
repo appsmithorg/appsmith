@@ -5,7 +5,7 @@ import IDE from "pages/Editor/IDE/index";
 import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
@@ -159,6 +159,11 @@ describe("IDE Render: JS", () => {
 
       // Check if the Add new button is shown
       getByTestId("t--add-item");
+
+      // check bottom tabs
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
+      getByRole("tab", { name: /linter/i });
     });
 
     it("Renders JS routes in Split Screen", async () => {
@@ -206,6 +211,10 @@ describe("IDE Render: JS", () => {
 
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
+
+      // check bottom tabs
+      getByRole("tab", { name: /response/i });
+      getByRole("tab", { name: /logs/i });
     });
 
     it("Renders JS add routes in Full Screen", () => {

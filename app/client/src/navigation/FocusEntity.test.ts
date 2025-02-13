@@ -1,6 +1,6 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 
 interface TestCase {
   path: string;
@@ -27,7 +27,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/applications/${baseApplicationId}/pages/${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
@@ -146,7 +146,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/app/app-slug/page1-${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
@@ -272,7 +272,7 @@ describe("identifyEntityFromPath", () => {
     {
       path: `/app/myCustomSlug-${basePageId}/edit/widgets/ryvc8i7oja`,
       expected: {
-        entity: FocusEntity.PROPERTY_PANE,
+        entity: FocusEntity.WIDGET,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {

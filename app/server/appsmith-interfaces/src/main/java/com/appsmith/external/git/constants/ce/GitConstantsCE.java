@@ -11,6 +11,7 @@ public class GitConstantsCE {
 
     public static final String README_FILE_NAME = "README.md";
 
+    public static final String FIRST_COMMIT = "System added readme file";
     public static final String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     public static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     public static final String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
@@ -45,7 +46,9 @@ public class GitConstantsCE {
         public static final String FETCH_REMOTE = "fetchRemote";
         public static final String COMMIT = "commit";
         public static final String CREATE_BRANCH = "createBranch";
+        public static final String CREATE_REF = "createRef";
         public static final String CHECKOUT_BRANCH = "checkoutBranch";
+        public static final String CHECKOUT_REF = "checkoutRef";
         public static final String SYNC_BRANCH = "syncBranch";
         public static final String LIST_BRANCH = "listBranch";
         public static final String MERGE_BRANCH = "mergeBranch";
