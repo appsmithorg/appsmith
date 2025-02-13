@@ -1,5 +1,3 @@
-import type { Package } from "ee/constants/PackageConstants";
-import type { ApplicationPayload } from "entities/Application";
 import type { GitArtifactType } from "./constants/enums";
 
 export interface GitRef {
@@ -18,8 +16,38 @@ export interface GitArtifactDef {
   baseArtifactId: string;
 }
 
-export type GitApplicationArtifact = ApplicationPayload;
+export interface GitApplicationArtifact {
+  id: string;
+  baseId: string;
+  name: string;
+  lastDeployedAt?: string;
+  gitApplicationMetadata?: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    repoName: string;
+    browserSupportedUrl?: string;
+    isRepoPrivate?: boolean;
+    browserSupportedRemoteUrl: string;
+    defaultApplicationId: string;
+  };
+}
 
-export type GitPackageArtifact = Package;
+export interface GitPackageArtifact {
+  id: string;
+  baseId: string;
+  name: string;
+  lastDeployedAt?: string;
+  gitArtifactMetadata?: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    repoName: string;
+    browserSupportedUrl?: string;
+    isRepoPrivate?: boolean;
+    browserSupportedRemoteUrl: string;
+    defaultApplicationId: string;
+  };
+}
 
 export type GitArtifact = GitApplicationArtifact | GitPackageArtifact;

@@ -1,4 +1,6 @@
-import type { GitProvider } from "./ChooseGitProvider";
+import type { GIT_PROVIDERS } from "./constants";
+
+export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
 export interface ConnectFormDataState {
   gitProvider?: GitProvider;
