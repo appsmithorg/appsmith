@@ -291,6 +291,10 @@ function renderDropdown(
     optionGroupConfig,
   );
 
+  // Find the selected options based on the selectedValue
+  // If appendGroupIdentfierToValue is true, we need to check if the selected value includes the group identifier
+  // Eg: if the selected value is "group1:1", we need to find the option with value "1"
+  // If appendGroupIdentfierToValue is false, we just need to find the option with value "1"
   const selectedOptions = options.filter((opt) => {
     const checkGroupIdentifier =
       appendGroupIdentfierToValue && optionGroupConfig;
@@ -347,6 +351,8 @@ function renderDropdown(
    * Handles the selection of options
    * If multi select is enabled, we need to add the value to the current array
    * If multi select is not enabled, we just set the value
+   * If appendGroupIdentfierToValue is true, we need to add the group identifier to the value
+   * Eg: if the selected value is "1" of "group1", we need to add "group1:1" to the current array
    * @param {string | undefined} optionValueToSelect - The selected value
    */
   function onSelectOptions(optionValueToSelect: string | undefined) {
@@ -386,6 +392,10 @@ function renderDropdown(
    * Handles the removal of options
    * If multi select is enabled, we need to remove the value from the current array
    * If multi select is not enabled, we just set the value to an empty string
+   * If appendGroupIdentfierToValue is true, we need to check the value with the group identifier
+   * Eg: the function will be called with "1" and the current array is ["group1:1", "others:2"]
+   * We need to check if "1" is present in the array after removing the group identifier
+   * The function will return ["others:2"]
    * @param {string | undefined} optionValueToRemove - The value to remove
    */
   function onRemoveOptions(optionValueToRemove: string | undefined) {
