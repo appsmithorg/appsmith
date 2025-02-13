@@ -1,6 +1,3 @@
-// temp file will be removed after git mod is fully rolled out
-
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { createSelector } from "reselect";
 import {
   getCurrentGitBranch,
@@ -13,19 +10,21 @@ import {
   selectGitOpsModalOpen as selectGitOpsModalOpenNew,
   selectGitConnectModalOpen as selectGitConnectModalOpenNew,
 } from "git/store/selectors";
-import {
-  getCurrentBaseApplicationId,
-  previewModeSelector,
-} from "./editorSelectors";
 import { applicationArtifact } from "git/artifact-helpers/application";
+import type { AppState } from "ee/reducers";
 
 export const selectGitModEnabled = createSelector(
-  selectFeatureFlags,
+  (state: AppState) => {
+    return {
+      ...state.ui.users.featureFlag.data,
+      ...state.ui.users.featureFlag.overriddenFlags,
+    };
+  },
   (featureFlags) => featureFlags.release_git_modularisation_enabled ?? false,
 );
 
 export const selectGitApplicationArtifactDef = createSelector(
-  getCurrentBaseApplicationId,
+  (state: AppState) => state.entities.pageList.baseApplicationId || "",
   (baseApplicationId) => applicationArtifact(baseApplicationId),
 );
 
@@ -50,7 +49,8 @@ export const selectGitApplicationProtectedMode = createSelector(
 );
 
 export const selectCombinedPreviewMode = createSelector(
-  previewModeSelector,
+  // need to do this to avoid circular dependency
+  (state: AppState) => state.ui.editor.isPreviewMode,
   selectGitApplicationProtectedMode,
   (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
 );
