@@ -29,13 +29,7 @@ import type {
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 
-/**
- * Interface for grouped dropdown options with label and children
- * @interface DropDownGroupedOptionsInterface
- * @property {string} label - Display label for the option group
- * @property {SelectOptionProps[]} children - Array of options within this group
- */
-export interface DropDownGroupedOptionsInterface {
+export interface DropDownGroupedOptions {
   label: string;
   children: SelectOptionProps[];
 }
@@ -45,17 +39,17 @@ export interface DropDownGroupedOptionsInterface {
  * The grouping is only done if the optionGroupConfig is provided
  * The default group is "others" if not provided
  * @param {SelectOptionProps[]} options - Array of options to be grouped
- * @param {Record<string, DropDownGroupedOptionsInterface>} [optionGroupConfig] - Configuration for grouping options
- * @returns {DropDownGroupedOptionsInterface[] | null} Grouped options array or null if no grouping needed
+ * @param {Record<string, DropDownGroupedOptions>} [optionGroupConfig] - Configuration for grouping options
+ * @returns {DropDownGroupedOptions[] | null} Grouped options array or null if no grouping needed
  */
 function buildGroupedOptions(
   options: SelectOptionProps[],
-  optionGroupConfig?: Record<string, DropDownGroupedOptionsInterface>,
-): DropDownGroupedOptionsInterface[] | null {
+  optionGroupConfig?: Record<string, DropDownGroupedOptions>,
+): DropDownGroupedOptions[] | null {
   if (!optionGroupConfig) return null;
 
   const defaultGroupKey = "others";
-  const defaultGroupConfig: DropDownGroupedOptionsInterface = {
+  const defaultGroupConfig: DropDownGroupedOptions = {
     label: "Others",
     children: [],
   };
@@ -94,7 +88,7 @@ function buildGroupedOptions(
   });
 
   // Return only groups that actually have children
-  const grouped: DropDownGroupedOptionsInterface[] = [];
+  const grouped: DropDownGroupedOptions[] = [];
 
   objectKeys(groupMap).forEach((key) => {
     const group = groupMap[key];
@@ -105,14 +99,11 @@ function buildGroupedOptions(
   return grouped;
 }
 
-/**
- * Memoized version of buildGroupedOptions for performance
- */
 const memoizedBuildGroupedOptions = memoizeOne(buildGroupedOptions);
 
 export interface DropDownControlProps extends ControlProps {
   options: SelectOptionProps[];
-  optionGroupConfig?: Record<string, DropDownGroupedOptionsInterface>;
+  optionGroupConfig?: Record<string, DropDownGroupedOptions>;
   optionWidth?: string;
   maxTagCount?: number;
   placeholderText: string;
@@ -154,11 +145,6 @@ interface ReduxDispatchProps {
 
 type Props = DropDownControlProps & ReduxDispatchProps;
 
-/**
- * Main dropdown control component supporting single/multi select functionality
- * @class DropDownControl
- * @extends {BaseControl<Props>}
- */
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
     // If dependencies changed in multi-select, reset values
@@ -235,7 +221,14 @@ class DropDownControl extends BaseControl<Props> {
 }
 
 /**
- * Renders the dropdown field component
+ * Renders a dropdown component with support for single and multi-select.
+ * Handles initialization of selected values, including:
+ * - Using initialValue prop if no value is selected
+ * - Converting string values to arrays for multi-select
+ * - Setting first option as default if configured
+ * - Deduplicating selected values in multi-select mode
+ * Supports pagination through onPopupScroll handler when nextPageNeeded
+ * and paginationPayload props are provided
  * @param {Object} props - Component props
  * @returns {JSX.Element} Rendered dropdown component
  */
@@ -337,20 +330,21 @@ function renderDropdown(
    * Handles the selection of options
    * If multi select is enabled, we need to add the value to the current array
    * If multi select is not enabled, we just set the value
-   * @param {string | undefined} value - The selected value
+   * @param {string | undefined} optionValueToSelect - The selected value
    */
-  function onSelectOptions(value: string | undefined) {
-    if (isNil(value)) return;
+  function onSelectOptions(optionValueToSelect: string | undefined) {
+    if (isNil(optionValueToSelect)) return;
 
     if (!isMultiSelect) {
-      input?.onChange(value);
+      input?.onChange(optionValueToSelect);
 
       return;
     }
 
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
 
-    if (!currentArray.includes(value)) currentArray.push(value);
+    if (!currentArray.includes(optionValueToSelect))
+      currentArray.push(optionValueToSelect);
 
     input?.onChange(currentArray);
   }
@@ -359,10 +353,10 @@ function renderDropdown(
    * Handles the removal of options
    * If multi select is enabled, we need to remove the value from the current array
    * If multi select is not enabled, we just set the value to an empty string
-   * @param {string | undefined} value - The value to remove
+   * @param {string | undefined} optionValueToRemove - The value to remove
    */
-  function onRemoveOptions(value: string | undefined) {
-    if (isNil(value)) return;
+  function onRemoveOptions(optionValueToRemove: string | undefined) {
+    if (isNil(optionValueToRemove)) return;
 
     if (!isMultiSelect) {
       input?.onChange("");
@@ -371,7 +365,7 @@ function renderDropdown(
     }
 
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
-    const filtered = currentArray.filter((v) => v !== value);
+    const filtered = currentArray.filter((v) => v !== optionValueToRemove);
 
     input?.onChange(filtered);
   }
@@ -406,9 +400,6 @@ function renderDropdown(
     }
   }
 
-  /* ---------------------------------------------------
-     Rendering the final <Select />
-     --------------------------------------------------- */
   return (
     <Select
       allowClear={
@@ -439,11 +430,6 @@ function renderDropdown(
   );
 }
 
-/**
- * Renders a single option with optional icon
- * @param {SelectOptionProps} option - Option configuration
- * @returns {JSX.Element} Rendered option component
- */
 function renderOptionWithIcon(option: SelectOptionProps) {
   return (
     <Option
@@ -494,27 +480,27 @@ const mapStateToProps = (
       const { data } = dynamicFetchedValues;
 
       if (data && data.content && data.startIndex != null) {
-        // e.g. content, count, startIndex, total
         const { content, count, startIndex, total } = data;
 
-        // Possibly deduplicate with existing options:
-        // e.g. options = deduplicate([...options, ...content]);
         options = content;
 
         if (startIndex + count < total) {
           nextPageNeeded = true;
+
           // Prepare the next page request
+          const modifiedParams = {
+            ...dynamicFetchedValues.evaluatedConfig.params,
+            parameters: {
+              ...dynamicFetchedValues.evaluatedConfig.params.parameters,
+              startIndex: startIndex + count,
+            },
+          };
+
           const modifiedDFV: DynamicValues = {
             ...dynamicFetchedValues,
             evaluatedConfig: {
               ...dynamicFetchedValues.evaluatedConfig,
-              params: {
-                ...dynamicFetchedValues.evaluatedConfig.params,
-                parameters: {
-                  ...dynamicFetchedValues.evaluatedConfig.params.parameters,
-                  startIndex: startIndex + count,
-                },
-              },
+              params: modifiedParams,
             },
           };
 
