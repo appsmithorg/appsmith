@@ -79,7 +79,7 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
-  isInfiniteScrollEnabled: boolean;
+  isInfiniteScrollEnabled?: boolean;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
