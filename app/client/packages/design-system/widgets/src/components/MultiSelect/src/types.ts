@@ -36,4 +36,8 @@ export interface MultiSelectProps<T>
    * The keys of the default selected items.
    */
   defaultSelectedKeys?: string[];
+  /**
+   * Whether the select is loading.
+   */
+  isLoading?: boolean;
 }

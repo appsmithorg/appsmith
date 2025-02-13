@@ -11,6 +11,9 @@ import {
   type MultiSelectProps,
   TagGroup,
   Tag,
+  Icon,
+  inputFieldStyles,
+  Spinner,
 } from "@appsmith/wds";
 import { useField } from "react-aria";
 import type { Selection } from "react-aria-components";
@@ -23,7 +26,6 @@ import {
   UNSTABLE_Autocomplete,
   useFilter,
 } from "react-aria-components";
-import { inputFieldStyles } from "@appsmith/wds";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 export const MultiSelect = <T extends { label: string; value: string }>(
@@ -33,6 +35,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
     disabledKeys,
     excludeFromTabOrder,
     isDisabled,
+    isLoading,
     items,
     label,
     onSelectionChange: onSelectionChangeProp,
@@ -43,14 +46,9 @@ export const MultiSelect = <T extends { label: string; value: string }>(
   const [_selectedKeys, _setSelectedKeys] = useState<Selection>();
   const selectedKeys = selectedKeysProp ?? _selectedKeys ?? new Set<string>();
   const setSelectedKeys = onSelectionChangeProp ?? _setSelectedKeys;
-
   const { fieldProps, labelProps } = useField(props);
-
   const { contains } = useFilter({ sensitivity: "base" });
-  const filter = (textValue: string, inputValue: string) =>
-    contains(textValue, inputValue);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const formatItems = (selectedKeys: Selection) => {
     if (Boolean(selectedKeys) === false) return placeholder;
@@ -72,6 +70,9 @@ export const MultiSelect = <T extends { label: string; value: string }>(
     );
   };
 
+  const filter = (textValue: string, inputValue: string) =>
+    contains(textValue, inputValue);
+
   return (
     <div className={inputFieldStyles.field}>
       {Boolean(label) && <FieldLabel {...labelProps}>{label}</FieldLabel>}
@@ -87,7 +88,16 @@ export const MultiSelect = <T extends { label: string; value: string }>(
             type="button"
             {...fieldProps}
           >
-            <span>{formatItems(selectedKeys)}</span>
+            <span>
+              <span data-select-text>{formatItems(selectedKeys)}</span>
+              <span data-input-suffix>
+                {Boolean(isLoading) ? (
+                  <Spinner />
+                ) : (
+                  <Icon name="chevron-down" size="medium" />
+                )}
+              </span>
+            </span>
           </Button>
           <VisuallyHidden />
           <Popover
@@ -102,7 +112,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
             triggerRef={triggerRef}
           >
             <UNSTABLE_Autocomplete filter={filter}>
-              <TextField autoFocus ref={inputRef} />
+              <TextField autoFocus />
               <ListBox
                 disabledKeys={disabledKeys}
                 items={items}
