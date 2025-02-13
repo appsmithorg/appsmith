@@ -25,8 +25,9 @@ import {
 import { create } from "mutative";
 import { isEmpty } from "lodash";
 import type { ApplicationPayload } from "entities/Application";
-import { gitConnectSuccess, type GitConnectSuccessPayload } from "git";
+import { type GitConnectSuccessPayload } from "git";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { gitConnectSuccess } from "git/store";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,

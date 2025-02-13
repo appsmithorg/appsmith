@@ -10,10 +10,8 @@ import { BackButton } from "components/utils/helperComponents";
 import { useDispatch } from "react-redux";
 import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-import {
-  fetchGitGlobalProfile,
-  GitGlobalProfile as GitGlobalProfileNew,
-} from "git";
+import { GitGlobalProfile as GitGlobalProfileNew } from "git";
+import { fetchGitGlobalProfile } from "git/store";
 
 function GitGlobalProfile() {
   const isGitModEnabled = useGitModEnabled();
