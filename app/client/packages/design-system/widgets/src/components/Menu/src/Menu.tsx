@@ -1,6 +1,6 @@
 import {
   Popover,
-  listStyles,
+  listBoxStyles,
   useRootContainer,
   POPOVER_LIST_BOX_MAX_HEIGHT,
 } from "@appsmith/wds";
@@ -26,7 +26,10 @@ export const Menu = (props: MenuProps) => {
         UNSTABLE_portalContainer={isRootMenu ? root : undefined}
         maxHeight={POPOVER_LIST_BOX_MAX_HEIGHT}
       >
-        <HeadlessMenu className={clsx(listStyles.listBox, className)} {...rest}>
+        <HeadlessMenu
+          className={clsx(listBoxStyles.listBox, className)}
+          {...rest}
+        >
           {children}
         </HeadlessMenu>
       </Popover>

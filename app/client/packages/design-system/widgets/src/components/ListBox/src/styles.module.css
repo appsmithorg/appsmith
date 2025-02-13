@@ -2,4 +2,6 @@
   min-inline-size: var(--trigger-width);
   max-height: inherit;
   overflow-y: auto;
+  padding: 0;
+  margin: 0;
 }

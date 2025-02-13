@@ -67,7 +67,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
 
   return (
     <HeadlessButton
-      className={clsx(className, styles.button)}
+      className={clsx(styles.button, className)}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
