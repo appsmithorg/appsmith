@@ -13,11 +13,3 @@ export const gitReducer = combineReducers({
 export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
 export const toggleGitImportModal = gitGlobalActions.toggleImportModal;
 export const gitConnectSuccess = gitArtifactActions.connectSuccess;
-
-// selectors
-export {
-  selectCurrentBranch as selectGitCurrentBranch,
-  selectProtectedMode as selectGitProtectedMode,
-  selectOpsModalOpen as selectGitOpsModalOpen,
-  selectConnectModalOpen as selectGitConnectModalOpen,
-} from "./selectors/gitArtifactSelectors";

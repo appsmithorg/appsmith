@@ -12,7 +12,7 @@ import {
   selectGitProtectedMode as selectGitProtectedModeNew,
   selectGitOpsModalOpen as selectGitOpsModalOpenNew,
   selectGitConnectModalOpen as selectGitConnectModalOpenNew,
-} from "git/store";
+} from "git/store/selectors";
 import {
   getCurrentBaseApplicationId,
   previewModeSelector,
