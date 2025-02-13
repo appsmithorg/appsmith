@@ -18,6 +18,7 @@ import type {
 } from "git/ee/store/types";
 import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
 import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
+import type { GitArtifactDef } from "git/types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -82,10 +83,6 @@ export interface GitArtifactUIReduxState
   conflictErrorModalOpen: boolean;
 }
 
-export interface GitArtifactDef {
-  artifactType: GitArtifactType;
-  baseArtifactId: string;
-}
 export interface GitArtifactReduxState {
   ui: GitArtifactUIReduxState;
   apiResponses: GitArtifactAPIResponsesReduxState;

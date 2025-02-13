@@ -1,4 +1,5 @@
-import type { GitArtifactDef, GitRootState } from "../types";
+import type { GitArtifactDef } from "git/types";
+import type { GitRootState } from "git/store/types";
 
 export const selectGitArtifact = (
   state: GitRootState,

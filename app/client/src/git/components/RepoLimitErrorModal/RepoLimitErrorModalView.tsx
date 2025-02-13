@@ -23,12 +23,12 @@ import {
   REVOKE_EXISTING_REPOSITORIES,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { GitArtifactDef } from "git/store/types";
 import { noop } from "lodash";
 import { applicationArtifact } from "git/artifact-helpers/application";
 import type {
   GitApplicationArtifact,
   GitArtifact,
+  GitArtifactDef,
   GitPackageArtifact,
 } from "git/types";
 

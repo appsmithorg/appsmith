@@ -31,7 +31,6 @@ export {
 
 // types
 export type {
-  GitArtifactDef,
   GitArtifactRootReduxState,
   GitGlobalReduxState,
 } from "./store/types";

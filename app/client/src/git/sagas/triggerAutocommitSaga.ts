@@ -13,7 +13,7 @@ import type {
 import type { TriggerAutocommitInitPayload } from "git/store/actions/triggerAutocommitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectAutocommitEnabled } from "git/store/selectors/gitArtifactSelectors";
-import type { GitArtifactDef, GitArtifactPayloadAction } from "git/store/types";
+import type { GitArtifactPayloadAction } from "git/store/types";
 import {
   call,
   cancel,
@@ -27,6 +27,7 @@ import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
+import type { GitArtifactDef } from "git/types";
 
 const AUTOCOMMIT_POLL_DELAY = 1000;
 const AUTOCOMMIT_WHITELISTED_STATES = [

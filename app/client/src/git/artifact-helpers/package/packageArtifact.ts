@@ -1,5 +1,5 @@
 import { GitArtifactType } from "git/constants/enums";
-import type { GitArtifactDef } from "git/store/types";
+import type { GitArtifactDef } from "git/types";
 
 export default function packageArtifact(basePackageId: string): GitArtifactDef {
   return {

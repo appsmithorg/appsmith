@@ -1,4 +1,4 @@
-import type { GitArtifactDef } from "git/store/types";
+import type { GitArtifactDef } from "git/types";
 
 export default function* packageConnectToGitSaga(
   // need this to preserve interface
