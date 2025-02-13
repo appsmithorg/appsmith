@@ -161,6 +161,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         final String repoName = gitHandlingService.getRepoName(gitConnectDTO);
 
+        // since at this point in the import flow, there is no context about the artifact type
+        // it needs to be retrieved from the fetched repository itself. however, in order to retrieve
+        // the artifact type from repository, the repository needs to be saved.
+        // for saving the repo an identifier is required (which usually is the artifact id);
+        // however, the artifact could only be generated after the artifact type is known.
+        // hence this is a temporary placeholder to hold the repository and it's components
         String placeholder = "temp" + UUID.randomUUID();
         ArtifactJsonTransformationDTO tempJsonTransformationDTO =
                 new ArtifactJsonTransformationDTO(workspaceId, placeholder, repoName);
