@@ -277,18 +277,23 @@ function renderDropdown(
     selectedValue = uniqBy(selectedValue, (v) => v);
   }
 
-  // Identify which items are actually selected
-  const selectedOptions = options.filter((opt) =>
-    isMultiSelect
-      ? (selectedValue as string[]).includes(opt.value as string)
-      : selectedValue === opt.value,
-  );
-
   // Use memoized grouping
   const groupedOptions = memoizedBuildGroupedOptions(
     options,
     optionGroupConfig,
   );
+
+  const selectedOptions = options.filter((opt) => {
+    const removeGroupIdentifier =
+      props.appendGroupIdentfierToValue && optionGroupConfig;
+    const valueToCompare = removeGroupIdentifier
+      ? opt.value.split(":")[1]
+      : opt.value;
+
+    return isMultiSelect
+      ? (selectedValue as string[]).includes(valueToCompare)
+      : selectedValue === valueToCompare;
+  });
 
   // Re-sync multi-select if stale
   if (isMultiSelect && Array.isArray(selectedValue)) {
@@ -336,16 +341,33 @@ function renderDropdown(
   function onSelectOptions(optionValueToSelect: string | undefined) {
     if (isNil(optionValueToSelect)) return;
 
+    // If appendGroupIdentfierToValue is true and we have grouped options, add the group identifier
+    const shouldAppendGroup =
+      props.appendGroupIdentfierToValue && optionGroupConfig;
+    let valueToStore = optionValueToSelect;
+
+    if (shouldAppendGroup) {
+      const selectedOption = options.find(
+        (opt) => opt.value === optionValueToSelect,
+      );
+
+      if (selectedOption) {
+        valueToStore = `${selectedOption.optionGroupType || "others"}:${optionValueToSelect}`;
+      }
+    }
+
     if (!isMultiSelect) {
-      input?.onChange(optionValueToSelect);
+      input?.onChange(valueToStore);
 
       return;
     }
 
+    // In case the component config is changed to multi-select, we need to convert the selectedValue to an array
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
 
-    if (!currentArray.includes(optionValueToSelect))
-      currentArray.push(optionValueToSelect);
+    if (!currentArray.includes(valueToStore)) {
+      currentArray.push(valueToStore);
+    }
 
     input?.onChange(currentArray);
   }
@@ -366,7 +388,15 @@ function renderDropdown(
     }
 
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
-    const filtered = currentArray.filter((v) => v !== optionValueToRemove);
+
+    const filtered = currentArray.filter((v) => {
+      if (props.appendGroupIdentfierToValue && optionGroupConfig) {
+        // For grouped values, we need to compare just the value part after the group identifier
+        optionValueToRemove = v.split(":")[1];
+      }
+
+      return v !== optionValueToRemove;
+    });
 
     input?.onChange(filtered);
   }
