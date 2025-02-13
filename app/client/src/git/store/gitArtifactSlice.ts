@@ -5,6 +5,7 @@ import {
   connectErrorAction,
   connectInitAction,
   connectSuccessAction,
+  resetConnectAction,
 } from "./actions/connectActions";
 import {
   fetchMetadataErrorAction,
@@ -157,6 +158,7 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    resetConnect: resetConnectAction,
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,

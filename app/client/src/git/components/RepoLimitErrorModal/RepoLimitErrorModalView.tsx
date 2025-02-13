@@ -1,226 +1,217 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import styled from "styled-components";
+import {
+  GIT_CONNECT_SUCCESS_PROTECTION_MSG,
+  GIT_CONNECT_SUCCESS_TITLE,
+  GIT_CONNECT_SUCCESS_ACTION_SETTINGS,
+  GIT_CONNECT_SUCCESS_ACTION_CONTINUE,
+  createMessage,
+  GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA,
+  GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
+  GIT_CONNECT_SUCCESS_REPO_NAME,
+  GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+  GIT_CONNECT_SUCCESS_GENERIC_MESSAGE,
+  GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA,
+} from "ee/constants/messages";
 import {
   Button,
-  Callout,
-  Modal,
+  Icon,
   ModalBody,
-  ModalContent,
-  ModalHeader,
+  ModalFooter,
   Text,
+  Link,
+  Tooltip,
+  Modal,
+  ModalContent,
 } from "@appsmith/ads";
-import {
-  CONTACT_SALES_MESSAGE_ON_INTERCOM,
-  CONTACT_SUPPORT,
-  CONTACT_SUPPORT_TO_UPGRADE,
-  createMessage,
-  REVOKE_CAUSE_APPLICATION_BREAK,
-  REVOKE_EXISTING_REPOSITORIES_INFO,
-  LEARN_MORE,
-  REPOSITORY_LIMIT_REACHED,
-  REPOSITORY_LIMIT_REACHED_INFO,
-  REVOKE_ACCESS,
-  REVOKE_EXISTING_REPOSITORIES,
-} from "ee/constants/messages";
-import type { ApplicationPayload } from "entities/Application";
+import React, { useCallback } from "react";
+import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { GitArtifact, GitArtifactDef } from "git/store/types";
-import { noop } from "lodash";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
+import noop from "lodash/noop";
+import type { GitArtifactType } from "git/constants/enums";
+import { GitSettingsTab } from "git/constants/enums";
+import { singular } from "pluralize";
+
+const TitleText = styled(Text)`
+  flex: 1;
+  font-weight: 600;
+`;
+
+const LinkText = styled(Text)`
+  span {
+    font-weight: 500;
+  }
+`;
+
+function ConnectionSuccessTitle() {
+  return (
+    <div className="flex items-center mb-4">
+      <Icon className="mr-1" color="#059669" name="oval-check" size="lg" />
+      <TitleText
+        data-testid="t--git-success-modal-title"
+        kind="heading-s"
+        renderAs="h3"
+      >
+        {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
+      </TitleText>
+    </div>
+  );
+}
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
     width: 640px;
+    transform: none !important;
+    top: 100px;
+    left: calc(50% - 320px);
+    max-height: calc(100vh - 200px);
   }
 `;
 
-const ApplicationWrapper = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  display: flex;
-  justify-content: space-between;
-
-  & > div {
-    max-width: 60%;
-  }
-`;
-
-const TextWrapper = styled.div`
-  display: block;
-  word-break: break-word;
-`;
-
-const AppListContainer = styled.div`
-  height: calc(100% - 40px);
-  margin-top: 16px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 5px;
-  position: relative;
-`;
-
-const DISCONNECT_DOC_URL =
-  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
-
-interface RepoLimitErrorModalViewProps {
-  artifacts: GitArtifact[] | null;
-  fetchArtifacts: () => void;
-  isRepoLimitErrorModalOpen: boolean;
-  openDisconnectModal: (
-    targetArtifactDef: GitArtifactDef,
-    targetArtifactName: string,
+export interface ConnectSuccessModalViewProps {
+  artifactType: GitArtifactType | null;
+  defaultBranch: string | null;
+  isConnectSuccessModalOpen: boolean;
+  showProtectedBranchesInfo: boolean;
+  remoteUrl: string | null;
+  repoName: string | null;
+  toggleConnectSuccessModal: (open: boolean) => void;
+  toggleSettingsModal: (
+    open: boolean,
+    tab?: keyof typeof GitSettingsTab,
   ) => void;
-  toggleRepoLimitErrorModal: (open: boolean) => void;
-  workspaceName: string | null;
 }
 
-function RepoLimitErrorModalView({
-  artifacts = null,
-  fetchArtifacts = noop,
-  isRepoLimitErrorModalOpen = false,
-  openDisconnectModal = noop,
-  toggleRepoLimitErrorModal = noop,
-  workspaceName = null,
-}: RepoLimitErrorModalViewProps) {
-  const gitConnectedArtifacts = useMemo(() => {
-    return (
-      artifacts?.filter((application: ApplicationPayload) => {
-        const data = application.gitApplicationMetadata;
+function ConnectSuccessModalView({
+  artifactType = null,
+  defaultBranch = null,
+  isConnectSuccessModalOpen = false,
+  remoteUrl = null,
+  repoName = null,
+  showProtectedBranchesInfo = false,
+  toggleConnectSuccessModal = noop,
+  toggleSettingsModal = noop,
+}: ConnectSuccessModalViewProps) {
+  const handleStartGit = useCallback(() => {
+    toggleConnectSuccessModal(false);
+    AnalyticsUtil.logEvent("GS_START_USING_GIT", {
+      repoUrl: remoteUrl,
+    });
+  }, [remoteUrl, toggleConnectSuccessModal]);
 
-        return (
-          data &&
-          data.remoteUrl &&
-          data.branchName &&
-          data.repoName &&
-          data.isRepoPrivate
-        );
-      }) ?? []
-    );
-  }, [artifacts]);
-
-  useEffect(
-    function fetchArtifactsOnModalOpenEffect() {
-      if (isRepoLimitErrorModalOpen) {
-        fetchArtifacts();
-      }
-    },
-    [fetchArtifacts, isRepoLimitErrorModalOpen],
-  );
-
-  const contactSupportLinks = useMemo(
-    () => [
-      {
-        onClick: () => {
-          AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
-            source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
-          });
-
-          if (window.Intercom) {
-            window.Intercom(
-              "showNewMessage",
-              createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, workspaceName),
-            );
-          }
-        },
-        children: createMessage(CONTACT_SUPPORT),
-      },
-    ],
-    [workspaceName],
-  );
-
-  const revokeWarningLinks = useMemo(
-    () => [
-      {
-        to: DISCONNECT_DOC_URL,
-        children: createMessage(LEARN_MORE),
-      },
-    ],
-    [],
-  );
-
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        toggleRepoLimitErrorModal(false);
-      }
-    },
-    [toggleRepoLimitErrorModal],
-  );
-
-  const handleOnClickDisconnect = useCallback(
-    (baseArtifactId: string, artifactName: string) => () => {
-      AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
-        source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
-      });
-      toggleRepoLimitErrorModal(false);
-      openDisconnectModal(applicationArtifact(baseArtifactId), artifactName);
-    },
-    [openDisconnectModal, toggleRepoLimitErrorModal],
-  );
+  const handleOpenSettings = useCallback(() => {
+    toggleConnectSuccessModal(false);
+    toggleSettingsModal(true, GitSettingsTab.Branch);
+    AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
+      repoUrl: remoteUrl,
+    });
+  }, [remoteUrl, toggleConnectSuccessModal, toggleSettingsModal]);
 
   return (
-    <Modal onOpenChange={handleOpenChange} open={isRepoLimitErrorModalOpen}>
-      <StyledModalContent data-testid="t--git-repo-limit-error-modal">
-        <ModalHeader isCloseButtonVisible>
-          {createMessage(REPOSITORY_LIMIT_REACHED)}
-        </ModalHeader>
+    <Modal
+      onOpenChange={toggleConnectSuccessModal}
+      open={isConnectSuccessModalOpen}
+    >
+      <StyledModalContent data-testid="t--git-con-success-modal">
         <ModalBody>
-          <div className="mb-5">
-            <Text className="mb-2" kind="body-m" renderAs="p">
-              {createMessage(REPOSITORY_LIMIT_REACHED_INFO)}
-            </Text>
-            <Callout kind="warning" links={contactSupportLinks}>
-              {createMessage(CONTACT_SUPPORT_TO_UPGRADE)}
-            </Callout>
-          </div>
-          <div>
-            <Text className="mb-3" kind="heading-s" renderAs="p">
-              {createMessage(REVOKE_EXISTING_REPOSITORIES)}
-            </Text>
-            <Text className="mb-2" kind="body-m" renderAs="p">
-              {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
-            </Text>
-            <Callout kind="error" links={revokeWarningLinks}>
-              {createMessage(REVOKE_CAUSE_APPLICATION_BREAK)}
-            </Callout>
-          </div>
-          <AppListContainer>
-            {gitConnectedArtifacts.map((application) => {
-              const { gitApplicationMetadata } = application;
-
-              return (
-                <ApplicationWrapper
-                  data-testid="t--git-repo-limit-error-connected-artifact"
-                  key={application.id}
+          <ConnectionSuccessTitle />
+          <div className="flex gap-x-4 mb-6">
+            <div className="w-44">
+              <div className="flex items-center">
+                <Icon className="mr-1" name="git-repository" size="md" />
+                <Text isBold renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
+                </Text>
+              </div>
+              <Text renderAs="p">{repoName || "-"}</Text>
+            </div>
+            <div className="w-44">
+              <div className="flex items-center">
+                <Icon className="mr-1" name="git-branch" size="md" />
+                <Text isBold renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
+                </Text>
+                <Tooltip
+                  content={createMessage(
+                    GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+                  )}
+                  trigger="hover"
                 >
-                  <div>
-                    <TextWrapper>
-                      <Text kind="heading-m">{application.name}</Text>
-                    </TextWrapper>
-                    <TextWrapper>
-                      <Text kind="body-m">
-                        {gitApplicationMetadata?.remoteUrl}
-                      </Text>
-                    </TextWrapper>
-                  </div>
-                  <Button
-                    data-testid="t--git-repo-limit-error-disconnect-link"
-                    endIcon="arrow-right-line"
-                    kind="tertiary"
-                    onClick={handleOnClickDisconnect(
-                      application.baseId,
-                      application.name,
-                    )}
-                  >
-                    {createMessage(REVOKE_ACCESS)}
-                  </Button>
-                </ApplicationWrapper>
-              );
-            })}
-          </AppListContainer>
+                  <Icon
+                    className="inline-fix ml-1 cursor-pointer"
+                    name="info"
+                    size="md"
+                  />
+                </Tooltip>
+              </div>
+              <Text renderAs="p">{defaultBranch || "-"}</Text>
+            </div>
+          </div>
+          {showProtectedBranchesInfo ? (
+            <>
+              <div className="mb-1">
+                <Text renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_MSG)}
+                </Text>
+              </div>
+              <LinkText className="inline-block" isBold renderAs="p">
+                <Link
+                  data-testid="t--git-success-modal-learn-more-link"
+                  target="_blank"
+                  to={DOCS_BRANCH_PROTECTION_URL}
+                >
+                  {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA)}
+                </Link>
+              </LinkText>
+            </>
+          ) : (
+            <>
+              <div className="mb-1">
+                <Text renderAs="p">
+                  {createMessage(
+                    GIT_CONNECT_SUCCESS_GENERIC_MESSAGE,
+                    singular(artifactType ?? ""),
+                  )}
+                </Text>
+              </div>
+              <LinkText className="inline-block" isBold renderAs="p">
+                <Link
+                  data-testid="t--git-success-modal-learn-more-link"
+                  target="_blank"
+                  to={
+                    "https://docs.appsmith.com/advanced-concepts/version-control-with-git"
+                  }
+                >
+                  {createMessage(GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA)}
+                </Link>
+              </LinkText>
+            </>
+          )}
         </ModalBody>
+        <ModalFooter>
+          {showProtectedBranchesInfo ? (
+            <Button
+              data-testid="t--git-con-success-open-settings"
+              kind="secondary"
+              onClick={handleOpenSettings}
+              size="md"
+            >
+              {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
+            </Button>
+          ) : null}
+          <Button
+            data-testid="t--git-con-success-start-using"
+            onClick={handleStartGit}
+            size="md"
+          >
+            {createMessage(
+              GIT_CONNECT_SUCCESS_ACTION_CONTINUE,
+              singular(artifactType ?? ""),
+            )}
+          </Button>
+        </ModalFooter>
       </StyledModalContent>
     </Modal>
   );
 }
 
-export default RepoLimitErrorModalView;
+export default ConnectSuccessModalView;

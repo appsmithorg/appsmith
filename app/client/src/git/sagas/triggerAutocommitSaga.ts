@@ -25,9 +25,8 @@ import {
 } from "redux-saga/effects";
 import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 const AUTOCOMMIT_POLL_DELAY = 1000;
 const AUTOCOMMIT_WHITELISTED_STATES = [
@@ -74,19 +73,16 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
       yield put(gitArtifactActions.triggerAutocommitSuccess({ artifactDef }));
     }
   } catch (e) {
-    if (triggerResponse && triggerResponse.responseMeta.error) {
-      const { error } = triggerResponse.responseMeta;
+    const error = handleApiErrors(e as Error, triggerResponse);
 
+    if (error) {
       yield put(
         gitArtifactActions.triggerAutocommitError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 
-  let progressResponse: FetchAutocommitProgressResponse | null = null;
+  let progressResponse: FetchAutocommitProgressResponse | undefined;
 
   try {
     if (isAutocommitHappening(triggerResponse?.data)) {
@@ -128,18 +124,12 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
   } catch (e) {
     yield put(gitArtifactActions.pollAutocommitProgressStop({ artifactDef }));
 
-    if (progressResponse && progressResponse.responseMeta.error) {
-      const { error } = progressResponse.responseMeta;
+    const error = handleApiErrors(e as Error, progressResponse);
 
+    if (error) {
       yield put(
-        gitArtifactActions.fetchAutocommitProgressError({
-          artifactDef,
-          error,
-        }),
+        gitArtifactActions.fetchAutocommitProgressError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

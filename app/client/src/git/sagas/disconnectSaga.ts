@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import { fetchAllApplicationsOfWorkspace } from "ee/actions/applicationActions";
 import { GitOpsTab } from "git/constants/enums";
 import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
@@ -8,10 +7,10 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectDisconnectArtifactDef } from "git/store/selectors/gitArtifactSelectors";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactDef, GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* disconnectSaga(action: GitArtifactPayloadAction) {
   const { artifactDef } = action.payload;
@@ -65,13 +64,10 @@ export default function* disconnectSaga(action: GitArtifactPayloadAction) {
       }
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(gitArtifactActions.disconnectError({ artifactDef, error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

@@ -11,12 +11,7 @@ export { default as GitProtectedBranchCallout } from "./components/ProtectedBran
 export { default as GitGlobalProfile } from "./components/GlobalProfile";
 export { default as GitDeployMenuItems } from "./components/DeployMenuItems";
 export { default as GitHotKeys } from "./components/HotKeys";
-
-// hooks
-export { default as useGitCurrentBranch } from "./hooks/useCurrentBranch";
-export { default as useGitProtectedMode } from "./hooks/useProtectedMode";
-export { default as useGitConnected } from "./hooks/useConnected";
-export { default as useGitOps } from "./hooks/useOps";
+export { default as GitCardBadge } from "./components/CardBadge";
 
 // actions
 import { gitGlobalActions } from "./store/gitGlobalSlice";

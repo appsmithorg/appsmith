@@ -13,7 +13,7 @@ import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import { initEditorAction, resetEditorRequest } from "actions/initActions";
 
-function* applicationRedirectToClosesEntitySaga(destinationUrl: string) {
+function* applicationRedirectToClosestEntitySaga(destinationUrl: string) {
   const currentApplicationId: string = yield select(getCurrentApplicationId);
   const params = {
     applicationId: currentApplicationId,
@@ -117,4 +117,4 @@ function* applicationRedirectToClosesEntitySaga(destinationUrl: string) {
   }
 }
 
-export default applicationRedirectToClosesEntitySaga;
+export default applicationRedirectToClosestEntitySaga;

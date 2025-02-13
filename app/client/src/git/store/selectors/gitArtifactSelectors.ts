@@ -1,3 +1,4 @@
+import { GitArtifactType } from "git/constants/enums";
 import type { GitArtifactDef, GitRootState } from "../types";
 
 export const selectGitArtifact = (
@@ -140,10 +141,21 @@ export const selectCurrentBranch = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   artifactDef: GitArtifactDef,
 ) => {
-  return (
-    state?.ui?.applications?.currentApplication?.gitApplicationMetadata
-      ?.branchName ?? null
-  );
+  if (artifactDef?.artifactType === GitArtifactType.Application) {
+    return (
+      state.ui.applications?.currentApplication?.gitApplicationMetadata
+        ?.branchName ?? null
+    );
+  } else if (artifactDef?.artifactType === GitArtifactType.Package) {
+    const currentPackageId = state.ui?.editor?.currentPackageId;
+
+    return (
+      state.entities.packages?.[currentPackageId ?? ""]?.gitArtifactMetadata
+        ?.branchName ?? null
+    );
+  }
+
+  return null;
 };
 
 export const selectFetchBranchesState = (

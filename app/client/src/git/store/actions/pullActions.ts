@@ -3,6 +3,7 @@ import type { GitAsyncErrorPayload } from "../types";
 
 export interface PullInitPayload {
   artifactId: string;
+  showErrorInPopup?: boolean;
 }
 
 export const pullInitAction = createArtifactAction<PullInitPayload>((state) => {

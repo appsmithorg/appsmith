@@ -4,16 +4,12 @@ import type { PullResponse } from "git/requests/pullRequest.types";
 import type { PullInitPayload } from "git/store/actions/pullActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import { selectCurrentBranch } from "git/store/selectors/gitArtifactSelectors";
-
-// internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { initEditorAction } from "actions/initActions";
-import { APP_MODE } from "entities/App";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import handleApiErrors from "./helpers/handleApiErrors";
+import { GitArtifactType } from "git/constants/enums";
+import applicationRedirectToClosestEntitySaga from "git/artifact-helpers/application/applicationRedirectToClosestEntitySaga";
+import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
 import { toast } from "@appsmith/ads";
 import { createMessage, DISCARD_AND_PULL_SUCCESS } from "ee/constants/messages";
 
@@ -37,39 +33,32 @@ export default function* pullSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
+      if (artifactDef.artifactType === GitArtifactType.Application) {
+        yield applicationRedirectToClosestEntitySaga(window.location.href);
+      } else if (artifactDef.artifactType === GitArtifactType.Package) {
+        yield packageRedirectToClosestEntitySaga(window.location.href);
+      }
+
       yield put(gitArtifactActions.pullSuccess({ artifactDef }));
+    }
+  } catch (e) {
+    const error = handleApiErrors(e as Error, response);
 
-      const currentBasePageId: string = yield select(getCurrentBasePageId);
-      const currentBranch: string = yield select(
-        selectCurrentBranch,
-        artifactDef,
-      );
+    if (error) {
+      yield put(gitArtifactActions.pullError({ artifactDef, error }));
+    }
 
+    if (action.payload.showErrorInPopup) {
       yield put(
-        initEditorAction({
-          basePageId: currentBasePageId,
-          branch: currentBranch,
-          mode: APP_MODE.EDIT,
+        gitArtifactActions.toggleConflictErrorModal({
+          artifactDef,
+          open: true,
         }),
       );
 
       toast.show(createMessage(DISCARD_AND_PULL_SUCCESS), {
         kind: "success",
       });
-    }
-  } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
-
-      // !case: handle this with error
-      // if (triggeredFromBottomBar) {
-      //   yield put(setIsGitErrorPopupVisible({ isVisible: true }));
-      // }
-
-      yield put(gitArtifactActions.pullError({ artifactDef, error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

@@ -1,10 +1,12 @@
-import { addBranchParam } from "constants/routes";
 import { GitArtifactType } from "git/constants/enums";
+import isAutocommitEnabled from "git/helpers/isAutocommitEnabled";
+import isProtectedBranchesEnabled from "git/helpers/isProtectedBranchesEnabled";
+import { updateBranchParam } from "git/helpers/updateBranchParam";
 import type { InitGitForEditorPayload } from "git/store/actions/initGitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
+import type { GitApplicationArtifact, GitPackageArtifact } from "git/types";
 import { put, take } from "redux-saga/effects";
-import history from "utils/history";
 
 export default function* initGitForEditorSaga(
   action: GitArtifactPayloadAction<InitGitForEditorPayload>,
@@ -14,22 +16,39 @@ export default function* initGitForEditorSaga(
 
   yield put(gitArtifactActions.mount({ artifactDef }));
 
-  if (artifactId && artifactDef.artifactType === GitArtifactType.Application) {
-    if (!!artifact?.gitApplicationMetadata?.remoteUrl) {
-      const branch: string = artifact?.gitApplicationMetadata?.branchName;
+  if (artifactId) {
+    let branchName;
 
-      const urlWithBranch = addBranchParam(branch);
+    if (artifactDef.artifactType === GitArtifactType.Application) {
+      branchName = (artifact as GitApplicationArtifact)?.gitApplicationMetadata
+        ?.branchName;
+    } else if (artifactDef.artifactType === GitArtifactType.Package) {
+      branchName = (artifact as GitPackageArtifact)?.gitArtifactMetadata
+        ?.branchName;
+    }
 
-      history.replace(urlWithBranch);
+    if (!!branchName) {
+      updateBranchParam(branchName);
+
       yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);
-      yield put(
-        gitArtifactActions.triggerAutocommitInit({ artifactDef, artifactId }),
-      );
+
+      if (isAutocommitEnabled(artifactDef)) {
+        yield put(
+          gitArtifactActions.triggerAutocommitInit({ artifactDef, artifactId }),
+        );
+      }
+
       yield put(
         gitArtifactActions.fetchBranchesInit({ artifactDef, artifactId }),
       );
-      yield put(gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }));
+
+      if (isProtectedBranchesEnabled(artifactDef)) {
+        yield put(
+          gitArtifactActions.fetchProtectedBranchesInit({ artifactDef }),
+        );
+      }
+
       yield put(
         gitArtifactActions.fetchStatusInit({ artifactDef, artifactId }),
       );

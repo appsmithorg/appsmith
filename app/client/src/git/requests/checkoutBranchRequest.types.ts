@@ -1,10 +1,10 @@
 import type { ApiResponse } from "api/types";
-import type { ApplicationPayload } from "entities/Application";
+import type { GitArtifact } from "git/types";
 
 export interface CheckoutBranchRequestParams {
   branchName: string;
 }
 
-export interface CheckoutBranchResponseData extends ApplicationPayload {}
+export type CheckoutBranchResponseData = GitArtifact;
 
 export type CheckoutBranchResponse = ApiResponse<CheckoutBranchResponseData>;
