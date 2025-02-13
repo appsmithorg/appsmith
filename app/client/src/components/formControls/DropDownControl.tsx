@@ -304,7 +304,9 @@ function renderDropdown(
 
   return (
     <Select
-      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
+      allowClear={
+        (props.isMultiSelect || props.isAllowClear) && !isEmpty(selectedValue)
+      }
       data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
@@ -365,6 +367,7 @@ export interface DropDownControlProps extends ControlProps {
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
   maxTagCount?: number;
+  isAllowClear?: boolean;
 }
 
 interface ReduxDispatchProps {
