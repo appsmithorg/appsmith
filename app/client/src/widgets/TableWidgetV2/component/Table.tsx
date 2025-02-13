@@ -134,6 +134,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  isInfiniteScroll: boolean;
 }
 
 const defaultColumn = {
@@ -446,7 +447,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={
-            props.isLoading
+            props.isLoading && (!props.isInfiniteScroll || !props.data?.length)
               ? Classes.SKELETON
               : shouldUseVirtual
                 ? "tableWrap virtual"
@@ -471,9 +472,11 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
                 multiRowSelection={props?.multiRowSelection}
+                nextPageClick={props.nextPageClick}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
@@ -509,8 +512,10 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMore={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
@@ -525,6 +530,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
+                totalRecordsCount={props.totalRecordsCount}
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}

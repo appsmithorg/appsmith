@@ -6,12 +6,13 @@ import type {
   TableBodyProps,
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, EmptyRow, Row } from "./Row";
-import type { ReactTableColumnProps, TableSizes } from "../Constants";
-import type { HeaderComponentProps } from "../Table";
+import { areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
+import type { ReactTableColumnProps, TableSizes } from "../Constants";
+import { useInfiniteVirtualization } from "../hooks/useInfiniteVirtualization";
+import { InfiniteVirtualList } from "../InfiniteVirtualList";
+import type { HeaderComponentProps } from "../Table";
+import { EmptyRow, EmptyRows, Row } from "./Row";
 
 export type BodyContextType = {
   accentColor: string;
@@ -79,29 +80,48 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
+  loadMore: () => void;
+  isLoading: boolean;
+  totalRecordsCount?: number;
 }
+
+const LoadingIndicator = () => (
+  <div className="sticky bottom-0 left-0 right-0 p-2 bg-white border-t">
+    <div className="flex items-center justify-center p-2 space-x-2 bg-gray-50 rounded">
+      <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+      <span className="text-sm text-gray-600">Loading data...</span>
+    </div>
+  </div>
+);
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
+    const { rows, totalRecordsCount, isLoading, loadMore, pageSize } = props;
+
+    const { isItemLoaded, itemCount, loadMoreItems, cachedRows } =
+      useInfiniteVirtualization({
+        rows,
+        totalRecordsCount,
+        isLoading,
+        loadMore,
+        pageSize,
+      });
+
     return (
-      <div className="simplebar-content-wrapper">
-        <FixedSizeList
-          className="virtual-list simplebar-content"
-          height={
-            props.height -
-            props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * props.tableSizes.VERTICAL_PADDING
-          }
-          innerElementType={props.innerElementType}
-          itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
-          outerRef={ref}
-          width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-        >
-          {rowRenderer}
-        </FixedSizeList>
-      </div>
+      <InfiniteVirtualList
+        cachedRows={cachedRows}
+        height={props.height}
+        innerElementType={props.innerElementType}
+        isItemLoaded={isItemLoaded}
+        isLoading={isLoading}
+        itemCount={itemCount}
+        loadMoreItems={loadMoreItems}
+        outerRef={ref}
+        pageSize={pageSize}
+        rows={rows}
+        tableSizes={props.tableSizes}
+        width={props.width}
+      />
     );
   },
 );
