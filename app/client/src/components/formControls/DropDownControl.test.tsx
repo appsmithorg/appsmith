@@ -6,6 +6,7 @@ import "@testing-library/jest-dom";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import type { SelectOptionProps } from "@appsmith/ads";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 
 const mockStore = configureStore([]);
 
@@ -221,11 +222,14 @@ describe("DropDownControl grouping tests", () => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
+  const formName = "GroupingTestForm";
 
   beforeEach(() => {
     store = mockStore({
       form: {
-        GroupingTestForm: { values: { actionConfiguration: { testPath: [] } } },
+        [formName]: {
+          values: { actionConfiguration: { testPath: { data: "" } } },
+        },
       },
     });
   });
@@ -350,26 +354,18 @@ describe("DropDownControl grouping tests", () => {
 
     fireEvent.click(option1);
 
-    // Verify the stored value includes the group identifier
-    await waitFor(() => {
-      const formState = store.getState().form.TestForm.values;
+    const actions = store.getActions();
 
-      expect(formState.actionConfiguration.testPath).toBe("group1:1");
-    });
+    expect(actions[actions.length - 1].payload).toEqual("group1:1");
 
-    // Select Option 2 (from others group)
+    // // Select Option 2 (from others group)
     fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
 
     const option2 = screen.getByText("Option 2");
 
     fireEvent.click(option2);
 
-    // Verify the stored value includes the 'others' group identifier
-    await waitFor(() => {
-      const formState = store.getState().form.TestForm.values;
-
-      expect(formState.actionConfiguration.testPath).toBe("others:2");
-    });
+    expect(actions[actions.length - 1].payload).toEqual("others:2");
   });
 
   it("should handle multi-select with group identifiers correctly", async () => {
@@ -429,26 +425,22 @@ describe("DropDownControl grouping tests", () => {
     fireEvent.click(option2);
 
     // Verify the stored values include group identifiers
-    await waitFor(() => {
-      const formState = store.getState().form.TestForm.values;
+    let actions = store.getActions();
+    // store the values of last 2 actions in a variable
+    const lastTwoActions = actions
+      .slice(-2)
+      .map((action: ReduxAction<unknown>) => action.payload);
 
-      expect(formState.actionConfiguration.testPath).toEqual([
-        "group1:1",
-        "others:2",
-      ]);
-    });
+    expect(lastTwoActions).toEqual([["group1:1"], ["others:2"]]);
 
     // Test removal of an option
     const selectedOption1 = screen.getByText("Option 1");
 
     fireEvent.click(selectedOption1);
+    actions = store.getActions();
 
     // Verify the option was removed correctly
-    await waitFor(() => {
-      const formState = store.getState().form.TestForm.values;
-
-      expect(formState.actionConfiguration.testPath).toEqual(["others:2"]);
-    });
+    expect(actions[actions.length - 1].payload).toEqual(["group1:1"]);
   });
 
   it("should handle edge cases with appendGroupIdentfierToValue", async () => {
@@ -501,14 +493,25 @@ describe("DropDownControl grouping tests", () => {
     fireEvent.click(option2);
 
     // Verify the stored values handle special cases correctly
-    await waitFor(() => {
-      const formState = store.getState().form.TestForm.values;
+    let actions = store.getActions();
+    const lastTwoActions = actions
+      .slice(-2)
+      .map((action: ReduxAction<unknown>) => action.payload);
 
-      expect(formState.actionConfiguration.testPath).toEqual([
-        "group1:value:with:colon",
-        "others:no_group_value",
-      ]);
-    });
+    expect(lastTwoActions).toEqual([
+      ["group1:value:with:colon"],
+      ["others:no_group_value"],
+    ]);
+
+    // Test removal of an option
+    const selectedOption1 = screen.getByText("Option with colon");
+
+    fireEvent.click(selectedOption1);
+    actions = store.getActions();
+
+    expect(actions[actions.length - 1].payload).toEqual([
+      "group1:value:with:colon",
+    ]);
   });
 });
 
