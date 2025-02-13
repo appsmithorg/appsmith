@@ -117,6 +117,7 @@ export interface DropDownControlProps extends ControlProps {
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
   nextPageNeeded?: boolean;
+  appendGroupIdentfierToValue?: boolean;
   paginationPayload?: {
     value: ConditionalOutput;
     dynamicFetchedValues: DynamicValues;
