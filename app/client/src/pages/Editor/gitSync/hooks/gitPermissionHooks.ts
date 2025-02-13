@@ -3,7 +3,7 @@ import {
   hasGitAppConnectPermission,
   hasGitAppManageAutoCommitPermission,
   hasGitAppManageDefaultBranchPermission,
-  hasGitAppnManageProtectedBranchesPermission,
+  hasGitAppManageProtectedBranchesPermission,
 } from "ee/utils/permissionHelpers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
@@ -16,7 +16,7 @@ export const useHasConnectToGitPermission = () => {
 export const useHasManageProtectedBranchesPermission = () => {
   const currentApplication = useSelector(getCurrentApplication);
 
-  return hasGitAppnManageProtectedBranchesPermission(
+  return hasGitAppManageProtectedBranchesPermission(
     currentApplication?.userPermissions,
   );
 };

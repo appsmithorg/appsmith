@@ -123,7 +123,7 @@ export const hasGitAppConnectPermission = (permissions: string[] = []) => {
   return isPermitted(permissions, PERMISSION_TYPE.GIT_APPLICATION_CONNECT);
 };
 
-export const hasGitAppnManageProtectedBranchesPermission = (
+export const hasGitAppManageProtectedBranchesPermission = (
   permissions: string[] = [],
 ) => {
   return isPermitted(

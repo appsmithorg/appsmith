@@ -9,7 +9,7 @@ import {
   hasGitAppConnectPermission,
   hasGitAppManageAutoCommitPermission,
   hasGitAppManageDefaultBranchPermission,
-  hasGitAppnManageProtectedBranchesPermission,
+  hasGitAppManageProtectedBranchesPermission,
 } from "ee/utils/permissionHelpers";
 import {
   fetchAllApplicationsOfWorkspace,
@@ -51,7 +51,7 @@ export default function GitApplicationContextProvider({
   }, [artifact]);
 
   const isManageProtectedBranchesPermitted = useMemo(() => {
-    return hasGitAppnManageProtectedBranchesPermission(
+    return hasGitAppManageProtectedBranchesPermission(
       artifact?.userPermissions ?? [],
     );
   }, [artifact]);

@@ -139,7 +139,7 @@ export function* validateResponse(
       response.responseMeta?.error?.code,
     )
   ) {
-    throw new IncorrectBindingError(response.responseMet?.error?.message);
+    throw new IncorrectBindingError(response.responseMeta?.error?.message);
   }
 
   yield put({

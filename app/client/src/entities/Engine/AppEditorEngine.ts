@@ -318,11 +318,13 @@ export default class AppEditorEngine extends AppEngine {
       }
     }
 
-    yield put(
-      updateAppStore(
-        getPersistentAppStore(currentApplication.id, currentBranch),
-      ),
-    );
+    if (currentApplication?.id) {
+      yield put(
+        updateAppStore(
+          getPersistentAppStore(currentApplication.id, currentBranch),
+        ),
+      );
+    }
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
       trackOpenEditorTabs,
