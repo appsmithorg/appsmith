@@ -1,12 +1,12 @@
 import React from "react";
 import { useRouteMatch } from "react-router";
 import { Switch } from "react-router-dom";
-import { useQueryEditorRoutes } from "ee/pages/AppIDE/layouts/routers/QueryEditor/useQueryEditorRoutes";
+import { QueryEditorRoutes } from "ee/pages/AppIDE/layouts/routers/QueryEditor/constants";
 import { SentryRoute } from "ee/AppRouter";
 
 const QueryEditor = () => {
   const { path } = useRouteMatch();
-  const routes = useQueryEditorRoutes(path);
+  const routes = QueryEditorRoutes(path);
 
   return (
     <Switch>

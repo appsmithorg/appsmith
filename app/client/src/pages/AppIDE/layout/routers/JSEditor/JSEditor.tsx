@@ -1,11 +1,11 @@
 import React from "react";
 import { Switch, useRouteMatch } from "react-router";
-import { useJSEditorRoutes } from "ee/pages/AppIDE/layouts/routers/JSEditor/routes";
+import { JSEditorRoutes } from "ee/pages/AppIDE/layouts/routers/JSEditor/constants";
 import { SentryRoute } from "ee/AppRouter";
 
 const JSEditorPane = () => {
   const { path } = useRouteMatch();
-  const routes = useJSEditorRoutes(path);
+  const routes = JSEditorRoutes(path);
 
   return (
     <Switch>

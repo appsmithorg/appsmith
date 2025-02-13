@@ -32,7 +32,7 @@ import {
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
-import AppIDE from "../pages/AppIDE/AppIDELoader";
+import AppIDE from "pages/AppIDE/AppIDELoader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "../LandingScreen";
 import UserAuth from "pages/UserAuth";

@@ -3,14 +3,14 @@ import {
   PluginActionEditor,
   PluginActionForm,
   PluginActionResponse,
-} from "../../../../PluginActionEditor";
+} from "PluginActionEditor";
 import {
   ConvertToModuleDisabler,
   ConvertToModuleCallout,
 } from "./components/ConvertToModule";
 import AppPluginActionToolbar from "./components/AppPluginActionToolbar";
 import { useLocation } from "react-router";
-import { identifyEntityFromPath } from "../../../../navigation/FocusEntity";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
 
 const AppPluginActionEditor = () => {
   const { pathname } = useLocation();

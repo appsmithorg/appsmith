@@ -41,7 +41,7 @@ const getMockStore = (override: Record<string, any> = {}): any => {
   });
 };
 
-jest.mock("../../layout/routers/MainPane.tsx", () => () => <div />);
+jest.mock("../../layout/routers/MainPane/MainPane.tsx", () => () => <div />);
 jest.mock("../../layout/routers/LeftPane", () => () => <div />);
 jest.mock("../../layout/routers/RightPane", () => () => <div />);
 jest.mock("../../layout/routers/Sidebar", () => () => <div />);
