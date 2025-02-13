@@ -1,1 +1,1 @@
-export * from "../../../../../../ce/pages/AppIDE/layout/routers/QueryEditor/constants";
+export * from "ce/pages/AppIDE/layout/routers/QueryEditor/constants";
