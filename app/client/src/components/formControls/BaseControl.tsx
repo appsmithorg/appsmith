@@ -111,6 +111,7 @@ export interface ControlData {
   addMoreButtonLabel?: string;
   datasourceId?: string;
   workspaceId?: string;
+  actionId?: string;
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

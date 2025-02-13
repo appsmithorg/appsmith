@@ -7,11 +7,8 @@ import { useCurrentAppState } from "../../hooks/useCurrentAppState";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import {
-  EditorEntityTab,
-  EditorState,
-  EditorViewMode,
-} from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import {
   APP_SETTINGS_PANE_WIDTH,
   APP_SIDEBAR_WIDTH,

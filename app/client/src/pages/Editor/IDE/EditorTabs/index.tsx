@@ -10,12 +10,12 @@ import {
 } from "@appsmith/ads";
 
 import { getIDEViewMode, getListViewActiveState } from "selectors/ideSelectors";
-import type { EntityItem } from "ee/entities/IDE/constants";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "ee/entities/IDE/constants";
+} from "IDE/Interfaces/EditorTypes";
 import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 
 import { identifyEntityFromPath } from "navigation/FocusEntity";

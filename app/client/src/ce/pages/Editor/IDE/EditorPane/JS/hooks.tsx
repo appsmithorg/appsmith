@@ -7,14 +7,14 @@ import type { GroupedAddOperations } from "ee/pages/Editor/IDE/EditorPane/Query/
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import type { UseRoutes } from "ee/entities/IDE/constants";
+import type { UseRoutes } from "IDE/Interfaces/UseRoutes";
 import { ADD_PATH } from "ee/constants/routes/appRoutes";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils/getJSUrl";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { setListViewActiveState } from "actions/ideActions";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "widgets/Skeleton";

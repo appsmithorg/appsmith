@@ -14,7 +14,7 @@ import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityPr
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
