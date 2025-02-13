@@ -244,7 +244,15 @@ function renderDropdown(
   } & DropDownControlProps &
     ReduxDispatchProps,
 ): JSX.Element {
-  const { input, isMultiSelect, optionGroupConfig, options = [] } = props;
+  const {
+    appendGroupIdentfierToValue,
+    input,
+    isAllowClear,
+    isMultiSelect,
+    optionGroupConfig,
+    options = [],
+    setFirstOptionAsDefault,
+  } = props;
   // Safeguard the selectedValue (since it might be empty, null, or a string/string[])
   let selectedValue = input?.value;
 
@@ -258,7 +266,7 @@ function renderDropdown(
         : "";
 
       // If user wants the first option as default
-      if (props.setFirstOptionAsDefault && options.length > 0) {
+      if (setFirstOptionAsDefault && options.length > 0) {
         selectedValue = options[0].value as string;
         input?.onChange(selectedValue);
       }
@@ -284,10 +292,10 @@ function renderDropdown(
   );
 
   const selectedOptions = options.filter((opt) => {
-    const removeGroupIdentifier =
-      props.appendGroupIdentfierToValue && optionGroupConfig;
-    const valueToCompare = removeGroupIdentifier
-      ? opt.value.split(":")[1]
+    const checkGroupIdentifier =
+      appendGroupIdentfierToValue && optionGroupConfig;
+    const valueToCompare = checkGroupIdentifier
+      ? opt.optionGroupType + ":" + opt.value
       : opt.value;
 
     return isMultiSelect
@@ -299,7 +307,10 @@ function renderDropdown(
   if (isMultiSelect && Array.isArray(selectedValue)) {
     const validValues = selectedOptions.map((so) => so.value);
 
-    if (validValues.length !== selectedValue.length) {
+    if (
+      !appendGroupIdentfierToValue &&
+      validValues.length !== selectedValue.length
+    ) {
       input?.onChange(validValues);
     }
   }
@@ -308,7 +319,7 @@ function renderDropdown(
   if (!isMultiSelect && selectedOptions.length) {
     const singleVal = selectedOptions[0].value;
 
-    if (singleVal !== selectedValue) {
+    if (!appendGroupIdentfierToValue && singleVal !== selectedValue) {
       input?.onChange(singleVal);
     }
   }
@@ -342,8 +353,7 @@ function renderDropdown(
     if (isNil(optionValueToSelect)) return;
 
     // If appendGroupIdentfierToValue is true and we have grouped options, add the group identifier
-    const shouldAppendGroup =
-      props.appendGroupIdentfierToValue && optionGroupConfig;
+    const shouldAppendGroup = appendGroupIdentfierToValue && optionGroupConfig;
     let valueToStore = optionValueToSelect;
 
     if (shouldAppendGroup) {
@@ -390,12 +400,14 @@ function renderDropdown(
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
 
     const filtered = currentArray.filter((v) => {
-      if (props.appendGroupIdentfierToValue && optionGroupConfig) {
+      let selectedValueToCheck = v;
+
+      if (appendGroupIdentfierToValue && optionGroupConfig) {
         // For grouped values, we need to compare just the value part after the group identifier
-        optionValueToRemove = v.split(":")[1];
+        selectedValueToCheck = v.split(":")[1];
       }
 
-      return v !== optionValueToRemove;
+      return selectedValueToCheck !== optionValueToRemove;
     });
 
     input?.onChange(filtered);
@@ -433,9 +445,7 @@ function renderDropdown(
 
   return (
     <Select
-      allowClear={
-        (isMultiSelect || props.isAllowClear) && !isEmpty(selectedValue)
-      }
+      allowClear={(isMultiSelect || isAllowClear) && !isEmpty(selectedValue)}
       data-testid={`t--dropdown-${props.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
