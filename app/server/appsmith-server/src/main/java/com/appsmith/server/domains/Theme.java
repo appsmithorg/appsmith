@@ -49,6 +49,7 @@ public class Theme extends BaseDomain {
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson
     @JsonView({Views.Public.class, Git.class})
+    // The primitive is changed to wrapper because of serialization - deserialization issues
     private Boolean isSystemTheme = false; // should be false by default
 
     @Data
@@ -68,6 +69,7 @@ public class Theme extends BaseDomain {
         return this.isSystemTheme;
     }
 
+    // To be deleted in later on refactors
     @JsonView({Views.Internal.class})
     public Boolean isSystemTheme() {
         return this.isSystemTheme;

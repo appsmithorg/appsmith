@@ -148,7 +148,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     public Mono<? extends ArtifactImportDTO> importArtifactFromGit(
             String workspaceId, GitConnectDTO gitConnectDTO, GitType gitType) {
         if (!StringUtils.hasText(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
@@ -312,8 +312,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return importService
                                         .importArtifactInWorkspaceFromGit(
                                                 workspaceId, baseArtifact.getId(), artifactExchangeJson, defaultBranch)
-                                        .onErrorResume(throwable -> Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
+                                        .onErrorResume(throwable -> {
+                                            log.error("Error in importing the artifact {}", baseArtifact.getId());
+                                            return Mono.error(new AppsmithException(
+                                                    AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()));
+                                        });
                             })
                             .flatMap(artifact -> gitArtifactHelper.publishArtifact(artifact, false))
                             .flatMap(artifact -> importService.getArtifactImportDTO(

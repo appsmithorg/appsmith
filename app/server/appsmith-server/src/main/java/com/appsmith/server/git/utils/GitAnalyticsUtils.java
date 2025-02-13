@@ -126,6 +126,7 @@ public class GitAnalyticsUtils {
         if (artifact != null && artifact.getGitArtifactMetadata() != null) {
             GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
             analyticsProps.put(FieldName.ARTIFACT_ID, gitData.getDefaultArtifactId());
+            analyticsProps.put("artifactType", artifact.getArtifactType());
             analyticsProps.put("appId", gitData.getDefaultArtifactId());
             analyticsProps.put(FieldName.BRANCH_NAME, branchName);
             analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));

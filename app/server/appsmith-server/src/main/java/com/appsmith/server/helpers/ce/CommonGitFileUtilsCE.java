@@ -810,12 +810,17 @@ public class CommonGitFileUtilsCE {
                             gson.toJsonTree(metadata, Object.class).getAsJsonObject();
 
                     if (metadataJsonObject == null) {
+                        log.error(
+                                "Error in retrieving the metadata from the file system for repository {}", repoSuffix);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
                     }
 
                     JsonElement artifactJsonType = metadataJsonObject.get(ARTIFACT_JSON_TYPE);
 
                     if (artifactJsonType == null) {
+                        log.error(
+                                "artifactJsonType attribute not found in the metadata file for repository {}",
+                                repoSuffix);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
                     }
 
