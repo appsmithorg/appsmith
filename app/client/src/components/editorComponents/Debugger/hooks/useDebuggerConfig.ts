@@ -16,7 +16,7 @@ import {
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { AppState } from "ee/reducers";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 
