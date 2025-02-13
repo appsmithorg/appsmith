@@ -1060,10 +1060,6 @@ function* toggleActionExecuteOnLoadSaga(
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   const { baseId: baseActionId, pluginId, pluginType } = actionPayload.payload;
-  const isApi = pluginType === PluginType.API;
-  const isQuery = pluginType === PluginType.DB;
-  const isSaas = pluginType === PluginType.SAAS;
-  const isInternal = pluginType === PluginType.INTERNAL;
   const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
 
   if (!parentEntityId) return;
@@ -1073,37 +1069,40 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
     parentEntityId,
   );
 
-  if (isApi) {
-    history.push(
-      apiEditorIdURL({
-        baseParentEntityId,
-        baseApiId: baseActionId,
-      }),
-    );
-  }
+  switch (pluginType) {
+    case PluginType.API: {
+      history.push(
+        apiEditorIdURL({
+          baseParentEntityId,
+          baseApiId: baseActionId,
+        }),
+      );
+      break;
+    }
+    case PluginType.SAAS: {
+      const plugin = shouldBeDefined<Plugin>(
+        yield select(getPlugin, pluginId),
+        `Plugin not found for pluginId - ${pluginId}`,
+      );
 
-  if (isQuery || isInternal) {
-    history.push(
-      queryEditorIdURL({
-        baseParentEntityId,
-        baseQueryId: baseActionId,
-      }),
-    );
-  }
-
-  if (isSaas) {
-    const plugin = shouldBeDefined<Plugin>(
-      yield select(getPlugin, pluginId),
-      `Plugin not found for pluginId - ${pluginId}`,
-    );
-
-    history.push(
-      saasEditorApiIdURL({
-        baseParentEntityId,
-        pluginPackageName: plugin.packageName,
-        baseApiId: baseActionId,
-      }),
-    );
+      history.push(
+        saasEditorApiIdURL({
+          baseParentEntityId,
+          pluginPackageName: plugin.packageName,
+          baseApiId: baseActionId,
+        }),
+      );
+      break;
+    }
+    default: {
+      history.push(
+        queryEditorIdURL({
+          baseParentEntityId,
+          baseQueryId: baseActionId,
+        }),
+      );
+      break;
+    }
   }
 }
 
