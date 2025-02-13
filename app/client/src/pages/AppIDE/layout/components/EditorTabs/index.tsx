@@ -22,7 +22,7 @@ import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { setListViewActiveState } from "actions/ideActions";
 
 import { useIDETabClickHandlers, useShowSideBySideNudge } from "./hooks";
-import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 import { EditableTab } from "./EditableTab";

@@ -1,5 +1,5 @@
 import React from "react";
-import List from "./List";
+import { ListQuery } from "./List";
 import styled from "styled-components";
 import { Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
@@ -24,7 +24,7 @@ const QueryExplorer = () => {
         height="100%"
         overflow="hidden"
       >
-        <List />
+        <ListQuery />
       </QueriesContainer>
     );
   }

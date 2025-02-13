@@ -34,7 +34,7 @@ const JSContainer = styled(Flex)`
   }
 `;
 
-const ListJSObjects = () => {
+export const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const itemGroups = useSelector(selectJSSegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
@@ -140,5 +140,3 @@ const ListJSObjects = () => {
     </JSContainer>
   );
 };
-
-export default ListJSObjects;

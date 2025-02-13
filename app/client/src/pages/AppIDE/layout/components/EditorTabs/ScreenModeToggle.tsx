@@ -2,19 +2,19 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Tooltip } from "@appsmith/ads";
 
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { getIDEViewMode } from "../../../../../selectors/ideSelectors";
+import { EditorViewMode } from "../../../../../IDE/Interfaces/EditorTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   MAXIMIZE_BUTTON_TOOLTIP,
   MINIMIZE_BUTTON_TOOLTIP,
   createMessage,
 } from "ee/constants/messages";
-import { setIdeEditorViewMode } from "actions/ideActions";
+import { setIdeEditorViewMode } from "../../../../../actions/ideActions";
 import type { AppState } from "ee/reducers";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { Nudge } from "IDE/Components/Nudge";
+import { Nudge } from "../../../../../IDE/Components/Nudge";
 
 interface Props {
   showNudge?: boolean;

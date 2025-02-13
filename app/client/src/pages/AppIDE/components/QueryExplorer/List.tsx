@@ -14,7 +14,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useQueryAdd } from "../QueryAdd/useQueryAdd";
+import { useQueryAdd } from "../QueryAdd";
 import { QueryListItem } from "ee/pages/AppIDE/components/QueryEntityItem/old/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
@@ -28,7 +28,7 @@ import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActi
 import { objectKeys } from "@appsmith/utils";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
-const ListQuery = () => {
+export const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const itemGroups = useSelector(selectQuerySegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
@@ -134,5 +134,3 @@ const ListQuery = () => {
     </Flex>
   );
 };
-
-export default ListQuery;

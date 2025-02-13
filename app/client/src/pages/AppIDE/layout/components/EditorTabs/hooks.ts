@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useJSAdd } from "../JSAdd";
-import { useQueryAdd } from "../QueryAdd/useQueryAdd";
+import { useJSAdd } from "../../../components/JSAdd";
+import { useQueryAdd } from "../../../components/QueryAdd";
 import { TabSelectors } from "./constants";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { useCallback } from "react";
@@ -13,7 +13,7 @@ import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { useBoolean } from "usehooks-ts";
 
-import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import { FocusEntity } from "navigation/FocusEntity";
 

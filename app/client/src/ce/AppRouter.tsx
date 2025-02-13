@@ -32,7 +32,7 @@ import {
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
-import EditorLoader from "../pages/AppIDE/loader";
+import AppIDE from "../pages/AppIDE/AppIDELoader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "../LandingScreen";
 import UserAuth from "pages/UserAuth";
@@ -116,7 +116,7 @@ export function Routes() {
         exact
         path={CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH}
       />
-      <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
+      <SentryRoute component={AppIDE} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
       <SentryRoute
         component={CustomWidgetBuilderLoader}
@@ -133,8 +133,8 @@ export function Routes() {
        * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method
        * Context: https://github.com/appsmithorg/appsmith/pull/19833
        */}
-      <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
-      <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
+      <SentryRoute component={AppIDE} path={BUILDER_PATH} />
+      <SentryRoute component={AppIDE} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
       {/*

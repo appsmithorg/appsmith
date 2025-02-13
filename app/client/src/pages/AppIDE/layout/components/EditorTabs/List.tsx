@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { Flex } from "@appsmith/ads";
 
-import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
-import ListQuery from "../QueryList/List";
-import ListJSObjects from "../JSExplorer/JSSegmentList";
+import { ListQuery } from "../../../components/QueryExplorer";
+import { ListJSObjects } from "../../../components/JSExplorer";
 
 const ListContainer = styled(Flex)`
   position: absolute;

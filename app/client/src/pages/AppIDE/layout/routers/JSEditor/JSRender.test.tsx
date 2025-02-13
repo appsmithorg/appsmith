@@ -1,11 +1,14 @@
 import { render, waitFor } from "test/testUtils";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
-import { StaticLayout as IDE } from "../StaticLayout";
+import { StaticLayout as IDE } from "../../StaticLayout";
 import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "../../../../../IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 

@@ -17,7 +17,7 @@ import {
 } from "ee/entities/IDE/utils";
 import { useIsRenaming, useValidateEntityName } from "IDE";
 
-import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 
 interface EditableTabProps {
   id: string;

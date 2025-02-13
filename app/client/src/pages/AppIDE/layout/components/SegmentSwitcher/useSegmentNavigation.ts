@@ -1,6 +1,6 @@
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
-import history, { NavigationMethod } from "utils/history";
+import { EditorEntityTab } from "../../../../../IDE/Interfaces/EditorTypes";
+import history, { NavigationMethod } from "../../../../../utils/history";
 import {
   jsCollectionListURL,
   queryListURL,

@@ -8,7 +8,7 @@ import {
   EditorEntityTabState,
 } from "IDE/Interfaces/EditorTypes";
 
-import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
 
 const AddTab = ({
   isListActive,

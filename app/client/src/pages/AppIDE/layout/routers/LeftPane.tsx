@@ -13,7 +13,7 @@ import {
 } from "constants/routes";
 import AppSettingsPane from "../../components/AppSettings";
 import { DataSidePane } from "pages/Editor/DataSidePane";
-import EditorPane from "./EditorPane";
+import EditorPane from "../components/EditorPane";
 import LibrarySidePane from "ee/pages/AppIDE/components/LibrariesList/LibrarySidePane";
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";

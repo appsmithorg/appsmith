@@ -6,11 +6,11 @@ import {
   jsSegmentRoutes,
   querySegmentRoutes,
 } from "ee/pages/AppIDE/layouts/constants";
-import { JSEditorPane } from "../JSEditor";
-import { QueryEditor } from "../QueryEditor";
-import EditorTabs from "../../../components/EditorTabs";
-import { useCurrentEditorState } from "../../../hooks/useCurrentEditorState";
-import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
+import { JSEditorPane } from "../routers/JSEditor";
+import { QueryEditor } from "../routers/QueryEditor";
+import EditorTabs from "./EditorTabs";
+import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { EditorEntityTab } from "../../../../IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
 
 const Container = styled(Flex)`
