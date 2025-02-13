@@ -17,12 +17,9 @@ import {
 } from "ee/constants/routes/appRoutes";
 import SegmentSwitcher from "./SegmentSwitcher/SegmentSwitcher";
 import { useSelector } from "react-redux";
-import { getIDEViewMode } from "../../../../selectors/ideSelectors";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "../../../../IDE/Interfaces/EditorTypes";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "../../../../constants/AppConstants";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 
 const EditorPaneExplorer = () => {

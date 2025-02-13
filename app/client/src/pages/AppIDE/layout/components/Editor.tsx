@@ -10,11 +10,12 @@ import { JSEditorPane } from "../routers/JSEditor";
 import { QueryEditor } from "../routers/QueryEditor";
 import EditorTabs from "./EditorTabs";
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
-import { EditorEntityTab } from "../../../../IDE/Interfaces/EditorTypes";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
 
 const Container = styled(Flex)`
   // Animating using https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API
+
   & {
     view-transition-name: editor-pane;
   }

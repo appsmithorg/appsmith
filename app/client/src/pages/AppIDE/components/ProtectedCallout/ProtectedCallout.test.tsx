@@ -6,7 +6,7 @@ import configureStore from "redux-mock-store";
 import { BrowserRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import store from "../../../../store";
+import store from "store";
 import { ProtectedCallout } from "./ProtectedCallout";
 
 // TODO: Fix this the next time the file is edited

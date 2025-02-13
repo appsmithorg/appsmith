@@ -5,10 +5,7 @@ import { createMessage, HEADER_TITLES } from "ee/constants/messages";
 import { PagesSection } from "../../../components/PageList/PagesSection";
 import { useBoolean } from "usehooks-ts";
 import { useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  getPageById,
-} from "../../../../../selectors/editorSelectors";
+import { getCurrentPageId, getPageById } from "selectors/editorSelectors";
 
 const EditorTitle = () => {
   const {

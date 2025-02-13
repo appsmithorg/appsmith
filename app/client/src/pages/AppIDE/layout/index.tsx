@@ -1,8 +1,8 @@
 import React from "react";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 
 import { AnimatedLayout } from "./AnimatedLayout";
 import { StaticLayout } from "./StaticLayout";

@@ -1,6 +1,6 @@
 import React from "react";
-import Disabler from "../../../../../common/Disabler";
-import { usePluginActionContext } from "../../../../../../PluginActionEditor";
+import Disabler from "pages/common/Disabler";
+import { usePluginActionContext } from "PluginActionEditor";
 import { useSelector } from "react-redux";
 import { getIsActionConverting } from "ee/selectors/entitiesSelector";
 

@@ -1,16 +1,16 @@
 import React from "react";
-import { useFeatureFlag } from "../../../../../../utils/hooks/useFeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useSelector } from "react-redux";
-import { getPagePermissions } from "../../../../../../selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { PluginType } from "../../../../../../entities/Plugin";
-import type { Action } from "../../../../../../entities/Action";
+import { PluginType } from "entities/Plugin";
+import type { Action } from "entities/Action";
 
 interface Props {
   action: Action;

@@ -1,5 +1,5 @@
-import { APP_SIDEBAR_WIDTH } from "../../../constants/AppConstants";
-import type { AnimatedGridUnit } from "../../../components/AnimatedGridLayout";
+import { APP_SIDEBAR_WIDTH } from "constants/AppConstants";
+import type { AnimatedGridUnit } from "components/AnimatedGridLayout";
 
 export const Areas = {
   Sidebar: "Sidebar",

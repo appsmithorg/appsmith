@@ -1,4 +1,4 @@
-import type { Page } from "../../../../../../entities/Page";
+import type { Page } from "entities/Page";
 import React, { useCallback } from "react";
 import { MenuItem } from "@appsmith/ads";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { PluginActionToolbar } from "../../../../../PluginActionEditor";
+import { PluginActionToolbar } from "PluginActionEditor";
 import { ToolbarMenu } from "./ToolbarMenu";
 
 const AppPluginActionToolbar = () => {

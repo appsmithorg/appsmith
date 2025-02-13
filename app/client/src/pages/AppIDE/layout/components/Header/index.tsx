@@ -25,14 +25,14 @@ import {
   INVITE_TAB,
   HEADER_TITLES,
 } from "ee/constants/messages";
-import EditorName from "../../../../Editor/EditorName";
+import EditorName from "pages/Editor/EditorName";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPageSaving,
   getPageById,
   getPageSavingError,
-} from "../../../../../selectors/editorSelectors";
+} from "selectors/editorSelectors";
 import {
   getApplicationList,
   getCurrentApplication,
@@ -41,30 +41,30 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { updateApplication } from "ee/actions/applicationActions";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Omnibar } from "../../../../Editor/commons/Omnibar";
-import ToggleModeButton from "../../../../Editor/ToggleModeButton";
-import { EditorShareButton } from "../../../../Editor/EditorShareButton";
-import AppInviteUsersForm from "../../../../workspace/AppInviteUsersForm";
+import { Omnibar } from "pages/Editor/commons/Omnibar";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import { EditorShareButton } from "pages/Editor/EditorShareButton";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
-import CommunityTemplatesPublishInfo from "../../../../Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
-import PublishCommunityTemplateModal from "../../../../Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
-import DeployLinkButtonDialog from "../../../../../components/designSystems/appsmith/header/DeployLinkButton";
-import { useFeatureFlag } from "../../../../../utils/hooks/useFeatureFlag";
+import CommunityTemplatesPublishInfo from "pages/Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "pages/Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
+import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAppsmithConfigs } from "ee/configs";
-import { useHref } from "../../../../Editor/utils";
+import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
-import HelpBar from "../../../../../components/editorComponents/GlobalSearch/HelpBar";
+import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "../../../../../IDE/hooks/useCurrentAppState";
-import { EditorState } from "../../../../../IDE/enums";
-import { EditorSaveIndicator } from "../../../../Editor/EditorSaveIndicator";
-import { APPLICATIONS_URL } from "../../../../../constants/routes";
-import { useNavigationMenuData } from "../../../../Editor/EditorName/useNavigationMenuData";
+import { useCurrentAppState } from "IDE/hooks";
+import { EditorState } from "IDE/enums";
+import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
+import { APPLICATIONS_URL } from "constants/routes";
+import { useNavigationMenuData } from "pages/Editor/EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/AppIDE/layouts/components/Header/useLibraryHeaderTitle";
-import { AppsmithLink } from "../../../../Editor/AppsmithLink";
+import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import DeployButton from "./DeployButton";
-import GitApplicationContextProvider from "../../../../../components/gitContexts/GitApplicationContextProvider";
+import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 
 const StyledDivider = styled(Divider)`
   height: 50%;

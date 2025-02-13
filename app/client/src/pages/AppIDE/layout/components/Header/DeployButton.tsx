@@ -1,9 +1,9 @@
 import { Button, Tooltip } from "@appsmith/ads";
 import { objectKeys } from "@appsmith/utils";
-import { showConnectGitModal } from "../../../../../actions/gitSyncActions";
+import { showConnectGitModal } from "actions/gitSyncActions";
 import { publishApplication } from "ee/actions/applicationActions";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { NavigationSetting } from "../../../../../constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -12,17 +12,17 @@ import {
 } from "ee/constants/messages";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useGitOps, useGitProtectedMode } from "../../../../../git";
+import { useGitOps, useGitProtectedMode } from "git";
 import {
   useGitConnected,
   useGitModEnabled,
-} from "../../../../Editor/gitSync/hooks/modHooks";
+} from "pages/Editor/gitSync/hooks/modHooks";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getIsPublishingApplication,
-} from "../../../../../selectors/editorSelectors";
+} from "selectors/editorSelectors";
 import styled from "styled-components";
 
 // This wrapper maintains pointer events for tooltips when the child button is disabled.

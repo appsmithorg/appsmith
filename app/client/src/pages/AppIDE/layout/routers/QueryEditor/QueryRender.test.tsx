@@ -4,10 +4,7 @@ import { render } from "test/testUtils";
 import IDE from "../../index";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "../../../../../IDE/Interfaces/EditorTypes";
+import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { APIFactory } from "test/factories/Actions/API";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
 import { sagasToRunForTests } from "test/sagas";
