@@ -300,7 +300,7 @@ describe("DropDownControl grouping tests", () => {
     expect(othersOption).toBeInTheDocument();
   });
 
-  it("should append group identifiers to values when appendGroupIdentfierToValue is true", async () => {
+  it("should append group identifiers to values when appendGroupIdentifierToValue is true", async () => {
     const mockOptionGroupConfig = {
       group1: { label: "Group 1", children: [] },
       group2: { label: "Group 2", children: [] },
@@ -330,7 +330,7 @@ describe("DropDownControl grouping tests", () => {
       ...dropDownProps,
       options: mockOptions,
       optionGroupConfig: mockOptionGroupConfig,
-      appendGroupIdentfierToValue: true,
+      appendGroupIdentifierToValue: true,
       isMultiSelect: false,
     };
 
@@ -398,7 +398,7 @@ describe("DropDownControl grouping tests", () => {
       ...dropDownProps,
       options: mockOptions,
       optionGroupConfig: mockOptionGroupConfig,
-      appendGroupIdentfierToValue: true,
+      appendGroupIdentifierToValue: true,
       isMultiSelect: true,
     };
 
@@ -443,7 +443,7 @@ describe("DropDownControl grouping tests", () => {
     expect(actions[actions.length - 1].payload).toEqual(["group1:1"]);
   });
 
-  it("should handle edge cases with appendGroupIdentfierToValue", async () => {
+  it("should handle edge cases with appendGroupIdentifierToValue", async () => {
     const mockOptionGroupConfig = {
       group1: { label: "Group 1", children: [] },
     };
@@ -466,7 +466,7 @@ describe("DropDownControl grouping tests", () => {
       ...dropDownProps,
       options: mockOptions,
       optionGroupConfig: mockOptionGroupConfig,
-      appendGroupIdentfierToValue: true,
+      appendGroupIdentifierToValue: true,
       isMultiSelect: true,
     };
 
