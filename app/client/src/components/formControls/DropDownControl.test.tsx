@@ -295,6 +295,221 @@ describe("DropDownControl grouping tests", () => {
     expect(group2Option).toBeInTheDocument();
     expect(othersOption).toBeInTheDocument();
   });
+
+  it("should append group identifiers to values when appendGroupIdentfierToValue is true", async () => {
+    const mockOptionGroupConfig = {
+      group1: { label: "Group 1", children: [] },
+      group2: { label: "Group 2", children: [] },
+    };
+
+    const mockOptions = [
+      {
+        label: "Option 1",
+        value: "1",
+        optionGroupType: "group1",
+        children: [],
+      },
+      {
+        label: "Option 2",
+        value: "2",
+        children: [],
+      },
+      {
+        label: "Option 3",
+        value: "3",
+        optionGroupType: "group2",
+        children: [],
+      },
+    ];
+
+    const props = {
+      ...dropDownProps,
+      options: mockOptions,
+      optionGroupConfig: mockOptionGroupConfig,
+      appendGroupIdentfierToValue: true,
+      isMultiSelect: false,
+    };
+
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...props} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Open dropdown
+    const dropdownSelect = await waitFor(async () =>
+      screen.findByTestId("t--dropdown-actionConfiguration.testPath"),
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Select Option 1 (from group1)
+    const option1 = screen.getByText("Option 1");
+
+    fireEvent.click(option1);
+
+    // Verify the stored value includes the group identifier
+    await waitFor(() => {
+      const formState = store.getState().form.TestForm.values;
+
+      expect(formState.actionConfiguration.testPath).toBe("group1:1");
+    });
+
+    // Select Option 2 (from others group)
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    const option2 = screen.getByText("Option 2");
+
+    fireEvent.click(option2);
+
+    // Verify the stored value includes the 'others' group identifier
+    await waitFor(() => {
+      const formState = store.getState().form.TestForm.values;
+
+      expect(formState.actionConfiguration.testPath).toBe("others:2");
+    });
+  });
+
+  it("should handle multi-select with group identifiers correctly", async () => {
+    const mockOptionGroupConfig = {
+      group1: { label: "Group 1", children: [] },
+      group2: { label: "Group 2", children: [] },
+    };
+
+    const mockOptions = [
+      {
+        label: "Option 1",
+        value: "1",
+        optionGroupType: "group1",
+        children: [],
+      },
+      {
+        label: "Option 2",
+        value: "2",
+        children: [],
+      },
+      {
+        label: "Option 3",
+        value: "3",
+        optionGroupType: "group2",
+        children: [],
+      },
+    ];
+
+    const props = {
+      ...dropDownProps,
+      options: mockOptions,
+      optionGroupConfig: mockOptionGroupConfig,
+      appendGroupIdentfierToValue: true,
+      isMultiSelect: true,
+    };
+
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...props} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Open dropdown
+    const dropdownSelect = await waitFor(async () =>
+      screen.findByTestId("t--dropdown-actionConfiguration.testPath"),
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Select multiple options
+    const option1 = screen.getByText("Option 1");
+    const option2 = screen.getByText("Option 2");
+
+    fireEvent.click(option1);
+    fireEvent.click(option2);
+
+    // Verify the stored values include group identifiers
+    await waitFor(() => {
+      const formState = store.getState().form.TestForm.values;
+
+      expect(formState.actionConfiguration.testPath).toEqual([
+        "group1:1",
+        "others:2",
+      ]);
+    });
+
+    // Test removal of an option
+    const selectedOption1 = screen.getByText("Option 1");
+
+    fireEvent.click(selectedOption1);
+
+    // Verify the option was removed correctly
+    await waitFor(() => {
+      const formState = store.getState().form.TestForm.values;
+
+      expect(formState.actionConfiguration.testPath).toEqual(["others:2"]);
+    });
+  });
+
+  it("should handle edge cases with appendGroupIdentfierToValue", async () => {
+    const mockOptionGroupConfig = {
+      group1: { label: "Group 1", children: [] },
+    };
+
+    const mockOptions = [
+      {
+        label: "Option with colon",
+        value: "value:with:colon",
+        optionGroupType: "group1",
+        children: [],
+      },
+      {
+        label: "Option without group",
+        value: "no_group_value",
+        children: [],
+      },
+    ];
+
+    const props = {
+      ...dropDownProps,
+      options: mockOptions,
+      optionGroupConfig: mockOptionGroupConfig,
+      appendGroupIdentfierToValue: true,
+      isMultiSelect: true,
+    };
+
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...props} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Open dropdown
+    const dropdownSelect = await waitFor(async () =>
+      screen.findByTestId("t--dropdown-actionConfiguration.testPath"),
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Select both options
+    const option1 = screen.getByText("Option with colon");
+    const option2 = screen.getByText("Option without group");
+
+    fireEvent.click(option1);
+    fireEvent.click(option2);
+
+    // Verify the stored values handle special cases correctly
+    await waitFor(() => {
+      const formState = store.getState().form.TestForm.values;
+
+      expect(formState.actionConfiguration.testPath).toEqual([
+        "group1:value:with:colon",
+        "others:no_group_value",
+      ]);
+    });
+  });
 });
 
 describe("DropdownControl Single select tests", () => {
