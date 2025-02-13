@@ -3,6 +3,7 @@ import { resetEditorSuccess } from "actions/initActions";
 import {
   fetchAllPageEntityCompletion,
   setupPageAction,
+  updateAppStore,
 } from "actions/pageActions";
 import {
   executePageLoadActions,
@@ -75,6 +76,7 @@ import {
   selectGitModEnabled,
 } from "selectors/gitModSelectors";
 import { applicationArtifact } from "git/artifact-helpers/application";
+import { getPersistentAppStore } from "constants/AppConstants";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -315,6 +317,12 @@ export default class AppEditorEngine extends AppEngine {
         );
       }
     }
+
+    yield put(
+      updateAppStore(
+        getPersistentAppStore(currentApplication.id, currentBranch),
+      ),
+    );
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
       trackOpenEditorTabs,

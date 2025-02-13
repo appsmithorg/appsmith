@@ -137,6 +137,10 @@ import {
   generateSSHKeySuccessAction,
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
+import {
+  resetCurrentBranchAction,
+  updateCurrentBranchAction,
+} from "./actions/currentBranchActions";
 
 const initialState: GitArtifactRootReduxState = {};
 
@@ -216,6 +220,8 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
     toggleBranchPopup: toggleBranchPopupAction,
+    updateCurrentBranch: updateCurrentBranchAction,
+    resetCurrentBranch: resetCurrentBranchAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,

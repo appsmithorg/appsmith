@@ -64,6 +64,7 @@ export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
   initializing: boolean;
   initialized: boolean;
+  currentBranch: string | null;
   connectModalOpen: boolean;
   connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
@@ -111,29 +112,7 @@ export interface GitReduxState {
 }
 
 export interface GitRootState {
-  // will have to remove this later, once metadata is fixed
-  ui: {
-    editor: {
-      currentPackageId?: string;
-    };
-    applications: {
-      currentApplication?: {
-        gitApplicationMetadata?: {
-          branchName: string;
-        };
-      };
-    };
-  };
   git: GitReduxState;
-  entities: {
-    packages: {
-      [packageid: string]: {
-        gitArtifactMetadata?: {
-          branchName: string;
-        };
-      };
-    };
-  };
 }
 
 export interface GitArtifactBasePayload {

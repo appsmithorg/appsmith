@@ -29,6 +29,9 @@ export default function* initGitForEditorSaga(
 
     if (!!branchName) {
       updateBranchParam(branchName);
+      yield put(
+        gitArtifactActions.updateCurrentBranch({ artifactDef, branchName }),
+      );
 
       yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
       yield take(gitArtifactActions.fetchMetadataSuccess.type);

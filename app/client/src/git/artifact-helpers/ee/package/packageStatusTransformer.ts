@@ -1,1 +1,1 @@
-export * from "../../ce/package/packageStatusTransformer";
+export { default } from "../../ce/package/packageStatusTransformer";
