@@ -1179,17 +1179,22 @@ export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
 export const GIT_CONNECT_SUCCESS_TITLE = () => "Successfully connected to Git";
 export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
   "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = () =>
-  "Continue to edit application";
+export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = (
+  artifactType: string = "applications",
+) => `Continue to edit ${artifactType}`;
 export const GIT_CONNECT_SUCCESS_ACTION_SETTINGS = () => "Protect your branch";
 export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
   "We recommend protecting your default branch to have a seamless collaboration.";
+export const GIT_CONNECT_SUCCESS_GENERIC_MESSAGE = (artifactType: string) =>
+  `You're all set! Your ${artifactType} is now connected to Git.`;
 export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
 export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
 export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
   "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
 export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
   "Learn more about branch protection";
+export const GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA = () =>
+  "Learn more about how to work with Git.";
 // Git Connection Success end
 
 export const GENERAL = () => "General";
