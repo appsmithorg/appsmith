@@ -72,11 +72,44 @@ public class GitAnalyticsUtils {
             Boolean isSystemGenerated,
             Boolean isMergeable) {
 
-        String branchName = artifact.getGitArtifactMetadata() != null
-                ? artifact.getGitArtifactMetadata().getRefName()
-                : null;
+        String branchName = (artifact == null || artifact.getGitArtifactMetadata() == null)
+                ? null
+                : artifact.getGitArtifactMetadata().getRefName();
         return addAnalyticsForGitOperation(
                 event, artifact, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
+    }
+
+    public Mono<Void> addAnalyticsForGitOperation(
+            AnalyticsEvents event,
+            String workspaceId,
+            String errorType,
+            String errorMessage,
+            Boolean isRepoPrivate,
+            Boolean isSystemGenerated) {
+
+        Map<String, Object> analyticsProps = new HashMap<>();
+
+        // Do not include the error data points in the map for success states
+        if (StringUtils.hasText(errorMessage) || StringUtils.hasText(errorType)) {
+            analyticsProps.put("errorMessage", errorMessage);
+            analyticsProps.put("errorType", errorType);
+        }
+
+        analyticsProps.putAll(Map.of(
+                FieldName.WORKSPACE_ID,
+                defaultIfNull(workspaceId, ""),
+                FieldName.ARTIFACT_ID,
+                defaultIfNull("", ""),
+                "isRepoPrivate",
+                defaultIfNull(isRepoPrivate, ""),
+                "isSystemGenerated",
+                defaultIfNull(isSystemGenerated, "")));
+
+        final Map<String, Object> eventData = Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString());
+        analyticsProps.put(FieldName.EVENT_DATA, eventData);
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> analyticsService.sendEvent(event.getEventName(), user.getUsername(), analyticsProps));
     }
 
     public Mono<? extends Artifact> addAnalyticsForGitOperation(
@@ -88,10 +121,11 @@ public class GitAnalyticsUtils {
             Boolean isSystemGenerated,
             Boolean isMergeable,
             String branchName) {
-        GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+
         Map<String, Object> analyticsProps = new HashMap<>();
-        if (gitData != null) {
-            analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultArtifactId());
+        if (artifact != null && artifact.getGitArtifactMetadata() != null) {
+            GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+            analyticsProps.put(FieldName.ARTIFACT_ID, gitData.getDefaultArtifactId());
             analyticsProps.put("appId", gitData.getDefaultArtifactId());
             analyticsProps.put(FieldName.BRANCH_NAME, branchName);
             analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
@@ -113,14 +147,14 @@ public class GitAnalyticsUtils {
         analyticsProps.putAll(Map.of(
                 "workspaceId",
                 defaultIfNull(artifact.getWorkspaceId(), ""),
-                "branchApplicationId",
+                "branchedArtifactId",
                 defaultIfNull(artifact.getId(), ""),
                 "isRepoPrivate",
                 defaultIfNull(isRepoPrivate, ""),
                 "isSystemGenerated",
                 defaultIfNull(isSystemGenerated, "")));
         final Map<String, Object> eventData =
-                Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, artifact);
+                Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.ARTIFACT, artifact);
         analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser().flatMap(user -> analyticsService
                 .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)

@@ -49,7 +49,7 @@ public class Theme extends BaseDomain {
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson
     @JsonView({Views.Public.class, Git.class})
-    private boolean isSystemTheme = false; // should be false by default
+    private Boolean isSystemTheme = false; // should be false by default
 
     @Data
     @AllArgsConstructor
@@ -57,6 +57,20 @@ public class Theme extends BaseDomain {
     public static class Colors {
         private String primaryColor;
         private String backgroundColor;
+    }
+
+    public void setSystemTheme(boolean isSystemTheme) {
+        this.isSystemTheme = isSystemTheme;
+    }
+
+    @JsonView({Views.Internal.class})
+    public Boolean getSystemTheme() {
+        return this.isSystemTheme;
+    }
+
+    @JsonView({Views.Internal.class})
+    public Boolean isSystemTheme() {
+        return this.isSystemTheme;
     }
 
     @Override
