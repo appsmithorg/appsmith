@@ -1,6 +1,6 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import { ObjectsRegistry } from "./Registry";
-import produce from "immer";
+import { create } from "mutative";
 
 const defaultFlags = {
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
@@ -40,12 +40,16 @@ export const getConsolidatedDataApi = (
         res.statusCode === 500
       ) {
         const originalResponse = res?.body;
-        const updatedResponse = produce(originalResponse, (draft: any) => {
-          draft.data.featureFlags.data = {
-            ...flags,
-          };
-        });
-        return res.send(updatedResponse);
+        try {
+          const updatedResponse = create(originalResponse, (draft: any) => {
+            draft.data.featureFlags.data = {
+              ...flags,
+            };
+          });
+          return res.send(updatedResponse);
+        } catch (e) {
+          cy.log(`vamsi error `, e);
+        }
       }
     });
   }).as("getConsolidatedData");

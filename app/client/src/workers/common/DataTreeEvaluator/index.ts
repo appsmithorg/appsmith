@@ -1122,6 +1122,8 @@ export default class DataTreeEvaluator {
       });
     }
 
+    const cache = new Map();
+
     try {
       for (const fullPropertyPath of evaluationOrder) {
         const { entityName, propertyPath } =
@@ -1179,16 +1181,49 @@ export default class DataTreeEvaluator {
           }
 
           try {
-            evalPropertyValue = this.getDynamicValue(
-              unEvalPropertyValue,
-              contextTree,
-              oldConfigTree,
-              evaluationSubstitutionType,
-              contextData,
-              undefined,
-              fullPropertyPath,
-              evalContextCache,
-            );
+            if (isFirstTree) {
+              const cachedRes = cache.get(unEvalPropertyValue);
+
+              if (cachedRes) {
+                evalPropertyValue = cachedRes;
+
+                // setting evalPropertyValue in unParsedEvalTree
+                set(
+                  this.getUnParsedEvalTree(),
+                  fullPropertyPath,
+                  evalPropertyValue,
+                );
+
+                set(contextTree, fullPropertyPath, evalPropertyValue);
+                set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
+                continue;
+              } else {
+                evalPropertyValue = this.getDynamicValue(
+                  unEvalPropertyValue,
+                  contextTree,
+                  oldConfigTree,
+                  evaluationSubstitutionType,
+                  contextData,
+                  undefined,
+                  fullPropertyPath,
+                  evalContextCache,
+                );
+
+                if (unEvalPropertyValue.startsWith("{{appsmith."))
+                  cache.set(unEvalPropertyValue, evalPropertyValue);
+              }
+            } else {
+              evalPropertyValue = this.getDynamicValue(
+                unEvalPropertyValue,
+                contextTree,
+                oldConfigTree,
+                evaluationSubstitutionType,
+                contextData,
+                undefined,
+                fullPropertyPath,
+                evalContextCache,
+              );
+            }
           } catch (error) {
             this.errors.push({
               type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
