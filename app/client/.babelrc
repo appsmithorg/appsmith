@@ -1,5 +1,6 @@
 {
   "plugins": [
+    "babel-plugin-lodash",
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
