@@ -14,6 +14,8 @@ import {
   Icon,
   inputFieldStyles,
   Spinner,
+  selectStyles,
+  Text,
 } from "@appsmith/wds";
 import { useField } from "react-aria";
 import type { Selection } from "react-aria-components";
@@ -77,49 +79,63 @@ export const MultiSelect = <T extends { label: string; value: string }>(
     <div className={inputFieldStyles.field}>
       {Boolean(label) && <FieldLabel {...labelProps}>{label}</FieldLabel>}
       <div
-        className={clsx(textInputStyles.inputGroup, styles.selectInputGroup)}
+        className={clsx(
+          textInputStyles.inputGroup,
+          selectStyles.selectInputGroup,
+        )}
       >
         <DialogTrigger>
           <Button
-            className={clsx(textInputStyles.input, styles.selectTriggerButton)}
+            className={clsx(
+              textInputStyles.input,
+              selectStyles.selectTriggerButton,
+            )}
             excludeFromTabOrder={excludeFromTabOrder}
             isDisabled={isDisabled}
             ref={triggerRef}
             type="button"
             {...fieldProps}
           >
-            <span>
-              <span data-select-text>{formatItems(selectedKeys)}</span>
-              <span data-input-suffix>
-                {Boolean(isLoading) ? (
-                  <Spinner />
-                ) : (
-                  <Icon name="chevron-down" size="medium" />
-                )}
-              </span>
+            <span
+              data-placeholder={[...selectedKeys].length === 0 ? "" : undefined}
+              data-select-text
+            >
+              {formatItems(selectedKeys)}
+            </span>
+            <span data-input-suffix>
+              {Boolean(isLoading) ? (
+                <Spinner />
+              ) : (
+                <Icon name="chevron-down" size="medium" />
+              )}
             </span>
           </Button>
           <VisuallyHidden />
           <Popover
             UNSTABLE_portalContainer={root}
+            className={styles.popover}
             placement="bottom start"
             style={
               {
-                width: `${triggerRef?.current?.offsetWidth}px`,
-                overflow: "auto",
+                "--trigger-width": `${triggerRef?.current?.offsetWidth}px`,
               } as React.CSSProperties
             }
             triggerRef={triggerRef}
           >
             <UNSTABLE_Autocomplete filter={filter}>
-              <TextField autoFocus />
+              <TextField autoFocus className={styles.textField} />
               <ListBox
+                className={styles.listBox}
                 disabledKeys={disabledKeys}
                 items={items}
                 onSelectionChange={(keys) => {
                   setSelectedKeys(keys);
                 }}
-                renderEmptyState={() => <div>No options</div>}
+                renderEmptyState={() => (
+                  <div className={styles.emptyState}>
+                    <Text color="neutral-subtle">No options found</Text>
+                  </div>
+                )}
                 selectedKeys={selectedKeys}
                 selectionMode="multiple"
                 shouldFocusWrap
