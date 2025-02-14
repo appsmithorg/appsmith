@@ -106,6 +106,7 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  isInfiniteScrollEnabled: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -131,6 +132,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isAddRowInProgress,
+    isInfiniteScrollEnabled,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -246,6 +248,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
+      isInfiniteScrollEnabled={isInfiniteScrollEnabled}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
