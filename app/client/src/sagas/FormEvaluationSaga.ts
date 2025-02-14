@@ -37,7 +37,10 @@ import {
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "entities/Plugin";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import {
+  doesPluginRequireDatasource,
+  type ActionParentEntityTypeInterface,
+} from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
 import { objectKeys } from "@appsmith/utils";
 
@@ -45,6 +48,7 @@ export interface FormEvalActionPayload {
   formId: string;
   datasourceId?: string;
   pluginId?: string;
+  editorContextType: ActionParentEntityTypeInterface;
   actionConfiguration?: ActionConfig;
   editorConfig?: FormConfigType[];
   settingConfig?: FormConfigType[];
