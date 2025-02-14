@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { useEventCallback } from "usehooks-ts";
 import { componentWillAppendToBody } from "react-append-to-body";
-import { debounce } from "lodash";
+import { debounce, get } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
@@ -56,9 +56,14 @@ export function PeekOverlayPopUpContent(
     configTree,
   );
 
-  const { id } = getEntityPayloadInfo[dataTree[objectName].ENTITY_TYPE](
-    configTree[objectName],
-  );
+  let id: string | undefined;
+  const entityType = get(dataTree, [objectName, "ENTITY_TYPE"]);
+
+  if (entityType && objectName in configTree) {
+    const entityInfo = getEntityPayloadInfo[entityType](configTree[objectName]);
+
+    if (entityInfo) id = entityInfo.id;
+  }
 
   const [jsData, dataType] = useMemo(
     // Because getPropertyData can return a function
@@ -108,9 +113,9 @@ export function PeekOverlayPopUpContent(
         <Styled.DataType className="first-letter:uppercase">
           {dataType}
         </Styled.DataType>
-        {propertyPath.length === 0 && (
+        {propertyPath.length === 0 && id ? (
           <InspectStateHeaderButton entityId={id} />
-        )}
+        ) : null}
       </Styled.Header>
 
       <Styled.BlockDivider />
