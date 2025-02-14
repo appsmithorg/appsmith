@@ -275,28 +275,6 @@ function* readBlob(blobUrl: string): any {
   });
 }
 
-// Add this utility function near the top of the file with other utility functions
-const downloadBinaryFile = (binaryData: string, filename = "download.pdf") => {
-  // Convert binary string to array buffer
-  const bytes = new Uint8Array(binaryData.length);
-
-  for (let i = 0; i < binaryData.length; i++) {
-    bytes[i] = binaryData.charCodeAt(i);
-  }
-
-  // Create blob and download
-  const blob = new Blob([bytes], { type: "application/pdf" });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
-
 /**
  * This function resolves :
  * - individual objects containing blob urls
@@ -321,15 +299,10 @@ function* resolvingBlobUrls(
   isArray?: boolean,
   arrDatatype?: string[],
 ) {
-  // Check if the resolved value is a string and contains PDF-1.4
-  if (typeof value === "string" && value.includes("PDF-1.4")) {
-    downloadBinaryFile(value, `debug_${Date.now()}.pdf`);
-  }
-
-  // Get datatypes of evaluated value
+  //Get datatypes of evaluated value.
   const dataType: string = findDatatype(value);
 
-  // If array elements then dont push datatypes to payload
+  //If array elements then dont push datatypes to payload.
   isArray
     ? arrDatatype?.push(dataType)
     : (executeActionRequest.paramProperties[`k${index}`] = {
@@ -350,6 +323,9 @@ function* resolvingBlobUrls(
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
 
       set(value, blobUrlPath, resolvedBlobValue);
+
+      // We need to store the url path map to be able to update the blob data
+      // and send the info to server
 
       // Here we fetch the blobUrlPathMap from the action payload and update it
       const blobUrlPathMap = get(value, "blobUrlPaths", {}) as Record<
