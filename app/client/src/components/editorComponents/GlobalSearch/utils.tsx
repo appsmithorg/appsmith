@@ -8,7 +8,7 @@ import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Plugin";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import WidgetFactory from "WidgetProvider/factory";
