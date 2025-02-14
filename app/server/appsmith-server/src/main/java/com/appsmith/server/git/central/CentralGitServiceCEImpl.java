@@ -1647,25 +1647,24 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     Mono<? extends Artifact> deleteAllBranchesExceptBase = gitArtifactHelper
                             .getAllArtifactByBaseId(baseArtifactId, artifactEditPermission)
                             .flatMap(artifact -> {
-                                if (artifact.getGitArtifactMetadata() != null
-                                        && artifact.getId().equals(baseArtifactId)) {
-                                    // base Artifact condition fulfilled
-                                    artifact.setGitArtifactMetadata(null);
-                                    gitArtifactHelper.resetAttributeInBaseArtifact(artifact);
-                                    return gitArtifactHelper
-                                            .saveArtifact(artifact)
-                                            .flatMap(baseArtifact -> {
-                                                return gitArtifactHelper.disconnectEntitiesOfBaseArtifact(baseArtifact);
-                                            });
-                                }
-
                                 if (artifact.getGitArtifactMetadata() == null
                                         || RefType.tag.equals(artifact.getGitArtifactMetadata()
                                                 .getRefType())) {
                                     return Mono.just(artifact);
                                 }
 
-                                return gitArtifactHelper.deleteArtifactByResource(artifact);
+                                // it's established that git artifact metadata is not null
+                                if (!artifact.getId().equals(baseArtifactId)) {
+                                    return gitArtifactHelper.deleteArtifactByResource(artifact);
+                                }
+
+                                // base Artifact condition fulfilled
+                                artifact.setGitArtifactMetadata(null);
+                                gitArtifactHelper.resetAttributeInBaseArtifact(artifact);
+
+                                return gitArtifactHelper.saveArtifact(artifact).flatMap(baseArtifact -> {
+                                    return gitArtifactHelper.disconnectEntitiesOfBaseArtifact(baseArtifact);
+                                });
                             })
                             .filter(artifact -> {
                                 return artifact.getId().equals(baseArtifactId);

@@ -488,8 +488,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     /**
      * Push flow for dehydrated apps
-     *
-     * @param branchedArtifact application which needs to be pushed to remote repo
+     * @param branchedArtifact artifact which needs to be pushed to remote repo
      * @return Success message
      */
     protected Mono<String> pushArtifact(Artifact branchedArtifact) {
