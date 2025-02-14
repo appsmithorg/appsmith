@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Button, Tooltip } from "@appsmith/ads";
-import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerActions";
+import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerStateInspector";
 import { useDispatch } from "react-redux";
 import { DEBUGGER_TAB_KEYS } from "../../constants";
 import { useDebuggerConfig } from "../../hooks/useDebuggerConfig";

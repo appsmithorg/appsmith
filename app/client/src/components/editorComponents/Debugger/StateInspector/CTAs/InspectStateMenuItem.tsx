@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { MenuItem } from "@appsmith/ads";
 import { CONTEXT_INSPECT_STATE, createMessage } from "ee/constants/messages";
-import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerActions";
+import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerStateInspector";
 import { useDispatch } from "react-redux";
 import { DEBUGGER_TAB_KEYS } from "../../constants";
 import { useDebuggerConfig } from "../../hooks/useDebuggerConfig";
