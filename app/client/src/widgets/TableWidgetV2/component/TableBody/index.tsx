@@ -59,7 +59,7 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
-  isInfiniteScrollEnabled: boolean;
+  isInfiniteScrollEnabled?: boolean;
   isLoading: boolean;
   loadMoreFromEvaluations: () => void;
 }

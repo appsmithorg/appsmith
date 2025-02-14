@@ -1,0 +1,1103 @@
+{
+    "artifactJsonType": "APPLICATION",
+    "clientSchemaVersion": 2.0,
+    "serverSchemaVersion": 11.0,
+    "exportedApplication": {
+        "name": "Untitled application 1",
+        "isPublic": false,
+        "pages": [{ "id": "Page1", "isDefault": true }],
+        "publishedPages": [{ "id": "Page1", "isDefault": true }],
+        "viewMode": false,
+        "appIsExample": false,
+        "unreadCommentThreads": 0.0,
+        "unpublishedApplicationDetail": {
+            "appPositioning": { "type": "FIXED" },
+            "navigationSetting": {},
+            "themeSetting": {
+                "sizing": 1.0,
+                "density": 1.0,
+                "appMaxWidth": "LARGE"
+            }
+        },
+        "publishedApplicationDetail": {
+            "appPositioning": { "type": "FIXED" },
+            "navigationSetting": {},
+            "themeSetting": {
+                "sizing": 1.0,
+                "density": 1.0,
+                "appMaxWidth": "LARGE"
+            }
+        },
+        "color": "#FFEFDB",
+        "icon": "package",
+        "slug": "untitled-application-1",
+        "unpublishedCustomJSLibs": [],
+        "publishedCustomJSLibs": [],
+        "evaluationVersion": 2.0,
+        "applicationVersion": 2.0,
+        "collapseInvisibleWidgets": true,
+        "isManualUpdate": false,
+        "deleted": false
+    },
+    "datasourceList": [],
+    "customJSLibList": [],
+    "pageList": [
+        {
+            "unpublishedPage": {
+                "name": "Page1",
+                "slug": "page1",
+                "layouts": [
+                    {
+                        "viewMode": false,
+                        "dsl": {
+                            "widgetName": "MainContainer",
+                            "backgroundColor": "none",
+                            "rightColumn": 539.0,
+                            "snapColumns": 64.0,
+                            "detachFromLayout": true,
+                            "widgetId": "0",
+                            "topRow": 0.0,
+                            "bottomRow": 710.0,
+                            "containerStyle": "none",
+                            "snapRows": 125.0,
+                            "parentRowSpace": 1.0,
+                            "type": "CANVAS_WIDGET",
+                            "canExtend": true,
+                            "version": 91.0,
+                            "minHeight": 1292.0,
+                            "parentColumnSpace": 1.0,
+                            "dynamicBindingPathList": [],
+                            "leftColumn": 0.0,
+                            "children": [
+                                {
+                                    "boxShadow": "none",
+                                    "widgetName": "FilePicker1",
+                                    "dynamicPropertyPathList": [
+                                        { "key": "onFilesSelected" }
+                                    ],
+                                    "buttonColor": "#03B365",
+                                    "displayName": "FilePicker",
+                                    "iconSVG": "/static/media/icon.7c5ad9c3.svg",
+                                    "topRow": 19.0,
+                                    "bottomRow": 23.0,
+                                    "parentRowSpace": 10.0,
+                                    "allowedFileTypes": [],
+                                    "type": "FILE_PICKER_WIDGET_V2",
+                                    "hideCard": false,
+                                    "animateLoading": true,
+                                    "parentColumnSpace": 16.921875,
+                                    "dynamicTriggerPathList": [
+                                        { "key": "onFilesSelected" }
+                                    ],
+                                    "leftColumn": 24.0,
+                                    "dynamicBindingPathList": [],
+                                    "isDisabled": false,
+                                    "key": "p3l7kkj73w",
+                                    "onFilesSelected": "{{JSObject1.upload()}}",
+                                    "labelTextSize": "0.875rem",
+                                    "isRequired": false,
+                                    "rightColumn": 40.0,
+                                    "isDefaultClickDisabled": true,
+                                    "widgetId": "fa9qrs8i86",
+                                    "isVisible": true,
+                                    "label": "Select Files",
+                                    "maxFileSize": 5.0,
+                                    "version": 1.0,
+                                    "fileDataType": "Base64",
+                                    "parentId": "0",
+                                    "selectedFiles": [],
+                                    "renderMode": "CANVAS",
+                                    "isLoading": false,
+                                    "borderRadius": "0px",
+                                    "files": [],
+                                    "maxNumFiles": 1.0
+                                },
+                                {
+                                    "boxShadow": "none",
+                                    "widgetName": "Image1",
+                                    "displayName": "Image",
+                                    "iconSVG": "/static/media/icon.52d8fb96.svg",
+                                    "topRow": 26.0,
+                                    "bottomRow": 71.0,
+                                    "parentRowSpace": 10.0,
+                                    "type": "IMAGE_WIDGET",
+                                    "hideCard": false,
+                                    "animateLoading": true,
+                                    "parentColumnSpace": 16.921875,
+                                    "dynamicTriggerPathList": [],
+                                    "imageShape": "RECTANGLE",
+                                    "leftColumn": 18.0,
+                                    "dynamicBindingPathList": [
+                                        { "key": "image" }
+                                    ],
+                                    "defaultImage": "",
+                                    "key": "tfm5uqw4f4",
+                                    "labelTextSize": "0.875rem",
+                                    "image": "{{MultipartAPI.data.url}}",
+                                    "rightColumn": 46.0,
+                                    "objectFit": "contain",
+                                    "widgetId": "m59cig84vv",
+                                    "isVisible": true,
+                                    "version": 1.0,
+                                    "parentId": "0",
+                                    "renderMode": "CANVAS",
+                                    "isLoading": false,
+                                    "maxZoomLevel": 1.0,
+                                    "enableDownload": false,
+                                    "borderRadius": "0px",
+                                    "enableRotation": false
+                                }
+                            ]
+                        },
+                        "layoutOnLoadActions": [],
+                        "layoutOnLoadActionErrors": [],
+                        "validOnPageLoadActions": true,
+                        "id": "Page1",
+                        "deleted": false,
+                        "policies": [],
+                        "userPermissions": []
+                    }
+                ],
+                "userPermissions": [],
+                "policyMap": {}
+            },
+            "publishedPage": {
+                "name": "Page1",
+                "slug": "page1",
+                "layouts": [
+                    {
+                        "viewMode": false,
+                        "dsl": {
+                            "widgetName": "MainContainer",
+                            "backgroundColor": "none",
+                            "rightColumn": 539.0,
+                            "snapColumns": 64.0,
+                            "detachFromLayout": true,
+                            "widgetId": "0",
+                            "topRow": 0.0,
+                            "bottomRow": 710.0,
+                            "containerStyle": "none",
+                            "snapRows": 125.0,
+                            "parentRowSpace": 1.0,
+                            "type": "CANVAS_WIDGET",
+                            "canExtend": true,
+                            "version": 91.0,
+                            "minHeight": 1292.0,
+                            "parentColumnSpace": 1.0,
+                            "dynamicBindingPathList": [],
+                            "leftColumn": 0.0,
+                            "children": [
+                                {
+                                    "boxShadow": "none",
+                                    "widgetName": "FilePicker1",
+                                    "dynamicPropertyPathList": [
+                                        { "key": "onFilesSelected" }
+                                    ],
+                                    "buttonColor": "#03B365",
+                                    "displayName": "FilePicker",
+                                    "iconSVG": "/static/media/icon.7c5ad9c3.svg",
+                                    "topRow": 19.0,
+                                    "bottomRow": 23.0,
+                                    "parentRowSpace": 10.0,
+                                    "allowedFileTypes": [],
+                                    "type": "FILE_PICKER_WIDGET_V2",
+                                    "hideCard": false,
+                                    "animateLoading": true,
+                                    "parentColumnSpace": 16.921875,
+                                    "dynamicTriggerPathList": [
+                                        { "key": "onFilesSelected" }
+                                    ],
+                                    "leftColumn": 24.0,
+                                    "dynamicBindingPathList": [],
+                                    "isDisabled": false,
+                                    "key": "p3l7kkj73w",
+                                    "onFilesSelected": "{{JSObject1.upload()}}",
+                                    "labelTextSize": "0.875rem",
+                                    "isRequired": false,
+                                    "rightColumn": 40.0,
+                                    "isDefaultClickDisabled": true,
+                                    "widgetId": "fa9qrs8i86",
+                                    "isVisible": true,
+                                    "label": "Select Files",
+                                    "maxFileSize": 5.0,
+                                    "version": 1.0,
+                                    "fileDataType": "Base64",
+                                    "parentId": "0",
+                                    "selectedFiles": [],
+                                    "renderMode": "CANVAS",
+                                    "isLoading": false,
+                                    "borderRadius": "0px",
+                                    "files": [],
+                                    "maxNumFiles": 1.0
+                                },
+                                {
+                                    "boxShadow": "none",
+                                    "widgetName": "Image1",
+                                    "displayName": "Image",
+                                    "iconSVG": "/static/media/icon.52d8fb96.svg",
+                                    "topRow": 26.0,
+                                    "bottomRow": 71.0,
+                                    "parentRowSpace": 10.0,
+                                    "type": "IMAGE_WIDGET",
+                                    "hideCard": false,
+                                    "animateLoading": true,
+                                    "parentColumnSpace": 16.921875,
+                                    "dynamicTriggerPathList": [],
+                                    "imageShape": "RECTANGLE",
+                                    "leftColumn": 18.0,
+                                    "dynamicBindingPathList": [
+                                        { "key": "image" }
+                                    ],
+                                    "defaultImage": "",
+                                    "key": "tfm5uqw4f4",
+                                    "labelTextSize": "0.875rem",
+                                    "image": "{{MultipartAPI.data.url}}",
+                                    "rightColumn": 46.0,
+                                    "objectFit": "contain",
+                                    "widgetId": "m59cig84vv",
+                                    "isVisible": true,
+                                    "version": 1.0,
+                                    "parentId": "0",
+                                    "renderMode": "CANVAS",
+                                    "isLoading": false,
+                                    "maxZoomLevel": 1.0,
+                                    "enableDownload": false,
+                                    "borderRadius": "0px",
+                                    "enableRotation": false
+                                }
+                            ]
+                        },
+                        "layoutOnLoadActions": [],
+                        "layoutOnLoadActionErrors": [],
+                        "validOnPageLoadActions": true,
+                        "id": "Page1",
+                        "deleted": false,
+                        "policies": [],
+                        "userPermissions": []
+                    }
+                ],
+                "userPermissions": [],
+                "policyMap": {}
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_e4a8ba27-07ce-4573-bf9c-964bd72a449b",
+            "deleted": false
+        }
+    ],
+    "actionList": [
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "FirstAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:01Z"
+            },
+            "publishedAction": {
+                "name": "FirstAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:01Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_da38439b-4705-48b2-9055-53df2b742660",
+            "id": "Page1_FirstAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "SecondAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "GET",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:21Z"
+            },
+            "publishedAction": {
+                "name": "SecondAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "GET",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:21Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_48ae0a7f-406b-49e2-8ace-000bfc79773b",
+            "id": "Page1_SecondAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "ThirdAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "application/x-www-form-urlencoded"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": {
+                        "apiContentType": "application/x-www-form-urlencoded"
+                    }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:32Z"
+            },
+            "publishedAction": {
+                "name": "ThirdAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "application/x-www-form-urlencoded"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": {
+                        "apiContentType": "application/x-www-form-urlencoded"
+                    }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:32Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_130dfcc1-2a1a-4b96-b98c-d455899e94fa",
+            "id": "Page1_ThirdAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "FourthAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:50Z"
+            },
+            "publishedAction": {
+                "name": "FourthAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:45:50Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_41a05b9a-6bfb-4ab3-b18d-ab50a71fab6b",
+            "id": "Page1_FourthAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "FiveAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:07Z"
+            },
+            "publishedAction": {
+                "name": "FiveAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:07Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_059331b9-8047-41ed-a098-386c381e19c5",
+            "id": "Page1_FiveAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "SixAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:21Z"
+            },
+            "publishedAction": {
+                "name": "SixAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 10000.0,
+                    "paginationType": "NONE",
+                    "headers": [],
+                    "autoGeneratedHeaders": [],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "none" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:21Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_42cbb49d-939d-423a-baf3-f1997bce2f01",
+            "id": "Page1_SixAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "API",
+            "pluginId": "restapi-plugin",
+            "unpublishedAction": {
+                "name": "MultipartAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "datasourceConfiguration": {
+                        "url": "http://host.docker.internal:5001"
+                    },
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 30000.0,
+                    "paginationType": "NONE",
+                    "path": "/v1/mock-api/echo-multipart",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [
+                        {
+                            "key": "file",
+                            "value": "{{FilePicker1.files[0]}}",
+                            "type": "File"
+                        }
+                    ],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [{ "key": "bodyFormData[0].value" }],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": ["FilePicker1.files[0]"],
+                "userSetOnLoad": true,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:47Z"
+            },
+            "publishedAction": {
+                "name": "MultipartAPI",
+                "datasource": {
+                    "name": "DEFAULT_REST_DATASOURCE",
+                    "pluginId": "restapi-plugin",
+                    "datasourceConfiguration": {
+                        "url": "http://host.docker.internal:5001"
+                    },
+                    "invalids": [],
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 30000.0,
+                    "paginationType": "NONE",
+                    "path": "/v1/mock-api/echo-multipart",
+                    "headers": [],
+                    "autoGeneratedHeaders": [
+                        {
+                            "key": "content-type",
+                            "value": "multipart/form-data"
+                        }
+                    ],
+                    "encodeParamsToggle": true,
+                    "queryParameters": [],
+                    "body": "",
+                    "bodyFormData": [
+                        {
+                            "key": "file",
+                            "value": "{{FilePicker1.files[0]}}",
+                            "type": "File"
+                        }
+                    ],
+                    "httpMethod": "POST",
+                    "httpVersion": "HTTP11",
+                    "selfReferencingDataPaths": [],
+                    "pluginSpecifiedTemplates": [{ "value": true }],
+                    "formData": { "apiContentType": "multipart/form-data" }
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [{ "key": "bodyFormData[0].value" }],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": ["FilePicker1.files[0]"],
+                "userSetOnLoad": true,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:46:47Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_0d4beab8-dcdd-4426-9c25-209f91aa4bcb",
+            "id": "Page1_MultipartAPI",
+            "deleted": false
+        },
+        {
+            "pluginType": "JS",
+            "pluginId": "js-plugin",
+            "unpublishedAction": {
+                "name": "upload",
+                "fullyQualifiedName": "JSObject1.upload",
+                "datasource": {
+                    "name": "UNUSED_DATASOURCE",
+                    "pluginId": "js-plugin",
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "collectionId": "Page1_JSObject1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 0.0,
+                    "paginationType": "NONE",
+                    "encodeParamsToggle": true,
+                    "body": "async () => {\n  await MultipartAPI.run().then(() => showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n  await resetWidget('FilePicker1', true);\n}",
+                    "selfReferencingDataPaths": [],
+                    "jsArguments": []
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [{ "key": "body" }],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [
+                    "async () => {\n  await MultipartAPI.run().then(() => showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n  await resetWidget('FilePicker1', true);\n}"
+                ],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:47:12Z"
+            },
+            "publishedAction": {
+                "name": "upload",
+                "fullyQualifiedName": "JSObject1.upload",
+                "datasource": {
+                    "name": "UNUSED_DATASOURCE",
+                    "pluginId": "js-plugin",
+                    "messages": [],
+                    "isAutoGenerated": false,
+                    "deleted": false,
+                    "policyMap": {},
+                    "policies": [],
+                    "userPermissions": []
+                },
+                "pageId": "Page1",
+                "collectionId": "Page1_JSObject1",
+                "actionConfiguration": {
+                    "timeoutInMillisecond": 0.0,
+                    "paginationType": "NONE",
+                    "encodeParamsToggle": true,
+                    "body": "async () => {\n  await MultipartAPI.run().then(() => showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n  await resetWidget('FilePicker1', true);\n}",
+                    "selfReferencingDataPaths": [],
+                    "jsArguments": []
+                },
+                "executeOnLoad": false,
+                "dynamicBindingPathList": [{ "key": "body" }],
+                "isValid": true,
+                "invalids": [],
+                "messages": [],
+                "jsonPathKeys": [
+                    "async () => {\n  await MultipartAPI.run().then(() => showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n  await resetWidget('FilePicker1', true);\n}"
+                ],
+                "userSetOnLoad": false,
+                "confirmBeforeExecute": false,
+                "policyMap": {},
+                "userPermissions": [],
+                "createdAt": "2025-02-13T10:47:12Z"
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_9e25e834-fb59-41f2-8ead-b90fa2cf9353",
+            "id": "Page1_JSObject1.upload",
+            "deleted": false
+        }
+    ],
+    "actionCollectionList": [
+        {
+            "unpublishedCollection": {
+                "name": "JSObject1",
+                "pageId": "Page1",
+                "pluginId": "js-plugin",
+                "pluginType": "JS",
+                "actions": [],
+                "archivedActions": [],
+                "body": "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tupload: async () => {\n\t\tawait MultipartAPI.run().then(()=> showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n\t\tawait resetWidget('FilePicker1', true);\n\t}\n}",
+                "variables": [
+                    { "name": "myVar1", "value": "[]" },
+                    { "name": "myVar2", "value": "{}" }
+                ],
+                "userPermissions": []
+            },
+            "publishedCollection": {
+                "name": "JSObject1",
+                "pageId": "Page1",
+                "pluginId": "js-plugin",
+                "pluginType": "JS",
+                "actions": [],
+                "archivedActions": [],
+                "body": "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tupload: async () => {\n\t\tawait MultipartAPI.run().then(()=> showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));\n\t\tawait resetWidget('FilePicker1', true);\n\t}\n}",
+                "variables": [
+                    { "name": "myVar1", "value": "[]" },
+                    { "name": "myVar2", "value": "{}" }
+                ],
+                "userPermissions": []
+            },
+            "gitSyncId": "67adcd2737c97a2b579484d5_1ff63c40-dd3d-4645-a43a-600c5b771374",
+            "id": "Page1_JSObject1",
+            "deleted": false
+        }
+    ],
+    "editModeTheme": {
+        "name": "Default-New",
+        "displayName": "Modern",
+        "isSystemTheme": true,
+        "deleted": false
+    },
+    "publishedTheme": {
+        "name": "Default-New",
+        "displayName": "Modern",
+        "isSystemTheme": true,
+        "deleted": false
+    }
+}
