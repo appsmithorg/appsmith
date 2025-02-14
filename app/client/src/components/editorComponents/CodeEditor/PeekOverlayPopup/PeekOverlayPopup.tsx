@@ -110,7 +110,10 @@ export function PeekOverlayPopUpContent(
       {...getPositionValues()}
     >
       <Styled.Header>
-        <Styled.DataType className="first-letter:uppercase">
+        <Styled.DataType
+          className="first-letter:uppercase"
+          data-testid="t--peek-overlay-data-type"
+        >
           {dataType}
         </Styled.DataType>
         {propertyPath.length === 0 && id ? (
