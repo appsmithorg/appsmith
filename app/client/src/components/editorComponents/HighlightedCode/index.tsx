@@ -30,7 +30,7 @@ const StyledCode = styled.div<{ skin: Skin }>`
   }
 `;
 
-/* When adding an entry please make sure to include it in the craco.common.config.js as well */
+/* When adding an entry please make sure to include it in the webpack.config.js as well */
 export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {
   JAVASCRIPT = "language-javascript",
   APPSMITH = "language-appsmith-binding", // Please note that we're using the CSS class name required by prismjs.
