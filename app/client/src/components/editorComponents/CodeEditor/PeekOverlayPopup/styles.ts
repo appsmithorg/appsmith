@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Divider } from "@appsmith/ads";
+import { Divider, Flex } from "@appsmith/ads";
 
 export const PeekOverlayContainer = styled.div<{
   $left: string;
@@ -17,12 +17,18 @@ export const PeekOverlayContainer = styled.div<{
   bottom: ${({ $bottom }) => $bottom};
 `;
 
-export const DataType = styled.div`
-  height: 24px;
-  color: var(--appsmith-color-black-700);
-  padding: var(--ads-v2-spaces-2) 0 var(--ads-v2-spaces-2)
+export const Header = styled(Flex)`
+  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-2) var(--ads-v2-spaces-2)
     var(--ads-v2-spaces-4);
-  font-size: 10px;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+  height: 32px;
+`;
+
+export const DataType = styled.div`
+  color: var(--appsmith-color-black-700);
+  font-size: 12px;
 `;
 
 export const BlockDivider = styled(Divider)`

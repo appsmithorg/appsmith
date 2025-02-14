@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerActions";
-import { getDebuggerStateInspectorSelectedItem } from "selectors/debuggerSelectors";
+import { setDebuggerStateInspectorSelectedItem } from "actions/debuggerStateInspector";
+import { getDebuggerStateInspectorSelectedItem } from "selectors/debuggerStateInspector";
 
 export const useStateInspectorState: () => [
   string | undefined,
