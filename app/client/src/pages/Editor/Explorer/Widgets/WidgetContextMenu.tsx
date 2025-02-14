@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import type { AppState } from "ee/reducers";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import { useDeleteWidget } from "pages/AppIDE/components/UIEntityListTree/hooks/useDeleteWidget";

@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.operations.FileOperations;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -22,6 +23,7 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
 
     public CommonGitFileUtils(
             ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
+            GitServiceConfig gitServiceConfig,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
@@ -32,6 +34,7 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
             ObjectMapper objectMapper) {
         super(
                 applicationGitFileUtils,
+                gitServiceConfig,
                 fileUtils,
                 fileOperations,
                 analyticsService,

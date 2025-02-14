@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { sourceDataArrayValidation } from "./validations";
 import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
 import type { MenuButtonWidgetProps } from "../../widget/types";
