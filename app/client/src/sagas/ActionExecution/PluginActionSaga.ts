@@ -322,7 +322,7 @@ function* resolvingBlobUrls(
   arrDatatype?: string[],
 ) {
   // Check if the resolved value is a string and contains PDF-1.4
-  if (typeof value === "string" && value.includes("PDF-1.4")) {
+  if (typeof value === "string") {
     downloadBinaryFile(value, `debug_${Date.now()}.pdf`);
   }
 
