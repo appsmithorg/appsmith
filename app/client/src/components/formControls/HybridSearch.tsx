@@ -2,7 +2,7 @@ import React from "react";
 import { Field, type WrappedFieldInputProps } from "redux-form";
 import BaseControl from "./BaseControl";
 import type { ControlProps } from "./BaseControl";
-import { Slider, type SliderProps, Flex, Switch } from "@appsmith/ads";
+import { Slider, type SliderProps, Flex, Switch, Text } from "@appsmith/ads";
 
 export interface HybridSearchControlProps
   extends ControlProps,
@@ -33,18 +33,11 @@ const renderHybridSearchControl = (
 ) => {
   const { input } = props;
 
-  const onKeywordWeightChange = (value: number) => {
+  const onSliderChange = (value: number) => {
     input?.onChange({
       ...input?.value,
       keywordWeight: value,
       semanticWeight: (10 - value * 10) / 10, // Scale by 10 to avoid floating-point issues
-    });
-  };
-  const onSemanticWeightChange = (value: number) => {
-    input?.onChange({
-      ...input?.value,
-      keywordWeight: (10 - value * 10) / 10, // Scale by 10 to avoid floating-point issues
-      semanticWeight: value,
     });
   };
   const onSwitchChange = (value: boolean) => {
@@ -64,25 +57,21 @@ const renderHybridSearchControl = (
           Hybrid search
         </Switch>
       </Flex>
-      <Flex alignItems="center" gap="spaces-4">
+      <Flex flexDirection="column">
         <Slider
+          getValueLabel={() => "Semantic weight"}
           isDisabled={!input?.value.isEnabled}
           label="Keyword weight"
           maxValue={1}
           minValue={0}
-          onChange={onKeywordWeightChange}
+          onChange={onSliderChange}
           step={0.1}
           value={input?.value.keywordWeight}
         />
-        <Slider
-          isDisabled={!input?.value.isEnabled}
-          label="Semantic weight"
-          maxValue={1}
-          minValue={0}
-          onChange={onSemanticWeightChange}
-          step={0.1}
-          value={input?.value.semanticWeight}
-        />
+        <Flex justifyContent="space-between">
+          <Text>{input?.value.keywordWeight}</Text>
+          <Text>{input?.value.semanticWeight}</Text>
+        </Flex>
       </Flex>
     </Flex>
   );
