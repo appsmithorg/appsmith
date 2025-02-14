@@ -1,7 +1,6 @@
 package com.appsmith.server.git.controllers;
 
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -88,7 +87,7 @@ public class GitArtifactControllerCE {
 
         // TODO: remove artifact type from methods.
         return centralGitService
-                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION, GIT_TYPE)
+                .importArtifactFromGit(workspaceId, gitConnectDTO, GIT_TYPE)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 

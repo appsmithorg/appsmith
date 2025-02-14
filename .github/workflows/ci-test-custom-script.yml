@@ -371,6 +371,7 @@ jobs:
           CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
           CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           NODE_ENV: development
+          GITHUB_WORKFLOW : ${{ github.workflow }}
         run: |
             cd app/client
             ls -la

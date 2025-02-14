@@ -42,6 +42,7 @@ export default class util {
       staticAllocation: this.getEnvValue("CYPRESS_STATIC_ALLOCATION", {
         required: false,
       }),
+      gitWorkflowName: this.getEnvValue("GITHUB_WORKFLOW", { required: false }),
     };
   }
 
