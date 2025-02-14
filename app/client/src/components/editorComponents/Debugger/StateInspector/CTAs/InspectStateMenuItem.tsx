@@ -23,7 +23,11 @@ export function InspectStateMenuItem({ disabled, entityId }: Props) {
   }, [config, dispatch, entityId]);
 
   return (
-    <MenuItem disabled={disabled} onSelect={handleSelect} startIcon="code">
+    <MenuItem
+      disabled={disabled}
+      onSelect={handleSelect}
+      startIcon="state-inspector"
+    >
       {createMessage(CONTEXT_INSPECT_STATE)}
     </MenuItem>
   );

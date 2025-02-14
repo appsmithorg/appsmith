@@ -29,7 +29,7 @@ export function InspectStateToolbarButton({ disabled, entityId }: Props) {
         isIconButton
         kind="tertiary"
         onClick={handleSelect}
-        startIcon="code"
+        startIcon="state-inspector"
       />
     </Tooltip>
   );

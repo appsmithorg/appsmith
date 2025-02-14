@@ -28,7 +28,7 @@ export function InspectStateHeaderButton({ disabled, entityId }: Props) {
       kind="tertiary"
       onClick={handleSelect}
       size="sm"
-      startIcon="code"
+      startIcon="state-inspector"
     >
       {createMessage(CONTEXT_INSPECT_STATE)}
     </Button>
