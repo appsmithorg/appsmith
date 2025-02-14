@@ -1,12 +1,7 @@
 import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
 import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
-import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
@@ -160,6 +155,3 @@ export class DataTreeFactory {
     };
   }
 }
-
-export { ENTITY_TYPE, EvaluationSubstitutionType };
-export type { EntityTypeValue };

@@ -8,7 +8,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
@@ -1397,6 +1397,7 @@ class CodeMirrorTernService {
 
     return query;
   }
+
   updateRecentEntities(recentEntities: string[]) {
     this.recentEntities = recentEntities;
   }
