@@ -15,6 +15,7 @@ import {
   ShowBindings,
 } from "../AppPluginActionEditor/components/ContextMenuItems";
 import { MenuSeparator } from "@appsmith/ads";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export interface Props {
   action: Action;
@@ -39,10 +40,13 @@ export function AppQueryContextMenuItems(props: Props) {
   return (
     <>
       <Rename action={action} disabled={!canManageAction} />
-      <ShowBindings action={action} />
+      <MenuSeparator />
       <ConvertToModule action={action} />
       <Copy action={action} disabled={!canManageAction} />
       <Move action={action} disabled={!canManageAction} />
+      <MenuSeparator />
+      <ShowBindings action={action} />
+      <InspectStateMenuItem entityId={action.id} />
       <MenuSeparator />
       <Delete action={action} disabled={!canDeleteAction} />
     </>
