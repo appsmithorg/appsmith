@@ -21,7 +21,9 @@ import debuggerSagas from "sagas/DebuggerSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import errorSagas from "sagas/ErrorSagas";
 import evaluationsSaga from "sagas/EvaluationsSaga";
-import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
+import formEvaluationChangeListener, {
+  formEvaluationSagas,
+} from "sagas/FormEvaluationSaga";
 import gitSyncSagas from "sagas/GitSyncSagas";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
 import initSagas from "sagas/InitSagas";
@@ -81,6 +83,7 @@ export const sagas = [
   onboardingSagas,
   actionExecutionChangeListeners,
   formEvaluationChangeListener,
+  formEvaluationSagas,
   globalSearchSagas,
   debuggerSagas,
   saaSPaneSagas,

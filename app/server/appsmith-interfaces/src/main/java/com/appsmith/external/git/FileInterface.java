@@ -71,6 +71,8 @@ public interface FileInterface {
             Path repoSuffixPath,
             Boolean isResetToLastCommitRequired);
 
+    Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix);
+
     Mono<Object> reconstructPageFromGitRepo(
             String pageName, String branchName, Path repoSuffixPath, Boolean checkoutRequired);
 
