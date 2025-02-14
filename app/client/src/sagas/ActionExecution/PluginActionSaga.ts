@@ -256,14 +256,12 @@ function* readBlob(blobUrl: string): any {
       reader.readAsDataURL(file);
     } else if (fileType === FileDataTypes.Binary) {
       if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
-        //check size of the file, if less than 5mb, go with binary string method
-        // TODO: this method is deprecated, use readAsText instead
-        reader.readAsBinaryString(file);
+        // For files less than 5mb, read as base64 string
+        reader.readAsDataURL(file);
       } else {
-        // For files greater than 5 mb, use array buffer method
-        // This is to remove the bloat from the file which is added
-        // when using read as binary string method
-        reader.readAsArrayBuffer(file);
+        // For files greater than 5 mb, read as base64 string
+        // This is consistent with handling of smaller files
+        reader.readAsDataURL(file);
       }
     } else {
       reader.readAsText(file);
