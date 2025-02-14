@@ -18,12 +18,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import net.minidev.json.writer.CollectionMapper;
 import net.minidev.json.writer.JsonReader;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -48,6 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
@@ -168,18 +171,66 @@ public class DataUtils {
                 .collect(Collectors.joining("&"));
     }
 
-    public BodyInserter<?, ?> parseMultimediaData(String requestBodyObj) {
+    public BodyInserter parseMultimediaData(String requestBodyObj) {
         // This decoding for base64 is required because of
         // issue https://github.com/appsmithorg/appsmith/issues/32378
         // According to this if we tried to upload any multimedia files (img, audio, video)
         // It was not getting decoded before uploading on required URL
         if (requestBodyObj.contains(BASE64_DELIMITER)) {
             List<String> bodyArrayList = Arrays.asList(requestBodyObj.split(BASE64_DELIMITER));
-            requestBodyObj = bodyArrayList.get(bodyArrayList.size() - 1);
+            String base64Content = bodyArrayList.get(bodyArrayList.size() - 1);
 
             // Using mimeDecoder here, since base64 conversion by file picker widget follows mime standard
-            byte[] payload = Base64.getMimeDecoder().decode(bodyArrayList.get(bodyArrayList.size() - 1));
+            byte[] payload = Base64.getMimeDecoder().decode(base64Content);
             return BodyInserters.fromValue(payload);
+        }
+
+        // Handle binary format from file picker
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(requestBodyObj);
+
+            if (jsonNode.has("data")) {
+                String binaryData = jsonNode.get("data").asText();
+                log.debug("Original binary data length: " + binaryData.length());
+
+                // Create a ByteArrayInputStream from the binary data
+                ByteArrayInputStream inputStream =
+                        new ByteArrayInputStream(binaryData.getBytes(StandardCharsets.ISO_8859_1));
+
+                // Use DataBufferUtils to properly handle binary data
+                Flux<DataBuffer> dataBufferFlux = DataBufferUtils.readInputStream(
+                        () -> inputStream,
+                        new DefaultDataBufferFactory(),
+                        4096 // Same buffer size as in populateFileTypeBodyBuilder
+                        );
+
+                // Collect all DataBuffer into a single byte array
+                byte[] allBytes = DataBufferUtils.join(dataBufferFlux)
+                        .map(dataBuffer -> {
+                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                            dataBuffer.read(bytes);
+                            DataBufferUtils.release(dataBuffer);
+                            return bytes;
+                        })
+                        .block();
+
+                if (allBytes != null) {
+                    // Log first few bytes for debugging
+                    if (binaryData.startsWith("%PDF-")) {
+                        StringBuilder header = new StringBuilder();
+                        for (int i = 0; i < Math.min(8, allBytes.length); i++) {
+                            header.append((char) allBytes[i]);
+                        }
+                        log.debug("PDF header after processing: " + header);
+                    }
+
+                    return BodyInserters.fromValue(allBytes);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing binary data", e);
+            return BodyInserters.fromValue(requestBodyObj);
         }
 
         return BodyInserters.fromValue(requestBodyObj);
