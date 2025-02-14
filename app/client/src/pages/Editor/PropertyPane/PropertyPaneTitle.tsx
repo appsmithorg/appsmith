@@ -39,7 +39,7 @@ interface PropertyPaneTitleProps {
 }
 
 const StyledEditableContainer = styled.div`
-  max-width: calc(100% - 52px);
+  max-width: calc(100% - 78px);
   flex-grow: 1;
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid transparent;
