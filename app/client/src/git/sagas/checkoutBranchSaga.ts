@@ -1,6 +1,5 @@
 import { call, put, select } from "redux-saga/effects";
 import type { CheckoutBranchInitPayload } from "../store/actions/checkoutBranchActions";
-import { GitArtifactType } from "../constants/enums";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
@@ -11,8 +10,6 @@ import type {
 import { validateResponse } from "sagas/ErrorSagas";
 import checkoutRefRequest from "git/requests/checkoutRefRequest";
 import handleApiErrors from "./helpers/handleApiErrors";
-import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
-import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
@@ -45,16 +42,6 @@ export default function* checkoutBranchSaga(
           responseData: response.data,
         }),
       );
-      const trimmedBranch = branchName.replace(/^origin\//, "");
-
-      const url = new URL(window.location.href);
-
-      url.searchParams.set(GIT_BRANCH_QUERY_KEY, trimmedBranch);
-
-      if (artifactDef.artifactType === GitArtifactType.Package) {
-        yield packageRedirectToClosestEntitySaga(url.href);
-      }
-
       yield put(
         gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
       );

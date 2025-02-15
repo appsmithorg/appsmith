@@ -7,8 +7,6 @@ import type { GitArtifactPayloadAction } from "git/store/types";
 import { validateResponse } from "sagas/ErrorSagas";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
-import { GitArtifactType } from "git/constants/enums";
-import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
 import { toast } from "@appsmith/ads";
 import { createMessage, DISCARD_AND_PULL_SUCCESS } from "ee/constants/messages";
 
@@ -38,10 +36,6 @@ export default function* pullSaga(
           responseData: response.data,
         }),
       );
-
-      if (artifactDef.artifactType === GitArtifactType.Package) {
-        yield packageRedirectToClosestEntitySaga(window.location.href);
-      }
     }
   } catch (e) {
     const error = handleApiErrors(e as Error, response);

@@ -4,7 +4,7 @@ import type {
   ConnectRequestParams,
   ConnectResponse,
 } from "../requests/connectRequest.types";
-import { GitArtifactType, GitErrorCodes } from "../constants/enums";
+import { GitErrorCodes } from "../constants/enums";
 import type { GitArtifactPayloadAction } from "../store/types";
 import type { ConnectInitPayload } from "../store/actions/connectActions";
 import { call, put, select } from "redux-saga/effects";
@@ -12,7 +12,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
-import packageConnectToGitSaga from "git/artifact-helpers/package/packageConnectToGitSaga";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -48,11 +47,6 @@ export default function* connectSaga(
           responseData: response.data,
         }),
       );
-
-      if (artifactDef.artifactType === GitArtifactType.Package) {
-        yield packageConnectToGitSaga(artifactDef);
-      }
-
       yield put(
         gitArtifactActions.toggleConnectModal({ artifactDef, open: false }),
       );
