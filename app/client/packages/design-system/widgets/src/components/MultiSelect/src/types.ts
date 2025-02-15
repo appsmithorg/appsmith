@@ -8,7 +8,7 @@ import type {
 export interface MultiSelectProps<T>
   extends Omit<
       SpectrumSelectProps<object>,
-      "slot" | "selectedKeys" | "onSelectionChange"
+      "slot" | "selectedKey" | "onSelectionChange"
     >,
     FieldProps {
   /** size of the select
@@ -29,13 +29,9 @@ export interface MultiSelectProps<T>
    */
   items: ListBoxProps<T>["items"];
   /**
-   * The keys of the disabled items.
-   */
-  disabledKeys?: string[];
-  /**
    * The keys of the default selected items.
    */
-  defaultSelectedKeys?: string[];
+  defaultSelectedKeys?: Selection;
   /**
    * Whether the select is loading.
    */

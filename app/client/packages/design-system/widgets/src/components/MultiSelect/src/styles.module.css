@@ -10,6 +10,10 @@
   gap: var(--inner-spacing-2);
 }
 
+.listBoxItem:first-of-type {
+  border-radius: 0;
+}
+
 .listBoxItem::before {
   content: "";
   height: var(--sizing-5);
@@ -44,6 +48,7 @@
     > [data-input]:is([data-focused], [data-focus-within]):not([data-readonly])
   ) {
   box-shadow: none;
+  border-radius: 0;
 }
 
 /* We don't want to show the border of input when the first item is focused 
@@ -57,4 +62,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.multiSelectValue > * {
+  flex-shrink: 0;
+  min-width: 0;
 }
