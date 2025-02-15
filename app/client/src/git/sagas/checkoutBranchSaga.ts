@@ -11,7 +11,6 @@ import type {
 import { validateResponse } from "sagas/ErrorSagas";
 import checkoutRefRequest from "git/requests/checkoutRefRequest";
 import handleApiErrors from "./helpers/handleApiErrors";
-import applicationRedirectToClosestEntitySaga from "git/artifact-helpers/application/applicationRedirectToClosestEntitySaga";
 import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
 import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
 
@@ -40,18 +39,22 @@ export default function* checkoutBranchSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
+      yield put(
+        gitArtifactActions.checkoutBranchSuccess({
+          artifactDef,
+          responseData: response.data,
+        }),
+      );
       const trimmedBranch = branchName.replace(/^origin\//, "");
+
       const url = new URL(window.location.href);
 
       url.searchParams.set(GIT_BRANCH_QUERY_KEY, trimmedBranch);
 
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield applicationRedirectToClosestEntitySaga(url.href);
-      } else if (artifactDef.artifactType === GitArtifactType.Package) {
+      if (artifactDef.artifactType === GitArtifactType.Package) {
         yield packageRedirectToClosestEntitySaga(url.href);
       }
 
-      yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
       );

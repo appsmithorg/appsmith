@@ -1,5 +1,6 @@
+import type { PullResponseData } from "git/requests/pullRequest.types";
 import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 
 export interface PullInitPayload {
   artifactId: string;
@@ -13,11 +14,15 @@ export const pullInitAction = createArtifactAction<PullInitPayload>((state) => {
   return state;
 });
 
-export const pullSuccessAction = createArtifactAction((state) => {
-  state.apiResponses.pull.loading = false;
+export type PullSuccessPayload = GitAsyncSuccessPayload<PullResponseData>;
 
-  return state;
-});
+export const pullSuccessAction = createArtifactAction<PullSuccessPayload>(
+  (state) => {
+    state.apiResponses.pull.loading = false;
+
+    return state;
+  },
+);
 
 export const pullErrorAction = createArtifactAction<GitAsyncErrorPayload>(
   (state, action) => {

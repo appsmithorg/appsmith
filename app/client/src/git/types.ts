@@ -16,10 +16,17 @@ export interface GitArtifactDef {
   baseArtifactId: string;
 }
 
+interface GitApplicationArtifactPage {
+  id: string;
+  baseId: string;
+  isDefault: boolean;
+}
+
 export interface GitApplicationArtifact {
   id: string;
   baseId: string;
   name: string;
+  pages: GitApplicationArtifactPage[];
   lastDeployedAt?: string;
   gitApplicationMetadata?: {
     branchName: string;

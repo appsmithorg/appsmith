@@ -12,7 +12,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
-import applicationConnectToGitSaga from "git/artifact-helpers/application/applicationConnectToGitSaga";
 import packageConnectToGitSaga from "git/artifact-helpers/package/packageConnectToGitSaga";
 
 export default function* connectSaga(
@@ -43,18 +42,16 @@ export default function* connectSaga(
     const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (response && isValidResponse) {
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield applicationConnectToGitSaga(artifactDef, response);
-      } else if (artifactDef.artifactType === GitArtifactType.Package) {
-        yield packageConnectToGitSaga(artifactDef);
-      }
-
       yield put(
         gitArtifactActions.connectSuccess({
           artifactDef,
           responseData: response.data,
         }),
       );
+
+      if (artifactDef.artifactType === GitArtifactType.Package) {
+        yield packageConnectToGitSaga(artifactDef);
+      }
 
       yield put(
         gitArtifactActions.toggleConnectModal({ artifactDef, open: false }),

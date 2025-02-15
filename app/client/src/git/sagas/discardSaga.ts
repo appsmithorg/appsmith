@@ -8,7 +8,6 @@ import type { GitArtifactPayloadAction } from "git/store/types";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import handleApiErrors from "./helpers/handleApiErrors";
-import applicationRedirectToClosestEntitySaga from "git/artifact-helpers/application/applicationRedirectToClosestEntitySaga";
 import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
 import { GitArtifactType, GitOpsTab } from "git/constants/enums";
 
@@ -33,13 +32,16 @@ export default function* discardSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield applicationRedirectToClosestEntitySaga(window.location.href);
-      } else if (artifactDef.artifactType === GitArtifactType.Package) {
+      yield put(
+        gitArtifactActions.discardSuccess({
+          artifactDef,
+          responseData: response.data,
+        }),
+      );
+
+      if (artifactDef.artifactType === GitArtifactType.Package) {
         yield packageRedirectToClosestEntitySaga(window.location.href);
       }
-
-      yield put(gitArtifactActions.discardSuccess({ artifactDef }));
 
       if (successMessage) {
         toast.show(successMessage, { kind: "success" });

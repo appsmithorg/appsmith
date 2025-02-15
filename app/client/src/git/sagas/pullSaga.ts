@@ -8,7 +8,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
 import { GitArtifactType } from "git/constants/enums";
-import applicationRedirectToClosestEntitySaga from "git/artifact-helpers/application/applicationRedirectToClosestEntitySaga";
 import packageRedirectToClosestEntitySaga from "git/artifact-helpers/package/packageRedirectToClosestEntitySaga";
 import { toast } from "@appsmith/ads";
 import { createMessage, DISCARD_AND_PULL_SUCCESS } from "ee/constants/messages";
@@ -33,13 +32,16 @@ export default function* pullSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        yield applicationRedirectToClosestEntitySaga(window.location.href);
-      } else if (artifactDef.artifactType === GitArtifactType.Package) {
+      yield put(
+        gitArtifactActions.pullSuccess({
+          artifactDef,
+          responseData: response.data,
+        }),
+      );
+
+      if (artifactDef.artifactType === GitArtifactType.Package) {
         yield packageRedirectToClosestEntitySaga(window.location.href);
       }
-
-      yield put(gitArtifactActions.pullSuccess({ artifactDef }));
     }
   } catch (e) {
     const error = handleApiErrors(e as Error, response);

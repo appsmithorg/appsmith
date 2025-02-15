@@ -10,6 +10,10 @@ export const gitReducer = combineReducers({
 });
 
 // actions
-export const fetchGitGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
-export const toggleGitImportModal = gitGlobalActions.toggleImportModal;
+export const gitFetchGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
+export const gitToggleImportModal = gitGlobalActions.toggleImportModal;
 export const gitConnectSuccess = gitArtifactActions.connectSuccess;
+export const gitDiscardSuccess = gitArtifactActions.discardSuccess;
+export const gitCheckoutBranchSuccess =
+  gitArtifactActions.checkoutBranchSuccess;
+export const gitPullSuccess = gitArtifactActions.pullSuccess;
