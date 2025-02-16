@@ -21,5 +21,11 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
 
     Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
-    // Optional<Integer> executeDatasourceImport(, EntityManager entityManager);
+    Optional<Integer> executeDatasourceImport(
+            String artifactId,
+            String workspaceId,
+            String pluginMap,
+            String importedDatasources,
+            String decryptedFields,
+            EntityManager entityManager);
 }

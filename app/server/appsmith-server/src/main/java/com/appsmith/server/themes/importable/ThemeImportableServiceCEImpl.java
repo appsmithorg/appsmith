@@ -73,24 +73,29 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             return Mono.empty().then();
         }
 
-        return importableArtifactMono
-                .flatMap(importableArtifact -> {
-                    return repository
-                            .executeThemeImportProcedure(
-                                    importableArtifact.getId(),
-                                    artifactExchangeJson.getUnpublishedTheme().getId(),
-                                    artifactExchangeJson.getPublishedTheme().getId())
-                            .flatMap(integer -> {
-                                return applicationService.setAppTheme(
-                                        importableArtifact.getId(),
-                                        artifactExchangeJson
-                                                .getUnpublishedTheme()
-                                                .getId(),
-                                        artifactExchangeJson.getPublishedTheme().getId(),
-                                        applicationPermission.getEditPermission());
-                            });
-                })
-                .then();
+        return importableArtifactMono.flatMap(importableArtifact -> {
+            Mono<Theme> editModeThemeMono = updateExistingAppThemeFromJSON(
+                    importableArtifact,
+                    importableArtifact.getUnpublishedThemeId(),
+                    artifactExchangeJson.getUnpublishedTheme(),
+                    mappedImportableResourcesDTO);
+
+            return editModeThemeMono
+                    .flatMap(editModeTheme -> {
+                        String editModeThemeId = editModeTheme.getId();
+                        importableArtifact.setUnpublishedThemeId(editModeThemeId);
+
+                        // this will update the theme in the application and will be updated to db in the dry ops
+                        // execution
+                        // this will update the theme id in DB
+                        return applicationService.setAppTheme(
+                                importableArtifact.getId(),
+                                editModeThemeId,
+                                null,
+                                applicationPermission.getEditPermission());
+                    })
+                    .then();
+        });
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(

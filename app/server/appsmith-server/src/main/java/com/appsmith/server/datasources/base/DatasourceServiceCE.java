@@ -103,4 +103,11 @@ public interface DatasourceServiceCE {
     Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage);
 
     Mono<Boolean> blockEndpointForConnectionRequest(DatasourceStorage datasourceStorage);
+
+    Mono<Integer> executeDatasourceImport(
+            String artifactId,
+            String workspaceId,
+            String pluginMap,
+            String importedDatasources,
+            String decryptedFields);
 }

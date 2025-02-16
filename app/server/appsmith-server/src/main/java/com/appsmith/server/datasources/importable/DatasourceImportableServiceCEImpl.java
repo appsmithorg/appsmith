@@ -93,18 +93,30 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
 
             Mono<List<Datasource>> existingDatasourceMono =
                     getExistingDatasourceMono(importingMetaDTO.getArtifactId(), existingDatasourceFlux);
-            Mono<Map<String, String>> datasourceMapMono = importDatasources(
-                    artifactExchangeJson,
-                    existingDatasourceMono,
-                    existingDatasourceFlux,
-                    workspace,
-                    importingMetaDTO,
-                    mappedImportableResourcesDTO);
+            Mono<Integer> datasourceMapMono =
+                    importDatasources(artifactExchangeJson, workspace, mappedImportableResourcesDTO);
 
             return datasourceMapMono
-                    .doOnNext(datasourceMap -> mappedImportableResourcesDTO.setDatasourceNameToIdMap(datasourceMap))
+                    // .doOnNext(datasourceMap -> mappedImportableResourcesDTO.setDatasourceNameToIdMap(datasourceMap))
                     .then();
         }); // */
+    }
+
+    private Mono<Integer> importDatasources(
+            ArtifactExchangeJson importedDoc,
+            Workspace workspace,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+
+        String artifactId = importedDoc.getArtifact().getId();
+        String workspaceId = workspace.getId();
+        String pluginMap = mappedImportableResourcesDTO.getPluginMap().toString();
+        String importedDatasources = importedDoc.getDatasourceList().toString();
+        String decryptedFields = importedDoc.getDecryptedFields() != null
+                ? importedDoc.getDecryptedFields().toString()
+                : "{}";
+
+        return datasourceService.executeDatasourceImport(
+                artifactId, workspaceId, pluginMap, importedDatasources, decryptedFields);
     }
 
     private Mono<List<Datasource>> getExistingDatasourceMono(String artifactId, Flux<Datasource> datasourceFlux) {

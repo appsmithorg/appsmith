@@ -715,6 +715,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
+    public Mono<Integer> executeDatasourceImport(
+            String artifactId,
+            String workspaceId,
+            String pluginMap,
+            String importedDatasources,
+            String decryptedFields) {
+        return repository.executeDatasourceImport(
+                artifactId, workspaceId, pluginMap, importedDatasources, decryptedFields);
+    }
+
+    @Override
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
         return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
