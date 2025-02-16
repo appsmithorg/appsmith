@@ -8,7 +8,7 @@ import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import log from "loglevel";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   checkIfCursorInsideBinding,
   shouldShowSlashCommandMenu,

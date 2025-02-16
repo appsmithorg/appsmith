@@ -1271,6 +1271,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
+          isInfiniteScrollEnabled={this.props.infiniteScrollEnabled}
           isLoading={
             customIsLoading
               ? customIsLoadingValue || this.props.isLoading

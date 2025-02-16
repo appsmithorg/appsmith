@@ -7,7 +7,7 @@ import type {
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
@@ -58,8 +58,8 @@ export function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   /**
    * Evaluation Error Map
    * {
-     widgetPropertyName : DataTreeError[]
-    }
+   widgetPropertyName : DataTreeError[]
+   }
    */
 
   const evaluationErrorMap = get(props, EVAL_ERROR_PATH, {}) as Record<

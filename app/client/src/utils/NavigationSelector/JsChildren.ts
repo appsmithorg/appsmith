@@ -1,6 +1,6 @@
 import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { keyBy } from "lodash";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
