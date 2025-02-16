@@ -28,6 +28,7 @@ export * from "./ScrollArea";
 export * from "./SearchInput";
 export * from "./SegmentedControl";
 export * from "./Select";
+export * from "./Slider";
 export * from "./Spinner";
 export * from "./Switch";
 export * from "./Tab";

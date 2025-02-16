@@ -28,8 +28,7 @@ describe(
       EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget, {}, [
         "Container1",
       ]);
-      cy.get(viewWidgetsPage.chartType).last().click({ force: true });
-      cy.get(".t--dropdown-option").children().contains("Column chart").click();
+      cy.selectDropdownValue(viewWidgetsPage.chartType, "Column chart");
       cy.get(
         ".t--property-control-charttype span.rc-select-selection-item span",
       )

@@ -270,8 +270,8 @@ export class AggregateHelper {
 
   public RenameQuery(renameVal: string, willFailError?: string) {
     this.rename({
-      nameLocator: this.locator._queryName,
-      textInputLocator: this.locator._queryNameTxt,
+      nameLocator: this.locator._activeEntityTab,
+      textInputLocator: this.locator._activeEntityTabInput,
       renameVal,
       dblClick: true,
       willFailError,
@@ -575,12 +575,14 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilEleAppear(selector: string) {
+  // Note: isVisible is required in case where item exists but is not visible ( hidden by css ),
+  // For e.g - search input in select widget is not visible,
+  public WaitUntilEleAppear(selector: string, isVisible = true) {
     cy.waitUntil(
       () =>
         this.GetElement(selector)
           .should("exist")
-          .should("be.visible")
+          .should(isVisible ? "be.visible" : "not.be.visible")
           .its("length")
           .should("be.gte", 1),
       {
@@ -1160,7 +1162,7 @@ export class AggregateHelper {
 
   public GetObjectName() {
     //cy.get(this.locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
-    return cy.get(this.locator._queryName).invoke("text");
+    return cy.get(this.locator._activeEntityTab).invoke("text");
   }
 
   public GetElementLength(selector: string) {

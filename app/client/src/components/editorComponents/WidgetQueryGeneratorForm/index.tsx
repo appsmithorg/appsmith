@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import produce from "immer";
+import { create } from "mutative";
 import { noop, set } from "lodash";
 
 import { CommonControls } from "./CommonControls";
@@ -179,7 +179,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     setPristine(false);
 
     setConfig(
-      produce(config, (draftConfig) => {
+      create(config, (draftConfig) => {
         if (
           property === "datasource" ||
           (typeof property === "object" &&

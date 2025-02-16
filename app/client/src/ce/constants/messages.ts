@@ -1775,6 +1775,7 @@ export const CONTEXT_SETTINGS = () => "Settings";
 export const CONTEXT_PARTIAL_EXPORT = () => "Export";
 export const CONTEXT_PARTIAL_IMPORT = () => "Import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
+export const CONTEXT_INSPECT_STATE = () => "Inspect state";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
 
@@ -2626,3 +2627,5 @@ export const PREMIUM_DATASOURCES = {
 
 export const DATASOURCE_SECURE_TEXT = () =>
   `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;
+
+export const TABLE_LOADING_RECORDS = () => "loading records";

@@ -76,7 +76,11 @@ export function* bindDataToWidgetSaga(
     : oneClickBindingQuery;
   let isDynamicPropertyPath = true;
 
-  if (bindingQuery === oneClickBindingQuery) {
+  if (
+    bindingQuery === oneClickBindingQuery &&
+    selectedWidget.type !== "TABLE_WIDGET_V2" &&
+    selectedWidget.type !== "SELECT_WIDGET"
+  ) {
     isDynamicPropertyPath = false;
   }
 

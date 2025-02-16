@@ -4,7 +4,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import produce from "immer";
+import { create } from "mutative";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -259,7 +259,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should generate updates based on the unEvalUpdates", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         draft.Text1.text = UPDATED_LABEL;
         draft.Text1.label = UPDATED_LABEL;
       });
@@ -311,7 +311,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should generate updates based on the evalOrder", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         draft.Text1.text = UPDATED_LABEL;
       });
       const updateTreeResponse = evaluator.setupUpdateTree(
@@ -346,7 +346,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should generate the correct updates to be sent to the main thread's state when the value tied to a binding changes ", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }
@@ -386,7 +386,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should merge additional updates to the dataTree as well as push the updates back to the main thread's state when unEvalUpdates is ignored", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }
@@ -426,7 +426,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should add metaUpdates in the webworker's response", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }
@@ -456,7 +456,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should sanitise metaUpdates in the webworker's response and strip out non serialisable properties", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }
@@ -495,7 +495,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should add unEvalUpdates to the web worker response", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }
@@ -533,7 +533,7 @@ describe("evaluateAndGenerateResponse", () => {
     test("should ignore generating updates when unEvalUpdates is empty", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
+      const updatedLabelUnevalTree = create(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
         }

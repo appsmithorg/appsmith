@@ -1,4 +1,4 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
+import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 
 export const getQueryEntityItemUrl = (

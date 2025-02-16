@@ -12,7 +12,7 @@ describe(
       jsEditor.RenameJSObjectFromContextMenu("ChangedName1");
 
       // Validate the new name of the JS Object
-      cy.get(jsEditor.listOfJsObjects).eq(0).contains("ChangedName1");
+      cy.get(jsEditor.listOfJsDismissibleTabs).eq(0).contains("ChangedName1");
 
       // Create second JS file
       jsEditor.CreateJSObject("", { prettify: false, toRun: false });
@@ -24,7 +24,7 @@ describe(
       jsEditor.RenameJSObjectFromContextMenu("ChangedName3");
 
       // Validate the new name of the 3rd JS Objcte
-      cy.get(jsEditor.listOfJsObjects).eq(2).contains("ChangedName3");
+      cy.get(jsEditor.listOfJsDismissibleTabs).eq(2).contains("ChangedName3");
     });
   },
 );

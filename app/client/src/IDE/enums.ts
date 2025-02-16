@@ -3,3 +3,10 @@ export enum Condition {
   // Error = "Error",
   // Success = "Success",
 }
+
+export enum EditorState {
+  DATA = "DATA",
+  EDITOR = "EDITOR",
+  SETTINGS = "SETTINGS",
+  LIBRARIES = "LIBRARIES",
+}

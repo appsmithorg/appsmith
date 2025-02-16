@@ -14,13 +14,13 @@ export default function useCommit() {
   const commitState = useArtifactSelector(selectCommitState);
 
   const commit = useCallback(
-    (commitMessage: string) => {
+    (message: string) => {
       if (artifactDef && artifactId) {
         dispatch(
           gitArtifactActions.commitInit({
             artifactId,
             artifactDef,
-            commitMessage,
+            message,
             doPush: true,
           }),
         );

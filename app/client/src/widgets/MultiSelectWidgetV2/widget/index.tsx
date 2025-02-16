@@ -4,7 +4,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
@@ -953,10 +953,12 @@ class MultiSelectWidget extends BaseWidget<
     }
   };
 }
+
 export interface OptionValue {
   label: string;
   value: string;
 }
+
 export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }

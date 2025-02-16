@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
-import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.server.services.ce.AstServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

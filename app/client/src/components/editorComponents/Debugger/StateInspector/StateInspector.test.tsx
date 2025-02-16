@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { StateInspector } from "./StateInspector";
-import { useStateInspectorItems } from "./hooks";
+import { useStateInspectorItems, useGetDisplayData } from "./hooks";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
@@ -13,6 +13,8 @@ jest.mock("IDE/utils");
 const mockedUseStateInspectorItems = useStateInspectorItems as jest.Mock;
 const mockedFilterEntityGroupsBySearchTerm =
   filterEntityGroupsBySearchTerm as jest.Mock;
+
+const mockedUseGetDisplayData = useGetDisplayData as jest.Mock;
 
 describe("StateInspector", () => {
   beforeEach(() => {
@@ -26,13 +28,13 @@ describe("StateInspector", () => {
 
   it("renders search input and filters items based on search term", () => {
     mockedUseStateInspectorItems.mockReturnValue([
-      { title: "Item 1", icon: "icon1", code: { key: "value1" } },
+      { title: "Item 1", icon: "icon1" },
       [
         { group: "Group 1", items: [{ title: "Item 1" }] },
         { group: "Group 2", items: [{ title: "Item 2" }] },
       ],
-      { key: "value1" },
     ]);
+    mockedUseGetDisplayData.mockReturnValue({ key: "value1" });
     render(
       <ThemeProvider theme={lightTheme}>
         <StateInspector />
@@ -49,7 +51,7 @@ describe("StateInspector", () => {
     const mockOnClick = jest.fn();
 
     mockedUseStateInspectorItems.mockReturnValue([
-      { title: "Item 1", icon: "icon1", code: { key: "value1" } },
+      { title: "Item 1", icon: "icon1" },
       [
         { group: "Group 1", items: [{ title: "Item 1" }] },
         {
@@ -57,8 +59,8 @@ describe("StateInspector", () => {
           items: [{ title: "Item 2", onClick: mockOnClick }],
         },
       ],
-      { key: "value1" },
     ]);
+    mockedUseGetDisplayData.mockReturnValue({ key: "value1" });
     render(
       <ThemeProvider theme={lightTheme}>
         <StateInspector />
@@ -71,7 +73,7 @@ describe("StateInspector", () => {
 
   it("Renders the selected item details", () => {
     mockedUseStateInspectorItems.mockReturnValue([
-      { title: "Item 1", icon: "icon1", code: { key: "value1" } },
+      { title: "Item 1", icon: "icon1" },
       [
         { group: "Group 1", items: [{ title: "Item 1" }] },
         {
@@ -79,8 +81,8 @@ describe("StateInspector", () => {
           items: [{ title: "Item 2" }],
         },
       ],
-      { key: "Value1" },
     ]);
+    mockedUseGetDisplayData.mockReturnValue({ key: "Value1" });
     render(
       <ThemeProvider theme={lightTheme}>
         <StateInspector />
@@ -108,7 +110,7 @@ describe("StateInspector", () => {
 
   it("renders all items when search term is empty", () => {
     mockedUseStateInspectorItems.mockReturnValue([
-      { title: "Item 1", icon: "icon1", code: { key: "value1" } },
+      { title: "Item 1", icon: "icon1" },
       [
         { group: "Group 1", items: [{ title: "Item 1" }] },
         {
@@ -116,8 +118,8 @@ describe("StateInspector", () => {
           items: [{ title: "Item 2" }],
         },
       ],
-      { key: "value1" },
     ]);
+    mockedUseGetDisplayData.mockReturnValue({ key: "value1" });
 
     render(
       <ThemeProvider theme={lightTheme}>
@@ -153,13 +155,13 @@ describe("StateInspector", () => {
 
   it("renders correctly when selected item has no code", () => {
     mockedUseStateInspectorItems.mockReturnValue([
-      { title: "Item 1", icon: "icon1", code: null },
+      { title: "Item 1", icon: "icon1" },
       [
         { group: "Group 1", items: [{ title: "Item 1" }] },
         { group: "Group 2", items: [{ title: "Item 2" }] },
       ],
-      {},
     ]);
+    mockedUseGetDisplayData.mockReturnValue({});
     render(
       <ThemeProvider theme={lightTheme}>
         <StateInspector />
