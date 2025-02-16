@@ -54,7 +54,7 @@ import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyM
 import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import { useGitModEnabled } from "./gitSync/hooks/modHooks";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
+import { GitApplicationContextProvider } from "git/artifact-helpers/application/components";
 
 function GitModals() {
   const isGitModEnabled = useGitModEnabled();

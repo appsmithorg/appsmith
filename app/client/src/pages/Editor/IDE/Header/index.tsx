@@ -64,7 +64,7 @@ import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import DeployButton from "./DeployButton";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
+import { GitApplicationContextProvider } from "git/artifact-helpers/application/components";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
