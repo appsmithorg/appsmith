@@ -83,9 +83,6 @@ module.exports = function (webpackEnv) {
   const isEnvDevelopment = webpackEnv === "development";
   const isEnvProduction = webpackEnv === "production";
 
-  // Set devtool based on environment
-  const devtool = isEnvProduction ? "source-map" : false;
-
   // Variable used for enabling profiling in Production
   // passed into alias object. Uses a flag if passed into the build command
   const isEnvProductionProfile =
@@ -157,7 +154,9 @@ module.exports = function (webpackEnv) {
                   ],
                 ],
           },
-          sourceMap: isEnvProduction ? true : isEnvDevelopment,
+          sourceMap:
+            process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+            process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
         },
       },
     ].filter(Boolean);
@@ -166,14 +165,18 @@ module.exports = function (webpackEnv) {
         {
           loader: require.resolve("resolve-url-loader"),
           options: {
-            sourceMap: isEnvProduction ? true : isEnvDevelopment,
+            sourceMap:
+              process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+              process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
             root: paths.appSrc,
           },
         },
         {
           loader: require.resolve(preProcessor),
           options: {
-            sourceMap: true,
+            sourceMap:
+              process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+              process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
           },
         },
       );
@@ -188,7 +191,10 @@ module.exports = function (webpackEnv) {
     mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: devtool,
+    devtool:
+      (process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" && "source-map") ||
+      (process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT" &&
+        "cheap-module-source-map"),
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: paths.appIndexJs,
@@ -390,7 +396,7 @@ module.exports = function (webpackEnv) {
         // Handle node_modules packages that contain sourcemaps
         {
           enforce: "pre",
-          exclude: /@babel(?:\/|\\{1,2})runtime/,
+          exclude: /(@babel[\\\/]runtime|node_modules)/,
           test: /\.(js|mjs|jsx|ts|tsx|css)$/,
           loader: require.resolve("source-map-loader"),
         },
@@ -478,6 +484,7 @@ module.exports = function (webpackEnv) {
                 // directory for faster rebuilds.
                 cacheCompression: false,
                 compact: isEnvProduction,
+                exclude: /node_modules/,
               },
             },
             // Process any JS outside of the app with Babel.
@@ -503,8 +510,12 @@ module.exports = function (webpackEnv) {
                 // Babel sourcemaps are needed for debugging into node_modules
                 // code.  Without the options below, debuggers like VSCode
                 // show incorrect code and set breakpoints on the wrong lines.
-                sourceMaps: true,
-                inputSourceMap: true,
+                sourceMaps:
+                  process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+                  process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
+                inputSourceMap:
+                  process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+                  process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
               },
             },
             // "postcss" loader applies autoprefixer to our CSS.
@@ -519,7 +530,9 @@ module.exports = function (webpackEnv) {
               exclude: cssModuleRegex,
               use: getStyleLoaders({
                 importLoaders: 1,
-                sourceMap: isEnvProduction ? true : isEnvDevelopment,
+                sourceMap:
+                  process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+                  process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
                 modules: {
                   mode: "icss",
                 },
@@ -537,7 +550,9 @@ module.exports = function (webpackEnv) {
               use: [
                 ...getStyleLoaders({
                   importLoaders: 1,
-                  sourceMap: isEnvProduction ? true : isEnvDevelopment,
+                  sourceMap:
+                    process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" ||
+                    process.env.REACT_APP_ENVIRONMENT === "DEVELOPMENT",
                   modules: {
                     mode: "local",
                     getLocalIdent: getCSSModuleLocalIdent,
@@ -586,13 +601,6 @@ module.exports = function (webpackEnv) {
       ].filter(Boolean),
     },
     ignoreWarnings: [
-      function ignoreSourcemapsloaderWarnings(warning) {
-        return (
-          (warning.module?.resource.includes("node_modules") &&
-            warning.details?.includes("source-map-loader")) ??
-          false
-        );
-      },
       function ignorePackageWarnings(warning) {
         return (
           warning.module?.resource.includes(
@@ -625,7 +633,7 @@ module.exports = function (webpackEnv) {
           threshold: 10240,
           minRatio: 0.8,
         }),
-      isEnvProduction &&
+      process.env.REACT_APP_ENVIRONMENT === "PRODUCTION" &&
         new FaroSourceMapUploaderPlugin({
           appId: process.env.REACT_APP_FARO_APP_ID,
           appName: process.env.REACT_APP_FARO_APP_NAME,

@@ -15,8 +15,7 @@
     "!packages/**/build"
   ],
   "scripts": {
-    "analyze": "yarn cra-bundle-analyzer",
-    "start": "DISABLE_ESLINT_PLUGIN=true BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug node --max_old_space_size=4096 scripts/start.js",
+    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug node --max_old_space_size=4096 scripts/start.js",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
@@ -308,7 +307,6 @@
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
-    "cra-bundle-analyzer": "^0.1.0",
     "css-loader": "^6.5.1",
     "css-minimizer-webpack-plugin": "^3.2.0",
     "cy-verify-downloads": "^0.0.5",
