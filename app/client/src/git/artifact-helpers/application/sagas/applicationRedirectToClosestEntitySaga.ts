@@ -14,13 +14,17 @@ import type {
   GitAsyncSuccessPayload,
 } from "git/store/types";
 import { GIT_BRANCH_QUERY_KEY } from "git/constants/misc";
+import { GitArtifactType } from "git/constants/enums";
 
 function* applicationRedirectToClosestEntitySaga(
   action: GitArtifactPayloadAction<
     GitAsyncSuccessPayload<GitApplicationArtifact>
   >,
 ) {
-  const { responseData: destArtifact } = action.payload;
+  const { artifactDef, responseData: destArtifact } = action.payload;
+
+  if (artifactDef.artifactType !== GitArtifactType.Application) return;
+
   const currentBasePageId: string = yield select(getCurrentBasePageId);
   const pageExists = destArtifact.pages.find(
     (page) => page.baseId === currentBasePageId,

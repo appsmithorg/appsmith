@@ -2,6 +2,7 @@ import { fetchPageAction } from "actions/pageActions";
 import { addBranchParam } from "constants/routes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { GitArtifactType } from "git/constants/enums";
 import type { ConnectSuccessPayload } from "git/store/actions/connectActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
@@ -14,6 +15,8 @@ export default function* applicationConnectToGitSaga(
   action: GitArtifactPayloadAction<ConnectSuccessPayload>,
 ) {
   const { artifactDef, responseData: destArtifact } = action.payload;
+
+  if (artifactDef.artifactType !== GitArtifactType.Application) return;
 
   const pageId: string = yield select(getCurrentPageId);
 
