@@ -16,8 +16,6 @@ fi
 # build cra app
 export REACT_APP_SENTRY_RELEASE=$GIT_SHA
 export REACT_APP_CLIENT_LOG_LEVEL=ERROR
-# Disable CRA built-in ESLint checks since we have our own config and a separate step for this
-export DISABLE_ESLINT_PLUGIN=true
 node --max-old-space-size=8192 scripts/build.js
 
 echo "build finished"
