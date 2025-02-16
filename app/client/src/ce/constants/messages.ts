@@ -1151,8 +1151,8 @@ export const NO_COPIED_SSH_KEY = () => "Could not copy SSH key";
 // Git Branch Protection
 export const UPDATE = () => "Update";
 export const DEFAULT_BRANCH = () => "Default branch";
-export const DEFAULT_BRANCH_DESC = () =>
-  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const DEFAULT_BRANCH_DESC = (artifactNoun: string) =>
+  `This is the base branch of the ${artifactNoun}. Users launching the ${artifactNoun} from the dashboard will see the deployed version from this branch.`;
 export const BRANCH_PROTECTION = () => "Branch protection";
 export const BRANCH_PROTECTION_DESC = () =>
   "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
