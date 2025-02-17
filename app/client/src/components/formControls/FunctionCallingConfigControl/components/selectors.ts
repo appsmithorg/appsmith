@@ -82,7 +82,10 @@ const selectSystemFunctionEntityOptions =
       ...EE_APPSMITH_NAMESPACED_FUNCTIONS,
     } as const;
 
-    const labelMap: Record<keyof typeof systemFunctions, string> = {
+    const labelMap: Record<
+      keyof Omit<typeof systemFunctions, "assignRequest">,
+      string
+    > = {
       navigateTo: createMessage(NAVIGATE_TO),
       showAlert: createMessage(SHOW_ALERT),
       showModal: createMessage(SHOW_MODAL),
