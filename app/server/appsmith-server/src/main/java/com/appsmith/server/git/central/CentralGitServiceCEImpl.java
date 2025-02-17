@@ -76,7 +76,6 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple3;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -1600,77 +1599,83 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     /**
      * Method to remove all the git metadata for the artifact and connected resources. This will remove:
      * - local repo
-     * - all the branched artifacts present in DB except for default artifact
+     * - all the branched artifacts present in DB except for base artifact
      *
      * @param branchedArtifactId : id of any branched artifact for the given repo
      * @param artifactType : type of artifact
-     * @return : the base artifact after removal of git flow.
+     * @param gitType: type of git service
+     * @return : the base artifact after removal of git attributes and other branches.
      */
+    @Override
     public Mono<? extends Artifact> detachRemote(
             String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission gitConnectPermission = gitArtifactHelper.getArtifactGitConnectPermission();
 
-        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
-                getBaseAndBranchedArtifacts(branchedArtifactId, artifactType, gitConnectPermission);
+        Mono<? extends Artifact> branchedArtifactMono =
+                gitArtifactHelper.getArtifactById(branchedArtifactId, gitConnectPermission);
 
-        Mono<? extends Artifact> disconnectMono = baseAndBranchedArtifactMono
-                .flatMap(artifactTuples -> {
-                    Artifact baseArtifact = artifactTuples.getT1();
+        Mono<? extends Artifact> disconnectMono = branchedArtifactMono
+                .flatMap(branchedArtifact -> {
+                    GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
 
-                    if (isBaseGitMetadataInvalid(baseArtifact.getGitArtifactMetadata(), gitType)) {
+                    if (branchedArtifact.getGitArtifactMetadata() == null) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Please reconfigure the artifact to connect to git repo"));
                     }
 
-                    GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
-                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.branch);
-                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-                    jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
-                    jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
-                    jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getRefName());
+                    String baseArtifactId = branchedGitMetadata.getDefaultArtifactId();
+                    String repoName = branchedGitMetadata.getRepoName();
+                    String workspaceId = branchedArtifact.getWorkspaceId();
+                    String refName = branchedGitMetadata.getRefName();
+                    RefType refType = RefType.branch;
 
-                    // Remove the git contents from file system
-                    return Mono.zip(
-                            gitHandlingService.listReferences(jsonTransformationDTO, false), Mono.just(baseArtifact));
-                })
-                .flatMap(tuple -> {
-                    List<String> localBranches = tuple.getT1();
-                    Artifact baseArtifact = tuple.getT2();
+                    ArtifactJsonTransformationDTO jsonTransformationDTO =
+                            new ArtifactJsonTransformationDTO(workspaceId, baseArtifactId, repoName, artifactType);
 
-                    GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
-                    localBranches.remove(baseGitMetadata.getRefName());
-
-                    baseArtifact.setGitArtifactMetadata(null);
-                    gitArtifactHelper.resetAttributeInBaseArtifact(baseArtifact);
-
-                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-                    jsonTransformationDTO.setRefType(RefType.branch);
-                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
-                    jsonTransformationDTO.setBaseArtifactId(baseGitMetadata.getDefaultArtifactId());
-                    jsonTransformationDTO.setRepoName(baseGitMetadata.getRepoName());
-                    jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
-                    jsonTransformationDTO.setRefName(baseGitMetadata.getRefName());
+                    jsonTransformationDTO.setRefName(refName);
+                    jsonTransformationDTO.setRefType(refType);
 
                     // Remove the parent artifact branch name from the list
                     Mono<Boolean> removeRepoMono = gitHandlingService.removeRepository(jsonTransformationDTO);
-                    Mono<? extends Artifact> updatedArtifactMono = gitArtifactHelper.saveArtifact(baseArtifact);
 
-                    Flux<? extends Artifact> deleteAllBranchesFlux =
-                            gitArtifactHelper.deleteAllBranches(branchedArtifactId, localBranches);
+                    AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
 
-                    return Mono.zip(updatedArtifactMono, removeRepoMono, deleteAllBranchesFlux.collectList())
-                            .map(Tuple3::getT1);
+                    Mono<? extends Artifact> deleteAllBranchesExceptBase = gitArtifactHelper
+                            .getAllArtifactByBaseId(baseArtifactId, artifactEditPermission)
+                            .flatMap(artifact -> {
+                                if (artifact.getGitArtifactMetadata() == null
+                                        || RefType.tag.equals(artifact.getGitArtifactMetadata()
+                                                .getRefType())) {
+                                    return Mono.just(artifact);
+                                }
+
+                                // it's established that git artifact metadata is not null
+                                if (!artifact.getId().equals(baseArtifactId)) {
+                                    return gitArtifactHelper.deleteArtifactByResource(artifact);
+                                }
+
+                                // base Artifact condition fulfilled
+                                artifact.setGitArtifactMetadata(null);
+                                gitArtifactHelper.resetAttributeInBaseArtifact(artifact);
+
+                                return gitArtifactHelper.saveArtifact(artifact).flatMap(baseArtifact -> {
+                                    return gitArtifactHelper.disconnectEntitiesOfBaseArtifact(baseArtifact);
+                                });
+                            })
+                            .filter(artifact -> {
+                                return artifact.getId().equals(baseArtifactId);
+                            })
+                            .next();
+
+                    return Mono.zip(deleteAllBranchesExceptBase, removeRepoMono).map(Tuple2::getT1);
                 })
-                .flatMap(updatedBaseArtifact -> {
-                    return gitArtifactHelper
-                            .disconnectEntitiesOfBaseArtifact(updatedBaseArtifact)
-                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_DISCONNECT, updatedBaseArtifact, false));
+                .flatMap(disconnectedBaseArtifact -> {
+                    return gitAnalyticsUtils.addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_DISCONNECT, disconnectedBaseArtifact, false);
                 })
                 .name(GitSpan.OPS_DETACH_REMOTE)
                 .tap(Micrometer.observation(observationRegistry));

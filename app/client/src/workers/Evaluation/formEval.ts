@@ -15,6 +15,11 @@ import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { objectKeys } from "@appsmith/utils";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "ee/entities/Engine/actionHelpers";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -71,7 +76,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
-    const allConditionTypes = Object.keys(formConfig.conditionals);
+    const allConditionTypes = objectKeys(formConfig.conditionals);
 
     if (
       allConditionTypes.includes(ConditionType.HIDE) ||
@@ -306,12 +311,15 @@ function evaluateDynamicValuesConfig(
 }
 
 function evaluateFormConfigElements(
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   actionConfiguration: ActionConfig,
   config: FormConfigEvalObject,
   /* eslint-disable @typescript-eslint/no-unused-vars */
+  editorContextType: ActionParentEntityTypeInterface,
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
-  const paths = Object.keys(config);
+  const paths = objectKeys(config);
 
   if (paths.length > 0) {
     paths.forEach((path) => {
@@ -332,17 +340,18 @@ function evaluateFormConfigElements(
 function evaluate(
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvalOutput,
+  editorContextType: ActionParentEntityTypeInterface,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
-  Object.keys(currentEvalState).forEach((key: string) => {
+  objectKeys(currentEvalState).forEach((key: string) => {
     try {
       if (currentEvalState[key].hasOwnProperty("conditionals")) {
         const conditionBlock = currentEvalState[key].conditionals;
 
         if (!!conditionBlock) {
-          Object.keys(conditionBlock).forEach((conditionType: string) => {
+          objectKeys(conditionBlock).forEach((conditionType: string) => {
             const output = eval(conditionBlock[conditionType]);
 
             if (conditionType === ConditionType.HIDE) {
@@ -431,6 +440,7 @@ function evaluate(
                     currentEvalState[key]
                       .evaluateFormConfig as EvaluatedFormConfig
                   ).evaluateFormConfigObject,
+                  editorContextType,
                   datasourceConfiguration,
                 );
             }
@@ -448,6 +458,7 @@ function getFormEvaluation(
   formId: string,
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
+  editorContextType: ActionParentEntityTypeInterface,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
   datasourceConfiguration?: DatasourceConfiguration,
@@ -502,6 +513,7 @@ function getFormEvaluation(
       conditionToBeEvaluated = evaluate(
         actionConfiguration,
         currentEvalState[formId],
+        editorContextType,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,
@@ -514,6 +526,7 @@ function getFormEvaluation(
       conditionToBeEvaluated = evaluate(
         actionConfiguration,
         conditionToBeEvaluated,
+        editorContextType,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,
@@ -572,6 +585,7 @@ export function setFormEvaluationSaga(
       actionConfiguration,
       actionDiffPath,
       datasourceConfiguration,
+      editorContextType,
       formId,
       hasRouteChanged,
     } = payload;
@@ -584,6 +598,7 @@ export function setFormEvaluationSaga(
         formId,
         actionConfiguration,
         currentEvalState,
+        editorContextType || ActionParentEntityType.PAGE,
         actionDiffPath,
         hasRouteChanged,
         datasourceConfiguration,

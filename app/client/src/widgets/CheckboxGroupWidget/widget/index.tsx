@@ -8,7 +8,7 @@ import type { TextSize } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { compact, xor } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";

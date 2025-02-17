@@ -10,6 +10,7 @@ import {
   Menu,
   MenuContent,
   MenuItem,
+  MenuSeparator,
   MenuTrigger,
 } from "@appsmith/ads";
 import { useBoolean } from "usehooks-ts";
@@ -20,6 +21,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
+import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;
@@ -62,9 +64,12 @@ export const WidgetContextMenu = (props: {
         >
           {createMessage(CONTEXT_RENAME)}
         </MenuItem>
+        <MenuSeparator />
         <MenuItem onClick={showBinding} startIcon="binding-new">
           {createMessage(CONTEXT_SHOW_BINDING)}
         </MenuItem>
+        <InspectStateMenuItem entityId={widgetId} />
+        <MenuSeparator />
         <MenuItem
           className="error-menuitem"
           disabled={!canManagePages && widget?.isDeletable !== false}

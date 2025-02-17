@@ -7,8 +7,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EditorViewMode,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObjects", { tags: ["@tag.JS"] }, () => {
@@ -73,9 +71,10 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
     agHelper.AssertCursorInput(jsEditor._editor, { ch: 20, line: 6 });
 
     jsEditor.DeleteJSObjectFromContextMenu();
+    agHelper.WaitUntilToastDisappear("JSObject1 deleted successfully"); // Confirming deletion
   });
 
-  it("2. Bug 24990 Clears logs filter using backspace", function () {
+  it("3. Bug 24990 Clears logs filter using backspace", function () {
     const JS_OBJECT_BODY = `export default {
       myVar1: [],
       myVar2: {},
@@ -87,6 +86,7 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
           return []
       }
   }`;
+    EditorNavigation.SwitchScreenMode(EditorViewMode.FullScreen); // Switching back to full screen as CreateJSObject() was failing in split screen mode
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,

@@ -117,6 +117,7 @@ export interface DropDownControlProps extends ControlProps {
   formValues: Partial<Action>;
   setFirstOptionAsDefault?: boolean;
   nextPageNeeded?: boolean;
+  appendGroupIdentifierToValue?: boolean;
   paginationPayload?: {
     value: ConditionalOutput;
     dynamicFetchedValues: DynamicValues;
@@ -243,7 +244,15 @@ function renderDropdown(
   } & DropDownControlProps &
     ReduxDispatchProps,
 ): JSX.Element {
-  const { input, isMultiSelect, optionGroupConfig, options = [] } = props;
+  const {
+    appendGroupIdentifierToValue,
+    input,
+    isAllowClear,
+    isMultiSelect,
+    optionGroupConfig,
+    options = [],
+    setFirstOptionAsDefault,
+  } = props;
   // Safeguard the selectedValue (since it might be empty, null, or a string/string[])
   let selectedValue = input?.value;
 
@@ -257,7 +266,7 @@ function renderDropdown(
         : "";
 
       // If user wants the first option as default
-      if (props.setFirstOptionAsDefault && options.length > 0) {
+      if (setFirstOptionAsDefault && options.length > 0) {
         selectedValue = options[0].value as string;
         input?.onChange(selectedValue);
       }
@@ -276,24 +285,36 @@ function renderDropdown(
     selectedValue = uniqBy(selectedValue, (v) => v);
   }
 
-  // Identify which items are actually selected
-  const selectedOptions = options.filter((opt) =>
-    isMultiSelect
-      ? (selectedValue as string[]).includes(opt.value as string)
-      : selectedValue === opt.value,
-  );
-
   // Use memoized grouping
   const groupedOptions = memoizedBuildGroupedOptions(
     options,
     optionGroupConfig,
   );
 
+  // Find the selected options based on the selectedValue
+  // If appendGroupIdentifierToValue is true, we need to check if the selected value includes the group identifier
+  // Eg: if the selected value is "group1:1", we need to find the option with value "1"
+  // If appendGroupIdentifierToValue is false, we just need to find the option with value "1"
+  const selectedOptions = options.filter((opt) => {
+    const checkGroupIdentifier =
+      appendGroupIdentifierToValue && optionGroupConfig;
+    const valueToCompare = checkGroupIdentifier
+      ? opt.optionGroupType + ":" + opt.value
+      : opt.value;
+
+    return isMultiSelect
+      ? (selectedValue as string[]).includes(valueToCompare)
+      : selectedValue === valueToCompare;
+  });
+
   // Re-sync multi-select if stale
   if (isMultiSelect && Array.isArray(selectedValue)) {
     const validValues = selectedOptions.map((so) => so.value);
 
-    if (validValues.length !== selectedValue.length) {
+    if (
+      !appendGroupIdentifierToValue &&
+      validValues.length !== selectedValue.length
+    ) {
       input?.onChange(validValues);
     }
   }
@@ -302,7 +323,7 @@ function renderDropdown(
   if (!isMultiSelect && selectedOptions.length) {
     const singleVal = selectedOptions[0].value;
 
-    if (singleVal !== selectedValue) {
+    if (!appendGroupIdentifierToValue && singleVal !== selectedValue) {
       input?.onChange(singleVal);
     }
   }
@@ -330,21 +351,39 @@ function renderDropdown(
    * Handles the selection of options
    * If multi select is enabled, we need to add the value to the current array
    * If multi select is not enabled, we just set the value
+   * If appendGroupIdentifierToValue is true, we need to add the group identifier to the value
+   * Eg: if the selected value is "1" of "group1", we need to add "group1:1" to the current array
    * @param {string | undefined} optionValueToSelect - The selected value
    */
   function onSelectOptions(optionValueToSelect: string | undefined) {
     if (isNil(optionValueToSelect)) return;
 
+    // If appendGroupIdentifierToValue is true and we have grouped options, add the group identifier
+    const shouldAppendGroup = appendGroupIdentifierToValue && optionGroupConfig;
+    let valueToStore = optionValueToSelect;
+
+    if (shouldAppendGroup) {
+      const selectedOption = options.find(
+        (opt) => opt.value === optionValueToSelect,
+      );
+
+      if (selectedOption) {
+        valueToStore = `${selectedOption.optionGroupType || "others"}:${optionValueToSelect}`;
+      }
+    }
+
     if (!isMultiSelect) {
-      input?.onChange(optionValueToSelect);
+      input?.onChange(valueToStore);
 
       return;
     }
 
+    // In case the component config is changed to multi-select, we need to convert the selectedValue to an array
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
 
-    if (!currentArray.includes(optionValueToSelect))
-      currentArray.push(optionValueToSelect);
+    if (!currentArray.includes(valueToStore)) {
+      currentArray.push(valueToStore);
+    }
 
     input?.onChange(currentArray);
   }
@@ -353,6 +392,10 @@ function renderDropdown(
    * Handles the removal of options
    * If multi select is enabled, we need to remove the value from the current array
    * If multi select is not enabled, we just set the value to an empty string
+   * If appendGroupIdentifierToValue is true, we need to check the value with the group identifier
+   * Eg: the function will be called with "1" and the current array is ["group1:1", "others:2"]
+   * We need to check if "1" is present in the array after removing the group identifier
+   * The function will return ["others:2"]
    * @param {string | undefined} optionValueToRemove - The value to remove
    */
   function onRemoveOptions(optionValueToRemove: string | undefined) {
@@ -365,7 +408,17 @@ function renderDropdown(
     }
 
     const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
-    const filtered = currentArray.filter((v) => v !== optionValueToRemove);
+
+    const filtered = currentArray.filter((v) => {
+      let selectedValueToCheck = v;
+
+      if (appendGroupIdentifierToValue && optionGroupConfig) {
+        // For grouped values, we need to compare just the value part after the group identifier
+        selectedValueToCheck = v.split(":")[1];
+      }
+
+      return selectedValueToCheck !== optionValueToRemove;
+    });
 
     input?.onChange(filtered);
   }
@@ -402,9 +455,7 @@ function renderDropdown(
 
   return (
     <Select
-      allowClear={
-        (isMultiSelect || props.isAllowClear) && !isEmpty(selectedValue)
-      }
+      allowClear={(isMultiSelect || isAllowClear) && !isEmpty(selectedValue)}
       data-testid={`t--dropdown-${props.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
