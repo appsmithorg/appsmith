@@ -529,7 +529,7 @@ export class Table {
   }
 
   public CloseFilter() {
-    this.agHelper.GetNClick(this._filterCloseBtn);
+    this.agHelper.GetNClick(this._filterCloseBtn, 0, true);
   }
 
   public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
