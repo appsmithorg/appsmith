@@ -39,11 +39,11 @@ const EmptyState = () => {
 
 /**
  * Note: React aria components does not provide us any mutliselect componennt or hooks for it.
- * We are just replicating the behaviour of mutli select component with all the hooks and components
- * that are available in the react aria components library and many things are implemented manually
- * like opening the popover on keydown or keyup when the button is focused or focusing the trigger on click of label
+ * We are just replicating the behaviour of mutli select component with all available hooks and components.
+ * Few things are implemented manually like opening the popover on keydown or keyup when the button is focused
+ * or focusing the trigger on click of label.
  *
- * This is a temporary solution until we have a mutli select component in the library.
+ * This is a temporary solution until we have a mutli select component from react aria components library.
  */
 export const MultiSelect = <T extends { label: string; value: string }>(
   props: MultiSelectProps<T>,
@@ -72,6 +72,8 @@ export const MultiSelect = <T extends { label: string; value: string }>(
   const { labelProps } = useField(props);
   const { contains } = useFilter({ sensitivity: "base" });
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Note we have to use controlled state for the popover as we need a custom logic to open the popover
+  // for the usecase where we need to open the popover on keydown or keyup when the button is focused.
   const [isOpen, setOpen] = useState(false);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -84,10 +86,6 @@ export const MultiSelect = <T extends { label: string; value: string }>(
     contains(textValue, inputValue);
 
   return (
-    // We need keydown ecent to open the popover on keydown or keyup when the button is focused.
-    // We have to do this manually as we don't have any useMultiSelect hook or component.
-    // There are more things that select do like focusing the first on arrow up or focusing the last on arrow down
-    // We can't do all of it as we don't have access to state of listbox
     <ButtonContext.Provider value={{ onKeyDown, ref: triggerRef }}>
       <div className={inputFieldStyles.field}>
         {Boolean(label) && (
@@ -96,9 +94,9 @@ export const MultiSelect = <T extends { label: string; value: string }>(
             contextualHelp={contextualHelp}
             isDisabled={Boolean(isDisabled) || Boolean(isLoading)}
             isRequired={isRequired}
-            // this is required to imitate the behavior where on click of label, the trigger or input is focused
-            // in our  this is handled by the useSelect hook. But we don't have any useMutliSelect hook or component
-            // so we are just this manually here
+            // this is required to imitate the behavior where on click of label, the trigger or input is focused.
+            // In our select component,  this is done by the useSelect hook. Since we don't have that for multi select,
+            // we are doing this manually here
             onClick={() => {
               if (triggerRef.current) {
                 triggerRef.current.focus();
@@ -166,6 +164,9 @@ export const MultiSelect = <T extends { label: string; value: string }>(
             </Popover>
           </DialogTrigger>
         </div>
+        {/* We can't use our FieldError component as it only works when used with FieldErrorContext.
+          We can use it our Select and other inputs because the implementation is abstracted in the react aria components library.
+          But since for MultiSelect, we don't have component from react-aria, we have to manually render the error message here. */}
         <div className={fieldErrorStyles.errorText}>
           <Text color="negative" size="caption">
             {errorMessage}

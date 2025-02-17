@@ -49,7 +49,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   })();
 
   return (
-    <div className={styles.inputGroup} data-input-group>
+    <div className={styles.inputGroup}>
       {Boolean(prefix) && (
         <span data-input-prefix onClick={() => localRef.current?.focus()}>
           {prefix}

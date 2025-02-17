@@ -19,8 +19,8 @@ function CalendarHeading(
 
   return (
     <div className={styles.monthYearDropdown}>
-      <CalendarMonthDropdown state={state} />
-      <CalendarYearDropdown state={state} />
+      <CalendarMonthDropdown state={state!} />
+      <CalendarYearDropdown state={state!} />
     </div>
   );
 }

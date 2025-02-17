@@ -68,3 +68,11 @@
   flex-shrink: 0;
   min-width: 0;
 }
+
+.ellipsisText {
+  width: 7ch;
+}
+
+.selectedItemLabel {
+  flex-shrink: 0;
+}

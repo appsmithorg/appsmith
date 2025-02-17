@@ -1,9 +1,15 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  Icon,
+  Spinner,
+  Text,
+  type MultiSelectProps,
+  textInputStyles,
+  selectStyles,
+} from "@appsmith/wds";
 import clsx from "clsx";
-import { Icon, Spinner, Text, type MultiSelectProps } from "@appsmith/wds";
-import { textInputStyles, selectStyles } from "@appsmith/wds";
 import { type Selection, Button } from "react-aria-components";
 import { useResizeObserver, useValueEffect } from "@react-aria/utils";
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 
 import styles from "./styles.module.css";
 
@@ -135,13 +141,13 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
           <Text color="neutral-subtle">{placeholder}</Text>
         )}
         {[...selectedItems].slice(0, visibleItems).map((item, index) => (
-          <Text key={item?.value} style={{ flexShrink: "0" }}>
+          <Text className={styles.selectedItemLabel} key={item?.value}>
             {item?.label}
             {index < visibleItems - 1 ? ",\u00A0" : ""}
           </Text>
         ))}
         {/* we are resevering space for 7 characters which describes "...+999" text */}
-        <Text style={{ width: "7ch" }}>
+        <Text className={styles.ellipsisText}>
           {visibleItems < totalItems && <>...+{totalItems - visibleItems}</>}
         </Text>
       </span>
