@@ -93,7 +93,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
           <FieldLabel
             {...labelProps}
             contextualHelp={contextualHelp}
-            isDisabled={Boolean(isDisabled) || Boolean(isLoading)}
+            isDisabled={isDisabled}
             isRequired={isRequired}
             // this is required to imitate the behavior where on click of label, the trigger or input is focused.
             // In our select component,  this is done by the useSelect hook. Since we don't have that for multi select,
