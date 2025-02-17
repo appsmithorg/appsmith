@@ -8,7 +8,6 @@ import {
   TextField,
   textInputStyles,
   useRootContainer,
-  type MultiSelectProps,
   inputFieldStyles,
   selectStyles,
   Text,
@@ -20,6 +19,7 @@ import type { Selection } from "react-aria-components";
 import { setInteractionModality } from "@react-aria/interactions";
 
 import styles from "./styles.module.css";
+import type { MultiSelectProps } from "./types";
 
 import {
   DialogTrigger,

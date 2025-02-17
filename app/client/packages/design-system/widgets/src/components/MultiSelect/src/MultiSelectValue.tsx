@@ -2,7 +2,6 @@ import {
   Icon,
   Spinner,
   Text,
-  type MultiSelectProps,
   textInputStyles,
   selectStyles,
 } from "@appsmith/wds";
@@ -12,7 +11,7 @@ import { useResizeObserver, useValueEffect } from "@react-aria/utils";
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 
 import styles from "./styles.module.css";
-
+import type { MultiSelectProps } from "./types";
 interface MultiSelectValueProps {
   excludeFromTabOrder?: boolean;
   isDisabled?: boolean;
