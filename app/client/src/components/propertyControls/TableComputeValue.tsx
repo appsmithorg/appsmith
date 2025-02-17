@@ -102,8 +102,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   static getBindingPrefix(tableName: string) {
     return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
   }
+  static fallbackBindingPrefix = `{{`;
 
   static bindingSuffix = `))}}`;
+  static fallbackBindingSuffix = `}}`;
 
   render() {
     const {
@@ -160,12 +162,21 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   static getInputComputedValue = (propertyValue: string, tableName: string) => {
     const bindingPrefix =
       ComputeTablePropertyControlV2.getBindingPrefix(tableName);
+    const fallbackPrefix = ComputeTablePropertyControlV2.fallbackBindingPrefix;
 
     if (propertyValue.includes(bindingPrefix)) {
       const value = `${propertyValue.substring(
         bindingPrefix.length,
         propertyValue.length -
           ComputeTablePropertyControlV2.bindingSuffix.length,
+      )}`;
+
+      return JSToString(value);
+    } else if (propertyValue.includes(fallbackPrefix)) {
+      const value = `${propertyValue.substring(
+        fallbackPrefix.length,
+        propertyValue.length -
+          ComputeTablePropertyControlV2.fallbackBindingSuffix.length,
       )}`;
 
       return JSToString(value);
@@ -217,7 +228,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   };
 
   wrapInDoubleCurlyBraces = (stringToEvaluate: string) => {
-    return `{{${stringToEvaluate}}}`;
+    return `${ComputeTablePropertyControlV2.fallbackBindingPrefix}${stringToEvaluate}${ComputeTablePropertyControlV2.fallbackBindingSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
