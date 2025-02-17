@@ -28,13 +28,13 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import IDE from "../IDE";
+import IDE from "pages/AppIDE/layout";
 import GlobalHotKeys from "./GlobalHotKeys";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as widgetActions from "actions/widgetActions";
 import * as uiSelectors from "selectors/ui";
-import { NavigationMethod } from "../../../utils/history";
+import { NavigationMethod } from "utils/history";
 
 jest.mock("constants/routes", () => {
   return {
