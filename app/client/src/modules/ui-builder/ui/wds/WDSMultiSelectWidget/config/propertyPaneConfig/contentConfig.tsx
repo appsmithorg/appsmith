@@ -123,9 +123,9 @@ export const propertyPaneContentConfig = [
         additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
       },
       {
-        helpText: "Selects the option with value by default",
-        propertyName: "defaultOptionValue",
-        label: "Default selected value",
+        helpText: "Selects the options with value by default",
+        propertyName: "defaultOptionValues",
+        label: "Default selected values",
         controlType: "WRAPPED_CODE_EDITOR",
         controlConfig: {
           wrapperCode: {
@@ -133,7 +133,7 @@ export const propertyPaneContentConfig = [
             suffix: getDefaultValueExpressionSuffix,
           },
         },
-        placeholderText: '{ "label": "label1", "value": "value1" }',
+        placeholderText: "[GREEN]",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -141,17 +141,17 @@ export const propertyPaneContentConfig = [
           params: {
             fn: defaultOptionValueValidation,
             expected: {
-              type: 'value1 or { "label": "label1", "value": "value1" }',
-              example: `value1 | { "label": "label1", "value": "value1" }`,
-              autocompleteDataType: AutocompleteDataType.STRING,
+              type: "Array of values",
+              example: ` "option1, option2" | ['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
             },
           },
         },
         dependencies: ["options"],
         helperText: (
           <Flex marginTop="spaces-2">
-            Make sure the default value is present in the source data to have it
-            selected by default in the UI.
+            Make sure the default values are present in the source data to have
+            them selected by default in the UI.
           </Flex>
         ),
       },
