@@ -199,8 +199,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       return stringToEvaluate;
     }
 
-    // Handle specific cases with "currentIndex" or "currentRow"
-    if (this.containsTableSpecificBindings(stringToEvaluate)) {
+    if (this.hasEvaluatedValues()) {
       return this.buildTableSpecificBinding(stringToEvaluate, tableName);
     }
 
@@ -214,11 +213,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     );
   };
 
-  containsTableSpecificBindings = (stringToEvaluate: string) => {
-    return (
-      stringToEvaluate.includes("currentIndex") ||
-      stringToEvaluate.includes("currentRow")
-    );
+  hasEvaluatedValues = () => {
+    return this.props.evaluatedValue && this.props.evaluatedValue.length;
   };
 
   buildTableSpecificBinding = (stringToEvaluate: string, tableName: string) => {
