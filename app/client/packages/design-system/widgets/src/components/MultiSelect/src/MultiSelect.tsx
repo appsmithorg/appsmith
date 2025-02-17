@@ -118,7 +118,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
           <DialogTrigger isOpen={isOpen} onOpenChange={setOpen}>
             <MultiSelectValue
               excludeFromTabOrder={excludeFromTabOrder}
-              isDisabled={Boolean(isDisabled) || Boolean(isLoading)}
+              isDisabled={isDisabled}
               isInvalid={isInvalid}
               isLoading={isLoading}
               items={items}
