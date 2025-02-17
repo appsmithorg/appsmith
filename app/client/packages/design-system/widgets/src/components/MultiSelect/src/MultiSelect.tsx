@@ -165,8 +165,8 @@ export const MultiSelect = <T extends { label: string; value: string }>(
           </DialogTrigger>
         </div>
         {/* We can't use our FieldError component as it only works when used with FieldErrorContext.
-          We can use it our Select and other inputs because the implementation is abstracted in the react aria components library.
-          But since for MultiSelect, we don't have component from react-aria, we have to manually render the error message here. */}
+          We can use it in our Select and other inputs because the implementation is abstracted in the react aria components library.
+          But since for MultiSelect, we don't have any component from react-aria, we have to manually render the error message here. */}
         <div className={fieldErrorStyles.errorText}>
           <Text color="negative" size="caption">
             {errorMessage}
