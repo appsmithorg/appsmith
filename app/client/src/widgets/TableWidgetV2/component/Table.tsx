@@ -473,8 +473,10 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
@@ -512,8 +514,10 @@ export function Table(props: TableProps) {
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
                 isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
