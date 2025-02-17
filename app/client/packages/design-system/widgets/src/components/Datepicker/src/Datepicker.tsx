@@ -94,7 +94,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
                       label="Time"
                       maxValue={timeMaxValue}
                       minValue={timeMinValue}
-                      onChange={state.setTimeValue}
+                      onChange={(value) => state.setTimeValue(value!)}
                       placeholderValue={timePlaceholder}
                       value={state.timeValue}
                     />
