@@ -186,6 +186,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
+     * This function is being called as a hook after saving a datasource.
+     */
+    default Mono<DatasourceStorage> postSaveHook(DatasourceStorage datasourceStorage) {
+        return Mono.just(datasourceStorage);
+    }
+
+    /**
      * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation
      * easier for the user.
      *

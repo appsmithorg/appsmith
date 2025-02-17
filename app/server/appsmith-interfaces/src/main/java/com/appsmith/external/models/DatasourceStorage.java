@@ -89,6 +89,12 @@ public class DatasourceStorage extends GitSyncedDomain {
     @Transient
     Boolean isMock;
 
+    @Transient
+    String tenantId;
+
+    @Transient
+    String instanceId;
+
     public DatasourceStorage(
             String datasourceId,
             String environmentId,

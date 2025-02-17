@@ -28,10 +28,12 @@ import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -93,6 +95,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final RateLimitService rateLimitService;
     private final FeatureFlagService featureFlagService;
     private final ObservationRegistry observationRegistry;
+    private final TenantService tenantService;
+    private final ConfigService configService;
 
     // Defines blocking duration for test as well as connection created for query execution
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
@@ -119,7 +123,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            TenantService tenantService,
+            ConfigService configService) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -138,6 +144,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.rateLimitService = rateLimitService;
         this.featureFlagService = featureFlagService;
         this.observationRegistry = observationRegistry;
+        this.tenantService = tenantService;
+        this.configService = configService;
     }
 
     @Override
@@ -182,6 +190,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasource.nullifyStorageReplicaFields();
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
+        //
+        Mono<Tuple2<String, String>> tenantIdAndInstanceIdMonoCached = tenantService
+                .getDefaultTenantId()
+                .zipWith(configService.getInstanceId())
+                .cache();
+
         // First check if this is an existing datasource or whether we need to create one
         if (!hasText(datasource.getId())) {
             // We need to create the datasource as well
@@ -222,34 +236,42 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE))));
         }
 
-        return datasourceMono.flatMap(savedDatasource -> this.organiseDatasourceStorages(savedDatasource)
-                .flatMap(datasourceStorage -> {
-                    // Make sure that we are creating entries only if the id is not already populated
-                    if (hasText(datasourceStorage.getId())) {
-                        return Mono.just(datasourceStorage);
-                    }
+        return datasourceMono.zipWith(tenantIdAndInstanceIdMonoCached).flatMap(tuple2 -> {
+            Datasource savedDatasource = tuple2.getT1();
+            String tenantId = tuple2.getT2().getT1();
+            String instanceId = tuple2.getT2().getT2();
+            return this.organiseDatasourceStorages(savedDatasource)
+                    .flatMap(datasourceStorage -> {
+                        // Set the tenantId and instanceId
+                        datasourceStorage.setTenantId(tenantId);
+                        datasourceStorage.setInstanceId(instanceId);
+                        // Make sure that we are creating entries only if the id is not already populated
+                        if (hasText(datasourceStorage.getId())) {
+                            return Mono.just(datasourceStorage);
+                        }
 
-                    return datasourceStorageService
-                            .create(datasourceStorage, isDryOps)
-                            .map(datasourceStorage1 -> {
-                                if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                    List<DatasourceStorage> datasourceStorages =
-                                            datasourceStorageDryRunQueries.get(SAVE);
-                                    if (datasourceStorages == null) {
-                                        datasourceStorages = new ArrayList<>();
+                        return datasourceStorageService
+                                .create(datasourceStorage, isDryOps)
+                                .map(datasourceStorage1 -> {
+                                    if (datasourceStorageDryRunQueries != null && isDryOps) {
+                                        List<DatasourceStorage> datasourceStorages =
+                                                datasourceStorageDryRunQueries.get(SAVE);
+                                        if (datasourceStorages == null) {
+                                            datasourceStorages = new ArrayList<>();
+                                        }
+                                        datasourceStorages.add(datasourceStorage1);
+                                        datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
                                     }
-                                    datasourceStorages.add(datasourceStorage1);
-                                    datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
-                                }
-                                return datasourceStorage1;
-                            });
-                })
-                .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
-                .collectMap(DatasourceStorageDTO::getEnvironmentId)
-                .map(savedStorages -> {
-                    savedDatasource.setDatasourceStorages(savedStorages);
-                    return savedDatasource;
-                }));
+                                    return datasourceStorage1;
+                                });
+                    })
+                    .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
+                    .collectMap(DatasourceStorageDTO::getEnvironmentId)
+                    .map(savedStorages -> {
+                        savedDatasource.setDatasourceStorages(savedStorages);
+                        return savedDatasource;
+                    });
+        });
     }
 
     // this requires an EE override multiple environments
