@@ -104,13 +104,16 @@ const selectSystemFunctionEntityOptions =
       postWindowMessage: createMessage(POST_MESSAGE),
     };
 
-    return objectKeys(systemFunctions).map((name) => {
-      return {
-        value: name,
-        label: labelMap[name],
-        optionGroupType: "SystemFunction",
-      };
-    });
+    return (
+      objectKeys(systemFunctions)
+        // @ts-expect-error assignRequest doesn't exist in CE repo but added in EE repo
+        .filter((name) => name !== "assignRequest")
+        .map((name) => ({
+          value: name,
+          label: labelMap[name],
+          optionGroupType: "SystemFunction",
+        }))
+    );
   };
 
 export const selectEntityOptions = createSelector(
