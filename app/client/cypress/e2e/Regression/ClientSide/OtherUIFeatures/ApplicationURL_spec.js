@@ -145,13 +145,13 @@ describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
       const redirectUrl = `${url}?embed=true&a=b`;
-      cy.stub(agHelper, 'VisitNAssert').as('visitStub');
+      cy.stub(agHelper, "VisitNAssert").as("visitStub");
 
       // Call your function that handles redirection
       agHelper.VisitNAssert(redirectUrl);
 
       // Assert that the stubbed function was called with the correct redirectUrl
-      cy.get('@visitStub').should('have.been.calledWith', redirectUrl);
+      cy.get("@visitStub").should("have.been.calledWith", redirectUrl);
       cy.wrap(redirectUrl).then((redirectUrl) => {
         const encodedRedirectUrl = `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
         cy.log(encodedRedirectUrl);
