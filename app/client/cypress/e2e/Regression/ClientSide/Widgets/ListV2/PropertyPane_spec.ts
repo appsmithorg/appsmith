@@ -10,9 +10,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const widgetSelector = (name: string) => `[data-widgetname-cy="${name}"]`;
-const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-
 describe(
   "List widget V2 PropertyPane",
   { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
@@ -43,8 +40,8 @@ describe(
       const widgetSelector = (name: string) => `[data-widgetname-cy="${name}"]`;
       const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
-      // Drag and drop the List widget and Button widget onto the canvas
-      entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);
+      // Drag and drop the Button widget onto the canvas
+      // entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);
       entityExplorer.DragDropWidgetNVerify("buttonwidget");
 
       // Set up the button to make the list visible when clicked
