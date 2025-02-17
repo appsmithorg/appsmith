@@ -71,6 +71,7 @@ public class FieldNameCE {
     public static final String ACTIONS = "actions";
     public static final String ASSET = "asset";
     public static final String APPLICATION = "application";
+    public static final String ARTIFACT = "artifact";
     public static final String SOURCE_APPLICATION = "sourceApplication";
     public static final String COMMENT = "comment";
     public static final String COMMENT_THREAD = "commentThread";

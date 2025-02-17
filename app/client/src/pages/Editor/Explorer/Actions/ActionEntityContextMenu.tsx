@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -44,6 +44,7 @@ export interface EntityContextMenuProps {
   canDeleteAction: boolean;
   pluginType: PluginType;
 }
+
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);

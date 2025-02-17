@@ -7,13 +7,13 @@ import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import type {
   WidgetEntityConfig,
   WidgetEntity,
-} from "ee/entities/DataTree/types";
-import { ENTITY_TYPE } from "./dataTreeFactory";
-import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
 } from "ee/entities/DataTree/types";
-import { OverridingPropertyType } from "ee/entities/DataTree/types";
+import {
+  OverridingPropertyType,
+  ENTITY_TYPE,
+} from "ee/entities/DataTree/types";
 
 import { setOverridingProperty } from "ee/entities/DataTree/utils";
 import { error } from "loglevel";
@@ -28,42 +28,42 @@ import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
  * Example of setterConfig
  *
  * {
-      WIDGET: {
-        TABLE_WIDGET_V2: {
-          __setters: {
-              setIsRequired: {
-                path: "isRequired"
-              },
-          },
-          "text": {
-              __setters:{
-                setIsRequired: {
-                    path: "primaryColumns.$columnId.isRequired"
-                }
-              }
-          }
-          pathToSetters: [{ path: "primaryColumns.$columnId", property: "columnType" }]
-        }
-      }
-    }
+ WIDGET: {
+ TABLE_WIDGET_V2: {
+ __setters: {
+ setIsRequired: {
+ path: "isRequired"
+ },
+ },
+ "text": {
+ __setters:{
+ setIsRequired: {
+ path: "primaryColumns.$columnId.isRequired"
+ }
+ }
+ }
+ pathToSetters: [{ path: "primaryColumns.$columnId", property: "columnType" }]
+ }
+ }
+ }
 
-    columnId = action
+ columnId = action
 
-    Expected output
+ Expected output
 
-      {
-        Table2: {
-          isRequired: true,
-          __setters: {
-            setIsRequired: {
-              path: "Table2.isRequired"
-            },
-            "primaryColumns.action.setIsRequired": {
-              path: "Table2.primaryColumns.action.isRequired"
-            }
-          },
-        }
-      }
+ {
+ Table2: {
+ isRequired: true,
+ __setters: {
+ setIsRequired: {
+ path: "Table2.isRequired"
+ },
+ "primaryColumns.action.setIsRequired": {
+ path: "Table2.primaryColumns.action.isRequired"
+ }
+ },
+ }
+ }
  */
 
 export function getSetterConfig(

@@ -255,7 +255,14 @@ describe(
       agHelper.GetNClick(locators._existingFieldTextByName("Max Date"));
       agHelper.GetNClick(datePickerlocators.calendarHeader, 1);
       agHelper.GetNClick(dataSources._visibleTextSpan("Feb"), 0, true);
-      agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
+      agHelper.GetNClick(datePickerlocators.calendarHeader, 2, true);
+      agHelper
+        .GetAttribute(datePickerlocators.calendarHeader, "data-state", 2)
+        .then((state) => {
+          if (state === "closed") {
+            agHelper.GetNClick(datePickerlocators.calendarHeader, 2, true);
+          }
+        });
       agHelper.GetNClick(datePickerlocators.year("2023"), 0, true);
       agHelper.GetNClick(datePickerlocators.date("010"));
       deployMode.DeployApp();

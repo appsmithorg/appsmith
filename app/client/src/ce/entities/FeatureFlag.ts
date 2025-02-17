@@ -39,8 +39,6 @@ export const FEATURE_FLAG = {
   release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
   ab_request_new_integration_enabled: "ab_request_new_integration_enabled",
   release_evaluation_scope_cache: "release_evaluation_scope_cache",
-  release_table_html_column_type_enabled:
-    "release_table_html_column_type_enabled",
   release_gs_all_sheets_options_enabled:
     "release_gs_all_sheets_options_enabled",
   release_git_modularisation_enabled: "release_git_modularisation_enabled",
@@ -54,6 +52,8 @@ export const FEATURE_FLAG = {
   release_ads_entity_item_enabled: "release_ads_entity_item_enabled",
   release_external_saas_plugins_enabled:
     "release_external_saas_plugins_enabled",
+  release_tablev2_infinitescroll_enabled:
+    "release_tablev2_infinitescroll_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -89,7 +89,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_custom_widget_ai_builder: false,
   ab_request_new_integration_enabled: false,
   release_evaluation_scope_cache: false,
-  release_table_html_column_type_enabled: false,
   release_gs_all_sheets_options_enabled: false,
   release_git_modularisation_enabled: false,
   release_git_api_contracts_enabled: false,
@@ -99,6 +98,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   config_mask_session_recordings_enabled: true,
   release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
+  release_tablev2_infinitescroll_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
