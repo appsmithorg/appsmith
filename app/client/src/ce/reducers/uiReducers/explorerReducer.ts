@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import get from "lodash/get";
-import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 
 export enum ExplorerPinnedState {

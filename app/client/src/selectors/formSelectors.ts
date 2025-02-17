@@ -2,6 +2,7 @@ import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import type { AppState } from "ee/reducers";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type {
+  ConditionalOutput,
   DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
@@ -40,6 +41,23 @@ export const getApiName = (state: AppState, id: string) => {
 
 export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
   state.evaluations.formEvaluation;
+
+export const getFormConfigConditionalOutput = (
+  state: AppState,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config: any,
+): ConditionalOutput => {
+  const baseActionId = getActionIdFromURL();
+  const action = getActionByBaseId(state, baseActionId as string);
+  const actionId = action?.id ?? "";
+  const conditionalOutput = extractConditionalOutput(
+    config,
+    state.evaluations.triggers[actionId],
+  );
+
+  return conditionalOutput;
+};
 
 // Selector to return the fetched values of the form components, only called for components that
 // have the fetchOptionsDynamically option set to true
