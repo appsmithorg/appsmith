@@ -10,7 +10,7 @@ export function useGetDisplayData(selectedItemName: string) {
   const jsActions = useSelector(getJSCollections);
 
   return useMemo(() => {
-    if (selectedItemName in dataTree && selectedItemName in configTree) {
+    if (selectedItemName in dataTree) {
       return filterInternalProperties(
         selectedItemName,
         dataTree[selectedItemName],

@@ -193,8 +193,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String baseApplicationId, AclPermission permission, User currentUser) {
 
         return queryBuilder()
-                .criteria(
-                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId))
+                .criteria(Bridge.or(
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId),
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultArtifactId, baseApplicationId)))
                 .permission(permission, currentUser)
                 .all();
     }

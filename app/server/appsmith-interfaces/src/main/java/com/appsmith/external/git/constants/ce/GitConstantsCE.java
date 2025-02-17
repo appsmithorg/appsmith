@@ -10,6 +10,7 @@ public class GitConstantsCE {
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
 
     public static final String README_FILE_NAME = "README.md";
+    public static final String ARTIFACT_JSON_TYPE = "artifactJsonType";
 
     public static final String FIRST_COMMIT = "System added readme file";
     public static final String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
