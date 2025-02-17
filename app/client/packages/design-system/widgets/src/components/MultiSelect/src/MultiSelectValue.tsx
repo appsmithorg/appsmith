@@ -1,14 +1,13 @@
-import {
-  Icon,
-  Spinner,
-  Text,
-  textInputStyles,
-  selectStyles,
-} from "@appsmith/wds";
 import clsx from "clsx";
 import { type Selection, Button } from "react-aria-components";
 import { useResizeObserver, useValueEffect } from "@react-aria/utils";
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from "react";
+
+import { Icon } from "../../Icon";
+import { Text } from "../../Text";
+import { Spinner } from "../../Spinner";
+import { selectStyles } from "../../Select";
+import { textInputStyles } from "../../Input";
 
 import styles from "./styles.module.css";
 import type { MultiSelectProps } from "./types";
