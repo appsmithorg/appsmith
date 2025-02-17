@@ -38,7 +38,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("2. Validate isVisible when list has selected item", () => {
+    it("2. Validate isVisible when list has selected item (#37683)", () => {
       // Define selectors for widgets
       const widgetSelector = (name: string) => `[data-widgetname-cy="${name}"]`;
       const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -68,7 +68,9 @@ describe(
         .find(containerWidgetSelector)
         .first()
         .click({ force: true });
-      agHelper.Sleep(2000);
+      agHelper.WaitUntilEleDisappear(
+        locators._widgetInDeployed(draggableWidgets.LIST_V2),
+      );
 
       // Assert that the list widget is not visible after clicking an item
       agHelper.AssertElementAbsence(
