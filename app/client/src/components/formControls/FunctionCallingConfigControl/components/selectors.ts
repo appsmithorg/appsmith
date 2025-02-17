@@ -106,7 +106,8 @@ const selectSystemFunctionEntityOptions =
 
     return (
       objectKeys(systemFunctions)
-        // @ts-expect-error assignRequest doesn't exist in CE repo but added in EE repo
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore assignRequest doesn't exist in CE repo but added in EE repo
         .filter((name) => name !== "assignRequest")
         .map((name) => ({
           value: name,
