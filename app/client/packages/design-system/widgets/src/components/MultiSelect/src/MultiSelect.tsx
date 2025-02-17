@@ -28,13 +28,13 @@ import {
   useFilter,
   ButtonContext,
 } from "react-aria-components";
-import MultiSelectValue from "./MultiSelectValue";
+import { MultiSelectValue } from "./MultiSelectValue";
 
 const EmptyState = () => {
   return (
-    <div className={styles.emptyState}>
-      <Text color="neutral-subtle">No options found</Text>
-    </div>
+    <Text className={styles.emptyState} color="neutral-subtle">
+      No options found
+    </Text>
   );
 };
 

@@ -160,4 +160,4 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
   );
 };
 
-export default MultiSelectValue;
+export { MultiSelectValue };

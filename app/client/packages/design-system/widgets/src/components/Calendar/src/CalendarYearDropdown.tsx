@@ -5,7 +5,11 @@ import type { CalendarState } from "@react-stately/calendar";
 
 import { useYearOptions } from "../utils/calendar";
 
-export function CalendarYearDropdown({ state }: { state: CalendarState }) {
+export function CalendarYearDropdown({
+  state,
+}: {
+  state: CalendarState | null;
+}) {
   const years = useYearOptions(state);
 
   const onChange = (value: Key | null) => {
