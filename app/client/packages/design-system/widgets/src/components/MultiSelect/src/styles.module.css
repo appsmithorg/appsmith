@@ -27,6 +27,8 @@
   box-shadow: var(--checkbox-box-shadow);
 }
 
+/* this is a hack to show checkbox in the listbox in the dropdown. We are forced to do this because listitems are not getting re-rendered when the selected keys change.
+ * So when we use checkbox component, it does not get checked or unchecked. */
 .listBoxItem[data-selected]::before {
   background-color: var(--color-bg-accent);
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20%3E%20%3Cpath%20d%3D%22M5%2012l5%205l10%20-10%22%20%2F%3E%20%3C%2Fsvg%3E%20");
