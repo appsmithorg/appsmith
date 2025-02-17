@@ -23,6 +23,7 @@ import derivedPropertyFns from "./derived";
 import { parseDerivedProperties } from "widgets/WidgetUtils";
 import isArray from "lodash/isArray";
 import type { Selection } from "@react-types/shared";
+import isEmpty from "lodash/isEmpty";
 
 class WDSMultiSelectWidget extends BaseWidget<
   WDSMultiSelectWidgetProps,
@@ -79,7 +80,7 @@ class WDSMultiSelectWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptionValue: "defaultOptionValue",
+      selectedOptionValues: "defaultOptionValues",
     };
   }
 
@@ -111,11 +112,11 @@ class WDSMultiSelectWidget extends BaseWidget<
   onSelectionChange = (updatedValues: Selection) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-    if (Boolean(updatedValues) === false) {
+    if (!isEmpty(updatedValues)) {
       pushBatchMetaUpdates("isDirty", true);
     }
 
-    pushBatchMetaUpdates("selectedOptionValues", [...updatedValues], {
+    pushBatchMetaUpdates("selectedOptionValues", updatedValues, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {

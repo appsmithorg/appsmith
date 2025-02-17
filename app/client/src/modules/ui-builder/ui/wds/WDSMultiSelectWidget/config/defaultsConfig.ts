@@ -8,7 +8,7 @@ export const defaultsConfig = {
   sourceData: JSON.stringify(SAMPLE_DATA, null, 2),
   optionLabel: "name",
   optionValue: "code",
-  defaultOptionValue: "",
+  defaultOptionValues: "",
   isRequired: false,
   isDisabled: false,
   isVisible: true,
