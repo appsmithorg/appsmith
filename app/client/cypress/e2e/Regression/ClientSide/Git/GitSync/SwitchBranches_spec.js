@@ -128,7 +128,7 @@ describe(
     // rename entities
     it("3. makes branch specific resource updates", function () {
       gitSync.SwitchGitBranch(childBranchKey);
-      EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
+      EditorNavigation.NavigateToPage("ParentPage1", true);
       entityExplorer.RenameEntityFromExplorer(
         "ParentPage1",
         "ParentPageRenamed",
