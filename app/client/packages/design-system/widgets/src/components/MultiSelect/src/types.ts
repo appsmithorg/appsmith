@@ -1,9 +1,10 @@
-import type { SIZES, FieldProps } from "@appsmith/wds";
 import type {
   ListBoxProps,
   SelectProps as SpectrumSelectProps,
   Selection,
 } from "react-aria-components";
+import type { SIZES } from "../../../shared";
+import type { FieldProps } from "../../Field";
 
 export interface MultiSelectProps<T>
   extends Omit<

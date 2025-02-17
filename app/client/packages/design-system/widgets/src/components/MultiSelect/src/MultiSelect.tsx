@@ -1,25 +1,26 @@
 import clsx from "clsx";
 import React, { useRef, useState } from "react";
-import {
-  FieldLabel,
-  ListBoxItem,
-  ListBox,
-  Popover,
-  TextField,
-  textInputStyles,
-  useRootContainer,
-  inputFieldStyles,
-  selectStyles,
-  Text,
-  POPOVER_LIST_BOX_MAX_HEIGHT,
-  fieldErrorStyles,
-} from "@appsmith/wds";
+
 import { useField } from "react-aria";
 import type { Selection } from "react-aria-components";
 import { setInteractionModality } from "@react-aria/interactions";
 
+import { Text } from "../../Text";
 import styles from "./styles.module.css";
+import { ListBox } from "../../ListBox";
+import {
+  Popover,
+  POPOVER_LIST_BOX_MAX_HEIGHT,
+  useRootContainer,
+} from "../../Popover";
+import { selectStyles } from "../../Select";
+import { TextField } from "../../TextField";
+import { FieldLabel } from "../../FieldLabel";
+import { textInputStyles } from "../../Input";
+import { inputFieldStyles } from "../../Field";
 import type { MultiSelectProps } from "./types";
+import { ListBoxItem } from "../../ListBoxItem";
+import { fieldErrorStyles } from "../../FieldError";
 
 import {
   DialogTrigger,
