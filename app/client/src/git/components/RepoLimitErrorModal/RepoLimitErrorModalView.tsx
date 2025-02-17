@@ -24,13 +24,13 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { noop } from "lodash";
-import { applicationArtifact } from "git/artifact-helpers/application";
 import type {
   GitApplicationArtifact,
   GitArtifact,
   GitArtifactDef,
   GitPackageArtifact,
 } from "git/types";
+import { applicationArtifact } from "git-artifact-helpers/application";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

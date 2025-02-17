@@ -74,8 +74,8 @@ import {
   selectGitApplicationCurrentBranch,
   selectGitModEnabled,
 } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
 import { getPersistentAppStore } from "constants/AppConstants";
+import { applicationArtifact } from "git-artifact-helpers/application";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {

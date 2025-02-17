@@ -46,7 +46,7 @@ import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import GeneratePageModal from "pages/Editor/GeneratePage";
 import { GitModals } from "./components/GitModals";
-import { GitApplicationContextProvider } from "git/artifact-helpers/application/components";
+import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 
 interface EditorProps {
   currentApplicationId?: string;

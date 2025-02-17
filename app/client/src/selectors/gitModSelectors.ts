@@ -10,8 +10,8 @@ import {
   selectGitOpsModalOpen as selectGitOpsModalOpenNew,
   selectGitConnectModalOpen as selectGitConnectModalOpenNew,
 } from "git/store/selectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
 import type { AppState } from "ee/reducers";
+import { applicationArtifact } from "git-artifact-helpers/application";
 
 export const selectGitModEnabled = createSelector(
   (state: AppState) => {

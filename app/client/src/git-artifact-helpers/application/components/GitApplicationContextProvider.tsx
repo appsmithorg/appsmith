@@ -19,7 +19,7 @@ import {
   getApplicationsOfWorkspace,
   getCurrentAppWorkspace,
 } from "ee/selectors/selectedWorkspaceSelectors";
-import { applicationStatusTransformer } from "git/artifact-helpers/application";
+import applicationStatusTransformer from "../applicationStatusTransformer";
 
 interface GitApplicationContextProviderProps {
   children: React.ReactNode;
