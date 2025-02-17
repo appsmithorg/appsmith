@@ -49,7 +49,7 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "actions/evaluationActions";
+} from "actions/formEvaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
@@ -85,9 +85,13 @@ import {
   getCurrentApplicationIdForCreateNewApp,
 } from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import {
+  ActionParentEntityType,
+  doesPluginRequireDatasource,
+} from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
+import { objectKeys } from "@appsmith/utils";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -187,6 +191,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
         //@ts-expect-error: id does not exists
         action.datasource.id,
         pluginId,
+        action.contextType,
       ),
     );
   }
@@ -275,7 +280,7 @@ function* formValueChangeSaga(
               type: ReduxActionTypes.SET_TRIGGER_VALUES_LOADING,
               payload: {
                 formId: values.id,
-                keys: Object.keys(allTriggers),
+                keys: objectKeys(allTriggers),
                 value: true,
               },
             });
@@ -317,7 +322,7 @@ function* formValueChangeSaga(
         "datasourceConfiguration",
       )
     ) {
-      currentEnvironment = Object.keys(datasourceStorages)[0];
+      currentEnvironment = objectKeys(datasourceStorages)[0];
     }
 
     let dsConfig = {
@@ -338,6 +343,7 @@ function* formValueChangeSaga(
               values.actionConfiguration,
               values.datasource.id,
               values.pluginId,
+              values.contextType || ActionParentEntityType.PAGE,
               field,
               hasRouteChanged,
               dsConfig,

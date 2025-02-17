@@ -32,16 +32,14 @@ interface PropertyPaneTitleProps {
   onBackClick?: () => void;
   isPanelTitle?: boolean;
   actions: Array<{
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tooltipContent: any;
+    tooltipContent: string;
     icon: ReactElement;
     tooltipPosition?: TooltipPlacement;
   }>;
 }
 
 const StyledEditableContainer = styled.div`
-  max-width: calc(100% - 52px);
+  max-width: calc(100% - 78px);
   flex-grow: 1;
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid transparent;
@@ -207,10 +205,10 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
       {/* ACTIONS */}
       <div className="flex items-center space-x-1">
-        {props.actions.map((value, index) => (
+        {props.actions.map((value) => (
           <Tooltip
             content={value.tooltipContent}
-            key={index}
+            key={value.tooltipContent}
             placement={value.tooltipPosition}
           >
             {value.icon}

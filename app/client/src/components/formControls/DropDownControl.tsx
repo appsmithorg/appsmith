@@ -1,14 +1,18 @@
 import React from "react";
+import memoizeOne from "memoize-one";
+import { get, isEmpty, isNil, uniqBy } from "lodash";
+import {
+  Field,
+  change,
+  getFormValues,
+  type WrappedFieldInputProps,
+  type WrappedFieldMetaProps,
+} from "redux-form";
+import { connect } from "react-redux";
+import type { AppState } from "ee/reducers";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import { get, isEmpty, isNil } from "lodash";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field } from "redux-form";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getDynamicFetchedValues } from "selectors/formSelectors";
-import { change, getFormValues } from "redux-form";
 import {
   FormDataPaths,
   matchExact,
@@ -17,30 +21,147 @@ import {
 import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, OptGroup, Select } from "@appsmith/ads";
+import { getFormConfigConditionalOutput } from "selectors/formSelectors";
+import { fetchFormDynamicValNextPage } from "actions/evaluationActions";
 import { objectKeys } from "@appsmith/utils";
+import type {
+  ConditionalOutput,
+  DynamicValues,
+} from "reducers/evaluationReducers/formEvaluationReducer";
+
+export interface DropDownGroupedOptions {
+  label: string;
+  children: SelectOptionProps[];
+}
+
+/**
+ * Groups dropdown options based on provided configuration
+ * The grouping is only done if the optionGroupConfig is provided
+ * The default group is "others" if not provided
+ * @param {SelectOptionProps[]} options - Array of options to be grouped
+ * @param {Record<string, DropDownGroupedOptions>} [optionGroupConfig] - Configuration for grouping options
+ * @returns {DropDownGroupedOptions[] | null} Grouped options array or null if no grouping needed
+ */
+function buildGroupedOptions(
+  options: SelectOptionProps[],
+  optionGroupConfig?: Record<string, DropDownGroupedOptions>,
+): DropDownGroupedOptions[] | null {
+  if (!optionGroupConfig) return null;
+
+  const defaultGroupKey = "others";
+  const defaultGroupConfig: DropDownGroupedOptions = {
+    label: "Others",
+    children: [],
+  };
+
+  // Copy group config so we don't mutate the original
+  const groupMap = { ...optionGroupConfig };
+
+  // Re-initialize every group's children to an empty array
+  objectKeys(groupMap).forEach((key) => {
+    groupMap[key] = { ...groupMap[key], children: [] };
+  });
+
+  // Ensure we have an "others" group
+  if (!Object.hasOwn(groupMap, defaultGroupKey)) {
+    groupMap[defaultGroupKey] = { ...defaultGroupConfig };
+  } else {
+    // Re-initialize "others" group's children to an empty array
+    groupMap[defaultGroupKey] = { ...groupMap[defaultGroupKey], children: [] };
+  }
+
+  // Distribute each option to the correct group
+  options.forEach((opt) => {
+    const groupKey =
+      Object.hasOwn(opt, "optionGroupType") && opt.optionGroupType
+        ? opt.optionGroupType
+        : defaultGroupKey;
+
+    // If the groupKey doesn't exist in config, fall back to "others"
+    if (!Object.hasOwn(groupMap, groupKey)) {
+      groupMap[defaultGroupKey].children.push(opt);
+
+      return;
+    }
+
+    groupMap[groupKey].children.push(opt);
+  });
+
+  // Return only groups that actually have children
+  const grouped: DropDownGroupedOptions[] = [];
+
+  objectKeys(groupMap).forEach((key) => {
+    const group = groupMap[key];
+
+    if (group.children.length > 0) grouped.push(group);
+  });
+
+  return grouped;
+}
+
+const memoizedBuildGroupedOptions = memoizeOne(buildGroupedOptions);
+
+export interface DropDownControlProps extends ControlProps {
+  options: SelectOptionProps[];
+  optionGroupConfig?: Record<string, DropDownGroupedOptions>;
+  optionWidth?: string;
+  maxTagCount?: number;
+  placeholderText: string;
+  propertyValue: string;
+  subtitle?: string;
+  isMultiSelect?: boolean;
+  isAllowClear?: boolean;
+  isSearchable?: boolean;
+  fetchOptionsConditionally?: boolean;
+  isLoading: boolean;
+  formValues: Partial<Action>;
+  setFirstOptionAsDefault?: boolean;
+  nextPageNeeded?: boolean;
+  appendGroupIdentifierToValue?: boolean;
+  paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  };
+}
+
+interface ReduxDispatchProps {
+  updateConfigPropertyValue: (
+    formName: string,
+    field: string,
+    value: unknown,
+  ) => void;
+  fetchFormTriggerNextPage: (paginationPayload: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  }) => void;
+}
+
+type Props = DropDownControlProps & ReduxDispatchProps;
 
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
-    // if options received by the fetchDynamicValues for the multi select changes, update the config property path's values.
-    // we do this to make sure, the data does not contain values from the previous options.
-    // we check if the fetchDynamicValue dependencies of the multiselect dropdown has changed values
-    // if it has, we reset the values multiselect of the dropdown.
+    // If dependencies changed in multi-select, reset values
     if (this.props.fetchOptionsConditionally && this.props.isMultiSelect) {
       const dependencies = matchExact(
         MATCH_ACTION_CONFIG_PROPERTY,
-        this?.props?.conditionals?.fetchDynamicValues?.condition,
+        this.props.conditionals?.fetchDynamicValues?.condition,
       );
-
       let hasDependenciesChanged = false;
 
-      if (!!dependencies && dependencies.length > 0) {
-        dependencies.forEach((dependencyPath) => {
-          const prevValue = get(prevProps?.formValues, dependencyPath);
-          const currentValue = get(this.props?.formValues, dependencyPath);
+      if (dependencies?.length) {
+        dependencies.forEach((depPath) => {
+          const prevValue = get(prevProps.formValues, depPath);
+          const currValue = get(this.props.formValues, depPath);
 
-          if (prevValue !== currentValue) {
-            hasDependenciesChanged = true;
-          }
+          if (prevValue !== currValue) hasDependenciesChanged = true;
         });
       }
 
@@ -53,20 +174,15 @@ class DropDownControl extends BaseControl<Props> {
       }
     }
 
-    // For entity types to query on the datasource
-    // when the command is changed, we want to clear the entity, so users can choose the entity type they want to work with
-    // this also prevents the wrong entity type value from being persisted in the event that the new command value does not match the entity type.
+    // Clear entity type if the command changed
     if (this.props.configProperty === FormDataPaths.ENTITY_TYPE) {
-      const prevCommandValue = get(
-        prevProps?.formValues,
-        FormDataPaths.COMMAND,
-      );
-      const currentCommandValue = get(
-        this.props?.formValues,
+      const prevCommandValue = get(prevProps.formValues, FormDataPaths.COMMAND);
+      const currCommandValue = get(
+        this.props.formValues,
         FormDataPaths.COMMAND,
       );
 
-      if (prevCommandValue !== currentCommandValue) {
+      if (prevCommandValue !== currCommandValue) {
         this.props.updateConfigPropertyValue(
           this.props.formName,
           this.props.configProperty,
@@ -76,9 +192,12 @@ class DropDownControl extends BaseControl<Props> {
     }
   }
 
+  getControlType(): ControlType {
+    return "DROP_DOWN";
+  }
+
   render() {
     const styles = {
-      // width: "280px",
       ...("customStyles" in this.props &&
       typeof this.props.customStyles === "object"
         ? this.props.customStyles
@@ -87,7 +206,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <div
-        className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
+        className={`t--${this.props.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
       >
@@ -95,238 +214,269 @@ class DropDownControl extends BaseControl<Props> {
           component={renderDropdown}
           name={this.props.configProperty}
           props={{ ...this.props, width: styles.width }}
-          type={this.props?.isMultiSelect ? "select-multiple" : undefined}
+          type={this.props.isMultiSelect ? "select-multiple" : undefined}
         />
       </div>
     );
   }
-
-  getControlType(): ControlType {
-    return "DROP_DOWN";
-  }
 }
 
+/**
+ * Renders a dropdown component with support for single and multi-select.
+ * Handles initialization of selected values, including:
+ * - Using initialValue prop if no value is selected
+ * - Converting string values to arrays for multi-select
+ * - Setting first option as default if configured
+ * - Deduplicating selected values in multi-select mode
+ * Supports pagination through onPopupScroll handler when nextPageNeeded
+ * and paginationPayload props are provided
+ * @param {Object} props - Component props
+ * @returns {JSX.Element} Rendered dropdown component
+ */
 function renderDropdown(
   props: {
-    input?: WrappedFieldInputProps;
+    input?: {
+      value?: string | string[];
+      onChange: (val: string | string[]) => void;
+    } & WrappedFieldInputProps;
     meta?: Partial<WrappedFieldMetaProps>;
     width: string;
-  } & DropDownControlProps,
+  } & DropDownControlProps &
+    ReduxDispatchProps,
 ): JSX.Element {
-  let selectedValue: string | string[];
+  const {
+    appendGroupIdentifierToValue,
+    input,
+    isAllowClear,
+    isMultiSelect,
+    optionGroupConfig,
+    options = [],
+    setFirstOptionAsDefault,
+  } = props;
+  // Safeguard the selectedValue (since it might be empty, null, or a string/string[])
+  let selectedValue = input?.value;
 
-  if (isEmpty(props.input?.value)) {
-    if (props.isMultiSelect)
-      selectedValue = props?.initialValue ? (props.initialValue as string) : [];
-    else {
-      selectedValue = props?.initialValue
+  // If no selectedValue, use `initialValue` or set to empty array/string
+  if (isEmpty(selectedValue)) {
+    if (isMultiSelect) {
+      selectedValue = props.initialValue ? (props.initialValue as string) : [];
+    } else {
+      selectedValue = props.initialValue
         ? (props.initialValue as string[])
         : "";
 
-      if (props.setFirstOptionAsDefault && props.options.length > 0) {
-        selectedValue = props.options[0].value as string;
-        props.input?.onChange(selectedValue);
-      }
-    }
-  } else {
-    selectedValue = props.input?.value;
-
-    if (props.isMultiSelect) {
-      if (!Array.isArray(selectedValue)) {
-        selectedValue = [selectedValue];
-      } else {
-        selectedValue = [...new Set(selectedValue)];
+      // If user wants the first option as default
+      if (setFirstOptionAsDefault && options.length > 0) {
+        selectedValue = options[0].value as string;
+        input?.onChange(selectedValue);
       }
     }
   }
 
-  let options: SelectOptionProps[] = [];
-  let optionGroupConfig: Record<string, DropDownGroupedOptionsInterface> = {};
-  let groupedOptions: DropDownGroupedOptionsInterface[] = [];
-  let selectedOptions: SelectOptionProps[] = [];
-
-  if (typeof props.options === "object" && Array.isArray(props.options)) {
-    options = props.options;
-    selectedOptions =
-      options.filter((option: SelectOptionProps) => {
-        if (props.isMultiSelect)
-          return selectedValue.includes(option.value as string);
-        else return selectedValue === option.value;
-      }) || [];
+  // If multi-select but we have a string, convert it to an array
+  if (isMultiSelect && !Array.isArray(selectedValue)) {
+    selectedValue = [selectedValue];
   }
 
-  const defaultOptionGroupType = "others";
-  const defaultOptionGroupConfig: DropDownGroupedOptionsInterface = {
-    label: "Others",
-    children: [],
-  };
+  // Deduplicate if multi-select
+  if (isMultiSelect && Array.isArray(selectedValue)) {
+    // If your items have stable 'value' keys, use `uniqBy(...)`.
+    // For pure strings you can do `uniq([...selectedValue])`.
+    selectedValue = uniqBy(selectedValue, (v) => v);
+  }
 
-  // For grouping, 2 components are needed
-  // 1) optionGroupConfig: used to render the label text and allows for future expansions
-  // related to UI of the group label
-  // 2) each option should mention a optionGroupType which will help to group the option inside
-  // the group. If not present or the type is not defined in the optionGroupConfig then it will be
-  // added to the default group mentioned above.
+  // Use memoized grouping
+  const groupedOptions = memoizedBuildGroupedOptions(
+    options,
+    optionGroupConfig,
+  );
+
+  // Find the selected options based on the selectedValue
+  // If appendGroupIdentifierToValue is true, we need to check if the selected value includes the group identifier
+  // Eg: if the selected value is "group1:1", we need to find the option with value "1"
+  // If appendGroupIdentifierToValue is false, we just need to find the option with value "1"
+  const selectedOptions = options.filter((opt) => {
+    const checkGroupIdentifier =
+      appendGroupIdentifierToValue && optionGroupConfig;
+    const valueToCompare = checkGroupIdentifier
+      ? opt.optionGroupType + ":" + opt.value
+      : opt.value;
+
+    return isMultiSelect
+      ? (selectedValue as string[]).includes(valueToCompare)
+      : selectedValue === valueToCompare;
+  });
+
+  // Re-sync multi-select if stale
+  if (isMultiSelect && Array.isArray(selectedValue)) {
+    const validValues = selectedOptions.map((so) => so.value);
+
+    if (
+      !appendGroupIdentifierToValue &&
+      validValues.length !== selectedValue.length
+    ) {
+      input?.onChange(validValues);
+    }
+  }
+
+  // Re-sync single-select if stale
+  if (!isMultiSelect && selectedOptions.length) {
+    const singleVal = selectedOptions[0].value;
+
+    if (!appendGroupIdentifierToValue && singleVal !== selectedValue) {
+      input?.onChange(singleVal);
+    }
+  }
+
+  // If required but the chosen single value is disabled, pick first enabled
   if (
-    !!props.optionGroupConfig &&
-    typeof props.optionGroupConfig === "object"
+    !isMultiSelect &&
+    props.isRequired &&
+    options.some((opt) => "disabled" in opt)
   ) {
-    optionGroupConfig = props.optionGroupConfig;
-    options.forEach((opt) => {
-      let optionGroupType = defaultOptionGroupType;
-      let groupConfig: DropDownGroupedOptionsInterface;
+    const isCurrentOptionDisabled = options.some(
+      (opt) => opt.value === selectedValue && opt.disabled,
+    );
 
-      if (Object.hasOwn(opt, "optionGroupType") && !!opt.optionGroupType) {
-        optionGroupType = opt.optionGroupType;
+    if (isCurrentOptionDisabled) {
+      const firstEnabled = options.find((opt) => !opt.disabled);
+
+      if (firstEnabled) {
+        input?.onChange(firstEnabled.value);
+      }
+    }
+  }
+
+  /**
+   * Handles the selection of options
+   * If multi select is enabled, we need to add the value to the current array
+   * If multi select is not enabled, we just set the value
+   * If appendGroupIdentifierToValue is true, we need to add the group identifier to the value
+   * Eg: if the selected value is "1" of "group1", we need to add "group1:1" to the current array
+   * @param {string | undefined} optionValueToSelect - The selected value
+   */
+  function onSelectOptions(optionValueToSelect: string | undefined) {
+    if (isNil(optionValueToSelect)) return;
+
+    // If appendGroupIdentifierToValue is true and we have grouped options, add the group identifier
+    const shouldAppendGroup = appendGroupIdentifierToValue && optionGroupConfig;
+    let valueToStore = optionValueToSelect;
+
+    if (shouldAppendGroup) {
+      const selectedOption = options.find(
+        (opt) => opt.value === optionValueToSelect,
+      );
+
+      if (selectedOption) {
+        valueToStore = `${selectedOption.optionGroupType || "others"}:${optionValueToSelect}`;
+      }
+    }
+
+    if (!isMultiSelect) {
+      input?.onChange(valueToStore);
+
+      return;
+    }
+
+    // In case the component config is changed to multi-select, we need to convert the selectedValue to an array
+    const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
+
+    if (!currentArray.includes(valueToStore)) {
+      currentArray.push(valueToStore);
+    }
+
+    input?.onChange(currentArray);
+  }
+
+  /**
+   * Handles the removal of options
+   * If multi select is enabled, we need to remove the value from the current array
+   * If multi select is not enabled, we just set the value to an empty string
+   * If appendGroupIdentifierToValue is true, we need to check the value with the group identifier
+   * Eg: the function will be called with "1" and the current array is ["group1:1", "others:2"]
+   * We need to check if "1" is present in the array after removing the group identifier
+   * The function will return ["others:2"]
+   * @param {string | undefined} optionValueToRemove - The value to remove
+   */
+  function onRemoveOptions(optionValueToRemove: string | undefined) {
+    if (isNil(optionValueToRemove)) return;
+
+    if (!isMultiSelect) {
+      input?.onChange("");
+
+      return;
+    }
+
+    const currentArray = Array.isArray(selectedValue) ? [...selectedValue] : [];
+
+    const filtered = currentArray.filter((v) => {
+      let selectedValueToCheck = v;
+
+      if (appendGroupIdentifierToValue && optionGroupConfig) {
+        // For grouped values, we need to compare just the value part after the group identifier
+        selectedValueToCheck = v.split(":")[1];
       }
 
-      if (Object.hasOwn(optionGroupConfig, optionGroupType)) {
-        groupConfig = optionGroupConfig[optionGroupType];
-      } else {
-        // if optionGroupType is not defined in optionGroupConfig
-        // use the default group config
-        groupConfig = defaultOptionGroupConfig;
-      }
-
-      const groupChildren = groupConfig?.children || [];
-
-      groupChildren.push(opt);
-      groupConfig["children"] = groupChildren;
-      optionGroupConfig[optionGroupType] = groupConfig;
+      return selectedValueToCheck !== optionValueToRemove;
     });
 
-    groupedOptions = [];
-    objectKeys(optionGroupConfig).forEach(
-      (key) =>
-        optionGroupConfig[key].children.length > 0 &&
-        groupedOptions.push(optionGroupConfig[key]),
-    );
+    input?.onChange(filtered);
   }
 
-  // Function to handle selection of options
-  const onSelectOptions = (value: string | undefined) => {
-    if (!isNil(value)) {
-      if (props.isMultiSelect) {
-        if (Array.isArray(selectedValue)) {
-          if (!selectedValue.includes(value))
-            (selectedValue as string[]).push(value);
-        } else {
-          selectedValue = [selectedValue as string, value];
-        }
-      } else selectedValue = value;
+  /**
+   * Clears all options
+   * If multi select is enabled, we need to set the value to an empty array
+   * If multi select is not enabled, we just set the value to an empty string
+   */
+  function clearAllOptions() {
+    if (isNil(selectedValue)) return;
 
-      props.input?.onChange(selectedValue);
-    }
-  };
-
-  // Function to handle deselection of options
-  const onRemoveOptions = (value: string | undefined) => {
-    if (!isNil(value)) {
-      if (props.isMultiSelect) {
-        if (Array.isArray(selectedValue)) {
-          if (selectedValue.includes(value))
-            (selectedValue as string[]).splice(
-              (selectedValue as string[]).indexOf(value),
-              1,
-            );
-        } else {
-          selectedValue = [];
-        }
-      } else selectedValue = "";
-
-      props.input?.onChange(selectedValue);
-    }
-  };
-
-  const clearAllOptions = () => {
-    if (!isNil(selectedValue)) {
-      if (props.isMultiSelect) {
-        if (Array.isArray(selectedValue)) {
-          selectedValue = [];
-          props.input?.onChange([]);
-        }
-      } else {
-        selectedValue = "";
-        props.input?.onChange("");
-      }
-    }
-  };
-
-  if (options.length > 0) {
-    if (props.isMultiSelect) {
-      const tempSelectedValues: string[] = [];
-
-      selectedOptions.forEach((option: SelectOptionProps) => {
-        if (selectedValue.includes(option.value as string)) {
-          tempSelectedValues.push(option.value as string);
-        }
-      });
-
-      if (tempSelectedValues.length !== selectedValue.length) {
-        selectedValue = [...tempSelectedValues];
-        props.input?.onChange(tempSelectedValues);
-      }
+    if (isMultiSelect) {
+      input?.onChange([]);
     } else {
-      let tempSelectedValues = "";
+      input?.onChange("");
+    }
+  }
 
-      selectedOptions.forEach((option: SelectOptionProps) => {
-        if (selectedValue === (option.value as string)) {
-          tempSelectedValues = option.value as string;
-        }
-      });
+  /**
+   * Subscribes to the scroll event of the popup and notifies when end of scroll is reached
+   * If pagination is needed and there is a payload, we need to fetch the next page on end of scroll
+   * @param {React.UIEvent<HTMLDivElement>} e - The event object
+   */
+  function handlePopupScroll(e: React.UIEvent<HTMLDivElement>) {
+    if (!props.nextPageNeeded || !props.paginationPayload) return;
 
-      // we also check if the selected options are present at all.
-      // this is because sometimes when a transition is happening the previous options become an empty array.
-      // before the new options are loaded.
-      if (selectedValue !== tempSelectedValues && selectedOptions.length > 0) {
-        selectedValue = tempSelectedValues;
-        props.input?.onChange(tempSelectedValues);
-      }
+    const target = e.currentTarget;
 
-      const isOptionDynamic = options.some((opt) => "disabled" in opt);
-
-      if (isOptionDynamic && !!props?.isRequired) {
-        const isCurrentOptionDisabled = options.some(
-          (opt) => opt?.value === selectedValue && opt.disabled,
-        );
-
-        if (!tempSelectedValues || isCurrentOptionDisabled) {
-          const firstEnabledOption = options.find((opt) => !opt?.disabled);
-
-          if (firstEnabledOption) {
-            selectedValue = firstEnabledOption?.value as string;
-            props.input?.onChange(firstEnabledOption?.value);
-          }
-        }
-      }
+    if (target.scrollHeight - target.scrollTop === target.clientHeight) {
+      props.fetchFormTriggerNextPage(props.paginationPayload);
     }
   }
 
   return (
     <Select
-      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
-      data-testid={`t--dropdown-${props?.configProperty}`}
+      allowClear={(isMultiSelect || isAllowClear) && !isEmpty(selectedValue)}
+      data-testid={`t--dropdown-${props.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
-      isMultiSelect={props?.isMultiSelect}
+      isMultiSelect={isMultiSelect}
       maxTagCount={props.maxTagCount}
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
-      onSelect={(value) => onSelectOptions(value)}
-      placeholder={props?.placeholderText}
+      onPopupScroll={handlePopupScroll}
+      onSelect={onSelectOptions}
+      placeholder={props.placeholderText}
       showSearch={props.isSearchable}
-      value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
+      value={isMultiSelect ? selectedOptions : selectedOptions[0]}
     >
-      {groupedOptions.length === 0
-        ? options.map(renderOptionWithIcon)
-        : groupedOptions.map(({ children, label }) => {
-            return (
-              <OptGroup aria-label={label} key={label}>
-                {children.map(renderOptionWithIcon)}
-              </OptGroup>
-            );
-          })}
+      {groupedOptions
+        ? groupedOptions.map(({ children, label }) => (
+            <OptGroup aria-label={label} key={label}>
+              {children.map(renderOptionWithIcon)}
+            </OptGroup>
+          ))
+        : options.map(renderOptionWithIcon)}
     </Select>
   );
 }
@@ -337,6 +487,7 @@ function renderOptionWithIcon(option: SelectOptionProps) {
       aria-label={option.label}
       disabled={option.disabled}
       isDisabled={option.isDisabled}
+      key={option.value}
       label={option.label}
       value={option.value}
     >
@@ -346,39 +497,6 @@ function renderOptionWithIcon(option: SelectOptionProps) {
   );
 }
 
-export interface DropDownGroupedOptionsInterface {
-  label: string;
-  children: SelectOptionProps[];
-}
-
-export interface DropDownControlProps extends ControlProps {
-  options: SelectOptionProps[];
-  optionGroupConfig?: Record<string, DropDownGroupedOptionsInterface>;
-  optionWidth?: string;
-  placeholderText: string;
-  propertyValue: string;
-  subtitle?: string;
-  isMultiSelect?: boolean;
-  isSearchable?: boolean;
-  fetchOptionsConditionally?: boolean;
-  isLoading: boolean;
-  formValues: Partial<Action>;
-  setFirstOptionAsDefault?: boolean;
-  maxTagCount?: number;
-}
-
-interface ReduxDispatchProps {
-  updateConfigPropertyValue: (
-    formName: string,
-    field: string,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
-  ) => void;
-}
-
-type Props = DropDownControlProps & ReduxDispatchProps;
-
 const mapStateToProps = (
   state: AppState,
   ownProps: DropDownControlProps,
@@ -386,37 +504,107 @@ const mapStateToProps = (
   isLoading: boolean;
   options: SelectOptionProps[];
   formValues: Partial<Action>;
+  nextPageNeeded: boolean;
+  paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  };
 } => {
-  // Added default options to prevent error when options is undefined
   let isLoading = false;
+  // Start with the user-provided options if not fetching conditionally
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
 
+  let nextPageNeeded = false;
+  let paginationPayload;
+
   try {
     if (ownProps.fetchOptionsConditionally) {
-      const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
+      const conditionalOutput = getFormConfigConditionalOutput(state, ownProps);
+      const dynamicFetchedValues =
+        conditionalOutput.fetchDynamicValues || ({} as DynamicValues);
+
+      const { data } = dynamicFetchedValues;
+
+      if (data && data.content && data.startIndex != null) {
+        const { content, count, startIndex, total } = data;
+
+        options = content;
+
+        if (startIndex + count < total) {
+          nextPageNeeded = true;
+
+          // Prepare the next page request
+          const modifiedParams = {
+            ...dynamicFetchedValues.evaluatedConfig.params,
+            parameters: {
+              ...dynamicFetchedValues.evaluatedConfig.params.parameters,
+              startIndex: startIndex + count,
+            },
+          };
+
+          const modifiedDFV: DynamicValues = {
+            ...dynamicFetchedValues,
+            evaluatedConfig: {
+              ...dynamicFetchedValues.evaluatedConfig,
+              params: modifiedParams,
+            },
+          };
+
+          paginationPayload = {
+            value: { ...conditionalOutput, fetchDynamicValues: modifiedDFV },
+            dynamicFetchedValues: modifiedDFV,
+            actionId: formValues.id || "",
+            datasourceId: formValues.datasource?.id || "",
+            pluginId: formValues.pluginId || "",
+            identifier:
+              ownProps.propertyName ||
+              ownProps.configProperty ||
+              ownProps.identifier ||
+              "",
+          };
+        }
+      } else {
+        // No pagination, so just use the fetched data
+        options = dynamicFetchedValues.data || [];
+      }
 
       isLoading = dynamicFetchedValues.isLoading;
-      options = dynamicFetchedValues.data;
     }
-  } catch (e) {
-    // Printing error to console
+  } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(e);
-  } finally {
-    return { isLoading, options, formValues };
+    console.error(err);
   }
+
+  return {
+    isLoading,
+    options,
+    formValues,
+    nextPageNeeded,
+    paginationPayload,
+  };
 };
 
-// TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },
+  fetchFormTriggerNextPage: (paginationPayload?: {
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  }) => {
+    dispatch(fetchFormDynamicValNextPage(paginationPayload));
+  },
 });
 
-// Connecting this component to the state to allow for dynamic fetching of options to be updated.
 export default connect(mapStateToProps, mapDispatchToProps)(DropDownControl);

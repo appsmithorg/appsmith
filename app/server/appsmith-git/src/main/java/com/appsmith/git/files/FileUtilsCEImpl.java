@@ -1201,6 +1201,16 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     @Override
+    public Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix) {
+        Mono<Object> metadataMono = Mono.fromCallable(() -> {
+            Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix);
+            return fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+        });
+
+        return metadataMono.subscribeOn(scheduler);
+    }
+
+    @Override
     public Mono<Object> reconstructPageFromGitRepo(
             String pageName, String branchName, Path baseRepoSuffixPath, Boolean resetToLastCommitRequired) {
         Mono<Object> pageObjectMono;

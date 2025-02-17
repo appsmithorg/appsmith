@@ -11,7 +11,7 @@ import type {
 } from "./CodemirrorTernService";
 import { createCompletionHeader } from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 interface AutocompleteRule {
   computeScore(

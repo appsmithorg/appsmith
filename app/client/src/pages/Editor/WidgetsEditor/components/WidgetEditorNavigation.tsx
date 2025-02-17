@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import NavigationPreview from "./NavigationPreview";
 import { EditorState } from "IDE/enums";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
+import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
 import {
   getAppSettingsPaneContext,
   getIsAppSettingsPaneWithNavigationTabOpen,

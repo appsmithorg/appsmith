@@ -7,8 +7,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import {
-  shouldSuppressDebuggerError,
   isWidget,
+  shouldSuppressDebuggerError,
 } from "ee/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
@@ -184,6 +184,3 @@ export const getCanvasDebuggerState = createSelector(
     };
   },
 );
-
-export const getDebuggerStateInspectorSelectedItem = (state: AppState) =>
-  state.ui.debugger.stateInspector.selectedItemId;
