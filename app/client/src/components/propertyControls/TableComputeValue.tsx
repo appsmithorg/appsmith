@@ -178,8 +178,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   };
 
   getComputedValue = (value: string, tableName: string) => {
-    // Return the value if it's not dynamic and not an array
-    if (this.shouldReturnValueDirectly(value)) {
+    if (
+      !isDynamicValue(value) &&
+      !this.props.additionalControlData?.isArrayValue
+    ) {
       return value;
     }
 
@@ -194,19 +196,12 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     return this.buildTableSpecificBinding(stringToEvaluate, tableName);
   };
 
-  shouldReturnValueDirectly = (value: string) => {
-    return (
-      !isDynamicValue(value) && !this.props.additionalControlData?.isArrayValue
-    );
-  };
-
   buildTableSpecificBinding = (stringToEvaluate: string, tableName: string) => {
-    return `{{(() => { 
-      const tableData = ${tableName}.processedTableData || []; 
-      return tableData.length > 0 ? 
-        tableData.map((currentRow, currentIndex) => (${stringToEvaluate})) : 
-        ${stringToEvaluate}
-    })()}}`;
+    return (
+      ComputeTablePropertyControlV2.getBindingPrefix(tableName) +
+      stringToEvaluate +
+      ComputeTablePropertyControlV2.getBindingSuffix(stringToEvaluate)
+    );
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
