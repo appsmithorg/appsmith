@@ -23,6 +23,7 @@ import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
 import type { ReactTableColumnProps, StickyType } from "./Constants";
 import {
   CompactModeTypes,
+  SCROLL_BAR_OFFSET,
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SIZES,
 } from "./Constants";
@@ -33,7 +34,6 @@ import { TableWrapper } from "./TableStyledWrappers";
 import type { TableProps } from "./types";
 import VirtualTable from "./VirtualTable";
 
-const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
 const PopoverStyles = createGlobalStyle<{
@@ -122,11 +122,24 @@ export function Table(props: TableProps) {
     toggleAllRowSelect,
   } = props;
 
-  const pageCount =
-    props.serverSidePaginationEnabled && props.totalRecordsCount
-      ? Math.ceil(props.totalRecordsCount / props.pageSize)
-      : Math.ceil(props.data.length / props.pageSize);
-  const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+  const pageCount = useMemo(
+    () =>
+      props.serverSidePaginationEnabled && props.totalRecordsCount
+        ? Math.ceil(props.totalRecordsCount / props.pageSize)
+        : Math.ceil(props.data.length / props.pageSize),
+    [
+      props.serverSidePaginationEnabled,
+      props.totalRecordsCount,
+      props.pageSize,
+      props.data.length,
+    ],
+  );
+
+  const currentPageIndex = useMemo(
+    () => (props.pageNo < pageCount ? props.pageNo : 0),
+    [props.pageNo, pageCount],
+  );
+
   const {
     getTableBodyProps,
     getTableProps,
@@ -203,6 +216,7 @@ export function Table(props: TableProps) {
 
     return result;
   }, [multiRowSelection, page, selectedRowIndices]);
+
   const handleAllRowSelectClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       // if all / some rows are selected we remove selection on click
@@ -213,13 +227,29 @@ export function Table(props: TableProps) {
     },
     [page, rowSelectionState, toggleAllRowSelect],
   );
-  const isHeaderVisible =
-    props.isVisibleSearch ||
+  const isHeaderVisible = useMemo(
+    () =>
+      props.isVisibleSearch ||
+      props.isVisibleFilters ||
+      props.isVisibleDownload ||
+      props.isVisiblePagination ||
+      props.allowAddNewRow,
+    [
+      props.isVisibleSearch,
+      props.isVisibleFilters,
+      props.isVisibleDownload,
+      props.isVisiblePagination,
+      props.allowAddNewRow,
+    ],
+  );
+
+  props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
     props.isVisiblePagination ||
     props.allowAddNewRow;
 
+  // TODO: REMOVE THIS
   const scrollContainerStyles = useMemo(() => {
     return {
       height: isHeaderVisible
@@ -241,14 +271,22 @@ export function Table(props: TableProps) {
    * Right now all HTML content is dynamic height in nature hence
    * for server paginated tables it needs this extra handling.
    */
-  const shouldUseVirtual =
-    props.isInfiniteScrollEnabled ||
-    (props.serverSidePaginationEnabled &&
-      !props.columns.some(
-        (column) =>
-          !!column.columnProperties.allowCellWrapping ||
-          column.metaProperties?.type === ColumnTypes.HTML,
-      ));
+  //TODO: REMOVE THIS
+  const shouldUseVirtual = useMemo(
+    () =>
+      props.isInfiniteScrollEnabled ||
+      (props.serverSidePaginationEnabled &&
+        !props.columns.some(
+          (column) =>
+            !!column.columnProperties.allowCellWrapping ||
+            column.metaProperties?.type === ColumnTypes.HTML,
+        )),
+    [
+      props.isInfiniteScrollEnabled,
+      props.serverSidePaginationEnabled,
+      props.columns,
+    ],
+  );
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
@@ -263,8 +301,17 @@ export function Table(props: TableProps) {
   return (
     <TableProvider
       currentPageIndex={currentPageIndex}
+      getTableBodyProps={getTableBodyProps}
+      handleAllRowSelectClick={handleAllRowSelectClick}
+      headerGroups={headerGroups}
+      isHeaderVisible={isHeaderVisible}
+      isResizingColumn={isResizingColumn}
       pageCount={pageCount}
       pageOptions={pageOptions}
+      prepareRow={prepareRow}
+      rowSelectionState={rowSelectionState}
+      subPage={subPage}
+      totalColumnsWidth={totalColumnsWidth}
       {...props}
     >
       {showConnectDataOverlay && (
@@ -316,45 +363,7 @@ export function Table(props: TableProps) {
           ref={tableWrapperRef}
         >
           <div {...getTableProps()} className="table column-freeze">
-            {!shouldUseVirtual && (
-              <StaticTable
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                canFreezeColumn={props.canFreezeColumn}
-                columns={props.columns}
-                disableDrag={props.disableDrag}
-                editMode={props.editMode}
-                enableDrag={props.enableDrag}
-                getTableBodyProps={getTableBodyProps}
-                handleAllRowSelectClick={handleAllRowSelectClick}
-                handleColumnFreeze={props.handleColumnFreeze}
-                handleReorderColumn={props.handleReorderColumn}
-                headerGroups={headerGroups}
-                height={props.height}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isLoading={props.isLoading}
-                isResizingColumn={isResizingColumn}
-                isSortable={props.isSortable}
-                loadMoreFromEvaluations={props.nextPageClick}
-                multiRowSelection={props?.multiRowSelection}
-                pageSize={props.pageSize}
-                prepareRow={prepareRow}
-                primaryColumnId={props.primaryColumnId}
-                ref={scrollBarRef}
-                rowSelectionState={rowSelectionState}
-                scrollContainerStyles={scrollContainerStyles}
-                selectTableRow={props.selectTableRow}
-                selectedRowIndex={props.selectedRowIndex}
-                selectedRowIndices={props.selectedRowIndices}
-                sortTableColumn={props.sortTableColumn}
-                subPage={subPage}
-                tableSizes={tableSizes}
-                totalColumnsWidth={totalColumnsWidth}
-                useVirtual={false}
-                widgetId={props.widgetId}
-                width={props.width}
-              />
-            )}
+            {!shouldUseVirtual && <StaticTable />}
 
             {shouldUseVirtual && (
               <VirtualTable
