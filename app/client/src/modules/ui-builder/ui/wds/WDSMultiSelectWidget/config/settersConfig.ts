@@ -17,9 +17,9 @@ export const settersConfig = {
       type: "array",
     },
     setSelectedOption: {
-      path: "defaultOptionValue",
-      type: "string",
-      accessor: "selectedOptionValue",
+      path: "defaultOptionValues",
+      type: "array",
+      accessor: "selectedOptionValues",
     },
   },
 };
