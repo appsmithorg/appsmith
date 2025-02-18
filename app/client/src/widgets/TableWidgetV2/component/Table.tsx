@@ -1,50 +1,37 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { Classes } from "@blueprintjs/core";
+import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
+import { Colors } from "constants/Colors";
+import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
+import fastdom from "fastdom";
 import { reduce } from "lodash";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import {
-  useTable,
-  usePagination,
   useBlockLayout,
+  usePagination,
   useResizeColumns,
   useRowSelect,
+  useTable,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import {
-  TableWrapper,
-  TableHeaderWrapper,
-  TableHeaderInnerWrapper,
-} from "./TableStyledWrappers";
-import TableHeader from "./header";
-import { Classes } from "@blueprintjs/core";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  CompactMode,
-  AddNewRowActions,
-  StickyType,
-} from "./Constants";
-import {
-  TABLE_SIZES,
-  CompactModeTypes,
-  TABLE_SCROLLBAR_HEIGHT,
-} from "./Constants";
-import { Colors } from "constants/Colors";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ColumnTypes,
-  type EditableCell,
-  type TableVariant,
-} from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
-import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
-import StaticTable from "./StaticTable";
-import VirtualTable from "./VirtualTable";
-import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import { ColumnTypes } from "../constants";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
+import type { ReactTableColumnProps, StickyType } from "./Constants";
+import {
+  CompactModeTypes,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SIZES,
+} from "./Constants";
+import TableHeader from "./header";
+import StaticTable from "./StaticTable";
+import { TableProvider } from "./TableContext";
+import { TableWrapper } from "./TableStyledWrappers";
+import type { TableProps } from "./types";
+import VirtualTable from "./VirtualTable";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -64,78 +51,6 @@ const PopoverStyles = createGlobalStyle<{
     }
   }
 `;
-
-export interface TableProps {
-  width: number;
-  height: number;
-  pageSize: number;
-  widgetId: string;
-  widgetName: string;
-  searchKey: string;
-  isLoading: boolean;
-  columnWidthMap?: { [key: string]: number };
-  columns: ReactTableColumnProps[];
-  data: Array<Record<string, unknown>>;
-  totalRecordsCount?: number;
-  editMode: boolean;
-  editableCell: EditableCell;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
-  selectTableRow: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  pageNo: number;
-  updatePageNo: (pageNo: number, event?: EventType) => void;
-  multiRowSelection?: boolean;
-  isSortable?: boolean;
-  nextPageClick: () => void;
-  prevPageClick: () => void;
-  serverSidePaginationEnabled: boolean;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  disableDrag: () => void;
-  enableDrag: () => void;
-  toggleAllRowSelect: (
-    isSelect: boolean,
-    pageData: ReactTableRowType<Record<string, unknown>>[],
-  ) => void;
-  triggerRowSelection: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchTableData: (searchKey: any) => void;
-  filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
-  compactMode?: CompactMode;
-  isVisibleDownload?: boolean;
-  isVisibleFilters?: boolean;
-  isVisiblePagination?: boolean;
-  isVisibleSearch?: boolean;
-  delimiter: string;
-  accentColor: string;
-  borderRadius: string;
-  boxShadow: string;
-  borderWidth?: number;
-  borderColor?: string;
-  onBulkEditDiscard: () => void;
-  onBulkEditSave: () => void;
-  variant?: TableVariant;
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-  onAddNewRowAction: (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => void;
-  disabledAddNewRowSave: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  canFreezeColumn?: boolean;
-  showConnectDataOverlay: boolean;
-  onConnectData: () => void;
-  isInfiniteScrollEnabled: boolean;
-}
 
 const defaultColumn = {
   minWidth: 30,
@@ -207,14 +122,6 @@ export function Table(props: TableProps) {
     toggleAllRowSelect,
   } = props;
 
-  const tableHeadercolumns = React.useMemo(
-    () =>
-      columns.filter((column: ReactTableColumnProps) => {
-        return column.alias !== "actions";
-      }),
-    [columns],
-  );
-
   const pageCount =
     props.serverSidePaginationEnabled && props.totalRecordsCount
       ? Math.ceil(props.totalRecordsCount / props.pageSize)
@@ -280,7 +187,6 @@ export function Table(props: TableProps) {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
-  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!multiRowSelection) return null;
@@ -355,7 +261,12 @@ export function Table(props: TableProps) {
   }, [props.isAddRowInProgress]);
 
   return (
-    <>
+    <TableProvider
+      currentPageIndex={currentPageIndex}
+      pageCount={pageCount}
+      pageOptions={pageOptions}
+      {...props}
+    >
       {showConnectDataOverlay && (
         <ConnectDataOverlay
           btnText={createMessage(CONNECT_BUTTON_TEXT)}
@@ -391,59 +302,7 @@ export function Table(props: TableProps) {
               maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
             }}
           >
-            <TableHeaderWrapper
-              backgroundColor={Colors.WHITE}
-              ref={tableHeaderWrapperRef}
-              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableSizes={tableSizes}
-              width={props.width}
-            >
-              <TableHeaderInnerWrapper
-                backgroundColor={Colors.WHITE}
-                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-                tableSizes={tableSizes}
-                variant={props.variant}
-                width={props.width}
-              >
-                <TableHeader
-                  accentColor={props.accentColor}
-                  allowAddNewRow={props.allowAddNewRow}
-                  applyFilter={props.applyFilter}
-                  borderRadius={props.borderRadius}
-                  boxShadow={props.boxShadow}
-                  columns={tableHeadercolumns}
-                  currentPageIndex={currentPageIndex}
-                  delimiter={props.delimiter}
-                  disableAddNewRow={!!props.editableCell?.column}
-                  disabledAddNewRowSave={props.disabledAddNewRowSave}
-                  filters={props.filters}
-                  isAddRowInProgress={props.isAddRowInProgress}
-                  isVisibleDownload={props.isVisibleDownload}
-                  isVisibleFilters={props.isVisibleFilters}
-                  isVisiblePagination={props.isVisiblePagination}
-                  isVisibleSearch={props.isVisibleSearch}
-                  nextPageClick={props.nextPageClick}
-                  onAddNewRow={props.onAddNewRow}
-                  onAddNewRowAction={props.onAddNewRowAction}
-                  pageCount={pageCount}
-                  pageNo={props.pageNo}
-                  pageOptions={pageOptions}
-                  prevPageClick={props.prevPageClick}
-                  searchKey={props.searchKey}
-                  searchTableData={props.searchTableData}
-                  serverSidePaginationEnabled={
-                    props.serverSidePaginationEnabled
-                  }
-                  tableColumns={columns}
-                  tableData={data}
-                  tableSizes={tableSizes}
-                  totalRecordsCount={props.totalRecordsCount}
-                  updatePageNo={props.updatePageNo}
-                  widgetId={props.widgetId}
-                  widgetName={props.widgetName}
-                />
-              </TableHeaderInnerWrapper>
-            </TableHeaderWrapper>
+            <TableHeader />
           </SimpleBar>
         )}
         <div
@@ -540,7 +399,7 @@ export function Table(props: TableProps) {
           </div>
         </div>
       </TableWrapper>
-    </>
+    </TableProvider>
   );
 }
 
