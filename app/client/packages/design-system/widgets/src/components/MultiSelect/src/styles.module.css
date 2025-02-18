@@ -67,3 +67,8 @@
 .selectedItemLabel {
   flex-shrink: 0;
 }
+
+/* This is required so that checkbox click event does not conflict with the listbox item click event */
+.listBoxItemCheckbox {
+  pointer-events: none;
+}

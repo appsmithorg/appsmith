@@ -160,7 +160,10 @@ export const MultiSelect = <T extends { label: string; value: string }>(
                     >
                       {({ isSelected }) => (
                         <>
-                          <Checkbox isSelected={isSelected} /> {item.label}
+                          <span className={styles.listBoxItemCheckbox}>
+                            <Checkbox isSelected={isSelected} />
+                          </span>
+                          {item.label}
                         </>
                       )}
                     </ListBoxItem>
