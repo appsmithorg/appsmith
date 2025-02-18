@@ -48,6 +48,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.ERROR_INVALID_BASE64_FORMAT;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.ERROR_INVALID_MULTIPART_DATA;
+
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
@@ -232,8 +235,7 @@ public class DataUtils {
                         } catch (IOException e) {
                             e.printStackTrace();
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Unable to parse content. Expected to receive an array or object of multipart data");
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, ERROR_INVALID_MULTIPART_DATA);
                         }
                         break;
                     case ARRAY:
@@ -337,8 +339,7 @@ public class DataUtils {
         String[] parts = fileValue.split(BASE64_DELIMITER, 2);
         if (parts.length != 2) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "Invalid BASE64 format. Expected format: data:mimetype;base64,content");
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, ERROR_INVALID_BASE64_FORMAT);
         }
 
         String metadataPart = parts[0];
@@ -361,7 +362,13 @@ public class DataUtils {
         addPartToBody(bodyBuilder, key, bytes, outputMessage, filename, mimeType);
     }
 
-    // Extract MIME type from metadata
+    // Extract MIME type from metadata string
+    // The metadataPart typically follows this format: "data:mimetype;base64"
+    // Example values:
+    //   - "data:image/png;base64"  -> Extracted MIME type: "image/png"
+    //   - "data:application/pdf;base64" -> Extracted MIME type: "application/pdf"
+    //   - "data:text/plain;" (without base64) -> Extracted MIME type: "text/plain"
+    // If the format is incorrect or missing, it falls back to the default MIME type.
     private String extractMimeType(String metadataPart, String defaultMimeType) {
         if (metadataPart.startsWith("data:")) {
             int endIndex = metadataPart.indexOf(';');
@@ -395,23 +402,8 @@ public class DataUtils {
             return Arrays.asList(objectMapper.readValue(fileValue, MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "Unable to parse content. Expected an array or object of multipart data");
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, ERROR_INVALID_MULTIPART_DATA);
         }
-    }
-
-    // Helper method to map MIME types to file extensions
-    private String mimeTypeToExtension(String mimeType) {
-        Map<String, String> mimeToExtensionMap = Map.of(
-                "image/jpeg", ".jpg",
-                "image/png", ".png",
-                "image/gif", ".gif",
-                "application/pdf", ".pdf",
-                "text/plain", ".txt",
-                "text/html", ".html",
-                "application/json", ".json",
-                "application/xml", ".xml");
-        return mimeToExtensionMap.getOrDefault(mimeType, "");
     }
 
     /**
