@@ -181,8 +181,10 @@ describe(
             "response.body.responseMeta.status",
             200,
           );
-          cy.get(".t--page-switch-tab").contains("ParentPage1").click();
-          cy.get(".t--widget-tablewidgetv2").should("exist");
+          cy.get(".t--page-switch-tab")
+            .contains("ParentPage1")
+            .click({ force: true });
+          agHelper.WaitUntilEleAppear(".t--widget-tablewidgetv2");
         });
       });
     });
