@@ -11,9 +11,9 @@ import {
 } from "utils/BrandingUtils";
 import { createReducer } from "utils/ReducerUtils";
 
-export interface TenantReduxState<T> {
+export interface OrganizationReduxState<T> {
   userPermissions: string[];
-  tenantConfiguration: Record<string, T>;
+  organizationConfiguration: Record<string, T>;
   new: boolean;
   isLoading: boolean;
   instanceId: string;
@@ -29,9 +29,9 @@ export const defaultBrandingConfig = {
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const initialState: TenantReduxState<any> = {
+export const initialState: OrganizationReduxState<any> = {
   userPermissions: [],
-  tenantConfiguration: {
+  organizationConfiguration: {
     ...defaultBrandingConfig,
   },
   new: false,
@@ -40,65 +40,65 @@ export const initialState: TenantReduxState<any> = {
 };
 
 export const handlers = {
-  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
+  [ReduxActionTypes.FETCH_CURRENT_ORGANIZATION_CONFIG]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: TenantReduxState<any>,
+    state: OrganizationReduxState<any>,
     action: ReduxAction<{ isBackgroundRequest: boolean }>,
   ) => ({
     ...state,
     isLoading: !action.payload.isBackgroundRequest,
   }),
-  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+  [ReduxActionTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: TenantReduxState<any>,
+    state: OrganizationReduxState<any>,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    action: ReduxAction<TenantReduxState<any>>,
+    action: ReduxAction<OrganizationReduxState<any>>,
   ) => ({
     ...state,
     userPermissions: action.payload.userPermissions || [],
-    tenantConfiguration: {
+    organizationConfiguration: {
       ...defaultBrandingConfig,
-      ...state.tenantConfiguration,
-      ...action.payload.tenantConfiguration,
+      ...state.organizationConfiguration,
+      ...action.payload.organizationConfiguration,
       brandColors: {
         ...defaultBrandingConfig.brandColors,
-        ...action.payload.tenantConfiguration.brandColors,
+        ...action.payload.organizationConfiguration.brandColors,
       },
     },
     isLoading: false,
     instanceId: action.payload.instanceId,
   }),
-  [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
+  [ReduxActionErrorTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: TenantReduxState<any>,
+    state: OrganizationReduxState<any>,
   ) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_ORGANIZATION_CONFIG_SUCCESS]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: TenantReduxState<any>,
+    state: OrganizationReduxState<any>,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    action: ReduxAction<TenantReduxState<any>>,
+    action: ReduxAction<OrganizationReduxState<any>>,
   ) => ({
     ...state,
     ...action.payload,
-    tenantConfiguration: {
-      ...state.tenantConfiguration,
-      ...action.payload.tenantConfiguration,
+    organizationConfiguration: {
+      ...state.organizationConfiguration,
+      ...action.payload.organizationConfiguration,
     },
     isLoading: false,
   }),
-  [ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR]: (
+  [ReduxActionErrorTypes.UPDATE_ORGANIZATION_CONFIG_ERROR]: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: TenantReduxState<any>,
+    state: OrganizationReduxState<any>,
   ) => ({
     ...state,
     isLoading: false,

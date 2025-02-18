@@ -2,10 +2,10 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,17 +18,17 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Slf4j
-@RequestMapping(Url.TENANT_URL)
-public class TenantControllerCE {
+@RequestMapping(Url.ORGANIZATION_URL)
+public class OrganizationControllerCE {
 
-    private final TenantService service;
+    private final OrganizationService service;
 
-    public TenantControllerCE(TenantService service) {
+    public OrganizationControllerCE(OrganizationService service) {
         this.service = service;
     }
 
     /**
-     * This API returns the tenant configuration for any user (anonymous or logged in). The configurations are set
+     * This API returns the organization configuration for any user (anonymous or logged in). The configurations are set
      * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(Map<String,String>)}
      * <p>
      * The update and retrieval are in different controllers because it would have been weird to fetch the configurations
@@ -38,14 +38,15 @@ public class TenantControllerCE {
      */
     @JsonView(Views.Public.class)
     @GetMapping("/current")
-    public Mono<ResponseDTO<Tenant>> getTenantConfig() {
-        log.debug("Attempting to retrieve tenant configuration ... ");
-        return service.getTenantConfiguration().map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
+    public Mono<ResponseDTO<Organization>> getOrganizationConfig() {
+        log.debug("Attempting to retrieve organization configuration ... ");
+        return service.getOrganizationConfiguration().map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
     }
 
     @PutMapping("")
-    public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
-        return service.updateDefaultTenantConfiguration(tenantConfiguration)
-                .map(tenant -> new ResponseDTO<>(HttpStatus.OK, tenant));
+    public Mono<ResponseDTO<Organization>> updateOrganizationConfiguration(
+            @RequestBody OrganizationConfiguration organizationConfiguration) {
+        return service.updateDefaultOrganizationConfiguration(organizationConfiguration)
+                .map(organization -> new ResponseDTO<>(HttpStatus.OK, organization));
     }
 }

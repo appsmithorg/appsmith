@@ -18,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class FeatureFlagIdentityTraits {
     String instanceId;
-    String tenantId;
+    String organizationId;
     Set<String> userIdentifiers;
     Map<String, Object> traits;
     String appsmithVersion;

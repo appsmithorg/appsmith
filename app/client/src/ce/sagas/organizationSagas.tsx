@@ -5,27 +5,27 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { call, put } from "redux-saga/effects";
 import type { APIResponseError, ApiResponse } from "api/ApiResponses";
-import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
-import { TenantApi } from "ee/api/TenantApi";
+import type { UpdateOrganizationConfigRequest } from "ee/api/OrganizationApi";
+import { OrganizationApi } from "ee/api/OrganizationApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ee/reducers/tenantReducer";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ee/reducers/organizationReducer";
 import { toast } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
-// On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
-export function* fetchCurrentTenantConfigSaga(action?: {
-  payload?: { tenantConfig?: ApiResponse };
+// On CE we don't expose organization config so this shouldn't make any API calls and should just return necessary permissions for the user
+export function* fetchCurrentOrganizationConfigSaga(action?: {
+  payload?: { organizationConfig?: ApiResponse };
 }) {
-  const tenantConfig = action?.payload?.tenantConfig;
+  const organizationConfig = action?.payload?.organizationConfig;
 
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
-      tenantConfig,
-      () => call(TenantApi.fetchCurrentTenantConfig),
+      organizationConfig,
+      () => call(OrganizationApi.fetchCurrentOrganizationConfig),
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -36,29 +36,29 @@ export function* fetchCurrentTenantConfigSaga(action?: {
       const data: any = response.data;
 
       yield put({
-        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
+        type: ReduxActionTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS,
         payload: data,
       });
       AnalyticsUtil.initInstanceId(data.instanceId);
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,
+      type: ReduxActionErrorTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR,
       payload: {
         error,
       },
     });
 
-    // tenant api is UI blocking call, we have to safe crash the app if it fails
+    // organization api is UI blocking call, we have to safe crash the app if it fails
     yield put(safeCrashAppRequest());
   }
 }
 
-export function* updateTenantConfigSaga(
-  action: ReduxAction<UpdateTenantConfigRequest>,
+export function* updateOrganizationConfigSaga(
+  action: ReduxAction<UpdateOrganizationConfigRequest>,
 ) {
   try {
-    const settings = action.payload.tenantConfiguration;
+    const settings = action.payload.organizationConfiguration;
     const hasSingleSessionUserSetting = settings.hasOwnProperty(
       "singleSessionPerUserEnabled",
     );
@@ -70,7 +70,7 @@ export function* updateTenantConfigSaga(
     );
 
     const response: ApiResponse = yield call(
-      TenantApi.updateTenantConfig,
+      OrganizationApi.updateOrganizationConfig,
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -100,19 +100,19 @@ export function* updateTenantConfigSaga(
         });
       }
 
-      // If the tenant config is not present, we need to set the default config
+      // If the organization config is not present, we need to set the default config
       yield put({
-        type: ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS,
+        type: ReduxActionTypes.UPDATE_ORGANIZATION_CONFIG_SUCCESS,
         payload: {
           ...payload,
-          tenantConfiguration: {
+          organizationConfiguration: {
             ...CE_defaultBrandingConfig,
-            ...payload.tenantConfiguration,
+            ...payload.organizationConfiguration,
           },
         },
       });
 
-      if (action.payload.isOnlyTenantSettings) {
+      if (action.payload.isOnlyOrganizationSettings) {
         toast.show("Successfully saved", {
           kind: "success",
         });
@@ -126,7 +126,7 @@ export function* updateTenantConfigSaga(
     const errorObj = error as APIResponseError;
 
     yield put({
-      type: ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_ORGANIZATION_CONFIG_ERROR,
       payload: {
         errorObj,
       },

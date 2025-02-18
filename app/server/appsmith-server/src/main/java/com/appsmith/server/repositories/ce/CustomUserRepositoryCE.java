@@ -12,7 +12,7 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<User> findByEmail(String email, AclPermission aclPermission);
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Mono<User> findByEmailAndOrganizationId(String email, String organizationId);
 
     Mono<Boolean> isUsersEmpty();
 

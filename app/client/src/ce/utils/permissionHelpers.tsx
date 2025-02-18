@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export enum PERMISSION_TYPE {
   /* Workspace permissions */
-  CREATE_WORKSPACE = "createWorkspaces:tenant",
+  CREATE_WORKSPACE = "createWorkspaces:organization",
   MANAGE_WORKSPACE = "manage:workspaces",
   READ_WORKSPACE = "read:workspaces",
   INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
