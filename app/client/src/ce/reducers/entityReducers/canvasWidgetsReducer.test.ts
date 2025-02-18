@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import reducer, {
   initialState as reducerInitialState,
-} from "./canvasWidgetsReducer";
+} from "../../../reducers/entityReducers/canvasWidgetsReducer";
 
 describe("Canvas Widgets Reducer", () => {
   it("should return the initial state", () => {

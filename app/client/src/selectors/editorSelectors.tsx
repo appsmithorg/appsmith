@@ -4,7 +4,7 @@ import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AppLayoutConfig,
   PageListReduxState,

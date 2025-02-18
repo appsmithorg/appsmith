@@ -5,7 +5,7 @@ import {
   runBlueprintOperationsOnWidgets,
   updateWidgetListWithNewWidget,
 } from "./helpers";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { expectSaga } from "redux-saga-test-plan";
 import { select } from "redux-saga/effects";

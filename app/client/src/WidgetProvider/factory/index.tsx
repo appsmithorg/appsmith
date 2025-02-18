@@ -36,7 +36,7 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import { create } from "mutative";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,

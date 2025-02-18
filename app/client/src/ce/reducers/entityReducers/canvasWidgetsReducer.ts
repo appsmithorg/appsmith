@@ -11,7 +11,7 @@ import {
 } from "utils/WidgetSizeUtils";
 import { klona } from "klona";
 import type { UpdateCanvasPayload } from "actions/pageActions";
-import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
+import type { SetWidgetDynamicPropertyPayload } from "../../../actions/controlActions";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values
