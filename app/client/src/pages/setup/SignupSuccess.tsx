@@ -8,7 +8,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "@appsmith/ads";
-import { isValidLicense } from "ee/selectors/tenantSelectors";
+import { isValidLicense } from "ee/selectors/organizationSelectors";
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

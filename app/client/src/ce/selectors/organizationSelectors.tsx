@@ -1,27 +1,27 @@
 import type { AppState } from "ee/reducers";
 
 /**
- * selects the tenant permissions
+ * selects the organization permissions
  *
  * @param state
  * @returns
  */
-export const getTenantPermissions = (state: AppState) => {
-  return state.tenant?.userPermissions;
+export const getOrganizationPermissions = (state: AppState) => {
+  return state.organization?.userPermissions;
 };
 
 /**
- * selects the tenant config
+ * selects the organization config
  *
  * @param state
  * @returns
  */
-export const getTenantConfig = (state: AppState) => {
-  return state.tenant?.tenantConfiguration;
+export const getOrganizationConfig = (state: AppState) => {
+  return state.organization?.organizationConfiguration;
 };
 
 /**
- * selects the tenant brand colors
+ * selects the organization brand colors
  *
  * @returns
  */
@@ -33,27 +33,29 @@ export const isValidLicense = () => {
   return true;
 };
 
-export const isTenantLoading = (state: AppState) => {
-  return state.tenant?.isLoading;
+export const isOrganizationLoading = (state: AppState) => {
+  return state.organization?.isLoading;
 };
 
 export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
-  state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
+  state.organization?.organizationConfiguration?.googleMapsKey as
+    | string
+    | undefined;
 
 export const getThirdPartyAuths = (state: AppState): string[] =>
-  state.tenant?.tenantConfiguration?.thirdPartyAuths ?? [];
+  state.organization?.organizationConfiguration?.thirdPartyAuths ?? [];
 
 export const getIsFormLoginEnabled = (state: AppState): boolean =>
-  state.tenant?.tenantConfiguration?.isFormLoginEnabled ?? true;
+  state.organization?.organizationConfiguration?.isFormLoginEnabled ?? true;
 
 export const getInstanceId = (state: AppState): string =>
-  state.tenant?.instanceId;
+  state.organization?.instanceId;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const shouldShowLicenseBanner = (state: AppState) => false;
 
 export const getHideWatermark = (state: AppState): boolean =>
-  state.tenant?.tenantConfiguration?.hideWatermark;
+  state.organization?.organizationConfiguration?.hideWatermark;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const isFreePlan = (state: AppState) => true;

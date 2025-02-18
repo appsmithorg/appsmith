@@ -1,7 +1,7 @@
 import { watchActionExecutionSagas } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import NavigationSagas from "ee/sagas/NavigationSagas";
 import SuperUserSagas from "ee/sagas/SuperUserSagas";
-import tenantSagas from "ee/sagas/tenantSagas";
+import organizationSagas from "ee/sagas/organizationSagas";
 import userSagas from "ee/sagas/userSagas";
 import workspaceSagas from "ee/sagas/WorkspaceSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
@@ -97,7 +97,7 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   AutoHeightSagas,
-  tenantSagas,
+  organizationSagas,
   JSLibrarySaga,
   LintingSaga,
   autoLayoutUpdateSagas,

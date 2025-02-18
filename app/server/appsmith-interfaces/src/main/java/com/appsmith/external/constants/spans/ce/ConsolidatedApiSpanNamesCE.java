@@ -15,7 +15,7 @@ public class ConsolidatedApiSpanNamesCE {
     public static final String CONSOLIDATED_API_ROOT_VIEW = CONSOLIDATED_API_PREFIX + VIEW + ROOT;
     public static final String USER_PROFILE_SPAN = "user_profile";
     public static final String FEATURE_FLAG_SPAN = "feature_flag";
-    public static final String TENANT_SPAN = "tenant";
+    public static final String ORGANIZATION_SPAN = "tenant";
     public static final String PRODUCT_ALERT_SPAN = "product_alert";
     public static final String APPLICATION_ID_SPAN = "application_id";
     public static final String PAGES_SPAN = "pages";

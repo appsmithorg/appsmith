@@ -31,9 +31,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -97,7 +97,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final RateLimitService rateLimitService;
     private final FeatureFlagService featureFlagService;
     private final ObservationRegistry observationRegistry;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final ConfigService configService;
 
     // Defines blocking duration for test as well as connection created for query execution
@@ -126,7 +126,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
             ObservationRegistry observationRegistry,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ConfigService configService) {
 
         this.workspaceService = workspaceService;
@@ -146,7 +146,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.rateLimitService = rateLimitService;
         this.featureFlagService = featureFlagService;
         this.observationRegistry = observationRegistry;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.configService = configService;
     }
 
@@ -264,12 +264,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     private Mono<DatasourceStorage> setAdditionalMetadataInDatasourceStorage(DatasourceStorage datasourceStorage) {
-        Mono<String> tenantIdMono = tenantService.getDefaultTenantId();
+        Mono<String> organizationIdMono = organizationService.getDefaultOrganizationId();
         Mono<String> instanceIdMono = configService.getInstanceId();
 
         Map<String, Object> metadata = new HashMap<>();
 
-        return tenantIdMono.zipWith(instanceIdMono).map(tuple -> {
+        return organizationIdMono.zipWith(instanceIdMono).map(tuple -> {
             metadata.put(TENANT_ID, tuple.getT1());
             metadata.put(INSTANCE_ID, tuple.getT2());
             datasourceStorage.setMetadata(metadata);

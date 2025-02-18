@@ -17,8 +17,8 @@ import Login from "pages/UserAuth/Login";
 
 const defaultStoreState = {
   ...unitTestBaseMockStore,
-  tenant: {
-    tenantConfiguration: {},
+  organization: {
+    organizationConfiguration: {},
   },
   entities: {
     ...unitTestBaseMockStore.entities,

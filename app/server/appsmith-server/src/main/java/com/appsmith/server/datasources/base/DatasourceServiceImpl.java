@@ -11,9 +11,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -44,7 +44,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
             ObservationRegistry observationRegistry,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ConfigService configService) {
 
         super(
@@ -65,7 +65,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 rateLimitService,
                 featureFlagService,
                 observationRegistry,
-                tenantService,
+                organizationService,
                 configService);
     }
 }
