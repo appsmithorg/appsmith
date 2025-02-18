@@ -70,8 +70,7 @@ public class ConsolidatedAPIController {
 
         return consolidatedAPIService
                 .getConsolidatedInfoForPageLoad(basePageId, baseApplicationId, refType, refName, ApplicationMode.EDIT)
-                .map(consolidatedAPIResponseDTO ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
+                .map(consolidatedAPIResponseDTO -> new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO))
                 .tag("pageId", Objects.toString(basePageId))
                 .tag("applicationId", Objects.toString(baseApplicationId))
                 .tag("refType", Objects.toString(refType))
@@ -116,7 +115,7 @@ public class ConsolidatedAPIController {
                     // if defaultPageId and applicationId are both null, then don't compute ETag
                     if (isBlank(responseHash)) {
                         ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                                new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+                                new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO);
                         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
                     }
 
@@ -126,12 +125,12 @@ public class ConsolidatedAPIController {
 
                     if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
                         ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED.value(), null, null);
+                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED.value(), null);
                         return new ResponseEntity<>(responseDTO, headers, HttpStatus.NOT_MODIFIED);
                     }
 
                     ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                            new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null);
+                            new ResponseDTO<>(HttpStatus.OK, consolidatedAPIResponseDTO);
 
                     return new ResponseEntity<>(responseDTO, headers, HttpStatus.OK);
                 })

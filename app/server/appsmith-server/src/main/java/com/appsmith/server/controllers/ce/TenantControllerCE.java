@@ -40,13 +40,12 @@ public class TenantControllerCE {
     @GetMapping("/current")
     public Mono<ResponseDTO<Tenant>> getTenantConfig() {
         log.debug("Attempting to retrieve tenant configuration ... ");
-        return service.getTenantConfiguration()
-                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+        return service.getTenantConfiguration().map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
     }
 
     @PutMapping("")
     public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
         return service.updateDefaultTenantConfiguration(tenantConfiguration)
-                .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
+                .map(tenant -> new ResponseDTO<>(HttpStatus.OK, tenant));
     }
 }

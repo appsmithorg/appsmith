@@ -62,7 +62,7 @@ public class DatasourceControllerCE {
         return datasourceService
                 .getAllWithStorages(params)
                 .collectList()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -70,9 +70,7 @@ public class DatasourceControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody @JsonView(FromRequest.class) Datasource resource) {
         log.debug("Going to create resource from datasource controller");
-        return datasourceService
-                .create(resource)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+        return datasourceService.create(resource).map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @JsonView(Views.Public.class)
@@ -84,7 +82,7 @@ public class DatasourceControllerCE {
         log.debug("Going to update resource from datasource controller with id: {}", id);
         return datasourceService
                 .updateDatasource(id, datasource, environmentId, Boolean.TRUE)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -99,7 +97,7 @@ public class DatasourceControllerCE {
 
         return datasourceService
                 .updateDatasourceStorage(datasourceStorageDTO, activeEnvironmentId, Boolean.TRUE)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -108,7 +106,7 @@ public class DatasourceControllerCE {
         log.debug("Going to delete resource from datasource controller with id: {}", id);
         return datasourceService
                 .archiveById(id)
-                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK, deletedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -120,7 +118,7 @@ public class DatasourceControllerCE {
         log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
         return datasourceService
                 .testDatasource(datasourceStorageDTO, activeEnvironmentId)
-                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
+                .map(testResult -> new ResponseDTO<>(HttpStatus.OK, testResult));
     }
 
     @JsonView(Views.Public.class)
@@ -132,7 +130,7 @@ public class DatasourceControllerCE {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentId)
-                .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
+                .map(structure -> new ResponseDTO<>(HttpStatus.OK, structure));
     }
 
     @JsonView(Views.Public.class)
@@ -169,9 +167,7 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping(Url.MOCKS)
     public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
-        return mockDataService
-                .getMockDataSet()
-                .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getMockdbs(), null));
+        return mockDataService.getMockDataSet().map(config -> new ResponseDTO<>(HttpStatus.OK, config.getMockdbs()));
     }
 
     @JsonView(Views.Public.class)
@@ -181,7 +177,7 @@ public class DatasourceControllerCE {
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService
                 .createMockDataSet(mockDataSource, environmentId)
-                .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+                .map(datasource -> new ResponseDTO<>(HttpStatus.OK, datasource));
     }
 
     @JsonView(Views.Public.class)
@@ -193,7 +189,7 @@ public class DatasourceControllerCE {
         log.debug("Trigger received for datasource {}", datasourceId);
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
-                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK, triggerResultDTO));
     }
 
     @JsonView(Views.Public.class)
@@ -205,6 +201,6 @@ public class DatasourceControllerCE {
         log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getSchemaPreviewData(datasourceId, environmentId, template)
-                .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));
+                .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK, actionExecutionResult));
     }
 }

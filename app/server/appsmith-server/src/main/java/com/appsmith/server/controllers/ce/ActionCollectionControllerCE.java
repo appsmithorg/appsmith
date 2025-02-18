@@ -55,7 +55,7 @@ public class ActionCollectionControllerCE {
         log.debug("Going to create action collection {}", resource.getClass().getName());
         return layoutCollectionService
                 .createCollection(resource)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @JsonView(Views.Public.class)
@@ -66,7 +66,7 @@ public class ActionCollectionControllerCE {
         return actionCollectionService
                 .getPopulatedActionCollectionsByViewMode(params, false)
                 .collectList()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -79,7 +79,7 @@ public class ActionCollectionControllerCE {
                 actionCollectionMoveDTO.getDestinationPageId());
         return layoutCollectionService
                 .moveCollection(actionCollectionMoveDTO)
-                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK, actionCollection));
     }
 
     @JsonView(Views.Public.class)
@@ -89,7 +89,7 @@ public class ActionCollectionControllerCE {
         refactorEntityNameDTO.setEntityType(EntityType.JS_OBJECT);
         return refactoringService
                 .refactorEntityName(refactorEntityNameDTO)
-                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 
     @JsonView(Views.Public.class)
@@ -100,7 +100,7 @@ public class ActionCollectionControllerCE {
         return actionCollectionService
                 .getActionCollectionsForViewMode(applicationId, null)
                 .collectList()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -110,7 +110,7 @@ public class ActionCollectionControllerCE {
         log.debug("Going to update action collection with id: {}", id);
         return layoutCollectionService
                 .updateUnpublishedActionCollection(id, resource)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -120,7 +120,7 @@ public class ActionCollectionControllerCE {
         log.debug("Going to update action collection body with id: {}", id);
         return layoutCollectionService
                 .updateUnpublishedActionCollectionBody(id, resource)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -134,7 +134,7 @@ public class ActionCollectionControllerCE {
         refactorEntityNameDTO.setEntityType(EntityType.JS_ACTION);
         return refactoringService
                 .refactorEntityName(refactorEntityNameDTO)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -143,6 +143,6 @@ public class ActionCollectionControllerCE {
         log.debug("Going to delete unpublished action collection with id: {}", id);
         return actionCollectionService
                 .deleteUnpublishedActionCollection(id)
-                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK, deletedResource));
     }
 }
