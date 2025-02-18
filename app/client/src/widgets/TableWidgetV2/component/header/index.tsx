@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import React from "react";
-import { TABLE_SIZES, type ReactTableColumnProps } from "../Constants";
+import { type ReactTableColumnProps } from "../Constants";
 import { useAppsmithTable } from "../TableContext";
 import {
   TableHeaderInnerWrapper,
@@ -16,7 +16,6 @@ export default function TableHeader() {
     borderRadius,
     boxShadow,
     columns,
-    compactMode,
     currentPageIndex,
     data,
     delimiter,
@@ -38,6 +37,7 @@ export default function TableHeader() {
     searchKey,
     searchTableData,
     serverSidePaginationEnabled,
+    tableSizes,
     totalRecordsCount,
     updatePageNo,
     variant,
@@ -45,7 +45,6 @@ export default function TableHeader() {
     widgetName,
     width,
   } = useAppsmithTable();
-  const tableSizes = TABLE_SIZES[compactMode];
 
   const tableHeaderColumns = React.useMemo(
     () =>
