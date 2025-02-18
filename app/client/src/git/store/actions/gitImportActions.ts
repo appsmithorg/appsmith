@@ -30,7 +30,7 @@ export const gitImportSuccessAction = (
   state: GitGlobalReduxState,
   // need this here to preserve interface
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  action: GitImportSuccessPayload,
+  action: PayloadAction<GitImportSuccessPayload>,
 ) => {
   state.gitImport.loading = false;
 
