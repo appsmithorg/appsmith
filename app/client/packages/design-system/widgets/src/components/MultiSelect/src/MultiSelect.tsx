@@ -154,7 +154,11 @@ export const MultiSelect = <T extends { label: string; value: string }>(
                   shouldFocusWrap
                 >
                   {(item: T) => (
-                    <ListBoxItem id={item.value} textValue={item.label}>
+                    <ListBoxItem
+                      className={styles.listBoxItem}
+                      id={item.value}
+                      textValue={item.label}
+                    >
                       {({ isSelected }) => (
                         <>
                           <Checkbox
