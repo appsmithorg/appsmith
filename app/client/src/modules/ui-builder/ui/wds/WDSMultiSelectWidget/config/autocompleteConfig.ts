@@ -7,12 +7,12 @@ export const autocompleteConfig = {
   isVisible: DefaultAutocompleteDefinitions.isVisible,
   selectedOptionValues: {
     "!type": "string",
-    "!doc": "The value selected in a single select dropdown",
+    "!doc": "The values selected in a multi select dropdown",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
   },
   selectedOptionLabels: {
     "!type": "string",
-    "!doc": "The selected option label in a single select dropdown",
+    "!doc": "The selected options's labels in a multi select dropdown",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
   },
   isDisabled: "bool",

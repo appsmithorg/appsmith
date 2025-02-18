@@ -133,7 +133,7 @@ export const propertyPaneContentConfig = [
             suffix: getDefaultValueExpressionSuffix,
           },
         },
-        placeholderText: "[GREEN]",
+        placeholderText: "Default selected values",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
