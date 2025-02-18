@@ -30,14 +30,6 @@
   cursor: inherit;
 }
 
-.inputGroup:has([data-input-prefix]) .input {
-  padding-inline-start: 0;
-}
-
-.inputGroup:has([data-input-suffix]) .input {
-  padding-inline-end: 0;
-}
-
 .input:is(textarea) {
   block-size: auto;
   min-block-size: var(--sizing-16);
@@ -196,7 +188,7 @@
  * SIZE
  * ----------------------------------------------------------------------------
  */
-.inputGroup .input {
+.inputGroup .input:not(textarea) {
   block-size: calc(
     var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
   );
@@ -212,4 +204,12 @@
 
 .inputGroup .input[data-size="large"] {
   padding: var(--inner-spacing-3);
+}
+
+.inputGroup:has([data-input-prefix]) .input {
+  padding-inline-start: 0;
+}
+
+.inputGroup:has([data-input-suffix]) .input {
+  padding-inline-end: 0;
 }
