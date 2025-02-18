@@ -39,9 +39,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -300,37 +300,118 @@ public class DataUtils {
 
     private void populateFileTypeBodyBuilder(
             MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage) throws IOException {
+
         final String fileValue = (String) property.getValue();
         final String key = property.getKey();
-        List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
 
+        if (fileValue.contains(BASE64_DELIMITER)) {
+            processBase64Data(fileValue, key, bodyBuilder, outputMessage);
+        } else {
+            List<MultipartFormDataDTO> multipartFormDataDTOs = parseMultipartData(fileValue);
+
+            for (MultipartFormDataDTO dto : multipartFormDataDTOs) {
+                String dataString = String.valueOf(dto.getData());
+                if (dataString.contains(BASE64_DELIMITER)) {
+                    processBase64Data(dataString, key, bodyBuilder, outputMessage, dto.getName(), dto.getType());
+                } else {
+                    processRegularData(dataString, key, bodyBuilder, outputMessage, dto.getName(), dto.getType());
+                }
+            }
+        }
+    }
+
+    // Process BASE64-encoded content
+    private void processBase64Data(
+            String fileValue, String key, MultipartBodyBuilder bodyBuilder, ClientHttpRequest outputMessage) {
+        processBase64Data(fileValue, key, bodyBuilder, outputMessage, "file", "application/octet-stream");
+    }
+
+    // Overloaded method with custom filename & MIME type
+    private void processBase64Data(
+            String fileValue,
+            String key,
+            MultipartBodyBuilder bodyBuilder,
+            ClientHttpRequest outputMessage,
+            String filename,
+            String defaultMimeType) {
+        String[] parts = fileValue.split(BASE64_DELIMITER, 2);
+        if (parts.length != 2) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    "Invalid BASE64 format. Expected format: data:mimetype;base64,content");
+        }
+
+        String metadataPart = parts[0];
+        String base64Content = parts[1];
+        String mimeType = extractMimeType(metadataPart, defaultMimeType);
+        byte[] decodedBytes = Base64.getMimeDecoder().decode(base64Content);
+
+        addPartToBody(bodyBuilder, key, decodedBytes, outputMessage, filename, mimeType);
+    }
+
+    // Process regular string data
+    private void processRegularData(
+            String data,
+            String key,
+            MultipartBodyBuilder bodyBuilder,
+            ClientHttpRequest outputMessage,
+            String filename,
+            String mimeType) {
+        byte[] bytes = data.getBytes(StandardCharsets.ISO_8859_1);
+        addPartToBody(bodyBuilder, key, bytes, outputMessage, filename, mimeType);
+    }
+
+    // Extract MIME type from metadata
+    private String extractMimeType(String metadataPart, String defaultMimeType) {
+        if (metadataPart.startsWith("data:")) {
+            int endIndex = metadataPart.indexOf(';');
+            if (endIndex > 5) {
+                return metadataPart.substring(5, endIndex);
+            } else {
+                return metadataPart.substring(5);
+            }
+        }
+        return defaultMimeType;
+    }
+
+    // Add a part to the MultipartBodyBuilder
+    private void addPartToBody(
+            MultipartBodyBuilder bodyBuilder,
+            String key,
+            byte[] bytes,
+            ClientHttpRequest outputMessage,
+            String filename,
+            String mimeType) {
+        Flux<DataBuffer> data = DataBufferUtils.readInputStream(
+                () -> new ByteArrayInputStream(bytes), outputMessage.bufferFactory(), 4096);
+        bodyBuilder.asyncPart(key, data, DataBuffer.class).filename(filename).contentType(MediaType.valueOf(mimeType));
+    }
+
+    // Parse JSON multipart data
+    private List<MultipartFormDataDTO> parseMultipartData(String fileValue) throws IOException {
         if (fileValue.startsWith("{")) {
-            // Check whether the JSON string is an object
-            final MultipartFormDataDTO multipartFormDataDTO =
-                    objectMapper.readValue(fileValue, MultipartFormDataDTO.class);
-            multipartFormDataDTOs.add(multipartFormDataDTO);
+            return Collections.singletonList(objectMapper.readValue(fileValue, MultipartFormDataDTO.class));
         } else if (fileValue.startsWith("[")) {
-            // Check whether the JSON string is an array
-            multipartFormDataDTOs = Arrays.asList(objectMapper.readValue(fileValue, MultipartFormDataDTO[].class));
+            return Arrays.asList(objectMapper.readValue(fileValue, MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "Unable to parse content. Expected to receive an array or object of multipart data");
+                    "Unable to parse content. Expected an array or object of multipart data");
         }
+    }
 
-        multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
-            final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
-            Flux<DataBuffer> data = DataBufferUtils.readInputStream(
-                    () -> new ByteArrayInputStream(
-                            String.valueOf(finalMultipartFormDataDTO.getData()).getBytes(StandardCharsets.ISO_8859_1)),
-                    outputMessage.bufferFactory(),
-                    4096);
-
-            bodyBuilder
-                    .asyncPart(key, data, DataBuffer.class)
-                    .filename(multipartFormDataDTO.getName())
-                    .contentType(MediaType.valueOf(multipartFormDataDTO.getType()));
-        });
+    // Helper method to map MIME types to file extensions
+    private String mimeTypeToExtension(String mimeType) {
+        Map<String, String> mimeToExtensionMap = Map.of(
+                "image/jpeg", ".jpg",
+                "image/png", ".png",
+                "image/gif", ".gif",
+                "application/pdf", ".pdf",
+                "text/plain", ".txt",
+                "text/html", ".html",
+                "application/json", ".json",
+                "application/xml", ".xml");
+        return mimeToExtensionMap.getOrDefault(mimeType, "");
     }
 
     /**
