@@ -22,7 +22,6 @@ export function defaultOptionValueValidation(
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
 
-  // Function to check if the object has `label` and `value`
   const hasLabelValue = (obj: LabelValue): obj is LabelValue => {
     return (
       _.isPlainObject(obj) &&
@@ -33,7 +32,6 @@ export function defaultOptionValueValidation(
     );
   };
 
-  // Function to check for duplicate values in array
   const hasUniqueValues = (arr: Array<string>) => {
     const uniqueValues = new Set(arr);
 
