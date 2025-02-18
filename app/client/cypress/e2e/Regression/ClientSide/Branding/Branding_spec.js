@@ -40,17 +40,17 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   let favicon;
   let shades = {};
 
-  it("1. check if localStorage is populated with tenantConfig values", () => {
+  it("1. check if localStorage is populated with organizationConfig values", () => {
     if (CURRENT_REPO === REPO.CE) {
-      const tenantConfig = localStorage.getItem("tenantConfig");
+      const organizationConfig = localStorage.getItem("organizationConfig");
 
-      expect(tenantConfig).to.be.null;
+      expect(organizationConfig).to.be.null;
     }
 
     if (CURRENT_REPO === REPO.EE) {
-      const tenantConfig = localStorage.getItem("tenantConfig");
+      const organizationConfig = localStorage.getItem("organizationConfig");
 
-      expect(tenantConfig).to.not.be.null;
+      expect(organizationConfig).to.not.be.null;
     }
   });
 
@@ -123,10 +123,10 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
     );
   });
 
-  it("4. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
+  it("4. Check if localStorage is populated with organizationConfig values & form cannot be submitted", () => {
     if (CURRENT_REPO === REPO.CE) {
-      const tenantConfig = localStorage.getItem("tenantConfig");
-      expect(tenantConfig).to.be.null;
+      const organizationConfig = localStorage.getItem("organizationConfig");
+      expect(organizationConfig).to.be.null;
       cy.get(locators.submitButton).should("be.disabled");
     }
 

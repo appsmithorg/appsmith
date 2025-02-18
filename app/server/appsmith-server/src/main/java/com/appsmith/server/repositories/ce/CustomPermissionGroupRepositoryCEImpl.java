@@ -62,13 +62,13 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
-        return cacheableRepositoryHelper.evictPermissionGroupsUser(email, tenantId);
+    public Mono<Void> evictPermissionGroupsUser(String email, String organizationId) {
+        return cacheableRepositoryHelper.evictPermissionGroupsUser(email, organizationId);
     }
 
     @Override
-    public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
-        return this.evictPermissionGroupsUser(email, tenantId);
+    public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String organizationId) {
+        return this.evictPermissionGroupsUser(email, organizationId);
     }
 
     @Override

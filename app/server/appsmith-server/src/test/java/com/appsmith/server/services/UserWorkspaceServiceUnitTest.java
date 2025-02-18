@@ -252,7 +252,7 @@ public class UserWorkspaceServiceUnitTest {
                     assertThat(workspaces).hasSize(4);
                     workspaces.forEach(workspace -> {
                         assertThat(workspaceIds.contains(workspace.getId())).isTrue();
-                        assertThat(workspace.getTenantId()).isNotEmpty();
+                        assertThat(workspace.getOrganizationId()).isNotEmpty();
                     });
                 })
                 .verifyComplete();
@@ -281,7 +281,7 @@ public class UserWorkspaceServiceUnitTest {
                     workspaces.forEach(workspace -> {
                         fetchedWorkspaceIds.add(workspace.getId());
                         assertThat(workspaceIds.contains(workspace.getId())).isTrue();
-                        assertThat(workspace.getTenantId()).isNotEmpty();
+                        assertThat(workspace.getOrganizationId()).isNotEmpty();
                     });
                     assertThat(fetchedWorkspaceIds).isEqualTo(workspaceIds);
                 })

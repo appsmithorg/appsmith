@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.external.enums.FeatureFlagEnum.ORGANIZATION_TEST_FEATURE;
 import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_1;
 import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_2;
 
@@ -50,10 +50,10 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
         return Mono.empty();
     }
 
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
-    public Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId) {
-        return getRemoteFeaturesForTenant(new FeaturesRequestDTO()).map(responseDTO -> {
+    public Mono<CachedFeatures> fetchCachedOrganizationFeatures(String organizationId) {
+        return getRemoteFeaturesForOrganization(new FeaturesRequestDTO()).map(responseDTO -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
             cachedFeatures.setRefreshedAt(Instant.now());
             cachedFeatures.setFeatures(responseDTO.getFeatures());
@@ -61,23 +61,23 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
         });
     }
 
-    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Cache(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
-    public Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures) {
+    public Mono<CachedFeatures> updateCachedOrganizationFeatures(String organizationId, CachedFeatures cachedFeatures) {
         return Mono.just(cachedFeatures);
     }
 
-    @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @CacheEvict(cacheName = "organizationNewFeatures", key = "{#organizationId}")
     @Override
-    public Mono<Void> evictCachedTenantFeatures(String tenantId) {
+    public Mono<Void> evictCachedOrganizationFeatures(String organizationId) {
         return Mono.empty();
     }
 
     @Override
-    public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
+    public Mono<FeaturesResponseDTO> getRemoteFeaturesForOrganization(FeaturesRequestDTO featuresRequestDTO) {
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
         Map<String, Boolean> features = new HashMap<>();
-        features.put(TENANT_TEST_FEATURE.name(), true);
+        features.put(ORGANIZATION_TEST_FEATURE.name(), true);
         responseDTO.setFeatures(features);
         return Mono.just(responseDTO);
     }

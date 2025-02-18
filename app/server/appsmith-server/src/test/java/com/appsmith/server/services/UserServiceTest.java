@@ -7,10 +7,10 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
@@ -103,7 +103,7 @@ public class UserServiceTest {
     EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Autowired
-    TenantService tenantService;
+    OrganizationService organizationService;
 
     Mono<User> userMono;
 
@@ -187,7 +187,7 @@ public class UserServiceTest {
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getTenantId()).isNotNull();
+                    assertThat(user.getOrganizationId()).isNotNull();
 
                     Set<Policy> userPolicies = user.getPolicies();
                     Optional<Policy> optionalManageUserPolicy = userPolicies.stream()
@@ -667,21 +667,23 @@ public class UserServiceTest {
         newUser.setEmail(testEmail);
         Mono<User> userMono = userRepository.save(newUser);
 
-        // Setting tenant Config emailVerificationEnabled to FALSE
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant().flatMap(tenant1 -> {
-            TenantConfiguration tenantConfiguration = tenant1.getTenantConfiguration();
-            tenantConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
-            tenant1.setTenantConfiguration(tenantConfiguration);
-            return tenantService.update(tenant1.getId(), tenant1);
-        });
+        // Setting Organization Config emailVerificationEnabled to FALSE
+        Mono<Organization> organizationMono = organizationService
+                .getDefaultOrganization()
+                .flatMap(organization -> {
+                    OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+                    organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
+                    organization.setOrganizationConfiguration(organizationConfiguration);
+                    return organizationService.update(organization.getId(), organization);
+                });
 
         Mono<Boolean> emailVerificationMono =
                 userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
 
-        Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
+        Mono<Boolean> resultMono = userMono.then(organizationMono).then(emailVerificationMono);
 
         StepVerifier.create(resultMono)
-                .expectErrorMessage(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED.getMessage())
+                .expectErrorMessage(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED.getMessage())
                 .verify();
     }
 
@@ -695,18 +697,20 @@ public class UserServiceTest {
         newUser.setEmailVerified(Boolean.TRUE);
         Mono<User> userMono = userRepository.save(newUser);
 
-        // Setting tenant Config emailVerificationEnabled to TRUE
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant().flatMap(tenant1 -> {
-            TenantConfiguration tenantConfiguration = tenant1.getTenantConfiguration();
-            tenantConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
-            tenant1.setTenantConfiguration(tenantConfiguration);
-            return tenantService.update(tenant1.getId(), tenant1);
-        });
+        // Setting Organization Config emailVerificationEnabled to TRUE
+        Mono<Organization> organizationMono = organizationService
+                .getDefaultOrganization()
+                .flatMap(organization -> {
+                    OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+                    organizationConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
+                    organization.setOrganizationConfiguration(organizationConfiguration);
+                    return organizationService.update(organization.getId(), organization);
+                });
 
         Mono<Boolean> emailVerificationMono =
                 userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
 
-        Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
+        Mono<Boolean> resultMono = userMono.then(organizationMono).then(emailVerificationMono);
 
         StepVerifier.create(resultMono)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_VERIFIED.getMessage())

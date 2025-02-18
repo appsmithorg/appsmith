@@ -6,7 +6,7 @@ import { getAppMode } from "ee/selectors/entitiesSelector";
 import store from "store";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "ee/constants/UsagePulse";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {

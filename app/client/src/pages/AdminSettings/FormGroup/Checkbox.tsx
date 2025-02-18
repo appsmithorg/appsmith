@@ -7,7 +7,7 @@ import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Checkbox } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "ee/constants/forms";
-import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
+import { isOrganizationConfig } from "ee/utils/adminSettingsHelpers";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -98,7 +98,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
             isDisabled: setting.isDisabled && setting.isDisabled(settings),
             isFeatureEnabled: setting.isFeatureEnabled,
             labelSuffix: setting.textSuffix,
-            isPropertyDisabled: isTenantConfig(setting.id)
+            isPropertyDisabled: isOrganizationConfig(setting.id)
               ? false
               : !setting.name?.toLowerCase().includes("enable"),
           })}
