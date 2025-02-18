@@ -125,7 +125,7 @@ public class ConsolidatedAPIController {
 
                     if (ifNoneMatch != null && ifNoneMatch.equals(responseHash)) {
                         ResponseDTO<ConsolidatedAPIResponseDTO> responseDTO =
-                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED.value(), null);
+                                new ResponseDTO<>(HttpStatus.NOT_MODIFIED, null);
                         return new ResponseEntity<>(responseDTO, headers, HttpStatus.NOT_MODIFIED);
                     }
 

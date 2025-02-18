@@ -35,7 +35,7 @@ public class RateLimitAspect {
             return isAllowedMono.flatMap(isAllowed -> {
                 if (!isAllowed) {
                     AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
-                    return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage()));
+                    return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage(), null));
                 }
 
                 try {
