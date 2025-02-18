@@ -54,7 +54,7 @@ function getUpdatedWidgetLists(
   );
 }
 
-const canvasWidgetsReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
@@ -166,10 +166,12 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
     return state;
   },
-});
+};
 
 export interface CanvasWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
 }
+
+const canvasWidgetsReducer = createImmerReducer(initialState, handlers);
 
 export default canvasWidgetsReducer;
