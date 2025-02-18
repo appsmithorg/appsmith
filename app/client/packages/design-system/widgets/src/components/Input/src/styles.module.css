@@ -197,7 +197,10 @@
  * ----------------------------------------------------------------------------
  */
 .inputGroup .input {
-  block-size: var(--body-line-height);
+  block-size: calc(
+    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
+  );
+  padding-block: var(--inner-spacing-3);
 }
 
 .inputGroup .input[data-size="small"] {
