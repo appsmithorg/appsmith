@@ -1,6 +1,5 @@
 import React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WDSMultiSelectWidgetProps } from "../../widget/types";
 import { defaultOptionValueValidation } from "./validations";
@@ -16,6 +15,7 @@ import {
 import { labelKeyValidation } from "./validations/labelKeyValidation";
 import { Flex } from "@appsmith/ads";
 import { SAMPLE_DATA } from "../../widget/constants";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 
 export const propertyPaneContentConfig = [
   {
