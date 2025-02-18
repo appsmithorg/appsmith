@@ -11,6 +11,7 @@ import { textInputStyles } from "../../Input";
 
 import styles from "./styles.module.css";
 import type { MultiSelectProps } from "./types";
+
 interface MultiSelectValueProps {
   excludeFromTabOrder?: boolean;
   isDisabled?: boolean;
@@ -22,6 +23,8 @@ interface MultiSelectValueProps {
   triggerRef: React.RefObject<HTMLButtonElement>;
   isInvalid?: boolean;
 }
+
+const MAX_ELLIPSIS_COUNT = 999;
 
 const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
   excludeFromTabOrder,
@@ -145,7 +148,9 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
           </Text>
         ))}
         <Text className={styles.ellipsisText}>
-          {visibleItems < totalItems && <>...+{totalItems - visibleItems}</>}
+          {visibleItems < totalItems && (
+            <>...+{Math.min(totalItems - visibleItems, MAX_ELLIPSIS_COUNT)}</>
+          )}
         </Text>
       </span>
       <span data-input-suffix>

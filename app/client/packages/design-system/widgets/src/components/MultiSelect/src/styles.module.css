@@ -47,6 +47,7 @@
   min-width: 0;
 }
 
+/* we are resevering max for 7 characters which describes "...+999" text */
 .ellipsisText {
   max-width: 7ch;
 }
