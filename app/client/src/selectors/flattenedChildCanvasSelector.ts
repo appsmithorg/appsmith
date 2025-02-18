@@ -4,7 +4,7 @@ import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";

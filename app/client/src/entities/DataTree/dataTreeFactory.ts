@@ -9,7 +9,7 @@ import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";

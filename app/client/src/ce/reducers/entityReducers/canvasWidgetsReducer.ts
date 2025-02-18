@@ -11,7 +11,7 @@ import {
 } from "utils/WidgetSizeUtils";
 import { klona } from "klona";
 import type { UpdateCanvasPayload } from "actions/pageActions";
-import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
+import type { SetWidgetDynamicPropertyPayload } from "../../../actions/controlActions";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values
@@ -54,7 +54,7 @@ function getUpdatedWidgetLists(
   );
 }
 
-const canvasWidgetsReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
@@ -166,10 +166,12 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
     return state;
   },
-});
+};
 
 export interface CanvasWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
 }
+
+const canvasWidgetsReducer = createImmerReducer(initialState, handlers);
 
 export default canvasWidgetsReducer;

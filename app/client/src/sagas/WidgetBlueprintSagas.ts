@@ -3,7 +3,7 @@ import {
   BlueprintOperationActionTypes,
   type WidgetBlueprint,
 } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call, select } from "redux-saga/effects";
