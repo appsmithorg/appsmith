@@ -8,14 +8,17 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Data
+@Slf4j
 public class TenantConfigurationCE implements Serializable {
 
     private String googleMapsKey;
@@ -46,7 +49,7 @@ public class TenantConfigurationCE implements Serializable {
     // the feature flags. This can happen for 2 reasons:
     // 1. The license plan changes
     // 2. Because of grandfathering via cron where tenant level feature flags are fetched
-    Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
+    Map<String, FeatureMigrationType> featuresWithPendingMigration;
 
     // This variable is used to indicate if the server needs to be restarted after the migration based on feature flags
     // is complete.
@@ -85,5 +88,21 @@ public class TenantConfigurationCE implements Serializable {
 
     public Boolean isEmailVerificationEnabled() {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
+    }
+
+    // TODO this can lead to uninteded behavior in following scenario:
+    // 1. Get the FeaturesWithPendingMigration
+    // 2. Convert it to Map<FeatureFlagEnum, FeatureMigrationType>
+    // 3. Update the FeatureFlagEnum to FeatureMigrationType mapping
+    // 4. Convert it back to Map<String, FeatureMigrationType>
+    // 5. Set it back to TenantConfiguration
+    // 6. Save the TenantConfiguration
+    // We expect as we are getting the field it will automatically gets set but that's not true anymore as setter is
+    // overriden
+    public void setFeaturesWithPendingMigration(
+            Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration) {
+        this.featuresWithPendingMigration = new HashMap<>();
+        featuresWithPendingMigration.forEach((featureFlag, featureMigrationType) ->
+                this.featuresWithPendingMigration.put(featureFlag.toString(), featureMigrationType));
     }
 }

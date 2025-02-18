@@ -231,7 +231,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, DISABLE));
+                            .isEqualTo(Map.of(TENANT_TEST_FEATURE.name(), DISABLE));
                     assertThat(tenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
@@ -250,7 +250,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, ENABLE));
+                            .isEqualTo(Map.of(TENANT_TEST_FEATURE.name(), ENABLE));
                     assertThat(tenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })

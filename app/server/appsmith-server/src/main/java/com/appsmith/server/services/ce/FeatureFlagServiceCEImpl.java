@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.FeatureFlagEnum;
+import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -22,6 +23,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.appsmith.server.featureflags.FeatureFlagUtils.getValidFeaturesWithPendingMigration;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -133,11 +136,12 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                     TenantConfiguration tenantConfig = defaultTenant.getTenantConfiguration() == null
                                             ? new TenantConfiguration()
                                             : defaultTenant.getTenantConfiguration();
+                                    Map<FeatureFlagEnum, FeatureMigrationType> existingFeatureMigration =
+                                            getValidFeaturesWithPendingMigration(tenantConfig);
                                     // We expect the featureFlagWithPendingMigrations to be empty hence
                                     // verifying only for null
                                     if (featureFlagWithPendingMigrations != null
-                                            && !featureFlagWithPendingMigrations.equals(
-                                                    tenantConfig.getFeaturesWithPendingMigration())) {
+                                            && !featureFlagWithPendingMigrations.equals(existingFeatureMigration)) {
                                         tenantConfig.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
                                         if (!featureFlagWithPendingMigrations.isEmpty()) {
                                             tenantConfig.setMigrationStatus(MigrationStatus.PENDING);

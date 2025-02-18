@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
 import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
+import static com.appsmith.server.featureflags.FeatureFlagUtils.getValidFeaturesWithPendingMigration;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -153,10 +154,8 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
     private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
             Map<FeatureFlagEnum, FeatureMigrationType> latestFeatureDiffsWithMigrationType, Tenant dbTenant) {
 
-        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationDB =
-                dbTenant.getTenantConfiguration().getFeaturesWithPendingMigration() == null
-                        ? new HashMap<>()
-                        : dbTenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationDB;
+        featuresWithPendingMigrationDB = getValidFeaturesWithPendingMigration(dbTenant.getTenantConfiguration());
 
         Map<FeatureFlagEnum, FeatureMigrationType> updatedFlagsForMigrations =
                 new HashMap<>(featuresWithPendingMigrationDB);
@@ -215,7 +214,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
             }
 
             Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration =
-                    tenantConfiguration.getFeaturesWithPendingMigration();
+                    getValidFeaturesWithPendingMigration(tenantConfiguration);
             if (CollectionUtils.isNullOrEmpty(featuresWithPendingMigration)
                     || !featuresWithPendingMigration.containsKey(featureFlagEnum)) {
                 return Mono.just(TRUE);
@@ -236,7 +235,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      */
     private Mono<Boolean> isMigrationRequired(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
-                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+                getValidFeaturesWithPendingMigration(tenant.getTenantConfiguration());
         if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
             return Mono.just(FALSE);
         }
