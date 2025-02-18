@@ -1,7 +1,9 @@
+import type { DiscardResponseData } from "git/requests/discardRequest.types";
 import { createArtifactAction } from "../helpers/createArtifactAction";
 import type {
   GitArtifactBasePayload,
   GitArtifactErrorPayloadAction,
+  GitAsyncSuccessPayload,
 } from "../types";
 
 export interface DiscardInitPayload extends GitArtifactBasePayload {
@@ -18,11 +20,15 @@ export const discardInitAction = createArtifactAction<DiscardInitPayload>(
   },
 );
 
-export const discardSuccessAction = createArtifactAction((state) => {
-  state.apiResponses.discard.loading = false;
+export type DiscardSuccessPayload = GitAsyncSuccessPayload<DiscardResponseData>;
 
-  return state;
-});
+export const discardSuccessAction = createArtifactAction<DiscardSuccessPayload>(
+  (state) => {
+    state.apiResponses.discard.loading = false;
+
+    return state;
+  },
+);
 
 export const discardErrorAction = createArtifactAction(
   (state, action: GitArtifactErrorPayloadAction) => {

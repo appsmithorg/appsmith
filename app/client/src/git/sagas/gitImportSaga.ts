@@ -1,10 +1,8 @@
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 import { toast } from "@appsmith/ads";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { captureException } from "@sentry/react";
 import gitImportRequest from "git/requests/gitImportRequest";
 import type { GitImportResponse } from "git/requests/gitImportRequest.types";
 import type { GitImportInitPayload } from "git/store/actions/gitImportActions";
@@ -17,6 +15,7 @@ import type { Workspace } from "ee/constants/workspaceConstants";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { GitErrorCodes } from "git/constants/enums";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* gitImportSaga(
   action: PayloadAction<GitImportInitPayload>,
@@ -88,26 +87,15 @@ export default function* gitImportSaga(
       }
     }
   } catch (e) {
-    if (response?.responseMeta?.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
+
+    if (error) {
+      yield put(gitGlobalActions.gitImportError({ error }));
 
       if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
-        yield put(
-          gitGlobalActions.toggleImportModal({
-            open: false,
-          }),
-        );
-        yield put(
-          gitGlobalActions.toggleRepoLimitErrorModal({
-            open: true,
-          }),
-        );
+        yield put(gitGlobalActions.toggleImportModal({ open: false }));
+        yield put(gitGlobalActions.toggleRepoLimitErrorModal({ open: true }));
       }
-
-      yield put(gitGlobalActions.gitImportError({ error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

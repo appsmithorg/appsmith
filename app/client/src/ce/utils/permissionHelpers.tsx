@@ -36,11 +36,11 @@ export enum PERMISSION_TYPE {
   MANAGE_ACTIONS = "manage:actions",
   DELETE_ACTIONS = "delete:actions",
   EXECUTE_ACTIONS = "execute:actions",
-  /* Git permissions */
-  CONNECT_TO_GIT = "connectToGit:applications",
-  MANAGE_PROTECTED_BRANCHES = "manageProtectedBranches:applications",
-  MANAGE_DEFAULT_BRANCH = "manageDefaultBranches:applications",
-  MANAGE_AUTO_COMMIT = "manageAutoCommit:applications",
+  /* Git application permissions */
+  GIT_APPLICATION_CONNECT = "connectToGit:applications",
+  GIT_APPLICATION_MANAGE_PROTECTED_BRANCHES = "manageProtectedBranches:applications",
+  GIT_APPLICATION_MANAGE_DEFAULT_BRANCH = "manageDefaultBranches:applications",
+  GIT_APPLICATION_MANAGE_AUTO_COMMIT = "manageAutoCommit:applications",
 }
 
 export enum LOGIC_FILTER {
@@ -119,22 +119,33 @@ export const hasManageWorkspaceEnvironmentPermission = (
   _permissions?: string[],
 ) => false;
 
-export const hasConnectToGitPermission = (permissions: string[] = []) => {
-  return isPermitted(permissions, PERMISSION_TYPE.CONNECT_TO_GIT);
+export const hasGitAppConnectPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.GIT_APPLICATION_CONNECT);
 };
 
-export const hasManageProtectedBranchesPermission = (
+export const hasGitAppManageProtectedBranchesPermission = (
   permissions: string[] = [],
 ) => {
-  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_PROTECTED_BRANCHES);
+  return isPermitted(
+    permissions,
+    PERMISSION_TYPE.GIT_APPLICATION_MANAGE_PROTECTED_BRANCHES,
+  );
 };
 
-export const hasManageDefaultBranchPermission = (
+export const hasGitAppManageDefaultBranchPermission = (
   permissions: string[] = [],
 ) => {
-  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_DEFAULT_BRANCH);
+  return isPermitted(
+    permissions,
+    PERMISSION_TYPE.GIT_APPLICATION_MANAGE_DEFAULT_BRANCH,
+  );
 };
 
-export const hasManageAutoCommitPermission = (permissions: string[] = []) => {
-  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_AUTO_COMMIT);
+export const hasGitAppManageAutoCommitPermission = (
+  permissions: string[] = [],
+) => {
+  return isPermitted(
+    permissions,
+    PERMISSION_TYPE.GIT_APPLICATION_MANAGE_AUTO_COMMIT,
+  );
 };
