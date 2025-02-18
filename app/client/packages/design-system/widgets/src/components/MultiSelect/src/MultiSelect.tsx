@@ -2,7 +2,14 @@ import clsx from "clsx";
 import React, { useRef, useState } from "react";
 
 import { useField } from "react-aria";
-import { type Selection, ListBoxItem } from "react-aria-components";
+import {
+  DialogTrigger,
+  UNSTABLE_Autocomplete,
+  useFilter,
+  ButtonContext,
+  type Selection,
+} from "react-aria-components";
+
 import { setInteractionModality } from "@react-aria/interactions";
 
 import { Text } from "../../Text";
@@ -20,16 +27,10 @@ import { textInputStyles } from "../../Input";
 import { inputFieldStyles } from "../../Field";
 import type { MultiSelectProps } from "./types";
 import { fieldErrorStyles } from "../../FieldError";
-import { listBoxItemStyles } from "../../ListBoxItem";
 
-import {
-  DialogTrigger,
-  UNSTABLE_Autocomplete,
-  useFilter,
-  ButtonContext,
-} from "react-aria-components";
 import { MultiSelectValue } from "./MultiSelectValue";
 import { Checkbox } from "../../Checkbox";
+import { ListBoxItem } from "../../ListBoxItem";
 
 const EmptyState = () => {
   return (
@@ -153,16 +154,13 @@ export const MultiSelect = <T extends { label: string; value: string }>(
                   shouldFocusWrap
                 >
                   {(item: T) => (
-                    <ListBoxItem
-                      className={listBoxItemStyles.listBoxItem}
-                      id={item.value}
-                      textValue={item.label}
-                    >
+                    <ListBoxItem id={item.value} textValue={item.label}>
                       {({ isSelected }) => (
                         <>
-                          <span className={styles.listBoxItemCheckbox}>
-                            <Checkbox isSelected={isSelected} />
-                          </span>
+                          <Checkbox
+                            className={styles.listBoxItemCheckbox}
+                            isSelected={isSelected}
+                          />
                           {item.label}
                         </>
                       )}

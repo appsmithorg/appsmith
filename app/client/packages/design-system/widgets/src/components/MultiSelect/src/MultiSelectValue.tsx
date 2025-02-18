@@ -144,7 +144,6 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
             {index < visibleItems - 1 ? ",\u00A0" : ""}
           </Text>
         ))}
-        {/* we are resevering space for 7 characters which describes "...+999" text */}
         <Text className={styles.ellipsisText}>
           {visibleItems < totalItems && <>...+{totalItems - visibleItems}</>}
         </Text>

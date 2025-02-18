@@ -14,19 +14,6 @@
   border-radius: 0;
 }
 
-.listBoxItem::before {
-  content: "";
-  height: var(--sizing-5);
-  width: var(--sizing-5);
-  --checkbox-border-width: var(--border-width-2);
-  --checkbox-border-color: var(--color-bd-neutral);
-  --checkbox-bg-color: var(--color-bg-accent);
-  --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
-    var(--checkbox-border-color) inset;
-
-  box-shadow: var(--checkbox-box-shadow);
-}
-
 /* We don't want to default onliting that wds has on input,
  * so we are overriding the default outline here. */
 .textField > div:has(> [data-input]) {
@@ -61,7 +48,7 @@
 }
 
 .ellipsisText {
-  width: 7ch;
+  max-width: 7ch;
 }
 
 .selectedItemLabel {
