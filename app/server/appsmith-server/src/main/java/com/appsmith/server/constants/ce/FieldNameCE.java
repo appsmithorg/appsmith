@@ -197,6 +197,7 @@ public class FieldNameCE {
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
     public static final String INSTANCE_ID = "instanceId";
+    public static final String TENANT_ID = "tenantId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
     public static final String PUBLISHED = "published";
