@@ -859,10 +859,8 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importArtifactWithNullWorkspaceIdTest() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-
         Mono<? extends ArtifactImportDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null);
+                importService.extractArtifactExchangeJsonAndSaveArtifact("", null, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException

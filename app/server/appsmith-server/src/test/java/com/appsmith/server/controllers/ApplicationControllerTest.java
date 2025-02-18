@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -101,7 +102,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(anyString(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(Part.class), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);
