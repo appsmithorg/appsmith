@@ -2,7 +2,7 @@ import entityReducer from "ee/reducers/entityReducers";
 import uiReducer from "ee/reducers/uiReducers";
 import evaluationsReducer from "reducers/evaluationReducers";
 import { reducer as formReducer } from "redux-form";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { EditorReduxState } from "ee/reducers/uiReducers/editorReducer";
 import type { ErrorReduxState } from "reducers/uiReducers/errorReducer";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
@@ -78,7 +78,10 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
-import type { GitArtifactRootReduxState, GitGlobalReduxState } from "git";
+import type {
+  GitArtifactRootReduxState,
+  GitGlobalReduxState,
+} from "git/store/types";
 import { gitReducer } from "git/store";
 
 export const reducerObject = {

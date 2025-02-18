@@ -225,9 +225,6 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
 
   // Logout is a POST request in CE
   let httpMethod = "POST";
-  if (CURRENT_REPO === REPO.EE) {
-    httpMethod = "GET";
-  }
 
   if (CURRENT_REPO === REPO.CE)
     toCheckgetPluginForm &&
@@ -582,11 +579,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
 
-  if (CURRENT_REPO === REPO.CE) {
-    cy.intercept("POST", "/api/v1/logout").as("postLogout");
-  } else if (CURRENT_REPO === REPO.EE) {
-    cy.intercept("GET", "/api/v1/logout").as("postLogout");
-  }
+  cy.intercept("POST", "/api/v1/logout").as("postLogout");
+
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");

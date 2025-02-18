@@ -1,7 +1,8 @@
 import type { GitOpsTab, GitSettingsTab } from "git/constants/enums";
 import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitArtifactDef, GitGlobalReduxState } from "../types";
+import type { GitGlobalReduxState } from "../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import type { GitArtifactDef } from "git/types";
 
 // connect modal
 export interface ToggleConnectModalPayload {

@@ -3,7 +3,7 @@ import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,

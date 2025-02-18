@@ -20,7 +20,7 @@ import {
   Text,
 } from "@appsmith/ads";
 import styled from "styled-components";
-import { GIT_DEMO_GIF } from "./constants";
+import { GIT_DEMO_GIF, GIT_PROVIDERS } from "./constants";
 import noop from "lodash/noop";
 import {
   CHOOSE_A_GIT_PROVIDER_STEP,
@@ -33,7 +33,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import log from "loglevel";
-import type { ConnectFormDataState } from "./types";
+import type { ConnectFormDataState, GitProvider } from "./types";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const WellInnerContainer = styled.div`
@@ -44,10 +44,6 @@ const CheckboxTextContainer = styled.div`
   display: flex;
   justify-content: flex-start;
 `;
-
-const GIT_PROVIDERS = ["github", "gitlab", "bitbucket", "others"] as const;
-
-export type GitProvider = (typeof GIT_PROVIDERS)[number];
 
 interface ChooseGitProviderProps {
   artifactType: string;

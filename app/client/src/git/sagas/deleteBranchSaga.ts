@@ -3,8 +3,6 @@ import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
 import { toast } from "@appsmith/ads";
 import { createMessage, DELETE_BRANCH_SUCCESS } from "ee/constants/messages";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
@@ -13,6 +11,7 @@ import type {
   DeleteRefRequestParams,
   DeleteRefResponse,
 } from "git/requests/deleteRefRequest.types";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
@@ -56,13 +55,10 @@ export default function* deleteBranchSaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(gitArtifactActions.deleteBranchError({ artifactDef, error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

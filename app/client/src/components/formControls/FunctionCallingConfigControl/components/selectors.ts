@@ -104,13 +104,17 @@ const selectSystemFunctionEntityOptions =
       postWindowMessage: createMessage(POST_MESSAGE),
     };
 
-    return objectKeys(systemFunctions).map((name) => {
-      return {
-        value: name,
-        label: labelMap[name],
-        optionGroupType: "SystemFunction",
-      };
-    });
+    return (
+      objectKeys(systemFunctions)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore assignRequest doesn't exist in CE repo but added in EE repo
+        .filter((name) => name !== "assignRequest")
+        .map((name) => ({
+          value: name,
+          label: labelMap[name],
+          optionGroupType: "SystemFunction",
+        }))
+    );
   };
 
 export const selectEntityOptions = createSelector(
