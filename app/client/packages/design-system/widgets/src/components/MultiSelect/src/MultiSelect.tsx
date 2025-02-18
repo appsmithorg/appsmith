@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React, { useRef, useState } from "react";
 
 import { useField } from "react-aria";
-import type { Selection } from "react-aria-components";
+import { type Selection, ListBoxItem } from "react-aria-components";
 import { setInteractionModality } from "@react-aria/interactions";
 
 import { Text } from "../../Text";
@@ -19,8 +19,8 @@ import { FieldLabel } from "../../FieldLabel";
 import { textInputStyles } from "../../Input";
 import { inputFieldStyles } from "../../Field";
 import type { MultiSelectProps } from "./types";
-import { ListBoxItem } from "../../ListBoxItem";
 import { fieldErrorStyles } from "../../FieldError";
+import { listBoxItemStyles } from "../../ListBoxItem";
 
 import {
   DialogTrigger,
@@ -29,6 +29,7 @@ import {
   ButtonContext,
 } from "react-aria-components";
 import { MultiSelectValue } from "./MultiSelectValue";
+import { Checkbox } from "../../Checkbox";
 
 const EmptyState = () => {
   return (
@@ -153,11 +154,15 @@ export const MultiSelect = <T extends { label: string; value: string }>(
                 >
                   {(item: T) => (
                     <ListBoxItem
-                      className={styles.listBoxItem}
+                      className={listBoxItemStyles.listBoxItem}
                       id={item.value}
                       textValue={item.label}
                     >
-                      {item.label}
+                      {({ isSelected }) => (
+                        <>
+                          <Checkbox isSelected={isSelected} /> {item.label}
+                        </>
+                      )}
                     </ListBoxItem>
                   )}
                 </ListBox>
