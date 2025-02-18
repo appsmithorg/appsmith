@@ -24,14 +24,14 @@ export interface CanvasWidgetsStructureReduxState {
   topRow: number;
 }
 
-const initialState: CanvasWidgetsStructureReduxState = {
+export const initialState: CanvasWidgetsStructureReduxState = {
   type: "CANVAS_WIDGET",
   widgetId: MAIN_CONTAINER_WIDGET_ID,
   topRow: 0,
   bottomRow: CANVAS_DEFAULT_MIN_ROWS,
 };
 
-const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsStructureReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
@@ -47,6 +47,11 @@ const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
-});
+};
+
+const canvasWidgetsStructureReducer = createImmerReducer(
+  initialState,
+  handlers,
+);
 
 export default canvasWidgetsStructureReducer;

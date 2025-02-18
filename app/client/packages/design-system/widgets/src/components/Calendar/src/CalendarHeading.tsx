@@ -17,6 +17,8 @@ function CalendarHeading(
   [props, ref] = useContextProps(props, ref, HeadingContext);
   const state = useContext(CalendarStateContext);
 
+  if (!state) return null;
+
   return (
     <div className={styles.monthYearDropdown}>
       <CalendarMonthDropdown state={state} />
