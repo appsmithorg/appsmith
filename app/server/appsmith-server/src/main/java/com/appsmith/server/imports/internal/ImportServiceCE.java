@@ -39,6 +39,10 @@ public interface ImportServiceCE {
      */
     Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart);
 
+    Mono<String> readFilePartToString(Part file);
+
+    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(String jsonString);
+
     /**
      * Hydrates an Artifact within the specified workspace by saving the provided JSON file.
      *
@@ -49,6 +53,17 @@ public interface ImportServiceCE {
      */
     Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
             Part filePart, String workspaceId, String artifactId);
+
+    /**
+     * Hydrates an Artifact within the specified workspace by saving the provided JSON file.
+     *
+     * @param jsonContents The JSON representing the Artifact object to be saved.
+     *                     The Artifact implements the Artifact interface.
+     * @param workspaceId  The identifier for the destination workspace.
+     * @param artifactId
+     */
+    Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
+            String jsonContents, String workspaceId, String artifactId);
 
     /**
      * Saves the provided ArtifactExchangeJson within the specified workspace.

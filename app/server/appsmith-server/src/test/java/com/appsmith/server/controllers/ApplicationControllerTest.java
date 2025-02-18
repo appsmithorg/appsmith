@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -69,7 +70,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(anyString(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -100,7 +101,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(anyString(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);

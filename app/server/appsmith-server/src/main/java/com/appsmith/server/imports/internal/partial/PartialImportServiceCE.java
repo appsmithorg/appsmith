@@ -11,5 +11,8 @@ public interface PartialImportServiceCE {
     Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file);
 
+    Mono<Application> importResourceInPage(
+            String workspaceId, String applicationId, String pageId, String branchName, String fileContents);
+
     Mono<BuildingBlockResponseDTO> importBuildingBlock(BuildingBlockDTO buildingBlockDTO);
 }
