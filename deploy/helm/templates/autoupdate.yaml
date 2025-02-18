@@ -60,6 +60,7 @@ rules:
       - daemonsets
       - deployments
       - statefulsets
+      - cronjobs
     verbs:
       - get
       - list
