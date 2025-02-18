@@ -2,7 +2,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 export const autocompleteConfig = {
   "!doc":
-    "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+    "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect can capture multiple choices",
   "!url": "https://docs.appsmith.com/widget-reference/dropdown",
   isVisible: DefaultAutocompleteDefinitions.isVisible,
   selectedOptionValues: {
