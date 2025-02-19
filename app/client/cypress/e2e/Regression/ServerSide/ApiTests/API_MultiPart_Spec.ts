@@ -111,7 +111,7 @@ describe(
       apiPage.EnterBodyFormData(
         "MULTIPART_FORM_DATA",
         "file",
-        "{{FilePicker1.files[0]}}",
+        "{{FilePicker1.files[0].data}}",
         "File",
       );
 
