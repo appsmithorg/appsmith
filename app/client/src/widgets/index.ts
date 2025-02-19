@@ -90,6 +90,7 @@ import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
 import { WDSCustomWidget } from "modules/ui-builder/ui/wds/WDSCustomWidget";
 import { EEWDSWidgets } from "ee/modules/ui-builder/ui/wds";
 import { WDSDatePickerWidget } from "modules/ui-builder/ui/wds/WDSDatePickerWidget";
+import { EEWidgets } from "ee/widgets";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -196,6 +197,7 @@ const Widgets = [
   ...DeprecatedWidgets,
   ...LegacyWidgets,
   ...EEWDSWidgets,
+  ...EEWidgets,
 ] as (typeof BaseWidget)[];
 
 export default Widgets;
