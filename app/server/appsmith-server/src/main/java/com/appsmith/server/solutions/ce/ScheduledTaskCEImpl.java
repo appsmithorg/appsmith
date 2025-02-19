@@ -31,8 +31,10 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
         log.info("Fetching features for default organization");
         Flux<Organization> organizationFlux = organizationService.retrieveAll();
         organizationFlux
-                .flatMap(featureFlagService::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
-            .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
                 .doOnError(error -> log.error("Error while fetching tenant feature flags", error))
                 .then(organizationService.restartOrganization())
                 .subscribeOn(LoadShifter.elasticScheduler)

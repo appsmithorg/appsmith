@@ -122,7 +122,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * @return Mono updated tenant
      */
     @Override
-    public Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(Organization organization) {
+    public Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(
+            Organization organization) {
         // 1. Fetch current/saved feature flags from cache
         // 2. Force update the org flags keeping existing flags as fallback in case the API
         //    call to fetch the flags fails for some reason
@@ -132,14 +133,14 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .getUpdatedFlagsWithPendingMigration(organization)
                 .flatMap(featureFlagWithPendingMigrations -> {
                     OrganizationConfiguration organizationConfiguration =
-                        organization.getOrganizationConfiguration() == null
-                            ? new OrganizationConfiguration()
-                            : organization.getOrganizationConfiguration();
+                            organization.getOrganizationConfiguration() == null
+                                    ? new OrganizationConfiguration()
+                                    : organization.getOrganizationConfiguration();
                     // We expect the featureFlagWithPendingMigrations to be empty hence
                     // verifying only for null
                     if (featureFlagWithPendingMigrations != null
                             && !featureFlagWithPendingMigrations.equals(
-                        organizationConfiguration.getFeaturesWithPendingMigration())) {
+                                    organizationConfiguration.getFeaturesWithPendingMigration())) {
                         organizationConfiguration.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
                         if (!featureFlagWithPendingMigrations.isEmpty()) {
                             organizationConfiguration.setMigrationStatus(MigrationStatus.PENDING);
@@ -159,9 +160,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
         // TODO change this to use the tenant from the user session for multi-tenancy
-        return sessionUserService.getCurrentUser()
-            .map(User::getOrganizationId)
-            .flatMap(this::getOrganizationFeatures);
+        return sessionUserService.getCurrentUser().map(User::getOrganizationId).flatMap(this::getOrganizationFeatures);
     }
 
     @Override
@@ -184,5 +183,4 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization) {
         return organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
     }
-
 }

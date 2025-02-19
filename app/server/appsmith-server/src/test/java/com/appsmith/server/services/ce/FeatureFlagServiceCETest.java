@@ -207,7 +207,9 @@ public class FeatureFlagServiceCETest {
 
         organizationService
                 .retrieveAll()
-                .flatMap(featureFlagService::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
@@ -228,7 +230,9 @@ public class FeatureFlagServiceCETest {
 
         organizationService
                 .retrieveAll()
-                .flatMap(featureFlagService::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
@@ -249,14 +253,16 @@ public class FeatureFlagServiceCETest {
 
         organizationService
                 .retrieveAll()
-                .flatMap(featureFlagService::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
-                        .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
+                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
                     assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
-                        .isEqualTo(PENDING);
+                            .isEqualTo(PENDING);
                 })
                 .verifyComplete();
     }

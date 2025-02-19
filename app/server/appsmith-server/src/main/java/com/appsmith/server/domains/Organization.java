@@ -40,6 +40,6 @@ public class Organization extends BaseDomain implements Serializable {
 
     public static class Fields {
         public static final String organizationConfiguration_isRestartRequired =
-            dotted(organizationConfiguration, OrganizationConfiguration.Fields.isRestartRequired);
+                dotted(organizationConfiguration, OrganizationConfiguration.Fields.isRestartRequired);
     }
 }

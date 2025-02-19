@@ -29,7 +29,8 @@ public interface FeatureFlagServiceCE {
      * To get all features of the organization from Cloud Services and store them locally
      * @return Mono of Void
      */
-    Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(Organization organization);
+    Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(
+            Organization organization);
 
     /**
      * To get all features of the current organization.
@@ -40,7 +41,6 @@ public interface FeatureFlagServiceCE {
     Mono<Map<String, Boolean>> getOrganizationFeatures(String orgId);
 
     Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization);
-
 
     CachedFeatures getCachedOrganizationFeatureFlags();
 }

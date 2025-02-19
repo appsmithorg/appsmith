@@ -333,15 +333,16 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         // TODO remove this method once we move the form login env to DB variable which is currently required as a part
         //  of downgrade migration for SSO
         return this.retrieveAll()
-            .filter(organization -> TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
-            .take(1)
-            .hasElements()
-            .flatMap(hasElement -> {
-                if (hasElement) {
-                    return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
-                }
-                return Mono.empty();
-            });
+                .filter(organization ->
+                        TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
+                .take(1)
+                .hasElements()
+                .flatMap(hasElement -> {
+                    if (hasElement) {
+                        return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
+                    }
+                    return Mono.empty();
+                });
     }
 
     private boolean isMigrationRequired(Organization organization) {
