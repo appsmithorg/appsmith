@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
-import { renderEmptyRows } from "../cellComponents/EmptyCell";
+import { RenderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
@@ -105,53 +105,9 @@ export const EmptyRows = (props: {
   style?: CSSProperties;
   rowCount: number;
 }) => {
-  const {
-    accentColor,
-    borderRadius,
-    columns,
-    multiRowSelection,
-    prepareRow,
-    rows,
-    width,
-  } = useContext(BodyContext);
-
-  return (
-    <>
-      {renderEmptyRows(
-        props.rowCount,
-        columns,
-        width,
-        rows,
-        multiRowSelection,
-        accentColor,
-        borderRadius,
-        props.style,
-        prepareRow,
-      )}
-    </>
-  );
+  return <>{RenderEmptyRows(props.rowCount, props.style)}</>;
 };
 
 export const EmptyRow = (props: { style?: CSSProperties }) => {
-  const {
-    accentColor,
-    borderRadius,
-    columns,
-    multiRowSelection,
-    prepareRow,
-    rows,
-    width,
-  } = useContext(BodyContext);
-
-  return renderEmptyRows(
-    1,
-    columns,
-    width,
-    rows,
-    multiRowSelection,
-    accentColor,
-    borderRadius,
-    props.style,
-    prepareRow,
-  )?.[0];
+  return RenderEmptyRows(1, props.style)?.[0];
 };
