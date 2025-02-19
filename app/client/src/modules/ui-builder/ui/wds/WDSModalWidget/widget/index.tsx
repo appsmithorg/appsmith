@@ -9,7 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@appsmith/wds";
 import { WDS_MODAL_WIDGET_CLASSNAME } from "modules/ui-builder/ui/wds/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,

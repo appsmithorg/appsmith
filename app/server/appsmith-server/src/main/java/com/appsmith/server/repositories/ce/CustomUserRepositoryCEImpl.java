@@ -26,9 +26,9 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
+    public Mono<User> findByEmailAndOrganizationId(String email, String organizationId) {
         return queryBuilder()
-                .criteria(Bridge.equal(User.Fields.email, email).equal(User.Fields.tenantId, tenantId))
+                .criteria(Bridge.equal(User.Fields.email, email).equal(User.Fields.organizationId, organizationId))
                 .one();
     }
 

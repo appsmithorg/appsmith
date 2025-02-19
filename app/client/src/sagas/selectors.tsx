@@ -4,7 +4,7 @@ import memoize from "proxy-memoize";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";

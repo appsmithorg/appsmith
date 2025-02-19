@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { getRenderMode } from "selectors/editorSelectors";
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import isObject from "lodash/isObject";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";

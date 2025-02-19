@@ -27,7 +27,7 @@ import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
-import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
+import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`

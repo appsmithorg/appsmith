@@ -49,7 +49,7 @@ import {
 } from "@appsmith/wds-theming";
 import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { getHideWatermark } from "ee/selectors/tenantSelectors";
+import { getHideWatermark } from "ee/selectors/organizationSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const AppViewerBody = styled.section<{

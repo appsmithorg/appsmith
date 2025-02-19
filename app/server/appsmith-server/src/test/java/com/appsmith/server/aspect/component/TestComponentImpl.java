@@ -19,19 +19,19 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
         return Mono.just("ee_impl_method");
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     @Override
     public Mono<String> ceEeDiffMethod() {
         return Mono.just("ee_impl_method");
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     @Override
     public Mono<String> eeCeCompatibleDiffMethod() {
         return Mono.just("ee_impl_method");
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     @Override
     public Flux<String> ceEeDiffMethodReturnsFlux() {
         List<String> result = List.of("ee", "impl", "method");
@@ -39,19 +39,19 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     public String ceEeSyncMethod(String arg) {
         return arg + "ee_impl_method";
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     public void ceEeThrowAppsmithException(String arg) {
         throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "This is a test exception");
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     public void ceEeThrowNonAppsmithException(String arg) {
         throw new RuntimeException("This is a test exception");
     }

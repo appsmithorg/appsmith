@@ -37,3 +37,10 @@ export const connectErrorAction = createArtifactAction<GitAsyncErrorPayload>(
     return state;
   },
 );
+
+export const resetConnectAction = createArtifactAction((state) => {
+  state.apiResponses.connect.loading = false;
+  state.apiResponses.connect.error = null;
+
+  return state;
+});
