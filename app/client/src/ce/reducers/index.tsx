@@ -2,7 +2,7 @@ import entityReducer from "ee/reducers/entityReducers";
 import uiReducer from "ee/reducers/uiReducers";
 import evaluationsReducer from "reducers/evaluationReducers";
 import { reducer as formReducer } from "redux-form";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { EditorReduxState } from "ee/reducers/uiReducers/editorReducer";
 import type { ErrorReduxState } from "reducers/uiReducers/errorReducer";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
@@ -54,8 +54,8 @@ import SettingsReducer from "ee/reducers/settingsReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
-import type { TenantReduxState } from "ee/reducers/tenantReducer";
-import tenantReducer from "ee/reducers/tenantReducer";
+import type { OrganizationReduxState } from "ee/reducers/organizationReducer";
+import organizationReducer from "ee/reducers/organizationReducer";
 import type { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import type { EditorContextState } from "ee/reducers/uiReducers/editorContextReducer";
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
@@ -78,6 +78,11 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
+import type {
+  GitArtifactRootReduxState,
+  GitGlobalReduxState,
+} from "git/store/types";
+import { gitReducer } from "git/store";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -85,8 +90,9 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
-  tenant: tenantReducer,
+  organization: organizationReducer,
   linting: lintErrorReducer,
+  git: gitReducer,
 };
 
 export interface AppState {
@@ -177,5 +183,9 @@ export interface AppState {
   settings: SettingsReduxState;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tenant: TenantReduxState<any>;
+  organization: OrganizationReduxState<any>;
+  git: {
+    global: GitGlobalReduxState;
+    artifacts: GitArtifactRootReduxState;
+  };
 }

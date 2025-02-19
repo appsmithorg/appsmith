@@ -1,5 +1,6 @@
-import type { EditorViewMode } from "ee/entities/IDE/constants";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 
 export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   return {
@@ -13,6 +14,13 @@ export const setIdeEditorViewMode = (mode: EditorViewMode) => {
 export const restoreIDEEditorViewMode = () => {
   return {
     type: ReduxActionTypes.RESTORE_IDE_EDITOR_VIEW_MODE,
+  };
+};
+
+export const setIDETabs = (payload: ParentEntityIDETabs) => {
+  return {
+    type: ReduxActionTypes.SET_IDE_TABS,
+    payload,
   };
 };
 

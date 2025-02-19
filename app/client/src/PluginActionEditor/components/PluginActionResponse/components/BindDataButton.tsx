@@ -25,7 +25,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getWidgets } from "sagas/selectors";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -164,10 +164,7 @@ function getWidgetProps(
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
-          dynamicPropertyPathList:
-            suggestedWidget.bindingQuery === "data"
-              ? []
-              : [{ key: "tableData" }],
+          dynamicPropertyPathList: [{ key: "tableData" }],
         },
         parentRowSpace: 10,
       };

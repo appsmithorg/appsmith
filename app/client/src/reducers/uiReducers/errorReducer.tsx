@@ -1,8 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
-  ReduxAction,
-  ReduxActionErrorPayload,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import _ from "lodash";
@@ -12,6 +9,13 @@ const initialState: ErrorReduxState = {
   safeCrashCode: undefined,
   currentError: { sourceAction: "", message: "", stackTrace: "" },
 };
+
+interface ReduxActionErrorPayload {
+  message: string;
+  source?: string;
+  code?: ERROR_CODES;
+  stackTrace?: string;
+}
 
 const errorReducer = createReducer(initialState, {
   [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (
@@ -38,11 +42,12 @@ const errorReducer = createReducer(initialState, {
   [ReduxActionTypes.FLUSH_ERRORS]: () => {
     return initialState;
   },
-  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+  [ReduxActionTypes.FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS]: (
     state: ErrorReduxState,
   ) => {
     if (
-      state?.currentError?.sourceAction === "FETCH_CURRENT_TENANT_CONFIG_ERROR"
+      state?.currentError?.sourceAction ===
+      "FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR"
     ) {
       return {
         ...state,
@@ -52,8 +57,12 @@ const errorReducer = createReducer(initialState, {
 
     return state;
   },
-  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (state: ErrorReduxState) => {
-    if (state?.currentError?.sourceAction === "UPDATE_TENANT_CONFIG_ERROR") {
+  [ReduxActionTypes.UPDATE_ORGANIZATION_CONFIG_SUCCESS]: (
+    state: ErrorReduxState,
+  ) => {
+    if (
+      state?.currentError?.sourceAction === "UPDATE_ORGANIZATION_CONFIG_ERROR"
+    ) {
       return {
         ...state,
         ...initialState,

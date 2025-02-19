@@ -1,9 +1,7 @@
-import {
-  ReduxActionErrorTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";

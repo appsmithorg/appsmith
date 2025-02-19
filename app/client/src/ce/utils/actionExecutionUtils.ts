@@ -6,9 +6,10 @@ import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { get, isNil } from "lodash";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { objectKeys } from "@appsmith/utils";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
@@ -20,7 +21,7 @@ export const getActionProperties = (
 ) => {
   const actionProperties: Record<string, unknown> = {};
 
-  Object.keys(keyConfig).forEach((key) => {
+  objectKeys(keyConfig).forEach((key) => {
     const value = get(action, key);
 
     if (!isNil(value)) {
@@ -69,7 +70,7 @@ export function getActionExecutionAnalytics(
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
     actionId: action?.id,
-    inputParams: Object.keys(params).length,
+    inputParams: objectKeys(params).length,
     source: ActionExecutionContext.EVALUATION_ACTION_TRIGGER, // Used in analytic events to understand who triggered action execution
   };
 
@@ -98,17 +99,24 @@ export function isBrowserExecutionAllowed(..._args: any[]) {
   return true;
 }
 
-// Function to extract the test payload from the collection data
+/**
+ * Function to extract the test payload from the collection data
+ * @param [collectionData] from the js Object
+ * @param [defaultValue=""] to be returned if no information is found,
+ * returns an empty string by default
+ * @returns stored value from the collectionData
+ * */
 export const getTestPayloadFromCollectionData = (
   collectionData: JSCollectionData | undefined,
+  defaultValue = "",
 ): string => {
-  if (!collectionData) return "";
+  if (!collectionData) return defaultValue;
 
   const activeJSActionId = collectionData?.activeJSActionId;
   const testPayload: Record<string, unknown> | undefined = collectionData?.data
     ?.testPayload as Record<string, unknown>;
 
-  if (!activeJSActionId || !testPayload) return "";
+  if (!activeJSActionId || !testPayload) return defaultValue;
 
-  return (testPayload[activeJSActionId] as string) || "";
+  return testPayload[activeJSActionId] as string;
 };

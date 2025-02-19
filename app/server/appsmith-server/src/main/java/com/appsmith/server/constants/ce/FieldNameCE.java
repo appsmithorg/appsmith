@@ -4,9 +4,6 @@ public class FieldNameCE {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
 
-    @Deprecated
-    public static final String ORGANIZATION_ID = "organizationId";
-
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String DATASOURCE_ID = "datasourceId";
     public static final String DELETED = "deleted";
@@ -74,6 +71,7 @@ public class FieldNameCE {
     public static final String ACTIONS = "actions";
     public static final String ASSET = "asset";
     public static final String APPLICATION = "application";
+    public static final String ARTIFACT = "artifact";
     public static final String SOURCE_APPLICATION = "sourceApplication";
     public static final String COMMENT = "comment";
     public static final String COMMENT_THREAD = "commentThread";
@@ -185,7 +183,7 @@ public class FieldNameCE {
     public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
-    public static final String TENANT = "tenant";
+    public static final String ORGANIZATION = "organization";
 
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
 
@@ -199,6 +197,7 @@ public class FieldNameCE {
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
     public static final String INSTANCE_ID = "instanceId";
+    public static final String TENANT_ID = "tenantId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
     public static final String PUBLISHED = "published";
@@ -206,4 +205,6 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
+    public static final String ORGANIZATION_ID = "organizationId";
+    public static final String NONE = "none";
 }

@@ -4,6 +4,7 @@ export class PeekOverlay {
   private readonly locators = {
     _overlayContainer: "#t--peek-overlay-container",
     _dataContainer: "#t--peek-overlay-data",
+    _dataTypeContainer: '[data-testid="t--peek-overlay-data-type"]',
 
     // react json viewer selectors
     _rjv_variableValue: ".variable-value",
@@ -108,8 +109,7 @@ export class PeekOverlay {
 
   VerifyDataType(type: string) {
     this.agHelper
-      .GetElement(this.locators._overlayContainer)
-      .children("div")
+      .GetElement(this.locators._dataTypeContainer)
       .eq(0)
       .should("have.text", type);
   }

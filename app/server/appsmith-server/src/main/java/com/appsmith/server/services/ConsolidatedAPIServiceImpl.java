@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -22,7 +23,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
             SessionUserService sessionUserService,
             UserService userService,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ProductAlertService productAlertService,
             NewPageService newPageService,
             NewActionService newActionService,
@@ -35,12 +36,13 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
             DatasourceService datasourceService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            ObservationHelper observationHelper) {
         super(
                 sessionUserService,
                 userService,
                 userDataService,
-                tenantService,
+                organizationService,
                 productAlertService,
                 newPageService,
                 newActionService,
@@ -53,6 +55,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
                 datasourceService,
                 mockDataService,
                 observationRegistry,
-                cacheableRepositoryHelper);
+                cacheableRepositoryHelper,
+                observationHelper);
     }
 }

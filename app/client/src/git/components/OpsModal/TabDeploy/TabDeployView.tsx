@@ -12,6 +12,7 @@ import {
   COMMITTING_AND_PUSHING_CHANGES,
   createMessage,
   DISCARD_CHANGES,
+  DISCARD_SUCCESS,
   DISCARDING_AND_PULLING_CHANGES,
   GIT_NO_UPDATED_TOOLTIP,
   PULL_CHANGES,
@@ -75,7 +76,7 @@ interface TabDeployViewProps {
   commit: (commitMessage: string) => void;
   commitError: GitApiError | null;
   currentBranch: string | null;
-  discard: () => void;
+  discard: (successMessage: string) => void;
   discardError: GitApiError | null;
   isCommitLoading: boolean;
   isDiscardLoading: boolean;
@@ -108,6 +109,7 @@ function TabDeployView({
   statusBehindCount = 0,
   statusIsClean = false,
 }: TabDeployViewProps) {
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const hasChangesToCommit = !statusIsClean;
   const commitInputRef = useRef<HTMLInputElement>(null);
   const [commitMessage, setCommitMessage] = useState(
@@ -157,6 +159,10 @@ function TabDeployView({
     ((pullRequired && !isConflicting) ||
       (statusBehindCount > 0 && statusIsClean));
 
+  const isCommitSuccess = useMemo(() => {
+    return hasSubmitted && !isCommitLoading;
+  }, [isCommitLoading, hasSubmitted]);
+
   useEffect(
     function focusCommitInputEffect() {
       if (!commitInputDisabled && commitInputRef.current) {
@@ -200,6 +206,7 @@ function TabDeployView({
     });
 
     if (currentBranch) {
+      setHasSubmitted(true);
       commit(commitMessage.trim());
     }
   }, [commit, commitMessage, currentBranch]);
@@ -233,7 +240,7 @@ function TabDeployView({
     AnalyticsUtil.logEvent("GIT_DISCARD", {
       source: "GIT_DISCARD_BUTTON_PRESS_2",
     });
-    discard();
+    discard(createMessage(DISCARD_SUCCESS));
     setShowDiscardWarning(false);
     setShouldDiscard(true);
     setIsDiscarding(true);
@@ -301,7 +308,7 @@ function TabDeployView({
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
               <Input
                 autoFocus
-                className="t--commit-comment-input"
+                data-testid="t--git-ops-commit-input"
                 isDisabled={commitInputDisabled}
                 label={inputLabel}
                 onChange={setCommitMessage}
@@ -353,13 +360,15 @@ function TabDeployView({
             />
           )}
 
-          {!pullRequired && !isConflicting && <DeployPreview />}
+          {!pullRequired && !isConflicting && (
+            <DeployPreview isCommitSuccess={isCommitSuccess} />
+          )}
         </div>
       </ModalBody>
       <StyledModalFooter key="footer">
         {showPullButton && (
           <Button
-            className="t--pull-button"
+            data-testid="t--git-ops-pull-btn"
             isLoading={isPullLoading}
             onClick={triggerPull}
             size="md"
@@ -370,7 +379,8 @@ function TabDeployView({
 
         {showDiscardChangesButton && (
           <Button
-            className="t--discard-button discard-changes-link"
+            className="discard-changes-link"
+            data-testid="t--git-ops-discard-btn"
             isDisabled={!showDiscardChangesButton}
             isLoading={isPullLoading || isFetchStatusLoading || isCommitLoading}
             kind="error"
@@ -389,7 +399,7 @@ function TabDeployView({
             placement="top"
           >
             <Button
-              className="t--commit-button"
+              data-testid="t--git-ops-commit-btn"
               isDisabled={commitButtonDisabled}
               isLoading={commitButtonLoading}
               onClick={triggerCommit}

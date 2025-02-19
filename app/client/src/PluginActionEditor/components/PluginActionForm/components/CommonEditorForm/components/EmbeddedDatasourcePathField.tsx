@@ -34,7 +34,7 @@ import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
@@ -93,11 +93,14 @@ const DatasourceContainer = styled.div`
   align-items: center;
   height: 36px;
   gap: var(--ads-v2-spaces-4);
+
   .t--datasource-editor {
     background-color: var(--ads-v2-color-bg);
+
     .cm-s-duotone-light.CodeMirror {
       background: var(--ads-v2-color-bg);
     }
+
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }
@@ -155,7 +158,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
   position: absolute;
   z-index: 100000;
   max-width: 300px;
-  bottom: 125%;
+  top: 125%;
   left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
   margin-left: -60px;
 
@@ -165,14 +168,14 @@ const StyledTooltip = styled.span<{ width?: number }>`
   &::after {
     content: "";
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     height: 10px;
     width: 10px;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: var(--ads-v2-color-bg-emphasis-max) transparent transparent
+    border-color: transparent transparent var(--ads-v2-color-bg-emphasis-max)
       transparent;
   }
 

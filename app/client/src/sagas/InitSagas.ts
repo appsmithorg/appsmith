@@ -1,4 +1,4 @@
-import { get, identity, pickBy } from "lodash";
+import get from "lodash/get";
 import {
   all,
   call,
@@ -15,7 +15,7 @@ import {
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "ee/constants/ReduxActionConstants";
+} from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "ee/actions/applicationActions";
@@ -66,7 +66,7 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
 
-import { getCurrentTenant } from "ee/actions/tenantActions";
+import { getCurrentOrganization } from "ee/actions/organizationActions";
 import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
@@ -80,14 +80,15 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { ConsolidatedPageLoadApi } from "api";
 import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {
   endSpan,
   startNestedSpan,
   startRootSpan,
-} from "UITelemetry/generateTraces";
+} from "instrumentation/generateTraces";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
 import type { PACKAGE_PULL_STATUS } from "ee/constants/ModuleConstants";
@@ -102,9 +103,10 @@ export interface ReduxURLChangeAction {
   type: typeof URL_CHANGE_ACTIONS;
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
+
 export interface DeployConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
+  organizationConfig: ApiResponse;
   featureFlags: ApiResponse<FeatureFlags>;
   userProfile: ApiResponse;
   pages: FetchApplicationResponse;
@@ -115,9 +117,10 @@ export interface DeployConsolidatedApi {
   currentTheme: ApiResponse<AppTheme[]>;
   themes: ApiResponse<AppTheme>;
 }
+
 export interface EditConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
+  organizationConfig: ApiResponse;
   featureFlags: ApiResponse<FeatureFlags>;
   userProfile: ApiResponse;
   pages: FetchApplicationResponse;
@@ -136,7 +139,9 @@ export interface EditConsolidatedApi {
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
   packagePullStatus: ApiResponse<PACKAGE_PULL_STATUS>;
 }
+
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
+
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
@@ -216,6 +221,7 @@ function* executeActionDuringUserDetailsInitialisation(
 export function* getInitResponses({
   applicationId,
   basePageId,
+  branch,
   mode,
   shouldInitialiseUserDetails,
 }: {
@@ -223,16 +229,13 @@ export function* getInitResponses({
   basePageId?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): any {
-  const params = pickBy(
-    {
-      applicationId,
-      defaultPageId: basePageId,
-    },
-    identity,
-  );
+  branch?: string;
+}) {
+  const params = {
+    applicationId,
+    defaultPageId: basePageId,
+    branchName: branch,
+  };
   let response: InitConsolidatedApi | undefined;
 
   try {
@@ -282,8 +285,13 @@ export function* getInitResponses({
     throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
 
-  const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
-    response || {};
+  const {
+    featureFlags,
+    organizationConfig,
+    productAlert,
+    userProfile,
+    ...rest
+  } = response || {};
   //actions originating from INITIALIZE_CURRENT_PAGE should update user details
   //other actions are not necessary
 
@@ -295,7 +303,7 @@ export function* getInitResponses({
 
   yield put(fetchFeatureFlagsInit(featureFlags));
 
-  yield put(getCurrentTenant(false, tenantConfig));
+  yield put(getCurrentOrganization(false, organizationConfig));
 
   yield put(fetchProductAlertInit(productAlert));
   yield call(

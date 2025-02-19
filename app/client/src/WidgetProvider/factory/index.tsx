@@ -35,18 +35,23 @@ import {
 import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
-import produce from "immer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { create } from "mutative";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
+import type { DerivedPropertiesMap } from "./types";
+
+// exporting it as well so that existing imports are not affected
+// TODO: remove this once all imports are updated
+export type { DerivedPropertiesMap };
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WidgetDerivedPropertyType = any;
-export type DerivedPropertiesMap = Record<string, string>;
+
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
 
 class WidgetFactory {
@@ -413,7 +418,7 @@ class WidgetFactory {
 
             if (dynamicProperties && dynamicProperties.length) {
               addPropertyConfigIds(dynamicProperties, false);
-              section = produce(section, (draft) => {
+              section = create(section, (draft) => {
                 draft.children = [...dynamicProperties, ...section.children];
               });
             }

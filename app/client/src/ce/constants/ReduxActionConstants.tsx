@@ -1,6 +1,3 @@
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -392,8 +389,6 @@ const OnboardingActionTypes = {
   UNDO_END_FIRST_TIME_USER_ONBOARDING: "UNDO_END_FIRST_TIME_USER_ONBOARDING",
   SET_SIGNPOSTING_OVERLAY: "SET_SIGNPOSTING_OVERLAY",
   SIGNPOSTING_MARK_ALL_READ: "SIGNPOSTING_MARK_ALL_READ",
-  SIGNPOSTING_STEP_UPDATE_INIT: "SIGNPOSTING_STEP_UPDATE_INIT",
-  SIGNPOSTING_STEP_UPDATE: "SIGNPOSTING_STEP_UPDATE",
   SIGNPOSTING_SHOW_TOOLTIP: "SIGNPOSTING_SHOW_TOOLTIP",
   SHOW_ANONYMOUS_DATA_POPUP: "SHOW_ANONYMOUS_DATA_POPUP",
   FIRST_TIME_USER_ONBOARDING_INIT: "FIRST_TIME_USER_ONBOARDING_INIT",
@@ -462,6 +457,7 @@ const IDEActionTypes = {
   SETUP_PUBLISHED_PAGE_SUCCESS: "SETUP_PUBLISHED_PAGE_SUCCESS",
   SET_IDE_EDITOR_VIEW_MODE: "SET_IDE_EDITOR_VIEW_MODE",
   RESTORE_IDE_EDITOR_VIEW_MODE: "RESTORE_IDE_EDITOR_VIEW_MODE",
+  SET_IDE_TABS: "SET_IDE_TABS",
   SET_IDE_JS_TABS: "SET_IDE_JS_TABS",
   SET_IDE_QUERIES_TABS: "SET_IDE_QUERIES_TABS",
   SET_SHOW_QUERY_CREATE_NEW_MODAL: "SET_SHOW_QUERY_CREATE_NEW_MODAL",
@@ -697,6 +693,8 @@ const IDEDebuggerActionTypes = {
   SET_JS_PANE_DEBUGGER_STATE: "SET_JS_PANE_DEBUGGER_STATE",
   SET_CANVAS_DEBUGGER_STATE: "SET_CANVAS_DEBUGGER_STATE",
   SHOW_DEBUGGER_LOGS: "SHOW_DEBUGGER_LOGS",
+  SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM:
+    "SET_DEBUGGER_STATE_INSPECTOR_SELECTED_ITEM",
 };
 
 const ThemeActionTypes = {
@@ -753,6 +751,10 @@ const UQIFormActionTypes = {
   FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
   SET_TRIGGER_VALUES_LOADING: "SET_TRIGGER_VALUES_LOADING",
   FORM_EVALUATION_EMPTY_BUFFER: "FORM_EVALUATION_EMPTY_BUFFER",
+  FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT:
+    "FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT",
+  FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_SUCCESS:
+    "FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_SUCCESS",
 };
 
 const ActionActionTypes = {
@@ -770,7 +772,6 @@ const ActionActionTypes = {
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
-  SET_EXTRA_FORMDATA: "SET_EXTRA_FORMDATA",
   MOVE_ACTION_INIT: "MOVE_ACTION_INIT",
   MOVE_ACTION_SUCCESS: "MOVE_ACTION_SUCCESS",
   COPY_ACTION_INIT: "COPY_ACTION_INIT",
@@ -788,7 +789,6 @@ const ActionActionTypes = {
   TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS:
     "TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS",
   TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT: "TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT",
-  UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
 const ActionActionErrorTypes = {
@@ -860,6 +860,8 @@ const DatasourceEditorActionTypes = {
   CREATE_DATASOURCE_INIT: "CREATE_DATASOURCE_INIT",
   CREATE_DATASOURCE_SUCCESS: "CREATE_DATASOURCE_SUCCESS",
   CREATE_DATASOURCE_FROM_FORM_INIT: "CREATE_DATASOURCE_FROM_FORM_INIT",
+  CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING:
+    "CREATE_DATASOURCE_FROM_FORM_TOGGLE_LOADING",
   CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS:
     "CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS",
   UPDATE_DATASOURCE_INIT: "UPDATE_DATASOURCE_INIT",
@@ -1191,25 +1193,25 @@ const AppThemeActionErrorTypes = {
 };
 
 const AppSettingsActionTypes = {
-  OPEN_APP_SETTINGS_PANE: "OPEN_APP_SETTINGS_PANE",
-  CLOSE_APP_SETTINGS_PANE: "CLOSE_APP_SETTINGS_PANE",
   UPDATE_APP_SETTINGS_PANE_SELECTED_TAB:
     "UPDATE_APP_SETTINGS_PANE_SELECTED_TAB",
 };
 
-const TenantActionTypes = {
-  FETCH_CURRENT_TENANT_CONFIG: "FETCH_CURRENT_TENANT_CONFIG",
-  FETCH_CURRENT_TENANT_CONFIG_SUCCESS: "FETCH_CURRENT_TENANT_CONFIG_SUCCESS",
-  UPDATE_TENANT_CONFIG: "UPDATE_TENANT_CONFIG",
-  UPDATE_TENANT_CONFIG_SUCCESS: "UPDATE_TENANT_CONFIG_SUCCESS",
+const OrganizationActionTypes = {
+  FETCH_CURRENT_ORGANIZATION_CONFIG: "FETCH_CURRENT_ORGANIZATION_CONFIG",
+  FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS:
+    "FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS",
+  UPDATE_ORGANIZATION_CONFIG: "UPDATE_ORGANIZATION_CONFIG",
+  UPDATE_ORGANIZATION_CONFIG_SUCCESS: "UPDATE_ORGANIZATION_CONFIG_SUCCESS",
   FETCH_PRODUCT_ALERT_INIT: "FETCH_PRODUCT_ALERT_INIT",
   FETCH_PRODUCT_ALERT_SUCCESS: "FETCH_PRODUCT_ALERT_SUCCESS",
   UPDATE_PRODUCT_ALERT_CONFIG: "UPDATE_PRODUCT_ALERT_CONFIG",
 };
 
-const TenantActionErrorTypes = {
-  FETCH_CURRENT_TENANT_CONFIG_ERROR: "FETCH_CURRENT_TENANT_CONFIG_ERROR",
-  UPDATE_TENANT_CONFIG_ERROR: "UPDATE_TENANT_CONFIG_ERROR",
+const OrganizationActionErrorTypes = {
+  FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR:
+    "FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR",
+  UPDATE_ORGANIZATION_CONFIG_ERROR: "UPDATE_ORGANIZATION_CONFIG_ERROR",
   FETCH_PRODUCT_ALERT_FAILED: "FETCH_PRODUCT_ALERT_FAILED",
 };
 
@@ -1290,7 +1292,7 @@ export const ReduxActionTypes = {
   ...SnippingModeActionTypes,
   ...TableWidgetActionsTypes,
   ...TemplateActionsTypes,
-  ...TenantActionTypes,
+  ...OrganizationActionTypes,
   ...ThemeActionTypes,
   ...UserAuthActionTypes,
   ...UserProfileActionTypes,
@@ -1298,9 +1300,6 @@ export const ReduxActionTypes = {
   ...WidgetOperationsActionTypes,
   ...WorkspaceActionTypes,
 } as const;
-
-export type ReduxActionType =
-  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
   ...ActionActionErrorTypes,
@@ -1323,7 +1322,7 @@ export const ReduxActionErrorTypes = {
   ...PlatformActionErrorTypes,
   ...PluginActionErrorTypes,
   ...TemplateActionErrorTypes,
-  ...TenantActionErrorTypes,
+  ...OrganizationActionErrorTypes,
   ...UserAuthActionErrorTypes,
   ...UserProfileActionErrorTypes,
   ...WidgetCanvasActionErrorTypes,
@@ -1339,7 +1338,7 @@ export const toastMessageErrorTypes = {
   ...GitActionErrorTypes,
   ...ImportExportActionErrorTypes,
   ...PlatformActionErrorTypes,
-  ...TenantActionErrorTypes,
+  ...OrganizationActionErrorTypes,
   ...UserAuthActionErrorTypes,
   ...UserProfileActionErrorTypes,
   ...WorkspaceActionErrorTypes,
@@ -1347,11 +1346,6 @@ export const toastMessageErrorTypes = {
 
 export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
-
-export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
-  payload: T;
-}
 
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
@@ -1370,47 +1364,3 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
-
-export interface BufferedReduxAction<T> extends ReduxAction<T> {
-  affectedJSObjects: AffectedJSObjects;
-}
-
-export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
-
-export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
-  meta: M;
-}
-
-export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
-  onSuccess?: ReduxAction<S>;
-  onError?: ReduxAction<E>;
-  onSuccessCallback?: (response: S) => void;
-  onErrorCallback?: (error: E) => void;
-}
-
-export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
-
-export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: Array<AnyReduxAction>;
-  affectedJSObjects?: AffectedJSObjects;
-}
-
-export interface PromisePayload {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reject: any;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolve: any;
-}
-
-export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
-  payload: T & PromisePayload;
-}
-
-export interface ReduxActionErrorPayload {
-  message: string;
-  source?: string;
-  code?: ERROR_CODES;
-  stackTrace?: string;
-}

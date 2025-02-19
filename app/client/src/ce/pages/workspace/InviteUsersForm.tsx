@@ -414,7 +414,7 @@ function InviteUsersForm(props: any) {
       ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
       role: roles,
       numberOfUsersInvited: usersAsStringsArray.length,
-      orgId: props.workspaceId,
+      workspaceId: props.workspaceId,
     });
 
     return inviteUsersToWorkspace(

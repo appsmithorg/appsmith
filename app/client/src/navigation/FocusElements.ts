@@ -1,9 +1,8 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { AppState } from "ee/reducers";
 
 export enum FocusElement {
   PluginActionConfigTabs = "PluginActionConfigTabs",
-  PluginActionFormData = "PluginActionFormData",
   CodeEditorHistory = "CodeEditorHistory",
   EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",

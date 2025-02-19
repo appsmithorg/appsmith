@@ -1,55 +1,64 @@
 import type { DeleteBranchInitPayload } from "../store/actions/deleteBranchActions";
-import deleteBranchRequest from "../requests/deleteBranchRequest";
-import type {
-  DeleteBranchRequestParams,
-  DeleteBranchResponse,
-} from "../requests/deleteBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
-import { call, put } from "redux-saga/effects";
-
-// internal dependencies
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
+import { toast } from "@appsmith/ads";
+import { createMessage, DELETE_BRANCH_SUCCESS } from "ee/constants/messages";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import deleteRefRequest from "git/requests/deleteRefRequest";
+import type {
+  DeleteRefRequestParams,
+  DeleteRefResponse,
+} from "git/requests/deleteRefRequest.types";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* deleteBranchSaga(
   action: GitArtifactPayloadAction<DeleteBranchInitPayload>,
 ) {
-  const { artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
-  let response: DeleteBranchResponse | undefined;
+  const { artifactDef, artifactId } = action.payload;
+  let response: DeleteRefResponse | undefined;
 
   try {
-    const params: DeleteBranchRequestParams = {
-      branchName: action.payload.branchName,
+    const params: DeleteRefRequestParams = {
+      refType: "branch",
+      refName: action.payload.branchName,
     };
 
-    response = yield call(deleteBranchRequest, baseArtifactId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      deleteRefRequest,
+      artifactDef.artifactType,
+      artifactDef.baseArtifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(gitArtifactActions.deleteBranchSuccess(basePayload));
+      toast.show(
+        createMessage(DELETE_BRANCH_SUCCESS, action.payload.branchName),
+        {
+          kind: "success",
+        },
+      );
+      yield put(gitArtifactActions.deleteBranchSuccess({ artifactDef }));
       yield put(
         gitArtifactActions.fetchBranchesInit({
-          ...basePayload,
+          artifactDef,
+          artifactId,
           pruneBranches: true,
         }),
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
-      yield put(
-        gitArtifactActions.deleteBranchError({
-          ...basePayload,
-          error,
-        }),
-      );
-    } else {
-      log.error(e);
-      captureException(e);
+    if (error) {
+      yield put(gitArtifactActions.deleteBranchError({ artifactDef, error }));
     }
   }
 }

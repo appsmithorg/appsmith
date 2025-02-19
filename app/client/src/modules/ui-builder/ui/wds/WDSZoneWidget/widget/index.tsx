@@ -25,7 +25,7 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerComponent } from "modules/ui-builder/ui/wds/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { Elevations, anvilWidgets } from "modules/ui-builder/ui/wds/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
@@ -34,6 +34,7 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
+import { WDSZoneWidgetContextProvider } from "./context";
 
 class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -143,6 +144,10 @@ class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
     return res;
   }
 
+  onReset = () => {
+    this.resetChildrenMetaProperty(this.props.widgetId);
+  };
+
   getWidgetView(): ReactNode {
     return (
       <ContainerComponent
@@ -150,7 +155,13 @@ class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
         elevation={Elevations.ZONE_ELEVATION}
         {...this.props}
       >
-        <LayoutProvider {...this.props} />
+        <WDSZoneWidgetContextProvider
+          onReset={this.onReset}
+          useAsForm={this.props.useAsForm}
+          widget={this.props}
+        >
+          <LayoutProvider {...this.props} />
+        </WDSZoneWidgetContextProvider>
       </ContainerComponent>
     );
   }
@@ -158,6 +169,7 @@ class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
 
 export interface WDSZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
+  useAsForm?: boolean;
 }
 
 export default WDSZoneWidget;

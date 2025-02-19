@@ -18,13 +18,12 @@ import {
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Flex } from "@appsmith/ads";
 
 const Wrapper = styled.div`
-  min-width: 380px;
+  min-width: 260px;
   width: 100%;
   min-height: 200px;
   height: 100%;
@@ -56,7 +55,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      isActionRedesignEnabled,
       placeholderText,
       pluginName,
       responseType,
@@ -79,9 +77,7 @@ class DynamicTextControl extends BaseControl<
             mode={mode}
             name={this.props.configProperty}
             placeholder={placeholderText}
-            showLineNumbers={
-              isActionRedesignEnabled || this.props.showLineNumbers
-            }
+            showLineNumbers
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
@@ -99,7 +95,6 @@ export interface DynamicTextFieldProps extends ControlProps {
   evaluationSubstitutionType: EvaluationSubstitutionType;
   mutedHinting?: boolean;
   pluginName: string;
-  isActionRedesignEnabled: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
@@ -110,14 +105,12 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
   const pluginName = getPluginNameFromId(state, pluginId);
-  const { release_actions_redesign_enabled } = selectFeatureFlags(state);
 
   return {
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
     pluginName,
-    isActionRedesignEnabled: release_actions_redesign_enabled,
   };
 };
 

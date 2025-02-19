@@ -1,4 +1,4 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
@@ -54,7 +54,7 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
         recentEntityNames.add(action.config.name);
         break;
       }
-      case FocusEntity.PROPERTY_PANE: {
+      case FocusEntity.WIDGET: {
         const widget = get(widgetsMap, id, null);
 
         if (!widget) break;

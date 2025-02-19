@@ -1,11 +1,10 @@
 import { fetchApplication } from "ee/actions/applicationActions";
-import { setAppMode, updateAppStore } from "actions/pageActions";
+import { setAppMode } from "actions/pageActions";
 import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
@@ -17,10 +16,9 @@ import history from "utils/history";
 import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -87,7 +85,7 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ) {
     const loadAppDataSpan = startNestedSpan("AppEngine.loadAppData", rootSpan);
-    const { applicationId, basePageId, branch } = payload;
+    const { applicationId, basePageId } = payload;
     const { pages } = allResponses;
     const page = pages.data?.pages?.find((page) => page.baseId === basePageId);
     const apiCalls: boolean = yield failFastApiCalls(
@@ -114,14 +112,7 @@ export default abstract class AppEngine {
     }
 
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    const currentGitBranch: ReturnType<typeof getCurrentGitBranch> =
-      yield select(getCurrentGitBranch);
 
-    yield put(
-      updateAppStore(
-        getPersistentAppStore(application.id, branch || currentGitBranch),
-      ),
-    );
     const defaultPageId: string = yield select(getDefaultPageId);
     const defaultPageBaseId: string = yield select(getDefaultBasePageId);
     const toLoadPageId: string = page?.id || defaultPageId;

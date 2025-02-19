@@ -1,7 +1,5 @@
-import {
-  type ReduxAction,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
 import { getInitResponses } from "sagas/InitSagas";
@@ -10,7 +8,7 @@ import type { AppEnginePayload } from "entities/Engine";
 import { testSaga } from "redux-saga-test-plan";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import mockResponse from "./mockConsolidatedApiResponse.json";
-import { startRootSpan } from "UITelemetry/generateTraces";
+import { startRootSpan } from "instrumentation/generateTraces";
 
 jest.mock("../../api/Api", () => ({
   __esModule: true,

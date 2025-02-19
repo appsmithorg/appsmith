@@ -17,16 +17,17 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
   };
 
   const {
-    onPress: onClickProp,
+    onClick: onClickProp,
     onRecaptchaSubmitError = noop,
     onRecaptchaSubmitSuccess,
+    onReset,
     recaptchaKey,
   } = props;
 
   const onClick: ButtonComponentProps["onPress"] = () => {
-    if (props.isDisabled) return onClickProp;
+    if (props.isDisabled) return () => onClickProp?.(onReset);
 
-    if (props.isLoading) return onClickProp;
+    if (props.isLoading) return () => onClickProp?.(onReset);
 
     if (status === ScriptStatus.READY) {
       // TODO: Fix this the next time the file is edited
@@ -42,7 +43,7 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((token: any) => {
               if (typeof onRecaptchaSubmitSuccess === "function") {
-                onRecaptchaSubmitSuccess(token);
+                onRecaptchaSubmitSuccess(token, onReset);
               }
             })
             .catch(() => {

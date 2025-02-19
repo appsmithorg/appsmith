@@ -7,8 +7,9 @@ import type { Def } from "tern";
 import { Types, getType } from "utils/TypeHelpers";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";
 import { typeToTernType } from "workers/common/JSLibrary/ternDefinitionGenerator";
+import type { ExtraDef } from "./types";
 
-export type ExtraDef = Record<string, Def | string>;
+export type { ExtraDef };
 
 export const flattenDef = (def: Def, entityName: string): Def => {
   const flattenedDef = def;

@@ -1,18 +1,29 @@
-import { Text, type TextProps } from "@appsmith/wds";
-import React, { forwardRef, type ForwardedRef } from "react";
-import { HeadingContext, useContextProps } from "react-aria-components";
+import { type TextProps } from "@appsmith/wds";
+import {
+  CalendarStateContext,
+  HeadingContext,
+  useContextProps,
+} from "react-aria-components";
+import React, { forwardRef, useContext, type ForwardedRef } from "react";
+
+import styles from "./styles.module.css";
+import { CalendarMonthDropdown } from "./CalendarMonthDropdown";
+import { CalendarYearDropdown } from "./CalendarYearDropdown";
 
 function CalendarHeading(
   props: TextProps,
   ref: ForwardedRef<HTMLHeadingElement>,
 ) {
   [props, ref] = useContextProps(props, ref, HeadingContext);
-  const { children, ...domProps } = props;
+  const state = useContext(CalendarStateContext);
+
+  if (!state) return null;
 
   return (
-    <Text {...domProps} color="neutral" ref={ref}>
-      {children}
-    </Text>
+    <div className={styles.monthYearDropdown}>
+      <CalendarMonthDropdown state={state} />
+      <CalendarYearDropdown state={state} />
+    </div>
   );
 }
 

@@ -1,11 +1,11 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import get from "lodash/get";
-import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 
 export enum ExplorerPinnedState {
@@ -194,29 +194,6 @@ export const handlers = {
     return {
       ...state,
       active: action.payload,
-    };
-  },
-  [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.PINNED
-          ? ExplorerPinnedState.HIDDEN
-          : state.pinnedState,
-      active: false,
-    };
-  },
-  [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.HIDDEN
-          ? ExplorerPinnedState.PINNED
-          : state.pinnedState,
     };
   },
 };

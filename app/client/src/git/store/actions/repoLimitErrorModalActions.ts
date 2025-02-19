@@ -1,16 +1,17 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { GitGlobalReduxState } from "../types";
 
-interface ToggleRepoLimitModalActionPayload {
+interface ToggleRepoLimitModalPayload {
   open: boolean;
 }
 
-export const toggleRepoLimitErrorModalAction =
-  createSingleArtifactAction<ToggleRepoLimitModalActionPayload>(
-    (state, action) => {
-      const { open } = action.payload;
+export const toggleRepoLimitErrorModalAction = (
+  state: GitGlobalReduxState,
+  action: PayloadAction<ToggleRepoLimitModalPayload>,
+) => {
+  const { open } = action.payload;
 
-      state.ui.repoLimitErrorModal.open = open;
+  state.repoLimitErrorModalOpen = open;
 
-      return state;
-    },
-  );
+  return state;
+};

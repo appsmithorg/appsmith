@@ -9,7 +9,6 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,16 +81,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
-    }
-
-    @Override
-    public Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission) {
-        final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
-                        ActionCollection.Fields.baseId, baseCollectionId)
-                .equal(ActionCollection.Fields.branchName, branchName);
-
-        return queryBuilder().criteria(bq).permission(permission).one();
     }
 
     @Override

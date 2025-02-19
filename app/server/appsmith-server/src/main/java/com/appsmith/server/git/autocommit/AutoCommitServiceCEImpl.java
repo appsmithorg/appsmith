@@ -82,9 +82,9 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
             String workspaceId = branchedApplication.getWorkspaceId();
             GitArtifactMetadata branchedGitMetadata = branchedApplication.getGitArtifactMetadata();
             final String baseApplicationId = branchedGitMetadata.getDefaultArtifactId();
-            final String branchName = branchedGitMetadata.getBranchName();
+            final String refName = branchedGitMetadata.getRefName();
 
-            if (!hasText(branchName)) {
+            if (!hasText(refName)) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
             }
 
@@ -92,14 +92,14 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                     autoCommitEligibilityHelper.isAutoCommitRequired(workspaceId, branchedGitMetadata, pageDTO);
 
             Mono<AutoCommitResponseDTO> autoCommitProgressDTOMono =
-                    gitAutoCommitHelper.getAutoCommitProgress(baseApplicationId, branchName);
+                    gitAutoCommitHelper.getAutoCommitProgress(baseApplicationId, refName);
 
             return autoCommitProgressDTOMono.flatMap(autoCommitProgressDTO -> {
                 if (Set.of(LOCKED, IN_PROGRESS).contains(autoCommitProgressDTO.getAutoCommitResponse())) {
                     log.info(
                             "application with id: {}, has requested auto-commit for branch name: {}, however an event for branch name: {} is already in progress",
                             baseApplicationId,
-                            branchName,
+                            refName,
                             autoCommitProgressDTO.getBranchName());
                     autoCommitResponseDTO.setAutoCommitResponse(autoCommitProgressDTO.getAutoCommitResponse());
                     autoCommitResponseDTO.setProgress(autoCommitProgressDTO.getProgress());
@@ -112,7 +112,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                         log.info(
                                 "application with id: {}, and branch name: {} is not eligible for autocommit",
                                 baseApplicationId,
-                                branchName);
+                                refName);
                         autoCommitResponseDTO.setAutoCommitResponse(IDLE);
                         return Mono.just(autoCommitResponseDTO);
                     }
@@ -121,15 +121,15 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                     log.info(
                             "application with id: {}, and branch name: {} is eligible for autocommit",
                             baseApplicationId,
-                            branchName);
+                            refName);
                     return gitAutoCommitHelper
-                            .publishAutoCommitEvent(autoCommitTriggerDTO, baseApplicationId, branchName)
+                            .publishAutoCommitEvent(autoCommitTriggerDTO, baseApplicationId, refName)
                             .map(isEventPublished -> {
                                 if (TRUE.equals(isEventPublished)) {
                                     log.info(
                                             "autocommit event for application with id: {}, and branch name: {} is published",
                                             baseApplicationId,
-                                            branchName);
+                                            refName);
                                     autoCommitResponseDTO.setAutoCommitResponse(PUBLISHED);
                                     return autoCommitResponseDTO;
                                 }
@@ -137,7 +137,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                                 log.info(
                                         "application with id: {}, and branch name: {} does not fulfil the prerequisite for autocommit",
                                         baseApplicationId,
-                                        branchName);
+                                        refName);
                                 autoCommitResponseDTO.setAutoCommitResponse(REQUIRED);
                                 return autoCommitResponseDTO;
                             });

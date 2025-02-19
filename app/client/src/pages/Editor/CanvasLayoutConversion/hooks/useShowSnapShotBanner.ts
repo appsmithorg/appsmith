@@ -1,7 +1,7 @@
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
+import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";

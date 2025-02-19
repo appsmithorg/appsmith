@@ -28,6 +28,16 @@ export const propertyPaneContent = [
     sectionName: "General",
     children: [
       {
+        propertyName: "useAsForm",
+        label: "Use as a form",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         label: "Visible",

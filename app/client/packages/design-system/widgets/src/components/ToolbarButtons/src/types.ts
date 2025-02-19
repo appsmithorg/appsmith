@@ -33,7 +33,7 @@ export interface ToolbarButtonsProps<T>
   /** Size of buttons
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: Exclude<keyof typeof SIZES, "large">;
   /** Alignment of buttons inside the container
    * @default start
    */

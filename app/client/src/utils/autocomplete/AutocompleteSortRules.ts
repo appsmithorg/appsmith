@@ -11,7 +11,7 @@ import type {
 } from "./CodemirrorTernService";
 import { createCompletionHeader } from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 interface AutocompleteRule {
   computeScore(
@@ -28,9 +28,9 @@ enum RuleWeight {
   JSLibrary,
   DataTreeFunction,
   DataTreeMatch,
+  DataTreeEntityNameMatch,
   RecentEntityMatch,
   TypeMatch,
-  DataTreeEntityNameMatch,
   PriorityMatch,
   ScopeMatch,
 }
@@ -59,9 +59,11 @@ export class NestedPropertyInsideLiteralRule implements AutocompleteRule {
 
 export class AndRule implements AutocompleteRule {
   rules: AutocompleteRule[];
+
   constructor(rules: AutocompleteRule[]) {
     this.rules = rules;
   }
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
@@ -140,6 +142,7 @@ class RemoveBlackListedCompletionRule implements AutocompleteRule {
  */
 class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const text = completion.displayText || "";
@@ -158,6 +161,7 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
  */
 class NoSelfReferenceRule implements AutocompleteRule {
   static threshold = -Infinity;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { entityName, propertyPath } = AutocompleteSorter.currentFieldInfo;
@@ -181,6 +185,7 @@ class NoSelfReferenceRule implements AutocompleteRule {
  */
 class GlobalJSRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.GlobalJS;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
@@ -198,6 +203,7 @@ class GlobalJSRule implements AutocompleteRule {
  */
 class JSLibraryRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.JSLibrary;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     const score = 0;
 
@@ -216,6 +222,7 @@ class JSLibraryRule implements AutocompleteRule {
  */
 class DataTreeFunctionRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeFunction;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
@@ -232,6 +239,7 @@ class DataTreeFunctionRule implements AutocompleteRule {
     return score;
   }
 }
+
 /**
  * Sets threshold value for completions that are recent entities
  * Max score - 10000 + number
@@ -239,8 +247,19 @@ class DataTreeFunctionRule implements AutocompleteRule {
  */
 class RecentEntityRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.RecentEntityMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
+    const { currentFieldInfo } = AutocompleteSorter;
+
+    // Do not consider same entity for recent check
+    if (
+      currentFieldInfo.entityName &&
+      completion.text.includes(currentFieldInfo.entityName)
+    ) {
+      return score;
+    }
 
     if (completion.recencyWeight) {
       score += RecentEntityRule.threshold + completion.recencyWeight;
@@ -258,6 +277,7 @@ class RecentEntityRule implements AutocompleteRule {
  */
 class DataTreeRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
@@ -278,11 +298,16 @@ class DataTreeRule implements AutocompleteRule {
  */
 class TypeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.TypeMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
 
-    if (completion.type === currentFieldInfo.expectedType)
+    // Don't increase score for entity names
+    if (
+      completion.type === currentFieldInfo.expectedType &&
+      !completion.isEntityName
+    )
       score += TypeMatchRule.threshold;
 
     return score;
@@ -296,10 +321,12 @@ class TypeMatchRule implements AutocompleteRule {
  */
 class DataTreeEntityNameRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
-    if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
+    // Reduce score for entity names instead of increasing it
+    if (completion.isEntityName) score -= DataTreeEntityNameRule.threshold;
 
     return score;
   }
@@ -312,6 +339,7 @@ class DataTreeEntityNameRule implements AutocompleteRule {
  */
 class PriorityMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.PriorityMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
@@ -338,6 +366,7 @@ class PriorityMatchRule implements AutocompleteRule {
  */
 class ScopeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.ScopeMatch;
+
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
@@ -362,6 +391,7 @@ class BlockAsyncFnsRule implements AutocompleteRule {
     "windowMessageListener",
     "watchPosition",
   ];
+
   computeScore(
     completion: Completion<TernCompletionResult>,
     entityInfo?: FieldEntityInformation | undefined,
@@ -398,6 +428,7 @@ export class AutocompleteSorter {
   static entityDefInfo: DataTreeDefEntityInformation | undefined;
   static currentFieldInfo: FieldEntityInformation;
   static bestMatchEndIndex: number;
+
   static sort(
     completions: Completion<TernCompletionResult>[],
     currentFieldInfo: FieldEntityInformation,

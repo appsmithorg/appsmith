@@ -50,6 +50,8 @@ public interface FileInterface {
     Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(
             String organisationId, String baseApplicationId, String repoName, String branchName);
 
+    Mono<GitResourceMap> constructGitResourceMapFromGitRepo(Path repositorySuffix, String refName);
+
     /**
      * This method just reconstructs the metdata of the json from git repo.
      *
@@ -68,6 +70,8 @@ public interface FileInterface {
             String branchName,
             Path repoSuffixPath,
             Boolean isResetToLastCommitRequired);
+
+    Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix);
 
     Mono<Object> reconstructPageFromGitRepo(
             String pageName, String branchName, Path repoSuffixPath, Boolean checkoutRequired);

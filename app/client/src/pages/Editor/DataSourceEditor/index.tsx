@@ -38,7 +38,6 @@ import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
 import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import {
   getCurrentApplicationId,
@@ -83,8 +82,8 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "PluginActionEditor/transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
-import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
+import { DatasourceComponentTypes, PluginPackageName } from "entities/Plugin";
 import DSDataFilter from "ee/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "ee/utils/Environments";
@@ -1238,6 +1237,8 @@ const mapDispatchToProps = (
   switchDatasource: (id: string) => {
     // on reconnect data modal, it shouldn't be redirected to datasource edit page
     dispatch(switchDatasource(id, ownProps.isInsideReconnectModal));
+    // Set view mode to true after switching datasource
+    dispatch(setDatasourceViewModeFlag(true));
   },
   setDatasourceViewMode: (payload: {
     datasourceId: string;

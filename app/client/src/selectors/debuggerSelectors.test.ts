@@ -2,7 +2,7 @@ import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";
 

@@ -1,7 +1,7 @@
 import type { ActionResponse } from "api/ActionAPI";
-import type { PluginId } from "api/PluginApi";
+import type { PluginType, PluginId } from "entities/Plugin";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import type { ActionConfig, PluginType } from "entities/Action";
+import type { ActionConfig } from "entities/Action";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
@@ -10,7 +10,7 @@ import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsR
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
@@ -190,6 +190,10 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: typeof ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
+  currentPageName: string;
+  workspaceName: string;
+  appName: string;
+  currentEnvironmentName: string;
 }
 
 export interface DataTreeSeed {

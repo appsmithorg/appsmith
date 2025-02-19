@@ -1,7 +1,7 @@
 import actionsReducer from "ee/reducers/entityReducers/actionsReducer";
 import appReducer from "reducers/entityReducers/appReducer";
-import canvasWidgetsReducer from "reducers/entityReducers/canvasWidgetsReducer";
-import canvasWidgetsStructureReducer from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import canvasWidgetsReducer from "ee/reducers/entityReducers/canvasWidgetsReducer";
+import canvasWidgetsStructureReducer from "ee/reducers/entityReducers/canvasWidgetsStructureReducer";
 import metaWidgetsReducer from "reducers/entityReducers/metaWidgetsReducer";
 import datasourceReducer from "reducers/entityReducers/datasourceReducer";
 import jsActionsReducer from "ee/reducers/entityReducers/jsActionsReducer";
@@ -14,7 +14,7 @@ import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canv
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
 import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { AppState } from "..";
 
 export const entityReducerObject = {

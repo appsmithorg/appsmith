@@ -7,7 +7,7 @@ import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import "@testing-library/jest-dom/extend-expect";
 import { APIFactory } from "test/factories/Actions/API";
 import { noop } from "lodash";
@@ -15,6 +15,10 @@ import { noop } from "lodash";
 jest.mock("./EntityBottomTabs", () => ({
   __esModule: true,
   default: () => <div />,
+}));
+
+jest.mock("selectors/gitModSelectors", () => ({
+  selectCombinedPreviewMode: jest.fn(() => false),
 }));
 
 const mockStore = configureStore([]);

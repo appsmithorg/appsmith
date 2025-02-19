@@ -5,14 +5,36 @@ import type {
 } from "./generateSSHKeyRequest.types";
 import { APPLICATION_BASE_URL, GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
+import type { GitArtifactType } from "git/constants/enums";
 
-export default async function generateSSHKeyRequest(
-  baseApplicationId: string,
+async function generateSSHKeyRequestOld(
+  baseArtifactId: string,
   params: GenerateSSHKeyRequestParams,
 ): AxiosPromise<GenerateSSHKeyResponse> {
-  const url = params.isImporting
-    ? `${GIT_BASE_URL}/import/keys?keyType=${params.keyType}`
-    : `${APPLICATION_BASE_URL}/ssh-keypair/${baseApplicationId}?keyType=${params.keyType}`;
+  const url = `${APPLICATION_BASE_URL}/ssh-keypair/${baseArtifactId}?keyType=${params.keyType}`;
 
-  return params.isImporting ? Api.get(url) : Api.post(url);
+  return Api.post(url);
+}
+
+async function generateSSHKeyRequestNew(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: GenerateSSHKeyRequestParams,
+): AxiosPromise<GenerateSSHKeyResponse> {
+  return Api.post(
+    `${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/ssh-keypair?keyType=${params.keyType}`,
+  );
+}
+
+export default async function generateSSHKeyRequest(
+  artifactType: GitArtifactType,
+  baseArtifactId: string,
+  params: GenerateSSHKeyRequestParams,
+  isNew: boolean,
+): AxiosPromise<GenerateSSHKeyResponse> {
+  if (isNew) {
+    return generateSSHKeyRequestNew(artifactType, baseArtifactId, params);
+  } else {
+    return generateSSHKeyRequestOld(baseArtifactId, params);
+  }
 }

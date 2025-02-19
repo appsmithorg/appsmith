@@ -18,7 +18,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -54,7 +54,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourcePermission datasourcePermission;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final FeatureFlagService featureFlagService;
 
     public Mono<TriggerResultDTO> trigger(
@@ -101,16 +101,19 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         // If the plugin has overridden and implemented the same, use the plugin result
         Mono<TriggerResultDTO> resultFromPluginMono = Mono.zip(
-                        validatedDatasourceStorageMono, pluginMono, pluginExecutorMono)
+                        validatedDatasourceStorageMono, pluginMono, pluginExecutorMono, datasourceMonoCached)
                 .flatMap(tuple -> {
                     final DatasourceStorage datasourceStorage = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
+                    final Datasource datasource = tuple.getT4();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
-                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedTenantFeatureFlags() != null
-                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedOrganizationFeatureFlags() != null
+                            ? featureFlagService
+                                    .getCachedOrganizationFeatureFlags()
+                                    .getFeatures()
                             : Collections.emptyMap();
 
                     return datasourceContextService
@@ -118,7 +121,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // Now that we have the context (connection details), execute the action.
                             // datasource remains unevaluated for datasource of DBAuth Type Authentication,
                             // However the context comes from evaluated datasource.
-                            .flatMap(resourceContext -> setTenantAndInstanceId(triggerRequestDTO)
+                            .flatMap(resourceContext -> populateTriggerRequestDto(triggerRequestDTO, datasource)
                                     .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
                                             .triggerWithFlags(
                                                     resourceContext.getConnection(),
@@ -161,13 +164,15 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
-        return tenantService
-                .getDefaultTenantId()
+    private Mono<TriggerRequestDTO> populateTriggerRequestDto(
+            TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
+        return organizationService
+                .getDefaultOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
-                    triggerRequestDTO.setTenantId(tuple.getT1());
+                    triggerRequestDTO.setOrganizationId(tuple.getT1());
                     triggerRequestDTO.setInstanceId(tuple.getT2());
+                    triggerRequestDTO.setWorkspaceId(datasource.getWorkspaceId());
                     return triggerRequestDTO;
                 });
     }

@@ -3,16 +3,16 @@ import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import type { AppState } from "ee/reducers";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import {
-  shouldSuppressDebuggerError,
   isWidget,
+  shouldSuppressDebuggerError,
 } from "ee/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
-import { combinedPreviewModeSelector } from "./editorSelectors";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
+import { selectCombinedPreviewMode } from "./gitModSelectors";
 
 interface ErrorObejct {
   [k: string]: Log;
@@ -169,7 +169,7 @@ export const getDebuggerOpen = (state: AppState) => state.ui.debugger.isOpen;
 
 export const showDebuggerFlag = createSelector(
   getDebuggerOpen,
-  combinedPreviewModeSelector,
+  selectCombinedPreviewMode,
   (isOpen, isPreview) => isOpen && !isPreview,
 );
 

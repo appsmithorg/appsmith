@@ -41,6 +41,12 @@ export const StyledSegment = styled.span`
   & > * {
     color: var(--ads-v2-colors-control-segment-value-default-fg);
   }
+
+  &[data-selected="true"] {
+    span {
+      font-weight: var(--ads-v2-font-weight-bold);
+    }
+  }
 `;
 
 export const StyledControlContainer = styled.div`
@@ -61,8 +67,8 @@ export const StyledControlContainer = styled.div`
 
   &:focus-visible {
     outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+      var(--ads-v2-color-outline) !important;
+    outline-offset: var(--ads-v2-offset-outline) !important;
   }
 
   &[data-disabled="true"] {
@@ -81,6 +87,7 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
+
   &:not(:hover):not(:last-child):not([data-selected="true"]):not(
       :has(+ [data-selected="true"])
     ):after {

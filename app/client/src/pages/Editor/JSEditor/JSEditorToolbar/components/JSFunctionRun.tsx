@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { JSFunctionRun as OldJSFunctionRun } from "./old/JSFunctionRun";
+import { truncate } from "lodash";
+
 import type { JSCollection } from "entities/JSCollection";
 import {
   Button,
@@ -15,6 +14,7 @@ import type { JSActionDropdownOption } from "../types";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "../constants";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
 import { JSFunctionItem } from "./JSFunctionItem";
+import { JS_FUNCTION_RUN_NAME_LENGTH } from "./constants";
 
 interface Props {
   disabled: boolean;
@@ -35,10 +35,6 @@ interface Props {
 export const JSFunctionRun = (props: Props) => {
   const { onSelect } = props;
 
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   // Callback function to handle function selection from the dropdown menu
   const onFunctionSelect = useCallback(
     (option: JSActionDropdownOption) => {
@@ -49,11 +45,6 @@ export const JSFunctionRun = (props: Props) => {
     [onSelect],
   );
 
-  if (!isActionRedesignEnabled) {
-    return <OldJSFunctionRun {...props} />;
-  }
-
-  // Render the new version of the component
   return (
     <Flex gap="spaces-2">
       <Menu>
@@ -66,18 +57,22 @@ export const JSFunctionRun = (props: Props) => {
             size="sm"
             startIcon="js-function"
           >
-            {props.selected.label}
+            {truncate(props.selected.label, {
+              length: JS_FUNCTION_RUN_NAME_LENGTH,
+            })}
           </Button>
         </MenuTrigger>
-        <MenuContent align="end" data-testid="t--js-functions-menu">
-          {props.options.map((option) => (
-            <JSFunctionItem
-              key={option.label}
-              onSelect={onFunctionSelect}
-              option={option}
-            />
-          ))}
-        </MenuContent>
+        {!!props.options.length && (
+          <MenuContent align="end" data-testid="t--js-functions-menu">
+            {props.options.map((option) => (
+              <JSFunctionItem
+                key={option.label}
+                onSelect={onFunctionSelect}
+                option={option}
+              />
+            ))}
+          </MenuContent>
+        )}
       </Menu>
 
       <Tooltip

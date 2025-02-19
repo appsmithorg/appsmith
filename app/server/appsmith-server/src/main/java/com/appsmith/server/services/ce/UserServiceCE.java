@@ -19,7 +19,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Mono<User> findByEmailAndOrganizationId(String email, String organizationId);
 
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
@@ -40,6 +40,8 @@ public interface UserServiceCE extends CrudService<User, String> {
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
+
+    Mono<User> signupIfAllowed(User user);
 
     Mono<User> updateWithoutPermission(String id, User update);
 

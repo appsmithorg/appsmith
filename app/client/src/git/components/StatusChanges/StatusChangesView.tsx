@@ -1,14 +1,19 @@
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import React, { useMemo } from "react";
-import type { StatusTreeStruct } from "./StatusTree";
 import StatusTree from "./StatusTree";
-import { Text } from "@appsmith/ads";
+import { Callout, Text } from "@appsmith/ads";
 import { createMessage } from "@appsmith/ads-old";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   FETCH_GIT_STATUS,
 } from "ee/constants/messages";
-import StatusLoader from "pages/Editor/gitSync/components/StatusLoader";
+import StatusLoader from "./StatusLoader";
+import type { StatusTreeStruct } from "./types";
+import styled from "styled-components";
+
+const CalloutContainer = styled.div`
+  margin-top: 16px;
+`;
 
 const noopStatusTransformer = () => null;
 
@@ -35,12 +40,12 @@ export default function StatusChangesView({
     return <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />;
   }
 
-  if (!status || status.isClean || !statusTree) {
+  if (!status || !statusTree || statusTree?.length === 0) {
     return null;
   }
 
   return (
-    <div>
+    <div data-testid="t--git-status">
       <Text
         color={"var(--ads-v2-color-fg-emphasis)"}
         data-testid={"t--git-deploy-change-reason-text"}
@@ -49,6 +54,11 @@ export default function StatusChangesView({
         {createMessage(CHANGES_SINCE_LAST_DEPLOYMENT)}
       </Text>
       <StatusTree tree={statusTree} />
+      {status.migrationMessage ? (
+        <CalloutContainer>
+          <Callout kind="info">{status.migrationMessage}</Callout>
+        </CalloutContainer>
+      ) : null}
     </div>
   );
 }

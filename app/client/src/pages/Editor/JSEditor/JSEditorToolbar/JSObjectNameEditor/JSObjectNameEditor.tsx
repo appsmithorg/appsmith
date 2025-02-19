@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Text as ADSText, Flex } from "@appsmith/ads";
@@ -14,7 +12,6 @@ import {
   getJsCollectionByBaseId,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { JSObjectNameEditor as OldJSObjectNameEditor } from "./old/JSObjectNameEditor";
 import { EditableName, useIsRenaming } from "IDE";
 
 export interface SaveActionNameParams {
@@ -102,10 +99,6 @@ export const JSObjectNameEditor = ({
     [currentJSObjectConfig, saveJSObjectName],
   );
 
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
   const icon = useMemo(() => {
     if (!currentPlugin) return null;
 
@@ -118,15 +111,6 @@ export const JSObjectNameEditor = ({
       </IconContainer>
     );
   }, [currentPlugin]);
-
-  if (!isActionRedesignEnabled) {
-    return (
-      <OldJSObjectNameEditor
-        disabled={disabled}
-        saveJSObjectName={saveJSObjectName}
-      />
-    );
-  }
 
   return (
     <NameWrapper

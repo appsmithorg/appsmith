@@ -13,7 +13,7 @@ import ProfileDropdown from "./ProfileDropdown";
 import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
@@ -54,7 +54,7 @@ interface ErrorPageHeaderProps {
 export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const { flushErrors, flushErrorsAndRedirect, safeCrash, user } = props;
   const location = useLocation();
-  const tenantConfig = useSelector(getTenantConfig);
+  const organizationConfig = useSelector(getOrganizationConfig);
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
   const redirectUrl = queryParams.get("redirectUrl");
@@ -77,7 +77,7 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        {tenantConfig.brandLogoUrl && (
+        {organizationConfig.brandLogoUrl && (
           <Link
             className="t--appsmith-logo"
             onClick={() => {
@@ -88,7 +88,7 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
             <img
               alt="Logo"
               className="h-6"
-              src={getAssetUrl(tenantConfig.brandLogoUrl)}
+              src={getAssetUrl(organizationConfig.brandLogoUrl)}
             />
           </Link>
         )}

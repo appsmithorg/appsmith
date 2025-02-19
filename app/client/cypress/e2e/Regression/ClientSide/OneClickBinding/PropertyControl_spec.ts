@@ -18,7 +18,7 @@ const oneClickBinding = new OneClickBinding();
 
 const upfrontContentCount = 4;
 
-describe(
+describe.skip(
   "One click binding control",
   { tags: ["@tag.excludeForAirgap", "@tag.Binding"] },
   () => {

@@ -10,7 +10,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export const defaultConfig: WidgetDefaultProps = {
@@ -23,6 +23,7 @@ export const defaultConfig: WidgetDefaultProps = {
   version: 1,
   widgetName: "Zone",
   isVisible: true,
+  useAsForm: false,
   blueprint: {
     operations: [
       {

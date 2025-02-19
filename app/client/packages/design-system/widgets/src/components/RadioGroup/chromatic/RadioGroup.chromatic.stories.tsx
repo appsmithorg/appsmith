@@ -6,7 +6,7 @@ import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
 const meta: Meta<typeof RadioGroup> = {
   component: RadioGroup,
-  title: "Design System/Widgets/RadioGroup",
+  title: "Design System/Widgets/Radio Group",
 };
 
 export default meta;

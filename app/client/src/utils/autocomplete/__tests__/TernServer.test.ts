@@ -7,8 +7,8 @@ import CodemirrorTernService, {
   extractFinalObjectPath,
 } from "../CodemirrorTernService";
 import { AutocompleteDataType } from "../AutocompleteDataType";
-import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { MockCodemirrorEditor } from "test/__mocks__/CodeMirrorEditorMock";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type CodeMirror from "codemirror";
@@ -451,7 +451,7 @@ describe("Tern server sorting", () => {
       AutocompleteSorter.currentFieldInfo,
     );
 
-    expect(scoredCompletion1.score).toEqual(2 ** 6 + 2 ** 4 + 2 ** 3);
+    expect(scoredCompletion1.score).toEqual(2 ** 7 + 2 ** 4 + 2 ** 3);
     //completion that belongs to the same entity.
     const scoredCompletion2 = new ScoredCompletion(
       sameEntityCompletion,
@@ -569,24 +569,6 @@ describe("Tern server completion", () => {
         isHeader: false,
         recencyWeight: 0,
         isEntityName: false,
-      },
-      {
-        text: "QueryModule11",
-        displayText: "QueryModule11",
-        className:
-          "CodeMirror-Tern-completion CodeMirror-Tern-completion-object",
-        data: {
-          name: "QueryModule11",
-          type: "QueryModule11",
-          doc: "Object that contains the properties required to run queries and access the query data.",
-          url: "https://docs.appsmith.com/reference/appsmith-framework/query-object",
-          origin: "DATA_TREE",
-        },
-        origin: "DATA_TREE",
-        type: "OBJECT",
-        isHeader: false,
-        recencyWeight: 0,
-        isEntityName: true,
       },
       {
         text: 'QueryModule11.run({ gender: "male", limit: "5", name: "Mr. " + appsmith.user.name })',

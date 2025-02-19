@@ -14,9 +14,9 @@ import type {
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
-import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
+import _, { difference, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
@@ -987,11 +987,8 @@ export const isATriggerPath = (
 };
 
 // Checks if entity newly got added to the unevalTree
-export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
-  return !!find(updates, {
-    event: DataTreeDiffEvent.NEW,
-    payload: { propertyPath: entityName },
-  });
+export const isNewEntity = (updates: Set<string>, entityName: string) => {
+  return updates.has(entityName);
 };
 
 const widgetPathsNotToOverride = (

@@ -21,15 +21,16 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
   const {
     isDisabled,
     isLoading,
-    onPress: onClickProp,
+    onClick: onClickProp,
     onRecaptchaSubmitError = noop,
     onRecaptchaSubmitSuccess,
+    onReset,
     recaptchaKey,
   } = props;
   const onClick = () => {
-    if (isDisabled) return onClickProp;
+    if (isDisabled) return () => onClickProp?.(onReset);
 
-    if (isLoading) return onClickProp;
+    if (isLoading) return () => onClickProp?.(onReset);
 
     if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
@@ -43,7 +44,7 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
         .then((token: any) => {
           if (token) {
             if (typeof onRecaptchaSubmitSuccess === "function") {
-              onRecaptchaSubmitSuccess(token);
+              onRecaptchaSubmitSuccess(token, onReset);
             }
           } else {
             // Handle incorrent google recaptcha site key

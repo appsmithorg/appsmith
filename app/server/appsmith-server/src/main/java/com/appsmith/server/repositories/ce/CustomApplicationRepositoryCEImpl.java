@@ -161,8 +161,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Flux<Application> getApplicationByGitBaseApplicationId(String baseApplicationId, AclPermission permission) {
 
         return queryBuilder()
-                .criteria(
-                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId))
+                .criteria(Bridge.or(
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId),
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultArtifactId, baseApplicationId)))
                 .permission(permission)
                 .all();
     }

@@ -4,13 +4,12 @@ import { useCallback, useState } from "react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { PluginName } from "entities/Action";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { type GenerateCRUDEnabledPluginMap, PluginName } from "entities/Plugin";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import {
   getGenerateCRUDEnabledPluginMap,
@@ -20,9 +19,9 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
-import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -142,7 +141,7 @@ export const useShowPageGenerationOnHeader = (
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const editorType = useEditorType(history.location.pathname);
+  const ideType = getIDETypeByUrl(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isGACEnabled,
@@ -152,7 +151,7 @@ export const useShowPageGenerationOnHeader = (
     isEnabled: isGACEnabled,
     dsPermissions: datasourcePermissions,
     pagePermissions,
-    editorType,
+    ideType,
   });
 
   const canGeneratePage = canCreateDatasourceActions && canCreatePages;

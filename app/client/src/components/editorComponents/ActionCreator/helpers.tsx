@@ -14,7 +14,7 @@ import {
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { Icon } from "@appsmith/ads";
-import { PluginType } from "entities/Action";
+import { type Plugin, PluginType } from "entities/Plugin";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -67,7 +67,6 @@ import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstan
 import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
 import { getAllModules } from "ee/selectors/modulesSelector";
 import type { Module } from "ee/constants/ModuleConstants";
-import type { Plugin } from "api/PluginApi";
 import {
   createNewJSCollectionFromActionCreator,
   createNewQueryFromActionCreator,
@@ -485,7 +484,8 @@ function getApiAndQueryOptions(
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE ||
       action.config.pluginType === PluginType.INTERNAL ||
-      action.config.pluginType === PluginType.AI,
+      action.config.pluginType === PluginType.AI ||
+      action.config.pluginType === PluginType.EXTERNAL_SAAS,
   );
 
   const queryOptions = actionList.find(

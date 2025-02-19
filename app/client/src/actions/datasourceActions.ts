@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionWithCallbacks,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction, ReduxActionWithCallbacks } from "./ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
@@ -11,7 +8,7 @@ import type {
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
@@ -349,6 +346,7 @@ export interface executeDatasourceQuerySuccessPayload<T> {
     isExecutionSuccess: boolean;
   };
 }
+
 type errorPayload = string;
 
 export interface executeDatasourceReduxActionPayload {

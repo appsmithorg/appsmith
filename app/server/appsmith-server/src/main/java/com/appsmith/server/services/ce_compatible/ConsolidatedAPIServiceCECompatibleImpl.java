@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -10,9 +11,9 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.ce.ConsolidatedAPIServiceCEImpl;
@@ -25,7 +26,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             SessionUserService sessionUserService,
             UserService userService,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ProductAlertService productAlertService,
             NewPageService newPageService,
             NewActionService newActionService,
@@ -38,12 +39,13 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             DatasourceService datasourceService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            ObservationHelper observationHelper) {
         super(
                 sessionUserService,
                 userService,
                 userDataService,
-                tenantService,
+                organizationService,
                 productAlertService,
                 newPageService,
                 newActionService,
@@ -56,6 +58,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 datasourceService,
                 mockDataService,
                 observationRegistry,
-                cacheableRepositoryHelper);
+                cacheableRepositoryHelper,
+                observationHelper);
     }
 }

@@ -1,4 +1,4 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
+import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitAsyncErrorPayload } from "../types";
 
 export interface TriggerAutocommitInitPayload {
@@ -6,23 +6,21 @@ export interface TriggerAutocommitInitPayload {
 }
 
 export const triggerAutocommitInitAction =
-  createSingleArtifactAction<TriggerAutocommitInitPayload>((state) => {
+  createArtifactAction<TriggerAutocommitInitPayload>((state) => {
     state.apiResponses.triggerAutocommit.loading = true;
     state.apiResponses.triggerAutocommit.error = null;
 
     return state;
   });
 
-export const triggerAutocommitSuccessAction = createSingleArtifactAction(
-  (state) => {
-    state.apiResponses.triggerAutocommit.loading = false;
+export const triggerAutocommitSuccessAction = createArtifactAction((state) => {
+  state.apiResponses.triggerAutocommit.loading = false;
 
-    return state;
-  },
-);
+  return state;
+});
 
 export const triggerAutocommitErrorAction =
-  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
+  createArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.triggerAutocommit.loading = false;
@@ -31,7 +29,7 @@ export const triggerAutocommitErrorAction =
     return state;
   });
 
-export const pollAutocommitProgressStartAction = createSingleArtifactAction(
+export const pollAutocommitProgressStartAction = createArtifactAction(
   (state) => {
     state.ui.autocommitPolling = true;
 
@@ -39,7 +37,7 @@ export const pollAutocommitProgressStartAction = createSingleArtifactAction(
   },
 );
 
-export const pollAutocommitProgressStopAction = createSingleArtifactAction(
+export const pollAutocommitProgressStopAction = createArtifactAction(
   (state) => {
     state.ui.autocommitPolling = false;
 

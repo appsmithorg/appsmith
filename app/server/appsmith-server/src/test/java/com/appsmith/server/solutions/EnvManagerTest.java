@@ -14,9 +14,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +81,7 @@ public class EnvManagerTest {
     private UserUtils userUtils;
 
     @MockBean
-    private TenantService tenantService;
+    private OrganizationService organizationService;
 
     @MockBean
     private ObjectMapper objectMapper;
@@ -108,7 +108,7 @@ public class EnvManagerTest {
                 permissionGroupService,
                 configService,
                 userUtils,
-                tenantService,
+                organizationService,
                 objectMapper,
                 emailService);
     }

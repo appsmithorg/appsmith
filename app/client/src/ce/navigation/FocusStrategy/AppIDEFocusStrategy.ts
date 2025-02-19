@@ -2,14 +2,13 @@ import { all, select, take } from "redux-saga/effects";
 import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   FocusEntity,
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import { EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   datasourcesEditorURL,
@@ -18,6 +17,7 @@ import {
   widgetListURL,
 } from "ee/RouteBuilder";
 import AppIDEFocusElements from "../FocusElements/AppIDE";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 function shouldSetState(
   prevPath: string,
@@ -62,7 +62,7 @@ function shouldSetState(
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
-    prevFocusEntityInfo.entity === FocusEntity.PROPERTY_PANE &&
+    prevFocusEntityInfo.entity === FocusEntity.WIDGET &&
     (currFocusEntityInfo.entity === FocusEntity.WIDGET_LIST ||
       currFocusEntityInfo.entity === FocusEntity.CANVAS) &&
     isSamePage
@@ -86,14 +86,58 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   );
 };
 
-export const createEditorFocusInfoKey = (basePageId: string, branch?: string) =>
-  `EDITOR_STATE.${basePageId}#${branch}`;
-export const createEditorFocusInfo = (basePageId: string, branch?: string) => ({
-  key: createEditorFocusInfoKey(basePageId, branch),
+const getAppId = (focusInfo: FocusEntityInfo) => {
+  const { appId, applicationSlug, baseApplicationId } = focusInfo.params;
+
+  return applicationSlug || baseApplicationId || appId;
+};
+
+const isAppChange = (
+  prevFocusInfo: FocusEntityInfo,
+  currentFocusInfo: FocusEntityInfo,
+) => {
+  const prevAppId = getAppId(prevFocusInfo);
+  const currentAppId = getAppId(currentFocusInfo);
+
+  return prevAppId !== currentAppId;
+};
+
+export const createEditorFocusInfoKey = (
+  appId: string,
+  branch: string | null = null,
+) => {
+  return branch ? `EDITOR_STATE.${appId}#${branch}` : `EDITOR_STATE.${appId}`;
+};
+
+export const createEditorFocusInfo = (
+  appId: string,
+  branch: string | null,
+) => ({
+  key: createEditorFocusInfoKey(appId, branch),
   entityInfo: {
-    id: `EDITOR.${basePageId}`,
+    id: `EDITOR.${appId}`,
     appState: EditorState.EDITOR,
     entity: FocusEntity.EDITOR,
+    params: {},
+  },
+});
+
+export const createPageFocusInfoKey = (
+  basePageId: string,
+  branch: string | null = null,
+) => {
+  return branch ? `PAGE.${basePageId}#${branch}` : `PAGE.${basePageId}`;
+};
+
+export const createPageFocusInfo = (
+  basePageId: string,
+  branch: string | null,
+) => ({
+  key: createPageFocusInfoKey(basePageId, branch),
+  entityInfo: {
+    id: `PAGE.${basePageId}`,
+    appState: EditorState.EDITOR,
+    entity: FocusEntity.PAGE,
     params: {},
   },
 });
@@ -109,7 +153,9 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       return [];
     }
 
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const branch: string | null = yield select(
+      selectGitApplicationCurrentBranch,
+    );
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
     const currentEntityInfo = identifyEntityFromPath(currentPath);
@@ -123,8 +169,16 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     ) {
       if (currentEntityInfo.params.basePageId) {
         entities.push(
-          createEditorFocusInfo(currentEntityInfo.params.basePageId, branch),
+          createPageFocusInfo(currentEntityInfo.params.basePageId, branch),
         );
+      }
+    }
+
+    if (isAppChange(prevEntityInfo, currentEntityInfo)) {
+      const appId = getAppId(currentEntityInfo);
+
+      if (appId) {
+        entities.push(createEditorFocusInfo(appId, branch));
       }
     }
 
@@ -136,7 +190,9 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     return entities;
   },
   *getEntitiesForStore(path: string, currentPath: string) {
-    const branch: string | undefined = yield select(getCurrentGitBranch);
+    const branch: string | null = yield select(
+      selectGitApplicationCurrentBranch,
+    );
     const entities: Array<FocusPath> = [];
     const currentFocusEntityInfo = identifyEntityFromPath(currentPath);
     const prevFocusEntityInfo = identifyEntityFromPath(path);
@@ -172,15 +228,19 @@ export const AppIDEFocusStrategy: FocusStrategy = {
         prevFocusEntityInfo.params.basePageId !==
           currentFocusEntityInfo.params.basePageId)
     ) {
-      entities.push({
-        entityInfo: {
-          entity: FocusEntity.EDITOR,
-          id: `EDITOR.${prevFocusEntityInfo.params.basePageId}`,
-          appState: EditorState.EDITOR,
-          params: prevFocusEntityInfo.params,
-        },
-        key: `EDITOR_STATE.${prevFocusEntityInfo.params.basePageId}#${branch}`,
-      });
+      if (prevFocusEntityInfo.params.basePageId) {
+        entities.push(
+          createPageFocusInfo(prevFocusEntityInfo.params.basePageId, branch),
+        );
+      }
+    }
+
+    if (isAppChange(prevFocusEntityInfo, currentFocusEntityInfo)) {
+      const appId = getAppId(prevFocusEntityInfo);
+
+      if (appId) {
+        entities.push(createEditorFocusInfo(appId, branch));
+      }
     }
 
     // Do not store focus of parents based on url change

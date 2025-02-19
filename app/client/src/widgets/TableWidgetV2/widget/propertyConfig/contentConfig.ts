@@ -4,13 +4,10 @@ import {
 } from "ee/constants/messages";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import {
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  CUSTOM_LOADING_STATE_ENABLED,
-} from "../../constants";
+import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -24,6 +21,7 @@ import {
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 import Widget from "../index";
+import { INFINITE_SCROLL_ENABLED } from "../../constants";
 
 export default [
   {
@@ -163,6 +161,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: TableWidgetProps) => props.infiniteScrollEnabled,
+        dependencies: ["infiniteScrollEnabled"],
       },
       {
         helpText:
@@ -172,6 +172,16 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        helpText:
+          "Bind the Table.pageNo property in your API and call it onPageChange",
+        propertyName: "infiniteScrollEnabled",
+        label: "Infinite scroll",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: () => !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED),
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
@@ -513,7 +523,6 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-        hidden: () => !Widget.getFeatureFlag(CUSTOM_LOADING_STATE_ENABLED),
       },
       {
         propertyName: "customIsLoadingValue",

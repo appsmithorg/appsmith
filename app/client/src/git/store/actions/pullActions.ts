@@ -1,26 +1,30 @@
-import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
+import type { PullResponseData } from "git/requests/pullRequest.types";
+import { createArtifactAction } from "../helpers/createArtifactAction";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 
 export interface PullInitPayload {
   artifactId: string;
+  showErrorInPopup?: boolean;
 }
 
-export const pullInitAction = createSingleArtifactAction<PullInitPayload>(
+export const pullInitAction = createArtifactAction<PullInitPayload>((state) => {
+  state.apiResponses.pull.loading = true;
+  state.apiResponses.pull.error = null;
+
+  return state;
+});
+
+export type PullSuccessPayload = GitAsyncSuccessPayload<PullResponseData>;
+
+export const pullSuccessAction = createArtifactAction<PullSuccessPayload>(
   (state) => {
-    state.apiResponses.pull.loading = true;
-    state.apiResponses.pull.error = null;
+    state.apiResponses.pull.loading = false;
 
     return state;
   },
 );
 
-export const pullSuccessAction = createSingleArtifactAction((state) => {
-  state.apiResponses.pull.loading = false;
-
-  return state;
-});
-
-export const pullErrorAction = createSingleArtifactAction<GitAsyncErrorPayload>(
+export const pullErrorAction = createArtifactAction<GitAsyncErrorPayload>(
   (state, action) => {
     const { error } = action.payload;
 

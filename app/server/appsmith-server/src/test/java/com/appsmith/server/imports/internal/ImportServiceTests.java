@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.dtos.ModifiedResources;
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -272,6 +273,7 @@ public class ImportServiceTests {
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -329,6 +331,7 @@ public class ImportServiceTests {
                 .findByApplicationId(application.getId(), READ_PAGES, false)
                 .flatMap(page -> newActionService.getUnpublishedActions(
                         new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))),
+                        RefType.branch,
                         ""));
     }
 
@@ -358,8 +361,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .flatMap(applicationJson ->
-                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
+                .flatMap(applicationJson -> jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                        applicationJson, null, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -1013,7 +1016,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList).isNotNull();
 
@@ -1135,22 +1138,14 @@ public class ImportServiceTests {
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
                         Mono.just(applicationImportDTO),
-                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()),
-                        themeRepository.findById(applicationImportDTO.getPublishedModeThemeId()))))
+                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()))))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1();
                     Theme editTheme = tuple.getT2();
-                    Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
                     assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getWorkspaceId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
-
-                    assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
-                    assertThat(publishedTheme.getWorkspaceId()).isNullOrEmpty();
-                    assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
                 .verifyComplete();
     }
@@ -1296,7 +1291,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationImportDTO -> {
                     assertThat(applicationImportDTO.getEditModeThemeId()).isNotEmpty();
-                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -1365,7 +1360,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application savedApplication = applicationPageService
@@ -1398,7 +1393,7 @@ public class ImportServiceTests {
                         .exportByArtifactId(savedApplication.getId(), VERSION_CONTROL, APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
-                                workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
+                                workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .cache();
 
@@ -1417,7 +1412,7 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
 
                     final String branchName =
-                            application.getGitApplicationMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getRefName();
                     pageList.forEach(page -> {
                         assertThat(page.getBranchName()).isEqualTo(branchName);
                     });
@@ -1529,7 +1524,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 
@@ -1581,7 +1576,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1655,7 +1650,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1753,7 +1748,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
@@ -1857,7 +1852,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
 
                     assertThat(pageList).hasSize(3);
 
@@ -2721,7 +2716,8 @@ public class ImportServiceTests {
                 .flatMap(applicationJson -> {
                     ApplicationJson applicationJson1 = new ApplicationJson();
                     AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson1, null, null);
+                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(
+                            applicationJson1, null, null, null);
                 })
                 .map(applicationJson -> (ApplicationJson) applicationJson);
 
@@ -2731,7 +2727,7 @@ public class ImportServiceTests {
                     ApplicationJson latestApplicationJson = tuple.getT2();
 
                     assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
-                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(2);
 
                     assertThat(latestApplicationJson.getServerSchemaVersion())
                             .isEqualTo(jsonSchemaVersions.getServerVersion());
@@ -3275,7 +3271,7 @@ public class ImportServiceTests {
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -3293,7 +3289,7 @@ public class ImportServiceTests {
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 
@@ -3333,7 +3329,7 @@ public class ImportServiceTests {
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("testBranch");
+        gitData.setRefName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -3351,7 +3347,7 @@ public class ImportServiceTests {
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
                     return importService
                             .importArtifactInWorkspaceFromGit(
-                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getRefName())
                             .map(importableArtifact -> (Application) importableArtifact);
                 });
 
@@ -3841,7 +3837,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -3932,7 +3928,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -3953,7 +3949,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 
@@ -4042,7 +4038,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -4064,7 +4060,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 
@@ -4153,7 +4149,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -4175,7 +4171,7 @@ public class ImportServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
-        gitData1.setBranchName("feature");
+        gitData1.setRefName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
 
@@ -4740,7 +4736,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
 
                     assertThat(pageList).hasSize(3);
 
@@ -5292,7 +5288,7 @@ public class ImportServiceTests {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
-                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
 

@@ -17,6 +17,8 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
       is-pg-build: ${{steps.args.outputs.is-pg-build}}
+      update_snapshot: ${{steps.args.outputs.update_snapshot}}
+      specs_to_run: ${{steps.args.outputs.specs_to_run}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -37,6 +39,22 @@ jobs:
           else
               runId=$((checkArg + 0))
               echo "runId=$runId" >> $GITHUB_OUTPUT
+          fi
+
+          # Check for update_snapshot
+          checkArg=${{ github.event.client_payload.slash_command.args.named.update_snapshot }}
+          if [[ -z "$checkArg" ]]; then
+              echo "update_snapshot=false" >> $GITHUB_OUTPUT
+          else
+              echo "update_snapshot=$checkArg" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for spec file
+          checkArg=${{ github.event.client_payload.slash_command.args.named.specs_to_run }}
+          if [[ -z "$checkArg" ]]; then
+              echo "specs_to_run='no_data'" >> $GITHUB_OUTPUT
+          else
+              echo "specs_to_run=$checkArg" >> $GITHUB_OUTPUT
           fi
        
       - name: Set run count
@@ -97,7 +115,7 @@ jobs:
           body: |
             Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             [Cypress dashboard](https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail)
-            PR: #${{ fromJson(steps.args.outputs.pr) }}.
+            PR: #${{ fromJson(steps.args.outputs.pr) }} .
 
   server-build:
     name: server-build
@@ -149,6 +167,8 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+      update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
+      specs_to_run: ${{needs.file-check.outputs.specs_to_run}}
     
 
   ci-test-limited-existing-docker-image:
@@ -162,6 +182,8 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+      update_snapshot: ${{fromJson(needs.file-check.outputs.update_snapshot)}}
+      specs_to_run: ${{needs.file-check.outputs.specs_to_run}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
@@ -292,7 +314,7 @@ jobs:
             fi      
 
       - name: Add a comment on the PR with new CI failures
-        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -306,7 +328,7 @@ jobs:
                 ```
     
       - name: Add a comment on the PR when ci-test-limited is successful
-        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -451,7 +473,7 @@ jobs:
             fi      
 
       - name: Add a comment on the PR with new CI failures
-        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -465,7 +487,7 @@ jobs:
             ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
-        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}

@@ -32,7 +32,7 @@ import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCre
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { checkContainerScrollable } from "widgets/WidgetUtils";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -43,7 +43,7 @@ import { klona as klonaRegular } from "klona";
 import { klona as klonaLite } from "klona/lite";
 import { klona as klonaJson } from "klona/json";
 
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { startAndEndSpanForFn } from "instrumentation/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,

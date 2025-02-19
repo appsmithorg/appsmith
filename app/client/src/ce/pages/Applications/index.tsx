@@ -97,9 +97,9 @@ import {
   getIsFetchingApplications,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import {
-  getTenantPermissions,
+  getOrganizationPermissions,
   shouldShowLicenseBanner,
-} from "ee/selectors/tenantSelectors";
+} from "ee/selectors/organizationSelectors";
 import { getWorkflowsList } from "ee/selectors/workflowSelectors";
 import {
   getFetchedWorkspaces,
@@ -122,9 +122,7 @@ import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Indices } from "constants/Layers";
 import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
-import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -133,6 +131,29 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import OldGitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
+import {
+  GitRepoLimitErrorModal as NewGitRepoLimitErrorModal,
+  GitImportModal as NewGitImportModal,
+} from "git";
+import OldRepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+
+function GitModals() {
+  const isGitModEnabled = useGitModEnabled();
+
+  return isGitModEnabled ? (
+    <>
+      <NewGitImportModal />
+      <NewGitRepoLimitErrorModal />
+    </>
+  ) : (
+    <>
+      <OldGitSyncModal isImport />
+      <OldRepoLimitExceededErrorModal />
+    </>
+  );
+}
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -280,12 +301,12 @@ export function LeftPaneSection(props: {
 }) {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
 
   const canCreateWorkspace = getHasCreateWorkspacePermission(
     isFeatureEnabled,
-    tenantPermissions,
+    organizationPermissions,
   );
 
   const createNewWorkspace = async () => {
@@ -955,7 +976,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <GitSyncModal isImport />
+      <GitModals />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
@@ -1079,7 +1100,6 @@ export const ApplictionsMainPage = (props: any) => {
               workflows={workflowsOfWorkspace}
               workspaces={workspaces}
             />
-            <RepoLimitExceededErrorModal />
           </ApplicationsWrapper>
         )}
       </MediaQuery>

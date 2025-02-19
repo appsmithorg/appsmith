@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import fetchMergeStatusRequest from "git/requests/fetchMergeStatusRequest";
 import type {
   FetchMergeStatusRequestParams,
@@ -6,16 +5,16 @@ import type {
 } from "git/requests/fetchMergeStatusRequest.types";
 import type { FetchMergeStatusInitPayload } from "git/store/actions/fetchMergeStatusActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* fetchMergeStatusSaga(
   action: GitArtifactPayloadAction<FetchMergeStatusInitPayload>,
 ) {
-  const { artifactId, artifactType, baseArtifactId } = action.payload;
-  const basePayload = { artifactType, baseArtifactId };
+  const { artifactDef, artifactId } = action.payload;
   let response: FetchMergeStatusResponse | undefined;
 
   try {
@@ -24,30 +23,34 @@ export default function* fetchMergeStatusSaga(
       sourceBranch: action.payload.sourceBranch,
     };
 
-    response = yield call(fetchMergeStatusRequest, artifactId, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      fetchMergeStatusRequest,
+      artifactDef.artifactType,
+      artifactId,
+      params,
+      isGitApiContractsEnabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
       yield put(
         gitArtifactActions.fetchMergeStatusSuccess({
-          ...basePayload,
+          artifactDef,
           responseData: response.data,
         }),
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(
-        gitArtifactActions.fetchMergeStatusError({
-          ...basePayload,
-          error,
-        }),
+        gitArtifactActions.fetchMergeStatusError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

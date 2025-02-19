@@ -193,7 +193,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        workspace.setTenantId(user.getTenantId());
+        workspace.setOrganizationId(user.getOrganizationId());
     }
 
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
@@ -240,7 +240,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
         adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        adminPermissionGroup.setTenantId(workspace.getTenantId());
+        adminPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
@@ -249,7 +249,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
         developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        developerPermissionGroup.setTenantId(workspace.getTenantId());
+        developerPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
@@ -258,7 +258,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
         viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        viewerPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());
 
@@ -283,7 +283,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .get();
 
         // Administrator permissions
-        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN.getPermissions().stream()
+        Set<Permission> workspacePermissions = AppsmithRole.WORKSPACE_ADMIN.getPermissions().stream()
                 .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
@@ -313,7 +313,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         adminPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
 
         // Developer Permissions
-        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER.getPermissions().stream()
+        workspacePermissions = AppsmithRole.WORKSPACE_DEVELOPER.getPermissions().stream()
                 .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
@@ -326,7 +326,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
-        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER.getPermissions().stream()
+        workspacePermissions = AppsmithRole.WORKSPACE_VIEWER.getPermissions().stream()
                 .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
@@ -375,12 +375,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace, user));
     }
 
-    /**
-     * Create workspace needs to first fetch and embed Setting object in OrganizationSetting
-     * for any settings that may have diverged from the default values. Once the
-     * settings have been embedded in all the workspace settings, the library
-     * function is called to store the enhanced workspace object back in the workspace object.
-     */
     @Override
     public Mono<Workspace> create(Workspace workspace) {
         return sessionUserService.getCurrentUser().flatMap(user -> create(workspace, user, Boolean.FALSE));
@@ -462,10 +456,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
+    public Flux<Workspace> findByIdsIn(Set<String> ids, String organizationId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return repository.findByIdsIn(ids, tenantId, permission, sort);
+        return repository.findByIdsIn(ids, organizationId, permission, sort);
     }
 
     @Override

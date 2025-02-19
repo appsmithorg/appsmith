@@ -2,8 +2,10 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import {
+  AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   COMMIT_CHANGES,
   createMessage,
+  DISCARD_AND_PULL_SUCCESS,
   GIT_SETTINGS,
   MERGE,
 } from "ee/constants/messages";
@@ -13,9 +15,10 @@ import { GitOpsTab } from "../../constants/enums";
 import { GitSettingsTab } from "../../constants/enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
-import AutocommitStatusbar from "../Statusbar";
+import Statusbar from "../Statusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
+import BranchButton from "./BranchButton";
 
 const Container = styled.div`
   height: 100%;
@@ -24,17 +27,21 @@ const Container = styled.div`
 `;
 
 interface QuickActionsViewProps {
-  discard: () => void;
+  currentBranch: string | null;
+  discard: (successMessage: string) => void;
   isAutocommitEnabled: boolean;
   isAutocommitPolling: boolean;
+  isBranchPopupOpen: boolean;
   isConnectPermitted: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
-  isGitConnected: boolean;
+  isInitialized: boolean;
+  isConnected: boolean;
   isProtectedMode: boolean;
   isPullFailing: boolean;
   isPullLoading: boolean;
   isStatusClean: boolean;
+  isTriggerAutocommitLoading: boolean;
   pull: () => void;
   statusBehindCount: number;
   statusChangeCount: number;
@@ -44,23 +51,29 @@ interface QuickActionsViewProps {
     open: boolean,
     tab: keyof typeof GitSettingsTab,
   ) => void;
+  toggleBranchPopup: (open: boolean) => void;
 }
 
 function QuickActionsView({
+  currentBranch = null,
   discard = noop,
   isAutocommitEnabled = false,
   isAutocommitPolling = false,
+  isBranchPopupOpen = false,
+  isConnected = false,
   isConnectPermitted = false,
   isDiscardLoading = false,
   isFetchStatusLoading = false,
-  isGitConnected = false,
+  isInitialized = false,
   isProtectedMode = false,
   isPullFailing = false,
   isPullLoading = false,
-  isStatusClean = false,
+  isStatusClean = true,
+  isTriggerAutocommitLoading = false,
   pull = noop,
   statusBehindCount = 0,
   statusChangeCount = 0,
+  toggleBranchPopup = noop,
   toggleConnectModal = noop,
   toggleOpsModal = noop,
   toggleSettingsModal = noop,
@@ -93,10 +106,8 @@ function QuickActionsView({
       });
 
       if (isProtectedMode) {
-        discard();
+        discard(createMessage(DISCARD_AND_PULL_SUCCESS));
       } else {
-        // ! case: why is triggeredFromBottomBar this needed?
-        // pull({ triggeredFromBottomBar: true });
         pull();
       }
     }
@@ -124,46 +135,60 @@ function QuickActionsView({
     toggleConnectModal(true);
   }, [toggleConnectModal]);
 
-  return isGitConnected ? (
+  if (!isInitialized) {
+    return null;
+  }
+
+  return isConnected ? (
     <Container>
-      {/* <BranchButton /> */}
+      <BranchButton
+        currentBranch={currentBranch}
+        isAutocommitPolling={isAutocommitPolling}
+        isBranchPopupOpen={isBranchPopupOpen}
+        isProtectedMode={isProtectedMode}
+        isStatusClean={isStatusClean}
+        isTriggerAutocommitLoading={isTriggerAutocommitLoading}
+        toggleBranchPopup={toggleBranchPopup}
+      />
+
       {isAutocommitEnabled && isAutocommitPolling ? (
-        <AutocommitStatusbar completed={!isAutocommitPolling} />
+        <div data-testid="t--git-autocommit-loader">
+          <Statusbar
+            completed={!isAutocommitPolling}
+            message={createMessage(AUTOCOMMIT_IN_PROGRESS_MESSAGE)}
+          />
+        </div>
       ) : (
         <>
           <QuickActionButton
-            className="t--bottom-bar-commit"
             count={isProtectedMode ? undefined : statusChangeCount}
             disabled={!isFetchStatusLoading && isProtectedMode}
             icon="plus"
-            key="commit-action-btn"
             loading={isFetchStatusLoading}
             onClick={onCommitBtnClick}
+            testKey="commit"
             tooltipText={createMessage(COMMIT_CHANGES)}
           />
           <QuickActionButton
-            className="t--bottom-bar-pull"
             count={statusBehindCount}
             disabled={!isPullButtonLoading && isPullDisabled}
             icon="down-arrow-2"
-            key="pull-action-btn"
             loading={isPullButtonLoading}
             onClick={onPullBtnClick}
+            testKey="pull"
             tooltipText={pullTooltipMessage}
           />
           <QuickActionButton
-            className="t--bottom-bar-merge"
             disabled={isProtectedMode}
             icon="fork"
-            key="merge-action-btn"
             onClick={onMergeBtnClick}
+            testKey="merge"
             tooltipText={createMessage(MERGE)}
           />
           <QuickActionButton
-            className="t--bottom-git-settings"
             icon="settings-v3"
-            key="settings-action-btn"
             onClick={onSettingsClick}
+            testKey="settings"
             tooltipText={createMessage(GIT_SETTINGS)}
           />
         </>

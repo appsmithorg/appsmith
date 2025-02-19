@@ -1,68 +1,11 @@
-import { useLocation } from "react-router";
-import { DEBUGGER_TAB_KEYS } from "../constants";
-import { setCanvasDebuggerState } from "actions/debuggerActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { setJsPaneDebuggerState } from "actions/jsPaneActions";
-import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
-import {
-  getPluginActionDebuggerState,
-  setPluginActionEditorDebuggerState,
-} from "PluginActionEditor/store";
-import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
-import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import type { AppState } from "ee/reducers";
-
-interface Config {
-  set: (
-    payload: Partial<CanvasDebuggerState>,
-  ) => ReduxAction<Partial<CanvasDebuggerState>>;
-  get: (state: AppState) => CanvasDebuggerState;
-}
-
-const canvasDebuggerConfig: Config = {
-  set: setCanvasDebuggerState,
-  get: getCanvasDebuggerState,
-};
-
-const pluginActionEditorDebuggerConfig: Config = {
-  set: setPluginActionEditorDebuggerState,
-  get: getPluginActionDebuggerState,
-};
-
-export const getDebuggerPaneConfig = (
-  focusInfo: FocusEntityInfo,
-  ideViewMode: EditorViewMode,
-): Config => {
-  if (ideViewMode === EditorViewMode.SplitScreen) {
-    return canvasDebuggerConfig;
-  }
-
-  switch (focusInfo.entity) {
-    case FocusEntity.QUERY:
-      return pluginActionEditorDebuggerConfig;
-    case FocusEntity.JS_OBJECT:
-      return {
-        set: setJsPaneDebuggerState,
-        get: getJsPaneDebuggerState,
-      };
-    default:
-      return canvasDebuggerConfig;
-  }
-};
+import { DEBUGGER_TAB_KEYS } from "../constants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDebuggerConfig } from "./useDebuggerConfig";
 
 const useDebuggerTriggerClick = () => {
-  const location = useLocation();
-  const currentFocus = identifyEntityFromPath(location.pathname);
-  const ideState = useSelector(getIDEViewMode);
   const dispatch = useDispatch();
-
-  const config = getDebuggerPaneConfig(currentFocus, ideState);
+  const config = useDebuggerConfig();
 
   const state = useSelector(config.get);
 
