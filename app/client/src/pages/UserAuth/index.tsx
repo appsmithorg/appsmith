@@ -17,7 +17,7 @@ import VerificationError from "./VerificationError";
 import FooterLinks from "./FooterLinks";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { getAppsmithConfigs } from "ee/configs";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -29,7 +29,7 @@ export function UserAuth() {
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const isMobileDevice = useIsMobileDevice();
-  const tenantConfig = useSelector(getTenantConfig);
+  const organizationConfig = useSelector(getOrganizationConfig);
   const { cloudHosting } = getAppsmithConfigs();
 
   return (
@@ -43,7 +43,7 @@ export function UserAuth() {
         {isMobileDevice && (
           <img
             className="h-8 mx-auto"
-            src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            src={getAssetUrl(organizationConfig.brandLogoUrl)}
           />
         )}
         <Switch location={location}>

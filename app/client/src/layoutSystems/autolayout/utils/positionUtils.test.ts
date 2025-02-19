@@ -5,7 +5,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import type { AlignmentInfo, Row } from "../../autolayout/utils/types";
 import { RenderModes } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   extractAlignmentInfo,
   getAlignmentSizeInfo,

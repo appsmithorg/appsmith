@@ -6,7 +6,7 @@ import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
+import type { UpdateWidgetsPayload } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 
 export interface MetaWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;

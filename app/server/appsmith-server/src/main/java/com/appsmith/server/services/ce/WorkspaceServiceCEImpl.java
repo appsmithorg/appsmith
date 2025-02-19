@@ -193,7 +193,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        workspace.setTenantId(user.getTenantId());
+        workspace.setOrganizationId(user.getOrganizationId());
     }
 
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
@@ -240,7 +240,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
         adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        adminPermissionGroup.setTenantId(workspace.getTenantId());
+        adminPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
@@ -249,7 +249,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
         developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        developerPermissionGroup.setTenantId(workspace.getTenantId());
+        developerPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
@@ -258,7 +258,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
         viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        viewerPermissionGroup.setOrganizationId(workspace.getOrganizationId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());
 
@@ -456,10 +456,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
+    public Flux<Workspace> findByIdsIn(Set<String> ids, String organizationId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return repository.findByIdsIn(ids, tenantId, permission, sort);
+        return repository.findByIdsIn(ids, organizationId, permission, sort);
     }
 
     @Override

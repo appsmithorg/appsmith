@@ -3,7 +3,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,

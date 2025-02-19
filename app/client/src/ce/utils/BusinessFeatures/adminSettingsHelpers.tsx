@@ -20,11 +20,17 @@ export const getShowAdminSettings = (
 export const getAdminSettingsPath = (
   isEnabled: boolean,
   isSuperUser: boolean | undefined,
-  tenantPermissions: string[] = [],
+  organizationPermissions: string[] = [],
 ) => {
   if (isEnabled) {
-    return getDefaultAdminSettingsPath_EE({ isSuperUser, tenantPermissions });
+    return getDefaultAdminSettingsPath_EE({
+      isSuperUser,
+      organizationPermissions,
+    });
   } else {
-    return getDefaultAdminSettingsPath_CE({ isSuperUser, tenantPermissions });
+    return getDefaultAdminSettingsPath_CE({
+      isSuperUser,
+      organizationPermissions,
+    });
   }
 };

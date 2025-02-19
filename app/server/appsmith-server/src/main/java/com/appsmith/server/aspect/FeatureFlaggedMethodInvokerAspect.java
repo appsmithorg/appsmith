@@ -65,7 +65,7 @@ public class FeatureFlaggedMethodInvokerAspect {
             return featureFlagMono.flatMapMany(isSupported -> (Flux<?>) invokeMethod(isSupported, joinPoint, method));
         }
         // For non-reactive methods with feature flagging annotation we will be using the in memory feature flag cache
-        // which is getting updated whenever the tenant feature flags are updated.
+        // which is getting updated whenever the organization feature flags are updated.
         return invokeMethod(isFeatureFlagEnabled(flagName), joinPoint, method);
     }
 
@@ -108,7 +108,7 @@ public class FeatureFlaggedMethodInvokerAspect {
     }
 
     boolean isFeatureFlagEnabled(FeatureFlagEnum flagName) {
-        CachedFeatures cachedFeatures = featureFlagService.getCachedTenantFeatureFlags();
+        CachedFeatures cachedFeatures = featureFlagService.getCachedOrganizationFeatureFlags();
         return cachedFeatures != null
                 && !CollectionUtils.isNullOrEmpty(cachedFeatures.getFeatures())
                 && Boolean.TRUE.equals(cachedFeatures.getFeatures().get(flagName.name()));

@@ -14,7 +14,7 @@ import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 
 const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 
-const tenantState = (state: AppState) => state.tenant;
+const organizationState = (state: AppState) => state.organization;
 const uiState = (state: AppState) => state.ui;
 
 export const getRampLink = ({
@@ -26,8 +26,8 @@ export const getRampLink = ({
   feature: string;
   isBusinessFeature?: boolean;
 }) =>
-  createSelector(tenantState, (tenant) => {
-    const instanceId = tenant?.instanceId;
+  createSelector(organizationState, (organization) => {
+    const instanceId = organization?.instanceId;
     const source = cloudHosting ? "cloud" : "CE";
     const RAMP_LINK_TO = isBusinessFeature
       ? CUSTOMER_PORTAL_URL_WITH_PARAMS(

@@ -49,7 +49,13 @@ public class Migration061TenantPolicySetToPolicyMap {
             defaultTenant.getPolicies().forEach(policy -> policyMap.put(policy.getPermission(), policy));
             defaultTenant.setPolicyMap(policyMap);
             mongoTemplate.save(defaultTenant);
-            cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
+
+            // The following code line has been commented as part of Tenant to Organization migration. The function does
+            // not exist
+            // anymore and no need to evict the cached tenant anymore because Migration 065 would migrate the tenant to
+            // organization
+            // and a new cache line would be set for the organization.
+            //            cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
         } else {
             log.info(
                     "Tenant already has policyMap set. Skipping migration to update policy set to map in tenant Migration061TenantPolicySetToPolicyMap.");

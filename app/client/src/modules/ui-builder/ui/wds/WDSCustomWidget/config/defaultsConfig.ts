@@ -6,7 +6,7 @@ import {
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 
 import defaultApp from "../widget/defaultApp";
 import { COMPONENT_SIZE, DEFAULT_MODEL } from "../constants";

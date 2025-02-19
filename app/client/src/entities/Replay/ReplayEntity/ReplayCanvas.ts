@@ -1,5 +1,5 @@
 import type { Diff } from "deep-diff";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import ReplayEntity from "../index";
 import { set } from "lodash";
 import {
