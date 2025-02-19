@@ -60,12 +60,14 @@ public class DistributedLockAspect {
     private LockDetails createLockDetails(DistributedLock lock) {
         String lockKey = LOCK_PREFIX + lock.key();
         long ttl = lock.ttl();
-        String value = "locked until " + Instant.now().plus(ttl, ChronoUnit.SECONDS).toString();
+        String value =
+                "locked until " + Instant.now().plus(ttl, ChronoUnit.SECONDS).toString();
         return new LockDetails(lockKey, value, Duration.ofSeconds(ttl));
     }
 
     private void releaseLock(String lockKey) {
-        redisOperations.delete(lockKey)
+        redisOperations
+                .delete(lockKey)
                 .doOnSuccess(deleted -> {
                     log.info("Released lock for: {}", lockKey);
                 })
@@ -80,7 +82,8 @@ public class DistributedLockAspect {
     private Object handleMono(ProceedingJoinPoint joinPoint, DistributedLock lock) {
         LockDetails lockDetails = createLockDetails(lock);
 
-        return redisOperations.opsForValue()
+        return redisOperations
+                .opsForValue()
                 .setIfAbsent(lockDetails.key, lockDetails.value, lockDetails.duration)
                 .flatMap(acquired -> {
                     if (Boolean.TRUE.equals(acquired)) {
@@ -106,7 +109,8 @@ public class DistributedLockAspect {
     private Object handleFlux(ProceedingJoinPoint joinPoint, DistributedLock lock) {
         LockDetails lockDetails = createLockDetails(lock);
 
-        return redisOperations.opsForValue()
+        return redisOperations
+                .opsForValue()
                 .setIfAbsent(lockDetails.key, lockDetails.value, lockDetails.duration)
                 .flatMapMany(acquired -> {
                     if (Boolean.TRUE.equals(acquired)) {
@@ -134,7 +138,8 @@ public class DistributedLockAspect {
 
         Boolean acquired = null;
         try {
-            acquired = redisOperations.opsForValue()
+            acquired = redisOperations
+                    .opsForValue()
                     .setIfAbsent(lockDetails.key, lockDetails.value, lockDetails.duration)
                     .block();
         } catch (Exception e) {
