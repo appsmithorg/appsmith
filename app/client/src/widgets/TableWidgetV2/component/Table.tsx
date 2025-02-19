@@ -21,12 +21,7 @@ import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import { ColumnTypes } from "../constants";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
 import type { ReactTableColumnProps, StickyType } from "./Constants";
-import {
-  CompactModeTypes,
-  SCROLL_BAR_OFFSET,
-  TABLE_SCROLLBAR_HEIGHT,
-  TABLE_SIZES,
-} from "./Constants";
+import { CompactModeTypes, TABLE_SIZES } from "./Constants";
 import TableHeader from "./header";
 import StaticTable from "./StaticTable";
 import { TableProvider } from "./TableContext";
@@ -249,21 +244,6 @@ export function Table(props: TableProps) {
     props.isVisiblePagination ||
     props.allowAddNewRow;
 
-  // TODO: REMOVE THIS
-  const scrollContainerStyles = useMemo(() => {
-    return {
-      height: isHeaderVisible
-        ? props.height - tableSizes.TABLE_HEADER_HEIGHT - TABLE_SCROLLBAR_HEIGHT
-        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
-      width: props.width,
-    };
-  }, [
-    isHeaderVisible,
-    props.height,
-    tableSizes.TABLE_HEADER_HEIGHT,
-    props.width,
-  ]);
-
   /**
    * What this really translates is to fixed height rows:
    * shouldUseVirtual: false -> fixed height row, irrespective of content small or big
@@ -355,48 +335,7 @@ export function Table(props: TableProps) {
           ref={tableWrapperRef}
         >
           <div {...getTableProps()} className="table column-freeze">
-            {!shouldUseVirtual && <StaticTable />}
-
-            {shouldUseVirtual && (
-              <VirtualTable
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                canFreezeColumn={props.canFreezeColumn}
-                columns={props.columns}
-                disableDrag={props.disableDrag}
-                editMode={props.editMode}
-                enableDrag={props.enableDrag}
-                getTableBodyProps={getTableBodyProps}
-                handleAllRowSelectClick={handleAllRowSelectClick}
-                handleColumnFreeze={props.handleColumnFreeze}
-                handleReorderColumn={props.handleReorderColumn}
-                headerGroups={headerGroups}
-                height={props.height}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
-                isLoading={props.isLoading}
-                isResizingColumn={isResizingColumn}
-                isSortable={props.isSortable}
-                loadMoreFromEvaluations={props.nextPageClick}
-                multiRowSelection={props?.multiRowSelection}
-                pageSize={props.pageSize}
-                prepareRow={prepareRow}
-                primaryColumnId={props.primaryColumnId}
-                ref={scrollBarRef}
-                rowSelectionState={rowSelectionState}
-                scrollContainerStyles={scrollContainerStyles}
-                selectTableRow={props.selectTableRow}
-                selectedRowIndex={props.selectedRowIndex}
-                selectedRowIndices={props.selectedRowIndices}
-                sortTableColumn={props.sortTableColumn}
-                subPage={subPage}
-                tableSizes={tableSizes}
-                totalColumnsWidth={totalColumnsWidth}
-                useVirtual={shouldUseVirtual}
-                widgetId={props.widgetId}
-                width={props.width}
-              />
-            )}
+            {shouldUseVirtual ? <VirtualTable /> : <StaticTable />}
           </div>
         </div>
       </TableWrapper>
