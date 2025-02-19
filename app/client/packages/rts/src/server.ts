@@ -1,4 +1,3 @@
-import "./instrumentation";
 import http from "http";
 import express from "express";
 import type { LogLevelDesc } from "loglevel";
