@@ -23,61 +23,16 @@ const VirtualTableInnerElement = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) => {
   const {
-    accentColor,
-    borderRadius,
-    canFreezeColumn,
-    columns,
-    disableDrag,
-    editMode,
-    enableDrag,
     getTableBodyProps,
-    handleAllRowSelectClick,
-    handleColumnFreeze,
-    handleReorderColumn,
-    headerGroups,
-    isResizingColumn,
-    isSortable,
     multiRowSelection,
-    prepareRow,
-    rows,
-    rowSelectionState,
-    sortTableColumn,
     totalColumnsWidth,
-    widgetId,
-    width,
   } = // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useContext(BodyContext) as any;
 
   return (
     <>
-      <TableColumnHeader
-        accentColor={accentColor}
-        borderRadius={borderRadius}
-        canFreezeColumn={canFreezeColumn}
-        columns={columns}
-        disableDrag={disableDrag}
-        editMode={editMode}
-        enableDrag={enableDrag}
-        handleAllRowSelectClick={handleAllRowSelectClick}
-        handleColumnFreeze={handleColumnFreeze}
-        handleReorderColumn={handleReorderColumn}
-        headerGroups={headerGroups}
-        headerWidth={
-          multiRowSelection && totalColumnsWidth
-            ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
-            : totalColumnsWidth
-        }
-        isResizingColumn={isResizingColumn}
-        isSortable={isSortable}
-        multiRowSelection={multiRowSelection}
-        prepareRow={prepareRow}
-        rowSelectionState={rowSelectionState}
-        sortTableColumn={sortTableColumn}
-        subPage={rows}
-        widgetId={widgetId}
-        width={width}
-      />
+      <TableColumnHeader />
       <StyledTableBodyWrapper
         className="tbody body"
         multiRowSelection={multiRowSelection}
