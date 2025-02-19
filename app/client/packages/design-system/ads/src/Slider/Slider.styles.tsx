@@ -33,6 +33,11 @@ export const SliderLabel = styled.div`
   align-self: stretch;
   justify-content: space-between;
   margin: 0 calc(var(--ads-v2-spaces-5) / 2 * -1) var(--ads-v2-spaces-3);
+
+  span {
+    flex-grow: 1;
+    text-align: end;
+  }
 `;
 
 export const Thumb = styled.div`
