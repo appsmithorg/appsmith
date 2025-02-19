@@ -8,6 +8,7 @@ import {
   gitSync,
   apiPage,
   dataSources,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -182,8 +183,14 @@ describe(
             200,
           );
           cy.get(".t--page-switch-tab")
+            .contains("Page1")
+            .click({ force: true });
+          agHelper.AssertElementAbsence(".t--widget-tablewidgetv2");
+
+          cy.get(".t--page-switch-tab")
             .contains("ParentPage1")
             .click({ force: true });
+          agHelper.AssertElementAbsence(locators._spinnerHead, 5000);
           agHelper.WaitUntilEleAppear(".t--widget-tablewidgetv2");
         });
       });
