@@ -9,7 +9,8 @@ import TableColumnHeader from "../header/TableColumnHeader";
 import { TableBody } from "../TableBody";
 import { useAppsmithTable } from "../TableContext";
 
-const StaticTable = (props: unknown, ref: React.Ref<SimpleBar>) => {
+interface StaticTableProps {}
+const StaticTable = (_: StaticTableProps, ref: React.Ref<SimpleBar>) => {
   const {
     accentColor,
     borderRadius,
