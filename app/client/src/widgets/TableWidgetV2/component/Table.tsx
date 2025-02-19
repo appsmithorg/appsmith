@@ -14,7 +14,7 @@ import {
   useTable,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import SimpleBar from "simplebar-react";
+import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
@@ -343,15 +343,7 @@ export function Table(props: TableProps) {
           borderRadius={props.borderRadius}
           widgetId={props.widgetId}
         />
-        {isHeaderVisible && (
-          <SimpleBar
-            style={{
-              maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
-            }}
-          >
-            <TableHeader />
-          </SimpleBar>
-        )}
+        {isHeaderVisible && <TableHeader />}
         <div
           className={
             props.isLoading

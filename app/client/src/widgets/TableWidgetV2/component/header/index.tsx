@@ -7,6 +7,8 @@ import {
   TableHeaderWrapper,
 } from "../TableStyledWrappers";
 import BannerNActions from "./BannerNActions";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
 export default function TableHeader() {
   const {
@@ -55,55 +57,61 @@ export default function TableHeader() {
   );
 
   return (
-    <TableHeaderWrapper
-      backgroundColor={Colors.WHITE}
-      serverSidePaginationEnabled={serverSidePaginationEnabled}
-      tableSizes={tableSizes}
-      width={width}
+    <SimpleBar
+      style={{
+        maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+      }}
     >
-      <TableHeaderInnerWrapper
+      <TableHeaderWrapper
         backgroundColor={Colors.WHITE}
         serverSidePaginationEnabled={serverSidePaginationEnabled}
         tableSizes={tableSizes}
-        variant={variant}
         width={width}
       >
-        <BannerNActions
-          accentColor={accentColor}
-          allowAddNewRow={allowAddNewRow}
-          applyFilter={applyFilter}
-          borderRadius={borderRadius}
-          boxShadow={boxShadow}
-          columns={tableHeaderColumns}
-          currentPageIndex={currentPageIndex}
-          delimiter={delimiter}
-          disableAddNewRow={!!editableCell?.column}
-          disabledAddNewRowSave={disabledAddNewRowSave}
-          filters={filters}
-          isAddRowInProgress={isAddRowInProgress}
-          isVisibleDownload={isVisibleDownload}
-          isVisibleFilters={isVisibleFilters}
-          isVisiblePagination={isVisiblePagination}
-          isVisibleSearch={isVisibleSearch}
-          nextPageClick={nextPageClick}
-          onAddNewRow={onAddNewRow}
-          onAddNewRowAction={onAddNewRowAction}
-          pageCount={pageCount}
-          pageNo={pageNo}
-          pageOptions={pageOptions}
-          prevPageClick={prevPageClick}
-          searchKey={searchKey}
-          searchTableData={searchTableData}
+        <TableHeaderInnerWrapper
+          backgroundColor={Colors.WHITE}
           serverSidePaginationEnabled={serverSidePaginationEnabled}
-          tableColumns={columns}
-          tableData={data}
           tableSizes={tableSizes}
-          totalRecordsCount={totalRecordsCount}
-          updatePageNo={updatePageNo}
-          widgetId={widgetId}
-          widgetName={widgetName}
-        />
-      </TableHeaderInnerWrapper>
-    </TableHeaderWrapper>
+          variant={variant}
+          width={width}
+        >
+          <BannerNActions
+            accentColor={accentColor}
+            allowAddNewRow={allowAddNewRow}
+            applyFilter={applyFilter}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
+            columns={tableHeaderColumns}
+            currentPageIndex={currentPageIndex}
+            delimiter={delimiter}
+            disableAddNewRow={!!editableCell?.column}
+            disabledAddNewRowSave={disabledAddNewRowSave}
+            filters={filters}
+            isAddRowInProgress={isAddRowInProgress}
+            isVisibleDownload={isVisibleDownload}
+            isVisibleFilters={isVisibleFilters}
+            isVisiblePagination={isVisiblePagination}
+            isVisibleSearch={isVisibleSearch}
+            nextPageClick={nextPageClick}
+            onAddNewRow={onAddNewRow}
+            onAddNewRowAction={onAddNewRowAction}
+            pageCount={pageCount}
+            pageNo={pageNo}
+            pageOptions={pageOptions}
+            prevPageClick={prevPageClick}
+            searchKey={searchKey}
+            searchTableData={searchTableData}
+            serverSidePaginationEnabled={serverSidePaginationEnabled}
+            tableColumns={columns}
+            tableData={data}
+            tableSizes={tableSizes}
+            totalRecordsCount={totalRecordsCount}
+            updatePageNo={updatePageNo}
+            widgetId={widgetId}
+            widgetName={widgetName}
+          />
+        </TableHeaderInnerWrapper>
+      </TableHeaderWrapper>
+    </SimpleBar>
   );
 }
