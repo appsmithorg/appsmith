@@ -437,7 +437,7 @@ def main():
     convert("Config")
     convert("PasswordResetToken")
     convert("DatasourceStorage")
-    convert("Tenant")
+    convert("Organization")
     convert("Collection")
     convert("Asset")
     convert("UsagePulse")

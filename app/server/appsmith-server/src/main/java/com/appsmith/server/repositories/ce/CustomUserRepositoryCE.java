@@ -12,6 +12,8 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Optional<User> findByEmail(String email, AclPermission permission, User currentUser);
 
+    Optional<User> findByEmailAndOrganizationId(String email, String organizationId);
+
     Optional<Boolean> isUsersEmpty();
 
     Set<String> getSystemGeneratedUserEmails();

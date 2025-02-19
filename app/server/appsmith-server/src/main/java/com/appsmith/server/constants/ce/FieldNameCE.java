@@ -183,7 +183,7 @@ public class FieldNameCE {
     public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
-    public static final String TENANT = "tenant";
+    public static final String ORGANIZATION = "organization";
 
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
 
@@ -197,6 +197,7 @@ public class FieldNameCE {
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
     public static final String INSTANCE_ID = "instanceId";
+    public static final String TENANT_ID = "tenantId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
     public static final String PUBLISHED = "published";
@@ -204,6 +205,7 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
+    public static final String ORGANIZATION_ID = "organizationId";
     public static final String NONE = "none";
     public static final String PERMISSION_GROUPS = "permissionGroups";
 

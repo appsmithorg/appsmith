@@ -10,7 +10,7 @@ import EditorButton from "components/editorComponents/Button";
 import history from "utils/history";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { useDispatch, useSelector } from "react-redux";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import {
   getCurrentApplication,
   getCurrentApplicationIdForCreateNewApp,
@@ -68,7 +68,7 @@ function EntitySearchBar(props: any) {
     useState(false);
   const [searchedPackages, setSearchedPackages] = useState([]);
 
-  const tenantConfig = useSelector(getTenantConfig);
+  const organizationConfig = useSelector(getOrganizationConfig);
   const isCreateNewAppFlow = useSelector(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -243,12 +243,12 @@ function EntitySearchBar(props: any) {
           ))}
 
         <HeaderSection>
-          {tenantConfig.brandLogoUrl && (
+          {organizationConfig.brandLogoUrl && (
             <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
               <img
                 alt="Logo"
                 className="h-6"
-                src={getAssetUrl(tenantConfig.brandLogoUrl)}
+                src={getAssetUrl(organizationConfig.brandLogoUrl)}
               />
             </Link>
           )}

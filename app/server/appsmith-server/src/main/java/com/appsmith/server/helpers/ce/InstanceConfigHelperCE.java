@@ -15,5 +15,5 @@ public interface InstanceConfigHelperCE {
 
     Mono<Boolean> isLicenseValid();
 
-    Mono<Void> updateCacheForTenantFeatureFlags();
+    Mono<Void> updateCacheForOrganizationFeatureFlags();
 }

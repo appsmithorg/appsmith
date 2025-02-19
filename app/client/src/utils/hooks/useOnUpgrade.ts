@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
   PRICING_PAGE_URL,

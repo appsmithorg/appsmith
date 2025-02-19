@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -16,11 +18,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
 
     public PermissionGroupServiceImpl(
             Validator validator,
-            PermissionGroupRepository repositoryDirect,
-            PermissionGroupRepositoryCake repository,
+            PermissionGroupRepository repository,
+            PermissionGroupRepositoryCake repositoryCake,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserRepositoryCake userRepository,
             PolicySolution policySolution,
             ConfigRepositoryCake configRepository,
@@ -28,11 +30,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
 
         super(
                 validator,
-                repositoryDirect,
                 repository,
+                repositoryCake,
                 analyticsService,
                 sessionUserService,
-                tenantService,
+                organizationService,
                 userRepository,
                 policySolution,
                 configRepository,

@@ -1,17 +1,15 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { UpdateGlobalProfileInitPayload } from "../store/actions/updateGlobalProfileActions";
 import updateGlobalProfileRequest from "../requests/updateGlobalProfileRequest";
 import type {
   UpdateGlobalProfileRequestParams,
   UpdateGlobalProfileResponse,
 } from "../requests/updateGlobalProfileRequest.types";
-
-// internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import handleApiErrors from "./helpers/handleApiErrors";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 
 export default function* updateGlobalProfileSaga(
   action: PayloadAction<UpdateGlobalProfileInitPayload>,
@@ -24,7 +22,15 @@ export default function* updateGlobalProfileSaga(
       authorEmail: action.payload.authorEmail,
     };
 
-    response = yield call(updateGlobalProfileRequest, params);
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
+    response = yield call(
+      updateGlobalProfileRequest,
+      params,
+      isGitApiContractsEnabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response, true);
 
@@ -33,13 +39,10 @@ export default function* updateGlobalProfileSaga(
       yield put(gitGlobalActions.fetchGlobalProfileInit());
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(gitGlobalActions.updateGlobalProfileError({ error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

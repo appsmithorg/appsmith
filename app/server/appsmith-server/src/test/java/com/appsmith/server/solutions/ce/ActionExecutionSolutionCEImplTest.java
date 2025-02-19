@@ -26,8 +26,8 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -134,7 +134,7 @@ class ActionExecutionSolutionCEImplTest {
     ConfigService configService;
 
     @SpyBean
-    TenantService tenantService;
+    OrganizationService organizationService;
 
     @SpyBean
     CommonConfig commonConfig;
@@ -174,7 +174,7 @@ class ActionExecutionSolutionCEImplTest {
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 commonConfig,
                 actionExecutionSolutionHelper,
                 featureFlagService);

@@ -10,7 +10,7 @@ import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.external.enums.FeatureFlagEnum.ORGANIZATION_TEST_FEATURE;
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
 import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
@@ -68,7 +68,7 @@ public class FeatureFlagServiceCETest {
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     @Autowired
-    TenantService tenantService;
+    OrganizationService organizationService;
 
     @BeforeEach
     void setup() {
@@ -81,7 +81,7 @@ public class FeatureFlagServiceCETest {
     @AfterEach
     void tearDown() {
         cacheManager.evictAll("featureFlag").block();
-        cacheManager.evictAll("tenantNewFeatures").block();
+        cacheManager.evictAll("organizationNewFeatures").block();
     }
 
     @Test
@@ -105,26 +105,26 @@ public class FeatureFlagServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGetFeaturesForUser_overrideWithTenantFeature() {
+    public void testGetFeaturesForUser_overrideWithOrganizationFeature() {
 
-        // Assert feature flag is false before the tenant level flag overrides the existing flag
+        // Assert feature flag is false before the org level flag overrides the existing flag
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(TENANT_TEST_FEATURE.toString()));
+                    assertTrue(result.get(ORGANIZATION_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
 
-        Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(TENANT_TEST_FEATURE.toString(), false);
+        Map<String, Boolean> organizationFeatures = new HashMap<>();
+        organizationFeatures.put(ORGANIZATION_TEST_FEATURE.toString(), false);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
-        responseDTO.setFeatures(tenantFeatures);
-        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
-        // Assert true for same feature flag after tenant level flag overrides the existing flag
+        responseDTO.setFeatures(organizationFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForOrganization(any());
+        // Assert true for same feature flag after org level flag overrides the existing flag
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertFalse(result.get(TENANT_TEST_FEATURE.toString()));
+                    assertFalse(result.get(ORGANIZATION_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
     }
@@ -151,7 +151,7 @@ public class FeatureFlagServiceCETest {
     }
 
     @Test
-    public void getFeatures_withTenantIdentifier_redisKeyExists() {
+    public void getFeatures_withOrganizationIdentifier_redisKeyExists() {
         Map<String, Boolean> flags = new HashMap<>();
         flags.put(UUID.randomUUID().toString(), true);
         flags.put(UUID.randomUUID().toString(), false);
@@ -160,20 +160,20 @@ public class FeatureFlagServiceCETest {
 
         doReturn(Mono.just(featuresResponseDTO))
                 .when(cacheableFeatureFlagHelper)
-                .getRemoteFeaturesForTenant(any());
+                .getRemoteFeaturesForOrganization(any());
 
-        String tenantIdentifier = UUID.randomUUID().toString();
+        String organizationIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }
 
     @Test
-    public void evictFeatures_withTenantIdentifier_redisKeyDoesNotExist() {
-        // Insert dummy value for tenant flags
+    public void evictFeatures_withOrganizationIdentifier_redisKeyDoesNotExist() {
+        // Insert dummy value for org flags
         Map<String, Boolean> flags = new HashMap<>();
         flags.put(UUID.randomUUID().toString(), true);
         flags.put(UUID.randomUUID().toString(), false);
@@ -182,19 +182,19 @@ public class FeatureFlagServiceCETest {
 
         doReturn(Mono.just(featuresResponseDTO))
                 .when(cacheableFeatureFlagHelper)
-                .getRemoteFeaturesForTenant(any());
+                .getRemoteFeaturesForOrganization(any());
 
-        String tenantIdentifier = UUID.randomUUID().toString();
+        String organizationIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         // Assert key is inserted in cache
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
 
-        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantFeatures(tenantIdentifier);
-        hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
+        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedOrganizationFeatures(organizationIdentifier);
+        hasKeyMono = reactiveRedisTemplate.hasKey("organizationNewFeatures:" + organizationIdentifier);
         // Assert key is evicted from cache
         StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(Assertions::assertFalse)
@@ -203,19 +203,19 @@ public class FeatureFlagServiceCETest {
 
     @Test
     public void
-            getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_emptyMapForPendingMigration_statesUpdate() {
+            getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations_emptyMapForPendingMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(new HashMap<>()));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
-        StepVerifier.create(tenantService.getDefaultTenant())
-                .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+        StepVerifier.create(organizationService.getDefaultOrganization())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(new HashMap<>());
-                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+                    assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(COMPLETED);
                 })
                 .verifyComplete();
@@ -223,80 +223,82 @@ public class FeatureFlagServiceCETest {
 
     @Test
     public void
-            getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_disableMigration_statesUpdate() {
+            getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations_disableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, DISABLE)));
+                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE)));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
-        StepVerifier.create(tenantService.getDefaultTenant())
-                .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, DISABLE));
-                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+        StepVerifier.create(organizationService.getDefaultOrganization())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
+                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
+                    assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_enableMigration_statesUpdate() {
+    public void
+            getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations_enableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, ENABLE)));
+                .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE)));
 
         featureFlagService
-                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
                 .block();
-        StepVerifier.create(tenantService.getDefaultTenant())
-                .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, ENABLE));
-                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+        StepVerifier.create(organizationService.getDefaultOrganization())
+                .assertNext(organization -> {
+                    assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
+                            .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
+                    assertThat(organization.getOrganizationConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void getTenantFeatureFlags_withDefaultTenant_fetchLatestFlags() {
+    public void getOrganizationFeatureFlags_withDefaultOrganization_fetchLatestFlags() {
 
-        Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(TENANT_TEST_FEATURE.name(), true);
+        Map<String, Boolean> organizationFeatures = new HashMap<>();
+        organizationFeatures.put(ORGANIZATION_TEST_FEATURE.name(), true);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
-        responseDTO.setFeatures(tenantFeatures);
-        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
-        StepVerifier.create(featureFlagService.getTenantFeatures())
+        responseDTO.setFeatures(organizationFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForOrganization(any());
+        StepVerifier.create(featureFlagService.getOrganizationFeatures())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(TENANT_TEST_FEATURE.name()));
+                    assertTrue(result.get(ORGANIZATION_TEST_FEATURE.name()));
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void getCachedTenantFeatureFlags_withDefaultTenant_tenantFeatureFlagsAreCached() {
+    public void getCachedOrganizationFeatureFlags_withDefaultOrganization_organizationFeatureFlagsAreCached() {
 
         // Assert that the cached feature flags are empty before the remote fetch
-        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
+        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags();
         assertThat(cachedFeaturesBeforeRemoteCall.getFeatures()).hasSize(1);
-        assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
+        assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
 
-        Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(TENANT_TEST_FEATURE.name(), false);
+        Map<String, Boolean> organizationFeatures = new HashMap<>();
+        organizationFeatures.put(ORGANIZATION_TEST_FEATURE.name(), false);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
-        responseDTO.setFeatures(tenantFeatures);
-        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
-        StepVerifier.create(featureFlagService.getTenantFeatures())
+        responseDTO.setFeatures(organizationFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForOrganization(any());
+        StepVerifier.create(featureFlagService.getOrganizationFeatures())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertFalse(result.get(TENANT_TEST_FEATURE.name()));
+                    assertFalse(result.get(ORGANIZATION_TEST_FEATURE.name()));
 
                     // Check if the cached feature flags are updated after the remote fetch
-                    CachedFeatures cachedFeaturesAfterRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
-                    assertFalse(cachedFeaturesAfterRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
+                    CachedFeatures cachedFeaturesAfterRemoteCall =
+                            featureFlagService.getCachedOrganizationFeatureFlags();
+                    assertFalse(cachedFeaturesAfterRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
                 })
                 .verifyComplete();
     }

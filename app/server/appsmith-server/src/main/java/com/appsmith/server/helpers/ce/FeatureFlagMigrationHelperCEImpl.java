@@ -2,8 +2,8 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
@@ -32,74 +32,76 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
 
     /**
      * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
-     * to update the tenant level feature flags
+     * to update the org level feature flags
      */
-    private static final long TENANT_FEATURES_CACHE_TIME_MIN = 115;
+    private static final long ORGANIZATION_FEATURES_CACHE_TIME_MIN = 115;
 
     @Override
-    public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(Tenant defaultTenant) {
-        return getUpdatedFlagsWithPendingMigration(defaultTenant, FALSE);
+    public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
+            Organization defaultOrganization) {
+        return getUpdatedFlagsWithPendingMigration(defaultOrganization, FALSE);
     }
 
     /**
      * Method to get the updated feature flags with pending migrations. This method finds and registers the flags for
      * migration by comparing the diffs between the feature flags stored in cache and the latest one pulled from CS
-     * @param tenant        Tenant for which the feature flags need to be updated
-     * @param forceUpdate   Flag to force update the tenant level feature flags
+     * @param organization        Organization for which the feature flags need to be updated
+     * @param forceUpdate   Flag to force update the organization level feature flags
      * @return              Map of feature flags with pending migrations
      */
     @Override
     public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(
-            Tenant tenant, boolean forceUpdate) {
+            Organization organization, boolean forceUpdate) {
 
         /*
          *  1. Fetch current/saved feature flags from cache
-         *  2. Force update the tenant flags keeping existing flags as fallback in case the API call to fetch the flags fails for some reason
+         *  2. Force update the organization flags keeping existing flags as fallback in case the API call to fetch the flags fails for some reason
          *  3. Get the diff and update the flags with pending migrations to be used to run migrations selectively
          */
         return cacheableFeatureFlagHelper
-                .fetchCachedTenantFeatures(String.valueOf(tenant.getId()))
+                .fetchCachedOrganizationFeatures(organization.getId())
                 .zipWhen(existingCachedFlags -> {
                     if (existingCachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                    < TENANT_FEATURES_CACHE_TIME_MIN
+                                    < ORGANIZATION_FEATURES_CACHE_TIME_MIN
                             && !forceUpdate) {
                         return Mono.just(existingCachedFlags);
                     }
-                    return this.refreshTenantFeatures(tenant, existingCachedFlags);
+                    return this.refreshOrganizationFeatures(organization, existingCachedFlags);
                 })
                 .map(tuple2 -> {
                     CachedFeatures existingCachedFlags = tuple2.getT1();
                     CachedFeatures latestFlags = tuple2.getT2();
-                    return this.getUpdatedFlagsWithPendingMigration(tenant, latestFlags, existingCachedFlags);
+                    return this.getUpdatedFlagsWithPendingMigration(organization, latestFlags, existingCachedFlags);
                 });
     }
 
     /**
-     * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
+     * Method to force update the organization level feature flags. This will be utilised in scenarios where we don't want
      * to wait for the flags to get updated for cron scheduled time
      *
-     * @param tenant    tenant for which the feature flags need to be updated
+     * @param organization    organization for which the feature flags need to be updated
      * @return          Cached features
      */
-    private Mono<CachedFeatures> refreshTenantFeatures(Tenant tenant, CachedFeatures existingCachedFeatures) {
+    private Mono<CachedFeatures> refreshOrganizationFeatures(
+            Organization organization, CachedFeatures existingCachedFeatures) {
         /*
         1. Force update the flag
             a. Evict the cache
             b. Fetch and save latest flags from CS
-        2. In case the tenant is unable to fetch the latest flags save the existing flags from step 1 to cache (fallback)
+        2. In case the organization is unable to fetch the latest flags save the existing flags from step 1 to cache (fallback)
          */
-        String tenantId = String.valueOf(tenant.getId());
+        String organizationId = String.valueOf(organization.getId());
         return cacheableFeatureFlagHelper
-                .evictCachedTenantFeatures(tenantId)
-                .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId))
+                .evictCachedOrganizationFeatures(organizationId)
+                .then(cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationId))
                 .flatMap(features -> {
                     if (CollectionUtils.isNullOrEmpty(features.getFeatures())) {
                         // In case the retrieval of the latest flags from CS encounters an error, the previous flags
                         // will serve as a fallback value.
                         return cacheableFeatureFlagHelper
-                                .evictCachedTenantFeatures(tenantId)
-                                .then(cacheableFeatureFlagHelper.updateCachedTenantFeatures(
-                                        tenantId, existingCachedFeatures));
+                                .evictCachedOrganizationFeatures(organizationId)
+                                .then(cacheableFeatureFlagHelper.updateCachedOrganizationFeatures(
+                                        organizationId, existingCachedFeatures));
                     }
                     return Mono.just(features);
                 });
@@ -121,16 +123,16 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
      *      Step 4: User adds the valid key or renews the subscription again which results in enabling the feature and
      *              ends up in nullifying the effect for step 2
      *
-     * @param tenant                    Tenant for which the feature flag migrations stats needs to be stored
+     * @param organization                    Organization for which the feature flag migrations stats needs to be stored
      * @param latestFlags               Latest flags pulled in from CS
      * @param existingCachedFlags       Flags which are already stored in cache
-     * @return                          updated tenant with the required flags with pending migrations
+     * @return                          updated organization with the required flags with pending migrations
      */
     private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
-            Tenant tenant, CachedFeatures latestFlags, CachedFeatures existingCachedFlags) {
+            Organization organization, CachedFeatures latestFlags, CachedFeatures existingCachedFlags) {
 
         // 1. Check if there are any diffs for the feature flags
-        // 2. Update the flags for pending migration within provided tenant object
+        // 2. Update the flags for pending migration within provided organization object
         Map<FeatureFlagEnum, FeatureMigrationType> featureDiffsWithMigrationType = new HashMap<>();
         Map<String, Boolean> existingFeatureMap = existingCachedFlags.getFeatures();
         latestFlags.getFeatures().forEach((key, value) -> {
@@ -147,16 +149,17 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                 }
             }
         });
-        return getUpdatedFlagsWithPendingMigration(featureDiffsWithMigrationType, tenant);
+        return getUpdatedFlagsWithPendingMigration(featureDiffsWithMigrationType, organization);
     }
 
     private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
-            Map<FeatureFlagEnum, FeatureMigrationType> latestFeatureDiffsWithMigrationType, Tenant dbTenant) {
+            Map<FeatureFlagEnum, FeatureMigrationType> latestFeatureDiffsWithMigrationType,
+            Organization dbOrganization) {
 
         Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationDB =
-                dbTenant.getTenantConfiguration().getFeaturesWithPendingMigration() == null
+                dbOrganization.getOrganizationConfiguration().getFeaturesWithPendingMigration() == null
                         ? new HashMap<>()
-                        : dbTenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+                        : dbOrganization.getOrganizationConfiguration().getFeaturesWithPendingMigration();
 
         Map<FeatureFlagEnum, FeatureMigrationType> updatedFlagsForMigrations =
                 new HashMap<>(featuresWithPendingMigrationDB);
@@ -197,25 +200,26 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
 
     /**
      * Method to check and execute if the migrations are required for the provided feature flag.
-     * @param tenant            Tenant for which the migrations need to be executed
+     * @param organization            Organization for which the migrations need to be executed
      * @param featureFlagEnum   Feature flag for which the migrations need to be executed
      * @return                  Boolean indicating if the migrations is successfully executed or not
      */
-    public Mono<Boolean> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+    public Mono<Boolean> checkAndExecuteMigrationsForFeatureFlag(
+            Organization organization, FeatureFlagEnum featureFlagEnum) {
 
-        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+        OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
         if (featureFlagEnum == null
-                || tenantConfiguration == null
-                || CollectionUtils.isNullOrEmpty(tenantConfiguration.getFeaturesWithPendingMigration())) {
+                || organizationConfiguration == null
+                || CollectionUtils.isNullOrEmpty(organizationConfiguration.getFeaturesWithPendingMigration())) {
             return Mono.just(TRUE);
         }
-        return isMigrationRequired(tenant, featureFlagEnum).flatMap(isMigrationRequired -> {
+        return isMigrationRequired(organization, featureFlagEnum).flatMap(isMigrationRequired -> {
             if (FALSE.equals(isMigrationRequired)) {
                 return Mono.just(TRUE);
             }
 
             Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration =
-                    tenantConfiguration.getFeaturesWithPendingMigration();
+                    organizationConfiguration.getFeaturesWithPendingMigration();
             if (CollectionUtils.isNullOrEmpty(featuresWithPendingMigration)
                     || !featuresWithPendingMigration.containsKey(featureFlagEnum)) {
                 return Mono.just(TRUE);
@@ -224,24 +228,24 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     "Running the migration for flag {} with migration type {}",
                     featureFlagEnum.name(),
                     featuresWithPendingMigration.get(featureFlagEnum));
-            return this.executeMigrationsBasedOnFeatureFlag(tenant, featureFlagEnum);
+            return this.executeMigrationsBasedOnFeatureFlag(organization, featureFlagEnum);
         });
     }
 
     /**
      * Method to check if the migrations are required for the provided feature flag.
-     * @param tenant            Tenant for which the migrations need to be executed
+     * @param organization            Organization for which the migrations need to be executed
      * @param featureFlagEnum   Feature flag for which the migrations need to be executed
      * @return                  Boolean indicating if the migrations is required or not
      */
-    private Mono<Boolean> isMigrationRequired(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+    private Mono<Boolean> isMigrationRequired(Organization organization, FeatureFlagEnum featureFlagEnum) {
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
-                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+                organization.getOrganizationConfiguration().getFeaturesWithPendingMigration();
         if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
             return Mono.just(FALSE);
         }
         return cacheableFeatureFlagHelper
-                .fetchCachedTenantFeatures(String.valueOf(tenant.getId()))
+                .fetchCachedOrganizationFeatures(String.valueOf(organization.getId()))
                 .map(cachedFeatures -> {
                     Map<String, Boolean> featureFlags = cachedFeatures.getFeatures();
                     if (featureFlags.containsKey(featureFlagEnum.name())) {
@@ -258,12 +262,13 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
 
     /**
      * Method to execute the migrations for the given feature flag.
-     * @param tenant                Tenant for which the migrations need to be executed
+     * @param organization                Organization for which the migrations need to be executed
      * @param featureFlagEnum       Feature flag for which the migrations need to be executed
      * @return                      Boolean indicating if the migrations is successfully executed or not
      */
     @Override
-    public Mono<Boolean> executeMigrationsBasedOnFeatureFlag(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+    public Mono<Boolean> executeMigrationsBasedOnFeatureFlag(
+            Organization organization, FeatureFlagEnum featureFlagEnum) {
         return Mono.just(TRUE);
     }
 }

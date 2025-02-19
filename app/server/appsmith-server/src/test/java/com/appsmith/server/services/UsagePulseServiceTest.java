@@ -60,7 +60,7 @@ public class UsagePulseServiceTest {
                     assertThat(usagePulse.getUser()).isEqualTo(anonymousUserId);
                     assertThat(usagePulse.getIsAnonymousUser()).isTrue();
                     assertThat(usagePulse.getInstanceId()).isNotNull();
-                    assertThat(usagePulse.getTenantId()).isNotNull();
+                    assertThat(usagePulse.getOrganizationId()).isNotNull();
                     assertThat(usagePulse.getViewMode()).isTrue();
                 })
                 .verifyComplete();
@@ -97,7 +97,7 @@ public class UsagePulseServiceTest {
                     assertThat(usagePulse.getUser()).isEqualTo(hashedUserEmail);
                     assertThat(usagePulse.getIsAnonymousUser()).isFalse();
                     assertThat(usagePulse.getInstanceId()).isNotNull();
-                    assertThat(usagePulse.getTenantId()).isNotNull();
+                    assertThat(usagePulse.getOrganizationId()).isNotNull();
                     assertThat(usagePulse.getViewMode()).isTrue();
                 })
                 .verifyComplete();

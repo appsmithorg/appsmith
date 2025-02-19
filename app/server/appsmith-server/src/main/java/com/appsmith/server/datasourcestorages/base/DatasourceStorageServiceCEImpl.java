@@ -185,6 +185,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor.preSaveHook(datasourceStorage));
     }
 
+    public Mono<DatasourceStorage> executePostSaveActions(DatasourceStorage datasourceStorage) {
+        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+
+        return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor.postSaveHook(datasourceStorage));
+    }
+
     @Override
     public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage) {
 
@@ -244,7 +254,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                         unsavedDatasourceStorage.updateForBulkWriteOperation();
                         return Mono.just(unsavedDatasourceStorage);
                     }
-                    return repository.save(unsavedDatasourceStorage);
+                    return repository
+                            .save(unsavedDatasourceStorage)
+                            .then(this.executePostSaveActions(unsavedDatasourceStorage))
+                            .thenReturn(unsavedDatasourceStorage);
                 });
     }
 

@@ -17,8 +17,8 @@ import type {
   GitArtifactUIReduxState as GitArtifactUIReduxStateExtended,
 } from "git/ee/store/types";
 import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
-import type { ApplicationPayload } from "entities/Application";
 import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
+import type { GitArtifactDef } from "git/types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -65,6 +65,7 @@ export interface GitArtifactUIReduxState
   extends GitArtifactUIReduxStateExtended {
   initializing: boolean;
   initialized: boolean;
+  currentBranch: string | null;
   connectModalOpen: boolean;
   connectSuccessModalOpen: boolean;
   disconnectBaseArtifactId: string | null;
@@ -82,12 +83,6 @@ export interface GitArtifactUIReduxState
   conflictErrorModalOpen: boolean;
 }
 
-export type GitArtifact = ApplicationPayload;
-
-export interface GitArtifactDef {
-  artifactType: GitArtifactType;
-  baseArtifactId: string;
-}
 export interface GitArtifactReduxState {
   ui: GitArtifactUIReduxState;
   apiResponses: GitArtifactAPIResponsesReduxState;
@@ -114,16 +109,6 @@ export interface GitReduxState {
 }
 
 export interface GitRootState {
-  // will have to remove this later, once metadata is fixed
-  ui: {
-    applications: {
-      currentApplication?: {
-        gitApplicationMetadata?: {
-          branchName: string;
-        };
-      };
-    };
-  };
   git: GitReduxState;
 }
 

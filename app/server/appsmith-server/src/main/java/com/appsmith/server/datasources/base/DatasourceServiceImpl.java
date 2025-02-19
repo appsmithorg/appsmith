@@ -9,8 +9,10 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -43,7 +45,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            OrganizationService organizationService,
+            ConfigService configService) {
 
         super(
                 repositoryDirect,
@@ -63,6 +67,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 environmentPermission,
                 rateLimitService,
                 featureFlagService,
-                observationRegistry);
+                observationRegistry,
+                organizationService,
+                configService);
     }
 }

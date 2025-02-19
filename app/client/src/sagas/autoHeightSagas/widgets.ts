@@ -8,7 +8,7 @@ import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";

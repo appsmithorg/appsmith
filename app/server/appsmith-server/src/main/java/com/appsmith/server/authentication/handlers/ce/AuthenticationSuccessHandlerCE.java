@@ -17,8 +17,8 @@ import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -65,14 +65,14 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final ApplicationPageService applicationPageService;
     private final WorkspacePermission workspacePermission;
     private final RateLimitService rateLimitService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final UserService userService;
     private final WorkspaceServiceHelper workspaceServiceHelper;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
-        Mono<Boolean> emailVerificationEnabledMono = tenantService
-                .getTenantConfiguration()
-                .map(tenant -> tenant.getTenantConfiguration().isEmailVerificationEnabled())
+        Mono<Boolean> emailVerificationEnabledMono = organizationService
+                .getOrganizationConfiguration()
+                .map(organization -> organization.getOrganizationConfiguration().isEmailVerificationEnabled())
                 .cache();
 
         Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
@@ -80,7 +80,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         if ("signup".equals(method)) {
             verificationRequiredMono = emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
-                // email verification is not enabled at the tenant, so verification not required
+                // email verification is not enabled at the org, so verification not required
                 if (!TRUE.equals(emailVerificationEnabled)) {
                     return userMono.flatMap(user -> {
                         user.setEmailVerificationRequired(FALSE);
@@ -101,12 +101,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.just(FALSE);
                 } else {
                     return emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
-                        // email verification not enabled at the tenant
+                        // email verification not enabled at the org
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             user.setEmailVerificationRequired(FALSE);
                             return userRepository.save(user).then(Mono.just(FALSE));
                         } else {
-                            // scenario when at the time of signup, the email verification was disabled at the tenant
+                            // scenario when at the time of signup, the email verification was disabled at the org
                             // but later on turned on, now when this user logs in, it will not be prompted to verify
                             // as the configuration at time of signup is considered for any user.
                             // for old users, the login works as expected, without the need to verify

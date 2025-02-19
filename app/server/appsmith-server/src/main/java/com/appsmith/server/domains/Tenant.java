@@ -17,6 +17,8 @@ import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 
+@Deprecated
+// This class has been deprecated. Please use Organization instead.
 @Getter
 @Setter
 @ToString

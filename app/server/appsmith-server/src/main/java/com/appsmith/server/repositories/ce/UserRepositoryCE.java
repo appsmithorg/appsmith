@@ -30,6 +30,4 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Optional<Long> countByDeletedAtIsNullAndLastActiveAtGreaterThanAndIsSystemGeneratedIsNot(
             Instant lastActiveAt, Boolean excludeSystemGenerated);
-
-    Optional<User> findByEmailAndTenantId(String email, String tenantId);
 }

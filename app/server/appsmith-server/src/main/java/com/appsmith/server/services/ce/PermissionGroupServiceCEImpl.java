@@ -19,8 +19,8 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
@@ -47,7 +47,7 @@ public class PermissionGroupServiceCEImpl
         implements PermissionGroupServiceCE {
 
     private final SessionUserService sessionUserService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final UserRepositoryCake userRepository;
     private final PolicySolution policySolution;
 
@@ -62,7 +62,7 @@ public class PermissionGroupServiceCEImpl
             PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserRepositoryCake userRepository,
             PolicySolution policySolution,
             ConfigRepositoryCake configRepository,
@@ -70,7 +70,7 @@ public class PermissionGroupServiceCEImpl
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.sessionUserService = sessionUserService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.userRepository = userRepository;
         this.policySolution = policySolution;
         this.configRepository = configRepository;
@@ -277,16 +277,16 @@ public class PermissionGroupServiceCEImpl
         Mono<Map<String, String>> userMapMono =
                 userRepository.findAllById(userIds).collectMap(user -> user.getId(), user -> user.getEmail());
 
-        return tenantService
-                .getDefaultTenantId()
+        return organizationService
+                .getDefaultOrganizationId()
                 .zipWith(userMapMono)
                 .flatMapMany(tuple -> {
-                    String defaultTenantId = tuple.getT1();
+                    String defaultOrganizationId = tuple.getT1();
                     Map<String, String> userMap = tuple.getT2();
                     return Flux.fromIterable(userIds).flatMap(userId -> {
                         String email = userMap.get(userId);
                         return repository
-                                .evictAllPermissionGroupCachesForUser(email, defaultTenantId)
+                                .evictAllPermissionGroupCachesForUser(email, defaultOrganizationId)
                                 .thenReturn(TRUE);
                     });
                 })

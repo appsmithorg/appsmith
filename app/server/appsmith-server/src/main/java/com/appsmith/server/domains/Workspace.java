@@ -54,8 +54,13 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Internal.class)
     private String logoAssetId;
 
+    @Deprecated
+    // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
     @JsonView(Views.Public.class)
     private String tenantId;
+
+    @JsonView(Views.Public.class)
+    private String organizationId;
 
     @JsonView(Views.Internal.class)
     private Boolean hasEnvironments;

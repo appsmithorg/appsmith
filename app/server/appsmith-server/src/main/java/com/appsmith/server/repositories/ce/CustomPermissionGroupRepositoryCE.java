@@ -21,10 +21,10 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
 
     List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission, User currentUser);
 
+    Optional<Void> evictPermissionGroupsUser(String email, String organizationId);
+
     List<PermissionGroup> findByDefaultWorkspaceIds(
             Set<String> workspaceIds, AclPermission permission, User currentUser);
-
-    Optional<Void> evictPermissionGroupsUser(String email, String tenantId);
 
     Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
 

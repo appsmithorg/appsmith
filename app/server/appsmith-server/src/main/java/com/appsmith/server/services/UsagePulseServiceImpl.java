@@ -14,9 +14,9 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
             UsagePulseRepositoryCake repository,
             SessionUserService sessionUserService,
             UserService userService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ConfigService configService,
             CommonConfig commonConfig) {
-        super(repository, sessionUserService, userService, tenantService, configService, commonConfig);
+        super(repository, sessionUserService, userService, organizationService, configService, commonConfig);
     }
 }

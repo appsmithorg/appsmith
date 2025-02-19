@@ -42,12 +42,12 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @BeforeEach
     void setUp() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
                 .thenReturn(Mono.just(false));
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.FALSE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.FALSE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
     }
 
     @Test
@@ -58,7 +58,7 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void eeCeCompatibleDiffMethod_eeImplTest() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
                 .thenReturn(Mono.just(true));
         Mono<String> resultMono = testComponent.eeCeCompatibleDiffMethod();
         StepVerifier.create(resultMono).expectNext(EE_RESPONSE).verifyComplete();
@@ -91,7 +91,7 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void ceEeDiffMethod_eeImplTest() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
                 .thenReturn(Mono.just(true));
         Mono<String> resultMono = testComponent.ceEeDiffMethod();
         StepVerifier.create(resultMono).expectNext(EE_RESPONSE).verifyComplete();
@@ -99,7 +99,7 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void ceEeDiffMethodReturnsFlux_eeImplTest() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
                 .thenReturn(Mono.just(true));
         Flux<String> resultFlux = testComponent.ceEeDiffMethodReturnsFlux();
         StepVerifier.create(resultFlux).expectNext("ee", "impl", "method").verifyComplete();
@@ -114,8 +114,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     @Test
     void ceEeSyncMethod_eeImplTest() {
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
         String result = testComponent.ceEeSyncMethod("arg_");
         assertEquals("arg_ee_impl_method", result);
     }
@@ -129,8 +129,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     @Test
     void ceEeThrowAppsmithException_eeImplTest() {
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
         assertThrows(
                 AppsmithException.class,
                 () -> testComponent.ceEeThrowAppsmithException("arg_"),
@@ -140,8 +140,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     @Test
     void ceEeThrowNonAppsmithException_eeImplTest_throwExceptionFromAspect() {
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
         assertThrows(
                 AppsmithException.class,
                 () -> testComponent.ceEeThrowNonAppsmithException("arg_"),

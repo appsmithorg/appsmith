@@ -29,7 +29,10 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "ee/constants/messages";
-import { isTenantConfig, saveAllowed } from "ee/utils/adminSettingsHelpers";
+import {
+  isOrganizationConfig,
+  saveAllowed,
+} from "ee/utils/adminSettingsHelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -44,9 +47,9 @@ import { toast } from "@appsmith/ads";
 import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
-} from "ee/selectors/tenantSelectors";
-import { updateTenantConfig } from "ee/actions/tenantActions";
-import { tenantConfigConnection } from "ee/constants/tenantConstants";
+} from "ee/selectors/organizationSelectors";
+import { updateOrganizationConfig } from "ee/actions/organizationActions";
+import { organizationConfigConnection } from "ee/constants/organizationConstants";
 
 interface FormProps {
   settings: Record<string, string>;
@@ -87,54 +90,54 @@ export function SettingsForm(
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
 
-  const updatedTenantSettings = useMemo(
-    () => Object.keys(props.settings).filter((s) => isTenantConfig(s)),
+  const updatedOrganizationSettings = useMemo(
+    () => Object.keys(props.settings).filter((s) => isOrganizationConfig(s)),
     [props.settings],
   );
 
-  // Is there a non-tenant (env) config in this category of settings?
-  const isOnlyTenantConfig = !settingsDetails.find(
+  // Is there a non-organization (env) config in this category of settings?
+  const isOnlyOrganizationConfig = !settingsDetails.find(
     (s) =>
       s.category === (subCategory || category) &&
       s.controlType != SettingTypes.CALLOUT &&
-      !isTenantConfig(s.id),
+      !isOrganizationConfig(s.id),
   );
 
   const saveChangedSettings = () => {
     const settingsKeyLength = Object.keys(props.settings).length;
     const isOnlyEnvSettings =
-      updatedTenantSettings.length === 0 && settingsKeyLength !== 0;
-    const isEnvAndTenantSettings =
-      updatedTenantSettings.length !== 0 &&
-      updatedTenantSettings.length !== settingsKeyLength;
+      updatedOrganizationSettings.length === 0 && settingsKeyLength !== 0;
+    const isEnvAndOrganizationSettings =
+      updatedOrganizationSettings.length !== 0 &&
+      updatedOrganizationSettings.length !== settingsKeyLength;
 
     if (isOnlyEnvSettings) {
       // only env settings
       dispatch(saveSettings(props.settings));
     } else {
-      // only tenant settings
+      // only organization settings
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config: any = {};
 
       for (const each in props.settings) {
-        if (tenantConfigConnection.includes(each)) {
+        if (organizationConfigConnection.includes(each)) {
           config[each] = props.settings[each];
         }
       }
 
       dispatch(
-        updateTenantConfig({
-          tenantConfiguration: config,
-          isOnlyTenantSettings: !isEnvAndTenantSettings,
+        updateOrganizationConfig({
+          organizationConfiguration: config,
+          isOnlyOrganizationSettings: !isEnvAndOrganizationSettings,
           needsRefresh: details?.needsRefresh,
         }),
       );
 
-      // both env and tenant settings
-      if (isEnvAndTenantSettings) {
+      // both env and organization settings
+      if (isEnvAndOrganizationSettings) {
         const filteredSettings = Object.keys(props.settings)
-          .filter((key) => !isTenantConfig(key))
+          .filter((key) => !isOrganizationConfig(key))
           .reduce((obj, key) => {
             return Object.assign(obj, {
               [key]: props.settings[key],
@@ -295,13 +298,13 @@ export function SettingsForm(
         />
         {isSavable && (
           <SaveAdminSettings
-            isOnlyTenantConfig={isOnlyTenantConfig}
+            isOnlyOrganizationConfig={isOnlyOrganizationConfig}
             isSaving={props.isSaving}
             needsRefresh={details?.needsRefresh}
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}
-            updatedTenantSettings={updatedTenantSettings}
+            updatedOrganizationSettings={updatedOrganizationSettings}
             valid={props.valid}
           />
         )}

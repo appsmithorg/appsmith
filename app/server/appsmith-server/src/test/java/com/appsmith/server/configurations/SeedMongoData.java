@@ -2,15 +2,17 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
-import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
@@ -41,7 +43,7 @@ public class SeedMongoData {
             UserRepositoryCake userRepositoryDirect,
             WorkspaceRepositoryCake workspaceRepository,
             PluginRepositoryCake pluginRepository,
-            TenantRepositoryCake tenantRepository,
+            OrganizationRepositoryCake organizationRepository,
             PermissionGroupRepositoryCake permissionGroupRepository,
             PolicySolution policySolution) {
 
@@ -123,21 +125,22 @@ public class SeedMongoData {
             });
         });
 
-        Tenant defaultTenant = new Tenant();
-        defaultTenant.setDisplayName("Default");
-        defaultTenant.setSlug("default");
+        Organization defaultOrganization = new Organization();
+        defaultOrganization.setDisplayName("Default");
+        defaultOrganization.setSlug("default");
+        defaultOrganization.setPricingPlan(PricingPlan.FREE);
 
-        Mono<String> defaultTenantId = tenantRepository
+        Mono<String> defaultOrganizationId = organizationRepository
                 .findBySlug("default")
-                .switchIfEmpty(tenantRepository.save(defaultTenant))
-                .map(Tenant::getId)
+                .switchIfEmpty(organizationRepository.save(defaultOrganization))
+                .map(Organization::getId)
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .zipWith(defaultTenantId.repeat())
+                .zipWith(defaultOrganizationId.repeat())
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
-                    String tenantId = tuple.getT2();
+                    String organizationId = tuple.getT2();
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
@@ -145,7 +148,7 @@ public class SeedMongoData {
                     user.setEmail(email);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    user.setTenantId(tenantId);
+                    user.setOrganizationId(organizationId);
                     return userRepository
                             .findByEmail(email)
                             .flatMap(userRepository::delete)

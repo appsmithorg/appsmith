@@ -1,27 +1,15 @@
-import { call, put, select, take } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { CheckoutBranchInitPayload } from "../store/actions/checkoutBranchActions";
-import { GitArtifactType } from "../constants/enums";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
-import log from "loglevel";
-import { captureException } from "@sentry/react";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type {
   CheckoutRefRequestParams,
   CheckoutRefResponse,
 } from "git/requests/checkoutRefRequest.types";
-
-// internal dependencies
-import { builderURL } from "ee/RouteBuilder";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
-import { addBranchParam } from "constants/routes";
-import type { Action } from "entities/Action";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { validateResponse } from "sagas/ErrorSagas";
-import history from "utils/history";
-import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import checkoutRefRequest from "git/requests/checkoutRefRequest";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* checkoutBranchSaga(
   action: GitArtifactPayloadAction<CheckoutBranchInitPayload>,
@@ -48,91 +36,21 @@ export default function* checkoutBranchSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      if (artifactDef.artifactType === GitArtifactType.Application) {
-        const trimmedBranch = branchName.replace(/^origin\//, "");
-        const destinationHref = addBranchParam(trimmedBranch);
-
-        const entityInfo = identifyEntityFromPath(
-          destinationHref.slice(0, destinationHref.indexOf("?")),
-        );
-
-        yield put(
-          gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
-        );
-        yield put(gitArtifactActions.checkoutBranchSuccess({ artifactDef }));
-
-        // Check if page exists in the branch. If not, instead of 404, take them to
-        // the app home page
-        const existingPage = response.data.pages.find(
-          (page) => page.baseId === entityInfo.params.basePageId,
-        );
-        const defaultPage = response.data.pages.find((page) => page.isDefault);
-
-        if (!existingPage && defaultPage) {
-          history.push(
-            builderURL({
-              basePageId: defaultPage.baseId,
-              branch: trimmedBranch,
-            }),
-          );
-
-          return;
-        }
-
-        // Page exists, so we will try to go to the destination
-        history.push(destinationHref);
-
-        let shouldGoToHomePage = false;
-
-        // It is possible that the action does not exist in the incoming branch
-        // so here instead of showing the 404 page, we will navigate them to the
-        // home page
-        if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
-          // Wait for fetch actions success, check if action id in actions state
-          // or else navigate to home
-          yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
-          const actions: Action[] = yield select(getActions);
-
-          if (!actions.find((action) => action.id === entityInfo.id)) {
-            shouldGoToHomePage = true;
-          }
-        }
-
-        // Same for JS Objects
-        if (entityInfo.entity === FocusEntity.JS_OBJECT) {
-          yield take(ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS);
-          const jsActions: JSCollectionDataState =
-            yield select(getJSCollections);
-
-          if (!jsActions.find((action) => action.config.id === entityInfo.id)) {
-            shouldGoToHomePage = true;
-          }
-        }
-
-        if (shouldGoToHomePage && defaultPage) {
-          // We will replace so that the user does not go back to the 404 url
-          history.replace(
-            builderURL({
-              basePageId: defaultPage.baseId,
-              persistExistingParams: true,
-            }),
-          );
-        }
-      }
-    }
-  } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
-
       yield put(
-        gitArtifactActions.checkoutBranchError({
+        gitArtifactActions.checkoutBranchSuccess({
           artifactDef,
-          error,
+          responseData: response.data,
         }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
+      yield put(
+        gitArtifactActions.toggleBranchPopup({ artifactDef, open: false }),
+      );
+    }
+  } catch (e) {
+    const error = handleApiErrors(e as Error, response);
+
+    if (error) {
+      yield put(gitArtifactActions.checkoutBranchError({ artifactDef, error }));
     }
   }
 }

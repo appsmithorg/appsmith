@@ -5,8 +5,8 @@ import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -22,7 +22,7 @@ public class PermissionGroupServiceCECompatibleImpl extends PermissionGroupServi
             PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserRepositoryCake userRepository,
             PolicySolution policySolution,
             ConfigRepositoryCake configRepository,
@@ -33,7 +33,7 @@ public class PermissionGroupServiceCECompatibleImpl extends PermissionGroupServi
                 repository,
                 analyticsService,
                 sessionUserService,
-                tenantService,
+                organizationService,
                 userRepository,
                 policySolution,
                 configRepository,

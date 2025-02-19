@@ -17,7 +17,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
             UserRepositoryCake userRepository,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
 
@@ -27,7 +27,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                 userRepository,
                 userDataService,
                 permissionGroupService,
-                tenantService,
+                organizationService,
                 workspacePermission,
                 permissionGroupPermission);
     }

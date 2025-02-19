@@ -4,9 +4,9 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_FROM_DB_SPAN;
+import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_ORGANIZATION_FROM_DB_SPAN;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
@@ -51,7 +51,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
 
-    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
+    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.organizationId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
 
@@ -131,33 +131,41 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return Mono.error(new AppsmithException(AppsmithError.SERVER_NOT_READY));
     }
 
-    @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #tenantId}")
+    @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #organizationId}")
     @Override
-    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
+    public Mono<Void> evictPermissionGroupsUser(String email, String organizationId) {
         return Mono.empty();
     }
 
     @Override
-    public Mono<String> getDefaultTenantId() {
-        String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
-        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
-            return Mono.just(defaultTenantId);
+    public Mono<String> getDefaultOrganizationId() {
+        String defaultOrganizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
+        if (defaultOrganizationId != null && !defaultOrganizationId.isEmpty()) {
+            return Mono.just(defaultOrganizationId);
         }
 
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<String> cq = cb.createQuery(String.class);
-        final Root<Tenant> root = cq.from(Tenant.class);
+        final CriteriaQuery<Organization> cq = cb.createQuery(Organization.class);
+        final Root<Organization> root = cq.from(Organization.class);
 
-        cq.where(cb.equal(root.get(Tenant.Fields.slug), FieldName.DEFAULT));
-        cq.select(root.get(Tenant.Fields.id));
+        Predicate defaultOrganizationCriteria = cb.equal(root.get(Organization.Fields.slug), FieldName.DEFAULT);
+        Predicate andCriteria = cb.and(defaultOrganizationCriteria);
 
-        final String id = entityManager.createQuery(cq).getSingleResult();
+        cq.where(andCriteria);
 
-        if (id != null) {
-            inMemoryCacheableRepositoryHelper.setDefaultTenantId(id);
-        }
+        log.info("Fetching organization from database as it couldn't be found in the cache!");
 
-        return Mono.justOrEmpty(id);
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+            .map(organization -> {
+                if (organization.getOrganizationConfiguration() == null) {
+                    organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                }
+                String newDefaultOrganizationId = organization.getId();
+                inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
+                return newDefaultOrganizationId;
+            })
+            .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
+            .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -183,40 +191,41 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     }
 
     /**
-     * Returns the default tenant from the cache if present.
-     * If not present in cache, then it fetches the default tenant from the database and adds to redis.
-     * @param tenantId
+     * Returns the default organization from the cache if present.
+     * If not present in cache, then it fetches the default organization from the database and adds to redis.
+     * @param organizationId
      * @return
      */
-    @Cache(cacheName = "tenant", key = "{#tenantId}")
+    @Cache(cacheName = "organization", key = "{#organizationId}")
     @Override
-    public Mono<Tenant> fetchDefaultTenant(String tenantId) {
-        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
-        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
-        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
+    public Mono<Organization> fetchDefaultOrganization(String organizationId) {
+        String defaultOrganizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
 
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
-        final Root<Tenant> root = cq.from(Tenant.class);
+        final CriteriaQuery<Organization> cq = cb.createQuery(Organization.class);
+        final Root<Organization> root = cq.from(Organization.class);
 
-        cq.where(andCriteria.toPredicate(root, cq, cb));
+        Predicate defaultOrganizationCriteria = cb.equal(root.get(Organization.Fields.slug), FieldName.DEFAULT);
+        Predicate andCriteria = cb.and(defaultOrganizationCriteria);
 
-        log.info("Fetching tenant from database as it couldn't be found in the cache!");
+        cq.where(andCriteria);
+
+        log.info("Fetching organization from database as it couldn't be found in the cache!");
 
         return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
-                .map(tenant -> {
-                    if (tenant.getTenantConfiguration() == null) {
-                        tenant.setTenantConfiguration(new TenantConfiguration());
-                    }
-                    return tenant;
-                })
-                .name(FETCH_TENANT_FROM_DB_SPAN)
-                .tap(Micrometer.observation(observationRegistry));
+            .map(organization -> {
+                if (organization.getOrganizationConfiguration() == null) {
+                    organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                }
+                return organization;
+            })
+            .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
+            .tap(Micrometer.observation(observationRegistry));
     }
 
-    @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
+    @CacheEvict(cacheName = "organization", key = "{#organizationId}")
     @Override
-    public Mono<Void> evictCachedTenant(String tenantId) {
+    public Mono<Void> evictCachedOrganization(String organizationId) {
         return Mono.empty().then();
     }
 

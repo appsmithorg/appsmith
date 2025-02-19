@@ -3,15 +3,15 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UpdateSuperUserHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class UserConfig {
     private final UserRepository userRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final ConfigRepository configRepository;
-    private final TenantRepository tenantRepository;
+    private final OrganizationRepositoryCake organizationRepository;
     private final UpdateSuperUserHelper updateSuperUserHelper = new UpdateSuperUserHelper();
 
     /**
@@ -66,12 +66,11 @@ public class UserConfig {
         }
         PermissionGroup instanceAdminPG = instanceAdminPGOptional.get();
 
-        Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default");
-        if (tenantOptional.isEmpty()) {
+        Organization organization = organizationRepository.findBySlug("default").block();
+        if (organization == null) {
             log.error("Default tenant not found. Cannot create super users.");
             return false;
         }
-        Tenant tenant = tenantOptional.get();
 
         Set<String> userIds = adminEmails.stream()
                 .map(String::trim)
@@ -87,7 +86,7 @@ public class UserConfig {
                         log.info("Creating super user with username {}", email);
                         user = updateSuperUserHelper.createNewUser(
                                 email,
-                                tenant,
+                                organization,
                                 instanceAdminPG,
                                 userRepository,
                                 permissionGroupRepository,

@@ -28,6 +28,13 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .one();
     }
 
+    @Override
+    public Optional<User> findByEmailAndOrganizationId(String email, String organizationId) {
+        return queryBuilder()
+                .criteria(Bridge.equal(User.Fields.email, email).equal(User.Fields.organizationId, organizationId))
+                .one();
+    }
+
     /**
      * Fetch minimal information from *a* user document in the database, limit to two documents, filter anonymousUser
      * If no documents left return true otherwise return false.

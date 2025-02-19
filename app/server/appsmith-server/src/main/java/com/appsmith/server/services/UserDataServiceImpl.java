@@ -23,7 +23,7 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             ApplicationRepositoryCake applicationRepository,
-            TenantService tenantService) {
+            OrganizationService organizationService) {
 
         super(
                 validator,
@@ -36,6 +36,6 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                 releaseNotesService,
                 featureFlagService,
                 applicationRepository,
-                tenantService);
+                organizationService);
     }
 }

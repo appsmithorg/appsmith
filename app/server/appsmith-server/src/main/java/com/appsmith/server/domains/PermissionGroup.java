@@ -26,7 +26,11 @@ public class PermissionGroup extends BaseDomain {
 
     @NotNull String name;
 
+    @Deprecated
+    // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
     String tenantId;
+
+    String organizationId;
 
     String description;
 
