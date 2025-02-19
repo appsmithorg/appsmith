@@ -103,20 +103,13 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
 
               return (
                 <HeaderCell
-                  canFreezeColumn={props.canFreezeColumn}
                   column={column}
                   columnIndex={columnIndex}
                   columnName={column.Header}
                   columnOrder={columnOrder}
-                  editMode={props.editMode}
-                  handleColumnFreeze={props.handleColumnFreeze}
-                  handleReorderColumn={props.handleReorderColumn}
                   isAscOrder={column.isAscOrder}
                   isHidden={column.isHidden}
-                  isResizingColumn={props.isResizingColumn.current}
-                  isSortable={props.isSortable}
                   key={columnIndex}
-                  multiRowSelection={props.multiRowSelection}
                   onDrag={onDrag}
                   onDragEnd={onDragEnd}
                   onDragEnter={onDragEnter}
@@ -124,10 +117,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
                   onDragOver={onDragOver}
                   onDragStart={onDragStart}
                   onDrop={onDrop}
-                  sortTableColumn={props.sortTableColumn}
                   stickyRightModifier={stickyRightModifier}
-                  widgetId={props.widgetId}
-                  width={column.width}
                 />
               );
             })}
