@@ -85,8 +85,8 @@ export class DataSources {
     "//div[text()='" + name + "']/parent::div";
   public _password =
     "input[name $= '.datasourceConfiguration.authentication.password']";
-  private _testDs = ".t--test-datasource";
-  _saveDs = ".t--save-datasource";
+  public _testDs = ".t--test-datasource";
+  public _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _dsMenuoptions = "div.t--datasource-menu-option";
   _editButton = ".t--edit-datasource";

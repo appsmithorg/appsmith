@@ -123,7 +123,7 @@ public enum AppsmithErrorCode {
     USER_EMAIL_ALREADY_VERIFIED("AE-EMV-4095", "User email already verified"),
 
     EMAIL_VERIFICATION_TOKEN_EXPIRED("AE-EMV-4096", "Email Verification Token expired"),
-    TENANT_EMAIL_VERIFICATION_NOT_ENABLED("AE-EMV-4097", "Email Verification not enabled"),
+    ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED("AE-EMV-4097", "Email Verification not enabled"),
 
     INVALID_EMAIL_VERIFICATION("AE-EMV-4098", "Invalid email verification request"),
 

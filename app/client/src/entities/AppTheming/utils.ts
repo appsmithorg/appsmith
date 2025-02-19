@@ -10,7 +10,7 @@ import { parseSchemaItem } from "widgets/WidgetUtils";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 
 /**
  * get properties to update for reset

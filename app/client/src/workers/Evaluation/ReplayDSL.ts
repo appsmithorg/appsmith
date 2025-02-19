@@ -4,7 +4,7 @@ import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import type { DSLDiff } from "./replayUtils";
 import { processDiff, getPathsFromDiff } from "./replayUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 
 const _DIFF_ = "diff";
 

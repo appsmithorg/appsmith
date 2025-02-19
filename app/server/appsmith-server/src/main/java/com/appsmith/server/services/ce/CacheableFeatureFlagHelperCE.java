@@ -16,25 +16,25 @@ public interface CacheableFeatureFlagHelperCE {
     Mono<Void> evictUserCachedFlags(String userIdentifier);
 
     /**
-     * To fetch the tenant new features via cache
-     * @param tenantId Id of the tenant
+     * To fetch the org new features via cache
+     * @param organizationId Id of the organization
      * @return Mono of CachedFeatures
      */
-    Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId);
+    Mono<CachedFeatures> fetchCachedOrganizationFeatures(String organizationId);
 
-    Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures);
+    Mono<CachedFeatures> updateCachedOrganizationFeatures(String organizationId, CachedFeatures cachedFeatures);
 
     /**
-     * To evict the tenant new features cache
-     * @param tenantId Id of the tenant
+     * To evict the org new features cache
+     * @param organizationId Id of the organization
      * @return Mono of Void
      */
-    Mono<Void> evictCachedTenantFeatures(String tenantId);
+    Mono<Void> evictCachedOrganizationFeatures(String organizationId);
 
     /**
-     * To get all tenant features from Cloud Services
+     * To get all organization features from Cloud Services
      * @param featuresRequestDTO FeaturesRequestDTO
      * @return Mono of Map
      */
-    Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO);
+    Mono<FeaturesResponseDTO> getRemoteFeaturesForOrganization(FeaturesRequestDTO featuresRequestDTO);
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
@@ -62,7 +62,7 @@ public enum AppsmithRole {
                     WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_INVITE_USERS,
                     WORKSPACE_EXECUTE_DATASOURCES)),
-    TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
+    TENANT_ADMIN("", "", Set.of(MANAGE_ORGANIZATION)),
     ;
 
     private Set<AclPermission> permissions;

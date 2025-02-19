@@ -302,7 +302,6 @@ jobs:
           fi
 
       - name: Run the cypress test
-        uses: cypress-io/github-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -371,13 +370,22 @@ jobs:
           CYPRESS_SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
           CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
           CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-        with:
-          browser: ${{ env.BROWSER_PATH }}
-          install: false
-          config-file: cypress_ci_custom.config.ts
-          spec: ${{ inputs.spec }}
-          working-directory: app/client
-          env: "NODE_ENV=development"
+          NODE_ENV: development
+          GITHUB_WORKFLOW : ${{ github.workflow }}
+        run: |
+            cd app/client
+            ls -la
+            if [[ -n "${{ inputs.spec }}" ]]; then
+              npx cypress-repeat-pro run -n 3 --rerun-failed-only \
+                --spec "${{ inputs.spec }}" \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}"
+            else
+              npx cypress-repeat-pro run -n 3 --rerun-failed-only \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}"
+            fi
+            cat cy-repeat-summary.txt
 
       - name: Trim number of cypress log files
         if: failure()

@@ -1,12 +1,11 @@
-import { captureException } from "@sentry/react";
 import fetchProtectedBranchesRequest from "git/requests/fetchProtectedBranchesRequest";
 import type { FetchProtectedBranchesResponse } from "git/requests/fetchProtectedBranchesRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* fetchProtectedBranchesSaga(
   action: GitArtifactPayloadAction,
@@ -37,18 +36,12 @@ export default function* fetchProtectedBranchesSaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(
-        gitArtifactActions.fetchProtectedBranchesError({
-          artifactDef,
-          error,
-        }),
+        gitArtifactActions.fetchProtectedBranchesError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

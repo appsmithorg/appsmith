@@ -34,7 +34,7 @@ import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
@@ -93,11 +93,14 @@ const DatasourceContainer = styled.div`
   align-items: center;
   height: 36px;
   gap: var(--ads-v2-spaces-4);
+
   .t--datasource-editor {
     background-color: var(--ads-v2-color-bg);
+
     .cm-s-duotone-light.CodeMirror {
       background: var(--ads-v2-color-bg);
     }
+
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }

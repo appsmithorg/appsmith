@@ -46,7 +46,7 @@ import {
 } from "ee/constants/messages";
 import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";

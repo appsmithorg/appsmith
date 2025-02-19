@@ -23,7 +23,8 @@ let pluginActionForm = new PluginActionForm();
 
 const myDsName = "SnowflakeDS1";
 
-describe(
+describe.skip(
+  // skipping as snowflake CREDITLIMIT has exceeded its quota. https://github.com/appsmithorg/appsmith/issues/39303
   "Snowflake Basic Tests",
   {
     tags: [
