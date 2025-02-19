@@ -13,13 +13,13 @@ public class NoTagsMeterFilter implements MeterFilter {
     @Override
     public Meter.Id map(Meter.Id id) {
         // Remove all tags from the metric
-        if (id.getName().startsWith("appsmith") && !startsWithAnyPrefix(id.getName())) {
+        if (id.getName().startsWith("appsmith") && !startsWithPrefix(id.getName())) {
             return id.replaceTags(Tags.empty());
         }
         return id;
     }
 
-    private boolean startsWithAnyPrefix(String metricName) {
+    private boolean startsWithPrefix(String metricName) {
         for (String prefix : seriesExceptionList) {
             if (metricName.startsWith(prefix)) {
                 return true;
