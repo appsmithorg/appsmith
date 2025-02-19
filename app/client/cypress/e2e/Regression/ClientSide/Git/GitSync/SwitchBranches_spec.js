@@ -191,7 +191,11 @@ describe(
             .contains("ParentPage1")
             .click({ force: true });
           agHelper.AssertElementAbsence(locators._spinnerHead, 5000);
-          agHelper.WaitUntilEleAppear(".t--widget-tablewidgetv2");
+          cy.get(".t--page-switch-tab").each(($el) => {
+            cy.wrap($el).should("not.have.text", "ChildPage1");
+            cy.wrap($el).should("not.have.text", "ParentPageRenamed");
+          });
+          //agHelper.WaitUntilEleAppear(".t--widget-tablewidgetv2");
         });
       });
     });
