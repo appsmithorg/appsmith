@@ -5,16 +5,27 @@ import { Button } from "../../Button";
 import { Menu, MenuTrigger } from "../../Menu";
 import { Tooltip } from "../../Tooltip";
 
-import { EntityClassNames } from "./constants";
+import {
+  EntityClassNames,
+  DEFAULT_DATA_TEST_ID,
+  DEFAULT_TOOLTIP_CONTENT,
+} from "./constants";
+
 import * as Styled from "./EntityContextMenu.styles";
 
 interface Props {
+  dataTestid?: string;
   children?: React.ReactNode[] | React.ReactNode;
-  tooltipContent: React.ReactNode;
+  tooltipContent?: React.ReactNode;
 }
 
 export const EntityContextMenu = (props: Props) => {
-  const { children, tooltipContent } = props;
+  const {
+    children,
+    dataTestid = DEFAULT_DATA_TEST_ID,
+    tooltipContent = DEFAULT_TOOLTIP_CONTENT,
+  } = props;
+
   const [isMenuOpen, toggleMenuOpen] = useToggle();
 
   return (
@@ -29,7 +40,7 @@ export const EntityContextMenu = (props: Props) => {
           >
             <Button
               className={EntityClassNames.CONTEXT_MENU}
-              data-testid="t--more-action-trigger"
+              data-testid={dataTestid}
               isIconButton
               kind="tertiary"
               startIcon="more-2-fill"
