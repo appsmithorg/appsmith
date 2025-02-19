@@ -1197,19 +1197,21 @@ const AppSettingsActionTypes = {
     "UPDATE_APP_SETTINGS_PANE_SELECTED_TAB",
 };
 
-const TenantActionTypes = {
-  FETCH_CURRENT_TENANT_CONFIG: "FETCH_CURRENT_TENANT_CONFIG",
-  FETCH_CURRENT_TENANT_CONFIG_SUCCESS: "FETCH_CURRENT_TENANT_CONFIG_SUCCESS",
-  UPDATE_TENANT_CONFIG: "UPDATE_TENANT_CONFIG",
-  UPDATE_TENANT_CONFIG_SUCCESS: "UPDATE_TENANT_CONFIG_SUCCESS",
+const OrganizationActionTypes = {
+  FETCH_CURRENT_ORGANIZATION_CONFIG: "FETCH_CURRENT_ORGANIZATION_CONFIG",
+  FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS:
+    "FETCH_CURRENT_ORGANIZATION_CONFIG_SUCCESS",
+  UPDATE_ORGANIZATION_CONFIG: "UPDATE_ORGANIZATION_CONFIG",
+  UPDATE_ORGANIZATION_CONFIG_SUCCESS: "UPDATE_ORGANIZATION_CONFIG_SUCCESS",
   FETCH_PRODUCT_ALERT_INIT: "FETCH_PRODUCT_ALERT_INIT",
   FETCH_PRODUCT_ALERT_SUCCESS: "FETCH_PRODUCT_ALERT_SUCCESS",
   UPDATE_PRODUCT_ALERT_CONFIG: "UPDATE_PRODUCT_ALERT_CONFIG",
 };
 
-const TenantActionErrorTypes = {
-  FETCH_CURRENT_TENANT_CONFIG_ERROR: "FETCH_CURRENT_TENANT_CONFIG_ERROR",
-  UPDATE_TENANT_CONFIG_ERROR: "UPDATE_TENANT_CONFIG_ERROR",
+const OrganizationActionErrorTypes = {
+  FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR:
+    "FETCH_CURRENT_ORGANIZATION_CONFIG_ERROR",
+  UPDATE_ORGANIZATION_CONFIG_ERROR: "UPDATE_ORGANIZATION_CONFIG_ERROR",
   FETCH_PRODUCT_ALERT_FAILED: "FETCH_PRODUCT_ALERT_FAILED",
 };
 
@@ -1290,7 +1292,7 @@ export const ReduxActionTypes = {
   ...SnippingModeActionTypes,
   ...TableWidgetActionsTypes,
   ...TemplateActionsTypes,
-  ...TenantActionTypes,
+  ...OrganizationActionTypes,
   ...ThemeActionTypes,
   ...UserAuthActionTypes,
   ...UserProfileActionTypes,
@@ -1320,7 +1322,7 @@ export const ReduxActionErrorTypes = {
   ...PlatformActionErrorTypes,
   ...PluginActionErrorTypes,
   ...TemplateActionErrorTypes,
-  ...TenantActionErrorTypes,
+  ...OrganizationActionErrorTypes,
   ...UserAuthActionErrorTypes,
   ...UserProfileActionErrorTypes,
   ...WidgetCanvasActionErrorTypes,
@@ -1336,7 +1338,7 @@ export const toastMessageErrorTypes = {
   ...GitActionErrorTypes,
   ...ImportExportActionErrorTypes,
   ...PlatformActionErrorTypes,
-  ...TenantActionErrorTypes,
+  ...OrganizationActionErrorTypes,
   ...UserAuthActionErrorTypes,
   ...UserProfileActionErrorTypes,
   ...WorkspaceActionErrorTypes,

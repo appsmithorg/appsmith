@@ -12,7 +12,7 @@ import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "ee/selectors/applicationSelectors";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { getAppsmithConfigs } from "ee/configs";
 import { DeleteLogoButton } from "ee/pages/Editor/NavigationSettings/DeleteLogoButton";
 
@@ -28,7 +28,7 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isUploadingNavigationLogo = useSelector(getIsUploadingNavigationLogo);
   const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
-  const tenantConfig = useSelector(getTenantConfig);
+  const organizationConfig = useSelector(getOrganizationConfig);
   const { logoAssetId } = navigationSetting;
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -41,8 +41,8 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
       setLogoUrl(null);
 
       return;
-    } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
-      setLogoUrl(tenantConfig.brandLogoUrl);
+    } else if (!cloudHosting && organizationConfig?.brandLogoUrl) {
+      setLogoUrl(organizationConfig.brandLogoUrl);
 
       return;
     }
@@ -50,7 +50,7 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
     setLogoUrl(null);
 
     return;
-  }, [logoAssetId, tenantConfig, cloudHosting]);
+  }, [logoAssetId, organizationConfig, cloudHosting]);
 
   const handleChange = (file: File) => {
     dispatch({

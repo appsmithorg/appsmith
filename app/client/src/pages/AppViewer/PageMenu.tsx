@@ -21,7 +21,7 @@ import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
-import { getHideWatermark } from "ee/selectors/tenantSelectors";
+import { getHideWatermark } from "ee/selectors/organizationSelectors";
 
 interface NavigationProps {
   isOpen?: boolean;

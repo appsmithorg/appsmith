@@ -67,7 +67,7 @@ import {
 } from "sagas/helper";
 import { toast } from "@appsmith/ads";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";

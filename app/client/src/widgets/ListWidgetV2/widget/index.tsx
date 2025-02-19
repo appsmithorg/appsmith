@@ -878,7 +878,7 @@ class ListWidget extends BaseWidget<
   };
 
   calculatePageNumberFromRowIndex = (index: number) => {
-    return Math.ceil((index + 1) / this.pageSize);
+    return Math.ceil((index + 1) / this.props.pageSize);
   };
 
   shouldUpdatePageSize = () => {

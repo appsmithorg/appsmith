@@ -1,4 +1,5 @@
-import type { GitArtifactDef, GitRootState } from "../types";
+import type { GitArtifactDef } from "git/types";
+import type { GitRootState } from "git/store/types";
 
 export const selectGitArtifact = (
   state: GitRootState,
@@ -139,12 +140,7 @@ export const selectCurrentBranch = (
   // need this to preserve interface
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   artifactDef: GitArtifactDef,
-) => {
-  return (
-    state?.ui?.applications?.currentApplication?.gitApplicationMetadata
-      ?.branchName ?? null
-  );
-};
+) => selectGitArtifact(state, artifactDef)?.ui.currentBranch ?? null;
 
 export const selectFetchBranchesState = (
   state: GitRootState,

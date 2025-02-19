@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;
 
+@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = true)
 @FieldNameConstants

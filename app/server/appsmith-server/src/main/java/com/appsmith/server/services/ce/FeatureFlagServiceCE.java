@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.enums.FeatureFlagEnum;
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.featureflags.CachedFeatures;
 import reactor.core.publisher.Mono;
 
@@ -26,20 +26,21 @@ public interface FeatureFlagServiceCE {
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
 
     /**
-     * To get all features of the tenant from Cloud Services and store them locally
+     * To get all features of the organization from Cloud Services and store them locally
      * @return Mono of Void
      */
-    Mono<Tenant> getAllRemoteFeaturesForAllTenantAndUpdateFeatureFlagsWithPendingMigrations(Tenant tenant);
+    Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(Organization organization);
 
     /**
-     * To get all features of the current tenant.
+     * To get all features of the current organization.
      * @return Mono of Map
      */
-    Mono<Map<String, Boolean>> getTenantFeatures();
+    Mono<Map<String, Boolean>> getOrganizationFeatures();
 
-    Mono<Map<String, Boolean>> getTenantFeatures(String tenantId);
+    Mono<Map<String, Boolean>> getOrganizationFeatures(String orgId);
 
-    Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant);
+    Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization);
 
-    CachedFeatures getCachedTenantFeatureFlags();
+
+    CachedFeatures getCachedOrganizationFeatureFlags();
 }

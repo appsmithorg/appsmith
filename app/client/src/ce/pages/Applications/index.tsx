@@ -97,9 +97,9 @@ import {
   getIsFetchingApplications,
 } from "ee/selectors/selectedWorkspaceSelectors";
 import {
-  getTenantPermissions,
+  getOrganizationPermissions,
   shouldShowLicenseBanner,
-} from "ee/selectors/tenantSelectors";
+} from "ee/selectors/organizationSelectors";
 import { getWorkflowsList } from "ee/selectors/workflowSelectors";
 import {
   getFetchedWorkspaces,
@@ -301,12 +301,12 @@ export function LeftPaneSection(props: {
 }) {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
 
   const canCreateWorkspace = getHasCreateWorkspacePermission(
     isFeatureEnabled,
-    tenantPermissions,
+    organizationPermissions,
   );
 
   const createNewWorkspace = async () => {

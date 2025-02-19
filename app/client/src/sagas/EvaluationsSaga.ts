@@ -118,7 +118,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import type {
   AffectedJSObjects,
   EvaluationReduxAction,

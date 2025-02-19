@@ -45,7 +45,7 @@ public class UserSessionDTO {
 
     private Set<String> workspaceIds;
 
-    private String tenantId;
+    private String organizationId;
 
     private Object credentials;
 
@@ -85,7 +85,7 @@ public class UserSessionDTO {
         session.state = user.getState();
         session.isEnabled = user.isEnabled();
         session.workspaceIds = user.getWorkspaceIds();
-        session.tenantId = user.getTenantId();
+        session.organizationId = user.getOrganizationId();
         session.emailVerified = Boolean.TRUE.equals(user.getEmailVerified());
         session.emailVerificationRequired = Boolean.TRUE.equals(user.getEmailVerificationRequired());
 
@@ -126,7 +126,7 @@ public class UserSessionDTO {
         user.setState(state);
         user.setIsEnabled(isEnabled);
         user.setWorkspaceIds(workspaceIds);
-        user.setTenantId(tenantId);
+        user.setOrganizationId(organizationId);
         user.setEmailVerified(Boolean.TRUE.equals(emailVerified));
         user.setEmailVerificationRequired(Boolean.TRUE.equals(emailVerificationRequired));
 

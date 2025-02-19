@@ -15,7 +15,7 @@ import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import joptsimple.internal.Strings;
@@ -56,7 +56,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     private final NetworkUtils networkUtils;
     private final ReleaseNotesService releaseNotesService;
     private final RTSCaller rtsCaller;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
     private boolean isRtsAccessible = false;
 
@@ -235,12 +235,12 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
      * @return  Empty Mono
      */
     @Override
-    public Mono<Void> updateCacheForTenantFeatureFlags() {
-        tenantService
+    public Mono<Void> updateCacheForOrganizationFeatureFlags() {
+        organizationService
                 .retrieveAll()
-                .flatMap(tenant -> featureFlagService.getTenantFeatures(tenant.getId()))
+                .flatMap(org -> featureFlagService.getOrganizationFeatures(org.getId()))
                 .onErrorResume(error -> {
-                    log.error("Error while updating cache for tenant feature flags", error);
+                    log.error("Error while updating cache for org feature flags", error);
                     return Mono.empty();
                 })
                 .subscribeOn(LoadShifter.elasticScheduler)

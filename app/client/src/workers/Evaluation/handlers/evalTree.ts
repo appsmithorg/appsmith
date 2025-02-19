@@ -31,7 +31,7 @@ import {
   newWebWorkerSpanData,
   profileAsyncFn,
 } from "instrumentation/generateWebWorkerTraces";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { Attributes } from "instrumentation/types";
 import { updateActionsToEvalTree } from "./updateActionData";
