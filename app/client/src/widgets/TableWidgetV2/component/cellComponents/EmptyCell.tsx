@@ -1,9 +1,10 @@
 import { pickBy, sum } from "lodash";
 import type { CSSProperties } from "react";
 import React from "react";
-import type { Cell, Row } from "react-table";
+import type { Cell } from "react-table";
 import type { ReactTableColumnProps } from "../Constants";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
+import { useAppsmithTable } from "../TableContext";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
@@ -19,17 +20,17 @@ const addStickyModifierClass = (
     : "";
 };
 
-export const renderEmptyRows = (
-  rowCount: number,
-  columns: ReactTableColumnProps[],
-  tableWidth: number,
-  page: Row<Record<string, unknown>>[],
-  multiRowSelection = false,
-  accentColor: string,
-  borderRadius: string,
-  style?: CSSProperties,
-  prepareRow?: (row: Row<Record<string, unknown>>) => void,
-) => {
+export const RenderEmptyRows = (rowCount: number, style?: CSSProperties) => {
+  const {
+    accentColor,
+    borderRadius,
+    columns,
+    multiRowSelection = false,
+    prepareRow,
+    subPage: page,
+    width: tableWidth,
+  } = useAppsmithTable();
+
   const rows: string[] = new Array(rowCount).fill("");
 
   if (page.length) {
