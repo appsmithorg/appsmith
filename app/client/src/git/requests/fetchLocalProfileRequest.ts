@@ -14,7 +14,7 @@ async function fetchLocalProfileRequestNew(
   artifactType: GitArtifactType,
   baseArtifactId: string,
 ): AxiosPromise<FetchLocalProfileResponse> {
-  return Api.get(`${GIT_BASE_URL}/${artifactType}/${baseArtifactId}/profile`);
+  return Api.get(`${GIT_BASE_URL}/artifacts/${baseArtifactId}/profile`);
 }
 
 export default async function fetchLocalProfileRequest(

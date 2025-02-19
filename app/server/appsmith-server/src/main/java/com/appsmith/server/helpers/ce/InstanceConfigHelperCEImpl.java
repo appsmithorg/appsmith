@@ -226,7 +226,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     }
 
     @Override
-    public Mono<Void> updateCacheForTenantFeatureFlags() {
-        return featureFlagService.getTenantFeatures().then();
+    public Mono<Void> updateCacheForOrganizationFeatureFlags() {
+        return featureFlagService.getOrganizationFeatures().then();
     }
 }

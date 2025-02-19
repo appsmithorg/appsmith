@@ -38,7 +38,7 @@ import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,

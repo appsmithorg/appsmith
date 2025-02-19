@@ -4,7 +4,7 @@ import type {
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";

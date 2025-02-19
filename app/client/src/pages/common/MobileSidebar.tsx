@@ -19,7 +19,7 @@ import {
 } from "ee/constants/messages";
 import { getAppsmithConfigs } from "ee/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -85,7 +85,7 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -116,7 +116,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
                 path: getAdminSettingsPath(
                   isFeatureEnabled,
                   user?.isSuperUser,
-                  tenantPermissions,
+                  organizationPermissions,
                 ),
               });
             }}

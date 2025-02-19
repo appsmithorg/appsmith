@@ -12,8 +12,9 @@ import {
 } from "ee/constants/messages";
 import { getIsPackageUpgrading } from "ee/selectors/packageSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useGitOps, useGitProtectedMode } from "git";
+import { useGitOps } from "git/hooks";
 import {
+  useGitProtectedMode,
   useGitConnected,
   useGitModEnabled,
 } from "pages/Editor/gitSync/hooks/modHooks";

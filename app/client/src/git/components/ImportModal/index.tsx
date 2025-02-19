@@ -41,7 +41,7 @@ function ImportModal() {
       onGenerateSSHKey={fetchGlobalSSHKey}
       onOpenImport={null}
       onSubmit={onSubmit}
-      resetSSHKey={resetGlobalSSHKey}
+      resetConnectState={resetGlobalSSHKey}
       sshPublicKey={sshPublicKey}
       toggleModalOpen={toggleImportModal}
     />

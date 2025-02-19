@@ -1,21 +1,23 @@
 import React, { createContext, useContext, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
-import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
-import type { GitArtifactDef } from "git/store/types";
-import type { StatusTreeStruct } from "../StatusChanges/types";
+import type { GitArtifact, GitArtifactDef } from "git/types";
+import type { StatusTreeStruct } from "git/components/StatusChanges/types";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { noop } from "lodash";
 
 export interface GitContextValue {
   artifactDef: GitArtifactDef | null;
-  artifact: ApplicationPayload | null;
-  artifacts: ApplicationPayload[] | null;
+  artifact: GitArtifact | null;
+  artifacts: GitArtifact[] | null;
   fetchArtifacts: () => void;
   workspace: Workspace | null;
   setImportWorkspaceId: () => void;
   importWorkspaceId: string | null;
-  isCreateArtifactPermitted: boolean;
+  isConnectPermitted: boolean;
+  isManageAutocommitPermitted: boolean;
+  isManageDefaultBranchPermitted: boolean;
+  isManageProtectedBranchesPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
@@ -33,8 +35,8 @@ interface GitContextProviderProps {
   // artifact
   artifactType: GitArtifactType | null;
   baseArtifactId: string | null;
-  artifact: ApplicationPayload | null;
-  artifacts: ApplicationPayload[] | null;
+  artifact: GitArtifact | null;
+  artifacts: GitArtifact[] | null;
   fetchArtifacts: () => void;
 
   // workspace
@@ -45,7 +47,10 @@ interface GitContextProviderProps {
   importWorkspaceId: string | null;
 
   // permissions
-  isCreateArtifactPermitted: boolean;
+  isConnectPermitted: boolean;
+  isManageAutocommitPermitted: boolean;
+  isManageDefaultBranchPermitted: boolean;
+  isManageProtectedBranchesPermitted: boolean;
 
   // artifactspecific functions
   statusTransformer: (
@@ -66,7 +71,10 @@ export default function GitContextProvider({
   children,
   fetchArtifacts = noop,
   importWorkspaceId = null,
-  isCreateArtifactPermitted = false,
+  isConnectPermitted = false,
+  isManageAutocommitPermitted = false,
+  isManageDefaultBranchPermitted = false,
+  isManageProtectedBranchesPermitted = false,
   setImportWorkspaceId = noop,
   statusTransformer = NULL_NOOP,
   workspace = null,
@@ -88,7 +96,10 @@ export default function GitContextProvider({
       workspace,
       setImportWorkspaceId,
       importWorkspaceId,
-      isCreateArtifactPermitted,
+      isConnectPermitted,
+      isManageAutocommitPermitted,
+      isManageDefaultBranchPermitted,
+      isManageProtectedBranchesPermitted,
       statusTransformer,
     }),
     [
@@ -99,7 +110,10 @@ export default function GitContextProvider({
       workspace,
       setImportWorkspaceId,
       importWorkspaceId,
-      isCreateArtifactPermitted,
+      isConnectPermitted,
+      isManageAutocommitPermitted,
+      isManageDefaultBranchPermitted,
+      isManageProtectedBranchesPermitted,
       statusTransformer,
     ],
   );

@@ -10,13 +10,14 @@ import useImport from "git/hooks/useImport";
 import history from "utils/history";
 
 function ConnectModal() {
-  const { artifactDef, isCreateArtifactPermitted, setImportWorkspaceId } =
+  const { artifactDef, isConnectPermitted, setImportWorkspaceId } =
     useGitContext();
   const {
     connect,
     connectError,
     isConnectLoading,
     isConnectModalOpen,
+    resetConnect,
     toggleConnectModal,
   } = useConnect();
   const { toggleImportModal } = useImport();
@@ -53,10 +54,11 @@ function ConnectModal() {
     AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
   }, [setImportWorkspaceId, toggleConnectModal, toggleImportModal]);
 
-  const resetSSHKey = useCallback(() => {
+  const resetConnectState = useCallback(() => {
+    resetConnect();
     resetFetchSSHKey();
     resetGenerateSSHKey();
-  }, [resetFetchSSHKey, resetGenerateSSHKey]);
+  }, [resetConnect, resetFetchSSHKey, resetGenerateSSHKey]);
 
   return (
     <ConnectModalView
@@ -68,9 +70,9 @@ function ConnectModal() {
       isSubmitLoading={isConnectLoading}
       onFetchSSHKey={fetchSSHKey}
       onGenerateSSHKey={generateSSHKey}
-      onOpenImport={isCreateArtifactPermitted ? onOpenImport : null}
+      onOpenImport={isConnectPermitted ? onOpenImport : null}
       onSubmit={onSubmit}
-      resetSSHKey={resetSSHKey}
+      resetConnectState={resetConnectState}
       sshPublicKey={sshPublicKey}
       toggleModalOpen={toggleConnectModal}
     />
