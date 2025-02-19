@@ -32,7 +32,7 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": true
+    // "verbatimModuleSyntax": true
   },
   "include": ["./src/**/*", "./packages"],
   "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]

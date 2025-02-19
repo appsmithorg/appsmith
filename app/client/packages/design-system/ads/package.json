@@ -1,15 +1,36 @@
 {
   "name": "@appsmith/ads",
-  "version": "2.1.44-alpha.4",
+  "version": "2.1.44-alpha.18",
   "description": "This is the package for the design system that powers the Appsmith platform",
-  "main": "src/index.ts",
-  "sideEffects": false,
+  "type": "module",
+  "main": "build/umd/design-system.js",
+  "module": "build/esm/index.js",
+  "types": "build/esm/index.d.ts",
+  "style": "build/css/design-system.css",
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
+  "exports": {
+    ".": {
+      "types": "./build/esm/index.d.ts",
+      "import": "./build/esm/index.js",
+      "require": "./build/umd/design-system.js"
+    },
+    "./css": "./build/css/design-system.css"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "scripts": {
     "generate:component": "plop component",
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "test:unit": "yarn g:jest",
-    "build": "rm -rf build && rollup -c --bundleConfigAsCjs"
+    "build": "rm -rf build && rollup -c && rollup -c rollup.config.umd.mjs",
+    "prepublishOnly": "rm -rf build && yarn build"
   },
   "files": [
     "build"
@@ -17,19 +38,24 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@react-aria/focus": "^3.10.1",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.24.0",
+    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@rollup/plugin-url": "^8.0.2",
-    "@svgr/rollup": "^8.1.0",
-    "@types/react-datepicker": "^4.10.0",
     "browserslist": "latest",
+    "postcss-import": "^15.1.0",
+    "react-scripts": "4.0.3",
     "rollup": "^4.28.1",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.2"
+    "rollup-plugin-postcss": "^4.0.2",
+    "typescript": "^4.4.4"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.2",
@@ -55,7 +81,13 @@
     "rc-select": "^14.4.3",
     "rc-table": "^7.35.2",
     "rc-tooltip": "^5.3.1",
+    "react": "^18.2.0",
     "react-datepicker": "^4.10.0",
+    "react-dom": "^18.2.0",
     "react-toastify": "9.0.3"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

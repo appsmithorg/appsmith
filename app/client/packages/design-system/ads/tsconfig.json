@@ -1,4 +1,4 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "rollup.config.mjs", "rollup.config.umd.mjs"]
 }
