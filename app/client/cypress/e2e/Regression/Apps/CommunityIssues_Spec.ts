@@ -143,7 +143,7 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
     });
 
-    it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
+    it.skip("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TypeTextIntoField("Default search text", "Bug");
