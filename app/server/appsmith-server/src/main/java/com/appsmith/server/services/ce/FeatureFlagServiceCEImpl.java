@@ -159,7 +159,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
-        // TODO change this to use the tenant from the user session for multi-tenancy
         return sessionUserService.getCurrentUser().map(User::getOrganizationId).flatMap(this::getOrganizationFeatures);
     }
 
