@@ -15,6 +15,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Validate API request body panel",
@@ -99,6 +100,7 @@ describe(
     });
 
     it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
+      PageList.AddNewPage();
       const imageNameToUpload = "ConcreteHouse.jpg";
       agHelper.AddDsl("multiPartFormDataDsl");
 
@@ -141,7 +143,7 @@ describe(
       EditorNavigation.SelectEntityByName("MultipartAPI", EntityType.Api);
 
       apiPage.ToggleOnPageLoadRun(false); //Bug 12476
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       deployMode.DeployApp(locators._buttonByText("Select Files"));
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(imageNameToUpload);
