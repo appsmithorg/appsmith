@@ -62,7 +62,7 @@ public enum AppsmithRole {
                     WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_INVITE_USERS,
                     WORKSPACE_EXECUTE_DATASOURCES)),
-    TENANT_ADMIN("", "", Set.of(MANAGE_ORGANIZATION)),
+    ORGANIZATION_ADMIN("", "", Set.of(MANAGE_ORGANIZATION)),
     ;
 
     private Set<AclPermission> permissions;
