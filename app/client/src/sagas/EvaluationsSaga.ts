@@ -762,7 +762,7 @@ function* evaluationChangeListenerSaga(): any {
   const isFFFetched = yield select(getFeatureFlagsFetched);
 
   if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
+    yield put(fetchFeatureFlagsInit());
     yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
   }
 
