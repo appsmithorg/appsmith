@@ -6,7 +6,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
@@ -27,7 +28,8 @@ import org.springframework.stereotype.Service;
 public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements DatasourceService {
 
     public DatasourceServiceImpl(
-            DatasourceRepository repository,
+            DatasourceRepository repositoryDirect,
+            DatasourceRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -35,7 +37,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -48,6 +50,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             ConfigService configService) {
 
         super(
+                repositoryDirect,
                 repository,
                 workspaceService,
                 analyticsService,

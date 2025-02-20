@@ -53,7 +53,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -69,7 +69,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -117,7 +116,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     protected final GitHandlingServiceResolver gitHandlingServiceResolver;
 
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
-    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final GitDeployKeysRepositoryCake gitDeployKeysRepository;
 
     private final DatasourceService datasourceService;
     private final DatasourcePermission datasourcePermission;
@@ -129,7 +128,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     private final ExportService exportService;
 
     private final GitAutoCommitHelper gitAutoCommitHelper;
-    private final TransactionalOperator transactionalOperator;
+    // private final TransactionalOperator transactionalOperator;
     private final ObservationRegistry observationRegistry;
 
     protected static final String ORIGIN = "origin/";
@@ -2631,27 +2630,25 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         Mono<? extends Artifact> baseArtifactMono =
                 gitArtifactHelper.getArtifactById(baseArtifactId, artifactManageProtectedBranchPermission);
 
-        return baseArtifactMono
-                .flatMap(baseArtifact -> {
-                    GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-                    final String defaultBranchName = baseGitData.getDefaultBranchName();
-                    final List<String> incomingProtectedBranches =
-                            CollectionUtils.isEmpty(branchNames) ? new ArrayList<>() : branchNames;
+        return baseArtifactMono.flatMap(baseArtifact -> {
+            GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
+            final String defaultBranchName = baseGitData.getDefaultBranchName();
+            final List<String> incomingProtectedBranches =
+                    CollectionUtils.isEmpty(branchNames) ? new ArrayList<>() : branchNames;
 
-                    // user cannot protect multiple branches
-                    if (incomingProtectedBranches.size() > 1) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
+            // user cannot protect multiple branches
+            if (incomingProtectedBranches.size() > 1) {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
 
-                    // user cannot protect a branch which is not default
-                    if (incomingProtectedBranches.size() == 1
-                            && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
+            // user cannot protect a branch which is not default
+            if (incomingProtectedBranches.size() == 1 && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
 
-                    return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
-                })
-                .as(transactionalOperator::transactional);
+            return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
+        });
+        // .as(transactionalOperator::transactional);
     }
 
     protected Mono<List<String>> updateProtectedBranchesInArtifactAfterVerification(

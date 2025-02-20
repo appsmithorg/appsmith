@@ -35,6 +35,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
@@ -42,10 +43,10 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
@@ -64,6 +65,7 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -101,9 +103,10 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ActionServiceCE_Test {
     @Autowired
     NewActionService newActionService;
@@ -121,7 +124,7 @@ public class ActionServiceCE_Test {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -160,7 +163,7 @@ public class ActionServiceCE_Test {
     MockDataService mockDataService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -169,7 +172,7 @@ public class ActionServiceCE_Test {
     AstService astService;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -178,7 +181,7 @@ public class ActionServiceCE_Test {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     SessionUserService sessionUserService;

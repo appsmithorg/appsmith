@@ -257,9 +257,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     List<NewPage> newPages = tuple2.getT2();
                     return newPageService.createApplicationPagesDTO(branchedApplication, newPages, isViewMode, true);
                 })
+                .doOnError(e -> log.error("Error fetching application pages", e))
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setPages)
-                .doOnError(e -> log.error("Error fetching application pages", e))
                 .name(getQualifiedSpanName(PAGES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();

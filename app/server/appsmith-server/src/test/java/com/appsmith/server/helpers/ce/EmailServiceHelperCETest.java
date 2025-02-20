@@ -1,13 +1,16 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.services.OrganizationService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
@@ -21,7 +24,9 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_WORKSPACE
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class EmailServiceHelperCETest {
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+public class EmailServiceHelperCETest {
 
     @Autowired
     @Qualifier("emailServiceHelperCEImpl") private EmailServiceHelperCE emailServiceHelperCE;

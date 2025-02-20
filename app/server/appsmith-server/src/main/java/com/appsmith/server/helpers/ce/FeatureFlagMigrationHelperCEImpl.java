@@ -90,7 +90,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
             b. Fetch and save latest flags from CS
         2. In case the organization is unable to fetch the latest flags save the existing flags from step 1 to cache (fallback)
          */
-        String organizationId = organization.getId();
+        String organizationId = String.valueOf(organization.getId());
         return cacheableFeatureFlagHelper
                 .evictCachedOrganizationFeatures(organizationId)
                 .then(cacheableFeatureFlagHelper.fetchCachedOrganizationFeatures(organizationId))
@@ -245,7 +245,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
             return Mono.just(FALSE);
         }
         return cacheableFeatureFlagHelper
-                .fetchCachedOrganizationFeatures(organization.getId())
+                .fetchCachedOrganizationFeatures(String.valueOf(organization.getId()))
                 .map(cachedFeatures -> {
                     Map<String, Boolean> featureFlags = cachedFeatures.getFeatures();
                     if (featureFlags.containsKey(featureFlagEnum.name())) {

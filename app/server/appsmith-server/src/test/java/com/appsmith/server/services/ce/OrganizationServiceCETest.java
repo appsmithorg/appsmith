@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -90,19 +91,17 @@ class OrganizationServiceCETest {
         assert organization != null;
         originalOrganizationConfiguration = organization.getOrganizationConfiguration();
 
-        organizationRepository
-                .updateAndReturn(
-                        organization.getId(),
-                        Bridge.update().set(Organization.Fields.organizationConfiguration, null),
-                        null)
-                .block();
+        User user = userRepository.findByEmail("api_user").get();
+
+        organizationRepository.updateAndReturn(
+                organization.getId(),
+                Bridge.update().set(Organization.Fields.organizationConfiguration, null),
+                null,
+                user);
 
         // Make api_user super-user to test organization admin functionality
         // Todo change this to organization admin once we introduce multitenancy
-        userRepository
-                .findByEmail("api_user")
-                .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
-                .block();
+        userUtils.makeSuperUser(List.of(user)).block();
         doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
 
