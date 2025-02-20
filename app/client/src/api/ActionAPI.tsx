@@ -71,6 +71,12 @@ export interface SuggestedWidget {
   bindingQuery: string;
 }
 
+export interface PostActionRunConfig {
+  type: "FORM";
+  name: string;
+  config?: Record<string, unknown>;
+}
+
 export interface ActionResponse {
   body: React.ReactNode;
   headers: Record<string, string[]>;
@@ -86,6 +92,7 @@ export interface ActionResponse {
   readableError?: string;
   responseDisplayFormat?: string;
   pluginErrorDetails?: PluginErrorDetails;
+  postRunAction?: PostActionRunConfig;
 }
 
 //This contains the error details from the plugin that is sent to the client in the response
