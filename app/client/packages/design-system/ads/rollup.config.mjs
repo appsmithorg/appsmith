@@ -65,20 +65,15 @@ export default {
     image(),
     babel({
       exclude: "node_modules/**",
-      presets: [
-        "@babel/preset-react",
-        "@babel/preset-typescript",
-        [
-          "@babel/preset-env",
-          {
-            modules: false,
-            targets: "> 0.25%, not dead",
-            useBuiltIns: false,
-          },
-        ],
-      ],
       babelHelpers: "bundled",
       extensions: [".js", ".jsx", ".ts", ".tsx"],
+      presets: [
+        ["@babel/preset-react", { runtime: "automatic" }],
+        ["@babel/preset-typescript", { isTSX: true, allExtensions: true }]
+      ],
+      skipPreflightCheck: true,
+      babelrc: false,
+      configFile: false
     }),
     postcss({
       minimize: true,

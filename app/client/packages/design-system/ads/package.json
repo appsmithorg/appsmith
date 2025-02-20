@@ -19,11 +19,6 @@
     },
     "./css": "./build/css/design-system.css"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ],
   "scripts": {
     "generate:component": "plop component",
     "lint": "yarn g:lint",
@@ -38,9 +33,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.24.0",
+    "@babel/core": "^7.23.9",
+    "@babel/helper-compilation-targets": "^7.23.6",
+    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@babel/runtime": "^7.23.9",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-image": "^3.0.3",
@@ -49,7 +47,6 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@rollup/plugin-url": "^8.0.2",
-    "browserslist": "latest",
     "postcss-import": "^15.1.0",
     "react-scripts": "4.0.3",
     "rollup": "^4.28.1",

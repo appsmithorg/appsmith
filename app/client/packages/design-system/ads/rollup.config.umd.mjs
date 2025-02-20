@@ -68,26 +68,15 @@ export default {
     }),
     babel({
       exclude: "node_modules/**",
-      presets: [
-        "@babel/preset-react",
-        "@babel/preset-typescript",
-        [
-          "@babel/preset-env",
-          {
-            modules: false,
-            targets: {
-              browsers: [
-                "last 2 chrome version",
-                "last 2 firefox version",
-                "last 2 safari version",
-                "last 2 edge version",
-              ],
-            },
-          },
-        ],
-      ],
       babelHelpers: "bundled",
       extensions: [".js", ".jsx", ".ts", ".tsx"],
+      presets: [
+        ["@babel/preset-react", { runtime: "automatic" }],
+        ["@babel/preset-typescript", { isTSX: true, allExtensions: true }]
+      ],
+      skipPreflightCheck: true,
+      babelrc: false,
+      configFile: false
     }),
     postcss({
       inject: true,
