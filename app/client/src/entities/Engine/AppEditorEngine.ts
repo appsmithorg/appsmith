@@ -3,7 +3,6 @@ import { resetEditorSuccess } from "actions/initActions";
 import {
   fetchAllPageEntityCompletion,
   setupPageAction,
-  updateAppStore,
 } from "actions/pageActions";
 import {
   executePageLoadActions,
@@ -74,8 +73,8 @@ import {
   selectGitApplicationCurrentBranch,
   selectGitModEnabled,
 } from "selectors/gitModSelectors";
-import { getPersistentAppStore } from "constants/AppConstants";
 import { applicationArtifact } from "git-artifact-helpers/application";
+import log from "loglevel";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -303,21 +302,17 @@ export default class AppEditorEngine extends AppEngine {
     if (isGitPersistBranchEnabled) {
       const currentUser: User = yield select(getCurrentUser);
 
-      if (currentUser.email && currentApplication?.baseId && currentBranch) {
+      if (currentUser?.email && currentApplication?.baseId && currentBranch) {
         yield setLatestGitBranchInLocal(
           currentUser.email,
           currentApplication.baseId,
           currentBranch,
         );
+      } else {
+        log.error(
+          `There was an error setting the latest git branch in local - userEmail: ${!!currentUser?.email}, applicationId: ${currentApplication?.baseId}, branch: ${currentBranch}`,
+        );
       }
-    }
-
-    if (currentApplication?.id) {
-      yield put(
-        updateAppStore(
-          getPersistentAppStore(currentApplication.id, currentBranch),
-        ),
-      );
     }
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
