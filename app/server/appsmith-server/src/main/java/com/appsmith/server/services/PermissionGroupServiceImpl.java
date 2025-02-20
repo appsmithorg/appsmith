@@ -1,8 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;

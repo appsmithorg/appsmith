@@ -728,7 +728,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (!isValidUser(user)) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
-            String tenantId = cacheableRepositoryHelper.getDefaultOrganizationId().block();
+            String tenantId =
+                    cacheableRepositoryHelper.getDefaultOrganizationId().block();
             user.setTenantId(tenantId);
         }
         return cacheableRepositoryHelper.getPermissionGroupsOfUser(user).block();

@@ -59,16 +59,17 @@ public class OrganizationServiceCEImpl
     private final SessionUserService sessionUserService;
 
     public OrganizationServiceCEImpl(
-        Validator validator,
-        OrganizationRepository repository,
-        OrganizationRepositoryCake repositoryCake,
-        AnalyticsService analyticsService,
-        ConfigService configService,
-        @Lazy EnvManager envManager,
-        FeatureFlagMigrationHelper featureFlagMigrationHelper,
-        CacheableRepositoryHelper cacheableRepositoryHelper,
-        CommonConfig commonConfig,
-        ObservationRegistry observationRegistry, SessionUserService sessionUserService) {
+            Validator validator,
+            OrganizationRepository repository,
+            OrganizationRepositoryCake repositoryCake,
+            AnalyticsService analyticsService,
+            ConfigService configService,
+            @Lazy EnvManager envManager,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            CommonConfig commonConfig,
+            ObservationRegistry observationRegistry,
+            SessionUserService sessionUserService) {
         super(validator, repository, repositoryCake, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -200,8 +201,9 @@ public class OrganizationServiceCEImpl
                 .zipWith(currentUserMono)
                 .name(FETCH_DEFAULT_ORGANIZATION_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(tuple ->
-                        repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()).switchIfEmpty(Mono.just(tuple.getT1())))
+                .flatMap(tuple -> repository
+                        .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
+                        .switchIfEmpty(Mono.just(tuple.getT1())))
                 .onErrorResume(e -> {
                     e.printStackTrace();
                     log.error("Error fetching default organization from redis : {}", e.getMessage());

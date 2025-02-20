@@ -4,7 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -19,7 +19,7 @@ import static com.appsmith.external.models.BaseDomain.policySetToMap;
 @Slf4j
 public class OrganizationConfig implements ApplicationListener<ApplicationStartedEvent> {
 
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationRepositoryCake organizationRepository;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     // Method to cleanup the cache and update the default organization policies if the policyMap is empty. This will
@@ -34,7 +34,7 @@ public class OrganizationConfig implements ApplicationListener<ApplicationStarte
                 organization.setPolicyMap(policySetToMap(organization.getPolicies()));
                 return cacheableRepositoryHelper
                         .evictCachedOrganization(organization.getId())
-                        .thenReturn(organizationRepository.save(organization));
+                        .then(organizationRepository.save(organization));
             }
             return Mono.just(organization);
         });

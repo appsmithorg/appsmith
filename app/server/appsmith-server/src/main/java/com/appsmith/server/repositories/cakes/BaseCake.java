@@ -179,7 +179,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // FIXME: Duplicate from BaseAppsmithRepositoryCEImpl
     private Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
         if (user.getTenantId() == null) {
-            user.setTenantId(cacheableRepositoryHelper.getDefaultOrganizationId().block());
+            user.setTenantId(
+                    cacheableRepositoryHelper.getDefaultOrganizationId().block());
         }
 
         return Mono.zip(

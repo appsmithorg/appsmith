@@ -12,8 +12,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -40,7 +38,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 @Component
@@ -156,16 +153,16 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.info("Fetching organization from database as it couldn't be found in the cache!");
 
         return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
-            .map(organization -> {
-                if (organization.getOrganizationConfiguration() == null) {
-                    organization.setOrganizationConfiguration(new OrganizationConfiguration());
-                }
-                String newDefaultOrganizationId = organization.getId();
-                inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
-                return newDefaultOrganizationId;
-            })
-            .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
-            .tap(Micrometer.observation(observationRegistry));
+                .map(organization -> {
+                    if (organization.getOrganizationConfiguration() == null) {
+                        organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                    }
+                    String newDefaultOrganizationId = organization.getId();
+                    inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
+                    return newDefaultOrganizationId;
+                })
+                .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -213,14 +210,14 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.info("Fetching organization from database as it couldn't be found in the cache!");
 
         return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
-            .map(organization -> {
-                if (organization.getOrganizationConfiguration() == null) {
-                    organization.setOrganizationConfiguration(new OrganizationConfiguration());
-                }
-                return organization;
-            })
-            .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
-            .tap(Micrometer.observation(observationRegistry));
+                .map(organization -> {
+                    if (organization.getOrganizationConfiguration() == null) {
+                        organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                    }
+                    return organization;
+                })
+                .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @CacheEvict(cacheName = "organization", key = "{#organizationId}")

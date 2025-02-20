@@ -91,16 +91,13 @@ class OrganizationServiceCETest {
         assert organization != null;
         originalOrganizationConfiguration = organization.getOrganizationConfiguration();
 
-        User user = userRepository
-            .findByEmail("api_user").get();
+        User user = userRepository.findByEmail("api_user").get();
 
-        organizationRepository
-                .updateAndReturn(
-                        organization.getId(),
-                        Bridge.update().set(Organization.Fields.organizationConfiguration, null),
-                        null,
-                        user
-                );
+        organizationRepository.updateAndReturn(
+                organization.getId(),
+                Bridge.update().set(Organization.Fields.organizationConfiguration, null),
+                null,
+                user);
 
         // Make api_user super-user to test organization admin functionality
         // Todo change this to organization admin once we introduce multitenancy

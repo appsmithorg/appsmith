@@ -9,7 +9,6 @@ import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
