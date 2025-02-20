@@ -127,6 +127,7 @@ export interface ActionsPropsType {
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
+  isInfiniteScrollEnabled: boolean;
 }
 
 function Actions(props: ActionsPropsType) {
@@ -186,10 +187,18 @@ function Actions(props: ActionsPropsType) {
             )}
           </CommonFunctionsMenuWrapper>
         )}
-
-      {!!props.columns.length &&
-        props.isVisiblePagination &&
-        props.serverSidePaginationEnabled && (
+      {!!props.columns.length && props.isVisiblePagination ? (
+        props.isInfiniteScrollEnabled ? (
+          <PaginationWrapper>
+            <TableHeaderContentWrapper className="show-page-items">
+              {props.tableData.length}{" "}
+              {props.totalRecordsCount
+                ? `out of ${props.totalRecordsCount}`
+                : ""}{" "}
+              Records
+            </TableHeaderContentWrapper>
+          </PaginationWrapper>
+        ) : props.serverSidePaginationEnabled ? (
           <PaginationWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
@@ -256,10 +265,7 @@ function Actions(props: ActionsPropsType) {
               />
             </PaginationItemWrapper>
           </PaginationWrapper>
-        )}
-      {!!props.columns.length &&
-        props.isVisiblePagination &&
-        !props.serverSidePaginationEnabled && (
+        ) : (
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
               {props.tableData?.length} Records
@@ -309,7 +315,8 @@ function Actions(props: ActionsPropsType) {
               <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
             </PaginationItemWrapper>
           </PaginationWrapper>
-        )}
+        )
+      ) : null}
     </>
   );
 }
