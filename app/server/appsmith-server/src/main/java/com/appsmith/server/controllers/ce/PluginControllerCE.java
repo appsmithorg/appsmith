@@ -44,21 +44,19 @@ public class PluginControllerCE {
         log.debug("Getting all plugins in workspace {}", workspaceId);
         return service.getInWorkspace(workspaceId)
                 .collectList()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/{pluginId}/form")
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
-        return service.getFormConfig(pluginId).map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
+        return service.getFormConfig(pluginId).map(form -> new ResponseDTO<>(HttpStatus.OK, form));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/default/icons")
     public Mono<ResponseDTO<List<Plugin>>> getDefaultPluginIcons() {
-        return service.getDefaultPluginIcons()
-                .collectList()
-                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+        return service.getDefaultPluginIcons().collectList().map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @JsonView(Views.Public.class)
@@ -75,7 +73,7 @@ public class PluginControllerCE {
                         environmentId,
                         triggerRequestDTO,
                         serverWebExchange.getRequest().getHeaders())
-                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK, triggerResultDTO));
     }
 
     @JsonView(Views.Public.class)
@@ -96,6 +94,6 @@ public class PluginControllerCE {
                         filePartFlux,
                         requestType,
                         serverWebExchange.getRequest().getHeaders())
-                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK, triggerResultDTO));
     }
 }
