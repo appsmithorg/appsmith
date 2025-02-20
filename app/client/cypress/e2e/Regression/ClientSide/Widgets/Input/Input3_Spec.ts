@@ -104,6 +104,7 @@ describe(
       );
       agHelper.HoverElement(locators._tooltipIcon);
       agHelper.AssertPopoverTooltip("Input tooltip");
+      agHelper.AssertCSS(locators._tooltipIcon, "overflow", "hidden");
       agHelper.ClearNType(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " textarea",
         "test",
