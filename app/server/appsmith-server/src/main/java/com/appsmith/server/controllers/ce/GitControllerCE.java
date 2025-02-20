@@ -66,7 +66,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
         log.debug("Going to add default git profile for user");
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile)
-                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+                .map(response -> new ResponseDTO<>(HttpStatus.OK, response));
     }
 
     @JsonView(Views.Public.class)
@@ -75,28 +75,28 @@ public class GitControllerCE {
             @PathVariable String baseApplicationId, @RequestBody GitProfile gitProfile) {
         log.debug("Going to add repo specific git profile for application: {}", baseApplicationId);
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile, baseApplicationId)
-                .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
+                .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED, response));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/profile/default")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
         return service.getDefaultGitProfileOrCreateIfEmpty()
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK, gitConfigResponse));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/profile/app/{baseApplicationId}")
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String baseApplicationId) {
         return service.getGitProfileForUser(baseApplicationId)
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK, gitConfigResponse));
     }
 
     @JsonView({Views.Metadata.class})
     @GetMapping("/metadata/app/{baseArtifactId}")
     public Mono<ResponseDTO<GitArtifactMetadata>> getGitMetadata(@PathVariable String baseArtifactId) {
         return service.getGitArtifactMetadata(baseArtifactId, ArtifactType.APPLICATION)
-                .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
+                .map(metadata -> new ResponseDTO<>(HttpStatus.OK, metadata));
     }
 
     @JsonView(Views.Public.class)
@@ -107,7 +107,7 @@ public class GitControllerCE {
             @RequestHeader("Origin") String originHeader) {
         return service.connectArtifactToGit(baseApplicationId, gitConnectDTO, originHeader, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+                .map(application -> new ResponseDTO<>(HttpStatus.OK, application));
     }
 
     @JsonView(Views.Public.class)
@@ -119,7 +119,7 @@ public class GitControllerCE {
             @RequestParam(required = false, defaultValue = "false") Boolean doAmend) {
         log.debug("Going to commit branchedApplicationId {}", branchedApplicationId);
         return service.commitArtifact(commitDTO, branchedApplicationId, doAmend, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 
     @JsonView(Views.Public.class)
@@ -128,7 +128,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<String>> push(@PathVariable String branchedApplicationId) {
         log.debug("Going to push branchedApplicationId {}", branchedApplicationId);
         return service.pushArtifact(branchedApplicationId, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 
     @JsonView(Views.Public.class)
@@ -144,7 +144,7 @@ public class GitControllerCE {
                 srcBranch);
         return service.createBranch(branchedApplicationId, branchDTO, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 
     @JsonView(Views.Public.class)
@@ -155,7 +155,7 @@ public class GitControllerCE {
         log.debug("Going to checkout to branch {} application {} ", branchName, branchedApplicationId);
         return service.checkoutBranch(branchedApplicationId, branchName, true, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -164,7 +164,7 @@ public class GitControllerCE {
         log.debug("Going to remove the remoteUrl for application {}", branchedApplicationId);
         return service.detachRemote(branchedApplicationId, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -172,7 +172,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String branchedApplicationId) {
         log.debug("Going to pull the latest for branchedApplicationId {}", branchedApplicationId);
         return service.pullArtifact(branchedApplicationId, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -183,7 +183,7 @@ public class GitControllerCE {
         log.debug("Going to get branch list for application {}", branchedApplicationId);
         return service.listBranchForArtifact(
                         branchedApplicationId, BooleanUtils.isTrue(pruneBranches), ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -193,7 +193,7 @@ public class GitControllerCE {
             @RequestParam(required = false, defaultValue = "true") Boolean compareRemote) {
         log.debug("Going to get status for default branchedApplicationId {}", branchedApplicationId);
         return service.getStatus(branchedApplicationId, compareRemote, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -201,7 +201,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<BranchTrackingStatus>> fetchRemoteChanges(@PathVariable String branchedApplicationId) {
         log.debug("Going to compare with remote for default branchedApplicationId {}", branchedApplicationId);
         return service.fetchRemoteChanges(branchedApplicationId, true, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -214,7 +214,7 @@ public class GitControllerCE {
                 gitMergeDTO.getDestinationBranch(),
                 branchedApplicationId);
         return service.mergeBranch(branchedApplicationId, gitMergeDTO, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -227,13 +227,13 @@ public class GitControllerCE {
                 gitMergeDTO.getDestinationBranch(),
                 branchedApplicationId);
         return service.isBranchMergeable(branchedApplicationId, gitMergeDTO, ArtifactType.APPLICATION)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/keys")
     public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
-        return service.generateSSHKey(keyType).map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+        return service.generateSSHKey(keyType).map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 
     @JsonView(Views.Public.class)
@@ -242,7 +242,7 @@ public class GitControllerCE {
             @PathVariable String workspaceId, @RequestBody GitConnectDTO gitConnectDTO) {
         return service.importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
                 .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO)
-                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 
     @JsonView(Views.Public.class)
@@ -252,7 +252,7 @@ public class GitControllerCE {
         log.debug("Going to delete branch {} for baseApplicationId {}", branchName, baseArtifactId);
         return service.deleteBranch(baseArtifactId, branchName, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+                .map(application -> new ResponseDTO<>(HttpStatus.OK, application));
     }
 
     @JsonView(Views.Public.class)
@@ -261,7 +261,7 @@ public class GitControllerCE {
         log.debug("Going to discard changes for branchedApplicationId {}", branchedApplicationId);
         return service.discardChanges(branchedApplicationId, ArtifactType.APPLICATION)
                 .map(artifact -> (Application) artifact)
-                .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+                .map(result -> new ResponseDTO<>((HttpStatus.OK), result));
     }
 
     @JsonView(Views.Public.class)
@@ -269,13 +269,13 @@ public class GitControllerCE {
     public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
         log.debug("Going to list the list of supported keys");
         return Mono.just(GitDeployKeyGenerator.getSupportedProtocols())
-                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
+                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK, gitDeployKeyDTOS));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/doc-urls")
     public Mono<ResponseDTO<List<GitDocsDTO>>> getGitDocs() {
-        return service.getGitDocUrls().map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK.value(), gitDocDTO, null));
+        return service.getGitDocUrls().map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK, gitDocDTO));
     }
 
     @JsonView(Views.Public.class)
@@ -285,14 +285,14 @@ public class GitControllerCE {
             @RequestBody @Valid BranchProtectionRequestDTO branchProtectionRequestDTO) {
         return service.updateProtectedBranches(
                         baseArtifactId, branchProtectionRequestDTO.getBranchNames(), ArtifactType.APPLICATION)
-                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+                .map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/branch/app/{baseArtifactId}/protected")
     public Mono<ResponseDTO<List<String>>> getProtectedBranches(@PathVariable String baseArtifactId) {
         return service.getProtectedBranches(baseArtifactId, ArtifactType.APPLICATION)
-                .map(list -> new ResponseDTO<>(HttpStatus.OK.value(), list, null));
+                .map(list -> new ResponseDTO<>(HttpStatus.OK, list));
     }
 
     @JsonView(Views.Public.class)
@@ -300,7 +300,7 @@ public class GitControllerCE {
     public Mono<ResponseDTO<AutoCommitResponseDTO>> autoCommitApplication(@PathVariable String branchedApplicationId) {
         return autoCommitService
                 .autoCommitApplication(branchedApplicationId)
-                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+                .map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @JsonView(Views.Public.class)
@@ -309,13 +309,13 @@ public class GitControllerCE {
             @PathVariable String baseApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.getAutoCommitProgress(baseApplicationId, branchName, ArtifactType.APPLICATION)
-                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+                .map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @JsonView(Views.Public.class)
     @PatchMapping("/auto-commit/toggle/app/{baseArtifactId}")
     public Mono<ResponseDTO<Boolean>> toggleAutoCommitEnabled(@PathVariable String baseArtifactId) {
         return service.toggleAutoCommitEnabled(baseArtifactId, ArtifactType.APPLICATION)
-                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+                .map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 }
