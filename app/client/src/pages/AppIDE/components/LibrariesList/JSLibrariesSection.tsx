@@ -19,7 +19,7 @@ function JSLibrariesSection(props: { showAddButton: boolean }) {
 
   const rightIcon = useMemo(
     () => (showAddButton ? <AddLibraryPopover /> : null),
-    [],
+    [showAddButton],
   );
 
   return (

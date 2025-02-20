@@ -1,7 +1,7 @@
 import { APP_MODE } from "entities/App";
 import AppViewerPageContainer from "pages/AppViewer/AppViewerPageContainer";
 import Canvas from "pages/Editor/Canvas";
-import IDE from "pages/AppIDE/layout";
+import IDE from "pages/AppIDE/layouts";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
