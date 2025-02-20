@@ -6,9 +6,9 @@ import type { EventName } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import { Button } from "@appsmith/ads";
-import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
+import { isOrganizationConfig } from "ee/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ function SocialLoginButton(props: {
   url: string;
   type: SignInType;
 }) {
-  const tenantConfiguration = useSelector(getTenantConfig);
+  const organizationConfiguration = useSelector(getOrganizationConfig);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
@@ -48,8 +48,8 @@ function SocialLoginButton(props: {
 
   let buttonLabel = props.name;
 
-  if (props.name && isTenantConfig(props.name)) {
-    buttonLabel = tenantConfiguration[props.name];
+  if (props.name && isOrganizationConfig(props.name)) {
+    buttonLabel = organizationConfiguration[props.name];
   }
 
   return (

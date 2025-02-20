@@ -138,7 +138,7 @@ class WDSDatePickerWidget extends BaseWidget<
         label={label}
         maxValue={this.parseDate(maxDate)}
         minValue={this.parseDate(minDate)}
-        onChange={this.handleDateChange}
+        onChange={(value) => this.handleDateChange(value!)}
         value={this.parseDate(value)}
         {...rest}
       />

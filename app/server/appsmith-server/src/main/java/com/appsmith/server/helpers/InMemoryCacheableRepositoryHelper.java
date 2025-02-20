@@ -8,7 +8,7 @@ import java.util.Set;
 public class InMemoryCacheableRepositoryHelper {
     private Set<String> anonymousUserPermissionGroupIds = null;
 
-    private String defaultTenantId = null;
+    private String defaultOrganizationId = null;
 
     private String instanceAdminPermissionGroupId = null;
 
@@ -20,12 +20,12 @@ public class InMemoryCacheableRepositoryHelper {
         this.anonymousUserPermissionGroupIds = anonymousUserPermissionGroupIds;
     }
 
-    public String getDefaultTenantId() {
-        return defaultTenantId;
+    public String getDefaultOrganizationId() {
+        return defaultOrganizationId;
     }
 
-    public void setDefaultTenantId(String defaultTenantId) {
-        this.defaultTenantId = defaultTenantId;
+    public void setDefaultOrganizationId(String defaultOrganizationId) {
+        this.defaultOrganizationId = defaultOrganizationId;
     }
 
     public void setInstanceAdminPermissionGroupId(String instanceAdminPermissionGroupId) {

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 
@@ -21,6 +22,10 @@ public class ResponseDTO<T> implements Serializable {
     private ResponseMetaDTO responseMeta;
 
     private T data;
+
+    public ResponseDTO(HttpStatus status, T data) {
+        this(status.value(), data, null);
+    }
 
     public ResponseDTO(int status, T data, String message) {
         this.responseMeta = new ResponseMetaDTO(status, message);

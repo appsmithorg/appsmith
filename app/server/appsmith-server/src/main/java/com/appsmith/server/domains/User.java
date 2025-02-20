@@ -76,8 +76,13 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     Boolean isAnonymous = false;
 
+    @Deprecated
+    // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
     @JsonView(Views.Public.class)
     private String tenantId;
+
+    @JsonView(Views.Public.class)
+    private String organizationId;
 
     // Field to indicate if the user is system generated or not. Expected to be `true` for system generated users, null
     // otherwise.

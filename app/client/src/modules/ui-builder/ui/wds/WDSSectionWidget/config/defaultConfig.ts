@@ -6,7 +6,7 @@ import {
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
 

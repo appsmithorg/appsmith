@@ -20,7 +20,7 @@ public class ExecuteActionDTO {
     String datasourceId;
     String workspaceId;
     String instanceId;
-    String tenantId;
+    String organizationId;
 
     List<Param> params;
 

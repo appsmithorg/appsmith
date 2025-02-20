@@ -16,7 +16,7 @@ import { createNewPageFromEntities } from "actions/pageActions";
 import AddPageContextMenu from "./AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { PageElement } from "./PageElement";
 import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 

@@ -3,7 +3,7 @@ import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 

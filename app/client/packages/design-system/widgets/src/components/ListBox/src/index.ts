@@ -1,2 +1,2 @@
 export { ListBox } from "./ListBox";
-export { default as listStyles } from "./styles.module.css";
+export { default as listBoxStyles } from "./styles.module.css";

@@ -8,7 +8,7 @@ import {
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import useArtifactSelector from "./useArtifactSelector";
-import type { GitArtifactDef } from "git/store/types";
+import type { GitArtifactDef } from "git/types";
 
 export default function useDisconnect() {
   const { artifactDef } = useGitContext();
