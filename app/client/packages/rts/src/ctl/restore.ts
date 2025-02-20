@@ -4,7 +4,7 @@ import os from "os";
 import readlineSync from "readline-sync";
 import * as utils from "./utils";
 import * as Constants from "./constants";
-import { PostgresDumpLink } from "./backup/links/PostgresDumpLink";
+import { PostgresDumpLink } from "./backup/links";
 import { BackupState } from "./backup/BackupState";
 
 const command_args = process.argv.slice(3);
@@ -123,11 +123,22 @@ async function restoreDatabases(restoreContentsPath: string, dbUrl: string) {
   }
 
   // TODO: Get all link classes equipped with `doRestore` and refactor this to be like backup.
-  const link = new PostgresDumpLink(new BackupState([], ""));
-  await link.preBackup();
-  await link.doRestore(restoreContentsPath);
+  if (await isFilePresent(restoreContentsPath + "/pg-data.sql")) {
+    const link = new PostgresDumpLink(new BackupState([], ""));
+    await link.preBackup();
+    await link.doRestore(restoreContentsPath);
+  }
 
   console.log("Restoring database completed");
+}
+
+async function isFilePresent(path: string): Promise<boolean> {
+  try {
+    await fsPromises.access(path);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 async function restoreMongoDB(restoreContentsPath: string, dbUrl: string) {
@@ -157,42 +168,6 @@ async function restoreMongoDB(restoreContentsPath: string, dbUrl: string) {
   }
   await utils.execCommand(cmd);
   console.log("Restoring database completed");
-}
-
-async function restorePostgres(restoreContentsPath: string, dbUrl: string) {
-  const cmd = [
-    "pg_restore",
-    "--verbose",
-    "--clean",
-    `${restoreContentsPath}/pg-data`,
-  ];
-  const url = new URL(dbUrl);
-  const isLocalhost = ["localhost", "127.0.0.1"].includes(url.hostname);
-
-  if (isLocalhost) {
-    let dbName: string;
-
-    try {
-      dbName = utils.getDatabaseNameFromUrl(dbUrl);
-      console.log("Restoring database to", dbName);
-    } catch (error) {
-      console.warn(
-        "Error reading manifest file. Assuming same database name as appsmith.",
-        error,
-      );
-      dbName = "appsmith";
-    }
-    cmd.push(
-      "-d",
-      "postgresql://localhost:5432/" + dbName,
-      // Use default user for local postgres
-      "--username=postgres",
-    );
-  } else {
-    cmd.push("-d", dbUrl);
-  }
-
-  await utils.execCommand(cmd);
 }
 
 async function restoreDockerEnvFile(
