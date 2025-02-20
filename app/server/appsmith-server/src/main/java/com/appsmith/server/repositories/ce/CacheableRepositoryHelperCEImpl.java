@@ -12,20 +12,23 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,13 +37,13 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
-    private final ReactiveMongoOperations mongoOperations;
+    private final EntityManager entityManager;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
@@ -55,42 +58,37 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return getPermissionGroupsOfAnonymousUser();
         }
 
-        if (user.getEmail() == null
-                || user.getEmail().isEmpty()
-                || user.getId() == null
-                || user.getId().isEmpty()) {
+        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-        Mono<Query> createQueryMono = getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
-            BridgeQuery<PermissionGroup> assignedToUserIdsCriteria =
-                    Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
+        return getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
+            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            final CriteriaQuery<PermissionGroup> cq = cb.createQuery(PermissionGroup.class);
+            final Root<PermissionGroup> root = cq.from(PermissionGroup.class);
 
-            BridgeQuery<PermissionGroup> notDeletedCriteria = notDeleted();
+            Predicate predicate;
 
-            // The roles should be either workspace default roles, user management role, or instance admin role
-            BridgeQuery<PermissionGroup> ceSupportedRolesCriteria = Bridge.or(
-                    Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()),
-                    Bridge.equal(PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName()),
-                    Bridge.equal(PermissionGroup.Fields.id, instanceAdminPermissionGroupId));
+            predicate = cb.and(
+                    cb.isNull(root.get(PermissionGroup.Fields.deletedAt)),
+                    cb.isTrue(cb.function(
+                            "jsonb_path_exists",
+                            Boolean.class,
+                            root.get(PermissionGroup.Fields.assignedToUserIds),
+                            cb.literal("$[*] ? (@ == \"" + user.getId() + "\")"))),
+                    cb.or(
+                            cb.equal(
+                                    root.get(PermissionGroup.Fields.defaultDomainType),
+                                    Workspace.class.getSimpleName()),
+                            cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), User.class.getSimpleName()),
+                            cb.equal(root.get(PermissionGroup.Fields.id), instanceAdminPermissionGroupId)));
 
-            BridgeQuery<PermissionGroup> andCriteria =
-                    Bridge.and(assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria);
-
-            Query query = new Query();
-            query.addCriteria(andCriteria);
-
-            // Since we are only interested in the permission group ids, we can project only the id field.
-            query.fields().include(PermissionGroup.Fields.id);
-
-            return query;
+            cq.where(predicate);
+            // cq.select(root.get(PermissionGroup.Fields.id));
+            return entityManager.createQuery(cq).getResultList().stream()
+                    .map(PermissionGroup::getId)
+                    .collect(Collectors.toSet());
         });
-
-        return createQueryMono
-                .map(query -> mongoOperations.find(query, PermissionGroup.class))
-                .flatMapMany(obj -> obj)
-                .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet());
     }
 
     @Override
@@ -104,12 +102,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.debug(
                 "In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
-        BridgeQuery<Config> query = Bridge.equal(Config.Fields.name, FieldName.PUBLIC_PERMISSION_GROUP);
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
+        final Root<Config> config = cq.from(Config.class);
+        cq.where(cb.equal(config.get(Config.Fields.name), FieldName.PUBLIC_PERMISSION_GROUP));
+        final TypedQuery<Config> query = entityManager.createQuery(cq);
+
         // All public access is via a single permission group. Fetch the same and set the cache with it.
-        return mongoOperations
-                .findOne(Query.query(query), Config.class)
-                .map(publicPermissionGroupConfig ->
-                        Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
+        return Mono.fromSupplier(query::getSingleResult)
+                .map(config1 -> Set.of(config1.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
     }
 
@@ -140,16 +141,28 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(defaultOrganizationId);
         }
 
-        BridgeQuery<Organization> defaultOrganizationCriteria =
-                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
-        Query query = new Query();
-        query.addCriteria(defaultOrganizationCriteria);
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Organization> cq = cb.createQuery(Organization.class);
+        final Root<Organization> root = cq.from(Organization.class);
 
-        return mongoOperations.findOne(query, Organization.class).map(defaultOrganization -> {
-            String newDefaultOrganizationId = defaultOrganization.getId();
-            inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
-            return newDefaultOrganizationId;
-        });
+        Predicate defaultOrganizationCriteria = cb.equal(root.get(Organization.Fields.slug), FieldName.DEFAULT);
+        Predicate andCriteria = cb.and(defaultOrganizationCriteria);
+
+        cq.where(andCriteria);
+
+        log.info("Fetching organization from database as it couldn't be found in the cache!");
+
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+                .map(organization -> {
+                    if (organization.getOrganizationConfiguration() == null) {
+                        organization.setOrganizationConfiguration(new OrganizationConfiguration());
+                    }
+                    String newDefaultOrganizationId = organization.getId();
+                    inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
+                    return newDefaultOrganizationId;
+                })
+                .name(FETCH_ORGANIZATION_FROM_DB_SPAN)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -159,10 +172,13 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(instanceAdminPermissionGroupId);
         }
 
-        BridgeQuery<Config> configName = Bridge.equal(Config.Fields.name, INSTANCE_CONFIG);
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
+        final Root<Config> root = cq.from(Config.class);
 
-        return mongoOperations
-                .findOne(new Query().addCriteria(configName), Config.class)
+        cq.where(cb.equal(root.get(Config.Fields.name), INSTANCE_CONFIG));
+
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
                 .map(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     return (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
@@ -180,15 +196,20 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "organization", key = "{#organizationId}")
     @Override
     public Mono<Organization> fetchDefaultOrganization(String organizationId) {
-        BridgeQuery<Organization> defaultOrganizationCriteria =
-                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
-        BridgeQuery<Organization> notDeletedCriteria = notDeleted();
-        BridgeQuery<Organization> andCriteria = Bridge.and(defaultOrganizationCriteria, notDeletedCriteria);
-        Query query = new Query();
-        query.addCriteria(andCriteria);
+        String defaultOrganizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Organization> cq = cb.createQuery(Organization.class);
+        final Root<Organization> root = cq.from(Organization.class);
+
+        Predicate defaultOrganizationCriteria = cb.equal(root.get(Organization.Fields.slug), FieldName.DEFAULT);
+        Predicate andCriteria = cb.and(defaultOrganizationCriteria);
+
+        cq.where(andCriteria);
+
         log.info("Fetching organization from database as it couldn't be found in the cache!");
-        return mongoOperations
-                .findOne(query, Organization.class)
+
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
                 .map(organization -> {
                     if (organization.getOrganizationConfiguration() == null) {
                         organization.setOrganizationConfiguration(new OrganizationConfiguration());

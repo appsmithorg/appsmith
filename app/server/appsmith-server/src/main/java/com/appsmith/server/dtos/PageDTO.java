@@ -7,12 +7,12 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class PageDTO {
     @JsonView(Views.Internal.class)
     protected Map<String, Policy> policyMap = new HashMap<>();
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
@@ -93,12 +93,14 @@ public class PageDTO {
      */
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {
             policyMap = null;

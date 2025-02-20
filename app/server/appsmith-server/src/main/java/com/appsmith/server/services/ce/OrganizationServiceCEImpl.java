@@ -10,15 +10,18 @@ import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.EnvManager;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
@@ -36,7 +39,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Organization, String>
+public class OrganizationServiceCEImpl
+        extends BaseService<OrganizationRepository, OrganizationRepositoryCake, Organization, String>
         implements OrganizationServiceCE {
 
     private String organizationId = null;
@@ -52,23 +56,28 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final CommonConfig commonConfig;
     private final ObservationRegistry observationRegistry;
 
+    private final SessionUserService sessionUserService;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
+            OrganizationRepositoryCake repositoryCake,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
-            ObservationRegistry observationRegistry) {
-        super(validator, repository, analyticsService);
+            ObservationRegistry observationRegistry,
+            SessionUserService sessionUserService) {
+        super(validator, repository, repositoryCake, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -186,12 +195,15 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getDefaultOrganization() {
         // Fetching Organization from redis cache
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
         return getDefaultOrganizationId()
                 .flatMap(organizationId -> cacheableRepositoryHelper.fetchDefaultOrganization(organizationId))
+                .zipWith(currentUserMono)
                 .name(FETCH_DEFAULT_ORGANIZATION_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(organization ->
-                        repository.setUserPermissionsInObject(organization).switchIfEmpty(Mono.just(organization)))
+                .flatMap(tuple -> repository
+                        .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
+                        .switchIfEmpty(Mono.just(tuple.getT1())))
                 .onErrorResume(e -> {
                     e.printStackTrace();
                     log.error("Error fetching default organization from redis : {}", e.getMessage());
@@ -211,11 +223,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                         }
                                         return organization;
                                     }))
+                            .zipWith(currentUserMono)
                             .name(FETCH_ORGANIZATION_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
-                            .flatMap(organization -> repository
-                                    .setUserPermissionsInObject(organization)
-                                    .switchIfEmpty(Mono.just(organization)));
+                            .flatMap(tuple -> repository
+                                    .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
+                                    .switchIfEmpty(Mono.just(tuple.getT1())));
                 });
     }
 

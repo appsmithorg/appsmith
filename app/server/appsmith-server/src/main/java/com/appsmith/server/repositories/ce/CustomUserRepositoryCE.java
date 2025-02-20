@@ -2,21 +2,21 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
-    Mono<User> findByEmail(String email, AclPermission aclPermission);
+    Optional<User> findByEmail(String email, AclPermission permission, User currentUser);
 
-    Mono<User> findByEmailAndOrganizationId(String email, String organizationId);
+    Optional<User> findByEmailAndOrganizationId(String email, String organizationId);
 
-    Mono<Boolean> isUsersEmpty();
+    Optional<Boolean> isUsersEmpty();
 
     Set<String> getSystemGeneratedUserEmails();
 
-    Mono<Integer> updateById(String id, UpdateDefinition updateObj);
+    Optional<Integer> updateById(String id, BridgeUpdate updateObj);
 }

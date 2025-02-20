@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.services.ce.OrganizationServiceCEImpl;
 import com.appsmith.server.solutions.EnvManager;
 import io.micrometer.observation.ObservationRegistry;
@@ -16,16 +17,19 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
 
     public OrganizationServiceImpl(
             Validator validator,
-            OrganizationRepository repository,
+            OrganizationRepositoryCake repository,
+            OrganizationRepository repositoryDirect,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            SessionUserService sessionUserService) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 configService,
@@ -33,6 +37,7 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
                 featureFlagMigrationHelper,
                 cacheableRepositoryHelper,
                 commonConfig,
-                observationRegistry);
+                observationRegistry,
+                sessionUserService);
     }
 }

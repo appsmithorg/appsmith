@@ -207,4 +207,14 @@ public class FieldNameCE {
     public static final String BODY = "body";
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String NONE = "none";
+    public static final String PERMISSION_GROUPS = "permissionGroups";
+
+    public static final String CREATE = "save";
+
+    public static final String TRANSACTION_CONTEXT = "transactionContext";
+
+    public static final String FIND = "find";
+    public static final String ARCHIVE = "archive";
+
+    public static final String DELETE = "delete";
 }

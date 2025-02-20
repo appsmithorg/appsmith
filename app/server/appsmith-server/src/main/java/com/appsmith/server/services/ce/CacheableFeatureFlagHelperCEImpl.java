@@ -17,6 +17,7 @@ import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.SignatureVerifier;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.cakes.OrganizationRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -45,6 +46,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
     private final OrganizationRepository organizationRepository;
+    private final OrganizationRepositoryCake organizationRepositoryCake;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
     private final CommonConfig commonConfig;
@@ -110,7 +112,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current organization when the feature is enabled
-        Mono<Organization> organizationMono = organizationRepository.findBySlug(DEFAULT);
+        Mono<Organization> organizationMono = organizationRepositoryCake.findBySlug(DEFAULT);
         return Mono.zip(instanceIdMono, organizationMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
                     String organizationId = objects.getT2().getId();
@@ -119,7 +121,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                             objects.getT1(), organizationId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
                     return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
-                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of())); // */
     }
 
     /**

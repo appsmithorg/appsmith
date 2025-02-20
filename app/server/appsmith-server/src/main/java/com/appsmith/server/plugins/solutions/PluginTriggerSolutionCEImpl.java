@@ -7,7 +7,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final PluginRepository pluginRepository;
+    private final PluginRepositoryCake pluginRepository;
     private final ConfigService configService;
     private final OrganizationService organizationService;
     private final FeatureFlagService featureFlagService;
@@ -34,7 +34,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     public PluginTriggerSolutionCEImpl(
             DatasourceTriggerSolution datasourceTriggerSolution,
             PluginExecutorHelper pluginExecutorHelper,
-            PluginRepository pluginRepository,
+            PluginRepositoryCake pluginRepository,
             ConfigService configService,
             OrganizationService organizationService,
             FeatureFlagService featureFlagService) {

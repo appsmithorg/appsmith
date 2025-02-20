@@ -20,21 +20,23 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,8 +84,9 @@ import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForRe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 public class WorkspaceServiceTest {
 
@@ -96,7 +99,7 @@ public class WorkspaceServiceTest {
     UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
+    WorkspaceRepositoryCake workspaceRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -111,18 +114,18 @@ public class WorkspaceServiceTest {
     DatasourceService datasourceService;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     Workspace workspace;
 
     @Autowired
-    private AssetRepository assetRepository;
+    private AssetRepositoryCake assetRepository;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
@@ -1046,6 +1049,7 @@ public class WorkspaceServiceTest {
                 .createApplication(application, workspace1.getId())
                 .cache();
         final String applicationId = applicationMono.block().getId();
+        assertThat(applicationId).isNotNull();
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
@@ -1062,7 +1066,9 @@ public class WorkspaceServiceTest {
                     storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
-                });
+                })
+                .cache();
+        assertThat(datasourceMono.block()).isNotNull();
 
         Mono<Workspace> userAddedToWorkspaceMono = adminPermissionGroupMono
                 .flatMap(adminPermissionGroup -> {
@@ -1153,9 +1159,7 @@ public class WorkspaceServiceTest {
                     assertThat(app.getPolicies()).isNotEmpty();
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
-                    /*
-                     * Check for datasource permissions after the user addition
-                     */
+                    // Check for datasource permissions after the user addition
                     Policy manageDatasourcePolicy = Policy.builder()
                             .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
@@ -1176,7 +1180,7 @@ public class WorkspaceServiceTest {
                     assertThat(datasource.getPolicies())
                             .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
-                .verifyComplete();
+                .verifyComplete(); // */
     }
 
     /**
