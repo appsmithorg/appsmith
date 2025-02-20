@@ -20,7 +20,8 @@ public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
             ConfigService configService,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            FeatureFlagService featureFlagService) {
 
         super(
                 datasourceService,
@@ -28,6 +29,7 @@ public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl
                 pluginService,
                 pluginExecutorHelper,
                 configService,
-                datasourcePermission);
+                datasourcePermission,
+                featureFlagService);
     }
 }

@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -29,6 +30,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.SdkField;
 import software.amazon.awssdk.core.SdkPojo;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
@@ -42,6 +44,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +73,7 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
+    private static final Duration CONNECTION_TIME_TO_LIVE = Duration.ofDays(1);
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -281,11 +285,70 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         @Override
+        public Mono<DynamoDbClient> datasourceCreate(
+                DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
+            return Mono.fromCallable(() -> {
+                        log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
+
+                        /**
+                         * Current understanding is that the issue mentioned in #6030 is because of is because of connection object getting stale.
+                         * Setting connection to live value to 1 day is a precaution move to make sure that we don't land into a situation
+                         * where an older connection can malfunction.
+                         * To understand what this config means please check here:
+                         * {@link https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html#connectionTimeToLive(java.time.Duration)}
+                         */
+                        Boolean isDynamoConnectionToLiveEnabled = featureFlagMap.getOrDefault(
+                                FeatureFlagEnum.release_dynamodb_connection_time_to_live_enabled.name(), Boolean.FALSE);
+                        DynamoDbClientBuilder builder;
+                        if (isDynamoConnectionToLiveEnabled) {
+                            log.debug("DynamoDB client builder created with custom connection time to live");
+                            builder = DynamoDbClient.builder()
+                                    .httpClient(ApacheHttpClient.builder()
+                                            .connectionTimeToLive(CONNECTION_TIME_TO_LIVE)
+                                            .build());
+                        } else {
+                            builder = DynamoDbClient.builder();
+                        }
+
+                        if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                            final Endpoint endpoint =
+                                    datasourceConfiguration.getEndpoints().get(0);
+                            builder.endpointOverride(
+                                    URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
+                        }
+
+                        final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                        if (authentication == null || !StringUtils.hasLength(authentication.getDatabaseName())) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    DynamoErrorMessages.MISSING_REGION_ERROR_MSG);
+                        }
+
+                        builder.region(Region.of(authentication.getDatabaseName()));
+
+                        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
+                                authentication.getUsername(), authentication.getPassword())));
+
+                        return builder.build();
+                    })
+                    .subscribeOn(scheduler);
+        }
+
+        @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
-                        final DynamoDbClientBuilder builder = DynamoDbClient.builder();
+
+                        // Configuring connection time to live as 1 day so that we don't face issues with stale
+                        // connections
+                        // in the connection pool.
+                        // 1 Day is added randomly as a time which is not too less or too high
+                        final DynamoDbClientBuilder builder = DynamoDbClient.builder()
+                                .httpClient(ApacheHttpClient.builder()
+                                        .connectionTimeToLive(CONNECTION_TIME_TO_LIVE)
+                                        .build());
 
                         if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                             final Endpoint endpoint =
