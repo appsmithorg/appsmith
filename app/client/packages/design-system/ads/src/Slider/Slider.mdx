@@ -6,10 +6,8 @@ import * as SliderStories from "./Slider.stories";
 
 # Slider
 
-A slider component is used when you want to allow users to select a value from a range of values by dragging a thumb along a track. It is ideal for settings where a range of values is more appropriate than a fixed set of options, such as adjusting volume, brightness, or selecting a price range.
+A slider component is used for numerical value input that fall within the range. Users may drag a thumb along a track with a mouse or using touch input. They may also use arrow keys on their keyboard.
+
+This UI pattern is ideal alternative to a fixed set of options for selecting a price range or adjusting volume.
 
 <Canvas of={SliderStories.SliderStory} />
-
-If the value represents an offset, the fill start can be set to represent the point of origin. This allows the slider fill to start from inside the track.
-
-<Canvas of={SliderStories.OriginSliderStory} />
