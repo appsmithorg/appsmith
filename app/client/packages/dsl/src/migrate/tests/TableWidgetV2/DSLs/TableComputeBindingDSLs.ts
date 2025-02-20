@@ -1,6 +1,6 @@
 export const tableComputeBindingInputDsl = {
   widgetName: "Table1",
-  type: "TABLE_WIDGET",
+  type: "TABLE_WIDGET_V2",
   primaryColumns: {
     column1: {
       computedValue:
