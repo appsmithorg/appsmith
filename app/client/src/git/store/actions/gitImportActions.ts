@@ -1,12 +1,19 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { GitAsyncErrorPayload, GitGlobalReduxState } from "../types";
-import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
+import type {
+  GitAsyncErrorPayload,
+  GitAsyncSuccessPayload,
+  GitGlobalReduxState,
+} from "../types";
+import type {
+  GitImportRequestParams,
+  GitImportResponseData,
+} from "git/requests/gitImportRequest.types";
 
 export interface GitImportInitPayload extends GitImportRequestParams {}
 
 export const gitImportInitAction = (
   state: GitGlobalReduxState,
-  // need type for better import
+  // need this here to preserve interface
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   action: PayloadAction<GitImportInitPayload>,
 ) => {
@@ -16,7 +23,15 @@ export const gitImportInitAction = (
   return state;
 };
 
-export const gitImportSuccessAction = (state: GitGlobalReduxState) => {
+export type GitImportSuccessPayload =
+  GitAsyncSuccessPayload<GitImportResponseData>;
+
+export const gitImportSuccessAction = (
+  state: GitGlobalReduxState,
+  // need this here to preserve interface
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  action: PayloadAction<GitImportSuccessPayload>,
+) => {
   state.gitImport.loading = false;
 
   return state;
