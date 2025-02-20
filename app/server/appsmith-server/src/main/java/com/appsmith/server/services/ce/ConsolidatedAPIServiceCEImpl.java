@@ -27,9 +27,9 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.ProductAlertService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -79,11 +79,11 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ETA
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FEATURE_FLAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FORM_CONFIG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.MOCK_DATASOURCES_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ORGANIZATION_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PAGES_DSL_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PAGES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PLUGINS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PRODUCT_ALERT_SPAN;
-import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.TENANT_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
@@ -104,7 +104,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final ProductAlertService productAlertService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
@@ -198,13 +198,13 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .cache();
         fetches.add(featureFlagsForCurrentUserResponseDTOMonoCache);
 
-        /* Get tenant config data */
-        fetches.add(tenantService
-                .getTenantConfiguration()
+        /* Get organization config data */
+        fetches.add(organizationService
+                .getOrganizationConfiguration()
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching tenant config", e))
-                .doOnSuccess(consolidatedAPIResponseDTO::setTenantConfig)
-                .name(getQualifiedSpanName(TENANT_SPAN, mode))
+                .doOnError(e -> log.error("Error fetching organization config", e))
+                .doOnSuccess(consolidatedAPIResponseDTO::setOrganizationConfig)
+                .name(getQualifiedSpanName(ORGANIZATION_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
         /* Get any product alert info */
@@ -687,7 +687,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             Map<String, Object> consolidateAPISignature = Map.of(
                     "userProfile", consolidatedAPIResponseDTO.getUserProfile(),
                     "featureFlags", consolidatedAPIResponseDTO.getFeatureFlags(),
-                    "tenantConfig", consolidatedAPIResponseDTO.getTenantConfig(),
+                    "organizationConfig", consolidatedAPIResponseDTO.getOrganizationConfig(),
                     "productAlert", consolidatedAPIResponseDTO.getProductAlert(),
                     "currentTheme", currentTheme,
                     "themes", themes,

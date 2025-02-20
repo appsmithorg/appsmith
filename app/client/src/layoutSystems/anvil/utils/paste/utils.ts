@@ -1,7 +1,7 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { cloneDeep } from "lodash";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";

@@ -12,15 +12,20 @@ import { ThemeProvider } from "styled-components";
 import Onboarding from ".";
 import { unitTestBaseMockStore } from "../unitTestUtils";
 
-jest.mock("pages/Editor/IDE/hooks", () => ({
+jest.mock("IDE/hooks/useCurrentAppState", () => ({
   useCurrentAppState: jest.fn().mockReturnValue(EditorState.EDITOR),
+}));
+
+jest.mock("pages/AppIDE/hooks/useCurrentEditorState", () => ({
   useCurrentEditorState: jest.fn(),
 }));
 
 const mockStore = configureStore([]);
 const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
+  const {
+    useCurrentEditorState,
+  } = require("pages/AppIDE/hooks/useCurrentEditorState");
 
   useCurrentEditorState.mockImplementation(() => ({
     segment,

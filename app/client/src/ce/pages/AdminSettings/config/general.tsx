@@ -110,7 +110,7 @@ export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Allow atomic pushes",
-  text: "Git operations on this tenant should attempt to perform pushes atomically",
+  text: "Git operations on this organization should attempt to perform pushes atomically",
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {

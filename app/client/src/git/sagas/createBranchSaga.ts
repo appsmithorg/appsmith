@@ -5,14 +5,13 @@ import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
-import { captureException } from "@sentry/react";
-import log from "loglevel";
 import createRefRequest from "git/requests/createRefRequest";
 import type {
   CreateRefRequestParams,
   CreateRefResponse,
 } from "git/requests/createRefRequest.types";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* createBranchSaga(
   action: GitArtifactPayloadAction<CreateBranchInitPayload>,
@@ -63,18 +62,10 @@ export default function* createBranchSaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
-      yield put(
-        gitArtifactActions.createBranchError({
-          artifactDef,
-          error,
-        }),
-      );
-    } else {
-      log.error(e);
-      captureException(e);
+    if (error) {
+      yield put(gitArtifactActions.createBranchError({ artifactDef, error }));
     }
   }
 }

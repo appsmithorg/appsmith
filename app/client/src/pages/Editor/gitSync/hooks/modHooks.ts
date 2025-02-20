@@ -10,7 +10,7 @@ import {
   useGitProtectedMode as useGitProtectedModeNew,
   useGitCurrentBranch as useGitCurrentBranchNew,
   useGitConnected as useGitConnectedNew,
-} from "git";
+} from "git/hooks";
 import { selectGitModEnabled } from "selectors/gitModSelectors";
 
 export function useGitModEnabled() {

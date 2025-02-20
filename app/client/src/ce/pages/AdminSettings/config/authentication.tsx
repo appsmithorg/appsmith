@@ -22,7 +22,7 @@ import { useSelector } from "react-redux";
 import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
-} from "ee/selectors/tenantSelectors";
+} from "ee/selectors/organizationSelectors";
 import {
   FORM_LOGIN_DESC,
   GITHUB_AUTH_DESC,

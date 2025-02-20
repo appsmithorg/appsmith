@@ -35,7 +35,7 @@ import _, { find, isString, reduce, remove } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { all, call, select } from "redux-saga/effects";
 import { reflow } from "reflow";

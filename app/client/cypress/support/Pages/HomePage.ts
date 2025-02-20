@@ -358,12 +358,8 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
-    let httpMethod = "POST";
-    if (CURRENT_REPO === REPO.EE) {
-      httpMethod = "GET";
-    }
     cy.request({
-      method: httpMethod,
+      method: "POST",
       url: "/api/v1/logout",
       headers: {
         "X-Requested-By": "Appsmith",

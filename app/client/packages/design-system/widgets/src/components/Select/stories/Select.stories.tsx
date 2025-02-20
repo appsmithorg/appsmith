@@ -87,11 +87,13 @@ export const Validation: Story = {
       }}
     >
       <Flex direction="column" gap="spacing-5" width="sizing-60">
-        <Select
-          errorMessage="There is an error"
-          isRequired
-          label="Validation"
-        />
+        <Select errorMessage="There is an error" isRequired label="Validation">
+          {selectItems.map((item) => (
+            <ListBoxItem key={item.id} textValue={item.label}>
+              {item.label}
+            </ListBoxItem>
+          ))}
+        </Select>
         <Button type="submit">Submit</Button>
       </Flex>
     </form>

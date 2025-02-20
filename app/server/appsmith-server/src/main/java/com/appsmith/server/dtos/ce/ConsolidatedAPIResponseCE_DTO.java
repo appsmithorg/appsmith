@@ -3,8 +3,8 @@ package com.appsmith.server.dtos.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -36,7 +36,7 @@ public class ConsolidatedAPIResponseCE_DTO {
     ResponseDTO<Map<String, Boolean>> featureFlags;
 
     /* v1/tenants/current */
-    ResponseDTO<Tenant> tenantConfig;
+    ResponseDTO<Organization> organizationConfig;
 
     /* v1/product-alert/alert */
     ResponseDTO<ProductAlertResponseDTO> productAlert;

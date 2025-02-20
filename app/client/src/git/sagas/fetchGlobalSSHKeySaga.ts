@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import fetchGlobalSSHKeyRequest from "git/requests/fetchGlobalSSHKeyRequest";
 import type {
   GenerateSSHKeyRequestParams,
@@ -8,9 +7,9 @@ import type { FetchGlobalSSHKeyInitPayload } from "git/store/actions/fetchGlobal
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export function* fetchGlobalSSHKeySaga(
   action: GitArtifactPayloadAction<FetchGlobalSSHKeyInitPayload>,
@@ -41,13 +40,10 @@ export function* fetchGlobalSSHKeySaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(gitGlobalActions.fetchGlobalSSHKeyError({ error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

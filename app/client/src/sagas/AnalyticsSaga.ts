@@ -31,7 +31,8 @@ import {
 import type { focusWidget } from "actions/widgetActions";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
+import { isInSideBySideEditor } from "IDE/utils/isInSideBySideEditor";
+import { getCurrentEntityInfo } from "IDE/utils/getCurrentEntityInfo";
 
 export function* sendAnalyticsEventSaga(
   type: ReduxActionType,
