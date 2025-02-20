@@ -55,6 +55,11 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
     jsActionPermissions,
   );
 
+  const canEdit = useMemo(
+    () => canManageJSAction && !Boolean(jsAction?.isMainJSCollection),
+    [canManageJSAction, jsAction?.isMainJSCollection],
+  );
+
   const navigateToUrl = jsCollectionIdURL({
     baseParentEntityId: parentEntityId,
     baseCollectionId: jsAction.baseId,
@@ -77,7 +82,7 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
 
   const nameEditorConfig = useMemo(() => {
     return {
-      canEdit: canManageJSAction && !Boolean(jsAction.isMainJSCollection),
+      canEdit,
       isEditing: editingEntity === jsAction.id,
       isLoading: updatingEntity === jsAction.id,
       onEditComplete: exitEditMode,
@@ -86,13 +91,12 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
       validateName: (newName: string) => validateName(newName, item.title),
     };
   }, [
-    canManageJSAction,
+    canEdit,
     editingEntity,
     exitEditMode,
     ideType,
     item.title,
     jsAction.id,
-    jsAction.isMainJSCollection,
     dispatch,
     updatingEntity,
     validateName,
@@ -100,9 +104,9 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
 
   return (
     <EntityItem
-      className="t--jsaction"
+      className={`t--jsaction ${canEdit ? "editable" : ""}`}
       id={jsAction.id}
-      isSelected={activeActionBaseId === jsAction.id}
+      isSelected={activeActionBaseId === item.key}
       key={jsAction.id}
       nameEditorConfig={nameEditorConfig}
       onClick={navigateToJSCollection}

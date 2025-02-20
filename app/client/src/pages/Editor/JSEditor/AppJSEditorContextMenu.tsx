@@ -28,8 +28,12 @@ export function AppJSEditorContextMenu({
     jsCollection?.userPermissions || [],
   );
 
+  if (Boolean(jsCollection?.isMainJSCollection)) {
+    return null;
+  }
+
   return (
-    <EntityContextMenu>
+    <EntityContextMenu dataTestId="t--more-action-trigger">
       <RenameMenuItem
         disabled={!isChangePermitted}
         entityId={jsCollection.id}

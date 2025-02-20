@@ -31,8 +31,8 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("NewPage Copy"),
-      "disabled",
-      "disabled",
+      "data-disabled",
+      "true",
     );
     PageList.DeletePage("NewPage Copy");
     PageList.assertAbsence("NewPage Copy");
@@ -92,8 +92,8 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("Page2 Copy"),
-      "disabled",
-      "disabled",
+      "data-disabled",
+      "true",
     );
     PageList.DeletePage("Page2 Copy");
     PageList.assertAbsence("Page2 Copy");
@@ -113,8 +113,8 @@ describe("Check Page Actions Menu", {}, function () {
     PageList.ShowList();
     agHelper.AssertAttribute(
       locators._entityTestId("HomePage Copy"),
-      "disabled",
-      "disabled",
+      "data-disabled",
+      "true",
     );
     PageList.DeletePage("HomePage Copy");
     PageList.assertAbsence("HomePage Copy");

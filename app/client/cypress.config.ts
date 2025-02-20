@@ -27,8 +27,8 @@ export default defineConfig({
   e2e: {
     baseUrl: "https://dev.appsmith.com/",
     env: {
-      USERNAME: "xxxx",
-      PASSWORD: "xxx",
+      USERNAME: "demo@appsmith.com",
+      PASSWORD: "demo@appsmith.com",
       grepFilterSpecs: true,
       grepOmitFiltered: true,
     },

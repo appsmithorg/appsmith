@@ -73,6 +73,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     action.pluginType,
     pluginGroups[action.pluginId],
   );
+  const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const switchToAction = useCallback(() => {
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
@@ -115,14 +116,14 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     <EntityItem
       className="action t--action-entity"
       id={action.id}
-      isSelected={activeActionBaseId === action.id}
+      isSelected={activeActionBaseId === item.key}
       key={action.id}
       nameEditorConfig={nameEditorConfig}
       onClick={switchToAction}
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
-      startIcon={item.icon}
+      startIcon={icon}
       title={item.title}
     />
   );

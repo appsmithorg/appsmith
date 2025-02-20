@@ -52,13 +52,9 @@ export class EntityExplorer {
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   public _contextMenu = (entityNameinLeftSidebar: string) =>
-    "//div[text()='" +
+    "//span[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
-  _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']";
+    "']/parent::div/following-sibling::div//button";
 
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
@@ -72,6 +68,7 @@ export class EntityExplorer {
   _widgetTagSuggestedWidgets = ".widget-tag-collapsible-suggested";
   _widgetTagBuildingBlocks = ".widget-tag-collapsible-building-blocks";
   _widgetSeeMoreButton = "[data-testid='t--explorer-ui-entity-tag-see-more']";
+  _entityAddButton = ".t--entity-add-btn";
   _entityName = ".t--entity-name";
 
   public ActionContextMenuByEntityName({
@@ -103,7 +100,7 @@ export class EntityExplorer {
         toastToValidate: toastToValidate,
       });
     }
-    if (entityType === EntityItems.Page) {
+    if (entityType === EntityItems.Page && action !== "Rename") {
       PageList.HideList();
     }
   }
@@ -121,7 +118,9 @@ export class EntityExplorer {
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
-    this.agHelper.AssertTooltip(tooltipText.concat(" is already being used."));
+    this.agHelper.AssertTooltip(
+      tooltipText.concat(" is already being used or is a restricted keyword."),
+    );
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
@@ -129,8 +128,8 @@ export class EntityExplorer {
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     this.agHelper
       .GetElement(this._visibleTextSpan(dsName))
-      .parent()
       .siblings()
+      .children()
       .each(($el: any) => {
         cy.wrap($el)
           .find(".t--entity-name")
@@ -275,8 +274,9 @@ export class EntityExplorer {
         action: "Rename",
         entityType,
       });
-    else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
-    cy.xpath(this.locator._entityNameEditing(entityName))
+    else cy.get(this.locator._entityTestId(entityName)).dblclick();
+    cy.get(this.locator._entityNameEditing)
+      .clear()
       .type(renameVal)
       .wait(500)
       .type("{enter}")
