@@ -91,9 +91,10 @@ import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-
 import { migrateChartwidgetCustomEchartConfig } from "./migrations/087-migrate-chart-widget-customechartdata";
 import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custom-widget-dynamic-height";
 import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "./migrations/089-migrage-table-widget-v2-currentRow-binding";
+import { migrateTableComputeValueBinding } from "./migrations/090-migrate-table-compute-value-binding";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 91;
+export const LATEST_DSL_VERSION = 92;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -617,6 +618,11 @@ const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 90) {
+    currentDSL = migrateTableComputeValueBinding(currentDSL);
+    currentDSL.version = 91;
+  }
+
+  if (currentDSL.version === 91) {
     /**
      * This is just a version bump without any migration
      * History: With this PR: https://github.com/appsmithorg/appsmith/pull/38391
