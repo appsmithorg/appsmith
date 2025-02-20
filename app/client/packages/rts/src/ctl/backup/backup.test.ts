@@ -69,7 +69,7 @@ describe("Backup Tests", () => {
 
   test("Test postgres dump CMD generation", async () => {
     const dest = "/dest";
-    const url = "postgresql://username:password@host/appsmith";
+
     const cmd = [
       "pg_dump --host=host",
       "--port=5432",

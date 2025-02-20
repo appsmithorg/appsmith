@@ -35,6 +35,7 @@ export class PostgresDumpLink implements Link {
       } else if (dbUrlFromEnv.includes("/")) {
         // then it's just the hostname and database in there
         const [host, database] = dbUrlFromEnv.split("/");
+
         this.postgresUrl = {
           host,
           port: 5432,
@@ -113,6 +114,7 @@ export class PostgresDumpLink implements Link {
 
 function parsePostgresUrl(url: string): ConnectionDetails {
   const parsed = new URL(url);
+
   return {
     host: parsed.hostname,
     port: parseInt(parsed.port || "5432"),

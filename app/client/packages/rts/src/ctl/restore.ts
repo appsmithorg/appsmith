@@ -125,6 +125,7 @@ async function restoreDatabases(restoreContentsPath: string, dbUrl: string) {
   // TODO: Get all link classes equipped with `doRestore` and refactor this to be like backup.
   if (await isFilePresent(restoreContentsPath + "/pg-data.sql")) {
     const link = new PostgresDumpLink(new BackupState([], ""));
+
     await link.preBackup();
     await link.doRestore(restoreContentsPath);
   }
@@ -135,6 +136,7 @@ async function restoreDatabases(restoreContentsPath: string, dbUrl: string) {
 async function isFilePresent(path: string): Promise<boolean> {
   try {
     await fsPromises.access(path);
+
     return true;
   } catch (e) {
     return false;
@@ -343,6 +345,7 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
 
 export async function run() {
   const processesToPause = ["backend", "rts"];
+
   if (
     await fsPromises
       .access(process.env.TMP + "/supervisor-conf.d/keycloak.conf")
@@ -351,6 +354,7 @@ export async function run() {
   ) {
     processesToPause.push("keycloak");
   }
+
   if (
     await fsPromises
       .access(process.env.TMP + "/supervisor-conf.d/temporal.conf")
