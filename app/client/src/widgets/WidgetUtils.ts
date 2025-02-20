@@ -991,7 +991,7 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
 };
 
 /**
- * Parses the derived properties from the given property functions. Used in getDerivedPropertiesMap
+ * Takes property functions and returns derived properties in the format of a string. Used in getDerivedPropertiesMap.
  *
  * @example
  * ```js
@@ -1011,7 +1011,9 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
  * Main rule to remember is don't deconstruct the props like `const { value } = props;` in the derived property function.
  * Directly access props like `props.value`
  */
-export function parseDerivedProperties(propertyFns: Record<string, unknown>) {
+export function parseDerivedProperties<T extends Record<string, unknown>>(
+  propertyFns: T,
+) {
   const derivedProperties: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(propertyFns)) {
@@ -1032,5 +1034,5 @@ export function parseDerivedProperties(propertyFns: Record<string, unknown>) {
     }
   }
 
-  return derivedProperties;
+  return derivedProperties as Record<keyof T, string>;
 }
