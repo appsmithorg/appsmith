@@ -115,9 +115,10 @@ describe(
 
       // A switch here should not show a 404 page
       cy.switchGitBranch(parentBranchKey);
+
       // When entity not found, takes them to the home page
       PageList.VerifyIsCurrentPage("Page1");
-
+      cy.wait(2000);
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
       PageList.assertAbsence("ChildPage1");
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
