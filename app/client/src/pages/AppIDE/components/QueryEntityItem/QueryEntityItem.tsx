@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { EntityItem } from "@appsmith/ads";
+import { EntityItem, EntityContextMenu } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import {
   getActionByBaseId,
@@ -25,7 +25,6 @@ import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { PluginType } from "entities/Plugin";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
 import { AppQueryContextMenuItems } from "./AppQueryContextMenuItems";
-import EntityContextMenu from "IDE/Components/EntityContextMenu";
 import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem";
 
 export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
