@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -96,7 +95,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final WidgetRefactorUtil widgetRefactorUtil;
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
-    private final ActionCollectionService actionCollectionService;
     private final ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson>
             applicationImportService;
     private final DatasourceService datasourceService;
@@ -105,8 +103,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DryOperationRepository dryOperationRepository;
 
     @Override
-    public Mono<Application> importResourceInPage(
-            String workspaceId, String applicationId, String pageId, String branchName, Part file) {
+    public Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file) {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         return importService
                 .extractArtifactExchangeJson(file)
