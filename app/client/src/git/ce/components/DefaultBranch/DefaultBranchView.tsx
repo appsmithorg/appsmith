@@ -12,6 +12,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import noop from "lodash/noop";
 import { useAppsmithEnterpriseUrl } from "git/hooks/useAppsmithEnterpriseUrl";
 import type { GitBranch } from "git/types";
+import { GitArtifactType } from "git/constants/enums";
 
 const Container = styled.div`
   padding-top: 8px;
@@ -45,12 +46,14 @@ const StyledLink = styled(Link)`
 `;
 
 interface DefaultBranchViewProps {
+  artifactType: GitArtifactType | null;
   branches: GitBranch[] | null;
   isGitProtectedFeatureLicensed: boolean;
   updateDefaultBranch?: (branchName: string) => void;
 }
 
 function DefaultBranchView({
+  artifactType = null,
   branches = null,
   isGitProtectedFeatureLicensed = false,
   updateDefaultBranch = noop,
@@ -74,6 +77,17 @@ function DefaultBranchView({
 
   const isUpdateDisabled =
     !selectedValue || selectedValue === currentDefaultBranch;
+
+  const artifactNoun = useMemo(() => {
+    switch (artifactType) {
+      case GitArtifactType.Application:
+        return "app";
+      case GitArtifactType.Package:
+        return "package";
+      default:
+        return "artifact";
+    }
+  }, [artifactType]);
 
   useEffect(
     function selectedValueOnInitEffect() {
@@ -106,7 +120,7 @@ function DefaultBranchView({
           {createMessage(DEFAULT_BRANCH)}
         </SectionTitle>
         <SectionDesc kind="body-m" renderAs="p">
-          {createMessage(DEFAULT_BRANCH_DESC)}
+          {createMessage(DEFAULT_BRANCH_DESC, artifactNoun)}
         </SectionDesc>
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">

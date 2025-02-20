@@ -371,12 +371,20 @@ jobs:
           CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
           CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           NODE_ENV: development
+          GITHUB_WORKFLOW : ${{ github.workflow }}
         run: |
             cd app/client
-            npx cypress-repeat-pro run -n 3 --rerun-failed-only \
+            ls -la
+            if [[ -n "${{ inputs.spec }}" ]]; then
+              npx cypress-repeat-pro run -n 3 --rerun-failed-only \
                 --spec "${{ inputs.spec }}" \
                 --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
+            else
+              npx cypress-repeat-pro run -n 3 --rerun-failed-only \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}"
+            fi
             cat cy-repeat-summary.txt
 
       - name: Trim number of cypress log files

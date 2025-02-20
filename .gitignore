@@ -35,6 +35,7 @@ app/client/yalc.lock
 .idea
 .fleet/*
 app/client/.fleet/*
+.lens
 
 # Observability related local storage
 utils/observability/tempo-data/*

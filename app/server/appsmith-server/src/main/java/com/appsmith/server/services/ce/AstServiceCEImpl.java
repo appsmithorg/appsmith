@@ -2,11 +2,11 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.services.RTSCaller;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -96,7 +96,7 @@ import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "ee/utils/analyticsHelpers";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 

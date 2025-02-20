@@ -18,7 +18,7 @@ import type { Action } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
@@ -57,12 +57,12 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import {
-  EditorEntityTab,
-  type EntityItem,
-  type GenericEntityItem,
-  type IDEType,
-} from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
+import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
+import type {
+  EntityItem,
+  GenericEntityItem,
+} from "ee/IDE/Interfaces/EntityItem";
 import {
   ActionUrlIcon,
   JsFileIconV2,

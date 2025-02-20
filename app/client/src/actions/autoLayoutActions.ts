@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CONVERSION_STATES,
   SnapshotDetails,

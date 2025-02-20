@@ -8,7 +8,7 @@ import {
 import noop from "lodash/noop";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -36,6 +36,7 @@ interface EntityContextMenuProps {
   canDelete: boolean;
   hideMenuItems: boolean;
 }
+
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);

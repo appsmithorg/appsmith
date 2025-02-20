@@ -42,6 +42,8 @@ type StaticTableProps = TableColumnHeaderProps & {
   scrollContainerStyles: any;
   useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
+  isLoading: boolean;
+  loadMoreFromEvaluations: () => void;
 };
 
 const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
@@ -81,6 +83,8 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         getTableBodyProps={props.getTableBodyProps}
         height={props.height}
         isAddRowInProgress={props.isAddRowInProgress}
+        isLoading={props.isLoading}
+        loadMoreFromEvaluations={props.loadMoreFromEvaluations}
         multiRowSelection={!!props.multiRowSelection}
         pageSize={props.pageSize}
         prepareRow={props.prepareRow}

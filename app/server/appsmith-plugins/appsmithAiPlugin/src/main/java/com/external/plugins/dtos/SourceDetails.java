@@ -9,14 +9,14 @@ public class SourceDetails {
     String workspaceId;
     String datasourceId;
     String instanceId;
-    String tenantId;
+    String organizationId;
 
     public static SourceDetails createSourceDetails(ExecuteActionDTO executeActionDTO) {
         SourceDetails sourceDetails = new SourceDetails();
         sourceDetails.setWorkspaceId(executeActionDTO.getWorkspaceId());
         sourceDetails.setDatasourceId(executeActionDTO.getDatasourceId());
         sourceDetails.setInstanceId(executeActionDTO.getInstanceId());
-        sourceDetails.setTenantId(executeActionDTO.getTenantId());
+        sourceDetails.setOrganizationId(executeActionDTO.getOrganizationId());
         return sourceDetails;
     }
 
@@ -25,7 +25,7 @@ public class SourceDetails {
         sourceDetails.setWorkspaceId(triggerRequestDTO.getWorkspaceId());
         sourceDetails.setDatasourceId(triggerRequestDTO.getDatasourceId());
         sourceDetails.setInstanceId(triggerRequestDTO.getInstanceId());
-        sourceDetails.setTenantId(triggerRequestDTO.getTenantId());
+        sourceDetails.setOrganizationId(triggerRequestDTO.getOrganizationId());
         return sourceDetails;
     }
 }

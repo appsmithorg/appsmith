@@ -6,7 +6,7 @@ import {
 import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export const defaultsConfig = {

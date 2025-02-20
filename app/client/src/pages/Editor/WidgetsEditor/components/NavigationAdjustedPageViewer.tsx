@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { EditorState } from "ee/entities/IDE/constants";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks/useCurrentAppState";
+import { EditorState } from "IDE/enums";
+import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
