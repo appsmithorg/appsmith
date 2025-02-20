@@ -205,9 +205,12 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(new HashMap<>()));
 
-        featureFlagService
-                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        organizationService
+                .retrieveAll()
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
@@ -225,9 +228,12 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE)));
 
-        featureFlagService
-                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        organizationService
+                .retrieveAll()
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
@@ -245,9 +251,12 @@ public class FeatureFlagServiceCETest {
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
                 .thenReturn(Mono.just(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE)));
 
-        featureFlagService
-                .getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations()
-                .block();
+        organizationService
+                .retrieveAll()
+                .flatMap(
+                        featureFlagService
+                                ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
+                .blockLast();
         StepVerifier.create(organizationService.getDefaultOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
@@ -259,6 +268,7 @@ public class FeatureFlagServiceCETest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getOrganizationFeatureFlags_withDefaultOrganization_fetchLatestFlags() {
 
         Map<String, Boolean> organizationFeatures = new HashMap<>();
@@ -275,6 +285,7 @@ public class FeatureFlagServiceCETest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getCachedOrganizationFeatureFlags_withDefaultOrganization_organizationFeatureFlagsAreCached() {
 
         // Assert that the cached feature flags are empty before the remote fetch

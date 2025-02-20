@@ -101,6 +101,13 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 });
     }
 
+    @Override
+    public Flux<T> retrieveAll() {
+        Query query = new Query(notDeleted());
+        return mongoOperations.find(
+                query.cursorBatchSize(10000), entityInformation.getJavaType(), entityInformation.getCollectionName());
+    }
+
     /**
      * We don't use this today, it doesn't use our `notDeleted` criteria, and since we don't use it, we're not porting
      * it to Postgres. Querying with `queryBuilder` or anything else is arguably more readable than this.

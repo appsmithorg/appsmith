@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.caching.annotations.DistributedLock;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
@@ -19,7 +20,6 @@ import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -43,7 +43,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("!${is.cloud-hosting:false}")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
@@ -74,6 +73,10 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
+    @DistributedLock(
+            key = "pingSchedule",
+            ttl = 5 * 60 * 60, // 5 hours
+            shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
         if (commonConfig.isTelemetryDisabled()) {
@@ -124,6 +127,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
+    @DistributedLock(key = "pingStats", ttl = 12 * 60 * 60, shouldReleaseLock = false)
     @Observed(name = "pingStats")
     public void pingStats() {
         if (commonConfig.isTelemetryDisabled()) {

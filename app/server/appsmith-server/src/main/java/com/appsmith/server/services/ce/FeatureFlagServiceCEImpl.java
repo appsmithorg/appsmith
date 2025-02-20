@@ -13,6 +13,7 @@ import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserIdentifierService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -38,6 +39,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
+    // TODO remove once all the helper methods consuming @FeatureFlagged are converted to reactive
+    @Getter
     private CachedFeatures cachedOrganizationFeatureFlags;
 
     /**
@@ -59,7 +62,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     /**
      * Retrieves a map of feature flags along with their corresponding boolean values for the current user.
-     * This takes into account for both user-level and organization-level feature flags
+     * This takes into account for both user-level and organization-level feature flags.
      *
      * @return A Mono emitting a Map where keys are feature names and values are corresponding boolean flags.
      */
@@ -116,52 +119,53 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     /**
      * To get all features of the organization from Cloud Services and store them locally
-     * @return Mono of Void
+     * @return Mono updated tenant
      */
-    public Mono<Void> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations() {
-        return organizationService
-                .getDefaultOrganization()
-                .flatMap(defaultOrganization ->
-                        // 1. Fetch current/saved feature flags from cache
-                        // 2. Force update the org flags keeping existing flags as fallback in case the API
-                        //    call to fetch the flags fails for some reason
-                        // 3. Get the diff and update the flags with pending migrations to be used to run
-                        //    migrations selectively
-                        featureFlagMigrationHelper
-                                .getUpdatedFlagsWithPendingMigration(defaultOrganization)
-                                .flatMap(featureFlagWithPendingMigrations -> {
-                                    OrganizationConfiguration organizationConfiguration =
-                                            defaultOrganization.getOrganizationConfiguration() == null
-                                                    ? new OrganizationConfiguration()
-                                                    : defaultOrganization.getOrganizationConfiguration();
-                                    // We expect the featureFlagWithPendingMigrations to be empty hence
-                                    // verifying only for null
-                                    if (featureFlagWithPendingMigrations != null
-                                            && !featureFlagWithPendingMigrations.equals(
-                                                    organizationConfiguration.getFeaturesWithPendingMigration())) {
-                                        organizationConfiguration.setFeaturesWithPendingMigration(
-                                                featureFlagWithPendingMigrations);
-                                        if (!featureFlagWithPendingMigrations.isEmpty()) {
-                                            organizationConfiguration.setMigrationStatus(MigrationStatus.PENDING);
-                                        } else {
-                                            organizationConfiguration.setMigrationStatus(MigrationStatus.COMPLETED);
-                                        }
-                                        return organizationService.update(
-                                                defaultOrganization.getId(), defaultOrganization);
-                                    }
-                                    return Mono.just(defaultOrganization);
-                                }))
-                .then();
+    @Override
+    public Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(
+            Organization organization) {
+        // 1. Fetch current/saved feature flags from cache
+        // 2. Force update the org flags keeping existing flags as fallback in case the API
+        //    call to fetch the flags fails for some reason
+        // 3. Get the diff and update the flags with pending migrations to be used to run
+        //    migrations selectively
+        return featureFlagMigrationHelper
+                .getUpdatedFlagsWithPendingMigration(organization)
+                .flatMap(featureFlagWithPendingMigrations -> {
+                    OrganizationConfiguration organizationConfiguration =
+                            organization.getOrganizationConfiguration() == null
+                                    ? new OrganizationConfiguration()
+                                    : organization.getOrganizationConfiguration();
+                    // We expect the featureFlagWithPendingMigrations to be empty hence
+                    // verifying only for null
+                    if (featureFlagWithPendingMigrations != null
+                            && !featureFlagWithPendingMigrations.equals(
+                                    organizationConfiguration.getFeaturesWithPendingMigration())) {
+                        organizationConfiguration.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
+                        if (!featureFlagWithPendingMigrations.isEmpty()) {
+                            organizationConfiguration.setMigrationStatus(MigrationStatus.PENDING);
+                        } else {
+                            organizationConfiguration.setMigrationStatus(MigrationStatus.COMPLETED);
+                        }
+                        return organizationService.update(organization.getId(), organization);
+                    }
+                    return Mono.just(organization);
+                });
     }
 
     /**
      * To get all features of the current organization.
      * @return Mono of Map
      */
+    @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
-        return organizationService
-                .getDefaultOrganizationId()
-                .flatMap(cacheableFeatureFlagHelper::fetchCachedOrganizationFeatures)
+        return sessionUserService.getCurrentUser().map(User::getOrganizationId).flatMap(this::getOrganizationFeatures);
+    }
+
+    @Override
+    public Mono<Map<String, Boolean>> getOrganizationFeatures(String organizationId) {
+        return cacheableFeatureFlagHelper
+                .fetchCachedOrganizationFeatures(organizationId)
                 .map(cachedFeatures -> {
                     cachedOrganizationFeatureFlags = cachedFeatures;
                     return cachedFeatures.getFeatures();
@@ -177,9 +181,5 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization) {
         return organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
-    }
-
-    public CachedFeatures getCachedOrganizationFeatureFlags() {
-        return this.cachedOrganizationFeatureFlags;
     }
 }

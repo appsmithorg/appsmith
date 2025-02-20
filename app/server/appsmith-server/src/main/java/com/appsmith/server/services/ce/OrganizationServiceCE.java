@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.services.CrudService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface OrganizationServiceCE extends CrudService<Organization, String> {
@@ -30,4 +31,6 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
     Mono<Organization> retrieveById(String id);
 
     Mono<Void> restartOrganization();
+
+    Flux<Organization> retrieveAll();
 }

@@ -47,7 +47,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
+                .switchIfEmpty(Mono.defer(instanceConfigHelper::registerInstance))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
@@ -64,16 +64,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 // TODO Update implementation to fetch license status for all the organizations once multi-tenancy is
                 //  introduced
                 .then(Mono.defer(instanceConfigHelper::isLicenseValid)
-                        // Ensure that the organization feature flags are refreshed with the latest values after
-                        // completing
-                        // the
-                        // license verification process.
-                        .flatMap(isValid -> {
-                            log.debug(
-                                    "License verification completed with status: {}",
-                                    TRUE.equals(isValid) ? "valid" : "invalid");
-                            return instanceConfigHelper.updateCacheForOrganizationFeatureFlags();
-                        }));
+                        // Ensure that the tenant feature flags are refreshed with the latest values after completing
+                        // the license verification process.
+                        .flatMap(isValid -> instanceConfigHelper.updateCacheForOrganizationFeatureFlags()));
 
         try {
             startupProcess.block();
