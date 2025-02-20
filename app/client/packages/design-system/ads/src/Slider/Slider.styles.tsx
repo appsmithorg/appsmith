@@ -15,7 +15,7 @@ export const StyledSlider = styled.div<{
   ${({ disabled }) =>
     disabled &&
     `
-      opacity: 0.6;
+      opacity: var(--ads-v2-opacity-disabled);
       cursor: not-allowed !important;
     `}
 
@@ -61,7 +61,7 @@ export const Thumb = styled.div`
 
 export const Rail = styled.div`
   position: absolute;
-  background-color: var(--ads-v2-color-bg-emphasis);
+  background-color: var(--ads-v2-color-border);
   height: var(--ads-v2-spaces-1);
   transform: translateY(-50%);
   width: calc(100% + var(--ads-v2-spaces-5));
