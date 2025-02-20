@@ -100,34 +100,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         };
     }
 
-    /**
-     * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
-     *
-     * @param filePart : filePart from which the contents would be made
-     * @return : Json entity which implements ArtifactExchangeJson
-     */
-    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart) {
-
-        final MediaType contentType = filePart.headers().getContentType();
-        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            log.error("Invalid content type, {}", contentType);
-            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
-        }
-
-        return DataBufferUtils.join(filePart.content())
-                .map(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(data);
-                })
-                .map(jsonString -> {
-                    gsonBuilder.registerTypeAdapter(ArtifactExchangeJson.class, artifactExchangeJsonAdapter);
-                    Gson gson = gsonBuilder.create();
-                    return gson.fromJson(jsonString, ArtifactExchangeJson.class);
-                });
-    }
-
     @Override
     public Mono<String> readFilePartToString(Part file) {
         final MediaType contentType = file.headers().getContentType();

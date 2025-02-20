@@ -31,14 +31,6 @@ public interface ImportServiceCE {
     ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType);
 
-    /**
-     * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
-     *
-     * @param filePart : filePart from which the contents would be made
-     * @return : Json entity which implements ArtifactExchangeJson
-     */
-    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart);
-
     Mono<String> readFilePartToString(Part file);
 
     Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(String jsonString);
