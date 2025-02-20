@@ -60,9 +60,11 @@ const LeftPane = () => {
           )}
         />
         <SentryRoute
-          component={LibrarySidePane}
           exact
           path={librarySidePanePaths}
+          render={(routeProps) => (
+            <LibrarySidePane {...routeProps} showAddButton />
+          )}
         />
         <SentryRoute
           component={AppSettingsPane}

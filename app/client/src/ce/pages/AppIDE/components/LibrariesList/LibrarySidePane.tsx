@@ -2,10 +2,12 @@ import React from "react";
 import JSLibrariesSection from "pages/AppIDE/components/LibrariesList/JSLibrariesSection";
 import { IDESidePaneWrapper } from "IDE";
 
-const LibrarySidePane = () => {
+const LibrarySidePane = (props: { showAddButton: boolean }) => {
+  const { showAddButton } = props;
+
   return (
     <IDESidePaneWrapper>
-      <JSLibrariesSection />
+      <JSLibrariesSection showAddButton={showAddButton} />
     </IDESidePaneWrapper>
   );
 };
