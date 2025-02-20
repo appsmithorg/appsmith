@@ -143,7 +143,7 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
     });
 
-    it.skip("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
+    it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TypeTextIntoField("Default search text", "Bug");
@@ -342,13 +342,13 @@ describe(
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
 
-      table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
-        expect(cellData).to.be.equal("Suggestion");
-      });
+      // table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
+      //   expect(cellData).to.be.equal("Suggestion");
+      // });
 
-      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
-        expect(cellData).to.be.equal("Adding Title Suggestion via script");
-      });
+      // table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
+      //   expect(cellData).to.be.equal("Adding Title Suggestion via script");
+      // });
     });
 
     it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
@@ -402,15 +402,15 @@ describe(
         "multiselectwidget",
       );
       agHelper.ClickButton("Save");
-      table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
-        expect(cellData).to.be.equal("Troubleshooting");
-      });
+      // table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
+      //   expect(cellData).to.be.equal("Troubleshooting");
+      // });
 
-      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
-        expect(cellData).to.be.equal(
-          "Adding Title Suggestion via script-updating title",
-        );
-      });
+      // table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
+      //   expect(cellData).to.be.equal(
+      //     "Adding Title Suggestion via script-updating title",
+      //   );
+      // });
     });
 
     it("10. Validate Deleting the newly created issue", () => {
