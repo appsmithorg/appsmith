@@ -1,88 +1,89 @@
 import React from "react";
-import type {
-  TableBodyPropGetter,
-  TableBodyProps,
-  Row as ReactTableRowType,
-} from "react-table";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
-import type { ReactTableColumnProps, TableSizes } from "./Constants";
-import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
 import { TableBody } from "./TableBody";
+import { useAppsmithTable } from "./TableContext";
 
-type VirtualTableProps = TableColumnHeaderProps & {
-  getTableBodyProps(
-    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
-  ): TableBodyProps;
-  pageSize: number;
-  height: number;
-  width?: number;
-  tableSizes: TableSizes;
-  accentColor: string;
-  borderRadius: string;
-  multiRowSelection?: boolean;
-  prepareRow?(row: ReactTableRowType<Record<string, unknown>>): void;
-  selectTableRow?: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  columns: ReactTableColumnProps[];
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  totalColumnsWidth?: number;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scrollContainerStyles: any;
-  useVirtual: boolean;
-  isInfiniteScrollEnabled: boolean;
-  isLoading: boolean;
-  loadMoreFromEvaluations: () => void;
-};
+interface VirtualTableProps {}
+const VirtualTable = (_: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
+  const {
+    accentColor,
+    borderRadius,
+    canFreezeColumn,
+    columns,
+    disableDrag,
+    editMode,
+    enableDrag,
+    getTableBodyProps,
+    handleAllRowSelectClick,
+    handleColumnFreeze,
+    handleReorderColumn,
+    headerGroups,
+    height,
+    isAddRowInProgress,
+    isInfiniteScrollEnabled,
+    isLoading,
+    isResizingColumn,
+    isSortable,
+    multiRowSelection,
+    nextPageClick,
+    pageSize,
+    prepareRow,
+    primaryColumnId,
+    rowSelectionState,
+    scrollContainerStyles,
+    selectedRowIndex,
+    selectedRowIndices,
+    selectTableRow,
+    sortTableColumn,
+    subPage,
+    tableSizes,
+    totalColumnsWidth,
+    widgetId,
+    width,
+  } = useAppsmithTable();
 
-const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
   return (
-    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
+    <SimpleBar ref={ref} style={scrollContainerStyles}>
       {({ scrollableNodeRef }) => (
         <TableBody
-          accentColor={props.accentColor}
-          borderRadius={props.borderRadius}
-          canFreezeColumn={props.canFreezeColumn}
-          columns={props.columns}
-          disableDrag={props.disableDrag}
-          editMode={props.editMode}
-          enableDrag={props.enableDrag}
-          getTableBodyProps={props.getTableBodyProps}
-          handleAllRowSelectClick={props.handleAllRowSelectClick}
-          handleColumnFreeze={props.handleColumnFreeze}
-          handleReorderColumn={props.handleReorderColumn}
-          headerGroups={props.headerGroups}
-          height={props.height}
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          canFreezeColumn={canFreezeColumn}
+          columns={columns}
+          disableDrag={disableDrag}
+          editMode={editMode}
+          enableDrag={enableDrag}
+          getTableBodyProps={getTableBodyProps}
+          handleAllRowSelectClick={handleAllRowSelectClick}
+          handleColumnFreeze={handleColumnFreeze}
+          handleReorderColumn={handleReorderColumn}
+          headerGroups={headerGroups}
+          height={height}
           innerElementType={VirtualTableInnerElement}
-          isAddRowInProgress={props.isAddRowInProgress}
-          isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
-          isLoading={props.isLoading}
-          isResizingColumn={props.isResizingColumn}
-          isSortable={props.isSortable}
-          loadMoreFromEvaluations={props.loadMoreFromEvaluations}
-          multiRowSelection={!!props.multiRowSelection}
-          pageSize={props.pageSize}
-          prepareRow={props.prepareRow}
-          primaryColumnId={props.primaryColumnId}
+          isAddRowInProgress={isAddRowInProgress}
+          isInfiniteScrollEnabled={isInfiniteScrollEnabled}
+          isLoading={isLoading}
+          isResizingColumn={isResizingColumn}
+          isSortable={isSortable}
+          loadMoreFromEvaluations={nextPageClick}
+          multiRowSelection={!!multiRowSelection}
+          pageSize={pageSize}
+          prepareRow={prepareRow}
+          primaryColumnId={primaryColumnId}
           ref={scrollableNodeRef}
-          rowSelectionState={props.rowSelectionState}
-          rows={props.subPage}
-          selectTableRow={props.selectTableRow}
-          selectedRowIndex={props.selectedRowIndex}
-          selectedRowIndices={props.selectedRowIndices}
-          sortTableColumn={props.sortTableColumn}
-          tableSizes={props.tableSizes}
-          totalColumnsWidth={props?.totalColumnsWidth}
-          useVirtual={props.useVirtual}
-          widgetId={props.widgetId}
-          width={props.width}
+          rowSelectionState={rowSelectionState}
+          rows={subPage}
+          selectTableRow={selectTableRow}
+          selectedRowIndex={selectedRowIndex}
+          selectedRowIndices={selectedRowIndices}
+          sortTableColumn={sortTableColumn}
+          tableSizes={tableSizes}
+          totalColumnsWidth={totalColumnsWidth}
+          useVirtual
+          widgetId={widgetId}
+          width={width}
         />
       )}
     </SimpleBar>
