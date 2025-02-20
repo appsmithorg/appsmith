@@ -2,7 +2,7 @@ import { migrateTableComputeValueBinding } from "../090-migrate-table-compute-va
 import type { DSLWidget } from "../../types";
 
 describe("migrateTableComputeValueBinding", () => {
-  it("should migrate table compute value bindings to use new fallback mechanism", () => {
+  it("1. should migrate table compute value bindings to use new fallback mechanism", () => {
     const dsl: DSLWidget = {
       widgetName: "Table1",
       type: "TABLE_WIDGET",
@@ -39,7 +39,7 @@ describe("migrateTableComputeValueBinding", () => {
     );
   });
 
-  it("should handle nested table widgets", () => {
+  it("2. should handle nested table widgets", () => {
     const dsl: DSLWidget = {
       type: "CANVAS_WIDGET",
       children: [
@@ -66,7 +66,7 @@ describe("migrateTableComputeValueBinding", () => {
     );
   });
 
-  it("should not modify non-table widgets", () => {
+  it("3. should not modify non-table widgets", () => {
     const dsl: DSLWidget = {
       type: "CANVAS_WIDGET",
       children: [
@@ -85,7 +85,7 @@ describe("migrateTableComputeValueBinding", () => {
     expect(migratedDsl).toEqual(dsl);
   });
 
-  it("should handle empty or undefined computedValue", () => {
+  it("4. should handle empty or undefined computedValue", () => {
     const dsl: DSLWidget = {
       widgetName: "Table1",
       type: "TABLE_WIDGET",

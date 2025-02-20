@@ -7,7 +7,7 @@ import { isDynamicValue } from "../utils";
  * New format: {{(() => { const tableData = table.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (value)) : value })()}}
  */
 export const migrateTableComputeValueBinding = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "TABLE_WIDGET") {
+  if (currentDSL.type === "TABLE_WIDGET_V2") {
     // Migrate primary columns compute values
     if (currentDSL.primaryColumns) {
       Object.keys(currentDSL.primaryColumns).forEach((columnKey) => {
