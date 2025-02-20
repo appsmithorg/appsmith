@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
 
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { useLayoutEffect } from "react";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
 import { LightModeTheme } from "@appsmith/wds-theming";
 
 const useBrandingTheme = () => {
-  const config = useSelector(getTenantConfig);
+  const config = useSelector(getOrganizationConfig);
   let activeColor: string | undefined = undefined;
 
   if (

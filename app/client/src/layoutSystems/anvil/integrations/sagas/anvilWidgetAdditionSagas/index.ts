@@ -1,7 +1,7 @@
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type { AnvilNewWidgetsPayload } from "../../actions/actionTypes";
 import { AnvilReduxActionTypes } from "../../actions/actionTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,

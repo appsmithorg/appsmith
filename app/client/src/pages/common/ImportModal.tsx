@@ -31,7 +31,7 @@ import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
-import { toggleGitImportModal } from "git";
+import { gitToggleImportModal } from "git/store";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -228,7 +228,7 @@ function ImportModal(props: ImportModalProps) {
 
     if (isGitModEnabled) {
       dispatch(
-        toggleGitImportModal({
+        gitToggleImportModal({
           open: true,
         }),
       );

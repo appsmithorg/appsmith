@@ -15,7 +15,11 @@ public class UsagePulse extends BaseDomain {
     // Hashed user email
     private String user;
     private String instanceId;
-    private String tenantId;
+    private String organizationId;
     private Boolean viewMode;
     private Boolean isAnonymousUser;
+
+    @Deprecated
+    // TODO: Remove this field once we have migrated the data to use organizationId instead of tenantId
+    private String tenantId;
 }
