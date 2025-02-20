@@ -8,6 +8,7 @@ import {
   gitSync,
   apiPage,
   dataSources,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -114,9 +115,10 @@ describe(
 
       // A switch here should not show a 404 page
       cy.switchGitBranch(parentBranchKey);
+
       // When entity not found, takes them to the home page
       PageList.VerifyIsCurrentPage("Page1");
-
+      cy.wait(2000);
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
       PageList.assertAbsence("ChildPage1");
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
@@ -128,7 +130,7 @@ describe(
     // rename entities
     it("3. makes branch specific resource updates", function () {
       gitSync.SwitchGitBranch(childBranchKey);
-      EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
+      EditorNavigation.NavigateToPage("ParentPage1", true);
       entityExplorer.RenameEntityFromExplorer(
         "ParentPage1",
         "ParentPageRenamed",
@@ -181,8 +183,19 @@ describe(
             "response.body.responseMeta.status",
             200,
           );
-          cy.get(".t--page-switch-tab").contains("ParentPage1").click();
-          cy.get(".t--widget-tablewidgetv2").should("exist");
+          cy.get(".t--page-switch-tab")
+            .contains("Page1")
+            .click({ force: true });
+          agHelper.AssertElementExist(".t--widget-tablewidgetv2");
+
+          cy.get(".t--page-switch-tab")
+            .contains("ParentPage1")
+            .click({ force: true });
+          agHelper.WaitUntilEleDisappear(locators._spinnerHead, 5000);
+          cy.get(".t--page-switch-tab").each(($el) => {
+            cy.wrap($el).should("not.have.text", "ChildPage1");
+            cy.wrap($el).should("not.have.text", "ParentPageRenamed");
+          });
         });
       });
     });
