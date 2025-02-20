@@ -52,6 +52,7 @@ export type DropTargetComponentProps = PropsWithChildren<{
   isMobile?: boolean;
   mobileBottomRow?: number;
   isListWidgetCanvas?: boolean;
+  showOnboardingText?: boolean;
 }>;
 
 const StyledDropTarget = styled.div`
@@ -324,7 +325,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   const shouldOnboard =
-    !(childWidgets && childWidgets.length) && !isDragging && !props.parentId;
+    !(childWidgets && childWidgets.length) &&
+    !isDragging &&
+    // If the parentId is not set (true for main canvas), or the showOnboardingText is true (for module canvas)
+    (!props.parentId || props.showOnboardingText);
 
   // The drag layer is the one with the grid dots.
   // They need to show in certain scenarios
