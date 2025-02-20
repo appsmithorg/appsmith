@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "ee/reducers";
-import IDE from "./layout";
+import IDE from "./layouts";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -45,8 +45,8 @@ import type { Page } from "entities/Page";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import GeneratePageModal from "pages/Editor/GeneratePage";
-import GitApplicationContextProvider from "components/gitContexts/GitApplicationContextProvider";
 import { GitModals } from "./components/GitModals";
+import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
 
 interface EditorProps {
   currentApplicationId?: string;

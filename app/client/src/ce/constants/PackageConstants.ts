@@ -11,6 +11,16 @@ export interface Package {
   modifiedBy: string;
   modifiedAt: string;
   userPermissions: string[];
+  gitArtifactMetadata?: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    repoName: string;
+    browserSupportedUrl?: string;
+    isRepoPrivate?: boolean;
+    browserSupportedRemoteUrl: string;
+    defaultApplicationId: string;
+  };
 }
 
 export type PackageMetadata = Package;

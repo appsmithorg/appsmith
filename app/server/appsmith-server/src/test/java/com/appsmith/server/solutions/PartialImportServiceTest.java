@@ -275,7 +275,7 @@ public class PartialImportServiceTest {
         String jsonContents = readResource("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, jsonContents)
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, jsonContents)
                 .flatMap(application -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(pageId, Optional.empty())
@@ -329,7 +329,7 @@ public class PartialImportServiceTest {
 
         PageDTO finalSavedPage = savedPage;
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), "master", jsonContents)
+                .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), jsonContents)
                 .flatMap(application1 -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(finalSavedPage.getId(), Optional.empty())
@@ -389,9 +389,9 @@ public class PartialImportServiceTest {
         String jsonContents = readResource("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, jsonContents)
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, jsonContents)
                 .then(partialImportService.importResourceInPage(
-                        workspaceId, testApplication.getId(), pageId, null, jsonContents))
+                        workspaceId, testApplication.getId(), pageId, jsonContents))
                 .flatMap(application -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(pageId, Optional.empty())

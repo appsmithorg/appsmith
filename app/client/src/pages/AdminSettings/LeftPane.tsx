@@ -14,7 +14,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
@@ -200,11 +200,11 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAuditLogsEnabled = getHasAuditLogsReadPermission(
     isFeatureEnabled,
-    tenantPermissions,
+    organizationPermissions,
   );
 
   const filteredGeneralCategories = getFilteredGeneralCategories(categories);

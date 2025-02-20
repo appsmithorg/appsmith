@@ -105,17 +105,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DryOperationRepository dryOperationRepository;
 
     @Override
-    public Mono<Application> importResourceInPage(
-            String workspaceId, String applicationId, String pageId, String branchName, Part file) {
+    public Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file) {
         return importService
                 .readFilePartToString(file)
-                .flatMap(fileContents ->
-                        importResourceInPage(workspaceId, applicationId, pageId, branchName, fileContents));
+                .flatMap(fileContents -> importResourceInPage(workspaceId, applicationId, pageId, fileContents));
     }
 
     @Override
     public Mono<Application> importResourceInPage(
-            String workspaceId, String applicationId, String pageId, String branchName, String fileContents) {
+            String workspaceId, String applicationId, String pageId, String fileContents) {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         return importService
                 .extractArtifactExchangeJson(fileContents)

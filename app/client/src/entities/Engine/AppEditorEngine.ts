@@ -56,7 +56,6 @@ import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
-import log from "loglevel";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import {
@@ -74,7 +73,8 @@ import {
   selectGitApplicationCurrentBranch,
   selectGitModEnabled,
 } from "selectors/gitModSelectors";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import { applicationArtifact } from "git-artifact-helpers/application";
+import log from "loglevel";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -292,9 +292,8 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    const currentBranch: string | undefined = yield select(
-      selectGitApplicationCurrentBranch,
-    );
+    const currentBranch: string | undefined =
+      currentApplication?.gitApplicationMetadata?.branchName;
 
     const isGitPersistBranchEnabled: boolean = yield select(
       isGitPersistBranchEnabledSelector,
