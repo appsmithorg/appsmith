@@ -1,5 +1,4 @@
 import log from "loglevel";
-import moment from "moment";
 import localforage from "localforage";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -49,27 +48,6 @@ const store = localforage.createInstance({
   name: "Appsmith",
 });
 
-export const resetAuthExpiration = () => {
-  const expireBy = moment().add(1, "h").format();
-
-  store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
-    log.error("Unable to set expiration time");
-    log.error(error);
-  });
-};
-
-export const hasAuthExpired = async () => {
-  const expireBy: string | null = await store.getItem(
-    STORAGE_KEYS.AUTH_EXPIRATION,
-  );
-
-  if (expireBy && moment().isAfter(moment(expireBy))) {
-    return true;
-  }
-
-  return false;
-};
-
 export const saveCopiedWidgets = async (widgetJSON: string) => {
   try {
     await store.setItem(STORAGE_KEYS.COPIED_WIDGET, widgetJSON);
@@ -82,24 +60,25 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getStoredUsersBetaFlags = async (email: any) => {
-  return store.getItem(email);
+type FlagsObject = Record<string, boolean>;
+
+const getStoredUsersBetaFlags = async (email: string) => {
+  return await store.getItem<FlagsObject>(email);
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const setStoredUsersBetaFlags = async (email: any, userBetaFlagsObj: any) => {
+const setStoredUsersBetaFlags = async (
+  email: string,
+  userBetaFlagsObj: FlagsObject,
+) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const setBetaFlag = async (email: any, key: string, value: any) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+export const setBetaFlag = async (
+  email: string,
+  key: string,
+  value: boolean,
+) => {
+  const userBetaFlagsObj = await getStoredUsersBetaFlags(email);
   const updatedObj = {
     ...userBetaFlagsObj,
     [key]: value,
@@ -108,26 +87,10 @@ export const setBetaFlag = async (email: any, key: string, value: any) => {
   setStoredUsersBetaFlags(email, updatedObj);
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getBetaFlag = async (email: any, key: string) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+export const getBetaFlag = async (email: string, key: string) => {
+  const userBetaFlagsObj = await getStoredUsersBetaFlags(email);
 
   return userBetaFlagsObj && userBetaFlagsObj[key];
-};
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getReflowOnBoardingFlag = async (email: any) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-
-  return (
-    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]
-  );
 };
 
 export const getCopiedWidgets = async () => {
@@ -289,32 +252,6 @@ export const deleteRecentAppEntities = async (appId: string) => {
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
   } catch (error) {
     log.error("An error occurred while saving recent entities");
-    log.error(error);
-  }
-};
-
-export const setOnboardingFormInProgress = async (flag?: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
-
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting ONBOARDING_FORM_IN_PROGRESS");
-    log.error(error);
-
-    return false;
-  }
-};
-
-export const getOnboardingFormInProgress = async () => {
-  try {
-    const onboardingFormInProgress = await store.getItem(
-      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
-    );
-
-    return onboardingFormInProgress;
-  } catch (error) {
-    log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
     log.error(error);
   }
 };
@@ -532,37 +469,6 @@ export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   }
 };
 
-export const hideConcurrentEditorWarningToast = async () => {
-  try {
-    await store.setItem(
-      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
-      true,
-    );
-
-    return true;
-  } catch (error) {
-    log.error(
-      "An error occurred while setting HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-    );
-    log.error(error);
-  }
-};
-
-export const getIsConcurrentEditorWarningToastHidden = async () => {
-  try {
-    const flag = await store.getItem(
-      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
-    );
-
-    return flag;
-  } catch (error) {
-    log.error(
-      "An error occurred while fetching HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-    );
-    log.error(error);
-  }
-};
-
 export const getTemplateNotificationSeen = async () => {
   try {
     const seenTemplateNotifications = await store.getItem(
@@ -760,115 +666,6 @@ export const isUserSignedUpFlagSet = async (email: string) => {
   }
 };
 
-export const getAppKbState = async (appId: string) => {
-  try {
-    const aiKBApplicationMap: Record<
-      string,
-      {
-        checksum: string;
-        pageSlugs: {
-          [pageId: string]: {
-            hasReacted: boolean;
-          };
-        };
-      }
-    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
-
-    if (typeof aiKBApplicationMap === "object" && aiKBApplicationMap) {
-      return aiKBApplicationMap[appId];
-    }
-
-    return null;
-  } catch (error) {
-    log.error("An error occurred while reading AI_KNOWLEDGE_BASE");
-    log.error(error);
-
-    return null;
-  }
-};
-
-export const initAppKbState = async (
-  appId: string,
-  checksum: string,
-  pageSlugs: string[],
-) => {
-  try {
-    let aiKBApplicationMap: Record<
-      string,
-      {
-        checksum: string;
-        pageSlugs: {
-          [pageId: string]: {
-            hasReacted: boolean;
-          };
-        };
-      }
-    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
-
-    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
-      aiKBApplicationMap = {};
-    }
-
-    const appKbState = {
-      checksum,
-      pageSlugs: pageSlugs.reduce(
-        (acc, pageSlug) => {
-          acc[pageSlug] = {
-            hasReacted: false,
-          };
-
-          return acc;
-        },
-        {} as Record<string, { hasReacted: boolean }>,
-      ) as Record<string, { hasReacted: boolean }>,
-    };
-
-    aiKBApplicationMap[appId] = appKbState;
-
-    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
-
-    return appKbState;
-  } catch (error) {
-    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
-    log.error(error);
-  }
-};
-
-export const reactToPageKB = async (
-  appId: string,
-  pageId: string,
-  hasReacted: boolean,
-) => {
-  try {
-    let aiKBApplicationMap: Record<
-      string,
-      {
-        checksum: string;
-        pageSlugs: {
-          [pageId: string]: {
-            hasReacted: boolean;
-          };
-        };
-      }
-    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
-
-    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
-      aiKBApplicationMap = {};
-    }
-
-    if (aiKBApplicationMap?.[appId]?.pageSlugs?.[pageId]) {
-      aiKBApplicationMap[appId].pageSlugs[pageId].hasReacted = hasReacted;
-    }
-
-    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
-
-    return true;
-  } catch (error) {
-    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
-    log.error(error);
-  }
-};
-
 export const setAISuggestedPromptShownForType = async (type: string) => {
   try {
     const suggestedPromptsShownForType: Record<string, number> =
@@ -914,28 +711,6 @@ export const getAISuggestedPromptShownForType = async (type: string) => {
   }
 };
 
-export const setPartnerProgramCalloutShown = async () => {
-  try {
-    await store.setItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT, true);
-
-    return true;
-  } catch (error) {
-    log.error("An error occurred while setting PARTNER_PROGRAM_CALLOUT");
-    log.error(error);
-  }
-};
-
-export const getPartnerProgramCalloutShown = async () => {
-  try {
-    const flag = await store.getItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT);
-
-    return flag;
-  } catch (error) {
-    log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
-    log.error(error);
-  }
-};
-
 export const storeIDEViewMode = async (mode: EditorViewMode) => {
   try {
     await store.setItem(STORAGE_KEYS.IDE_VIEW_MODE, mode);
@@ -958,17 +733,6 @@ export const retrieveIDEViewMode = async (): Promise<
     return mode;
   } catch (error) {
     log.error("An error occurred while fetching IDE_VIEW_MODE");
-    log.error(error);
-  }
-};
-
-export const storeCodeWidgetNavigationUsed = async (count: number) => {
-  try {
-    await store.setItem(STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED, count);
-
-    return true;
-  } catch (error) {
-    log.error("An error occurred while setting CODE_WIDGET_NAVIGATION_USED");
     log.error(error);
   }
 };
@@ -1018,11 +782,11 @@ Sets the override values for feature flags.
 
 @param featureFlagValues - An object containing the feature flags and their corresponding override values.
 
-@returns {Promise<void>} - A promise that resolves when all the feature flags have been set.
+@returns A promise that resolves when all the feature flags have been set.
 */
 export const setFeatureFlagOverrideValues = async (
   featureFlagValues: OverriddenFeatureFlags,
-) => {
+): Promise<void> => {
   for (const [flag, value] of Object.entries(featureFlagValues)) {
     await store.setItem(flag, value);
   }
