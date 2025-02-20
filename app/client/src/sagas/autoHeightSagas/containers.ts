@@ -2,7 +2,7 @@ import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";

@@ -32,12 +32,11 @@ import {
   READ_DOCS,
   createMessage,
 } from "ee/constants/messages";
-import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
 import noop from "lodash/noop";
 import CopyButton from "./CopyButton";
 import type { GitApiError } from "git/store/types";
-import type { ConnectFormDataState } from "./types";
+import type { ConnectFormDataState, GitProvider } from "./types";
 
 export const DeployedKeyContainer = styled.div`
   height: 36px;

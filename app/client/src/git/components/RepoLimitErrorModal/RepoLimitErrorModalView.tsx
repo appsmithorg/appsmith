@@ -22,11 +22,15 @@ import {
   REVOKE_ACCESS,
   REVOKE_EXISTING_REPOSITORIES,
 } from "ee/constants/messages";
-import type { ApplicationPayload } from "entities/Application";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { GitArtifact, GitArtifactDef } from "git/store/types";
 import { noop } from "lodash";
-import { applicationArtifact } from "git/artifact-helpers/application";
+import type {
+  GitApplicationArtifact,
+  GitArtifact,
+  GitArtifactDef,
+  GitPackageArtifact,
+} from "git/types";
+import { applicationArtifact } from "git-artifact-helpers/application";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -83,15 +87,17 @@ function RepoLimitErrorModalView({
 }: RepoLimitErrorModalViewProps) {
   const gitConnectedArtifacts = useMemo(() => {
     return (
-      artifacts?.filter((application: ApplicationPayload) => {
-        const data = application.gitApplicationMetadata;
+      artifacts?.filter((artifact: GitArtifact) => {
+        const gitMetadata =
+          (artifact as GitApplicationArtifact).gitApplicationMetadata ||
+          (artifact as GitPackageArtifact).gitArtifactMetadata;
 
         return (
-          data &&
-          data.remoteUrl &&
-          data.branchName &&
-          data.repoName &&
-          data.isRepoPrivate
+          gitMetadata &&
+          gitMetadata.remoteUrl &&
+          gitMetadata.branchName &&
+          gitMetadata.repoName &&
+          gitMetadata.isRepoPrivate
         );
       }) ?? []
     );
@@ -184,22 +190,22 @@ function RepoLimitErrorModalView({
             </Callout>
           </div>
           <AppListContainer>
-            {gitConnectedArtifacts.map((application) => {
-              const { gitApplicationMetadata } = application;
+            {gitConnectedArtifacts.map((artifact) => {
+              const gitMetadata =
+                (artifact as GitApplicationArtifact).gitApplicationMetadata ||
+                (artifact as GitPackageArtifact).gitArtifactMetadata;
 
               return (
                 <ApplicationWrapper
                   data-testid="t--git-repo-limit-error-connected-artifact"
-                  key={application.id}
+                  key={artifact.id}
                 >
                   <div>
                     <TextWrapper>
-                      <Text kind="heading-m">{application.name}</Text>
+                      <Text kind="heading-m">{artifact.name}</Text>
                     </TextWrapper>
                     <TextWrapper>
-                      <Text kind="body-m">
-                        {gitApplicationMetadata?.remoteUrl}
-                      </Text>
+                      <Text kind="body-m">{gitMetadata?.remoteUrl}</Text>
                     </TextWrapper>
                   </div>
                   <Button
@@ -207,8 +213,8 @@ function RepoLimitErrorModalView({
                     endIcon="arrow-right-line"
                     kind="tertiary"
                     onClick={handleOnClickDisconnect(
-                      application.baseId,
-                      application.name,
+                      artifact.baseId,
+                      artifact.name,
                     )}
                   >
                     {createMessage(REVOKE_ACCESS)}

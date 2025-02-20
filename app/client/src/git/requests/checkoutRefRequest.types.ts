@@ -1,5 +1,5 @@
 import type { ApiResponse } from "api/types";
-import type { GitArtifact } from "git/store/types";
+import type { GitArtifact } from "git/types";
 
 export interface CheckoutRefRequestParams {
   refType: "branch" | "tag";

@@ -3,8 +3,8 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { isValidGitRemoteUrl } from "../../utils";
 import GenerateSSH from "./GenerateSSH";
-import type { GitProvider } from "./ChooseGitProvider";
 import "@testing-library/jest-dom";
+import type { GitProvider } from "./types";
 
 jest.mock("../../utils", () => ({
   isValidGitRemoteUrl: jest.fn(),

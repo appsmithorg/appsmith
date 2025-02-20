@@ -31,9 +31,9 @@ const store = mockStore({
       },
     },
   },
-  tenant: {
+  organization: {
     userPermissions: [],
-    tenantConfiguration: {
+    organizationConfiguration: {
       brandColors: {},
     },
     new: false,

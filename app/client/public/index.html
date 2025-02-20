@@ -51,7 +51,7 @@
           //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
           //  2) Add the name into the `chunksToPreload` array below
           let chunksToPreload = {
-            'edit-mode': [...getChunkUrls("editor"), ...getChunkUrls("global-search")],
+            'edit-mode': [...getChunkUrls("AppIDE"), ...getChunkUrls("global-search")],
             'view-mode': getChunkUrls("AppViewer")
           };
 

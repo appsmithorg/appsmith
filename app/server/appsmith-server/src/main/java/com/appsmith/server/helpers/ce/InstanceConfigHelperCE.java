@@ -17,5 +17,5 @@ public interface InstanceConfigHelperCE {
 
     Mono<String> checkMongoDBVersion();
 
-    Mono<Void> updateCacheForTenantFeatureFlags();
+    Mono<Void> updateCacheForOrganizationFeatureFlags();
 }

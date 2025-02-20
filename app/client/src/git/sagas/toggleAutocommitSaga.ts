@@ -1,12 +1,11 @@
-import { captureException } from "@sentry/react";
 import toggleAutocommitRequest from "git/requests/toggleAutocommitRequest";
 import type { ToggleAutocommitResponse } from "git/requests/toggleAutocommitRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* toggleAutocommitSaga(
   action: GitArtifactPayloadAction,
@@ -32,15 +31,12 @@ export default function* toggleAutocommitSaga(
       yield put(gitArtifactActions.fetchMetadataInit({ artifactDef }));
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(
         gitArtifactActions.toggleAutocommitError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

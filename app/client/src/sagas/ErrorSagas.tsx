@@ -136,21 +136,22 @@ export function* validateResponse(
 
   if (
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
-      response.responseMeta.error.code,
+      response.responseMeta?.error?.code,
     )
   ) {
-    throw new IncorrectBindingError(response.responseMeta.error.message);
+    throw new IncorrectBindingError(response.responseMeta?.error?.message);
   }
 
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
-      error: new Error(response.responseMeta.error.message),
+      error: new Error(response.responseMeta?.error?.message),
       logToSentry,
       show,
     },
   });
-  throw Error(response.responseMeta.error.message);
+
+  throw Error(response.responseMeta?.error?.message);
 }
 
 export function getResponseErrorMessage(response: ApiResponse) {
