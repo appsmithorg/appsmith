@@ -215,13 +215,15 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         String workspaceId = jsonTransformationDTO.getWorkspaceId();
         String placeHolder = jsonTransformationDTO.getBaseArtifactId();
         String repoName = jsonTransformationDTO.getRepoName();
-        Path temporaryStorage = Path.of(workspaceId, placeHolder, repoName);
+        Path temporaryArtifactPath = Path.of(workspaceId, placeHolder);
 
         ArtifactType artifactType = baseArtifact.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        Path newPath = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifact.getId(), repoName);
+        Path absoluteArtifactPath = gitArtifactHelper
+                .getRepoSuffixPath(workspaceId, baseArtifact.getId(), repoName)
+                .getParent();
 
-        return commonGitFileUtils.moveArtifactFromTemporaryToBaseArtifactIdRepository(temporaryStorage, newPath);
+        return commonGitFileUtils.moveRepositoryFromTemporaryStorage(temporaryArtifactPath, absoluteArtifactPath);
     }
 
     @Override
@@ -237,29 +239,29 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                         repoSuffix, gitConnectDTO.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
                 .onErrorResume(error -> {
                     log.error("Error while cloning the remote repo, {}", error.getMessage());
-                    return gitAnalyticsUtils
-                            .addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_IMPORT,
-                                    artifact,
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    false)
-                            .flatMap(user -> commonGitFileUtils
-                                    .deleteLocalRepo(repoSuffix)
-                                    .then(gitArtifactHelper.deleteArtifact(artifact.getId())))
-                            .flatMap(artifact1 -> {
-                                if (error instanceof TransportException) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
-                                } else if (error instanceof InvalidRemoteException) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
-                                } else if (error instanceof TimeoutException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
-                                }
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED, "clone", error.getMessage()));
-                            });
+
+                    Mono<Boolean> deleteLocalRepoMono = commonGitFileUtils.deleteLocalRepo(repoSuffix);
+                    Mono<? extends Artifact> errorAnalyticsMono = gitAnalyticsUtils.addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_IMPORT,
+                            artifact,
+                            error.getClass().getName(),
+                            error.getMessage(),
+                            false);
+
+                    AppsmithException appsmithException;
+
+                    if (error instanceof TransportException) {
+                        appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                    } else if (error instanceof InvalidRemoteException) {
+                        appsmithException = new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url");
+                    } else if (error instanceof TimeoutException) {
+                        appsmithException = new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT);
+                    } else {
+                        appsmithException =
+                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", error.getMessage());
+                    }
+
+                    return deleteLocalRepoMono.zipWith(errorAnalyticsMono).then(Mono.error(appsmithException));
                 });
     }
 

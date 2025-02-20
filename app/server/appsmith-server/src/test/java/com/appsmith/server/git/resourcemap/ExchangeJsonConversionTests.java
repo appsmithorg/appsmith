@@ -1,6 +1,6 @@
 package com.appsmith.server.git.resourcemap;
 
-import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.server.constants.ArtifactType;
@@ -52,7 +52,7 @@ public class ExchangeJsonConversionTests {
     CommonGitFileUtils commonGitFileUtils;
 
     @SpyBean
-    GitExecutor gitExecutor;
+    FSGitHandler fsGitHandler;
 
     @TestTemplate
     public void testConvertArtifactJsonToGitResourceMap_whenArtifactIsFullyPopulated_returnsCorrespondingResourceMap(
@@ -127,7 +127,7 @@ public class ExchangeJsonConversionTests {
             ExchangeJsonContext context) throws IOException, GitAPIException {
         ArtifactExchangeJson originalArtifactJson = createArtifactJson(context).block();
 
-        Mockito.doReturn(Mono.just(true)).when(gitExecutor).resetToLastCommit(Mockito.any(), Mockito.anyString());
+        Mockito.doReturn(Mono.just(true)).when(fsGitHandler).resetToLastCommit(Mockito.any(), Mockito.anyString());
 
         Files.createDirectories(Path.of("./container-volumes/git-storage/test123"));
 

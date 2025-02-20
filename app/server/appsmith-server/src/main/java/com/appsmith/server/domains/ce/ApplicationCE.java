@@ -368,7 +368,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     }
 
     @Override
-    @JsonView({Views.Internal.class})
+    @JsonView({Views.Public.class})
     public ArtifactType getArtifactType() {
         return ArtifactType.APPLICATION;
     }
