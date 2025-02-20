@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -41,20 +42,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import reactor.core.publisher.Flux;
+import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -228,13 +225,13 @@ public class ServerSchemaMigrationEnforcerTest {
     @WithUserDetails(value = "api_user")
     public void importApplication_ThenExportApplication_MatchJson_equals_Success() throws URISyntaxException {
         String filePath = "ce-automation-test.json";
-        FilePart filePart = createFilePart(filePath);
+        String jsonContents = readResource(filePath);
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         ApplicationJson applicationJsonToBeImported = importService
-                .extractArtifactExchangeJson(filePart)
+                .extractArtifactExchangeJson(jsonContents)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
 
@@ -249,7 +246,7 @@ public class ServerSchemaMigrationEnforcerTest {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace ->
-                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(jsonContents, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         final Mono<ApplicationJson> exportApplicationMono = resultMono.flatMap(applicationImportDTO -> {
@@ -280,17 +277,10 @@ public class ServerSchemaMigrationEnforcerTest {
                 .verifyComplete();
     }
 
-    private FilePart createFilePart(String filePath) throws URISyntaxException {
-        FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        URL resource = this.getClass().getResource(filePath);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
-                        Path.of(resource.toURI()), new DefaultDataBufferFactory(), 4096)
-                .cache();
-
-        Mockito.when(filePart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filePart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
-
-        return filePart;
+    @SneakyThrows
+    private String readResource(String filePath) {
+        return StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource(filePath).getInputStream(), StandardCharsets.UTF_8);
     }
 
     private void removeCustomJsLibsEntries(JsonObject applicationObjectNode) {

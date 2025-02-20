@@ -78,6 +78,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -93,6 +94,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -102,6 +104,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -110,6 +113,7 @@ import reactor.util.function.Tuple4;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -859,10 +863,8 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importArtifactWithNullWorkspaceIdTest() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-
         Mono<? extends ArtifactImportDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null);
+                importService.extractArtifactExchangeJsonAndSaveArtifact("", null, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -4943,9 +4945,10 @@ public class ImportServiceTests {
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {
-                    FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+                    final String validAppJsonContents =
+                            readResource("test_assets/ImportExportServiceTest/valid-application.json");
                     return importService
-                            .extractArtifactExchangeJson(filePart)
+                            .extractArtifactExchangeJson(validAppJsonContents)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                             .flatMap(applicationJson -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                     workspaceId, application.getId(), null, applicationJson, null))
@@ -4955,6 +4958,12 @@ public class ImportServiceTests {
         StepVerifier.create(applicationImportDTOMono)
                 .expectError(AppsmithException.class)
                 .verify();
+    }
+
+    @SneakyThrows
+    private String readResource(String filePath) {
+        return StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource(filePath).getInputStream(), StandardCharsets.UTF_8);
     }
 
     @Test
