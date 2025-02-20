@@ -326,7 +326,7 @@ public class ApplicationControllerCE {
             @PathVariable String branchedApplicationId,
             @RequestParam(name = FieldName.PAGE_ID) String branchedPageId) {
         return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
-                        workspaceId, branchedApplicationId, branchedPageId, null, fileData))
+                        workspaceId, branchedApplicationId, branchedPageId, fileData))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED, fetchedResource));
     }
 
