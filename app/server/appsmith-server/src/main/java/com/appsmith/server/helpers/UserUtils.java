@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.ce.UserUtilsCE;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -10,18 +11,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserUtils extends UserUtilsCE {
+
     public UserUtils(
             ConfigRepository configRepository,
             PermissionGroupRepository permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             PermissionGroupPermission permissionGroupPermission,
-            ObservationRegistry observationRegistry) {
-
+            ObservationRegistry observationRegistry,
+            CommonConfig commonConfig) {
         super(
                 configRepository,
                 permissionGroupRepository,
                 cacheableRepositoryHelper,
-                permissionGroupPermission,
-                observationRegistry);
+                observationRegistry,
+                commonConfig);
     }
 }
