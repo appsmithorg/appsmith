@@ -8,15 +8,25 @@ import * as linkClasses from "./links";
 import { BackupState } from "./BackupState";
 
 export async function run(args: string[]) {
+  const url = utils.getDburl();
+
+  if (!url.startsWith("mongodb") && !url.startsWith("postgresql")) {
+    console.error("Only MongoDB and Postgres databases are supported.");
+    process.exitCode = 1;
+
+    return;
+  }
+
   await utils.ensureSupervisorIsRunning();
 
-  const state: BackupState = new BackupState(args);
+  const state: BackupState = new BackupState(args, url);
 
   const chain: Link[] = [
     new linkClasses.BackupFolderLink(state),
     new linkClasses.DiskSpaceLink(),
     new linkClasses.ManifestLink(state),
     new linkClasses.MongoDumpLink(state),
+    new linkClasses.PostgresDumpLink(state),
     new linkClasses.GitStorageLink(state),
     new linkClasses.EnvFileLink(state),
 
