@@ -317,6 +317,7 @@ export class DataSources {
   private _entityTriggerElement = ".t--template-menu-trigger";
   _dsSchemaTableResponse = ".t--table-response";
   _imgSnowflakeLogo = "//img[contains(@src, 'snowflake.svg')]";
+  _imgHubspotLogo = "//img[contains(@src, 'hubspot.png')]";
   _dsConfigProperties = (index: number) =>
     "input[name*='datasourceConfiguration.properties[" + index + "]']";
   _dsConfigAuthType = `[data-testid*='datasourceConfiguration.authentication.authenticationType']`;
@@ -607,6 +608,23 @@ export class DataSources {
         ? this.dataManager.dsValues[environment].Snowflake_password
         : password,
     );
+  }
+  public FillHubspotDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    password = "",
+  ) {
+    this.ValidateNSelectDropdown(
+      "Authentication type",
+      "Please select an option",
+      "Bearer token",
+    );
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Bearer token") +
+        "//" +
+        this.locator._inputField,
+      !password ? this.dataManager.dsValues[environment].hubspotBearerToken : password,
+    );
+    this.agHelper.Sleep();
   }
 
   public FillMongoDSForm(
