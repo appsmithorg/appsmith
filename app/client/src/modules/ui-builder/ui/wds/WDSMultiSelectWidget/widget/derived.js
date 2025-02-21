@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getOptions: (props, moment, _) => {
     let labels = [],
@@ -21,13 +22,15 @@ export default {
       value: values[i],
     }));
   },
+  //
   getIsValid: (props, moment, _) => {
     return props.isRequired
       ? !_.isNil(props.selectedOptionValues) &&
           props.selectedOptionValues.length !== 0
       : true;
   },
-  getSelectedOptionValues: (props) => {
+  //
+  getSelectedOptionValues: (props, moment, _) => {
     const options = props.options ?? [];
     const selectedOptions = props.selectedOptions ?? [];
 
@@ -43,6 +46,7 @@ export default {
 
     return values;
   },
+  //
   getSelectedOptionLabels: (props, moment, _) => {
     const values = props.selectedOptionValues;
     const selectedOptions = props.selectedOptions ?? [];
@@ -63,4 +67,5 @@ export default {
       })
       .filter((val) => !_.isNil(val));
   },
+  //
 };

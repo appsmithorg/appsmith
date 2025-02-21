@@ -6,8 +6,11 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import isArray from "lodash/isArray";
+import type { Selection } from "@react-types/shared";
+import type { WidgetState } from "widgets/BaseWidget";
+
 import {
   anvilConfig,
   autocompleteConfig,
@@ -19,10 +22,7 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSMultiSelectWidgetProps } from "./types";
-import derivedPropertyFns from "./derived";
-import { parseDerivedProperties } from "widgets/WidgetUtils";
-import isArray from "lodash/isArray";
-import type { Selection } from "@react-types/shared";
+import derivedProperties from "./parseDerivedProperties";
 
 class WDSMultiSelectWidget extends BaseWidget<
   WDSMultiSelectWidgetProps,
@@ -66,13 +66,11 @@ class WDSMultiSelectWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
-    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
-
     return {
-      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
-      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
-      selectedOptionValues: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValues}})()}}`,
-      selectedOptionLabels: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabels}})()}}`,
+      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
+      selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
       value: `{{this.selectedOptionValues}}`,
     };
   }
