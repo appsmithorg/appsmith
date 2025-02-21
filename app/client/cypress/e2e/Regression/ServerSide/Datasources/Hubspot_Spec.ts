@@ -1,5 +1,6 @@
 import {
   agHelper,
+  appSettings,
   dataSources,
   deployMode,
   draggableWidgets,
@@ -56,6 +57,8 @@ describe(
         inputFieldName: "Table ID or name",
       });
       dataSources.RunQuery();
+      dataSources.RunQuery();
+      dataSources.RunQuery();
       PageLeftPane.switchSegment(PagePaneSegment.UI); // Switching the tab to ensure connection reset from Hubspot platform gets refreshed
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       cy.get("@postExecute").then((resObj: any) => {
@@ -71,12 +74,21 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
       propPane.EnterJSContext("Text", "{{Api1.data}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
-      agHelper.RefreshPage(); // Refreshing the page due to frequent connection reset from Hubspot
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      //agHelper.RefreshPage(); // Refreshing the page due to frequent connection reset from Hubspot
       // Assert that the text widget contains the expected data
       cy.get(locators._widgetInDeployed(draggableWidgets.TEXT)).should(
         "contain.text",
         "appsmith1",
       );
+      // agHelper
+      //   .GetElement(locators._widgetInDeployed(draggableWidgets.TEXT))
+      //   .then(($elements) => {
+      //     const values = $elements
+      //       .map((_, el) => Cypress.$(el).text().trim())
+      //       .get();
+      //     expect(values).to.include("appsmith1");
+      //   });
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Api1", EntityType.Query);
     });
