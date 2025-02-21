@@ -290,7 +290,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     Mono<Boolean> makeSuperUserMono = userUtils
-                            .makeSuperUser(List.of(user))
+                            .makeInstanceAdministrator(List.of(user))
                             .elapsed()
                             .map(pair -> {
                                 log.debug(
