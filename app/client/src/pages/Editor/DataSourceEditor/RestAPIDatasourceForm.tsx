@@ -183,10 +183,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
-      if (
-        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
-        _.get(authentication, "sendScopeWithRefreshToken") === ""
-      ) {
+      if (_.get(authentication, "sendScopeWithRefreshToken") === undefined) {
         this.props.change("authentication.sendScopeWithRefreshToken", false);
       }
     }
