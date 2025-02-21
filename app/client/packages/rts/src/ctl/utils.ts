@@ -249,8 +249,13 @@ export async function execCommandSilent(cmd, options?) {
   });
 }
 
-export function getDatabaseNameFromMongoURI(uri) {
-  const uriParts = uri.split("/");
+/**
+ * Extracts database name from MongoDB or Postgres connection URL
+ * @param url - Database connection URL
+ * @returns Database name
+ */
+export function getDatabaseNameFromUrl(url: string) {
+  const parts = url.split("/");
 
-  return uriParts[uriParts.length - 1].split("?")[0];
+  return parts[parts.length - 1].split("?")[0];
 }
