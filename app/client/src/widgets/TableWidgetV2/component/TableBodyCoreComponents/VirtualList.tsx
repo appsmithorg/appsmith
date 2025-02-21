@@ -1,6 +1,6 @@
 import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
 import { FixedSizeList, areEqual } from "react-window";
-import React from "react";
+import React, { type Ref } from "react";
 import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -34,7 +34,7 @@ interface BaseVirtualListProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   pageSize: number;
   innerElementType?: ReactElementType;
-  outerRef?: React.Ref<SimpleBar>;
+  outerRef: Ref<SimpleBar>;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
   infiniteLoaderListRef?: React.Ref<FixedSizeList>;
 }

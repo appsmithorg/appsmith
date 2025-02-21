@@ -1,19 +1,20 @@
 import React from "react";
-import Table from "./Table";
-import type {
-  AddNewRowActions,
-  CompactMode,
-  ReactTableColumnProps,
-  ReactTableFilter,
-  StickyType,
-} from "./Constants";
 import type { Row } from "react-table";
+import {
+  CompactModeTypes,
+  type AddNewRowActions,
+  type CompactMode,
+  type ReactTableColumnProps,
+  type ReactTableFilter,
+  type StickyType,
+} from "./Constants";
+import Table from "./Table";
 
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
+import { useCallback } from "react";
 import type { EditableCell, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
-import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -234,7 +235,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
-      compactMode={compactMode}
+      compactMode={compactMode || CompactModeTypes.DEFAULT}
       data={tableData}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
