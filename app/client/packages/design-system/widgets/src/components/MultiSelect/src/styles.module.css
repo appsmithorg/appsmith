@@ -1,0 +1,62 @@
+.popover {
+  width: var(--trigger-width);
+  display: flex;
+  flex-direction: column;
+}
+
+.listBoxItem {
+  display: flex;
+  align-items: center;
+  gap: var(--inner-spacing-2);
+}
+
+.listBoxItem:first-of-type {
+  border-radius: 0;
+}
+
+/* We don't want to default onliting that wds has on input,
+ * so we are overriding the default outline here. */
+.textField > div:has(> [data-input]) {
+  box-shadow: none;
+  border-bottom: var(--border-width-1) solid var(--color-bd);
+}
+
+.textField
+  > div:has(
+    > [data-input]:is([data-focused], [data-focus-within]):not([data-readonly])
+  ) {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* We don't want to show the border of input when the first item is focused 
+ * as it conflicts with the border of the first item */
+.popover:has(.listBoxItem:first-of-type[data-focus-visible]) .textField > div {
+  border-color: transparent;
+}
+
+.emptyState {
+  padding: var(--inner-spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.multiSelectValue > * {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* we are resevering max for 7 characters which describes "...+999" text */
+.ellipsisText {
+  max-width: 7ch;
+}
+
+.selectedItemLabel {
+  flex-shrink: 0;
+}
+
+/* This is required so that checkbox click event does not conflict with the listbox item click event */
+.listBoxItemCheckbox {
+  pointer-events: none;
+}

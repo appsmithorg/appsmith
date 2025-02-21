@@ -14,6 +14,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -53,6 +54,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -62,6 +64,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.ARTIFACT_JSON_TYPE;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.CHECKOUT_BRANCH;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.RECONSTRUCT_PAGE;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
@@ -79,6 +82,7 @@ import static com.appsmith.git.constants.ce.GitDirectoriesCE.DATASOURCE_DIRECTOR
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
 import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -87,6 +91,7 @@ import static org.springframework.util.StringUtils.hasText;
 public class CommonGitFileUtilsCE {
 
     protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
+    protected final GitServiceConfig gitServiceConfig;
     private final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
@@ -104,6 +109,7 @@ public class CommonGitFileUtilsCE {
 
     public CommonGitFileUtilsCE(
             ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
+            GitServiceConfig gitServiceConfig,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
@@ -113,6 +119,7 @@ public class CommonGitFileUtilsCE {
             JsonSchemaVersions jsonSchemaVersions,
             ObjectMapper objectMapper) {
         this.applicationGitFileUtils = applicationGitFileUtils;
+        this.gitServiceConfig = gitServiceConfig;
         this.fileUtils = fileUtils;
         this.fileOperations = fileOperations;
         this.analyticsService = analyticsService;
@@ -777,6 +784,53 @@ public class CommonGitFileUtilsCE {
                     metadataMap.put(FILE_FORMAT_VERSION, fileFormatVersion);
                     return metadataMap;
                 });
+    }
+
+    public Mono<Path> moveArtifactFromTemporaryToBaseArtifactIdRepository(
+            Path currentRepositoryPath, Path newRepositoryPath) {
+        Path currentGitPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(currentRepositoryPath);
+        Path targetPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(newRepositoryPath);
+
+        return Mono.fromCallable(() -> {
+                    if (!Files.exists(targetPath)) {
+                        Files.createDirectories(targetPath);
+                    }
+
+                    return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<ArtifactType> getArtifactJsonTypeOfRepository(Path repoSuffix) {
+        Mono<ArtifactType> artifactTypeMono = fileUtils
+                .reconstructMetadataFromGitRepository(repoSuffix)
+                .flatMap(metadata -> {
+                    Gson gson = new Gson();
+                    JsonObject metadataJsonObject =
+                            gson.toJsonTree(metadata, Object.class).getAsJsonObject();
+
+                    if (metadataJsonObject == null) {
+                        log.error(
+                                "Error in retrieving the metadata from the file system for repository {}", repoSuffix);
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                    }
+
+                    JsonElement artifactJsonType = metadataJsonObject.get(ARTIFACT_JSON_TYPE);
+
+                    if (artifactJsonType == null) {
+                        log.error(
+                                "artifactJsonType attribute not found in the metadata file for repository {}",
+                                repoSuffix);
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                    }
+
+                    return Mono.just(artifactJsonType.getAsString());
+                })
+                .flatMap(artifactJsonType -> {
+                    return Mono.justOrEmpty(ArtifactType.valueOf(artifactJsonType));
+                });
+
+        return Mono.create(sink -> artifactTypeMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**

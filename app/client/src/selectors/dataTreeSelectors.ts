@@ -17,10 +17,8 @@ import type {
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import {
-  DataTreeFactory,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   getIsMobileBreakPoint,
   getMetaWidgets,

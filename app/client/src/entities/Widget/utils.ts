@@ -2,10 +2,10 @@ import type {
   PropertyPaneConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 /**

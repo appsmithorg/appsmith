@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
 import { omit } from "lodash";
@@ -8,6 +8,8 @@ import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { Button, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
+import { GitCardBadge } from "git";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 
 type CardProps = PropsWithChildren<{
   backgroundColor: string;
@@ -330,6 +332,16 @@ function Card({
   title,
   titleTestId,
 }: CardProps) {
+  const isGitModEnabled = useGitModEnabled();
+
+  const gitBadge = useMemo(() => {
+    if (isGitModEnabled) {
+      return <GitCardBadge />;
+    }
+
+    return <GitConnectedBadge />;
+  }, [isGitModEnabled]);
+
   return (
     <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
@@ -383,7 +395,7 @@ function Card({
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>
-      {showGitBadge && <GitConnectedBadge />}
+      {showGitBadge ? gitBadge : null}
     </Container>
   );
 }

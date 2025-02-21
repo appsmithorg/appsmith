@@ -45,6 +45,8 @@ import {
   SliderControl,
   type SliderControlProps,
 } from "components/formControls/SliderControl";
+import { HybridSearchControl } from "components/formControls/HybridSearch";
+import FunctionCallingConfigControl from "components/formControls/FunctionCallingConfigControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -222,6 +224,19 @@ class FormControlRegistry {
               workspaceId={controlProps.workspaceId}
             />
           );
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(formControlTypes.HYBRID_SEARCH, {
+      buildPropertyControl(controlProps: SliderControlProps): JSX.Element {
+        return <HybridSearchControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.FUNCTION_CALLING_CONFIG_FORM,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <FunctionCallingConfigControl {...controlProps} />;
         },
       },
     );

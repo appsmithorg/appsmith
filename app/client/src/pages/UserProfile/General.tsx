@@ -18,7 +18,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "@appsmith/ads-old";
 import { notEmptyValidator } from "@appsmith/ads-old";
-import { getIsFormLoginEnabled } from "ee/selectors/tenantSelectors";
+import { getIsFormLoginEnabled } from "ee/selectors/organizationSelectors";
 
 const nameValidator = (
   value: string,

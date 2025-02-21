@@ -7,6 +7,7 @@ import useCommit from "git/hooks/useCommit";
 import useDiscard from "git/hooks/useDiscard";
 import usePull from "git/hooks/usePull";
 import useStatus from "git/hooks/useStatus";
+import type { GitApplicationArtifact } from "git/types";
 
 export default function TabDeploy() {
   const { artifact } = useGitContext();
@@ -21,7 +22,9 @@ export default function TabDeploy() {
   const { currentBranch } = useBranches();
   const { metadata } = useMetadata();
 
-  const lastDeployedAt = artifact?.lastDeployedAt ?? null;
+  // ! git tagging: need to handle last deplyed here when tagging is implemented
+  const lastDeployedAt =
+    (artifact as GitApplicationArtifact)?.lastDeployedAt ?? null;
   const isPullFailing = !!pullError;
   const statusIsClean = status?.isClean ?? false;
   const statusBehindCount = status?.behindCount ?? 0;

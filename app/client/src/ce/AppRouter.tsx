@@ -32,7 +32,7 @@ import {
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
-import EditorLoader from "pages/Editor/loader";
+import AppIDE from "pages/AppIDE/AppIDELoader";
 import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "../LandingScreen";
 import UserAuth from "pages/UserAuth";
@@ -52,7 +52,7 @@ import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
@@ -71,7 +71,7 @@ export const loadingIndicator = <PageLoadingBar />;
 
 export function Routes() {
   const user = useSelector(getCurrentUserSelector);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useFeatureFlagOverride();
@@ -102,7 +102,7 @@ export function Routes() {
             : getAdminSettingsPath(
                 isFeatureEnabled,
                 user?.isSuperUser || false,
-                tenantPermissions,
+                organizationPermissions,
               )
         }
       />
@@ -116,7 +116,7 @@ export function Routes() {
         exact
         path={CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH}
       />
-      <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
+      <SentryRoute component={AppIDE} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
       <SentryRoute
         component={CustomWidgetBuilderLoader}
@@ -133,8 +133,8 @@ export function Routes() {
        * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method
        * Context: https://github.com/appsmithorg/appsmith/pull/19833
        */}
-      <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
-      <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
+      <SentryRoute component={AppIDE} path={BUILDER_PATH} />
+      <SentryRoute component={AppIDE} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
       {/*
@@ -161,7 +161,7 @@ export default function AppRouter() {
 
   const isLoading = isConsolidatedPageLoading;
 
-  // hide the top loader once the tenant is loaded
+  // hide the top loader once the organization is loaded
   useEffect(() => {
     if (!isLoading) {
       const loader = document.getElementById("loader") as HTMLDivElement;

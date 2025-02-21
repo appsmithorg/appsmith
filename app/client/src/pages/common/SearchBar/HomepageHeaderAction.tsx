@@ -10,7 +10,7 @@ import {
 } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
@@ -61,7 +61,7 @@ const HomepageHeaderAction = ({
 }) => {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const isCreateNewAppFlow = useSelector(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -87,7 +87,7 @@ const HomepageHeaderAction = ({
                 path: getAdminSettingsPath(
                   isFeatureEnabled,
                   user?.isSuperUser,
-                  tenantPermissions,
+                  organizationPermissions,
                 ),
               });
             }}

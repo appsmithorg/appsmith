@@ -1,6 +1,5 @@
 import useAutocommit from "git/hooks/useAutocommit";
 import useDisconnect from "git/hooks/useDisconnect";
-import useGitPermissions from "git/hooks/useGitPermissions";
 import useSettings from "git/hooks/useSettings";
 import React, { useCallback } from "react";
 import DangerZoneView from "./DangerZoneView";
@@ -8,10 +7,13 @@ import useMetadata from "git/hooks/useMetadata";
 import { useGitContext } from "../GitContextProvider";
 
 function DangerZone() {
-  const { artifact, artifactDef } = useGitContext();
+  const {
+    artifact,
+    artifactDef,
+    isConnectPermitted,
+    isManageAutocommitPermitted,
+  } = useGitContext();
   const { closeDisconnectModal, openDisconnectModal } = useDisconnect();
-  const { isConnectPermitted, isManageAutocommitPermitted } =
-    useGitPermissions();
   const {
     isAutocommitEnabled,
     isToggleAutocommitLoading,

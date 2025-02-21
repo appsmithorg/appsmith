@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";

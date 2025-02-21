@@ -25,7 +25,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import get from "lodash/get";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";

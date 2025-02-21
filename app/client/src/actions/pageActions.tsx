@@ -17,7 +17,7 @@ import type {
 } from "api/PageApi";
 import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import type { APP_MODE } from "entities/App";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import * as Sentry from "@sentry/react";

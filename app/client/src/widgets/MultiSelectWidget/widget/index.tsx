@@ -17,7 +17,7 @@ import { Layers } from "constants/Layers";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
 import type { DraftValueType } from "rc-select/lib/Select";

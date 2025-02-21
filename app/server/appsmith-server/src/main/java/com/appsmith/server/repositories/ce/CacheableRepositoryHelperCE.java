@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
 
@@ -15,15 +15,15 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Set<String>> getPermissionGroupsOfAnonymousUser();
 
-    Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
+    Mono<Void> evictPermissionGroupsUser(String email, String organizationId);
 
-    Mono<String> getDefaultTenantId();
+    Mono<String> getDefaultOrganizationId();
 
     Mono<String> getInstanceAdminPermissionGroupId();
 
-    Mono<Tenant> fetchDefaultTenant(String tenantId);
+    Mono<Organization> fetchDefaultOrganization(String organizationId);
 
-    Mono<Void> evictCachedTenant(String tenantId);
+    Mono<Void> evictCachedOrganization(String organizationId);
 
     /**
      * Retrieves the base application ID from the cache based on the provided base page ID.

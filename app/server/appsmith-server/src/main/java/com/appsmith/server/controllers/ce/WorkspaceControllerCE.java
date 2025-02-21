@@ -37,28 +37,26 @@ public class WorkspaceControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/{id}")
     public Mono<ResponseDTO<Workspace>> getById(@PathVariable String id) {
-        return service.getById(id).map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
+        return service.getById(id).map(workspace -> new ResponseDTO<>(HttpStatus.OK, workspace));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> create(@Valid @RequestBody Workspace resource) {
-        return service.create(resource).map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+        return service.create(resource).map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}")
     public Mono<ResponseDTO<Workspace>> update(@PathVariable String id, @RequestBody Workspace resource) {
-        return service.update(id, resource)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+        return service.update(id, resource).map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Workspace>> delete(@PathVariable String id) {
-        return service.archiveById(id)
-                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+        return service.archiveById(id).map(deletedResource -> new ResponseDTO<>(HttpStatus.OK, deletedResource));
     }
 
     /**
@@ -69,7 +67,7 @@ public class WorkspaceControllerCE {
     public Mono<ResponseDTO<List<PermissionGroupInfoDTO>>> getPermissionGroupsForWorkspace(
             @PathVariable String workspaceId) {
         return service.getPermissionGroupsForWorkspace(workspaceId)
-                .map(groupInfoList -> new ResponseDTO<>(HttpStatus.OK.value(), groupInfoList, null));
+                .map(groupInfoList -> new ResponseDTO<>(HttpStatus.OK, groupInfoList));
     }
 
     @JsonView(Views.Public.class)
@@ -77,7 +75,7 @@ public class WorkspaceControllerCE {
     public Mono<ResponseDTO<List<MemberInfoDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
         return userWorkspaceService
                 .getWorkspaceMembers(workspaceId)
-                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
+                .map(users -> new ResponseDTO<>(HttpStatus.OK, users));
     }
 
     @JsonView(Views.Public.class)
@@ -88,7 +86,7 @@ public class WorkspaceControllerCE {
             @RequestHeader(name = "Origin", required = false) String originHeader) {
         return userWorkspaceService
                 .updatePermissionGroupForMember(workspaceId, updatePermissionGroupDTO, originHeader)
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+                .map(user -> new ResponseDTO<>(HttpStatus.OK, user));
     }
 
     @JsonView(Views.Public.class)
@@ -96,14 +94,13 @@ public class WorkspaceControllerCE {
     public Mono<ResponseDTO<Workspace>> uploadLogo(
             @PathVariable String workspaceId, @RequestPart("file") Mono<Part> fileMono) {
         return fileMono.flatMap(filePart -> service.uploadLogo(workspaceId, filePart))
-                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+                .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
     }
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{workspaceId}/logo")
     public Mono<ResponseDTO<Workspace>> deleteLogo(@PathVariable String workspaceId) {
-        return service.deleteLogo(workspaceId)
-                .map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
+        return service.deleteLogo(workspaceId).map(workspace -> new ResponseDTO<>(HttpStatus.OK, workspace));
     }
 
     @JsonView(Views.Public.class)
@@ -112,6 +109,6 @@ public class WorkspaceControllerCE {
             @RequestHeader(name = "Host", required = false) String hostname) {
         return userWorkspaceService
                 .getUserWorkspacesByRecentlyUsedOrder(hostname)
-                .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));
+                .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
     }
 }

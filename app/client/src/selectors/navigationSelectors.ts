@@ -1,7 +1,10 @@
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
-import { ACTION_TYPE, JSACTION_TYPE } from "ee/entities/DataTree/types";
+import {
+  ACTION_TYPE,
+  JSACTION_TYPE,
+  ENTITY_TYPE,
+} from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
@@ -49,6 +52,7 @@ export interface NavigationData {
   widgetType?: string;
   value?: boolean | string;
 }
+
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getModulesData = createSelector(
