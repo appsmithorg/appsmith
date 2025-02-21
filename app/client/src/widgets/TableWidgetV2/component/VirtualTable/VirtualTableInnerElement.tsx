@@ -1,9 +1,8 @@
 import React from "react";
-import { useContext } from "react";
 import styled from "styled-components";
 import { MULTISELECT_CHECKBOX_WIDTH } from "../Constants";
-import { BodyContext } from "../TableBody";
-import TableColumnHeader from "./TableColumnHeader";
+import TableColumnHeader from "../header/TableColumnHeader";
+import { useAppsmithTable } from "../TableContext";
 
 const StyledTableBodyWrapper = styled.div<{
   multiRowSelection?: boolean;
@@ -22,13 +21,8 @@ const VirtualTableInnerElement = ({
   ...rest // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) => {
-  const {
-    getTableBodyProps,
-    multiRowSelection,
-    totalColumnsWidth,
-  } = // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    useContext(BodyContext) as any;
+  const { getTableBodyProps, multiRowSelection, totalColumnsWidth } =
+    useAppsmithTable();
 
   return (
     <>
