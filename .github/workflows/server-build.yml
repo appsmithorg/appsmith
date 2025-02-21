@@ -188,7 +188,8 @@ jobs:
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: |
-          ./build.sh -DskipTests
+          # Build the server jar using Maven with parallel threads (-T 6) and skip tests (-DskipTests)
+          ./build.sh -DskipTests -T 6
 
       # Test the code
       - name: Run only tests
@@ -216,8 +217,8 @@ jobs:
               args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
 
-          # Run tests and capture logs
-          mvn test "${args[@]}" | tee mvn_test.log
+          # Run tests in parallel with 6 threads and capture logs
+          mvn test -T 6 -DforkCount=6 -DreuseForks=true "${args[@]}" | tee mvn_test.log
 
           # Check for "BUILD FAILURE" in the mvn_test.log
           if grep -q "BUILD FAILURE" mvn_test.log; then
