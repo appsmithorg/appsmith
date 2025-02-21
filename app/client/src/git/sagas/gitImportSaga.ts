@@ -1,18 +1,11 @@
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import history from "utils/history";
-import { toast } from "@appsmith/ads";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import gitImportRequest from "git/requests/gitImportRequest";
 import type { GitImportResponse } from "git/requests/gitImportRequest.types";
 import type { GitImportInitPayload } from "git/store/actions/gitImportActions";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
-import { createMessage, IMPORT_APP_SUCCESSFUL } from "ee/constants/messages";
-import { builderURL } from "ee/RouteBuilder";
 import { getWorkspaceIdForImport } from "ee/selectors/applicationSelectors";
-import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { GitErrorCodes } from "git/constants/enums";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import handleApiErrors from "./helpers/handleApiErrors";
@@ -39,52 +32,10 @@ export default function* gitImportSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (response && isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
-      const currentWorkspace = allWorkspaces.filter(
-        (el: Workspace) => el.id === workspaceId,
+      yield put(
+        gitGlobalActions.gitImportSuccess({ responseData: response.data }),
       );
-
-      if (currentWorkspace.length > 0) {
-        const { application, isPartialImport, unConfiguredDatasourceList } =
-          response.data;
-
-        yield put(gitGlobalActions.gitImportSuccess());
-        yield put(gitGlobalActions.toggleImportModal({ open: false }));
-
-        // there is configuration-missing datasources
-        if (isPartialImport) {
-          yield put(
-            showReconnectDatasourceModal({
-              application: application,
-              unConfiguredDatasourceList: unConfiguredDatasourceList ?? [],
-              workspaceId,
-            }),
-          );
-        } else {
-          let basePageId = "";
-
-          if (application.pages && application.pages.length > 0) {
-            const defaultPage = application.pages.find(
-              (eachPage) => !!eachPage.isDefault,
-            );
-
-            basePageId = defaultPage ? defaultPage.baseId : "";
-          }
-
-          const branch =
-            response.data?.application?.gitApplicationMetadata?.branchName;
-
-          const pageURL = builderURL({
-            basePageId,
-            branch,
-          });
-
-          history.push(pageURL);
-          toast.show(createMessage(IMPORT_APP_SUCCESSFUL), {
-            kind: "success",
-          });
-        }
-      }
+      yield put(gitGlobalActions.toggleImportModal({ open: false }));
     }
   } catch (e) {
     const error = handleApiErrors(e as Error, response);

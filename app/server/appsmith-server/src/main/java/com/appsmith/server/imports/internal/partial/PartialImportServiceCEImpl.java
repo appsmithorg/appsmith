@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -98,7 +97,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final WidgetRefactorUtil widgetRefactorUtil;
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
-    private final ActionCollectionService actionCollectionService;
     private final ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson>
             applicationImportService;
     private final DatasourceService datasourceService;
@@ -107,11 +105,18 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DryOperationRepository dryOperationRepository;
 
     @Override
+    public Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file) {
+        return importService
+                .readFilePartToString(file)
+                .flatMap(fileContents -> importResourceInPage(workspaceId, applicationId, pageId, fileContents));
+    }
+
+    @Override
     public Mono<Application> importResourceInPage(
-            String workspaceId, String applicationId, String pageId, String branchName, Part file) {
+            String workspaceId, String applicationId, String pageId, String fileContents) {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         return importService
-                .extractArtifactExchangeJson(file)
+                .extractArtifactExchangeJson(fileContents)
                 .flatMap(artifactExchangeJson -> {
                     if (artifactExchangeJson instanceof ApplicationJson
                             && isImportableResource((ApplicationJson) artifactExchangeJson)) {

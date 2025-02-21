@@ -1,7 +1,6 @@
 package com.appsmith.server.imports.internal.partial;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -67,7 +66,6 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             WidgetRefactorUtil widgetRefactorUtil,
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
-            ActionCollectionService actionCollectionService,
             ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
             DatasourceService datasourceService,
             CustomJSLibService customJSLibService,
@@ -98,7 +96,6 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 widgetRefactorUtil,
                 applicationPageService,
                 newActionService,
-                actionCollectionService,
                 applicationImportService,
                 datasourceService,
                 customJSLibService,

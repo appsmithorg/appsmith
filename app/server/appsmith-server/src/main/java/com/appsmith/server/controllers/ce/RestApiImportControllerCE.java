@@ -50,6 +50,6 @@ public class RestApiImportControllerCE {
         }
 
         return service.importAction(input, contextType, contextId, name, workspaceId)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 }
