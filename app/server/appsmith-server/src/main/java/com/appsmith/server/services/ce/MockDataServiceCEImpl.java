@@ -15,7 +15,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
@@ -49,6 +48,10 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
 
     private Instant cacheExpiryTime = null;
 
+    private record MockDataResponseDTO(MockDataResponseMetaDTO responseMeta, MockDataDTO data) {}
+
+    private record MockDataResponseMetaDTO(Integer status, Boolean success) {}
+
     @Autowired
     public MockDataServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
@@ -74,22 +77,19 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
 
         return WebClientUtils.create(baseUrl + "/api/v1/mocks")
                 .get()
-                .exchange()
-                .flatMap(response -> {
-                    if (response.statusCode().is2xxSuccessful()) {
-                        return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {});
-                    } else {
-                        return Mono.error(new AppsmithException(
+                .retrieve()
+                .onRawStatus(
+                        status -> status < 200 || status >= 300,
+                        response -> Mono.error(new AppsmithException(
                                 AppsmithError.CLOUD_SERVICES_ERROR,
                                 "Unable to connect to cloud-services with error status {0}",
-                                response.statusCode()));
-                    }
-                })
-                .map(ResponseDTO::getData)
-                .map(config -> {
-                    mockData = config;
+                                response.statusCode())))
+                .bodyToMono(new ParameterizedTypeReference<MockDataResponseDTO>() {})
+                .map(MockDataResponseDTO::data)
+                .map(data -> {
+                    mockData = data;
                     cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
-                    return config;
+                    return data;
                 })
                 .doOnError(error -> log.error("Error fetching mock data sets config from cloud services", error));
     }
