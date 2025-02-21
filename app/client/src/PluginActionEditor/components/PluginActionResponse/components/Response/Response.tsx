@@ -32,6 +32,8 @@ import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 import * as Styled from "./styles";
 import { checkForPreparedStatement, parseActionResponse } from "./utils";
 import ActionExecutionInProgressView from "./components/ActionExecutionInProgressView";
+import { checkForPostRunAction } from "./utils/checkForPostRunAction";
+import PostActionRunContainer from "./components/PostActionRunContainer";
 
 interface ResponseProps {
   action: Action;
@@ -125,6 +127,8 @@ export function Response(props: ResponseProps) {
   const showPreparedStatementWarning = Boolean(
     checkForPreparedStatement(action) && errorMessage,
   );
+
+  const showPostRunAction = checkForPostRunAction(actionResponse);
 
   const actionSource: SourceEntity = useMemo(
     () => ({
@@ -267,6 +271,12 @@ export function Response(props: ResponseProps) {
               }
             />
           </Styled.Response>
+          {showPostRunAction && (
+            <PostActionRunContainer
+              action={action}
+              actionResponse={actionResponse}
+            />
+          )}
           <ContentTypeSelector
             contentTypeOptions={contentTypeOptions}
             currentContentType={currentContentType}
