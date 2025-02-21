@@ -40,24 +40,33 @@ export const selectQueryEntityOptions = (
 ): FunctionCallingEntityTypeOption[] => {
   const plugins = getPlugins(state);
 
-  return getActions(state)
-    .map(({ config }) => ({
-      id: config.id,
-      name: config.name,
-      pluginId: config.pluginId,
-    }))
-    .map((action) => {
-      const iconSrc = plugins.find(
-        (plugin) => plugin.id === action.pluginId,
-      )?.iconLocation;
+  return (
+    getActions(state)
+      // TODO: Remove filtering once AIChat is a separate entity
+      .filter(
+        (action) =>
+          action.config.pluginType !== "AI" &&
+          // @ts-expect-error No way to narrow down proper type
+          action.config.pluginName !== "Appsmith AI",
+      )
+      .map(({ config }) => ({
+        id: config.id,
+        name: config.name,
+        pluginId: config.pluginId,
+      }))
+      .map((action) => {
+        const iconSrc = plugins.find(
+          (plugin) => plugin.id === action.pluginId,
+        )?.iconLocation;
 
-      return {
-        value: action.id,
-        label: action.name,
-        optionGroupType: "Query",
-        iconSrc,
-      };
-    });
+        return {
+          value: action.id,
+          label: action.name,
+          optionGroupType: "Query",
+          iconSrc,
+        };
+      })
+  );
 };
 
 const selectJsFunctionEntityOptions = (
@@ -106,8 +115,7 @@ const selectSystemFunctionEntityOptions =
 
     return (
       objectKeys(systemFunctions)
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore assignRequest doesn't exist in CE repo but added in EE repo
+        // @ts-expect-error assignRequest doesn't exist in CE repo but added in EE repo
         .filter((name) => name !== "assignRequest")
         .map((name) => ({
           value: name,
