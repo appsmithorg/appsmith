@@ -1,6 +1,6 @@
 {
-  "name": "jsartisan-test",
-  "version": "1.0.4",
+  "name": "@appsmith/wds",
+  "version": "1.0.6",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
@@ -63,6 +63,7 @@
     "rollup-plugin-postcss": "^4.0.2"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
   }
 }

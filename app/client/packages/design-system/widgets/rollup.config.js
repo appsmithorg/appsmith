@@ -1,6 +1,7 @@
 import path from "path";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { defineConfig } from "rollup";
 
 import postcssNesting from "postcss-nesting";
 import postcssImport from "postcss-import";
@@ -23,7 +24,7 @@ const BUILD_DIR = path.resolve(__dirname, "build");
 
 const EXTERNALS = ["react", "react-dom"];
 
-export default {
+export default defineConfig({
   input: path.resolve(__dirname, "src/index.ts"),
   output: {
     file: path.resolve(BUILD_DIR, "bundle.js"),
@@ -35,6 +36,7 @@ export default {
       "react-dom": "ReactDOM",
     },
   },
+  external: EXTERNALS,
   plugins: [
     json(),
     replace({
@@ -88,4 +90,4 @@ export default {
       dedupe: EXTERNALS,
     }),
   ],
-};
+});

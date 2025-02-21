@@ -40,3 +40,5 @@ export * from "./components/MultiSelect";
 export * from "./utils";
 export * from "./hooks";
 export * from "./shared";
+
+export { useTheme, ThemeProvider } from "@appsmith/wds-theming";
