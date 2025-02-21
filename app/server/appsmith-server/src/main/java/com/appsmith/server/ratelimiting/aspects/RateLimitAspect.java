@@ -10,6 +10,7 @@ import com.appsmith.server.services.SessionUserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -35,7 +36,8 @@ public class RateLimitAspect {
             return isAllowedMono.flatMap(isAllowed -> {
                 if (!isAllowed) {
                     AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
-                    return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage(), null));
+                    return Mono.just(
+                            new ResponseDTO<>(HttpStatus.resolve(exception.getHttpStatus()), exception.getMessage()));
                 }
 
                 try {
