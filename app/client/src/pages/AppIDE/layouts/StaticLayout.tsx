@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import {
   useGitModEnabled,
@@ -16,6 +15,10 @@ import RightPane from "./routers/RightPane";
 import { ProtectedCallout } from "../components/ProtectedCallout";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import { Areas } from "./constants";
+import {
+  GridContainer,
+  LayoutContainer,
+} from "IDE/Components/LayoutComponents";
 
 function GitProtectedBranchCallout() {
   const isGitModEnabled = useGitModEnabled();
@@ -31,17 +34,6 @@ function GitProtectedBranchCallout() {
 
   return null;
 }
-
-const GridContainer = styled.div`
-  display: grid;
-  width: 100vw;
-  height: 100%;
-`;
-
-const LayoutContainer = styled.div<{ name: string }>`
-  position: relative;
-  grid-area: ${(props) => props.name};
-`;
 
 export const StaticLayout = React.memo(() => {
   const { areas, columns } = useGridLayoutTemplate();

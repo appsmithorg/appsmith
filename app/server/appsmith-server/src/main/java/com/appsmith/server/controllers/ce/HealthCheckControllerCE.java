@@ -22,6 +22,6 @@ public class HealthCheckControllerCE {
     @GetMapping
     public Mono<ResponseDTO<String>> getHealth() {
         log.debug("Checking server health ...");
-        return healthCheckService.getHealth().map(health -> new ResponseDTO<>(HttpStatus.OK.value(), health, null));
+        return healthCheckService.getHealth().map(health -> new ResponseDTO<>(HttpStatus.OK, health));
     }
 }

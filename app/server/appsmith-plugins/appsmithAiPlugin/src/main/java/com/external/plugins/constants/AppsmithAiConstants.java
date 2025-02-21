@@ -32,7 +32,7 @@ public class AppsmithAiConstants {
     public static final String ACTION_ID = "actionId";
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String INSTANCE_ID = "instanceId";
-    public static final String ORGANIZATION_ID = "organizationId";
+    public static final String ORGANIZATION_ID = "tenantId";
     public static final String SOURCE_DETAILS = "sourceDetail";
 
     public static final String PERIOD_DELIMITER = ".";
