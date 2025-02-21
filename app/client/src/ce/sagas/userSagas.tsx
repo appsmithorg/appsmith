@@ -181,7 +181,7 @@ function* waitForInitialization() {
 
   // FF is required to know if GAC is enabled for the user
   if (!isFFFetched) {
-    yield fork(fetchFeatureFlagsInit);
+    yield put(fetchFeatureFlagsInit());
     waits.push(take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS));
   }
 
