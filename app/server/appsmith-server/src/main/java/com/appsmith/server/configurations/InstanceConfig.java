@@ -64,8 +64,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 // TODO Update implementation to fetch license status for all the organizations once multi-tenancy is
                 //  introduced
                 .then(Mono.defer(instanceConfigHelper::isLicenseValid)
-                        // Ensure that the tenant feature flags are refreshed with the latest values after completing
-                        // the license verification process.
+                        // Ensure that the org feature flags are refreshed with the latest values after completing the
+                        // license verification process.
                         .flatMap(isValid -> instanceConfigHelper.updateCacheForOrganizationFeatureFlags()));
 
         try {

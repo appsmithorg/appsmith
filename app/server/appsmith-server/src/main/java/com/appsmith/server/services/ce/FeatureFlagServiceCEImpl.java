@@ -119,7 +119,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     /**
      * To get all features of the organization from Cloud Services and store them locally
-     * @return Mono updated tenant
+     * @return Mono updated org
      */
     @Override
     public Mono<Organization> getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations(

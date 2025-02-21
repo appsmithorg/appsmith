@@ -227,11 +227,11 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     }
 
     /**
-     * Method to trigger update for the cache of all tenant feature flags. This method is called during the startup of
+     * Method to trigger update for the organization feature flags. This method is called during the startup of
      * the application. It's required at the startup to ensure that the feature flags are up-to-date which will then be
      * consumed by {@link com.appsmith.server.aspect.FeatureFlaggedMethodInvokerAspect} in a non-reactive manner.
      * In case the user tries to fetch the feature flags before the cache is updated, the aspect will fallback to the
-     * earlier cached data.
+     * earlier cached data i.e. disabled state.
      * @return  Empty Mono
      */
     @Override

@@ -35,7 +35,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
-                .doOnError(error -> log.error("Error while fetching tenant feature flags", error))
+                .doOnError(error -> log.error("Error while fetching organization feature flags", error))
                 .then(organizationService.restartOrganization())
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
