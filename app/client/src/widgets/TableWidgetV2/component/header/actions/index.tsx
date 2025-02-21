@@ -200,7 +200,7 @@ function Actions(props: ActionsPropsType) {
             </TableHeaderContentWrapper>
           </PaginationWrapper>
         ) : props.serverSidePaginationEnabled ? (
-          // When server side pagination is enabled, n out of k Records is displayed with prev and next buttons
+          // When server side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
