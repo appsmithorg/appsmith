@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             ProjectProperties projectProperties,
             DeploymentProperties deploymentProperties,
             NetworkUtils networkUtils,
-            PermissionGroupService permissionGroupService) {
+            PermissionGroupService permissionGroupService,
+            OrganizationService organizationService) {
         super(
                 configService,
                 segmentConfig,
@@ -55,6 +57,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 projectProperties,
                 deploymentProperties,
                 networkUtils,
-                permissionGroupService);
+                permissionGroupService,
+                organizationService);
     }
 }
