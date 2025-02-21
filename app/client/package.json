@@ -348,7 +348,6 @@
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.0",
     "identity-obj-proxy": "^3.0.0",
-    "immer": "^9.0.6",
     "jest": "^29.6.1",
     "jest-canvas-mock": "^2.3.1",
     "jest-environment-jsdom": "^29.6.1",
