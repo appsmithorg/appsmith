@@ -142,7 +142,11 @@ class WDSMultiSelectWidget extends BaseWidget<
       <MultiSelect
         {...rest}
         contextualHelp={labelTooltip}
-        errorMessage={validation.errorMessage}
+        errorMessage={
+          validation.validationStatus === "invalid" && this.props.isDirty
+            ? validation.errorMessage
+            : undefined
+        }
         isInvalid={
           validation.validationStatus === "invalid" && this.props.isDirty
         }
