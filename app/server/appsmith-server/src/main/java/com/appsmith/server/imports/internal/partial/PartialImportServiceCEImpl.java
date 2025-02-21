@@ -106,9 +106,17 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
     @Override
     public Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file) {
+        return importService
+                .readFilePartToString(file)
+                .flatMap(fileContents -> importResourceInPage(workspaceId, applicationId, pageId, fileContents));
+    }
+
+    @Override
+    public Mono<Application> importResourceInPage(
+            String workspaceId, String applicationId, String pageId, String fileContents) {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         return importService
-                .extractArtifactExchangeJson(file)
+                .extractArtifactExchangeJson(fileContents)
                 .flatMap(artifactExchangeJson -> {
                     if (artifactExchangeJson instanceof ApplicationJson
                             && isImportableResource((ApplicationJson) artifactExchangeJson)) {
