@@ -1,6 +1,6 @@
 import React, { type Ref } from "react";
 import type { ReactElementType } from "react-window";
-import { FixedVirtualList } from "../TableBody/VirtualList";
+import { FixedVirtualList } from "../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../TableContext";
 import type SimpleBar from "simplebar-react";
 

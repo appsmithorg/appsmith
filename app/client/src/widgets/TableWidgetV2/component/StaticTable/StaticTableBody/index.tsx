@@ -1,6 +1,6 @@
-import { EmptyRows } from "../../TableBody/Row";
+import { EmptyRows } from "../../TableBodyCoreComponents/Row";
 
-import { Row } from "../../TableBody/Row";
+import { Row } from "../../TableBodyCoreComponents/Row";
 
 import React from "react";
 import { useAppsmithTable } from "../../TableContext";
