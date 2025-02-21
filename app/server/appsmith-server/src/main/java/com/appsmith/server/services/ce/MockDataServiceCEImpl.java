@@ -12,6 +12,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.CloudServicesResponseDTO;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
@@ -20,8 +21,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.util.WebClientUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
@@ -37,6 +38,7 @@ import java.util.Optional;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
+@RequiredArgsConstructor
 public class MockDataServiceCEImpl implements MockDataServiceCE {
 
     private final CloudServicesConfig cloudServicesConfig;
@@ -47,22 +49,6 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
     public MockDataDTO mockData = new MockDataDTO();
 
     private Instant cacheExpiryTime = null;
-
-    private record MockDataResponseDTO(MockDataResponseMetaDTO responseMeta, MockDataDTO data) {}
-
-    private record MockDataResponseMetaDTO(Integer status, Boolean success) {}
-
-    @Autowired
-    public MockDataServiceCEImpl(
-            CloudServicesConfig cloudServicesConfig,
-            DatasourceService datasourceService,
-            AnalyticsService analyticsService,
-            SessionUserService sessionUserService) {
-        this.cloudServicesConfig = cloudServicesConfig;
-        this.datasourceService = datasourceService;
-        this.analyticsService = analyticsService;
-        this.sessionUserService = sessionUserService;
-    }
 
     @Override
     public Mono<MockDataDTO> getMockDataSet() {
@@ -84,8 +70,8 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                                 AppsmithError.CLOUD_SERVICES_ERROR,
                                 "Unable to connect to cloud-services with error status {0}",
                                 response.statusCode())))
-                .bodyToMono(new ParameterizedTypeReference<MockDataResponseDTO>() {})
-                .map(MockDataResponseDTO::data)
+                .bodyToMono(new ParameterizedTypeReference<CloudServicesResponseDTO<MockDataDTO>>() {})
+                .map(CloudServicesResponseDTO::data)
                 .map(data -> {
                     mockData = data;
                     cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
