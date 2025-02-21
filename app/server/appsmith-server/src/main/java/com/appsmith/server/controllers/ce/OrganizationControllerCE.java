@@ -40,14 +40,13 @@ public class OrganizationControllerCE {
     @GetMapping("/current")
     public Mono<ResponseDTO<Organization>> getOrganizationConfig() {
         log.debug("Attempting to retrieve organization configuration ... ");
-        return service.getOrganizationConfiguration()
-                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+        return service.getOrganizationConfiguration().map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
     }
 
     @PutMapping("")
     public Mono<ResponseDTO<Organization>> updateOrganizationConfiguration(
             @RequestBody OrganizationConfiguration organizationConfiguration) {
         return service.updateDefaultOrganizationConfiguration(organizationConfiguration)
-                .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
+                .map(organization -> new ResponseDTO<>(HttpStatus.OK, organization));
     }
 }

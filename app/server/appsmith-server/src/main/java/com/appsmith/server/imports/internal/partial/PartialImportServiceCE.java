@@ -8,8 +8,10 @@ import reactor.core.publisher.Mono;
 
 public interface PartialImportServiceCE {
 
+    Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file);
+
     Mono<Application> importResourceInPage(
-            String workspaceId, String applicationId, String pageId, String branchName, Part file);
+            String workspaceId, String applicationId, String pageId, String fileContents);
 
     Mono<BuildingBlockResponseDTO> importBuildingBlock(BuildingBlockDTO buildingBlockDTO);
 }

@@ -33,6 +33,6 @@ public class SearchEntityControllerCE {
         log.debug("Going to search for entities with search string: {}", keyword);
         return searchEntitySolution
                 .searchEntity(entities, keyword, page, size, Boolean.TRUE)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 }
