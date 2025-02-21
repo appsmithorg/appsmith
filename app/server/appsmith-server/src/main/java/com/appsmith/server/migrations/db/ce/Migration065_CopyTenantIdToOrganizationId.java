@@ -57,7 +57,10 @@ public class Migration065_CopyTenantIdToOrganizationId {
     public void execute() {
         migrateTenantCollection();
         migrateMongoCollections();
-        migrateRedisData();
+
+        // Removing this for environments where the migration hasn't run yet since for k8 clusters with default
+        // configurations, the redis session migration is taking longer than startup probe (which is 2 minutes).
+        //        migrateRedisData();
     }
 
     private void migrateTenantCollection() {
