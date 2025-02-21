@@ -19,8 +19,8 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSMultiSelectWidgetProps } from "./types";
-import derivedPropertyFns from "./derived";
-import { parseDerivedProperties } from "widgets/WidgetUtils";
+// import derivedPropertyFns from "./derived";
+// import { parseDerivedProperties } from "widgets/WidgetUtils";
 import isArray from "lodash/isArray";
 import type { Selection } from "@react-types/shared";
 
@@ -66,14 +66,14 @@ class WDSMultiSelectWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
-    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+    // const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
 
     return {
-      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
-      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
-      selectedOptionValues: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValues}})()}}`,
-      selectedOptionLabels: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabels}})()}}`,
-      value: `{{this.selectedOptionValues}}`,
+      // options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
+      // isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      // selectedOptionValues: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValues}})()}}`,
+      // selectedOptionLabels: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabels}})()}}`,
+      // value: `{{this.selectedOptionValues}}`,
     };
   }
 
