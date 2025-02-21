@@ -661,8 +661,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
 
-        return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                .testDatasource(datasourceStorage.getDatasourceConfiguration()));
+        return featureFlagService
+                .getAllFeatureFlagsForUser()
+                .flatMap(featureFlagMap ->
+                        pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                .testDatasource(datasourceStorage.getDatasourceConfiguration(), featureFlagMap)));
     }
 
     /*
