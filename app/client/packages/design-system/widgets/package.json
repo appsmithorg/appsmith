@@ -1,6 +1,6 @@
 {
   "name": "jsartisan-test",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
