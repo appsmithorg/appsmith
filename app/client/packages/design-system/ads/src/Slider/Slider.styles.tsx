@@ -10,7 +10,7 @@ export const StyledSlider = styled.div<{
   align-items: center;
   touch-action: none;
   width: 100%;
-  padding: 0 calc(var(--ads-v2-spaces-5) / 2) calc(var(--ads-v2-spaces-5) / 2);
+  padding: 0 calc(var(--ads-v2-spaces-5) / 2) var(--ads-v2-spaces-4);
 
   ${({ disabled }) =>
     disabled &&
@@ -64,6 +64,7 @@ export const Rail = styled.div`
   width: calc(100% + var(--ads-v2-spaces-5));
   margin-inline-start: calc(var(--ads-v2-spaces-5) / 2 * -1);
   border-radius: var(--ads-v2-border-width-outline);
+
   ${StyledSlider}:hover:not([disabled]) & {
     background-color: var(--ads-v2-color-border-emphasis);
   }
