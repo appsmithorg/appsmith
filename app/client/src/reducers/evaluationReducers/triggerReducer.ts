@@ -7,7 +7,7 @@ import type {
   FormEvalOutput,
   FormEvaluationState,
 } from "./formEvaluationReducer";
-import produce from "immer";
+import { create } from "mutative";
 
 // // Type for the object that will store the eval output for the app
 export type TriggerValuesEvaluationState = Record<string, FormEvalOutput>;
@@ -66,7 +66,7 @@ const triggers = createReducer(initialState, {
     state: FormEvaluationState,
     action: ReduxAction<TriggerActionNextPagePayload>,
   ) =>
-    produce(state, (draftState) => {
+    create(state, (draftState) => {
       const { actionId, identifier, value: newValue } = action.payload;
 
       if (!draftState[actionId][identifier].fetchDynamicValues?.data) {
