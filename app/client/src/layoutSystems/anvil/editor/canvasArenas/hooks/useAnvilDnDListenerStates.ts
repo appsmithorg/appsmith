@@ -5,7 +5,7 @@ import {
   type DraggedWidget,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";

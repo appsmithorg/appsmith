@@ -17,7 +17,7 @@ import { isEmail } from "utils/formhelpers";
 import ReduxFormTextField from "components/utils/ReduxFormTextField";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import {

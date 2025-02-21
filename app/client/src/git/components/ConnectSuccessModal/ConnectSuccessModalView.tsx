@@ -8,6 +8,8 @@ import {
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
   GIT_CONNECT_SUCCESS_REPO_NAME,
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+  GIT_CONNECT_SUCCESS_GENERIC_MESSAGE,
+  GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA,
 } from "ee/constants/messages";
 import {
   Button,
@@ -25,7 +27,9 @@ import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import noop from "lodash/noop";
+import type { GitArtifactType } from "git/constants/enums";
 import { GitSettingsTab } from "git/constants/enums";
+import { singular } from "pluralize";
 
 const TitleText = styled(Text)`
   flex: 1;
@@ -53,67 +57,6 @@ function ConnectionSuccessTitle() {
   );
 }
 
-interface ConnectSuccessContentProps {
-  repoName: string | null;
-  defaultBranch: string | null;
-}
-
-function ConnectSuccessContent({
-  defaultBranch,
-  repoName,
-}: ConnectSuccessContentProps) {
-  return (
-    <>
-      <div className="flex gap-x-4 mb-6">
-        <div className="w-44">
-          <div className="flex items-center">
-            <Icon className="mr-1" name="git-repository" size="md" />
-            <Text isBold renderAs="p">
-              {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
-            </Text>
-          </div>
-          <Text renderAs="p">{repoName || "-"}</Text>
-        </div>
-        <div className="w-44">
-          <div className="flex items-center">
-            <Icon className="mr-1" name="git-branch" size="md" />
-            <Text isBold renderAs="p">
-              {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
-            </Text>
-            <Tooltip
-              content={createMessage(
-                GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
-              )}
-              trigger="hover"
-            >
-              <Icon
-                className="inline-fix ml-1 cursor-pointer"
-                name="info"
-                size="md"
-              />
-            </Tooltip>
-          </div>
-          <Text renderAs="p">{defaultBranch || "-"}</Text>
-        </div>
-      </div>
-      <div className="mb-1">
-        <Text renderAs="p">
-          {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_MSG)}
-        </Text>
-      </div>
-      <LinkText className="inline-block" isBold renderAs="p">
-        <Link
-          data-testid="t--git-success-modal-learn-more-link"
-          target="_blank"
-          to={DOCS_BRANCH_PROTECTION_URL}
-        >
-          {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA)}
-        </Link>
-      </LinkText>
-    </>
-  );
-}
-
 const StyledModalContent = styled(ModalContent)`
   &&& {
     width: 640px;
@@ -125,8 +68,10 @@ const StyledModalContent = styled(ModalContent)`
 `;
 
 export interface ConnectSuccessModalViewProps {
+  artifactType: GitArtifactType | null;
   defaultBranch: string | null;
   isConnectSuccessModalOpen: boolean;
+  showProtectedBranchesInfo: boolean;
   remoteUrl: string | null;
   repoName: string | null;
   toggleConnectSuccessModal: (open: boolean) => void;
@@ -137,10 +82,12 @@ export interface ConnectSuccessModalViewProps {
 }
 
 function ConnectSuccessModalView({
+  artifactType = null,
   defaultBranch = null,
   isConnectSuccessModalOpen = false,
   remoteUrl = null,
   repoName = null,
+  showProtectedBranchesInfo = false,
   toggleConnectSuccessModal = noop,
   toggleSettingsModal = noop,
 }: ConnectSuccessModalViewProps) {
@@ -167,26 +114,99 @@ function ConnectSuccessModalView({
       <StyledModalContent data-testid="t--git-con-success-modal">
         <ModalBody>
           <ConnectionSuccessTitle />
-          <ConnectSuccessContent
-            defaultBranch={defaultBranch}
-            repoName={repoName}
-          />
+          <div className="flex gap-x-4 mb-6">
+            <div className="w-44">
+              <div className="flex items-center">
+                <Icon className="mr-1" name="git-repository" size="md" />
+                <Text isBold renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
+                </Text>
+              </div>
+              <Text renderAs="p">{repoName || "-"}</Text>
+            </div>
+            <div className="w-44">
+              <div className="flex items-center">
+                <Icon className="mr-1" name="git-branch" size="md" />
+                <Text isBold renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
+                </Text>
+                <Tooltip
+                  content={createMessage(
+                    GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+                  )}
+                  trigger="hover"
+                >
+                  <Icon
+                    className="inline-fix ml-1 cursor-pointer"
+                    name="info"
+                    size="md"
+                  />
+                </Tooltip>
+              </div>
+              <Text renderAs="p">{defaultBranch || "-"}</Text>
+            </div>
+          </div>
+          {showProtectedBranchesInfo ? (
+            <>
+              <div className="mb-1">
+                <Text renderAs="p">
+                  {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_MSG)}
+                </Text>
+              </div>
+              <LinkText className="inline-block" isBold renderAs="p">
+                <Link
+                  data-testid="t--git-success-modal-learn-more-link"
+                  target="_blank"
+                  to={DOCS_BRANCH_PROTECTION_URL}
+                >
+                  {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA)}
+                </Link>
+              </LinkText>
+            </>
+          ) : (
+            <>
+              <div className="mb-1">
+                <Text renderAs="p">
+                  {createMessage(
+                    GIT_CONNECT_SUCCESS_GENERIC_MESSAGE,
+                    singular(artifactType ?? ""),
+                  )}
+                </Text>
+              </div>
+              <LinkText className="inline-block" isBold renderAs="p">
+                <Link
+                  data-testid="t--git-success-modal-learn-more-link"
+                  target="_blank"
+                  to={
+                    "https://docs.appsmith.com/advanced-concepts/version-control-with-git"
+                  }
+                >
+                  {createMessage(GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA)}
+                </Link>
+              </LinkText>
+            </>
+          )}
         </ModalBody>
         <ModalFooter>
-          <Button
-            data-testid="t--git-con-success-open-settings"
-            kind="secondary"
-            onClick={handleOpenSettings}
-            size="md"
-          >
-            {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
-          </Button>
+          {showProtectedBranchesInfo ? (
+            <Button
+              data-testid="t--git-con-success-open-settings"
+              kind="secondary"
+              onClick={handleOpenSettings}
+              size="md"
+            >
+              {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
+            </Button>
+          ) : null}
           <Button
             data-testid="t--git-con-success-start-using"
             onClick={handleStartGit}
             size="md"
           >
-            {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE)}
+            {createMessage(
+              GIT_CONNECT_SUCCESS_ACTION_CONTINUE,
+              singular(artifactType ?? ""),
+            )}
           </Button>
         </ModalFooter>
       </StyledModalContent>

@@ -6,7 +6,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { mockCanvasProps } from "mocks/widgetProps/canvas";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { moveWidgets, updateWidgetRelationships } from "./moveUtils";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import {

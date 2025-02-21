@@ -4,7 +4,7 @@ import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AppLayoutConfig,
   PageListReduxState,
@@ -897,9 +897,7 @@ export const getJSCollectionDataById = createSelector(
 export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (state: AppState, baseCollectionId: any) => baseCollectionId,
+    (state: AppState, baseCollectionId: string) => baseCollectionId,
   ],
   (jsActions, baseCollectionId) => {
     const action = jsActions.find(

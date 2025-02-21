@@ -163,7 +163,7 @@ function ConnectionSuccessActions() {
         onClick={handleStartGit}
         size="md"
       >
-        {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE)}
+        {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE, "application")}
       </Button>
     </>
   );

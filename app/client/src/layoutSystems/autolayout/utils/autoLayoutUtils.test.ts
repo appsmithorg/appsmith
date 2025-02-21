@@ -2,7 +2,7 @@ import type { AlignmentColumnData } from "../../autolayout/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   getAlignmentMarginInfo,
   getCanvasDimensions,

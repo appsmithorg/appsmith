@@ -5,7 +5,7 @@ import type {
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 /**

@@ -52,7 +52,7 @@ import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
@@ -71,7 +71,7 @@ export const loadingIndicator = <PageLoadingBar />;
 
 export function Routes() {
   const user = useSelector(getCurrentUserSelector);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useFeatureFlagOverride();
@@ -102,7 +102,7 @@ export function Routes() {
             : getAdminSettingsPath(
                 isFeatureEnabled,
                 user?.isSuperUser || false,
-                tenantPermissions,
+                organizationPermissions,
               )
         }
       />
@@ -161,7 +161,7 @@ export default function AppRouter() {
 
   const isLoading = isConsolidatedPageLoading;
 
-  // hide the top loader once the tenant is loaded
+  // hide the top loader once the organization is loaded
   useEffect(() => {
     if (!isLoading) {
       const loader = document.getElementById("loader") as HTMLDivElement;

@@ -36,7 +36,7 @@ import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { getJSActionPathNameToDisplay } from "ee/utils/actionExecutionUtils";

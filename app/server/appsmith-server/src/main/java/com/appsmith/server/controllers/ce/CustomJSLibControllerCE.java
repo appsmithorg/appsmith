@@ -47,7 +47,7 @@ public class CustomJSLibControllerCE {
                 branchedApplicationId);
         return customJSLibService
                 .addJSLibsToContext(branchedApplicationId, contextType, Set.of(customJSLib), isForceInstall)
-                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK, actionCollection));
     }
 
     @JsonView(Views.Public.class)
@@ -64,7 +64,7 @@ public class CustomJSLibControllerCE {
                 branchedApplicationId);
         return customJSLibService
                 .removeJSLibFromContext(branchedApplicationId, contextType, customJSLib, isForceRemove)
-                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK, actionCollection));
     }
 
     @JsonView(Views.Public.class)
@@ -78,7 +78,7 @@ public class CustomJSLibControllerCE {
                 branchedContextId);
         return customJSLibService
                 .getAllJSLibsInContext(branchedContextId, contextType, false)
-                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK, actionCollection));
     }
 
     @JsonView(Views.Public.class)
@@ -94,6 +94,6 @@ public class CustomJSLibControllerCE {
                 branchName);
         return customJSLibService
                 .getAllJSLibsInContext(branchedContextId, contextType, true)
-                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK, actionCollection));
     }
 }
