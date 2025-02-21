@@ -59,6 +59,8 @@ describe(
       dataSources.RunQuery();
       dataSources.RunQuery();
       dataSources.RunQuery();
+      dataSources.RunQuery();
+      dataSources.RunQuery();
       PageLeftPane.switchSegment(PagePaneSegment.UI); // Switching the tab to ensure connection reset from Hubspot platform gets refreshed
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       cy.get("@postExecute").then((resObj: any) => {
