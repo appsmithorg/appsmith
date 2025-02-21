@@ -70,7 +70,7 @@ class PageList {
         .parent()
         .attr("data-state");
       if (isActive === "closed") {
-        cy.get(this.locators.switcher).click();
+        cy.get(this.locators.switcher).click({ force: true });
       }
     });
   }
