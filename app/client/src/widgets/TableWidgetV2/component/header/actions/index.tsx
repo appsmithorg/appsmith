@@ -189,6 +189,7 @@ function Actions(props: ActionsPropsType) {
         )}
       {!!props.columns.length && props.isVisiblePagination ? (
         props.isInfiniteScrollEnabled ? (
+          // When infinite scroll is enabled, n Records or n out of k Records is displayed
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
               {props.tableData.length}{" "}
@@ -199,6 +200,7 @@ function Actions(props: ActionsPropsType) {
             </TableHeaderContentWrapper>
           </PaginationWrapper>
         ) : props.serverSidePaginationEnabled ? (
+          // When server side pagination is enabled, n out of k Records is displayed with prev and next buttons
           <PaginationWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
@@ -266,6 +268,7 @@ function Actions(props: ActionsPropsType) {
             </PaginationItemWrapper>
           </PaginationWrapper>
         ) : (
+          // When client side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
               {props.tableData?.length} Records
