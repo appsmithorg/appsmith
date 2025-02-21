@@ -26,6 +26,7 @@ module.exports = {
     "@tag.GSheet",
     "@tag.GenerateCRUD",
     "@tag.Git",
+    "@tag.Hubspot",
     "@tag.IDE",
     "@tag.IconButton",
     "@tag.Iframe",
