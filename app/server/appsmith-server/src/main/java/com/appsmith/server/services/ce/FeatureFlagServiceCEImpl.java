@@ -159,7 +159,16 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
-        return sessionUserService.getCurrentUser().map(User::getOrganizationId).flatMap(this::getOrganizationFeatures);
+        return sessionUserService
+                .getCurrentUser()
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error(
+                            "No user found while fetching organization features, if the method is called without user "
+                                    + "context please use getOrganizationFeatures(String organizationId)");
+                    return Mono.empty();
+                }))
+                .map(User::getOrganizationId)
+                .flatMap(this::getOrganizationFeatures);
     }
 
     @Override
