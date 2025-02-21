@@ -26,12 +26,12 @@ public class ConfigControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/name/{name}")
     public Mono<ResponseDTO<Config>> getByName(@PathVariable String name) {
-        return service.getByName(name).map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+        return service.getByName(name).map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/name/{name}")
     public Mono<ResponseDTO<Config>> updateByName(@PathVariable String name, @RequestBody Config config) {
-        return service.updateByName(config).map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+        return service.updateByName(config).map(resource -> new ResponseDTO<>(HttpStatus.OK, resource));
     }
 }

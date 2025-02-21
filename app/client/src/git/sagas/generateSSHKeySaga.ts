@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import { GitErrorCodes } from "git/constants/enums";
 import generateSSHKeyRequest from "git/requests/generateSSHKeyRequest";
 import type {
@@ -8,10 +7,11 @@ import type {
 import type { GenerateSSHKeyInitPayload } from "git/store/actions/generateSSHKeyActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
+import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export function* generateSSHKeySaga(
   action: GitArtifactPayloadAction<GenerateSSHKeyInitPayload>,
@@ -24,10 +24,16 @@ export function* generateSSHKeySaga(
       keyType: action.payload.keyType,
     };
 
+    const isGitApiContractsEnabled: boolean = yield select(
+      selectGitApiContractsEnabled,
+    );
+
     response = yield call(
       generateSSHKeyRequest,
+      artifactDef.artifactType,
       artifactDef.baseArtifactId,
       params,
+      isGitApiContractsEnabled,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -40,21 +46,14 @@ export function* generateSSHKeySaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
-      if (GitErrorCodes.REPO_LIMIT_REACHED === error.code) {
-        yield put(
-          gitGlobalActions.toggleRepoLimitErrorModal({
-            open: true,
-          }),
-        );
-      }
-
+    if (error) {
       yield put(gitArtifactActions.generateSSHKeyError({ artifactDef, error }));
-    } else {
-      log.error(e);
-      captureException(e);
+
+      if (error.code == GitErrorCodes.REPO_LIMIT_REACHED) {
+        yield put(gitGlobalActions.toggleRepoLimitErrorModal({ open: true }));
+      }
     }
   }
 }

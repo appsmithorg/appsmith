@@ -8,7 +8,7 @@ import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/aut
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";

@@ -186,6 +186,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
+     * This function is being called as a hook after saving a datasource.
+     */
+    default Mono<DatasourceStorage> postSaveHook(DatasourceStorage datasourceStorage) {
+        return Mono.just(datasourceStorage);
+    }
+
+    /**
      * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation
      * easier for the user.
      *
@@ -248,12 +255,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     // TODO: Following methods of executeParameterizedWithFlags, executeParameterizedWithMetricsAndFlags,
-    // triggerWithFlags are
-    // added
-    // to support feature flags in the plugin modules. Current implementation of featureFlagService is only available in
-    // server module
-    // and not available in any of the plugin modules due to dependencies on SessionUserService, TenantService etc.
-    // Hence, these methods are added to support feature flags in the plugin modules.
+    // triggerWithFlags are added to support feature flags in the plugin modules. Current implementation of
+    // featureFlagService is only available in server module and not available in any of the plugin modules due to
+    // dependencies on SessionUserService, OrganizationService etc. Hence, these methods are added to support feature
+    // flags in the plugin modules.
     // Ideal solution would be to move featureFlagService and its dependencies to the shared interface module
     // But this is a bigger change and will be done in future. Current change of passing flags was done to resolve
     // release blocker

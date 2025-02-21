@@ -18,7 +18,7 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { evaluateSync, setEvalContext } from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { validateAndParseWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
