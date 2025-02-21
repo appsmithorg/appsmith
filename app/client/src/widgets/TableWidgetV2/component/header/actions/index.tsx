@@ -127,6 +127,7 @@ export interface ActionsPropsType {
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
+  isInfiniteScrollEnabled: boolean;
 }
 
 function Actions(props: ActionsPropsType) {
@@ -186,10 +187,20 @@ function Actions(props: ActionsPropsType) {
             )}
           </CommonFunctionsMenuWrapper>
         )}
-
-      {!!props.columns.length &&
-        props.isVisiblePagination &&
-        props.serverSidePaginationEnabled && (
+      {!!props.columns.length && props.isVisiblePagination ? (
+        props.isInfiniteScrollEnabled ? (
+          // When infinite scroll is enabled, n Records or n out of k Records is displayed
+          <PaginationWrapper>
+            <TableHeaderContentWrapper className="show-page-items">
+              {props.tableData.length}{" "}
+              {props.totalRecordsCount
+                ? `out of ${props.totalRecordsCount}`
+                : ""}{" "}
+              Records
+            </TableHeaderContentWrapper>
+          </PaginationWrapper>
+        ) : props.serverSidePaginationEnabled ? (
+          // When server side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
@@ -256,10 +267,8 @@ function Actions(props: ActionsPropsType) {
               />
             </PaginationItemWrapper>
           </PaginationWrapper>
-        )}
-      {!!props.columns.length &&
-        props.isVisiblePagination &&
-        !props.serverSidePaginationEnabled && (
+        ) : (
+          // When client side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
               {props.tableData?.length} Records
@@ -309,7 +318,8 @@ function Actions(props: ActionsPropsType) {
               <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
             </PaginationItemWrapper>
           </PaginationWrapper>
-        )}
+        )
+      ) : null}
     </>
   );
 }

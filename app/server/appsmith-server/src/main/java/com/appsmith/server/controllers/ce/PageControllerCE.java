@@ -52,7 +52,7 @@ public class PageControllerCE {
         log.debug("Going to create page {}", page.name());
         return applicationPageService
                 .createPage(page.toPageDTO())
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @JsonView(Views.Public.class)
@@ -64,7 +64,7 @@ public class PageControllerCE {
         log.debug("Going to create crud-page in application {}", resource.getApplicationId());
         return createDBTablePageSolution
                 .createPageFromDBTable(null, resource, environmentId, null, Boolean.TRUE)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @JsonView(Views.Public.class)
@@ -77,7 +77,7 @@ public class PageControllerCE {
         log.debug("Going to create CRUD page {}", branchedPageId);
         return createDBTablePageSolution
                 .createPageFromDBTable(branchedPageId, resource, environmentId, null, Boolean.TRUE)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED, created));
     }
 
     @Deprecated
@@ -87,7 +87,7 @@ public class PageControllerCE {
             @PathVariable String branchedApplicationId) {
         return newPageService
                 .findApplicationPagesByBranchedApplicationIdAndViewMode(branchedApplicationId, false, true)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -97,7 +97,7 @@ public class PageControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService
                 .findApplicationPagesByBranchedApplicationIdAndViewMode(branchedApplicationId, true, true)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -107,7 +107,7 @@ public class PageControllerCE {
             @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
                 .getPageAndMigrateDslByBranchedPageId(branchedPageId, false, migrateDsl)
-                .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+                .map(page -> new ResponseDTO<>(HttpStatus.OK, page));
     }
 
     @JsonView(Views.Public.class)
@@ -117,7 +117,7 @@ public class PageControllerCE {
             @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
                 .getPageAndMigrateDslByBranchedPageId(branchedPageId, true, migrateDsl)
-                .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+                .map(page -> new ResponseDTO<>(HttpStatus.OK, page));
     }
 
     /**
@@ -135,7 +135,7 @@ public class PageControllerCE {
         log.debug("Going to delete page with id: {}", branchedPageId);
         return applicationPageService
                 .deleteUnpublishedPage(branchedPageId)
-                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK, deletedResource));
     }
 
     @JsonView(Views.Public.class)
@@ -143,7 +143,7 @@ public class PageControllerCE {
     public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String branchedPageId) {
         return applicationPageService
                 .clonePage(branchedPageId)
-                .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
+                .map(page -> new ResponseDTO<>(HttpStatus.CREATED, page));
     }
 
     @JsonView(Views.Public.class)
@@ -153,7 +153,7 @@ public class PageControllerCE {
         log.debug("Going to update page with id: {}", branchedPageId);
         return newPageService
                 .updatePage(branchedPageId, resource.toPageDTO())
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
     /**
@@ -180,7 +180,7 @@ public class PageControllerCE {
                 mode);
         return newPageService
                 .findApplicationPages(branchedApplicationId, branchedPageId, mode)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK, resources));
     }
 
     @JsonView(Views.Public.class)
@@ -191,6 +191,6 @@ public class PageControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService
                 .updateDependencyMap(defaultPageId, dependencyMap, RefType.branch, branchName)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 }

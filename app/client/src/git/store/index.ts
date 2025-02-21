@@ -17,3 +17,4 @@ export const gitDiscardSuccess = gitArtifactActions.discardSuccess;
 export const gitCheckoutBranchSuccess =
   gitArtifactActions.checkoutBranchSuccess;
 export const gitPullSuccess = gitArtifactActions.pullSuccess;
+export const gitImportSuccess = gitGlobalActions.gitImportSuccess;

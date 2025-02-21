@@ -1,5 +1,5 @@
 import { fetchApplication } from "ee/actions/applicationActions";
-import { setAppMode } from "actions/pageActions";
+import { setAppMode, updateAppStore } from "actions/pageActions";
 import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
@@ -19,6 +19,8 @@ import { updateBranchLocally } from "actions/gitSyncActions";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
+import { getPersistentAppStore } from "constants/AppConstants";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -85,7 +87,7 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ) {
     const loadAppDataSpan = startNestedSpan("AppEngine.loadAppData", rootSpan);
-    const { applicationId, basePageId } = payload;
+    const { applicationId, basePageId, branch } = payload;
     const { pages } = allResponses;
     const page = pages.data?.pages?.find((page) => page.baseId === basePageId);
     const apiCalls: boolean = yield failFastApiCalls(
@@ -112,6 +114,15 @@ export default abstract class AppEngine {
     }
 
     const application: ApplicationPayload = yield select(getCurrentApplication);
+    const currentBranch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
+
+    yield put(
+      updateAppStore(
+        getPersistentAppStore(application.id, branch || currentBranch),
+      ),
+    );
 
     const defaultPageId: string = yield select(getDefaultPageId);
     const defaultPageBaseId: string = yield select(getDefaultBasePageId);
