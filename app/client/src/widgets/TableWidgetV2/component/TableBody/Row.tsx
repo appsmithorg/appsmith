@@ -1,11 +1,11 @@
 import type { CSSProperties, Key } from "react";
-import React, { useContext } from "react";
+import React from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { BodyContext } from ".";
 import { RenderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
+import { useAppsmithTable } from "../TableContext";
 
 interface RowType {
   className?: string;
@@ -26,7 +26,7 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
-  } = useContext(BodyContext);
+  } = useAppsmithTable();
 
   prepareRow?.(props.row);
   const rowProps = {
