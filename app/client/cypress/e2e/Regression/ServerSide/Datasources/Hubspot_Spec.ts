@@ -71,7 +71,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
       propPane.EnterJSContext("Text", "{{Api1.data}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
-
+      agHelper.RefreshPage(); // Refreshing the page due to frequent connection reset from Hubspot
       // Assert that the text widget contains the expected data
       cy.get(locators._widgetInDeployed(draggableWidgets.TEXT)).should(
         "contain.text",
