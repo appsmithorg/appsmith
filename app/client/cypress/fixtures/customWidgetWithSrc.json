@@ -1,0 +1,149 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 730,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 91,
+    "minHeight": 1292,
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "mobileBottomRow": 42,
+        "widgetName": "Custom1",
+        "borderColor": "#E0DEDE",
+        "srcDoc": {
+          "html": " <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/antd/5.11.1/antd.min.css\" />\n <div id=\"root\"></div>",
+          "css": ".table-container {\n  padding: 20px;\n  background-color: #f9f9f9;\n  border-radius: 8px;\n  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n\n.table {\n  width: 100%;\n  border-collapse: collapse;\n}\n\n.table th, .table td {\n  padding: 12px;\n  border-bottom: 1px solid #ddd;\n  text-align: left;\n}\n\n.table th {\n  background-color: #f1f1f1;\n  font-weight: bold;\n}\n\n.table tr:hover {\n  background-color: #f5f5f5;\n}",
+          "js": "import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\nimport ReactDOM from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';\nfunction TableWidget() {\n  // Mock data for the table\n  const [data, setData] = React.useState(appsmith.model.data || [{\n    name: 'John Doe',\n    age: 28,\n    occupation: 'Engineer'\n  }, {\n    name: 'Jane Smith',\n    age: 34,\n    occupation: 'Designer'\n  }, {\n    name: 'Sam Green',\n    age: 45,\n    occupation: 'Manager'\n  }]);\n  React.useEffect(() => {\n    appsmith.onModelChange((model, prevModel) => {\n      if (JSON.stringify(model.data) !== JSON.stringify(prevModel?.data)) {\n        setData(model.data);\n      }\n    });\n  }, []);\n  return /*#__PURE__*/React.createElement(\"div\", {\n    className: \"table-container\"\n  }, /*#__PURE__*/React.createElement(\"table\", {\n    className: \"table\"\n  }, /*#__PURE__*/React.createElement(\"thead\", null, /*#__PURE__*/React.createElement(\"tr\", null, /*#__PURE__*/React.createElement(\"th\", null, \"Name\"), /*#__PURE__*/React.createElement(\"th\", null, \"Age\"), /*#__PURE__*/React.createElement(\"th\", null, \"Occupation\"))), /*#__PURE__*/React.createElement(\"tbody\", null, data.map((row, index) => /*#__PURE__*/React.createElement(\"tr\", {\n    key: index\n  }, /*#__PURE__*/React.createElement(\"td\", null, row.name), /*#__PURE__*/React.createElement(\"td\", null, row.age), /*#__PURE__*/React.createElement(\"td\", null, row.occupation))))));\n}\nappsmith.onReady(() => {\n  ReactDOM.render( /*#__PURE__*/React.createElement(TableWidget, null), document.getElementById(\"root\"));\n});"
+        },
+        "isCanvas": false,
+        "topRow": 10,
+        "bottomRow": 40,
+        "parentRowSpace": 10,
+        "type": "CUSTOM_WIDGET",
+        "mobileRightColumn": 31,
+        "dynamicTriggerPathList": [
+          {
+            "key": "onResetClick"
+          }
+        ],
+        "parentColumnSpace": 7.890625,
+        "dynamicBindingPathList": [
+          {
+            "key": "theme"
+          },
+          {
+            "key": "borderRadius"
+          },
+          {
+            "key": "boxShadow"
+          }
+        ],
+        "leftColumn": 8,
+        "defaultModel": "{\n  \"tips\": [\n    \"Pass data to this widget in the default model field\",\n    \"Access data in the javascript file using the appsmith.model variable\",\n    \"Create events in the widget and trigger them in the javascript file using appsmith.triggerEvent('eventName')\",\n    \"Access data in CSS as var(--appsmith-model-{property-name})\"\n  ]\n}",
+        "borderWidth": "1",
+        "theme": "{{appsmith.theme}}",
+        "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+        "events": ["onResetClick"],
+        "key": "podxgd85w9",
+        "backgroundColor": "#FFFFFF",
+        "rightColumn": 56,
+        "dynamicHeight": "FIXED",
+        "isSearchWildcard": true,
+        "widgetId": "zkhwsvct6f",
+        "isVisible": true,
+        "version": 1,
+        "uncompiledSrcDoc": {
+          "html": " <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/antd/5.11.1/antd.min.css\" />\n <div id=\"root\"></div>",
+          "css": ".table-container {\n     padding: 20px;\n     background-color: #f9f9f9;\n     border-radius: 8px;\n     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n }\n .table {\n     width: 100%;\n     border-collapse: collapse;\n }\n .table th, .table td {\n     padding: 12px;\n     border-bottom: 1px solid #ddd;\n     text-align: left;\n }\n .table th {\n     background-color: #f1f1f1;\n     font-weight: bold;\n }\n .table tr:hover {\n     background-color: #f5f5f5;\n }",
+          "js": " import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\n import ReactDOM from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';\n function TableWidget() {\n     // Mock data for the table\n     const [data, setData] = React.useState(appsmith.model.data || [\n         { name: 'John Doe', age: 28, occupation: 'Engineer' },\n         { name: 'Jane Smith', age: 34, occupation: 'Designer' },\n         { name: 'Sam Green', age: 45, occupation: 'Manager' }\n     ]);\n     React.useEffect(() => {\n         appsmith.onModelChange((model, prevModel) => {\n             if (JSON.stringify(model.data) !== JSON.stringify(prevModel?.data)) {\n                 setData(model.data);\n             }\n         });\n     }, []);\n     return (\n         <div className=\"table-container\">\n             <table className=\"table\">\n                 <thead>\n                     <tr>\n                         <th>Name</th>\n                         <th>Age</th>\n                         <th>Occupation</th>\n                     </tr>\n                 </thead>\n                 <tbody>\n                     {data.map((row, index) => (\n                         <tr key={index}>\n                             <td>{row.name}</td>\n                             <td>{row.age}</td>\n                             <td>{row.occupation}</td>\n                         </tr>\n                     ))}\n                 </tbody>\n             </table>\n         </div>\n     );\n }\n appsmith.onReady(() => {\n     ReactDOM.render(<TableWidget />, document.getElementById(\"root\"));\n });"
+        },
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 12,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "mobileLeftColumn": 8,
+        "maxDynamicHeight": 9000,
+        "minDynamicHeight": 4
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "mobileBottomRow": 75,
+        "widgetName": "Custom2",
+        "borderColor": "#E0DEDE",
+        "srcDoc": {
+          "html": "<!-- no need to write html, head, body tags, it is handled by the widget -->\n<div id=\"root\"></div>\n",
+          "css": ".app {\n\twidth: calc(var(--appsmith-ui-width) * 1px);\n\tjustify-content: center;\n\tborder-radius: 0px;\n\tborder: none;\n}\n\n.tip-container {\n  margin-bottom: 20px;\n}\n\n.tip-container h2 {\n  margin-bottom: 20px;\n\tfont-size: 16px;\n\tfont-weight: 700;\n}\n\n.tip-header {\n\tdisplay: flex;\n\tjustify-content: space-between;\n\talign-items: baseline;\n}\n\n.tip-header div {\n\tcolor: #999;\n}\n\n.button-container {\n\ttext-align: right;\t\n}\n\n.button-container button {\n  margin: 0 10px;\n\tborder-radius: var(--appsmith-theme-borderRadius) !important;\n}\n\n.button-container button.primary {\n\tbackground: var(--appsmith-theme-primaryColor) !important;\n}\n\n.button-container button.reset:not([disabled]) {\n\tcolor: var(--appsmith-theme-primaryColor) !important;\n\tborder-color: var(--appsmith-theme-primaryColor) !important;\n}",
+          "js": "import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';\nimport reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';\nimport { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm';\nimport Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm';\n\nfunction App() {\n  const [currentIndex, setCurrentIndex] = React.useState(0);\n  const handleNext = () => {\n    setCurrentIndex(prevIndex => (prevIndex + 1) % appsmith.model.tips.length);\n  };\n  const handleReset = () => {\n    setCurrentIndex(0);\n    appsmith.triggerEvent(\"onResetClick\");\n  };\n  return /*#__PURE__*/React.createElement(Card, {\n    className: \"app\",\n  }, /*#__PURE__*/React.createElement(\"div\", {\n    className: \"tip-container\"\n  }, /*#__PURE__*/React.createElement(\"div\", {\n    className: \"tip-header\"\n  }, /*#__PURE__*/React.createElement(\"h2\", null, \"Custom Widget\"), /*#__PURE__*/React.createElement(\"div\", null, currentIndex + 1, \" / \", appsmith.model.tips.length, \"  \")), /*#__PURE__*/React.createElement(Markdown, null, appsmith.model.tips[currentIndex])), /*#__PURE__*/React.createElement(\"div\", {\n    className: \"button-container\"\n  }, /*#__PURE__*/React.createElement(Button, {\n    className: \"primary\",\n    onClick: handleNext,\n    type: \"primary\"\n  }, \"Next Tip\"), /*#__PURE__*/React.createElement(Button, {\n\tclassName: \"reset\",\n\tdisabled: currentIndex === 0,\n    onClick: handleReset\n  }, \"Reset\")));\n}\nappsmith.onReady(() => {\n  reactDom.render( /*#__PURE__*/React.createElement(App, null), document.getElementById(\"root\"));\n});"
+        },
+        "isCanvas": false,
+        "topRow": 43,
+        "bottomRow": 73,
+        "parentRowSpace": 10,
+        "type": "CUSTOM_WIDGET",
+        "mobileRightColumn": 41,
+        "dynamicTriggerPathList": [
+          {
+            "key": "onResetClick"
+          }
+        ],
+        "parentColumnSpace": 14.21875,
+        "dynamicBindingPathList": [
+          {
+            "key": "theme"
+          },
+          {
+            "key": "borderRadius"
+          },
+          {
+            "key": "boxShadow"
+          }
+        ],
+        "leftColumn": 19,
+        "defaultModel": "{\n  \"tips\": [\n    \"Pass data to this widget in the default model field\",\n    \"Access data in the javascript file using the appsmith.model variable\",\n    \"Create events in the widget and trigger them in the javascript file using appsmith.triggerEvent('eventName')\",\n    \"Access data in CSS as var(--appsmith-model-{property-name})\"\n  ]\n}",
+        "borderWidth": "1",
+        "theme": "{{appsmith.theme}}",
+        "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+        "events": ["onResetClick"],
+        "key": "podxgd85w9",
+        "backgroundColor": "#FFFFFF",
+        "rightColumn": 42,
+        "dynamicHeight": "FIXED",
+        "isSearchWildcard": true,
+        "widgetId": "9iep04z42x",
+        "isVisible": true,
+        "version": 1,
+        "uncompiledSrcDoc": {
+          "html": "<!-- no need to write html, head, body tags, it is handled by the widget -->\n<div id=\"root\"></div>\n",
+          "css": ".app {\n  width: calc(1px * var(--appsmith-ui-width));\n  justify-content: center;\n  border-radius: 0px;\n  border: none;\n  \n  .tip-container {\n    margin-bottom: 20px;\n\n    h2 {\n      margin-bottom: 20px;\n      font-size: 16px;\n      font-weight: 700;\n    }\n\n    .tip-header {\n      display: flex;\n      justify-content: space-between;\n      align-items: baseline;\n\n      div {\n        color: #999;\n      }\n    }\n  }\n\t\n\t.button-container {\n      text-align: right;\n\n      button {\n        margin: 0 10px;\n        border-radius: var(--appsmith-theme-borderRadius) !important;\n\n        &.primary {\n          background: var(--appsmith-theme-primaryColor) !important;\n        }\n\n        &.reset:not([disabled]) {\n          color: var(--appsmith-theme-primaryColor) !important;\n          border-color: var(--appsmith-theme-primaryColor) !important;\n        }\n      }\n    }\n}\n",
+          "js": "import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'\nimport reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'\nimport { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm'\nimport Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm';\n\nfunction App() {\n\tconst [currentIndex, setCurrentIndex] = React.useState(0);\n\n\tconst handleNext = () => {\n\t\tsetCurrentIndex((prevIndex) => (prevIndex + 1) % appsmith.model.tips.length);\n\t};\n\n\tconst handleReset = () => {\n\t\tsetCurrentIndex(0);\n\t\tappsmith.triggerEvent(\"onResetClick\");\n\t};\n\n\treturn (\n\t\t<Card className=\"app\">\n\t\t\t<div className=\"tip-container\">\n\t\t\t\t<div className=\"tip-header\">\n\t\t\t\t\t<h2>Custom Widget</h2>\n\t\t\t\t\t<div>{currentIndex + 1} / {appsmith.model.tips.length}\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<Markdown>{appsmith.model.tips[currentIndex]}</Markdown>\n\t\t\t</div>\n\t\t\t<div className=\"button-container\">\n\t\t\t\t<Button className=\"primary\" onClick={handleNext} type=\"primary\">Next Tip</Button>\n\t\t\t\t<Button className=\"reset\" disabled={currentIndex === 0} onClick={handleReset}>Reset</Button>\n\t\t\t</div>\n\t</Card>\n);\n}\n\nappsmith.onReady(() => {\n\t/*\n\t * This handler function will get called when parent application is ready.\n\t * Initialize your component here\n\t * more info - https://docs.appsmith.com/reference/widgets/custom#onready\n\t */\n\treactDom.render(<App />, document.getElementById(\"root\"));\n});"
+        },
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 45,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "mobileLeftColumn": 18,
+        "maxDynamicHeight": 9000,
+        "minDynamicHeight": 4
+      }
+    ]
+  }
+}
