@@ -7,7 +7,8 @@ import { useSelector } from "react-redux";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
 
-function JSLibrariesSection() {
+function JSLibrariesSection(props: { showAddButton: boolean }) {
+  const { showAddButton } = props;
   const libraries = useSelector(selectLibrariesForExplorer);
   const transitions = useTransition(libraries, {
     keys: (lib) => lib.name,
@@ -16,7 +17,10 @@ function JSLibrariesSection() {
     leave: { opacity: 1 },
   });
 
-  const rightIcon = useMemo(() => <AddLibraryPopover />, []);
+  const rightIcon = useMemo(
+    () => (showAddButton ? <AddLibraryPopover /> : null),
+    [showAddButton],
+  );
 
   return (
     <>
