@@ -48,6 +48,11 @@ import {
   inputDsl as updateHeaderOptionsInputDsl,
   outputDsl as updateHeaderOptionsOutputDsl,
 } from "./DSLs/UpdateHeaderOptionsDSLs";
+import { migrateTableComputeValueBinding } from "../../migrations/090-migrate-table-compute-value-binding";
+import {
+  tableComputeBindingInputDsl,
+  tableComputeBindingOutputDsl,
+} from "./DSLs/TableComputeBindingDSLs";
 
 describe("Table Widget Property Pane Upgrade", () => {
   it("To test primaryColumns are created for a simple table", () => {
@@ -134,5 +139,13 @@ describe("migrateTableWidgetV2CurrentRowInValidationsBinding", () => {
         currentRownInValidationsBindingInput,
       ),
     ).toEqual(currentRownInValidationsBindingOutput);
+  });
+});
+
+describe("migrateTableComputeValueBinding", () => {
+  it("should migrate table compute value bindings to use new fallback mechanism", () => {
+    expect(
+      migrateTableComputeValueBinding(tableComputeBindingInputDsl),
+    ).toEqual(tableComputeBindingOutputDsl);
   });
 });
