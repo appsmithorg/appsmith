@@ -991,27 +991,6 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
 };
 
 /**
- * Takes property functions and returns derived properties in the format of a string. Used in getDerivedPropertiesMap.
- *
- * @example
- * ```js
- * {
- *  isValidDate: (props, moment, _) => {
- *    return props.value === 1;
- *  }
- * ```
- *
- * It will return
- * ```js
- * {
- *  isValidDate: "{{ this.value === 1 }}"
- * }
- * ```
- *
- * Main rule to remember is don't deconstruct the props like `const { value } = props;` in the derived property function.
- * Directly access props like `props.value`
- */
-/**
  * Parses the derived properties from the given property functions. Used in getDerivedPropertiesMap
  *
  * @example
