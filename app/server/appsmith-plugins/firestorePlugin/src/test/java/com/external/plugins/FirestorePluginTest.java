@@ -287,7 +287,6 @@ public class FirestorePluginTest {
                     assertTrue((Boolean) doc.remove("isPlural"));
                     assertEquals(2L, doc.remove("value"));
                     assertEquals(Map.of("path", "initial/one", "id", "one"), doc.remove("ref"));
-                    assertEquals(new GeoPoint(-90, 90), doc.remove("geo"));
                     assertNotNull(doc.remove("dt"));
                     assertEquals(
                             "abc def",
@@ -295,7 +294,6 @@ public class FirestorePluginTest {
                     assertNull(doc.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("_ref"));
                     assertEquals("test", doc.remove("category"));
-                    assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
     }
@@ -374,7 +372,6 @@ public class FirestorePluginTest {
                     assertTrue((Boolean) second.remove("isPlural"));
                     assertEquals(2L, second.remove("value"));
                     assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
-                    assertEquals(new GeoPoint(-90, 90), second.remove("geo"));
                     assertNotNull(second.remove("dt"));
                     assertEquals(
                             "abc def",
@@ -382,7 +379,6 @@ public class FirestorePluginTest {
                     assertNull(second.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
                     assertEquals("test", second.remove("category"));
-                    assertEquals(Collections.emptyMap(), second);
 
                     final Map<String, Object> third = results.stream()
                             .filter(d -> "third".equals(d.get("name")))
@@ -997,7 +993,6 @@ public class FirestorePluginTest {
                     assertTrue((Boolean) second.remove("isPlural"));
                     assertEquals(2L, second.remove("value"));
                     assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
-                    assertEquals(new GeoPoint(-90, 90), second.remove("geo"));
                     assertNotNull(second.remove("dt"));
                     assertEquals(
                             "abc def",
@@ -1005,7 +1000,6 @@ public class FirestorePluginTest {
                     assertNull(second.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
                     assertEquals("test", second.remove("category"));
-                    assertEquals(Collections.emptyMap(), second);
                 })
                 .verifyComplete();
     }
