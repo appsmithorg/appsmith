@@ -417,7 +417,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
+                        return userUtils
+                                .makeInstanceAdministrator(List.of(crudUser))
+                                .then(Mono.just(crudUser));
                     }
                     return Mono.just(crudUser);
                 })

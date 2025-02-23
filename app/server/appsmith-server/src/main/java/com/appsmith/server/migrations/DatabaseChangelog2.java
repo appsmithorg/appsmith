@@ -60,7 +60,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
@@ -550,7 +550,7 @@ public class DatabaseChangelog2 {
                 policySolution.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
         // Now add admin permissions to the tenant
-        Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
+        Set<Permission> tenantPermissions = ORGANIZATION_ADMIN.getPermissions().stream()
                 .map(permission -> new Permission(defaultTenant.getId(), permission))
                 .collect(Collectors.toSet());
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
