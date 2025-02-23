@@ -128,7 +128,8 @@ export function Response(props: ResponseProps) {
     checkForPreparedStatement(action) && errorMessage,
   );
 
-  const showPostRunAction = checkForPostRunAction(actionResponse);
+  const showPostRunAction =
+    actionResponse && checkForPostRunAction(actionResponse?.postRunAction);
 
   const actionSource: SourceEntity = useMemo(
     () => ({

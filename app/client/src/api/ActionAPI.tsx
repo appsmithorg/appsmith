@@ -9,6 +9,7 @@ import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { PostActionRunConfig } from "./types";
 
 export interface Property {
   key: string;
@@ -69,12 +70,6 @@ export type ActionExecutionResponse = ApiResponse<{
 export interface SuggestedWidget {
   type: WidgetType;
   bindingQuery: string;
-}
-
-export interface PostActionRunConfig {
-  type: "FORM";
-  name: string;
-  config?: Record<string, unknown>;
 }
 
 export interface ActionResponse {

@@ -1,12 +1,6 @@
-import type { PostActionRunConfig, ActionResponse } from "api/ActionAPI";
+import type { PostActionRunConfig } from "api/types";
 
-export function checkForPostRunAction(actionResponse?: ActionResponse) {
-  if (!actionResponse) {
-    return false;
-  }
-
-  const { postRunAction } = actionResponse;
-
+export function checkForPostRunAction(postRunAction?: PostActionRunConfig) {
   if (
     postRunAction &&
     typeof postRunAction === "object" &&
