@@ -1,14 +1,12 @@
-import type { ActionResponse } from "api/ActionAPI";
-import type { Action } from "entities/Action";
-import { getPostRunActionName } from "../utils/checkForPostRunAction";
 import React from "react";
+import type { PostActionRunConfig } from "api/ActionAPI";
+import { getPostRunActionName } from "../utils/checkForPostRunAction";
 import styled from "styled-components";
 import { PostRunActionComponentMap } from "ee/components/PostActionRunComponents";
 import type { PostRunActionNamesInterface } from "ee/components/PostActionRunComponents/types";
 
 interface Props {
-  action: Action;
-  actionResponse?: ActionResponse;
+  postRunAction?: PostActionRunConfig;
 }
 
 const Container = styled.div`
@@ -23,22 +21,15 @@ const Container = styled.div`
   background-color: var(--ads-v2-color-bg);
 `;
 
-export default function PostActionRunContainer({
-  action,
-  actionResponse,
-}: Props) {
-  if (!actionResponse?.postRunAction) {
+export default function PostActionRunContainer({ postRunAction }: Props) {
+  if (!postRunAction) {
     return null;
   }
 
-  const { postRunAction } = actionResponse;
   const name: string = getPostRunActionName(postRunAction);
   const Component = PostRunActionComponentMap[
     name as PostRunActionNamesInterface
-  ] as React.ComponentType<{
-    action: Action;
-    actionResponse: ActionResponse;
-  }>;
+  ] as React.ComponentType;
 
   if (!Component) {
     return null;
@@ -46,7 +37,7 @@ export default function PostActionRunContainer({
 
   return (
     <Container>
-      <Component action={action} actionResponse={actionResponse} />
+      <Component />
     </Container>
   );
 }

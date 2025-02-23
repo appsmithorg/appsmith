@@ -273,8 +273,7 @@ export function Response(props: ResponseProps) {
           </Styled.Response>
           {showPostRunAction && (
             <PostActionRunContainer
-              action={action}
-              actionResponse={actionResponse}
+              postRunAction={actionResponse?.postRunAction}
             />
           )}
           <ContentTypeSelector
