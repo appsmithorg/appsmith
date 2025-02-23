@@ -208,7 +208,7 @@ export const getActionTimeout = (
   return undefined;
 };
 
-const createActionExecutionResponse = (
+export const createActionExecutionResponse = (
   response: ActionExecutionResponse,
 ): ActionResponse => {
   const payload = response.data;

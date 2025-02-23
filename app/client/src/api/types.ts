@@ -22,3 +22,9 @@ export type AxiosResponseData<T> = AxiosResponse<ApiResponse<T>>["data"];
 export type ErrorHandler = (
   error: AxiosError<ApiResponse>,
 ) => Promise<unknown | null>;
+
+export interface PostActionRunConfig {
+  type: "FORM";
+  name: string;
+  config?: Record<string, unknown>;
+}
