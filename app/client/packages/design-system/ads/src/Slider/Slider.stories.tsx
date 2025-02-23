@@ -23,13 +23,3 @@ SliderStory.args = {
   label: "Donuts to buy",
   getValueLabel: (donuts: string) => `${donuts} of 100 Donuts`,
 };
-
-export const OriginSliderStory = Template.bind({}) as StoryObj;
-OriginSliderStory.args = {
-  maxValue: 100,
-  minValue: 0,
-  origin: 50,
-  step: 1,
-  value: 50,
-  label: "Number",
-};
