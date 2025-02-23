@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
@@ -34,4 +35,11 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @return
      */
     Mono<Boolean> archiveAllById(Collection<ID> ids);
+
+    /**
+     * This function retrieves all the documents in the collection without the user context. This method will be used
+     * by internal server workflows like crons etc. to fetch all the documents from the collection.
+     * @return
+     */
+    Flux<T> retrieveAll();
 }

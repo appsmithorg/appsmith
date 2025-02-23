@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.caching.annotations.DistributedLock;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
@@ -13,13 +14,13 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -43,7 +44,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("!${is.cloud-hosting:false}")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
@@ -60,6 +60,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final DeploymentProperties deploymentProperties;
     private final NetworkUtils networkUtils;
     private final PermissionGroupService permissionGroupService;
+    private final OrganizationService organizationService;
 
     enum UserTrackingType {
         DAU,
@@ -74,14 +75,22 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
+    @DistributedLock(
+            key = "pingSchedule",
+            ttl = 5 * 60 * 60, // 5 hours
+            shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
         if (commonConfig.isTelemetryDisabled()) {
             return;
         }
 
-        Mono.zip(configService.getInstanceId(), networkUtils.getExternalAddress())
-                .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
+        Mono<String> instanceMono = configService.getInstanceId().cache();
+        Mono<String> ipMono = networkUtils.getExternalAddress().cache();
+        organizationService
+                .retrieveAll()
+                .flatMap(organization -> Mono.zip(Mono.just(organization.getId()), instanceMono, ipMono))
+                .flatMap(objects -> doPing(objects.getT1(), objects.getT2(), objects.getT3()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
     }
@@ -94,7 +103,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      * @param ipAddress  The external IP address of this instance's machine.
      * @return A publisher that yields the string response of recording the data point.
      */
-    private Mono<String> doPing(String instanceId, String ipAddress) {
+    private Mono<String> doPing(String organizationId, String instanceId, String ipAddress) {
         // Note: Hard-coding Segment auth header and the event name intentionally. These are not intended to be
         // environment specific values, instead, they are common values for all self-hosted environments. As such, they
         // are not intended to be configurable.
@@ -115,7 +124,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         "context",
                         Map.of("ip", ipAddress),
                         "properties",
-                        Map.of("instanceId", instanceId),
+                        Map.of("instanceId", instanceId, "organizationId", organizationId),
                         "event",
                         "Instance Active")))
                 .retrieve()
@@ -124,9 +133,11 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
+    @DistributedLock(key = "pingStats", ttl = 12 * 60 * 60, shouldReleaseLock = false)
     @Observed(name = "pingStats")
     public void pingStats() {
-        if (commonConfig.isTelemetryDisabled()) {
+        // TODO @CloudBilling remove cloud hosting check and migrate the cron to report organization level stats
+        if (commonConfig.isTelemetryDisabled() || commonConfig.isCloudHosting()) {
             return;
         }
 
