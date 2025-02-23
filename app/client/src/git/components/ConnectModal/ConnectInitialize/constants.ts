@@ -24,3 +24,10 @@ export const GIT_DEMO_GIF = {
     bitbucket: getAssetUrl(`${ASSETS_CDN_URL}/Bitbucket_add_a_deploykey.gif`),
   },
 };
+
+export const GIT_PROVIDERS = [
+  "github",
+  "gitlab",
+  "bitbucket",
+  "others",
+] as const;

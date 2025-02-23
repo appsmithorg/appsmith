@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import styled from "styled-components";
 import type { PageErrorMessageProps } from "./Components/PageErrorMessage";
@@ -31,8 +31,8 @@ interface PageProps {
 
 function Page(props: PageProps) {
   const { cta, description, errorCode, errorIcon, title } = props;
-  const tenantConfig = useSelector(getTenantConfig);
-  const backgroundColor = tenantConfig.brandColors.background;
+  const organizationConfig = useSelector(getOrganizationConfig);
+  const backgroundColor = organizationConfig.brandColors.background;
   const textColor = getComplementaryGrayscaleColor(backgroundColor);
 
   return (

@@ -2,7 +2,7 @@ import { all, put, select, takeLatest } from "redux-saga/effects";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { getWidgets } from "sagas/selectors";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 

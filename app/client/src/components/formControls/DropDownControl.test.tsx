@@ -554,6 +554,7 @@ describe("DropdownControl Single select tests", () => {
     isLoading: false,
     maxTagCount: 3,
     isAllowClear: true,
+    isSearchable: true,
   };
 
   beforeEach(() => {
@@ -586,5 +587,35 @@ describe("DropdownControl Single select tests", () => {
 
       expect(options.length).toBe(0);
     });
+  });
+
+  it("should filter options when searching", async () => {
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...dropDownPropsSingleSelect} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Find and click the dropdown to open it
+    const dropdownSelect = await screen.findByTestId(
+      "t--dropdown-actionConfiguration.testPath",
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Find the search input and type "Option 2"
+    const searchInput = screen.getByPlaceholderText("Type to search...");
+
+    fireEvent.change(searchInput, { target: { value: "Option 2" } });
+
+    // Get all visible options
+    const visibleOptions = screen.getAllByRole("option");
+
+    // // Should only show one option
+    expect(visibleOptions).toHaveLength(1);
+    // The visible option should be "Option 1"
+    expect(visibleOptions[0]).toHaveTextContent("Option 2");
   });
 });

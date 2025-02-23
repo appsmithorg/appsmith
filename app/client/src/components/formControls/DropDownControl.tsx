@@ -466,6 +466,10 @@ function renderDropdown(
       onDeselect={onRemoveOptions}
       onPopupScroll={handlePopupScroll}
       onSelect={onSelectOptions}
+      // Default value of optionFilterProp prop is `value` which searches the dropdown based on value and not label,
+      // hence explicitly setting this to label to search based on label.
+      // For eg. If value is `Create_ticket` and label is `Create ticket`, we should be able to search using `Create ticket`.
+      optionFilterProp="label"
       placeholder={props.placeholderText}
       showSearch={props.isSearchable}
       value={isMultiSelect ? selectedOptions : selectedOptions[0]}

@@ -25,6 +25,6 @@ public class UsagePulseControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {
-        return service.createPulse(usagePulseDTO).thenReturn(new ResponseDTO<>(HttpStatus.CREATED.value(), true, null));
+        return service.createPulse(usagePulseDTO).thenReturn(new ResponseDTO<>(HttpStatus.CREATED, true));
     }
 }

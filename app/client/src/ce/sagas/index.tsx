@@ -1,7 +1,7 @@
 import { watchActionExecutionSagas } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import NavigationSagas from "ee/sagas/NavigationSagas";
 import SuperUserSagas from "ee/sagas/SuperUserSagas";
-import tenantSagas from "ee/sagas/tenantSagas";
+import organizationSagas from "ee/sagas/organizationSagas";
 import userSagas from "ee/sagas/userSagas";
 import workspaceSagas from "ee/sagas/WorkspaceSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
@@ -51,10 +51,11 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 import ideSagas from "sagas/IDESaga";
 import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
+import gitSagas from "git/sagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
-import gitSagas from "git/sagas";
+import gitApplicationSagas from "git-artifact-helpers/application/sagas";
 
 export const sagas = [
   initSagas,
@@ -96,7 +97,7 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   AutoHeightSagas,
-  tenantSagas,
+  organizationSagas,
   JSLibrarySaga,
   LintingSaga,
   autoLayoutUpdateSagas,
@@ -111,4 +112,5 @@ export const sagas = [
   ideSagas,
   sendSideBySideWidgetHoverAnalyticsEventSaga,
   gitSagas,
+  gitApplicationSagas,
 ];

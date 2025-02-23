@@ -5,6 +5,7 @@ import {
   connectErrorAction,
   connectInitAction,
   connectSuccessAction,
+  resetConnectAction,
 } from "./actions/connectActions";
 import {
   fetchMetadataErrorAction,
@@ -136,6 +137,10 @@ import {
   generateSSHKeySuccessAction,
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
+import {
+  resetCurrentBranchAction,
+  updateCurrentBranchAction,
+} from "./actions/currentBranchActions";
 
 const initialState: GitArtifactRootReduxState = {};
 
@@ -157,6 +162,7 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    resetConnect: resetConnectAction,
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,
@@ -214,6 +220,8 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
     toggleBranchPopup: toggleBranchPopupAction,
+    updateCurrentBranch: updateCurrentBranchAction,
+    resetCurrentBranch: resetCurrentBranchAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,

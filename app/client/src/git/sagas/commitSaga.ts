@@ -1,6 +1,4 @@
 import { call, put, select } from "redux-saga/effects";
-import { captureException } from "@sentry/react";
-import log from "loglevel";
 import type { CommitInitPayload } from "../store/actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import commitRequest from "../requests/commitRequest";
@@ -10,14 +8,13 @@ import type {
 } from "../requests/commitRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../store/types";
-
-// internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
 import { gitGlobalActions } from "git/store/gitGlobalSlice";
 import type { ApplicationPayload } from "entities/Application";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* commitSaga(
   action: GitArtifactPayloadAction<CommitInitPayload>,
@@ -70,21 +67,14 @@ export default function* commitSaga(
       }
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
+
+    if (error) {
+      yield put(gitArtifactActions.commitError({ artifactDef, error }));
 
       if (error.code === GitErrorCodes.REPO_LIMIT_REACHED) {
-        yield put(
-          gitGlobalActions.toggleRepoLimitErrorModal({
-            open: true,
-          }),
-        );
+        yield put(gitGlobalActions.toggleRepoLimitErrorModal({ open: true }));
       }
-
-      yield put(gitArtifactActions.commitError({ artifactDef, error }));
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

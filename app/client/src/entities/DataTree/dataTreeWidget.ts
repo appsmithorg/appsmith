@@ -1,7 +1,7 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _, { get, isEmpty, omit } from "lodash";
 import memoize from "micro-memoize";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import type {

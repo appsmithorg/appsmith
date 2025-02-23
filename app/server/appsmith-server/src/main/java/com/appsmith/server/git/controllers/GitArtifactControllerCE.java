@@ -51,7 +51,7 @@ public class GitArtifactControllerCE {
         log.debug("Going to add default git profile for user");
         return gitProfileUtils
                 .updateOrCreateGitProfileForCurrentUser(gitProfile)
-                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+                .map(response -> new ResponseDTO<>(HttpStatus.OK, response));
     }
 
     @JsonView(Views.Public.class)
@@ -59,7 +59,7 @@ public class GitArtifactControllerCE {
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
         return gitProfileUtils
                 .getDefaultGitProfileOrCreateIfEmpty()
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK, gitConfigResponse));
     }
 
     @JsonView(Views.Public.class)
@@ -69,7 +69,7 @@ public class GitArtifactControllerCE {
         log.debug("Going to add repo specific git profile for application: {}", baseApplicationId);
         return gitProfileUtils
                 .updateOrCreateGitProfileForCurrentUser(gitProfile, baseApplicationId)
-                .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
+                .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED, response));
     }
 
     @JsonView(Views.Public.class)
@@ -77,7 +77,7 @@ public class GitArtifactControllerCE {
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String baseArtifactId) {
         return gitProfileUtils
                 .getGitProfileForUser(baseArtifactId)
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK, gitConfigResponse));
     }
 
     @JsonView(Views.Public.class)
@@ -88,15 +88,13 @@ public class GitArtifactControllerCE {
         // TODO: remove artifact type from methods.
         return centralGitService
                 .importArtifactFromGit(workspaceId, gitConnectDTO, GIT_TYPE)
-                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED, result));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/doc-urls")
     public Mono<ResponseDTO<List<GitDocsDTO>>> getGitDocs() {
-        return centralGitService
-                .getGitDocUrls()
-                .map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK.value(), gitDocDTO, null));
+        return centralGitService.getGitDocUrls().map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK, gitDocDTO));
     }
 
     @JsonView(Views.Public.class)
@@ -104,14 +102,12 @@ public class GitArtifactControllerCE {
     public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
         log.info("Going to list the list of supported keys");
         return Mono.just(GitDeployKeyGenerator.getSupportedProtocols())
-                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
+                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK, gitDeployKeyDTOS));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/keys")
     public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
-        return centralGitService
-                .generateSSHKey(keyType)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+        return centralGitService.generateSSHKey(keyType).map(result -> new ResponseDTO<>(HttpStatus.OK, result));
     }
 }

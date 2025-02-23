@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import React, { forwardRef } from "react";
 import type { ForwardedRef } from "react";
 import { Text, Icon } from "@appsmith/wds";
@@ -12,6 +13,7 @@ const _Checkbox = (
 ) => {
   const {
     children,
+    className,
     isIndeterminate,
     isRequired,
     labelPosition = "end",
@@ -22,7 +24,7 @@ const _Checkbox = (
     <HeadlessCheckbox
       ref={ref}
       {...rest}
-      className={styles.checkbox}
+      className={clsx(styles.checkbox, className)}
       data-label-position={labelPosition}
       isIndeterminate={isIndeterminate}
     >

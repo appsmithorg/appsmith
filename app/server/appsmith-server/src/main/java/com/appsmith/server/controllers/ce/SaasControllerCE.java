@@ -52,7 +52,7 @@ public class SaasControllerCE {
                         requestAppsmithTokenDTO,
                         serverWebExchange.getRequest().getHeaders(),
                         importForGit)
-                .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
+                .map(token -> new ResponseDTO<>(HttpStatus.OK, token));
     }
 
     @JsonView(Views.Public.class)
@@ -65,7 +65,7 @@ public class SaasControllerCE {
         log.debug("Received callback for an OAuth2 authorization request");
         return authenticationService
                 .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
-                .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+                .map(datasource -> new ResponseDTO<>(HttpStatus.OK, datasource));
     }
 
     @GetMapping("authorize")
