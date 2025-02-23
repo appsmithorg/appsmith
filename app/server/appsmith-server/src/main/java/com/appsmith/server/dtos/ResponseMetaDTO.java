@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
@@ -28,9 +29,8 @@ public class ResponseMetaDTO {
         this.success = success;
     }
 
-    public ResponseMetaDTO(int status, String message) {
-        this.status = status;
-        this.message = message;
+    public ResponseMetaDTO(HttpStatus status) {
+        this.status = status.value();
     }
 
     public ResponseMetaDTO(int status, ErrorDTO errorDTO) {
