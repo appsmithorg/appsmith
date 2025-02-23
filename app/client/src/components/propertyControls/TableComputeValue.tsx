@@ -99,8 +99,8 @@ function InputText(props: InputTextProp) {
 }
 
 class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
-  static getBindingPrefix = (tableName: string) => {
-    return `{{(() => { const tableData = ${tableName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (`;
+  static getBindingPrefix = (tableName: string, stringToEvaluate: string) => {
+    return `{{(() => { const tableData = ${tableName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${stringToEvaluate}`;
   };
 
   static getBindingSuffix = (stringToEvaluate: string) => {
@@ -156,28 +156,36 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   }
 
   static getInputComputedValue = (propertyValue: string) => {
-    // First find the starting point after the map function
-    const mapStart = propertyValue.indexOf(
-      "map((currentRow, currentIndex) => (",
+    const MAP_FUNCTION_SIGNATURE = "map((currentRow, currentIndex) => (";
+
+    const isComputedValue = propertyValue.includes(MAP_FUNCTION_SIGNATURE);
+
+    if (!isComputedValue) return propertyValue;
+
+    // Extract the computation logic from the full binding string
+    // Input example: "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow.price * 2)) : currentRow.price * 2 })()}}"
+    const mapSignatureIndex = propertyValue.indexOf(MAP_FUNCTION_SIGNATURE);
+
+    // Find the actual computation expression between the map parentheses
+    const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
+    const computationEnd = propertyValue.indexOf("))", computationStart);
+
+    // Extract the computation expression between the map parentheses
+    // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
+    // The actual removal of "currentRow." prefix happens later in JSToString()
+    const computationExpression = propertyValue.substring(
+      computationStart,
+      computationEnd,
     );
 
-    if (mapStart === -1) return propertyValue;
-
-    // Find the position after the map opening parenthesis
-    const valueStart = mapStart + "map((currentRow, currentIndex) => (".length;
-
-    // Find the first closing parenthesis after the map
-    const valueEnd = propertyValue.indexOf("))", valueStart);
-
-    if (valueEnd === -1) return propertyValue;
-
-    // Extract the value between the map parentheses
-    const evaluateString = propertyValue.substring(valueStart, valueEnd);
-
-    return JSToString(evaluateString);
+    return JSToString(computationExpression);
   };
 
   getComputedValue = (value: string, tableName: string) => {
+    // Return raw value if:
+    // 1. The value is not a dynamic binding (not wrapped in {{...}})
+    // 2. AND this control is not configured to handle array values via additionalControlData
+    // This allows single values to be returned without table binding computation
     if (
       !isDynamicValue(value) &&
       !this.props.additionalControlData?.isArrayValue
@@ -185,10 +193,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       return value;
     }
 
-    // Convert string to JavaScript expression
     const stringToEvaluate = stringToJS(value);
 
-    // Return empty if the evaluated string is empty
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
@@ -198,9 +204,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
 
   buildTableSpecificBinding = (stringToEvaluate: string, tableName: string) => {
     return (
-      ComputeTablePropertyControlV2.getBindingPrefix(tableName) +
-      stringToEvaluate +
-      ComputeTablePropertyControlV2.getBindingSuffix(stringToEvaluate)
+      ComputeTablePropertyControlV2.getBindingPrefix(
+        tableName,
+        stringToEvaluate,
+      ) + ComputeTablePropertyControlV2.getBindingSuffix(stringToEvaluate)
     );
   };
 
