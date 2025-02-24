@@ -7,9 +7,18 @@ import {
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 
+enum SegmentInitState {
+  WAITING = "waiting",
+  INITIALIZED = "initialized",
+  FAILED = "failed",
+  NOT_REQUIRED = "not_required",
+}
+
 class SegmentSingleton {
   private static instance: SegmentSingleton;
   private analytics: Analytics | null = null;
+  private eventQueue: Array<{ name: string; data: EventProperties }> = [];
+  private initState: SegmentInitState = SegmentInitState.WAITING;
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -43,6 +52,8 @@ class SegmentSingleton {
     const { segment } = getAppsmithConfigs();
 
     if (!segment.enabled) {
+      this.avoidTracking();
+
       return true;
     }
 
@@ -56,6 +67,7 @@ class SegmentSingleton {
 
     if (!writeKey) {
       log.error("Segment key was not found.");
+      this.avoidTracking();
 
       return true;
     }
@@ -80,21 +92,43 @@ class SegmentSingleton {
       );
 
       this.analytics = analytics;
+      this.initState = SegmentInitState.INITIALIZED;
+      // Process queued events after successful initialization
+      this.processEventQueue();
 
       return true;
     } catch (error) {
       log.error("Failed to initialize Segment:", error);
+      // Clear the queue if error occurred in init
+      this.flushEventQueue();
+      this.initState = SegmentInitState.FAILED;
 
       return false;
     }
   }
 
+  private processEventQueue() {
+    while (this.eventQueue.length > 0) {
+      const event = this.eventQueue.shift();
+
+      if (event) {
+        this.track(event.name, event.data);
+      }
+    }
+  }
+
+  private flushEventQueue() {
+    this.eventQueue = [];
+  }
+
   public track(eventName: string, eventData: EventProperties) {
-    // In scenarios where segment was never initialised, we are logging the event locally
-    // This is done so that we can debug event logging locally
     if (this.analytics) {
       log.debug("Event fired", eventName, eventData);
       this.analytics.track(eventName, eventData);
+    } else if (this.initState === SegmentInitState.WAITING) {
+      // Only queue events if we're in WAITING state
+      this.eventQueue.push({ name: eventName, data: eventData });
+      log.debug("Event queued for later processing", eventName, eventData);
     } else {
       log.debug("Event fired locally", eventName, eventData);
     }
@@ -110,6 +144,11 @@ class SegmentSingleton {
     if (this.analytics) {
       await this.analytics.addSourceMiddleware(middleware);
     }
+  }
+
+  public avoidTracking() {
+    this.initState = SegmentInitState.NOT_REQUIRED;
+    this.flushEventQueue();
   }
 
   public reset() {
