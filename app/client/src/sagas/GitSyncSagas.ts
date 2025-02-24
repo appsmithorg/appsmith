@@ -38,7 +38,6 @@ import type {
   GenerateSSHKeyPairReduxAction,
   GenerateSSHKeyPairResponsePayload,
   GetSSHKeyPairReduxAction,
-  GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
 import {
@@ -124,10 +123,6 @@ import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "ee/RouteBuilder";
 import { APP_MODE } from "entities/App";
-import type {
-  GitDiscardResponse,
-  GitMetadata,
-} from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
@@ -135,6 +130,12 @@ import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActions
 import { toast } from "@appsmith/ads";
 import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
 import type { ApplicationPayload } from "entities/Application";
+import type {
+  GetSSHKeyResponseData,
+  GitDiscardResponse,
+  GitMetadata,
+} from "reducers/uiReducers/gitSyncTypes";
+import { objectKeys } from "@appsmith/utils";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -1421,7 +1422,7 @@ const gitRequestNonBlockingActions: Record<
  * */
 function* watchGitBlockingRequests() {
   const gitActionChannel: TakeableChannel<unknown> = yield actionChannel(
-    Object.keys(gitRequestBlockingActions),
+    objectKeys(gitRequestBlockingActions),
   );
 
   while (true) {
@@ -1433,7 +1434,7 @@ function* watchGitBlockingRequests() {
 }
 
 function* watchGitNonBlockingRequests() {
-  const keys = Object.keys(gitRequestNonBlockingActions);
+  const keys = objectKeys(gitRequestNonBlockingActions);
 
   for (const actionType of keys) {
     yield takeLatest(actionType, gitRequestNonBlockingActions[actionType]);

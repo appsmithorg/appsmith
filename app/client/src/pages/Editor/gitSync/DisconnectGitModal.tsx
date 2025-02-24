@@ -33,7 +33,7 @@ import {
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncTypes";
 
 function DisconnectGitModal() {
   const dispatch = useDispatch();

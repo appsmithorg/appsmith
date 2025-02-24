@@ -46,7 +46,7 @@ import { Button, Icon, Tooltip } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncTypes";
 
 interface QuickActionButtonProps {
   className?: string;

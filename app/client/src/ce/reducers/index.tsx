@@ -43,7 +43,6 @@ import type { JsPaneReduxState } from "reducers/uiReducers/jsPaneReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
-import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalReducer";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
@@ -83,6 +82,7 @@ import type {
   GitGlobalReduxState,
 } from "git/store/types";
 import { gitReducer } from "git/store";
+import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncTypes";
 
 export const reducerObject = {
   entities: entityReducer,

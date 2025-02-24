@@ -1,5 +1,4 @@
 import React from "react";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { Icon, Text } from "@appsmith/ads";
 import {
   NOT_PUSHED_YET,
@@ -7,6 +6,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import styled from "styled-components";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncTypes";
 
 const TitleText = styled(Text)`
   font-weight: 500;

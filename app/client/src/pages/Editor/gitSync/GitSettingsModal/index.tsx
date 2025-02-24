@@ -9,7 +9,6 @@ import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 import styled from "styled-components";
 import Menu from "../Menu";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import {
   BRANCH,
   CONTINUOUS_DELIVERY,
@@ -24,6 +23,7 @@ import {
   useHasManageDefaultBranchPermission,
   useHasManageProtectedBranchesPermission,
 } from "../hooks/gitPermissionHooks";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncTypes";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

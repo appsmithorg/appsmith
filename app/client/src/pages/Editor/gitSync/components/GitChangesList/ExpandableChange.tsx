@@ -6,7 +6,7 @@ import {
   Text,
 } from "@appsmith/ads";
 import React from "react";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncTypes";
 import styled from "styled-components";
 
 const TitleText = styled(Text)`

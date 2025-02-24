@@ -28,8 +28,8 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncTypes";
 
 const TitleText = styled(Text)`
   flex: 1;

@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import GitChangesList from ".";
 import { merge } from "lodash";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import "@testing-library/jest-dom";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncTypes";
 
 const getMockStore = (
   override: {

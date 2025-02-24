@@ -4,8 +4,8 @@ import { render } from "@testing-library/react";
 import type { MockStoreEnhanced } from "redux-mock-store";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import GitSettingsModal from ".";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncTypes";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

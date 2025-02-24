@@ -65,9 +65,9 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { Container, Space } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import PushFailedWarning from "../components/PushFailedWarning";
 import DiscardFailedWarning from "../components/DiscardChangesError";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncTypes";
 
 const Section = styled.div`
   margin-top: 0;
