@@ -24,6 +24,7 @@
     "@opentelemetry/semantic-conventions": "^1.27.0",
     "@shared/ast": "workspace:^",
     "axios": "^1.7.4",
+    "cohere-ai": "7.15.4",
     "dotenv": "10.0.0",
     "express": "^4.20.0",
     "express-validator": "^6.14.2",
