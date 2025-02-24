@@ -5,7 +5,7 @@ import type { Plugin } from "entities/Plugin";
 import { RESP_HEADER_DATATYPE } from "constants/AppsmithActionConstants/ActionConstants";
 import { getType, Types } from "utils/TypeHelpers";
 
-enum ActionResponseDataTypes {
+export enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
