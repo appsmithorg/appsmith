@@ -121,9 +121,9 @@ public enum AclPermission {
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
 
     // Manage organization permissions
-    MANAGE_ORGANIZATION("manage:organization", Organization.class),
+    MANAGE_ORGANIZATION("manage:organizations", Organization.class),
     @Deprecated(forRemoval = true, since = "v1.62")
-    MANAGE_TENANT("manage:tenant", Organization.class),
+    MANAGE_TENANT("manage:tenants", Organization.class),
 
     CONNECT_TO_GIT("connectToGit:applications", Application.class),
     MANAGE_PROTECTED_BRANCHES("manageProtectedBranches:applications", Application.class),

@@ -310,7 +310,7 @@ function ArrayField({
         "ArrayField.useDeepEffect.setMetaInternalFieldState",
       );
 
-      const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
+      const currMetaInternalFieldState: FieldState<{ isValid: boolean }> = get(
         metaInternalFieldState,
         name,
         [],

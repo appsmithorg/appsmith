@@ -121,7 +121,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final ObservationHelper observationHelper;
 
     protected <T> ResponseDTO<T> getSuccessResponse(T data) {
-        return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
+        return new ResponseDTO<>(HttpStatus.OK, data);
     }
 
     protected <T> Mono<ResponseDTO<T>> getErrorResponseMono(Throwable error) {

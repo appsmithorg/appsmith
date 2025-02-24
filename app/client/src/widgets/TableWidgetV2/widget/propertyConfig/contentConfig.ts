@@ -35,6 +35,7 @@ export default [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           searchableColumn: true,
+          maxHeight: "400px",
         },
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",

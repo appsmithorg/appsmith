@@ -1,6 +1,6 @@
 import type { ApiResponse } from "api/types";
-import type { ApplicationResponsePayload } from "ee/api/ApplicationApi";
 import type { Datasource } from "entities/Datasource";
+import type { GitApplicationArtifact, GitPackageArtifact } from "git/types";
 
 export interface GitImportRequestParams {
   remoteUrl: string;
@@ -12,7 +12,8 @@ export interface GitImportRequestParams {
 }
 
 export interface GitImportResponseData {
-  application: ApplicationResponsePayload;
+  application?: GitApplicationArtifact;
+  package?: GitPackageArtifact;
   isPartialImport: boolean;
   unConfiguredDatasourceList?: Datasource[];
 }

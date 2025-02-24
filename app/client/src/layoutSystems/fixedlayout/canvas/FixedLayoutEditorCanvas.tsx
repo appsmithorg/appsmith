@@ -38,6 +38,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
       parentId: props.parentId,
       snapColumnSpace: snapColumnSpace,
       widgetId: props.widgetId,
+      showOnboardingText: props.showOnboardingText,
     }),
     [
       props.bottomRow,
@@ -47,6 +48,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
       props.parentId,
       snapColumnSpace,
       props.widgetId,
+      props.showOnboardingText,
     ],
   );
   const layoutSystemProps = {
