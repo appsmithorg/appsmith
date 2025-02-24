@@ -32,7 +32,7 @@ import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 import * as Styled from "./styles";
 import { checkForPreparedStatement, parseActionResponse } from "./utils";
 import ActionExecutionInProgressView from "./components/ActionExecutionInProgressView";
-import { checkForPostRunAction } from "./utils/checkForPostRunAction";
+import { checkForPostRunAction } from "./utils/postRunActionsUtil";
 import PostActionRunContainer from "./components/PostActionRunContainer";
 
 interface ResponseProps {

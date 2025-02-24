@@ -1,5 +1,5 @@
 import React from "react";
-import { getPostRunActionName } from "../utils/checkForPostRunAction";
+import { getPostRunActionName } from "../utils/postRunActionsUtil";
 import styled from "styled-components";
 import { PostRunActionComponentMap } from "ee/components/PostActionRunComponents";
 import type { PostRunActionNamesInterface } from "ee/components/PostActionRunComponents/types";
