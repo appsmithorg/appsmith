@@ -50,7 +50,7 @@ class UserUtilsTest {
                         .makeInstanceAdministrator(users)
                         .then(Mono.zip(
                                 userUtils.getInstanceAdminPermissionGroup(),
-                                userUtils.getOrganizationAdminPermissionGroup())))
+                                userUtils.getDefaultOrganizationAdminPermissionGroup())))
                 .assertNext(tuple -> {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
@@ -78,7 +78,7 @@ class UserUtilsTest {
                         .then(userUtils.removeInstanceAdmin(users))
                         .then(Mono.zip(
                                 userUtils.getInstanceAdminPermissionGroup(),
-                                userUtils.getOrganizationAdminPermissionGroup())))
+                                userUtils.getDefaultOrganizationAdminPermissionGroup())))
                 .assertNext(tuple -> {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();
@@ -106,7 +106,7 @@ class UserUtilsTest {
                         .then(userUtils.makeInstanceAdministrator(users))
                         .then(Mono.zip(
                                 userUtils.getInstanceAdminPermissionGroup(),
-                                userUtils.getOrganizationAdminPermissionGroup())))
+                                userUtils.getDefaultOrganizationAdminPermissionGroup())))
                 .assertNext(tuple -> {
                     PermissionGroup instanceAdminPG = tuple.getT1();
                     PermissionGroup organizationAdminPG = tuple.getT2();

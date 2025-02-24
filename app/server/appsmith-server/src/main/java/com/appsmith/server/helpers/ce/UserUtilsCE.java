@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -35,6 +36,7 @@ public class UserUtilsCE {
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final CommonConfig commonConfig;
+    InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
 
     public UserUtilsCE(
             ConfigRepository configRepository,
@@ -72,7 +74,7 @@ public class UserUtilsCE {
         Mono<PermissionGroup> organizationAdminPgMono = Mono.just(new PermissionGroup());
 
         if (!cloudHosting) {
-            organizationAdminPgMono = getOrganizationAdminPermissionGroup();
+            organizationAdminPgMono = getDefaultOrganizationAdminPermissionGroup();
         }
 
         return Mono.zip(getInstanceAdminPermissionGroup(), organizationAdminPgMono)
@@ -125,7 +127,7 @@ public class UserUtilsCE {
         Mono<PermissionGroup> organizationAdminPgMono = Mono.just(new PermissionGroup());
 
         if (!cloudHosting) {
-            organizationAdminPgMono = getOrganizationAdminPermissionGroup();
+            organizationAdminPgMono = getDefaultOrganizationAdminPermissionGroup();
         }
 
         return Mono.zip(getInstanceAdminPermissionGroup(), organizationAdminPgMono)
@@ -172,16 +174,34 @@ public class UserUtilsCE {
     }
 
     public Mono<PermissionGroup> getInstanceAdminPermissionGroup() {
+
+        String instanceAdminPermissionGroupId = inMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
+        if (hasLength(instanceAdminPermissionGroupId)) {
+            return permissionGroupRepository.findById(instanceAdminPermissionGroupId);
+        }
+
         return configRepository.findByName(INSTANCE_CONFIG).flatMap(instanceConfig -> {
             JSONObject config = instanceConfig.getConfig();
             String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-            return permissionGroupRepository.findById(defaultPermissionGroup);
+            return permissionGroupRepository
+                    .findById(defaultPermissionGroup)
+                    .doOnSuccess(permissionGroup -> inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(
+                            permissionGroup.getId()));
         });
     }
 
-    public Mono<PermissionGroup> getOrganizationAdminPermissionGroup() {
-        return cacheableRepositoryHelper.getDefaultOrganizationId().flatMap(orgId -> permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainType(orgId, Organization.class.getSimpleName())
-                .next());
+    public Mono<PermissionGroup> getDefaultOrganizationAdminPermissionGroup() {
+        return cacheableRepositoryHelper.getDefaultOrganizationId().flatMap(orgId -> {
+            String permissionGroupId = inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(orgId);
+            if (hasLength(permissionGroupId)) {
+                return permissionGroupRepository.findById(permissionGroupId);
+            }
+            return permissionGroupRepository
+                    .findByDefaultDomainIdAndDefaultDomainType(orgId, Organization.class.getSimpleName())
+                    .next()
+                    .doOnSuccess(
+                            permissionGroup -> inMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
+                                    orgId, permissionGroup.getId()));
+        });
     }
 }
