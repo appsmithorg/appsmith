@@ -7,7 +7,7 @@ import { useNumberFormatter } from "@react-aria/i18n";
 import type { AriaSliderProps } from "@react-types/slider";
 import { Text } from "../Text";
 // Removed FlexWrapper import as we're using LabelWrapper from Slider.styles.tsx
-import { ToggleComponentToJsonHandler } from "../../../../../src/components/editorComponents/form/ToggleComponentToJson";
+import { ToggleComponentToJsonHandler } from "../../../../../../../src/components/editorComponents/form/ToggleComponentToJson";
 import { SliderFocusVisibleClassName } from "./Slider.constants";
 import {
   StyledSlider,
