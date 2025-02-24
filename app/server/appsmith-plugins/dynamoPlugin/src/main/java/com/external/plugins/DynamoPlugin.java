@@ -308,7 +308,7 @@ public class DynamoPlugin extends BasePlugin {
                             builder = DynamoDbClient.builder();
                         }
 
-                        return this.getDynamoDBClientObject(datasourceConfiguration, builder);
+                        return getDynamoDBClientObject(datasourceConfiguration, builder);
                     })
                     .subscribeOn(scheduler);
         }
@@ -324,7 +324,7 @@ public class DynamoPlugin extends BasePlugin {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
                         final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
-                        return this.getDynamoDBClientObject(datasourceConfiguration, builder);
+                        return getDynamoDBClientObject(datasourceConfiguration, builder);
                     })
                     .subscribeOn(scheduler);
         }
@@ -630,7 +630,8 @@ public class DynamoPlugin extends BasePlugin {
         return true;
     }
 
-    private DynamoDbClient getDynamoDBClientObject(DatasourceConfiguration dsConfig, DynamoDbClientBuilder builder) {
+    private static DynamoDbClient getDynamoDBClientObject(
+            DatasourceConfiguration dsConfig, DynamoDbClientBuilder builder) {
         if (!CollectionUtils.isEmpty(dsConfig.getEndpoints())) {
             final Endpoint endpoint = dsConfig.getEndpoints().get(0);
             builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
