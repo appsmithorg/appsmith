@@ -94,6 +94,7 @@ public class DatasourceTriggerSolutionTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
+        Mockito.doReturn(Mono.just(Map.of())).when(featureFlagService).getAllFeatureFlagsForUser();
         Workspace workspace = new Workspace();
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();

@@ -215,10 +215,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
                         Mono<Object> connectionMonoCache = featureFlagService
                                 .getAllFeatureFlagsForUser()
-                                .flatMap(featureFlagMap -> pluginExecutor
-                                        .datasourceCreate(
-                                                datasourceStorage.getDatasourceConfiguration(), featureFlagMap)
-                                        .cache());
+                                .flatMap(featureFlagMap -> pluginExecutor.datasourceCreate(
+                                        datasourceStorage.getDatasourceConfiguration(), featureFlagMap))
+                                .cache();
 
                         Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
                                 .flatMap(connection ->

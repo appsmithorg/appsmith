@@ -298,11 +298,14 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     default Mono<C> datasourceCreate(
             DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
-        return datasourceCreate(datasourceConfiguration);
+        return this.datasourceCreate(datasourceConfiguration);
     }
 
     default Mono<DatasourceTestResult> testDatasource(
             DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
+        if (featureFlagMap == null || featureFlagMap.isEmpty()) {
+            return this.testDatasource(datasourceConfiguration);
+        }
         return this.datasourceCreate(datasourceConfiguration, featureFlagMap)
                 .flatMap(connection -> {
                     return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));

@@ -53,6 +53,7 @@ import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,6 +119,9 @@ public class DatasourceContextServiceTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     String defaultEnvironmentId;
 
     String workspaceId;
@@ -127,6 +131,7 @@ public class DatasourceContextServiceTest {
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest");
+        Mockito.doReturn(Mono.just(Map.of())).when(featureFlagService).getAllFeatureFlagsForUser();
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
