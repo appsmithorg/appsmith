@@ -28,14 +28,17 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
             shouldReleaseLock = false) // Ensure only one pod executes this
     @Observed(name = "fetchFeatures")
     public void fetchFeatures() {
-        log.info("Fetching features for default organization");
+        log.info("Fetching features for organizations");
         Flux<Organization> organizationFlux = organizationService.retrieveAll();
         organizationFlux
                 .flatMap(
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .flatMap(featureFlagService::checkAndExecuteMigrationsForOrganizationFeatureFlags)
-                .doOnError(error -> log.error("Error while fetching organization feature flags", error))
+                .onErrorResume(error -> {
+                    log.error("Error while fetching organization feature flags", error);
+                    return Flux.empty();
+                })
                 .then(organizationService.restartOrganization())
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();

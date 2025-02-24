@@ -236,15 +236,15 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
      */
     @Override
     public Mono<Void> updateCacheForOrganizationFeatureFlags() {
-        organizationService
+        // TODO @CloudBilling: Fix this to update feature flags for all organizations and also should not affect the
+        //  startup
+        return organizationService
                 .retrieveAll()
                 .flatMap(org -> featureFlagService.getOrganizationFeatures(org.getId()))
                 .onErrorResume(error -> {
                     log.error("Error while updating cache for org feature flags", error);
                     return Mono.empty();
                 })
-                .subscribeOn(LoadShifter.elasticScheduler)
-                .subscribe();
-        return Mono.empty();
+                .then();
     }
 }
