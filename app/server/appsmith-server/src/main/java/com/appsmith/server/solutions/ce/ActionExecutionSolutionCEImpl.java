@@ -333,7 +333,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 3. Instantiate the implementation class based on the query type
         Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, executeActionMetaDTO);
-        Mono<Plugin> pluginMono = Mono.just(executeActionMetaDTO.getPlugin());
+        Mono<Plugin> pluginMono = executeActionMetaDTO.getPlugin() != null
+                ? Mono.just(executeActionMetaDTO.getPlugin())
+                : getCachedPluginForActionExecution(datasourceStorageMono);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
