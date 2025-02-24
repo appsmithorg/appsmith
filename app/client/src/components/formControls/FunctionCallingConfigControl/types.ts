@@ -14,6 +14,6 @@ export interface FunctionCallingConfigFormToolField {
   id: string;
   description: string;
   entityId: string;
-  requiresApproval: boolean;
+  isApprovalRequired: boolean;
   entityType: FunctionCallingEntityType;
 }
