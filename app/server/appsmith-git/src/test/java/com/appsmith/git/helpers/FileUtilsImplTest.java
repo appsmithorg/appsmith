@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
@@ -30,8 +31,9 @@ import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 public class FileUtilsImplTest {
-    private FileUtilsImpl fileUtils;
 
+    private FileUtilsImpl fileUtils;
+    private FSGitHandler fsGitHandler;
     private GitExecutorImpl gitExecutor;
 
     private static final String localTestDirectory = "localTestDirectory";
@@ -44,7 +46,12 @@ public class FileUtilsImplTest {
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
         FileOperations fileOperations = new FileOperationsImpl(null, ObservationHelper.NOOP);
         fileUtils = new FileUtilsImpl(
-                gitServiceConfig, gitExecutor, fileOperations, ObservationHelper.NOOP, new ObjectMapper());
+                gitServiceConfig,
+                fsGitHandler,
+                gitExecutor,
+                fileOperations,
+                ObservationHelper.NOOP,
+                new ObjectMapper());
     }
 
     @AfterEach

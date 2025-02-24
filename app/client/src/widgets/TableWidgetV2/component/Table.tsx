@@ -418,6 +418,7 @@ export function Table(props: TableProps) {
                   disabledAddNewRowSave={props.disabledAddNewRowSave}
                   filters={props.filters}
                   isAddRowInProgress={props.isAddRowInProgress}
+                  isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
                   isVisibleDownload={props.isVisibleDownload}
                   isVisibleFilters={props.isVisibleFilters}
                   isVisiblePagination={props.isVisiblePagination}
