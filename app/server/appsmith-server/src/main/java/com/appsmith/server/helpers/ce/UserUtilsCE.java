@@ -36,19 +36,21 @@ public class UserUtilsCE {
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final CommonConfig commonConfig;
-    InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
+    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
 
     public UserUtilsCE(
             ConfigRepository configRepository,
             PermissionGroupRepository permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.observationRegistry = observationRegistry;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
+        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
