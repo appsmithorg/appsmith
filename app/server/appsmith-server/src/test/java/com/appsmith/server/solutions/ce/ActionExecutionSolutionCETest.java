@@ -329,7 +329,7 @@ public class ActionExecutionSolutionCETest {
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.just(mockResult));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
@@ -341,15 +341,6 @@ public class ActionExecutionSolutionCETest {
         Mono<ActionExecutionResult> actionExecutionResultMono =
                 actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
         return actionExecutionResultMono;
-    }
-
-    private PluginExecutor mockDatasourceCreate(PluginExecutor pluginExecutor) {
-        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
-
-        // This method has been recently added to support feature flagging for datasource creation
-        // second param to datasourceCreate method is the feature flags map
-        Mockito.when(pluginExecutor.datasourceCreate(any(), any())).thenReturn(Mono.empty());
-        return pluginExecutor;
     }
 
     @Test
@@ -540,7 +531,7 @@ public class ActionExecutionSolutionCETest {
                 .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
@@ -599,7 +590,7 @@ public class ActionExecutionSolutionCETest {
                 .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
@@ -653,7 +644,7 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new StaleConnectionException()))
                 .thenReturn(Mono.error(new StaleConnectionException()));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
@@ -706,7 +697,7 @@ public class ActionExecutionSolutionCETest {
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
@@ -741,7 +732,7 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
-        pluginExecutor = this.mockDatasourceCreate(pluginExecutor);
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         Mockito.doReturn(Mono.just(false))

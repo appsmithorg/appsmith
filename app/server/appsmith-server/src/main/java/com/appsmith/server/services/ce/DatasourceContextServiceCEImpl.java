@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DatasourceStorage;
@@ -214,9 +215,16 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         /* Create a fresh datasource context */
                         DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
                         Mono<Object> connectionMonoCache = featureFlagService
-                                .getAllFeatureFlagsForUser()
-                                .flatMap(featureFlagMap -> pluginExecutor.datasourceCreate(
-                                        datasourceStorage.getDatasourceConfiguration(), featureFlagMap))
+                                .check(FeatureFlagEnum.release_dynamodb_connection_time_to_live_enabled)
+                                .flatMap(isFlagEnabled -> {
+                                    if (isFlagEnabled) {
+                                        return pluginExecutor.datasourceCreate(
+                                                datasourceStorage.getDatasourceConfiguration(), true);
+                                    } else {
+                                        return pluginExecutor.datasourceCreate(
+                                                datasourceStorage.getDatasourceConfiguration());
+                                    }
+                                })
                                 .cache();
 
                         Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache

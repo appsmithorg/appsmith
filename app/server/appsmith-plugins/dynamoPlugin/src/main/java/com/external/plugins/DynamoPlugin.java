@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -286,7 +285,7 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Mono<DynamoDbClient> datasourceCreate(
-                DatasourceConfiguration datasourceConfiguration, Map<String, Boolean> featureFlagMap) {
+                DatasourceConfiguration datasourceConfiguration, Boolean isFlagEnabled) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
@@ -298,10 +297,8 @@ public class DynamoPlugin extends BasePlugin {
                          * To understand what this config means please check here:
                          * {@link https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html#connectionTimeToLive(java.time.Duration)}
                          */
-                        Boolean isDynamoConnectionToLiveEnabled = featureFlagMap.getOrDefault(
-                                FeatureFlagEnum.release_dynamodb_connection_time_to_live_enabled.name(), Boolean.FALSE);
                         DynamoDbClientBuilder builder;
-                        if (isDynamoConnectionToLiveEnabled) {
+                        if (isFlagEnabled) {
                             log.debug("DynamoDB client builder created with custom connection time to live");
                             builder = DynamoDbClient.builder()
                                     .httpClient(ApacheHttpClient.builder()
@@ -311,65 +308,23 @@ public class DynamoPlugin extends BasePlugin {
                             builder = DynamoDbClient.builder();
                         }
 
-                        if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                            final Endpoint endpoint =
-                                    datasourceConfiguration.getEndpoints().get(0);
-                            builder.endpointOverride(
-                                    URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
-                        }
-
-                        final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                        if (authentication == null || !StringUtils.hasLength(authentication.getDatabaseName())) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    DynamoErrorMessages.MISSING_REGION_ERROR_MSG);
-                        }
-
-                        builder.region(Region.of(authentication.getDatabaseName()));
-
-                        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
-                                authentication.getUsername(), authentication.getPassword())));
-
-                        return builder.build();
+                        return this.getDynamoDBClientObject(datasourceConfiguration, builder);
                     })
                     .subscribeOn(scheduler);
         }
 
+        // This method is not being used right now as we had created a separate method with the same name in the
+        // DynamoPlugin class.
+        // which creates dynamoDB client based on feature flagging
+        // Once feature flagging is removed, we can go back to using this method.
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
+                        final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
-                        // Configuring connection time to live as 1 day so that we don't face issues with stale
-                        // connections
-                        // in the connection pool.
-                        // 1 Day is added randomly as a time which is not too less or too high
-                        final DynamoDbClientBuilder builder = DynamoDbClient.builder()
-                                .httpClient(ApacheHttpClient.builder()
-                                        .connectionTimeToLive(CONNECTION_TIME_TO_LIVE)
-                                        .build());
-
-                        if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                            final Endpoint endpoint =
-                                    datasourceConfiguration.getEndpoints().get(0);
-                            builder.endpointOverride(
-                                    URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
-                        }
-
-                        final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                        if (authentication == null || !StringUtils.hasLength(authentication.getDatabaseName())) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    DynamoErrorMessages.MISSING_REGION_ERROR_MSG);
-                        }
-
-                        builder.region(Region.of(authentication.getDatabaseName()));
-
-                        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
-                                authentication.getUsername(), authentication.getPassword())));
-
-                        return builder.build();
+                        return this.getDynamoDBClientObject(datasourceConfiguration, builder);
                     })
                     .subscribeOn(scheduler);
         }
@@ -673,5 +628,25 @@ public class DynamoPlugin extends BasePlugin {
             }
         }
         return true;
+    }
+
+    private DynamoDbClient getDynamoDBClientObject(DatasourceConfiguration dsConfig, DynamoDbClientBuilder builder) {
+        if (!CollectionUtils.isEmpty(dsConfig.getEndpoints())) {
+            final Endpoint endpoint = dsConfig.getEndpoints().get(0);
+            builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
+        }
+
+        final DBAuth authentication = (DBAuth) dsConfig.getAuthentication();
+        if (authentication == null || !StringUtils.hasLength(authentication.getDatabaseName())) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DynamoErrorMessages.MISSING_REGION_ERROR_MSG);
+        }
+
+        builder.region(Region.of(authentication.getDatabaseName()));
+
+        builder.credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())));
+
+        return builder.build();
     }
 }

@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
@@ -74,7 +73,6 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @Slf4j
@@ -126,9 +124,6 @@ public class DatasourceServiceTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
-    @SpyBean
-    FeatureFlagService featureFlagService;
-
     String workspaceId = "";
     private String defaultEnvironmentId;
 
@@ -144,7 +139,6 @@ public class DatasourceServiceTest {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
-        doReturn(Mono.just(Map.of())).when(featureFlagService).getAllFeatureFlagsForUser();
     }
 
     @AfterEach
@@ -1996,7 +1990,7 @@ public class DatasourceServiceTest {
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        doReturn(Mono.just(datasourceStorage))
+        Mockito.doReturn(Mono.just(datasourceStorage))
                 .when(datasourceStorageService)
                 .create(Mockito.any(), Mockito.anyBoolean());
         Datasource dbDatasource = datasourceService.create(datasource).block();
@@ -2061,7 +2055,9 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        doReturn(Mono.just(true)).when(spyDatasourceService).isEndpointBlockedForConnectionRequest(Mockito.any());
+        Mockito.doReturn(Mono.just(true))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
         Mono<DatasourceTestResult> testResultMono =
                 spyDatasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
 

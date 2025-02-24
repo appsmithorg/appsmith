@@ -662,10 +662,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
 
         return featureFlagService
-                .getAllFeatureFlagsForUser()
-                .flatMap(featureFlagMap ->
-                        pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                                .testDatasource(datasourceStorage.getDatasourceConfiguration(), featureFlagMap)));
+                .check(FeatureFlagEnum.release_dynamodb_connection_time_to_live_enabled)
+                .flatMap(isFlagEnabled -> {
+                    if (isFlagEnabled) {
+                        return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                .testDatasource(datasourceStorage.getDatasourceConfiguration(), true));
+                    } else {
+                        return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                .testDatasource(datasourceStorage.getDatasourceConfiguration()));
+                    }
+                });
     }
 
     /*
