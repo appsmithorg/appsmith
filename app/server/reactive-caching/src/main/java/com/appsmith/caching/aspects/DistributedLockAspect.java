@@ -75,7 +75,7 @@ public class DistributedLockAspect {
                     log.error("Error while releasing lock: {}", lockKey, error);
                     return Mono.empty();
                 })
-                .subscribeOn(Schedulers.boundedElastic())
+                .subscribeOn(Schedulers.immediate())
                 .subscribe();
     }
 

@@ -330,8 +330,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
      */
     @Override
     public Mono<Void> restartOrganization() {
-        // TODO remove this method once we move the form login env to DB variable which is currently required as a part
-        //  of downgrade migration for SSO
+        // TODO @CloudBilling: remove this method once we move the form login env to DB variable which is currently
+        //  required as a part of downgrade migration for SSO
         return this.retrieveAll()
                 .filter(organization ->
                         TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
