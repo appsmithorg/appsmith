@@ -2,13 +2,13 @@ import { put } from "redux-saga/effects";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import type { ActionExecutionResponse, ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "entities/Plugin";
-import { RESP_HEADER_DATATYPE } from "constants/AppsmithActionConstants/ActionConstants";
 import { getType, Types } from "utils/TypeHelpers";
 
 export enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
+export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export function* setDefaultActionDisplayFormat(
   actionId: string,
   plugin: Plugin | undefined,
