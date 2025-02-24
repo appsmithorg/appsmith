@@ -8,4 +8,8 @@ export interface SliderProps
   formatOptions?: Intl.NumberFormatOptions;
   /** A function that returns the content to display as the value's label. Overrides default formatted number. */
   getValueLabel?: (value: number) => string;
+  /** Property path for JS toggle */
+  configProperty?: string;
+  /** Form name for JS toggle */
+  formName?: string;
 }

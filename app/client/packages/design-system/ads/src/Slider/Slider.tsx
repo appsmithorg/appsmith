@@ -6,6 +6,8 @@ import { VisuallyHidden } from "@react-aria/visually-hidden";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { AriaSliderProps } from "@react-types/slider";
 import { Text } from "../Text";
+// Removed FlexWrapper import as we're using LabelWrapper from Slider.styles.tsx
+import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import { SliderFocusVisibleClassName } from "./Slider.constants";
 import {
   StyledSlider,
@@ -15,6 +17,7 @@ import {
   FilledRail,
   Track,
   TrackContainer,
+  LabelWrapper,
 } from "./Slider.styles";
 import type { SliderProps } from "./Slider.types";
 
@@ -67,10 +70,18 @@ export function Slider(props: SliderProps) {
     <StyledSlider {...groupProps} disabled={props.isDisabled}>
       <SliderLabel>
         {props.label && (
-          // @ts-expect-error incompatible types for Text and labelProps
-          <Text renderAs="label" {...labelProps}>
-            {props.label}
-          </Text>
+          <LabelWrapper>
+            {/* @ts-expect-error incompatible types for Text and labelProps */}
+            <Text renderAs="label" {...labelProps}>
+              {props.label}
+            </Text>
+            {props.configProperty && props.formName && (
+              <ToggleComponentToJsonHandler
+                configProperty={props.configProperty}
+                formName={props.formName}
+              />
+            )}
+          </LabelWrapper>
         )}
         {/*@ts-expect-error incompatible types for Text and outputProps**/}
         <Text {...outputProps}>{getDisplayValue()}</Text>

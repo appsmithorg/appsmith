@@ -83,3 +83,9 @@ export const Track = styled.div`
   height: var(--ads-v2-spaces-4);
   width: 100%;
 `;
+
+export const LabelWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+`;
