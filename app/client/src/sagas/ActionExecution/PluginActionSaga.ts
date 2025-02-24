@@ -81,10 +81,7 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  EventType,
-  RESP_HEADER_DATATYPE,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
@@ -172,10 +169,7 @@ import {
   selectGitConnectModalOpen,
   selectGitOpsModalOpen,
 } from "selectors/gitModSelectors";
-
-enum ActionResponseDataTypes {
-  BINARY = "BINARY",
-}
+import { createActionExecutionResponse } from "./PluginActionSagaUtils";
 
 interface FilePickerInstumentationObject {
   numberOfFiles: number;
@@ -208,32 +202,6 @@ export const getActionTimeout = (
   return undefined;
 };
 
-export const createActionExecutionResponse = (
-  response: ActionExecutionResponse,
-): ActionResponse => {
-  const payload = response.data;
-
-  if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
-    const respHeaders = payload.headers;
-
-    if (
-      respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
-      respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
-      respHeaders[RESP_HEADER_DATATYPE][0] === ActionResponseDataTypes.BINARY &&
-      getType(payload.body) === Types.STRING
-    ) {
-      // Decoding from base64 to handle the binary files because direct
-      // conversion of binary files to string causes corruption in the final output
-      // this is to only handle the download of binary files
-      payload.body = atob(payload.body as string);
-    }
-  }
-
-  return {
-    ...payload,
-    ...response.clientMeta,
-  };
-};
 const isErrorResponse = (response: ActionExecutionResponse) => {
   return !response.data.isExecutionSuccess;
 };
