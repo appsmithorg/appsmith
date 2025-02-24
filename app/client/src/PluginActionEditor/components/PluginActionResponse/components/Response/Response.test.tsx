@@ -28,6 +28,13 @@ const defaultProps = {
   responseTabHeight: 200,
 };
 
+// mock the postrunactionmap
+jest.mock("ee/components/PostActionRunComponents", () => ({
+  PostRunActionComponentMap: {
+    test_modal: () => <div data-testid="t--post-run-action-test-modal-form" />,
+  },
+}));
+
 const storeData = getIDETestState({});
 
 describe("Response", () => {
@@ -36,6 +43,7 @@ describe("Response", () => {
 
   beforeEach(() => {
     store = mockStore(storeData);
+    jest.clearAllMocks();
   });
 
   /** Test use prepared statement warning **/
@@ -206,6 +214,154 @@ describe("Response", () => {
     // Check if the prepared statement warning is showing
     expect(
       container.querySelector("[data-testid='t--prepared-statement-warning']"),
+    ).toBeNull();
+  });
+
+  it("6. Should show post run action container when post run action exists", () => {
+    const postRunAction = {
+      type: "FORM",
+      name: "test_modal",
+    };
+    const actionResponse = {
+      isExecutionSuccess: true,
+      body: [{ key: "value" }],
+      postRunAction,
+      dataTypes: [{ dataType: "JSON" }],
+      responseDisplayFormat: "JSON",
+    } as unknown as ActionResponse;
+
+    store = mockStore({
+      ...storeData,
+      entities: {
+        ...storeData.entities,
+        actions: [
+          {
+            config: {
+              id: "test-action-id",
+              name: "Test Action",
+            },
+            isLoading: false,
+            data: actionResponse,
+          },
+        ],
+      },
+    });
+
+    const props = {
+      ...defaultProps,
+      actionResponse,
+      currentContentType: "JSON",
+    };
+
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <Response {...props} />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    // Check if post run action container is showing
+    expect(getByTestId("t--post-run-action-container")).not.toBeNull();
+    expect(getByTestId("t--post-run-action-test-modal-form")).not.toBeNull();
+  });
+
+  it("7. Should not show post run action container when post run action doesn't exist", () => {
+    const actionResponse = {
+      isExecutionSuccess: true,
+      body: [{ key: "value" }],
+      dataTypes: [{ dataType: "JSON" }],
+      responseDisplayFormat: "JSON",
+    } as unknown as ActionResponse;
+
+    store = mockStore({
+      ...storeData,
+      entities: {
+        ...storeData.entities,
+        actions: [
+          {
+            config: {
+              id: "test-action-id",
+              name: "Test Action",
+            },
+            isLoading: false,
+            data: actionResponse,
+          },
+        ],
+      },
+    });
+
+    const props = {
+      ...defaultProps,
+      actionResponse,
+    };
+
+    const { container } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <Response {...props} />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    // Check if post run action container is not showing
+    expect(
+      container.querySelector("[data-testid='t--post-run-action-container']"),
+    ).toBeNull();
+  });
+
+  it("8. Should not show post run action container when correct mapping is not found", () => {
+    const postRunAction = {
+      type: "FORM",
+      name: "invalid_modal",
+    };
+    const actionResponse = {
+      isExecutionSuccess: true,
+      body: [{ key: "value" }],
+      postRunAction,
+      dataTypes: [{ dataType: "JSON" }],
+      responseDisplayFormat: "JSON",
+    } as unknown as ActionResponse;
+
+    store = mockStore({
+      ...storeData,
+      entities: {
+        ...storeData.entities,
+        actions: [
+          {
+            config: {
+              id: "test-action-id",
+              name: "Test Action",
+            },
+            isLoading: false,
+            data: actionResponse,
+          },
+        ],
+      },
+    });
+
+    const props = {
+      ...defaultProps,
+      actionResponse,
+    };
+
+    const { container } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <Response {...props} />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    // Check if post run action container is not showing
+    expect(
+      container.querySelector("[data-testid='t--post-run-action-container']"),
     ).toBeNull();
   });
 });
