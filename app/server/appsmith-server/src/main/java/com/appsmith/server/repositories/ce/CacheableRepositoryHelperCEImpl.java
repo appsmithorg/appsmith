@@ -32,6 +32,7 @@ import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_ORGAN
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
+import static org.springframework.util.StringUtils.hasLength;
 
 @Slf4j
 @Component
@@ -95,6 +96,12 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<String> getOrganizationAdminPermissionGroupId(String organizationId) {
 
+        String organizationAdminPermissionGroupId =
+                inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(organizationId);
+        if (hasLength(organizationAdminPermissionGroupId)) {
+            return Mono.just(organizationAdminPermissionGroupId);
+        }
+
         // Find the permission group id of the organization admin
         BridgeQuery<PermissionGroup> andCriteria = Bridge.and(
                 Bridge.equal(PermissionGroup.Fields.defaultDomainType, Organization.class.getSimpleName()),
@@ -109,7 +116,10 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return mongoOperations
                 .find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
-                .next();
+                .next()
+                .doOnSuccess(
+                        permissionGroupId -> inMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
+                                organizationId, permissionGroupId));
     }
 
     @Override
