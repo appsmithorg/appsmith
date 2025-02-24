@@ -16,6 +16,7 @@ import com.appsmith.server.services.UserIdentifierService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -161,7 +162,11 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
         return sessionUserService
                 .getCurrentUser()
-                .map(User::getOrganizationId)
+                // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
+                //  organization. Update this to get the orgId based on the request origin.
+                .flatMap(user -> StringUtils.hasText(user.getOrganizationId())
+                        ? Mono.just(user.getOrganizationId())
+                        : Mono.empty())
                 .switchIfEmpty(Mono.defer(() -> {
                     log.error(
                             "No user found while fetching organization features, if the method is called without user "
