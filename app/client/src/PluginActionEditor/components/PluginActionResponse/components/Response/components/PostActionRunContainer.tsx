@@ -1,8 +1,8 @@
 import React from "react";
 import { getPostRunActionName } from "../utils/postRunActionsUtil";
 import styled from "styled-components";
-import { PostRunActionComponentMap } from "ee/components/PostActionRunComponents";
-import type { PostRunActionNamesInterface } from "ee/components/PostActionRunComponents/types";
+import { PostRunActionComponentMap } from "ee/PluginActionEditor/components/PostActionRun";
+import type { PostRunActionNamesInterface } from "ee/PluginActionEditor/components/PostActionRun/types";
 import type { PostActionRunConfig } from "api/types";
 
 interface Props {
