@@ -11,6 +11,7 @@ export interface HybridSearchControlProps extends ControlProps {
   value?: number;
   onChange?: (value: number) => void;
   getValueLabel?: (value: number) => string;
+  configProperty: string;
 }
 
 export class HybridSearchControl extends BaseControl<HybridSearchControlProps> {

@@ -10,6 +10,7 @@ export interface SliderControlProps extends ControlProps {
   step?: number;
   defaultValue?: number;
   onChangeEnd?: (value: number) => void;
+  configProperty: string;
 }
 
 export class SliderControl extends BaseControl<SliderControlProps> {
