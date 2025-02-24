@@ -4,9 +4,14 @@ import BaseControl from "./BaseControl";
 import type { ControlProps } from "./BaseControl";
 import { Slider, type SliderProps, Flex, Switch, Text } from "@appsmith/ads";
 
-export interface HybridSearchControlProps
-  extends ControlProps,
-    Omit<SliderProps, "id" | "label"> {}
+export interface HybridSearchControlProps extends ControlProps {
+  maxValue?: number;
+  minValue?: number;
+  step?: number;
+  value?: number;
+  onChange?: (value: number) => void;
+  getValueLabel?: (value: number) => string;
+}
 
 export class HybridSearchControl extends BaseControl<HybridSearchControlProps> {
   render() {

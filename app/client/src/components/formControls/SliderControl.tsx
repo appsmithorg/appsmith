@@ -4,9 +4,13 @@ import BaseControl from "./BaseControl";
 import type { ControlProps } from "./BaseControl";
 import { Slider, type SliderProps } from "@appsmith/ads";
 
-export interface SliderControlProps
-  extends ControlProps,
-    Omit<SliderProps, "id" | "label"> {}
+export interface SliderControlProps extends ControlProps {
+  maxValue?: number;
+  minValue?: number;
+  step?: number;
+  defaultValue?: number;
+  onChangeEnd?: (value: number) => void;
+}
 
 export class SliderControl extends BaseControl<SliderControlProps> {
   render() {
