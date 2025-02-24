@@ -287,16 +287,36 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     @Override
     public Mono<ActionExecutionResult> executeAction(
             Flux<Part> partFlux, String environmentId, HttpHeaders httpHeaders, Boolean operateWithoutPermission) {
+
+        // Cache the multipart data so it can be reused
+        Mono<List<Part>> cachedPartsMono = partFlux.collectList().cache();
+
+        // Build the metadata DTO
         ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
                 .headers(httpHeaders)
                 .operateWithoutPermission(operateWithoutPermission)
                 .environmentId(environmentId)
                 .build();
-        Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);
-        return executeActionDTOMono
-                .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                .tap(Micrometer.observation(observationRegistry));
+
+        // Derive ExecuteActionDTO from cached parts
+        Mono<ExecuteActionDTO> executeActionDTOMono =
+                cachedPartsMono.flatMap(parts -> createExecuteActionDTO(Flux.fromIterable(parts)));
+
+        // Fetch the plugin using the cached data
+        Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
+                .findById(executeActionDTO.getActionId())
+                .flatMap(newAction -> pluginService.findById(newAction.getPluginId()))
+                .cache());
+        executeActionMetaDTO.setPlugin(pluginMono);
+        // Execute the action with both plugin name and parts
+        return pluginMono.flatMap(plugin -> {
+            String pluginName = plugin.getName();
+            return executeActionDTOMono
+                    .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                    .tag("plugin", pluginName)
+                    .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                    .tap(Micrometer.observation(observationRegistry));
+        });
     }
 
     /**
@@ -322,7 +342,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 3. Instantiate the implementation class based on the query type
         Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, executeActionMetaDTO);
-        Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceStorageMono);
+        //        Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceStorageMono);
+        Mono<Plugin> pluginMono = executeActionMetaDTO.getPlugin();
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
