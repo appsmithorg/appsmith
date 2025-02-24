@@ -99,12 +99,11 @@ function InputText(props: InputTextProp) {
 }
 
 class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
-  static getBindingPrefix = (tableName: string, stringToEvaluate: string) => {
-    return `{{(() => { const tableData = ${tableName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${stringToEvaluate}`;
-  };
-
-  static getBindingSuffix = (stringToEvaluate: string) => {
-    return `)) : ${stringToEvaluate} })()}}`;
+  static getTableComputeBinding = (
+    tableName: string,
+    stringToEvaluate: string,
+  ) => {
+    return `{{(() => { const tableData = ${tableName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${stringToEvaluate})) : ${stringToEvaluate} })()}}`;
   };
 
   render() {
@@ -199,15 +198,9 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       return stringToEvaluate;
     }
 
-    return this.buildTableSpecificBinding(stringToEvaluate, tableName);
-  };
-
-  buildTableSpecificBinding = (stringToEvaluate: string, tableName: string) => {
-    return (
-      ComputeTablePropertyControlV2.getBindingPrefix(
-        tableName,
-        stringToEvaluate,
-      ) + ComputeTablePropertyControlV2.getBindingSuffix(stringToEvaluate)
+    return ComputeTablePropertyControlV2.getTableComputeBinding(
+      tableName,
+      stringToEvaluate,
     );
   };
 
