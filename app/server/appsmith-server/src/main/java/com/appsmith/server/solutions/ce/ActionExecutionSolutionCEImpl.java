@@ -97,6 +97,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.constants.ce.FieldNameCE.NONE;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -294,13 +295,21 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .build();
         Mono<ExecuteActionDTO> executeActionDTOMono =
                 createExecuteActionDTO(partFlux).cache();
-        Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
-                .findById(executeActionDTO.getActionId())
-                .flatMap(newAction -> pluginService.findById(newAction.getPluginId()))
-                .cache());
+        Mono<Plugin> pluginMono = executeActionDTOMono
+                .flatMap(executeActionDTO -> newActionService
+                        .findById(executeActionDTO.getActionId())
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION)))
+                        .flatMap(newAction -> {
+                            if (newAction.getPluginId() != null) {
+                                return pluginService.findById(newAction.getPluginId());
+                            } else {
+                                return Mono.empty();
+                            }
+                        }))
+                .cache();
 
         return pluginMono.flatMap(plugin -> {
-            String pluginName = plugin.getName();
+            String pluginName = plugin.getName() != null ? plugin.getName() : NONE;
             executeActionMetaDTO.setPlugin(plugin);
             return executeActionDTOMono
                     .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
