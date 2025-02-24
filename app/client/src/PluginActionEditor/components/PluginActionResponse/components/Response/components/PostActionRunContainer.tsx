@@ -36,7 +36,7 @@ export default function PostActionRunContainer({ postRunAction }: Props) {
   }
 
   return (
-    <Container>
+    <Container data-testid="t--post-run-action-container">
       <Component />
     </Container>
   );
