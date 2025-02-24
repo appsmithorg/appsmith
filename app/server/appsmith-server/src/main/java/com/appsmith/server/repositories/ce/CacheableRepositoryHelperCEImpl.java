@@ -55,23 +55,50 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         if (user.getEmail() == null
                 || user.getEmail().isEmpty()
                 || user.getId() == null
-                || user.getId().isEmpty()) {
+                || user.getId().isEmpty()
+                || user.getOrganizationId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-        BridgeQuery<PermissionGroup> assignedToUserIdsCriteria =
-                Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
+        Mono<Query> createQueryMono = getOrganizationAdminPermissionGroupId(user.getOrganizationId())
+                .map(organizationAdminPermissionGroupId -> {
+                    BridgeQuery<PermissionGroup> assignedToUserIdsCriteria =
+                            Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
 
-        BridgeQuery<PermissionGroup> notDeletedCriteria = notDeleted();
+                    BridgeQuery<PermissionGroup> notDeletedCriteria = notDeleted();
 
-        // The roles should be either workspace default roles, user management role, or organization admin role
-        BridgeQuery<PermissionGroup> ceSupportedRolesCriteria = Bridge.or(
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()),
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName()),
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Organization.class.getSimpleName()));
+                    // The roles should be either workspace default roles, user management role, or instance admin role
+                    BridgeQuery<PermissionGroup> ceSupportedRolesCriteria = Bridge.or(
+                            Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()),
+                            Bridge.equal(PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName()),
+                            Bridge.equal(PermissionGroup.Fields.id, organizationAdminPermissionGroupId));
 
-        BridgeQuery<PermissionGroup> andCriteria =
-                Bridge.and(assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria);
+                    BridgeQuery<PermissionGroup> andCriteria =
+                            Bridge.and(assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria);
+
+                    Query query = new Query();
+                    query.addCriteria(andCriteria);
+
+                    // Since we are only interested in the permission group ids, we can project only the id field.
+                    query.fields().include(PermissionGroup.Fields.id);
+
+                    return query;
+                });
+
+        return createQueryMono
+                .map(query -> mongoOperations.find(query, PermissionGroup.class))
+                .flatMapMany(obj -> obj)
+                .map(permissionGroup -> permissionGroup.getId())
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Mono<String> getOrganizationAdminPermissionGroupId(String organizationId) {
+
+        // Find the permission group id of the organization admin
+        BridgeQuery<PermissionGroup> andCriteria = Bridge.and(
+                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Organization.class.getSimpleName()),
+                Bridge.equal(PermissionGroup.Fields.defaultDomainId, organizationId));
 
         Query query = new Query();
         query.addCriteria(andCriteria);
@@ -82,7 +109,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return mongoOperations
                 .find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet());
+                .next();
     }
 
     @Override

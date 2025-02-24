@@ -11,6 +11,8 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Set<String>> getPermissionGroupsOfUser(User user);
 
+    Mono<String> getOrganizationAdminPermissionGroupId(String organizationId);
+
     Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache();
 
     Mono<Set<String>> getPermissionGroupsOfAnonymousUser();
