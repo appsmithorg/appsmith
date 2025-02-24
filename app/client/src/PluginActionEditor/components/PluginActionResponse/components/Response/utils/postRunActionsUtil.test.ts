@@ -1,7 +1,7 @@
 import {
   checkForPostRunAction,
   getPostRunActionName,
-} from "../postRunActionsUtil";
+} from "./postRunActionsUtil";
 import type { PostActionRunConfig } from "api/types";
 
 describe("checkForPostRunAction", () => {
