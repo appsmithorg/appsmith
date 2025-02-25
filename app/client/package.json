@@ -216,6 +216,7 @@
     "scroll-into-view-if-needed": "^2.2.26",
     "semver": "^7.3.5",
     "shallowequal": "^1.1.0",
+    "sheetjs": "^2.0.0",
     "showdown": "^1.9.1",
     "simplebar-react": "^2.4.3",
     "smartlook-client": "^8.0.0",
