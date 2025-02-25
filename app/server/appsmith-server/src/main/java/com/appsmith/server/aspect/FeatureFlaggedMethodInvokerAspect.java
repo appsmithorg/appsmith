@@ -86,9 +86,7 @@ public class FeatureFlaggedMethodInvokerAspect {
             }
             log.error("Exception while invoking super class method", e);
             String errorMessage = "Exception while invoking super class method";
-            AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
-            log.error(exception.getMessage(), e);
-            throw exception;
+            throw getInvalidAnnotationUsageException(method, errorMessage);
         }
     }
 
