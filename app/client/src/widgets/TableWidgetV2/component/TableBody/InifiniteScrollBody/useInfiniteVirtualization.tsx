@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 
-interface InfiniteVirtualizationProps {
+export interface UseInfiniteVirtualizationProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   totalRecordsCount?: number;
   isLoading: boolean;
@@ -9,10 +9,10 @@ interface InfiniteVirtualizationProps {
   pageSize: number;
 }
 
-interface UseInfiniteVirtualizationReturn {
-  itemCount: number;
-  loadMoreItems: (startIndex: number, stopIndex: number) => void;
+export interface UseInfiniteVirtualizationReturn {
   isItemLoaded: (index: number) => boolean;
+  itemCount: number;
+  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<void>;
   cachedRows: ReactTableRowType<Record<string, unknown>>[];
 }
 
@@ -20,94 +20,96 @@ interface LoadedRowsCache {
   [pageIndex: number]: ReactTableRowType<Record<string, unknown>>[];
 }
 
-interface ExtendedRow extends ReactTableRowType<Record<string, unknown>> {
-  __originalIndex__?: number;
-}
-
 export const useInfiniteVirtualization = ({
   isLoading,
   loadMore,
   pageSize,
   rows,
-}: InfiniteVirtualizationProps): UseInfiniteVirtualizationReturn => {
-  const cachedRows = useRef<LoadedRowsCache>({});
-  const isFirstLoad = useRef(true);
+  totalRecordsCount,
+}: UseInfiniteVirtualizationProps): UseInfiniteVirtualizationReturn => {
+  // Keep track of which pages are loaded
+  const [loadedPages, setLoadedPages] = useState<LoadedRowsCache>({});
+
+  // Keep track of the last loaded page for appending new data
   const lastLoadedPageRef = useRef<number>(0);
-  const [hasMore, setHasMore] = useState(true);
 
-  const loadMoreItems = useCallback(
-    async (startIndex: number, stopIndex: number) => {
-      const targetPage = Math.floor(stopIndex / pageSize);
+  // Calculate max possible pages based on total records
+  const maxPages = useMemo(() => {
+    if (!totalRecordsCount) return Infinity;
 
-      if (!isLoading && targetPage >= lastLoadedPageRef.current && hasMore) {
-        loadMore();
-      }
+    return Math.ceil(totalRecordsCount / pageSize);
+  }, [totalRecordsCount, pageSize]);
 
-      return Promise.resolve();
-    },
-    [isLoading, loadMore, pageSize, hasMore],
-  );
+  // Effect to handle new data
+  useEffect(() => {
+    if (rows.length > 0) {
+      // Since we know we get pageSize number of rows each time (except possibly last page)
+      // we can calculate the current page index
+      const currentPageIndex = lastLoadedPageRef.current;
+
+      // Store the current page of rows in cache
+      setLoadedPages((prev) => ({
+        ...prev,
+        [currentPageIndex]: rows,
+      }));
+
+      // Increment the last loaded page counter for next load
+      lastLoadedPageRef.current = currentPageIndex + 1;
+    }
+  }, [rows, pageSize]);
+
+  // Memoize the combined rows from cache
+  const cachedRows = useMemo(() => {
+    const allRows: ReactTableRowType<Record<string, unknown>>[] = [];
+
+    // Add all rows from cache in order
+    Object.keys(loadedPages)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .forEach((pageIndex) => {
+        allRows.push(...loadedPages[pageIndex]);
+      });
+
+    return allRows;
+  }, [loadedPages]);
 
   const isItemLoaded = useCallback(
     (index: number) => {
       const pageIndex = Math.floor(index / pageSize);
 
-      return pageIndex < lastLoadedPageRef.current;
+      // Consider items loaded if we've reached max pages or if the page is already loaded
+      return pageIndex >= maxPages || pageIndex < lastLoadedPageRef.current;
     },
-    [pageSize],
+    [pageSize, maxPages],
   );
 
-  useEffect(() => {
-    if (rows.length > 0) {
-      cachedRows.current = {
-        ...cachedRows.current,
-        [lastLoadedPageRef.current]: rows,
-      };
+  // const itemCount = useMemo(() => {
+  //   return totalRecordsCount || cachedRows.length;
+  // }, [totalRecordsCount, cachedRows.length]);
 
-      if (rows.length < pageSize) {
-        setHasMore(false);
+  const loadMoreItems = useCallback(
+    async (startIndex: number, stopIndex: number) => {
+      if (!isLoading) {
+        const targetPage = Math.floor(stopIndex / pageSize);
+
+        // Only load if:
+        // 1. We haven't loaded this page yet
+        // 2. We haven't reached the max number of pages
+        // 3. We're not currently loading
+        if (targetPage >= lastLoadedPageRef.current && targetPage < maxPages) {
+          loadMore();
+        }
       }
 
-      if (isFirstLoad.current) {
-        isFirstLoad.current = false;
-        loadMore();
-      }
-
-      lastLoadedPageRef.current += 1;
-    }
-  }, [rows, loadMore, pageSize]);
-
-  const allRows = useMemo(() => {
-    const allRowsArray: unknown[] = [];
-    let currentIndex = 0;
-
-    Object.keys(cachedRows.current)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .forEach((pageIndex) => {
-        // Map each row to ensure it has __originalIndex__
-        const pageRows = cachedRows.current[pageIndex]
-          .map((row: ExtendedRow) => {
-            if (!row) return null;
-
-            return {
-              ...row,
-              __originalIndex__: row.__originalIndex__ ?? currentIndex++,
-            };
-          })
-          .filter(Boolean); // Remove any null entries
-
-        allRowsArray.push(...pageRows);
-      });
-
-    return allRowsArray;
-  }, [cachedRows.current]);
-  // console.log("🚀 ~ allRows ~ allRows:", allRows.length);
+      return Promise.resolve();
+    },
+    [isLoading, loadMore, pageSize, maxPages],
+  );
 
   return {
-    itemCount: Infinity,
-    loadMoreItems,
     isItemLoaded,
-    cachedRows: allRows as ReactTableRowType<Record<string, unknown>>[],
+    itemCount: totalRecordsCount || Infinity,
+    loadMoreItems,
+    cachedRows,
   };
 };

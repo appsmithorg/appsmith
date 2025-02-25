@@ -62,6 +62,7 @@ interface BodyPropsType {
   isInfiniteScrollEnabled?: boolean;
   isLoading: boolean;
   loadMoreFromEvaluations: () => void;
+  totalRecordsCount?: number;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(

@@ -532,6 +532,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
+                totalRecordsCount={props.totalRecordsCount}
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}
