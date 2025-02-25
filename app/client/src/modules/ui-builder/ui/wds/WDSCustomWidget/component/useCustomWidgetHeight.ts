@@ -12,22 +12,35 @@ export const useCustomWidgetHeight = (
   const [componentHeight, setComponentHeight] = useState("");
 
   useLayoutEffect(() => {
-    const canvasElem = document.querySelector(".canvas");
+    const updateHeight = () => {
+      const canvasElem = document.querySelector(".canvas");
 
-    if (canvasElem) {
-      switch (size) {
-        case COMPONENT_SIZE.AUTO:
-          return setComponentHeight("100%");
-        case COMPONENT_SIZE.FIT_PAGE:
-          return setComponentHeight(
-            getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
-          );
-        default:
-          return setComponentHeight(
-            getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
-          );
+      if (canvasElem) {
+        switch (size) {
+          case COMPONENT_SIZE.AUTO:
+            setComponentHeight("100%");
+            break;
+          case COMPONENT_SIZE.FIT_PAGE:
+            setComponentHeight(
+              getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
+            );
+            break;
+          default:
+            setComponentHeight(
+              getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
+            );
+            break;
+        }
       }
-    }
+    };
+
+    updateHeight();
+
+    const observer = new MutationObserver(updateHeight);
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
   }, [size, isEmbed]);
 
   return componentHeight;
