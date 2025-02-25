@@ -116,6 +116,8 @@ export class DataManager {
       Snowflake_role: "SYSADMIN",
       Snowflake_username: Cypress.env("SNOWFLAKE_USERNAME"),
       Snowflake_password: Cypress.env("SNOWFLAKE_PASSWORD"),
+
+      hubspotBearerToken: Cypress.env("HUBSPOT_TOKEN"),
     },
 
     Staging: {
@@ -216,6 +218,8 @@ export class DataManager {
       Snowflake_role: "SYSADMIN",
       Snowflake_username: Cypress.env("SNOWFLAKE_USERNAME"),
       Snowflake_password: Cypress.env("SNOWFLAKE_PASSWORD"),
+
+      hubspotBearerToken: Cypress.env("HUBSPOT_TOKEN"),
     },
   };
 
