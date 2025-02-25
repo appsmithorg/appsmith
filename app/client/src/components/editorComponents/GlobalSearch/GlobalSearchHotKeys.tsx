@@ -1,5 +1,5 @@
 import React from "react";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import type { SearchItem, SelectEvent } from "./utils";
 
 interface Props {
@@ -15,7 +15,6 @@ interface Props {
   children: React.ReactNode;
 }
 
-@HotkeysTarget
 class GlobalSearchHotKeys extends React.Component<Props> {
   get hotKeysConfig() {
     return [
