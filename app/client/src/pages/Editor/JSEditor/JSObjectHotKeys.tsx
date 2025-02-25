@@ -15,6 +15,7 @@ function JSObjectHotKeys({ children, runActiveJSFunction }: Props) {
         global: true,
         label: "Run Js Function",
         onKeyDown: runActiveJSFunction,
+        allowInInput: true,
       },
     ],
     [runActiveJSFunction],
