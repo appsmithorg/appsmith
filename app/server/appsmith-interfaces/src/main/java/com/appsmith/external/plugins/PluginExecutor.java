@@ -295,14 +295,22 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
             Map<String, Boolean> featureFlagMap) {
         return this.trigger(connection, datasourceConfiguration, request);
     }
-
-    default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration, Boolean isFlagEnabled) {
+    /*
+     * Feature flagging implementation is added here as a potential fix to dynamoDB query timeouts problem
+     * This is a temporary fix and will be removed once we get the confirmation from the user that issue is resolved
+     * Even if the issue is not resolved, we will know that fix does not work and hence will be removing the code in any case
+     * https://github.com/appsmithorg/appsmith/issues/39426 Created task here to remove this flag
+     * This implementation ensures that none of the existing plugins have any impact due to feature flagging, hence if else condition
+     * This applies to both datasourceCreate and testDatasource methods added below
+     * */
+    default Mono<C> datasourceCreate(
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
         return this.datasourceCreate(datasourceConfiguration);
     }
 
     default Mono<DatasourceTestResult> testDatasource(
-            DatasourceConfiguration datasourceConfiguration, Boolean isFlagEnabled) {
-        return this.datasourceCreate(datasourceConfiguration, isFlagEnabled)
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+        return this.datasourceCreate(datasourceConfiguration, isDynamoDBConnectionTimeToLiveEnabled)
                 .flatMap(connection -> {
                     return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));
                 })

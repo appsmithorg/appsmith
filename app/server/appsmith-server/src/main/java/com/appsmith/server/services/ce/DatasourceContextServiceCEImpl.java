@@ -214,10 +214,20 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
                         /* Create a fresh datasource context */
                         DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
+
+                        // Feature flagging implementation is added here as a potential fix to dynamoDB query timeouts
+                        // problem
+                        // This is a temporary fix and will be removed once we get the confirmation from the user that
+                        // issue is resolved
+                        // Even if the issue is not resolved, we will know that fix does not work and hence will be
+                        // removing the code in any case
+                        // https://github.com/appsmithorg/appsmith/issues/39426 Created task here to remove this flag
+                        // This implementation ensures that none of the existing plugins have any impact due to feature
+                        // flagging, hence if else condition
                         Mono<Object> connectionMonoCache = featureFlagService
                                 .check(FeatureFlagEnum.release_dynamodb_connection_time_to_live_enabled)
-                                .flatMap(isFlagEnabled -> {
-                                    if (isFlagEnabled) {
+                                .flatMap(isDynamoDBConnectionTimeToLiveEnabled -> {
+                                    if (isDynamoDBConnectionTimeToLiveEnabled) {
                                         return pluginExecutor.datasourceCreate(
                                                 datasourceStorage.getDatasourceConfiguration(), true);
                                     } else {
