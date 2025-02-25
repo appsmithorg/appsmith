@@ -9,7 +9,6 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import React, { memo } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { utils, writeFile } from "xlsx";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
@@ -142,49 +141,56 @@ function TableDataDownload(props: TableDataDownloadProps) {
       downloadTableDataAsExcel();
     }
   };
-  const downloadTableDataAsExcel = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tableData: Array<Array<any>> = [];
-
-    const headers = props.columns
-      .filter((column: ReactTableColumnProps) => {
-        return column.metaProperties && !column.metaProperties.isHidden;
-      })
-      .map((column: ReactTableColumnProps) => column.Header);
-
-    tableData.push(headers);
-
-    for (let row = 0; row < props.data.length; row++) {
-      const data = props.data[row];
+  const downloadTableDataAsExcel = async () => {
+    try {
+      // Dynamically import xlsx only when needed
+      const XLSX = await import("xlsx");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tableRow: Array<any> = [];
+      const tableData: Array<Array<any>> = [];
 
-      props.columns.forEach((column) => {
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          const value = data[column.alias];
+      const headers = props.columns
+        .filter((column: ReactTableColumnProps) => {
+          return column.metaProperties && !column.metaProperties.isHidden;
+        })
+        .map((column: ReactTableColumnProps) => column.Header);
 
-          if (
-            column.columnProperties?.columnType === "number" &&
-            typeof value === "string"
-          ) {
-            tableRow.push(Number(value) || 0);
-          } else {
-            tableRow.push(value);
+      tableData.push(headers);
+
+      for (let row = 0; row < props.data.length; row++) {
+        const data = props.data[row];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tableRow: Array<any> = [];
+
+        props.columns.forEach((column) => {
+          if (column.metaProperties && !column.metaProperties.isHidden) {
+            const value = data[column.alias];
+
+            if (
+              column.columnProperties?.columnType === "number" &&
+              typeof value === "string"
+            ) {
+              tableRow.push(Number(value) || 0);
+            } else {
+              tableRow.push(value);
+            }
           }
-        }
-      });
+        });
 
-      tableData.push(tableRow);
+        tableData.push(tableRow);
+      }
+
+      // Create workbook and worksheet using the dynamically imported XLSX
+      const ws = XLSX.utils.aoa_to_sheet(tableData);
+      const wb = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+      // Generate and download file
+      XLSX.writeFile(wb, `${props.widgetName}.xlsx`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error loading Excel export functionality:", error);
     }
-
-    // Create workbook and worksheet
-    const ws = utils.aoa_to_sheet(tableData);
-    const wb = utils.book_new();
-
-    utils.book_append_sheet(wb, ws, "Sheet1");
-
-    // Generate and download file
-    writeFile(wb, `${props.widgetName}.xlsx`);
   };
 
   const downloadTableDataAsCsv = () => {
