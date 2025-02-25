@@ -15,7 +15,6 @@ interface InfiniteScrollBodyProps {
   innerElementType?: ReactElementType;
   isLoading: boolean;
   totalRecordsCount?: number;
-  itemCount: number;
   loadMoreFromEvaluations: () => void;
   pageSize: number;
 }
@@ -51,9 +50,9 @@ const InfiniteScrollBody = React.forwardRef(
               height={props.height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
+              itemCount={itemCount}
               onItemsRendered={onItemsRendered}
               outerRef={ref}
-              pageSize={props.pageSize}
               rows={cachedRows}
               tableSizes={props.tableSizes}
             />
