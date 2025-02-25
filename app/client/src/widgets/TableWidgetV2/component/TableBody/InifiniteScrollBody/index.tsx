@@ -26,7 +26,6 @@ const InfiniteScrollBody = React.forwardRef(
     const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
         rows,
-        totalRecordsCount: rows.length,
         isLoading,
         loadMore: loadMoreFromEvaluations,
         pageSize,
@@ -38,6 +37,7 @@ const InfiniteScrollBody = React.forwardRef(
           isItemLoaded={isItemLoaded}
           itemCount={itemCount}
           loadMoreItems={loadMoreItems}
+          minimumBatchSize={pageSize}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
             <FixedInfiniteVirtualList

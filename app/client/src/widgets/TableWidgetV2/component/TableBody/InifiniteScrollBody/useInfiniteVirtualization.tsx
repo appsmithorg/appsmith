@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 
 interface InfiniteVirtualizationProps {
@@ -16,61 +16,98 @@ interface UseInfiniteVirtualizationReturn {
   cachedRows: ReactTableRowType<Record<string, unknown>>[];
 }
 
-// interface LoadedRowsCache {
-//   [pageIndex: number]: ReactTableRowType<Record<string, unknown>>[];
-// }
+interface LoadedRowsCache {
+  [pageIndex: number]: ReactTableRowType<Record<string, unknown>>[];
+}
+
+interface ExtendedRow extends ReactTableRowType<Record<string, unknown>> {
+  __originalIndex__?: number;
+}
 
 export const useInfiniteVirtualization = ({
   isLoading,
   loadMore,
+  pageSize,
   rows,
-  totalRecordsCount,
 }: InfiniteVirtualizationProps): UseInfiniteVirtualizationReturn => {
-  const cachedRows = useRef<ReactTableRowType<Record<string, unknown>>[]>([]);
-  // console.log("🚀 ~ cachedRows:", cachedRows);
-  // const pageSizeBuffer = 10;
-  // const minRowsLength = pageSize + pageSizeBuffer;
+  const cachedRows = useRef<LoadedRowsCache>({});
   const isFirstLoad = useRef(true);
+  const lastLoadedPageRef = useRef<number>(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const loadMoreItems = useCallback(
-    // (startIndex: number, stopIndex: number) => {
-    async () => {
-      if (!isLoading) {
+    async (startIndex: number, stopIndex: number) => {
+      const targetPage = Math.floor(stopIndex / pageSize);
+
+      if (!isLoading && targetPage >= lastLoadedPageRef.current && hasMore) {
         loadMore();
       }
 
       return Promise.resolve();
     },
-    [isLoading, loadMore],
+    [isLoading, loadMore, pageSize, hasMore],
   );
 
   const isItemLoaded = useCallback(
-    (index: number) => index < cachedRows.current.length,
-    [],
+    (index: number) => {
+      const pageIndex = Math.floor(index / pageSize);
+
+      return pageIndex < lastLoadedPageRef.current;
+    },
+    [pageSize],
   );
 
-  // console.log("🚀 ~ cachedRows:", cachedRows.current.length);
-  // console.log("🚀 ~ rows:", rows.length);
-  // console.log("🚀 ~ isLoading:", isLoading);
-  // console.log("🚀 ~ isFirstLoad:", isFirstLoad.current);
   useEffect(() => {
-    if (!isLoading && rows.length > 0) {
-      if (isFirstLoad.current) {
-        // On first load, trigger another load to get 2 pages worth of data
-        cachedRows.current = [...rows];
-        loadMore();
-        isFirstLoad.current = false;
-      } else {
-        // For subsequent loads, just update the cached rows
-        cachedRows.current = [...cachedRows.current, ...rows];
+    if (rows.length > 0) {
+      cachedRows.current = {
+        ...cachedRows.current,
+        [lastLoadedPageRef.current]: rows,
+      };
+
+      if (rows.length < pageSize) {
+        setHasMore(false);
       }
+
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false;
+        loadMore();
+      }
+
+      lastLoadedPageRef.current += 1;
     }
-  }, [rows, isLoading, loadMore]);
+  }, [rows, loadMore, pageSize]);
+
+  const allRows = useMemo(() => {
+    const allRowsArray: unknown[] = [];
+    let currentIndex = 0;
+
+    Object.keys(cachedRows.current)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .forEach((pageIndex) => {
+        // Map each row to ensure it has __originalIndex__
+        const pageRows = cachedRows.current[pageIndex]
+          .map((row: ExtendedRow) => {
+            if (!row) return null;
+
+            return {
+              ...row,
+              __originalIndex__: row.__originalIndex__ ?? currentIndex++,
+            };
+          })
+          .filter(Boolean); // Remove any null entries
+
+        allRowsArray.push(...pageRows);
+      });
+
+    return allRowsArray;
+  }, [cachedRows.current]);
+  // console.log("🚀 ~ allRows ~ allRows:", allRows.length);
 
   return {
-    itemCount: totalRecordsCount || Infinity,
+    itemCount: Infinity,
     loadMoreItems,
     isItemLoaded,
-    cachedRows: cachedRows.current,
+    cachedRows: allRows as ReactTableRowType<Record<string, unknown>>[],
   };
 };
