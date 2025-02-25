@@ -1,6 +1,5 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { type HotkeyConfig } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -135,258 +134,290 @@ function GlobalHotKeys(props: Props) {
     );
   }, [dispatch]);
 
-  const stopPropagationIfWidgetSelected = (e: KeyboardEvent): boolean => {
-    const multipleWidgetsSelected = selectedWidgets && selectedWidgets.length;
-    const singleWidgetSelected =
-      selectedWidget && selectedWidget != MAIN_CONTAINER_WIDGET_ID;
+  const stopPropagationIfWidgetSelected = useCallback(
+    (e: KeyboardEvent): boolean => {
+      const multipleWidgetsSelected = selectedWidgets && selectedWidgets.length;
+      const singleWidgetSelected =
+        selectedWidget && selectedWidget != MAIN_CONTAINER_WIDGET_ID;
 
-    if (
-      (singleWidgetSelected || multipleWidgetsSelected) &&
-      !getSelectedText()
-    ) {
+      if (
+        (singleWidgetSelected || multipleWidgetsSelected) &&
+        !getSelectedText()
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        return true;
+      }
+
+      return false;
+    },
+    [selectedWidgets, selectedWidget],
+  );
+
+  const onOnmnibarHotKeyDown = useCallback(
+    (
+      e: KeyboardEvent,
+      categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+    ) => {
       e.preventDefault();
-      e.stopPropagation();
 
-      return true;
+      if (isPreviewMode) return;
+
+      const category = filterCategories[categoryId];
+
+      setGlobalSearchCategory(category);
+      hideInstaller();
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "HOTKEY_COMBO",
+        category: category.title,
+      });
+    },
+    [isPreviewMode, setGlobalSearchCategory, hideInstaller, AnalyticsUtil],
+  );
+
+  const hotkeys = useMemo(() => {
+    if (isWalkthroughOpened || isProtectedMode) {
+      return [];
+    } else {
+      return [
+        {
+          combo: "mod + f",
+          global: true,
+          label: "Search entities",
+          onKeyDown: (e: KeyboardEvent) => {
+            const widgetSearchInput =
+              document.getElementById(WIDGETS_SEARCH_ID);
+
+            if (widgetSearchInput) {
+              widgetSearchInput.focus();
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          },
+        },
+        {
+          combo: "mod + p",
+          global: true,
+          label: "Navigate",
+          onKeyDown: (e: KeyboardEvent) => onOnmnibarHotKeyDown(e),
+        },
+        {
+          combo: "mod + plus",
+          global: true,
+          label: "Create new",
+          onKeyDown: (e: KeyboardEvent) =>
+            onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION),
+        },
+        {
+          combo: "mod + k",
+          global: true,
+          label: "Show omnibar",
+          onKeyDown: (e: KeyboardEvent) =>
+            onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT),
+        },
+        {
+          combo: "mod + d",
+          global: true,
+          group: "Canvas",
+          label: "Open Debugger",
+          onKeyDown: toggleDebugger,
+          preventDefault: true,
+        },
+        {
+          combo: "mod + c",
+          global: true,
+          group: "Canvas",
+          label: "Copy widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (stopPropagationIfWidgetSelected(e)) {
+              copySelectedWidget();
+            }
+          },
+        },
+        {
+          combo: "mod + v",
+          global: true,
+          group: "Canvas",
+          label: "Paste Widget",
+          onKeyDown: () => {
+            if (matchBuilderPath(window.location.pathname)) {
+              pasteCopiedWidget(getMousePosition() || { x: 0, y: 0 });
+            }
+          },
+        },
+        {
+          combo: "backspace",
+          global: true,
+          group: "Canvas",
+          label: "Delete widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
+              deleteSelectedWidget();
+            }
+          },
+        },
+        {
+          combo: "del",
+          global: true,
+          group: "Canvas",
+          label: "Delete widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (stopPropagationIfWidgetSelected(e)) {
+              deleteSelectedWidget();
+            }
+          },
+        },
+        {
+          combo: "mod + x",
+          global: true,
+          group: "Canvas",
+          label: "Cut Widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (stopPropagationIfWidgetSelected(e)) {
+              cutSelectedWidget();
+            }
+          },
+        },
+        {
+          combo: "mod + a",
+          global: true,
+          group: "Canvas",
+          label: "Select all Widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (matchBuilderPath(window.location.pathname)) {
+              selectAllWidgetsInit();
+              e.preventDefault();
+            }
+          },
+        },
+        {
+          combo: "esc",
+          global: true,
+          group: "Canvas",
+          label: "Deselect all Widget",
+          onKeyDown: (e: KeyboardEvent) => {
+            resetSnipingMode();
+
+            if (matchBuilderPath(window.location.pathname)) {
+              deselectAllWidgets();
+              closeProppane();
+              closeTableFilterProppane();
+            }
+
+            e.preventDefault();
+          },
+        },
+        {
+          combo: "v",
+          global: true,
+          label: "Edit Mode",
+          onKeyDown: (e: KeyboardEvent) => {
+            resetSnipingMode();
+            e.preventDefault();
+          },
+        },
+        {
+          combo: "mod + enter",
+          global: true,
+          label: "Execute Action",
+          onKeyDown: executeAction,
+          preventDefault: true,
+          stopPropagation: true,
+        },
+        {
+          combo: "mod + z",
+          global: true,
+          label: "Undo change in canvas",
+          onKeyDown: undo,
+          preventDefault: true,
+          stopPropagation: true,
+        },
+        {
+          combo: "mod + shift + z",
+          global: true,
+          label: "Redo change in canvas",
+          onKeyDown: redo,
+          preventDefault: true,
+          stopPropagation: true,
+        },
+        {
+          combo: "mod + y",
+          global: true,
+          label: "Redo change in canvas",
+          onKeyDown: redo,
+          preventDefault: true,
+          stopPropagation: true,
+        },
+        {
+          combo: "mod + g",
+          global: true,
+          group: "Canvas",
+          label: "Cut Widgets for grouping",
+          onKeyDown: (e: KeyboardEvent) => {
+            if (stopPropagationIfWidgetSelected(e)) {
+              groupSelectedWidget();
+            }
+          },
+        },
+        {
+          combo: "mod + s",
+          global: true,
+          label: "Save progress",
+          onKeyDown: () => {
+            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+              kind: "info",
+            });
+          },
+          preventDefault: true,
+          stopPropagation: true,
+        },
+        {
+          combo: "alt + p",
+          global: true,
+          label: "Preview Mode",
+          onKeyDown: () => {
+            setPreviewModeInitAction(!isPreviewMode);
+          },
+        },
+        ...(isGitModEnabled
+          ? gitHotKeys
+          : [
+              {
+                combo: "ctrl + shift + g",
+                global: true,
+                label: "Show git commit modal",
+                onKeyDown: showCommitModal,
+              },
+            ]),
+      ];
     }
-
-    return false;
-  };
-
-  const onOnmnibarHotKeyDown = (
-    e: KeyboardEvent,
-    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
-  ) => {
-    e.preventDefault();
-
-    if (isPreviewMode) return;
-
-    const category = filterCategories[categoryId];
-
-    setGlobalSearchCategory(category);
-    hideInstaller();
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "HOTKEY_COMBO",
-      category: category.title,
-    });
-  };
-
-  let hotkeys: HotkeyConfig[] = [];
-
-  if (isWalkthroughOpened || isProtectedMode) {
-    hotkeys = [];
-  } else {
-    hotkeys = [
-      {
-        combo: "mod + f",
-        global: true,
-        label: "Search entities",
-        onKeyDown: (e: KeyboardEvent) => {
-          const widgetSearchInput = document.getElementById(WIDGETS_SEARCH_ID);
-
-          if (widgetSearchInput) {
-            widgetSearchInput.focus();
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        },
-      },
-      {
-        combo: "mod + p",
-        global: true,
-        label: "Navigate",
-        onKeyDown: (e: KeyboardEvent) => onOnmnibarHotKeyDown(e),
-      },
-      {
-        combo: "mod + plus",
-        global: true,
-        label: "Create new",
-        onKeyDown: (e: KeyboardEvent) =>
-          onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION),
-      },
-      {
-        combo: "mod + k",
-        global: true,
-        label: "Show omnibar",
-        onKeyDown: (e: KeyboardEvent) =>
-          onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT),
-      },
-      {
-        combo: "mod + d",
-        global: true,
-        group: "Canvas",
-        label: "Open Debugger",
-        onKeyDown: toggleDebugger,
-        preventDefault: true,
-      },
-      {
-        combo: "mod + c",
-        global: true,
-        group: "Canvas",
-        label: "Copy widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (stopPropagationIfWidgetSelected(e)) {
-            copySelectedWidget();
-          }
-        },
-      },
-      {
-        combo: "mod + v",
-        global: true,
-        group: "Canvas",
-        label: "Paste Widget",
-        onKeyDown: () => {
-          if (matchBuilderPath(window.location.pathname)) {
-            pasteCopiedWidget(getMousePosition() || { x: 0, y: 0 });
-          }
-        },
-      },
-      {
-        combo: "backspace",
-        global: true,
-        group: "Canvas",
-        label: "Delete widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
-            deleteSelectedWidget();
-          }
-        },
-      },
-      {
-        combo: "del",
-        global: true,
-        group: "Canvas",
-        label: "Delete widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (stopPropagationIfWidgetSelected(e)) {
-            deleteSelectedWidget();
-          }
-        },
-      },
-      {
-        combo: "mod + x",
-        global: true,
-        group: "Canvas",
-        label: "Cut Widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (stopPropagationIfWidgetSelected(e)) {
-            cutSelectedWidget();
-          }
-        },
-      },
-      {
-        combo: "mod + a",
-        global: true,
-        group: "Canvas",
-        label: "Select all Widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (matchBuilderPath(window.location.pathname)) {
-            selectAllWidgetsInit();
-            e.preventDefault();
-          }
-        },
-      },
-      {
-        combo: "esc",
-        global: true,
-        group: "Canvas",
-        label: "Deselect all Widget",
-        onKeyDown: (e: KeyboardEvent) => {
-          resetSnipingMode();
-
-          if (matchBuilderPath(window.location.pathname)) {
-            deselectAllWidgets();
-            closeProppane();
-            closeTableFilterProppane();
-          }
-
-          e.preventDefault();
-        },
-      },
-      {
-        combo: "v",
-        global: true,
-        label: "Edit Mode",
-        onKeyDown: (e: KeyboardEvent) => {
-          resetSnipingMode();
-          e.preventDefault();
-        },
-      },
-      {
-        combo: "mod + enter",
-        global: true,
-        label: "Execute Action",
-        onKeyDown: executeAction,
-        preventDefault: true,
-        stopPropagation: true,
-      },
-      {
-        combo: "mod + z",
-        global: true,
-        label: "Undo change in canvas",
-        onKeyDown: undo,
-        preventDefault: true,
-        stopPropagation: true,
-      },
-      {
-        combo: "mod + shift + z",
-        global: true,
-        label: "Redo change in canvas",
-        onKeyDown: redo,
-        preventDefault: true,
-        stopPropagation: true,
-      },
-      {
-        combo: "mod + y",
-        global: true,
-        label: "Redo change in canvas",
-        onKeyDown: redo,
-        preventDefault: true,
-        stopPropagation: true,
-      },
-      {
-        combo: "mod + g",
-        global: true,
-        group: "Canvas",
-        label: "Cut Widgets for grouping",
-        onKeyDown: (e: KeyboardEvent) => {
-          if (stopPropagationIfWidgetSelected(e)) {
-            groupSelectedWidget();
-          }
-        },
-      },
-      {
-        combo: "mod + s",
-        global: true,
-        label: "Save progress",
-        onKeyDown: () => {
-          toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
-            kind: "info",
-          });
-        },
-        preventDefault: true,
-        stopPropagation: true,
-      },
-      {
-        combo: "alt + p",
-        global: true,
-        label: "Preview Mode",
-        onKeyDown: () => {
-          setPreviewModeInitAction(!isPreviewMode);
-        },
-      },
-      ...(isGitModEnabled
-        ? gitHotKeys
-        : [
-            {
-              combo: "ctrl + shift + g",
-              global: true,
-              label: "Show git commit modal",
-              onKeyDown: showCommitModal,
-            },
-          ]),
-    ];
-  }
+  }, [
+    isWalkthroughOpened,
+    isProtectedMode,
+    isGitModEnabled,
+    gitHotKeys,
+    showCommitModal,
+    isPreviewMode,
+    getMousePosition,
+    toggleDebugger,
+    copySelectedWidget,
+    pasteCopiedWidget,
+    deleteSelectedWidget,
+    cutSelectedWidget,
+    selectAllWidgetsInit,
+    deselectAllWidgets,
+    closeProppane,
+    closeTableFilterProppane,
+    resetSnipingMode,
+    executeAction,
+    undo,
+    redo,
+    groupSelectedWidget,
+    setPreviewModeInitAction,
+    onOnmnibarHotKeyDown,
+    stopPropagationIfWidgetSelected,
+  ]);
 
   useHotkeys(hotkeys, { showDialogKeyCombo: "?" });
 
