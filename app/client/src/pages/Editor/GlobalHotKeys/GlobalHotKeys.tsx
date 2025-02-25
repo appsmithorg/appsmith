@@ -38,35 +38,33 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { setPreviewModeInitAction as _setPreviewModeInitAction } from "actions/editorActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { selectGitModEnabled } from "selectors/gitModSelectors";
+import {
+  selectGitModEnabled,
+  selectGitApplicationProtectedMode,
+} from "selectors/gitModSelectors";
 import { useHotkeys } from "@blueprintjs/core";
 import { useHotKeys as useGitHotKeys } from "git";
+import { getSelectedWidgets, getLastSelectedWidget } from "selectors/ui";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface Props {
-  selectedWidget?: string;
-  selectedWidgets: string[];
   children: React.ReactNode;
-  isPreviewMode: boolean;
-  isProtectedMode: boolean;
   getMousePosition: () => { x: number; y: number };
   toggleDebugger: () => void;
 }
 
 function GlobalHotKeys(props: Props) {
-  const {
-    children,
-    getMousePosition,
-    isPreviewMode,
-    isProtectedMode,
-    selectedWidget,
-    selectedWidgets,
-    toggleDebugger,
-  } = props;
+  const { children, getMousePosition, toggleDebugger } = props;
 
   const dispatch = useDispatch();
   const isGitModEnabled = useSelector(selectGitModEnabled);
   const isWalkthroughOpened = useContext(WalkthroughContext)?.isOpened;
   const gitHotKeys = useGitHotKeys();
+
+  const selectedWidget = useSelector(getLastSelectedWidget);
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(selectGitApplicationProtectedMode);
 
   const copySelectedWidget = useCallback(
     () => dispatch(copyWidget(true)),
