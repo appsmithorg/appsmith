@@ -69,8 +69,10 @@ export const CUSTOM_WIDGET_AI_CHAT_TYPE = "CUSTOM_WIDGET";
 
 export const CUSTOM_WIDGET_AI_INITIALISED_MESSAGE = "CHAT_INITIALISED";
 
+// export const CUSTOM_WIDGET_AI_BOT_URL = (instanceId: string) =>
+//   `https://internal.appsmith.com/app/ai-co-pilot/chat-widget-675732c903bc2614401bd53b?embed=true&chatType=${CUSTOM_WIDGET_AI_CHAT_TYPE}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
 export const CUSTOM_WIDGET_AI_BOT_URL = (instanceId: string) =>
-  `https://internal.appsmith.com/app/ai-co-pilot/chat-widget-675732c903bc2614401bd53b?embed=true&chatType=${CUSTOM_WIDGET_AI_CHAT_TYPE}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
+  `https://dev.appsmith.com/app/ai-app-6/page1-180116fc-3dd5-47d4-b9eb-9977f2ee8bca?embed=true&chatType=${CUSTOM_WIDGET_AI_CHAT_TYPE}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
 
 export const CUSTOM_WIDGET_AI_BOT_MESSAGE_RESPONSE_DEBOUNCE_TIMEOUT = 100;
 
