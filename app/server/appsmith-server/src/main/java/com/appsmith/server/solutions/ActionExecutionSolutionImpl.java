@@ -14,8 +14,8 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ce.ActionExecutionSolutionCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
@@ -41,7 +41,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             CommonConfig commonConfig,
             ActionExecutionSolutionHelper actionExecutionSolutionHelper,
             FeatureFlagService featureFlagService) {
@@ -63,7 +63,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 commonConfig,
                 actionExecutionSolutionHelper,
                 featureFlagService);

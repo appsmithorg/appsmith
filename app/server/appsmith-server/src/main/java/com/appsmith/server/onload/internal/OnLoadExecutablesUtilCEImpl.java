@@ -228,7 +228,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     Span computeOnPageLoadExecutablesSchedulingOrderSpan =
                             observationHelper.createSpan(COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER);
 
-                    observationHelper.startSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+                    observationHelper.startSpan(computeOnPageLoadExecutablesSchedulingOrderSpan);
 
                     List<Set<String>> executablesList = computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
@@ -236,7 +236,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             executableNameToExecutableMap,
                             explicitUserSetOnLoadExecutablesRef);
 
-                    observationHelper.endSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+                    observationHelper.endSpan(computeOnPageLoadExecutablesSchedulingOrderSpan);
 
                     return executablesList;
                 })

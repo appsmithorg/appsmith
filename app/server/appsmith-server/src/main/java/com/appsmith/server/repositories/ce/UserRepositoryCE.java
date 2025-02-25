@@ -29,5 +29,5 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
     Mono<Long> countByDeletedAtIsNullAndLastActiveAtGreaterThanAndIsSystemGeneratedIsNot(
             Instant lastActiveAt, Boolean excludeSystemGenerated);
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Mono<User> findByEmailAndOrganizationId(String email, String organizationId);
 }

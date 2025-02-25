@@ -1,6 +1,6 @@
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/AppSettings";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {

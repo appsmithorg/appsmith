@@ -5,6 +5,7 @@ import {
   dataManager,
   deployMode,
   entityItems,
+  homePage,
   jsEditor,
   locators,
   propPane,
@@ -14,6 +15,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Validate API request body panel",
@@ -21,14 +23,11 @@ describe(
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
-    });
-
-    afterEach(() => {
-      agHelper.SaveLocalStorageCache();
+      homePage.ImportApp("apiMultiPartData.json");
     });
 
     it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
-      apiPage.CreateApi("FirstAPI", "POST");
+      EditorNavigation.SelectEntityByName("FirstAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("FORM_URLENCODED");
       agHelper.AssertElementVisibility(apiPage._bodyKey(0));
@@ -37,27 +36,19 @@ describe(
       agHelper.AssertElementVisibility(apiPage._bodyKey(0));
       agHelper.AssertElementVisibility(apiPage._bodyTypeDropdown);
       agHelper.AssertElementVisibility(apiPage._bodyValue(0));
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
-      apiPage.CreateApi("FirstAPI", "GET");
+      EditorNavigation.SelectEntityByName("SecondAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("NONE");
       cy.get(apiPage._noBodyMessageDiv).contains(apiPage._noBodyMessage);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
-      apiPage.CreateApi("FirstAPI", "POST");
+      EditorNavigation.SelectEntityByName("ThirdAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("JSON");
       apiPage.ValidateImportedHeaderParams(true, {
@@ -70,15 +61,11 @@ describe(
         key: "content-type",
         value: "application/x-www-form-urlencoded",
       });
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
-      apiPage.CreateApi("FirstAPI", "POST");
+      EditorNavigation.SelectEntityByName("FourthAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("JSON");
       apiPage.ValidateImportedHeaderParams(true, {
@@ -91,40 +78,29 @@ describe(
         key: "content-type",
         value: "multipart/form-data",
       });
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
-      apiPage.CreateApi("FirstAPI", "POST");
+      EditorNavigation.SelectEntityByName("FiveAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("FORM_URLENCODED");
       apiPage.SelectSubTab("NONE");
       apiPage.ValidateImportedHeaderParamsAbsence(true);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
-      apiPage.CreateApi("FirstAPI", "POST");
+      EditorNavigation.SelectEntityByName("SixAPI", EntityType.Query);
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("MULTIPART_FORM_DATA");
       apiPage.SelectSubTab("NONE");
       apiPage.ValidateImportedHeaderParamsAbsence(true);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
       AppSidebar.navigate(AppSidebarButton.Editor);
     });
 
     it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
+      PageList.AddNewPage();
       const imageNameToUpload = "ConcreteHouse.jpg";
       agHelper.AddDsl("multiPartFormDataDsl");
 
@@ -137,7 +113,7 @@ describe(
       apiPage.EnterBodyFormData(
         "MULTIPART_FORM_DATA",
         "file",
-        "{{FilePicker1.files[0]}}",
+        "{{FilePicker1.files[0].data}}",
         "File",
       );
 
@@ -167,7 +143,7 @@ describe(
       EditorNavigation.SelectEntityByName("MultipartAPI", EntityType.Api);
 
       apiPage.ToggleOnPageLoadRun(false); //Bug 12476
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       deployMode.DeployApp(locators._buttonByText("Select Files"));
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(imageNameToUpload);

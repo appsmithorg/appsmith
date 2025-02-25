@@ -6,7 +6,7 @@ public enum FeatureFlagEnum {
     TEST_FEATURE_1,
     TEST_FEATURE_2,
     TEST_FEATURE_3,
-    TENANT_TEST_FEATURE,
+    ORGANIZATION_TEST_FEATURE,
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //

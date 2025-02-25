@@ -342,6 +342,8 @@ jobs:
           CYPRESS_SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
           CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
           CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          CYPRESS_HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
+          GITHUB_WORKFLOW : ${{ github.workflow }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false

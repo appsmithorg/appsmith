@@ -10,7 +10,7 @@ import {
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,

@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { ActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
 import { getActionChildrenPeekData } from "utils/FilterInternalProperties/Action";
 import { getAppsmithPeekData } from "utils/FilterInternalProperties/Appsmith";

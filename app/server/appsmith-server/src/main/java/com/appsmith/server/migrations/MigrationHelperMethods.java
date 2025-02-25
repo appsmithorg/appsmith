@@ -224,7 +224,7 @@ public class MigrationHelperMethods {
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
                 cacheableRepositoryHelper
-                        .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                        .evictPermissionGroupsUser(user.getEmail(), user.getOrganizationId())
                         .block();
             }
         });

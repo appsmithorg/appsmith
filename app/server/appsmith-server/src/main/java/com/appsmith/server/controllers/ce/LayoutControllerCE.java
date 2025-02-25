@@ -47,7 +47,7 @@ public class LayoutControllerCE {
     @GetMapping("/{layoutId}/pages/{branchedPageId}")
     public Mono<ResponseDTO<Layout>> getLayout(@PathVariable String branchedPageId, @PathVariable String layoutId) {
         return service.getLayout(branchedPageId, layoutId, false)
-                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 
     @JsonView(Views.Public.class)
@@ -57,7 +57,7 @@ public class LayoutControllerCE {
         log.debug("update multiple layout received for applicationId {}", applicationId);
         return updateLayoutService
                 .updateMultipleLayouts(applicationId, request)
-                .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
+                .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK, updatedCount));
     }
 
     @JsonView(Views.Public.class)
@@ -70,14 +70,14 @@ public class LayoutControllerCE {
         log.debug("update layout received for page {}", branchedPageId);
         return updateLayoutService
                 .updateLayout(branchedPageId, applicationId, layoutId, dto.toLayout())
-                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/{layoutId}/pages/{branchedPageId}/view")
     public Mono<ResponseDTO<Layout>> getLayoutView(@PathVariable String branchedPageId, @PathVariable String layoutId) {
         return service.getLayout(branchedPageId, layoutId, true)
-                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 
     @JsonView(Views.Public.class)
@@ -86,6 +86,6 @@ public class LayoutControllerCE {
         refactorEntityNameDTO.setEntityType(EntityType.WIDGET);
         return refactoringService
                 .refactorEntityName(refactorEntityNameDTO)
-                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 }

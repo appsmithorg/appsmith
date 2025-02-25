@@ -4,8 +4,8 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
@@ -20,7 +20,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -59,9 +59,9 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEME
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
-import static com.appsmith.server.constants.ce.FieldNameCE.TENANT;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -82,7 +82,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
     private final EmailService emailService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -99,7 +99,7 @@ public class UserSignupCEImpl implements UserSignupCE {
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
-            TenantService tenantService) {
+            OrganizationService organizationService) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -111,7 +111,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
         this.emailService = emailService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
     }
 
     /**
@@ -130,16 +130,17 @@ public class UserSignupCEImpl implements UserSignupCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL));
         }
 
-        Mono<Tenant> tenantMono = tenantService
-                .getDefaultTenant()
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
+        Mono<Organization> organizationMono = organizationService
+                .getDefaultOrganization()
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
 
-        // - Only creating user if the password strength is acceptable as per the tenant policy
+        // - Only creating user if the password strength is acceptable as per the organization policy
         // - Welcome email will be sent post user email verification
-        Mono<UserSignupDTO> createUserMono = tenantMono.flatMap(tenant -> {
-            TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
-                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+        Mono<UserSignupDTO> createUserMono = organizationMono.flatMap(organization -> {
+            OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+            boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
+                    && Boolean.TRUE.equals(organizationConfiguration.getIsStrongPasswordPolicyEnabled());
 
             if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
                 return isStrongPasswordPolicyEnabled

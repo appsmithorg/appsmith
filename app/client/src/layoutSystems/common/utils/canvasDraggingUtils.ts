@@ -4,7 +4,7 @@ import type {
 } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { DraggingGroupCenter } from "reducers/uiReducers/dragResizeReducer";
 import type {
   MovementLimitMap,

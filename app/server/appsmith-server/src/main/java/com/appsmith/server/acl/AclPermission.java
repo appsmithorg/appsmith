@@ -7,8 +7,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -120,8 +120,10 @@ public enum AclPermission {
     @Deprecated
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
 
-    // Manage tenant permissions
-    MANAGE_TENANT("manage:tenants", Tenant.class),
+    // Manage organization permissions
+    MANAGE_ORGANIZATION("manage:organizations", Organization.class),
+    @Deprecated(forRemoval = true, since = "v1.62")
+    MANAGE_TENANT("manage:tenants", Organization.class),
 
     CONNECT_TO_GIT("connectToGit:applications", Application.class),
     MANAGE_PROTECTED_BRANCHES("manageProtectedBranches:applications", Application.class),

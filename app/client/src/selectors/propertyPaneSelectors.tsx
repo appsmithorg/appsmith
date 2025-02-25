@@ -3,7 +3,7 @@ import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
@@ -16,7 +16,7 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "ee/selectors/organizationSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";

@@ -33,7 +33,7 @@ public class InstanceAdminControllerCE {
     @GetMapping("/env")
     public Mono<ResponseDTO<Map<String, String>>> getAll() {
         log.debug("Getting all env configuration");
-        return envManager.getAllNonEmpty().map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+        return envManager.getAllNonEmpty().map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
 
     @Deprecated
@@ -44,9 +44,7 @@ public class InstanceAdminControllerCE {
     public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes, @RequestHeader("Origin") String originHeader) {
         log.debug("Applying env updates {}", changes.keySet());
-        return envManager
-                .applyChanges(changes, originHeader)
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+        return envManager.applyChanges(changes, originHeader).thenReturn(new ResponseDTO<>(HttpStatus.OK, null));
     }
 
     @JsonView(Views.Public.class)
@@ -58,20 +56,20 @@ public class InstanceAdminControllerCE {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
                 .flatMap(formData -> envManager.applyChangesFromMultipartFormData(formData, originHeader))
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("/restart")
     public Mono<ResponseDTO<Boolean>> restart() {
         log.debug("Received restart request");
-        return envManager.restart().thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+        return envManager.restart().thenReturn(new ResponseDTO<>(HttpStatus.OK, true));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("/send-test-email")
     public Mono<ResponseDTO<Boolean>> sendTestEmail(@RequestBody @Valid TestEmailConfigRequestDTO requestDTO) {
         log.debug("Sending test email");
-        return envManager.sendTestEmail(requestDTO).thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+        return envManager.sendTestEmail(requestDTO).thenReturn(new ResponseDTO<>(HttpStatus.OK, true));
     }
 }

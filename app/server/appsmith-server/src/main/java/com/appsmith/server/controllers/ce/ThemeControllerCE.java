@@ -34,7 +34,7 @@ public class ThemeControllerCE {
     public Mono<ResponseDTO<List<Theme>>> getApplicationThemes(@PathVariable String branchedApplicationId) {
         return service.getApplicationThemes(branchedApplicationId)
                 .collectList()
-                .map(themes -> new ResponseDTO<>(HttpStatus.OK.value(), themes, null));
+                .map(themes -> new ResponseDTO<>(HttpStatus.OK, themes));
     }
 
     @JsonView(Views.Public.class)
@@ -43,7 +43,7 @@ public class ThemeControllerCE {
             @PathVariable String branchedApplicationId,
             @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode) {
         return service.getApplicationTheme(branchedApplicationId, mode)
-                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+                .map(theme -> new ResponseDTO<>(HttpStatus.OK, theme));
     }
 
     @JsonView(Views.Public.class)
@@ -51,13 +51,12 @@ public class ThemeControllerCE {
     public Mono<ResponseDTO<Theme>> updateTheme(
             @PathVariable String branchedApplicationId, @Valid @RequestBody Theme resource) {
         return service.updateTheme(branchedApplicationId, resource)
-                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+                .map(theme -> new ResponseDTO<>(HttpStatus.OK, theme));
     }
 
     @JsonView(Views.Public.class)
     @PatchMapping("{themeId}")
     public Mono<ResponseDTO<Theme>> updateName(@PathVariable String themeId, @Valid @RequestBody Theme resource) {
-        return service.updateName(themeId, resource)
-                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+        return service.updateName(themeId, resource).map(theme -> new ResponseDTO<>(HttpStatus.OK, theme));
     }
 }

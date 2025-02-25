@@ -3,7 +3,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
