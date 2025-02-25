@@ -45,7 +45,7 @@ export default defineConfig({
         "process.env.NODE_ENV": JSON.stringify("production"),
         "process.env.REACT_APP_ENV": JSON.stringify("production"),
       },
-    }), 
+    }),
     commonjs({
       include: /node_modules/,
       transformMixedEsModules: true,
@@ -58,11 +58,11 @@ export default defineConfig({
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       presets: [
         ["@babel/preset-react", { runtime: "automatic" }],
-        ["@babel/preset-typescript", { isTSX: true, allExtensions: true }]
+        ["@babel/preset-typescript", { isTSX: true, allExtensions: true }],
       ],
       skipPreflightCheck: true,
       babelrc: false,
-      configFile: false
+      configFile: false,
     }),
     postcss({
       modules: true,
