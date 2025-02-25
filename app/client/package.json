@@ -305,7 +305,7 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
-    "browserslist": "^4.18.1",
+    "browserslist": "^4.24.4",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
@@ -398,7 +398,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "resolutions": {
-    "browserslist": "4.20.3",
+    "browserslist": "4.24.0",
     "chokidar": "3.5.3",
     "css-select": "4.1.3",
     "ejs": "3.1.10",
