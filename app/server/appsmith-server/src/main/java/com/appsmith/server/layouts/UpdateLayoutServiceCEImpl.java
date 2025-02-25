@@ -135,7 +135,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Span extractAllWidgetNamesAndDynamicBindingsFromDSLSpan =
                 observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
 
-        observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan, true);
+        observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
 
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
@@ -146,7 +146,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     .then(Mono.error(t));
         }
 
-        observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan, true);
+        observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan);
 
         layout.setWidgetNames(widgetNames);
 

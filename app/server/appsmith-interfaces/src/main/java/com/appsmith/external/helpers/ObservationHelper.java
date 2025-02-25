@@ -7,9 +7,9 @@ public interface ObservationHelper {
 
     Span createSpan(String name);
 
-    default Span startSpan(Span span, boolean isDetail) {
+    default Span startSpan(Span span) {
         return span;
     }
 
-    default void endSpan(Span span, boolean isDetail) {}
+    default void endSpan(Span span) {}
 }

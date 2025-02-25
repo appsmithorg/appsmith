@@ -627,7 +627,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
                 String resourceType = ACTION_COLLECTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                observationHelper.startSpan(span, true);
+                observationHelper.startSpan(span);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -637,7 +637,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.debug(e.getMessage());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return false;
     }
@@ -663,7 +663,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 String resourceType = NEW_ACTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                observationHelper.startSpan(span, true);
+                observationHelper.startSpan(span);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -673,7 +673,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return false;
     }
