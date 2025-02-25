@@ -7,8 +7,10 @@ import {
 } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { memo } from "react";
 import styled, { createGlobalStyle } from "styled-components";
+import AppsmithConsole from "utils/AppsmithConsole";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
@@ -71,6 +73,7 @@ interface TableDataDownloadProps {
   widgetName: string;
   delimiter: string;
   borderRadius?: string;
+  widgetId: string;
 }
 
 type FileDownloadType = "CSV" | "EXCEL";
@@ -92,17 +95,13 @@ const dowloadOptions: DownloadOptionProps[] = [
 ];
 
 const downloadDataAsCSV = (props: {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  csvData: Array<Array<any>>;
+  csvData: Array<Array<unknown>>;
   delimiter: string;
   fileName: string;
 }) => {
   let csvContent = "";
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props.csvData.forEach((infoArray: Array<any>, index: number) => {
+  props.csvData.forEach((infoArray: Array<unknown>, index: number) => {
     const dataString = infoArray.join(props.delimiter);
 
     csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
@@ -145,8 +144,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
     try {
       // Dynamically import xlsx only when needed
       const XLSX = await import("xlsx");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tableData: Array<Array<any>> = [];
+      const tableData: Array<Array<unknown>> = [];
 
       const headers = props.columns
         .filter((column: ReactTableColumnProps) => {
@@ -158,8 +156,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
 
       for (let row = 0; row < props.data.length; row++) {
         const data = props.data[row];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const tableRow: Array<any> = [];
+        const tableRow: Array<unknown> = [];
 
         props.columns.forEach((column) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
@@ -188,8 +185,14 @@ function TableDataDownload(props: TableDataDownloadProps) {
       // Generate and download file
       XLSX.writeFile(wb, `${props.widgetName}.xlsx`);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Error loading Excel export functionality:", error);
+      AppsmithConsole.error({
+        text: `Error loading Excel export functionality: ${error}`,
+        source: {
+          id: props.widgetId,
+          name: props.widgetName,
+          type: ENTITY_TYPE.WIDGET,
+        },
+      });
     }
   };
 
