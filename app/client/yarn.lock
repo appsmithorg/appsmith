@@ -13629,6 +13629,7 @@ __metadata:
     scroll-into-view-if-needed: ^2.2.26
     semver: ^7.3.5
     shallowequal: ^1.1.0
+    sheetjs: ^2.0.0
     showdown: ^1.9.1
     simplebar-react: ^2.4.3
     smartlook-client: ^8.0.0
@@ -31226,6 +31227,13 @@ __metadata:
   version: 3.0.0
   resolution: "shebang-regex@npm:3.0.0"
   checksum: 1a2bcae50de99034fcd92ad4212d8e01eedf52c7ec7830eedcf886622804fe36884278f2be8be0ea5fde3fd1c23911643a4e0f726c8685b61871c8908af01222
+  languageName: node
+  linkType: hard
+
+"sheetjs@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "sheetjs@npm:2.0.0"
+  checksum: 78fc02fd2d32f4a40c15b158c2e7eaac2fbdcfd644f776c52ea47d919dcf74a4e61fc47108042b2a0498d61c6ddcd0e390ee3815b1282a54cc54fdd0f0e1be45
   languageName: node
   linkType: hard
 

@@ -1,19 +1,19 @@
-import React, { memo } from "react";
+import { importSvg } from "@appsmith/ads-old";
 import {
-  Popover,
   Classes,
+  Popover,
   PopoverInteractionKind,
   Position,
 } from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+import React, { memo } from "react";
+import styled, { createGlobalStyle } from "styled-components";
+import { utils, writeFile } from "xlsx";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
-import zipcelx from "zipcelx";
-import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
@@ -76,11 +76,6 @@ interface TableDataDownloadProps {
 
 type FileDownloadType = "CSV" | "EXCEL";
 
-interface DataCellProps {
-  value: string | number;
-  type: "string" | "number";
-}
-
 interface DownloadOptionProps {
   label: string;
   value: FileDownloadType;
@@ -90,6 +85,10 @@ const dowloadOptions: DownloadOptionProps[] = [
   {
     label: "Download as CSV",
     value: "CSV",
+  },
+  {
+    label: "Download as Excel",
+    value: "EXCEL",
   },
 ];
 
@@ -144,54 +143,50 @@ function TableDataDownload(props: TableDataDownloadProps) {
     }
   };
   const downloadTableDataAsExcel = () => {
-    const tableData: Array<Array<DataCellProps>> = [];
-    const tableHeaders: Array<DataCellProps> = props.columns
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tableData: Array<Array<any>> = [];
+
+    const headers = props.columns
       .filter((column: ReactTableColumnProps) => {
         return column.metaProperties && !column.metaProperties.isHidden;
       })
-      .map((column: ReactTableColumnProps) => {
-        return {
-          value: column.Header,
-          type:
-            column.columnProperties?.columnType === "number"
-              ? "number"
-              : "string",
-        };
-      });
+      .map((column: ReactTableColumnProps) => column.Header);
 
-    tableData.push(tableHeaders);
+    tableData.push(headers);
 
     for (let row = 0; row < props.data.length; row++) {
-      // TODO: Fix this the next time the file is edited
+      const data = props.data[row];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: { [key: string]: any } = props.data[row];
-      const tableRow: Array<DataCellProps> = [];
+      const tableRow: Array<any> = [];
 
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        const type =
-          column.columnProperties?.columnType === "number"
-            ? "number"
-            : "string";
-
+      props.columns.forEach((column) => {
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          tableRow.push({
-            value: data[column.alias],
-            type: type,
-          });
+          const value = data[column.alias];
+
+          if (
+            column.columnProperties?.columnType === "number" &&
+            typeof value === "string"
+          ) {
+            tableRow.push(Number(value) || 0);
+          } else {
+            tableRow.push(value);
+          }
         }
-      }
+      });
 
       tableData.push(tableRow);
     }
 
-    zipcelx({
-      filename: props.widgetName,
-      sheet: {
-        data: tableData,
-      },
-    });
+    // Create workbook and worksheet
+    const ws = utils.aoa_to_sheet(tableData);
+    const wb = utils.book_new();
+
+    utils.book_append_sheet(wb, ws, "Sheet1");
+
+    // Generate and download file
+    writeFile(wb, `${props.widgetName}.xlsx`);
   };
+
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
     const csvData = transformTableDataIntoCsv({
