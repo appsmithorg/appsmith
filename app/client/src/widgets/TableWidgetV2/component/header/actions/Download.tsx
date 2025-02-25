@@ -1,19 +1,20 @@
-import React, { memo } from "react";
+import { importSvg } from "@appsmith/ads-old";
 import {
-  Popover,
   Classes,
+  Popover,
   PopoverInteractionKind,
   Position,
 } from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+import React, { memo } from "react";
+import styled, { createGlobalStyle } from "styled-components";
+import type { Cell, Row } from "write-excel-file";
+import writeExcelFile from "write-excel-file";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
-import zipcelx from "zipcelx";
-import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
@@ -76,11 +77,6 @@ interface TableDataDownloadProps {
 
 type FileDownloadType = "CSV" | "EXCEL";
 
-interface DataCellProps {
-  value: string | number;
-  type: "string" | "number";
-}
-
 interface DownloadOptionProps {
   label: string;
   value: FileDownloadType;
@@ -90,6 +86,10 @@ const dowloadOptions: DownloadOptionProps[] = [
   {
     label: "Download as CSV",
     value: "CSV",
+  },
+  {
+    label: "Download as Excel",
+    value: "EXCEL",
   },
 ];
 
@@ -143,54 +143,39 @@ function TableDataDownload(props: TableDataDownloadProps) {
       downloadTableDataAsExcel();
     }
   };
-  const downloadTableDataAsExcel = () => {
-    const tableData: Array<Array<DataCellProps>> = [];
-    const tableHeaders: Array<DataCellProps> = props.columns
-      .filter((column: ReactTableColumnProps) => {
+  const downloadTableDataAsExcel = async () => {
+    selectMenu(true);
+    const visibleColumns = props.columns.filter(
+      (column: ReactTableColumnProps) => {
         return column.metaProperties && !column.metaProperties.isHidden;
-      })
-      .map((column: ReactTableColumnProps) => {
-        return {
-          value: column.Header,
-          type:
-            column.columnProperties?.columnType === "number"
-              ? "number"
-              : "string",
-        };
-      });
-
-    tableData.push(tableHeaders);
-
-    for (let row = 0; row < props.data.length; row++) {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: { [key: string]: any } = props.data[row];
-      const tableRow: Array<DataCellProps> = [];
-
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        const type =
-          column.columnProperties?.columnType === "number"
-            ? "number"
-            : "string";
-
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          tableRow.push({
-            value: data[column.alias],
-            type: type,
-          });
-        }
-      }
-
-      tableData.push(tableRow);
-    }
-
-    zipcelx({
-      filename: props.widgetName,
-      sheet: {
-        data: tableData,
       },
+    );
+
+    const rows: Row[] = props.data.map((row) => {
+      return visibleColumns.map((column: ReactTableColumnProps) => {
+        const value = row[column.alias];
+        const isNumber = column.columnProperties?.columnType === "number";
+
+        return {
+          value: isNumber ? Number(value) || 0 : String(value),
+          type: isNumber ? Number : String,
+        } as Cell;
+      });
     });
+
+    // Add header row
+    const headerRow: Row = visibleColumns.map(
+      (column: ReactTableColumnProps) => ({
+        value: String(column.Header),
+        type: String,
+      }),
+    );
+
+    await writeExcelFile([headerRow, ...rows], {
+      fileName: `${props.widgetName}.xlsx`,
+    });
+
+    selectMenu(false);
   };
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
