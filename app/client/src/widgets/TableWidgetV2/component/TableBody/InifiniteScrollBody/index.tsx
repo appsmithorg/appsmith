@@ -6,6 +6,7 @@ import type SimpleBar from "simplebar-react";
 import type { TableSizes } from "../../Constants";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 import { FixedInfiniteVirtualList } from "../VirtualList";
+import InfiniteLoadingIndicator from "../../InfiniteLoadingIndicator";
 
 interface InfiniteScrollBodyProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
@@ -22,7 +23,7 @@ interface InfiniteScrollBodyProps {
 const InfiniteScrollBody = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
     const { isLoading, loadMoreFromEvaluations, pageSize, rows } = props;
-    const { isItemLoaded, itemCount, loadMoreItems } =
+    const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
         rows,
         totalRecordsCount: rows.length,
@@ -35,7 +36,7 @@ const InfiniteScrollBody = React.forwardRef(
       <div className="simplebar-content-wrapper">
         <InfiniteLoader
           isItemLoaded={isItemLoaded}
-          itemCount={itemCount + 5}
+          itemCount={itemCount}
           loadMoreItems={loadMoreItems}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
@@ -46,11 +47,12 @@ const InfiniteScrollBody = React.forwardRef(
               onItemsRendered={onItemsRendered}
               outerRef={ref}
               pageSize={props.pageSize}
-              rows={props.rows}
+              rows={cachedRows}
               tableSizes={props.tableSizes}
             />
           )}
         </InfiniteLoader>
+        {isLoading && <InfiniteLoadingIndicator />}
       </div>
     );
   },

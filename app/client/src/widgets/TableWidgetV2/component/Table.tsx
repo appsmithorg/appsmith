@@ -448,7 +448,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={
-            props.isLoading
+            props.isLoading && !props.isInfiniteScrollEnabled
               ? Classes.SKELETON
               : shouldUseVirtual
                 ? "tableWrap virtual"
