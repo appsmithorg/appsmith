@@ -122,16 +122,20 @@ class SegmentSingleton {
   }
 
   public track(eventName: string, eventData: EventProperties) {
-    if (this.analytics) {
-      log.debug("Event fired", eventName, eventData);
-      this.analytics.track(eventName, eventData);
-    } else if (this.initState === SegmentInitState.WAITING) {
+    if (this.initState === SegmentInitState.WAITING) {
       // Only queue events if we're in WAITING state
       this.eventQueue.push({ name: eventName, data: eventData });
       log.debug("Event queued for later processing", eventName, eventData);
-    } else {
-      log.debug("Event fired locally", eventName, eventData);
     }
+
+    if (this.initState === SegmentInitState.NOT_REQUIRED || !this.analytics) {
+      log.debug("Event fired locally", eventName, eventData);
+
+      return;
+    }
+
+    log.debug("Event fired", eventName, eventData);
+    this.analytics.track(eventName, eventData);
   }
 
   public async identify(userId: string, traits: UserTraits) {

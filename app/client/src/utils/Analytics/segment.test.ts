@@ -181,40 +181,41 @@ describe("SegmentSingleton", () => {
   describe("avoidTracking", () => {
     it("should not track events after avoidTracking is called", async () => {
       const segment = SegmentSingleton.getInstance();
+
       await segment.init();
-      
+
       // Track an event before calling avoidTracking
       segment.track("pre-avoid-event", { data: "value" });
       expect(mockAnalytics.track).toHaveBeenCalledTimes(1);
-      
+
       // Call avoidTracking
       segment.avoidTracking();
-      
+
       // Track an event after calling avoidTracking
       segment.track("post-avoid-event", { data: "value" });
-      
+
       // Should still have only been called once (from the first event)
       expect(mockAnalytics.track).toHaveBeenCalledTimes(1);
       expect(log.debug).toHaveBeenCalledWith(
-        expect.stringContaining("Event logged locally"),
+        expect.stringContaining("Event fired locally"),
         "post-avoid-event",
-        { data: "value" }
+        { data: "value" },
       );
     });
-    
+
     it("should flush queued events when avoidTracking is called before initialization", async () => {
       const segment = SegmentSingleton.getInstance();
-      
+
       // Queue some events
       segment.track("queued-event-1", { data: "value1" });
       segment.track("queued-event-2", { data: "value2" });
-      
+
       // Call avoidTracking before initialization
       segment.avoidTracking();
-      
+
       // Initialize
       await segment.init();
-      
+
       // Analytics track should not be called since we're avoiding tracking
       expect(mockAnalytics.track).not.toHaveBeenCalled();
     });
