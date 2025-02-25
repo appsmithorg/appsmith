@@ -10,7 +10,7 @@ import {
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select } from "redux-saga/effects";
 import {
   getCurrentApplicationId,

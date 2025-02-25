@@ -5,7 +5,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
@@ -21,6 +20,7 @@ import { restoreIDEEditorViewMode } from "actions/ideActions";
 import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
+import { getPersistentAppStore } from "constants/AppConstants";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -123,6 +123,7 @@ export default abstract class AppEngine {
         getPersistentAppStore(application.id, branch || currentBranch),
       ),
     );
+
     const defaultPageId: string = yield select(getDefaultPageId);
     const defaultPageBaseId: string = yield select(getDefaultBasePageId);
     const toLoadPageId: string = page?.id || defaultPageId;

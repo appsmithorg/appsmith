@@ -1,5 +1,11 @@
 import { put } from "redux-saga/effects";
-import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import {
+  RESP_HEADER_DATATYPE,
+  setDefaultActionDisplayFormat,
+} from "./PluginActionSagaUtils";
+import { createActionExecutionResponse } from "./PluginActionSagaUtils";
+import { ActionResponseDataTypes } from "./PluginActionSagaUtils";
+import { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 
 const actionid = "test-id";
 
@@ -97,5 +103,140 @@ describe("PluginActionSagasUtils", () => {
     const generator = setDefaultActionDisplayFormat(actionid, plugin, payload);
 
     expect(generator.next().value).toBeUndefined();
+  });
+});
+
+describe("createActionExecutionResponse", () => {
+  it("should handle regular response without binary data", () => {
+    const response = {
+      data: {
+        body: { key: "value" },
+        statusCode: "200 OK",
+        headers: {},
+        isExecutionSuccess: true,
+        request: {
+          url: "https://example.com",
+          headers: {},
+          body: {},
+          httpMethod: HTTP_METHOD.GET,
+        },
+        dataTypes: [{ dataType: "JSON" }],
+      },
+      clientMeta: {
+        duration: "100",
+        size: "50",
+      },
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+    };
+
+    const result = createActionExecutionResponse(response);
+
+    expect(result).toEqual({
+      ...response.data,
+      ...response.clientMeta,
+    });
+  });
+
+  it("should decode base64 binary response", () => {
+    const rawData = "test binary data";
+    const base64String = btoa(rawData);
+    const response = {
+      data: {
+        body: base64String,
+        statusCode: "200 OK",
+        headers: {
+          [RESP_HEADER_DATATYPE]: [ActionResponseDataTypes.BINARY],
+        },
+        isExecutionSuccess: true,
+        request: {
+          url: "https://example.com",
+          headers: {},
+          body: {},
+          httpMethod: HTTP_METHOD.GET,
+        },
+        dataTypes: [{ dataType: "JSON" }],
+      },
+      clientMeta: {
+        duration: "100",
+        size: "50",
+      },
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+    };
+
+    const result = createActionExecutionResponse(response);
+
+    expect(result.body).toBe(rawData);
+  });
+
+  it("should not decode response if status code is not 200 OK", () => {
+    const base64String = btoa("test binary data");
+    const response = {
+      data: {
+        body: base64String,
+        statusCode: "404 Not Found",
+        headers: {
+          [RESP_HEADER_DATATYPE]: [ActionResponseDataTypes.BINARY],
+        },
+        isExecutionSuccess: true,
+        request: {
+          url: "https://example.com",
+          headers: {},
+          body: {},
+          httpMethod: HTTP_METHOD.GET,
+        },
+        dataTypes: [{ dataType: "JSON" }],
+      },
+      clientMeta: {
+        duration: "100",
+        size: "50",
+      },
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+    };
+
+    const result = createActionExecutionResponse(response);
+
+    expect(result.body).toBe(base64String);
+  });
+
+  it("should not decode response if header type is not BINARY", () => {
+    const base64String = btoa("test binary data");
+    const response = {
+      data: {
+        body: base64String,
+        statusCode: "200 OK",
+        headers: {
+          [RESP_HEADER_DATATYPE]: ["JSON"],
+        },
+        isExecutionSuccess: true,
+        request: {
+          url: "https://example.com",
+          headers: {},
+          body: {},
+          httpMethod: HTTP_METHOD.GET,
+        },
+        dataTypes: [{ dataType: "JSON" }],
+      },
+      clientMeta: {
+        duration: "100",
+        size: "50",
+      },
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+    };
+
+    const result = createActionExecutionResponse(response);
+
+    expect(result.body).toBe(base64String);
   });
 });

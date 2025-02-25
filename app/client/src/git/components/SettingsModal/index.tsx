@@ -1,19 +1,19 @@
 import React from "react";
 import SettingsModalView from "./SettingsModalView";
-import useGitPermissions from "git/hooks/useGitPermissions";
 import useSettings from "git/hooks/useSettings";
 import { GitSettingsTab } from "git/constants/enums";
+import { useGitContext } from "../GitContextProvider";
 
 function SettingsModal() {
-  const { isSettingsModalOpen, settingsModalTab, toggleSettingsModal } =
-    useSettings();
-
   const {
     isConnectPermitted,
+
     isManageAutocommitPermitted,
     isManageDefaultBranchPermitted,
     isManageProtectedBranchesPermitted,
-  } = useGitPermissions();
+  } = useGitContext();
+  const { isSettingsModalOpen, settingsModalTab, toggleSettingsModal } =
+    useSettings();
 
   return (
     <SettingsModalView

@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
-import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.domains.OrganizationConfiguration;
+import com.appsmith.server.services.OrganizationService;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -23,13 +23,14 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_TEX
 @AllArgsConstructor
 public class EmailServiceHelperCEImpl implements EmailServiceHelperCE {
 
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
     @Override
     public Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
-        return tenantService.getTenantConfiguration().map(tenant -> {
-            final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
+        return organizationService.getOrganizationConfiguration().map(organization -> {
+            final OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+            params.put(
+                    INSTANCE_NAME, StringUtils.defaultIfEmpty(organizationConfiguration.getInstanceName(), "Appsmith"));
             return params;
         });
     }

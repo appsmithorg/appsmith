@@ -9,7 +9,7 @@ export const getFitPageChatHeight = (
   canvasHeight: number,
   isEmbed: boolean,
 ) => {
-  if (isEmbed) return `calc(${canvasHeight}px`;
+  if (isEmbed) return `${canvasHeight}px`;
 
   return `calc(${canvasHeight}px - (var(--outer-spacing-4) * 2)`;
 };

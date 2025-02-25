@@ -40,7 +40,7 @@ export default function StatusChangesView({
     return <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />;
   }
 
-  if (!status || status.isClean || !statusTree) {
+  if (!status || !statusTree || statusTree?.length === 0) {
     return null;
   }
 

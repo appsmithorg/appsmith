@@ -18,25 +18,25 @@ const StyledModalContent = styled(ModalContent)`
 
 interface ConnectModalViewProps extends ConnectInitializeProps {
   isModalOpen: boolean;
-  resetSSHKey: () => void;
+  resetConnectState: () => void;
   toggleModalOpen: (open: boolean) => void;
 }
 
 function ConnectModalView({
   isModalOpen = false,
-  resetSSHKey = noop,
+  resetConnectState = noop,
   toggleModalOpen = noop,
   ...rest
 }: ConnectModalViewProps) {
   const handleModalOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        resetSSHKey();
+        resetConnectState();
       }
 
       toggleModalOpen(open);
     },
-    [resetSSHKey, toggleModalOpen],
+    [resetConnectState, toggleModalOpen],
   );
 
   return (

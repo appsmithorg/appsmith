@@ -7,7 +7,7 @@ import MapComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import styled from "styled-components";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { MarkerProps } from "../constants";
@@ -429,6 +429,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       },
     ];
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getDefaultPropertiesMap(): Record<string, any> {
@@ -447,6 +448,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       selectedMarker: undefined,
     };
   }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }

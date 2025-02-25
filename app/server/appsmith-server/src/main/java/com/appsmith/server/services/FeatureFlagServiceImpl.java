@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements FeatureFlagService {
     public FeatureFlagServiceImpl(
             SessionUserService sessionUserService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserIdentifierService userIdentifierService,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
             FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(
                 sessionUserService,
-                tenantService,
+                organizationService,
                 userIdentifierService,
                 cacheableFeatureFlagHelper,
                 featureFlagMigrationHelper);

@@ -5,7 +5,7 @@ import type { JSONFormWidgetProps } from "../..";
 import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { LoDashStatic } from "lodash";
 

@@ -14,6 +14,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -53,6 +54,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -62,6 +64,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.ARTIFACT_JSON_TYPE;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.CHECKOUT_BRANCH;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.RECONSTRUCT_PAGE;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
@@ -79,6 +82,7 @@ import static com.appsmith.git.constants.ce.GitDirectoriesCE.DATASOURCE_DIRECTOR
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.ce.GitDirectoriesCE.PAGE_DIRECTORY;
 import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -87,6 +91,7 @@ import static org.springframework.util.StringUtils.hasText;
 public class CommonGitFileUtilsCE {
 
     protected final ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils;
+    protected final GitServiceConfig gitServiceConfig;
     private final FileInterface fileUtils;
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
@@ -104,6 +109,7 @@ public class CommonGitFileUtilsCE {
 
     public CommonGitFileUtilsCE(
             ArtifactGitFileUtils<ApplicationJson> applicationGitFileUtils,
+            GitServiceConfig gitServiceConfig,
             FileInterface fileUtils,
             FileOperations fileOperations,
             AnalyticsService analyticsService,
@@ -113,6 +119,7 @@ public class CommonGitFileUtilsCE {
             JsonSchemaVersions jsonSchemaVersions,
             ObjectMapper objectMapper) {
         this.applicationGitFileUtils = applicationGitFileUtils;
+        this.gitServiceConfig = gitServiceConfig;
         this.fileUtils = fileUtils;
         this.fileOperations = fileOperations;
         this.analyticsService = analyticsService;
@@ -136,9 +143,9 @@ public class CommonGitFileUtilsCE {
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      *
-     * @param baseRepoSuffix  path suffix used to create a local repo path
+     * @param baseRepoSuffix       path suffix used to create a local repo path
      * @param artifactExchangeJson application reference object from which entire application can be rehydrated
-     * @param branchName      name of the branch for the current application
+     * @param branchName           name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveArtifactToLocalRepo(
@@ -655,9 +662,9 @@ public class CommonGitFileUtilsCE {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param workspaceId       To which workspace application needs to be rehydrated
+     * @param workspaceId    To which workspace application needs to be rehydrated
      * @param baseArtifactId Root application for the current branched application
-     * @param branchName        for which branch the application needs to rehydrate
+     * @param branchName     for which branch the application needs to rehydrate
      * @param artifactType
      * @return application reference from which entire application can be rehydrated
      */
@@ -777,6 +784,67 @@ public class CommonGitFileUtilsCE {
                     metadataMap.put(FILE_FORMAT_VERSION, fileFormatVersion);
                     return metadataMap;
                 });
+    }
+
+    public Mono<Path> moveRepositoryFromTemporaryStorage(Path temporaryPath, Path absoluteArtifactPath) {
+
+        Path currentGitPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(temporaryPath);
+        Path targetPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(absoluteArtifactPath);
+
+        return Mono.fromCallable(() -> {
+                    try {
+                        if (!Files.exists(targetPath)) {
+                            Files.createDirectories(targetPath);
+                        }
+
+                        return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
+
+                    } catch (IOException exception) {
+                        log.error("File IO exception while moving repository. {}", exception.getMessage());
+                        throw new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, exception.getMessage());
+                    }
+                })
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while moving repository from temporary storage {} to permanent storage {}",
+                            currentGitPath,
+                            targetPath,
+                            error.getMessage());
+                    return Mono.error(error);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<ArtifactType> getArtifactJsonTypeOfRepository(Path repoSuffix) {
+        Mono<ArtifactType> artifactTypeMono = fileUtils
+                .reconstructMetadataFromGitRepository(repoSuffix)
+                .flatMap(metadata -> {
+                    Gson gson = new Gson();
+                    JsonObject metadataJsonObject =
+                            gson.toJsonTree(metadata, Object.class).getAsJsonObject();
+
+                    if (metadataJsonObject == null) {
+                        log.error(
+                                "Error in retrieving the metadata from the file system for repository {}", repoSuffix);
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                    }
+
+                    JsonElement artifactJsonType = metadataJsonObject.get(ARTIFACT_JSON_TYPE);
+
+                    if (artifactJsonType == null) {
+                        log.error(
+                                "artifactJsonType attribute not found in the metadata file for repository {}",
+                                repoSuffix);
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR));
+                    }
+
+                    return Mono.just(artifactJsonType.getAsString());
+                })
+                .flatMap(artifactJsonType -> {
+                    return Mono.justOrEmpty(ArtifactType.valueOf(artifactJsonType));
+                });
+
+        return Mono.create(sink -> artifactTypeMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**

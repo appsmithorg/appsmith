@@ -1,7 +1,7 @@
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Plugin";
 import { getBindingAndReactivePathsOfAction } from "entities/Action/actionProperties";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 
 const DEFAULT_ACTION: Action = {
   actionConfiguration: {},

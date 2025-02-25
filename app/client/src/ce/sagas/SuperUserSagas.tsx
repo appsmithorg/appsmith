@@ -28,9 +28,9 @@ import {
   MIGRATION_STATUS,
   RESTART_POLL_INTERVAL,
   RESTART_POLL_TIMEOUT,
-} from "ee/constants/tenantConstants";
-import type { FetchCurrentTenantConfigResponse } from "ee/api/TenantApi";
-import TenantApi from "ee/api/TenantApi";
+} from "ee/constants/organizationConstants";
+import type { FetchCurrentOrganizationConfigResponse } from "ee/api/OrganizationApi";
+import OrganizationApi from "ee/api/OrganizationApi";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -153,13 +153,13 @@ export function* RestryRestartServerPoll() {
     pollCount++;
     yield delay(RESTART_POLL_INTERVAL);
     try {
-      const response: FetchCurrentTenantConfigResponse = yield call(
-        TenantApi.fetchCurrentTenantConfig,
+      const response: FetchCurrentOrganizationConfigResponse = yield call(
+        OrganizationApi.fetchCurrentOrganizationConfig,
       );
 
       if (
         response.responseMeta.status === 200 &&
-        response.data?.tenantConfiguration?.migrationStatus ===
+        response.data?.organizationConfiguration?.migrationStatus ===
           MIGRATION_STATUS.COMPLETED
       ) {
         window.location.reload();

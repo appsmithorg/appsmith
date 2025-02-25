@@ -1,4 +1,4 @@
-import { tenantConfigConnection } from "ee/constants/tenantConstants";
+import { organizationConfigConnection } from "ee/constants/organizationConstants";
 import type {
   AdminConfigType,
   Category,
@@ -37,7 +37,7 @@ export const saveAllowed = (
 export const getDefaultAdminSettingsPath = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  { isSuperUser, tenantPermissions: any = [] }: Record<string, any>,
+  { isSuperUser, organizationPermissions: any = [] }: Record<string, any>,
 ): string => {
   return ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH;
 };
@@ -52,8 +52,8 @@ export const getLoginUrl = (method: string): string => {
   return urls[method];
 };
 
-export const isTenantConfig = (name: string): boolean => {
-  const fields: string[] = tenantConfigConnection;
+export const isOrganizationConfig = (name: string): boolean => {
+  const fields: string[] = organizationConfigConnection;
 
   return fields.includes(name);
 };

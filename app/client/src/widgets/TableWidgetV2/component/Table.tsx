@@ -134,6 +134,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  isInfiniteScrollEnabled: boolean;
 }
 
 const defaultColumn = {
@@ -335,12 +336,13 @@ export function Table(props: TableProps) {
    * for server paginated tables it needs this extra handling.
    */
   const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) =>
-        !!column.columnProperties.allowCellWrapping ||
-        column.metaProperties?.type === ColumnTypes.HTML,
-    );
+    props.isInfiniteScrollEnabled ||
+    (props.serverSidePaginationEnabled &&
+      !props.columns.some(
+        (column) =>
+          !!column.columnProperties.allowCellWrapping ||
+          column.metaProperties?.type === ColumnTypes.HTML,
+      ));
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
@@ -416,6 +418,7 @@ export function Table(props: TableProps) {
                   disabledAddNewRowSave={props.disabledAddNewRowSave}
                   filters={props.filters}
                   isAddRowInProgress={props.isAddRowInProgress}
+                  isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
                   isVisibleDownload={props.isVisibleDownload}
                   isVisibleFilters={props.isVisibleFilters}
                   isVisiblePagination={props.isVisiblePagination}
@@ -471,8 +474,10 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
@@ -487,7 +492,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
-                useVirtual={shouldUseVirtual}
+                useVirtual={false}
                 widgetId={props.widgetId}
                 width={props.width}
               />
@@ -509,8 +514,11 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}

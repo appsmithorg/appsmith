@@ -5,7 +5,7 @@ import type {
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "../CodemirrorTernService";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 describe("Autocomplete Ranking", () => {
   it("Blocks platform functions in data fields", () => {

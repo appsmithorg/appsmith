@@ -7,6 +7,7 @@ import type { TextFieldProps } from "./types";
 
 export function TextField(props: TextFieldProps) {
   const {
+    className,
     contextualHelp,
     errorMessage,
     isDisabled,
@@ -26,7 +27,7 @@ export function TextField(props: TextFieldProps) {
   return (
     <HeadlessTextField
       {...rest}
-      className={clsx(inputFieldStyles.field)}
+      className={clsx(inputFieldStyles.field, className)}
       data-field=""
       isDisabled={isDisabled}
       isInvalid={isInvalid}
@@ -42,6 +43,7 @@ export function TextField(props: TextFieldProps) {
         {label}
       </FieldLabel>
       <Input
+        data-input
         isLoading={isLoading}
         isReadOnly={isReadOnly}
         prefix={prefix}
