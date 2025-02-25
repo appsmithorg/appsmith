@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -322,27 +323,26 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     /**
-     * This function checks if the organization needs to be restarted and restarts after the feature flag migrations are
-     * executed.
+     * This function checks if the organization needs to be restarted, and executes the restart after the feature flag
+     * migrations are completed.
      *
-     * @return
+     * @return  Mono<Void>
      */
     @Override
     public Mono<Void> restartOrganization() {
-        // Avoid dependency on user context as this method will be called internally by the server
-        Mono<Organization> defaultOrganizationMono =
-                this.getDefaultOrganizationId().flatMap(this::retrieveById);
-        return defaultOrganizationMono.flatMap(updatedOrganization -> {
-            if (TRUE.equals(updatedOrganization.getOrganizationConfiguration().getIsRestartRequired())) {
-                log.debug("Triggering organization restart after the feature flag migrations are executed");
-                OrganizationConfiguration organizationConfiguration =
-                        updatedOrganization.getOrganizationConfiguration();
-                organizationConfiguration.setIsRestartRequired(false);
-                return this.update(updatedOrganization.getId(), updatedOrganization)
-                        .then(envManager.restartWithoutAclCheck());
-            }
-            return Mono.empty();
-        });
+        // TODO @CloudBilling: remove this method once we move the form login env to DB variable which is currently
+        //  required as a part of downgrade migration for SSO
+        return this.retrieveAll()
+                .filter(organization ->
+                        TRUE.equals(organization.getOrganizationConfiguration().getIsRestartRequired()))
+                .take(1)
+                .hasElements()
+                .flatMap(hasElement -> {
+                    if (hasElement) {
+                        return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
+                    }
+                    return Mono.empty();
+                });
     }
 
     private boolean isMigrationRequired(Organization organization) {
@@ -355,5 +355,10 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                 && !MigrationStatus.COMPLETED.equals(organization
                                         .getOrganizationConfiguration()
                                         .getMigrationStatus())));
+    }
+
+    @Override
+    public Flux<Organization> retrieveAll() {
+        return repository.retrieveAll();
     }
 }
