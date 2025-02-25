@@ -37,6 +37,7 @@ interface BaseVirtualListProps {
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
   infiniteLoaderListRef?: React.Ref<FixedSizeList>;
   itemCount: number;
+  pageSize: number;
 }
 
 const BaseVirtualList = React.memo(function BaseVirtualList({

@@ -72,6 +72,7 @@ const TableVirtualBodyComponent = React.forwardRef(
         <FixedVirtualList
           height={props.height}
           innerElementType={props.innerElementType}
+          itemCount={props.totalRecordsCount ?? props.rows.length}
           outerRef={ref}
           pageSize={props.pageSize}
           rows={props.rows}
@@ -167,9 +168,9 @@ export const TableBody = React.forwardRef(
       >
         {isInfiniteScrollEnabled ? (
           <InfiniteScrollBody
-            itemCount={rows.length}
             ref={ref}
             rows={rows}
+            totalRecordsCount={props.totalRecordsCount ?? rows.length}
             {...restOfProps}
           />
         ) : useVirtual ? (

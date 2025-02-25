@@ -53,6 +53,7 @@ const InfiniteScrollBody = React.forwardRef(
               itemCount={itemCount}
               onItemsRendered={onItemsRendered}
               outerRef={ref}
+              pageSize={pageSize}
               rows={cachedRows}
               tableSizes={props.tableSizes}
             />
