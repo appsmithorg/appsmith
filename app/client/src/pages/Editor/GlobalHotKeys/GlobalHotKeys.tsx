@@ -388,7 +388,7 @@ function GlobalHotKeys(props: Props) {
     ];
   }
 
-  useHotkeys(hotkeys);
+  useHotkeys(hotkeys, { showDialogKeyCombo: "?" });
 
   return <div>{children}</div>;
 }

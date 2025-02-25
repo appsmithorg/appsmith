@@ -1,5 +1,5 @@
 import React from "react";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
+import { useHotkeys, type HotkeyConfig } from "@blueprintjs/core";
 import type { SearchItem, SelectEvent } from "./utils";
 
 interface Props {
@@ -15,69 +15,60 @@ interface Props {
   children: React.ReactNode;
 }
 
-class GlobalSearchHotKeys extends React.Component<Props> {
-  get hotKeysConfig() {
-    return [
-      {
-        combo: "up",
-        onKeyDown: this.props.handleUpKey,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-        group: "Omnibar",
-        label: "Move up the list",
-      },
-      {
-        combo: "down",
-        onKeyDown: this.props.handleDownKey,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-        group: "Omnibar",
-        label: "Move down the list",
-      },
-      {
-        combo: "return",
-        onKeyDown: (event: KeyboardEvent) => {
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const activeElement = document.activeElement as any;
+const GlobalSearchHotKeys: React.FC<Props> = ({
+  children,
+  handleDownKey,
+  handleItemLinkClick,
+  handleUpKey,
+  modalOpen,
+}) => {
+  const hotkeys: HotkeyConfig[] = [
+    {
+      combo: "up",
+      onKeyDown: handleUpKey,
+      hideWhenModalClosed: true,
+      allowInInput: true,
+      group: "Omnibar",
+      label: "Move up the list",
+      global: false,
+    },
+    {
+      combo: "down",
+      onKeyDown: handleDownKey,
+      hideWhenModalClosed: true,
+      allowInInput: true,
+      group: "Omnibar",
+      label: "Move down the list",
+      global: false,
+    },
+    {
+      combo: "return",
+      onKeyDown: (event: KeyboardEvent) => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const activeElement = document.activeElement as any;
 
-          activeElement?.blur(); // scroll into view doesn't work with the search input focused
-          this.props.handleItemLinkClick(event, null, "ENTER_KEY");
-        },
-        hideWhenModalClosed: true,
-        allowInInput: true,
-        group: "Omnibar",
-        label: "Navigate",
+        activeElement?.blur(); // scroll into view doesn't work with the search input focused
+        handleItemLinkClick(event, null, "ENTER_KEY");
       },
-    ].filter(
-      ({ hideWhenModalClosed }) =>
-        !hideWhenModalClosed || (hideWhenModalClosed && this.props.modalOpen),
-    );
-  }
+      hideWhenModalClosed: true,
+      allowInInput: true,
+      group: "Omnibar",
+      label: "Navigate",
+      global: false,
+    },
+  ].filter(
+    ({ hideWhenModalClosed }) =>
+      !hideWhenModalClosed || (hideWhenModalClosed && modalOpen),
+  );
 
-  renderHotkeys() {
-    return (
-      <Hotkeys>
-        {this.hotKeysConfig.map(
-          ({ allowInInput, combo, group, label, onKeyDown }, index) => (
-            <Hotkey
-              allowInInput={allowInInput}
-              combo={combo}
-              global={false}
-              group={group}
-              key={index}
-              label={label}
-              onKeyDown={onKeyDown}
-            />
-          ),
-        )}
-      </Hotkeys>
-    );
-  }
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeys);
 
-  render() {
-    return <div>{this.props.children}</div>;
-  }
-}
+  return (
+    <div onKeyDown={handleKeyDown} onKeyUp={handleKeyUp}>
+      {children}
+    </div>
+  );
+};
 
 export default GlobalSearchHotKeys;
