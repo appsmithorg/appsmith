@@ -233,21 +233,16 @@ jobs:
           rm -f "$OUTPUT_FILE"
           touch "$OUTPUT_FILE"
 
-          failed_modules=()
           skipped_modules=()
 
           # Process mvn_test.log for FAILURE and SKIPPED statuses
           while IFS= read -r line; do
-              if [[ $line == *"FAILURE"* ]]; then
-                  module_name=$(echo "$line" | awk '{print $2}')
-                  failed_modules+=("$module_name")
-              elif [[ $line == *"SKIPPED"* ]]; then
+              if [[ $line == *"SKIPPED"* ]]; then
                   module_name=$(echo "$line" | awk '{print $2}')
                   skipped_modules+=("$module_name")
               fi
           done < mvn_test.log
 
-          echo "Failed Modules: ${failed_modules[*]}"
           echo "Skipped Modules: ${skipped_modules[*]}"
 
           # Handle older approach for reading failed tests from XML files
@@ -255,11 +250,6 @@ jobs:
           gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<(failure|error) / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
             | sort -u \
             | tee "$failed_tests_from_xml"
-
-          # Filter out failed modules and add only relevant tests to the final failed list
-          for module in "${failed_modules[@]}"; do
-              grep -v "$module" "$failed_tests_from_xml" > temp_file && mv temp_file "$failed_tests_from_xml"
-          done
 
           # Include all skipped module test files in the final list
           for module in "${skipped_modules[@]}"; do
@@ -287,7 +277,7 @@ jobs:
                   sed 's/^/- /' "$OUTPUT_FILE"
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
-              
+
               # Post a comment to the PR
               curl --silent --show-error \
                   --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
