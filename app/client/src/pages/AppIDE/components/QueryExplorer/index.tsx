@@ -1,2 +1,2 @@
 export { QueryExplorer } from "./Explorer";
-export { ListQuery } from "./List";
+export { ListQuery } from "./QuerySegmentList";

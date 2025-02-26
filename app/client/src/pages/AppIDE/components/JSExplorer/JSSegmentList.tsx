@@ -77,7 +77,7 @@ export const ListJSObjects = () => {
       <Flex
         data-testid="t--ide-list"
         flexDirection="column"
-        gap="spaces-4"
+        gap="spaces-3"
         overflowY="auto"
       >
         {isNewADSTemplatesEnabled ? (
