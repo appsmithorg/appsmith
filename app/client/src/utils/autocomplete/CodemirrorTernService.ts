@@ -21,6 +21,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
+import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -516,6 +517,8 @@ class CodeMirrorTernService {
     const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
+    const fieldIsJSAction =
+      this.fieldEntityInformation.entityType === ENTITY_TYPE.JSACTION;
 
     let completions: Completion<TernCompletionResult>[] = [];
     let after = "";
@@ -550,6 +553,7 @@ class CodeMirrorTernService {
 
       if (typeof completion === "string") continue;
 
+      const isCursorInsideBinding = checkIfCursorInsideBinding(cm);
       const isKeyword = isCustomKeywordType(completion);
       const className = typeToIcon(completion.type as string, isKeyword);
       const dataType = getDataType(completion.type as string);
@@ -588,6 +592,11 @@ class CodeMirrorTernService {
         recencyWeight,
         isEntityName: isCompletionADataTreeEntityName,
       };
+
+      if (!isCursorInsideBinding && !fieldIsJSAction) {
+        codeMirrorCompletion.displayText = `{{${codeMirrorCompletion.displayText}}}`;
+        codeMirrorCompletion.text = `{{${codeMirrorCompletion.text}}}`;
+      }
 
       if (isKeyword) {
         codeMirrorCompletion.render = (
@@ -630,16 +639,13 @@ class CodeMirrorTernService {
       completions.push(codeMirrorCompletion);
     }
 
-    const shouldComputeBestMatch =
-      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
-
     completions = AutocompleteSorter.sort(
       completions,
       { ...this.fieldEntityInformation, token },
       this.defEntityInformation.get(
         this.fieldEntityInformation.entityName || "",
       ),
-      shouldComputeBestMatch,
+      !fieldIsJSAction,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;
@@ -1359,17 +1365,17 @@ class CodeMirrorTernService {
     const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
     const inner = CodeMirror.innerMode(cm.getMode(), state);
 
-    if (inner.mode.name != "javascript") return false;
+    if (inner.mode.name === "javascript") {
+      const lex = inner.state.lexical;
 
-    const lex = inner.state.lexical;
+      if (lex.info === "call") {
+        const argPos = lex.pos || 0;
+        const args = this.cachedArgHints?.type?.args || [];
+        const arg = args[argPos];
+        const argType = arg?.type;
 
-    if (lex.info === "call") {
-      const argPos = lex.pos || 0;
-      const args = this.cachedArgHints?.type?.args || [];
-      const arg = args[argPos];
-      const argType = arg?.type;
-
-      entityInformation.expectedType = getDataType(argType);
+        entityInformation.expectedType = getDataType(argType);
+      }
     }
 
     this.fieldEntityInformation = entityInformation;
