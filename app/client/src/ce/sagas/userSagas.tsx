@@ -247,6 +247,7 @@ export function* runUserSideEffectsSaga() {
   if (enableTelemetry) {
     yield fork(initTrackers, currentUser);
   } else {
+    yield call(AnalyticsUtil.avoidTracking);
     yield put(segmentInitSuccess());
   }
 

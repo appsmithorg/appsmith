@@ -131,6 +131,12 @@ function reset() {
   segmentAnalytics && segmentAnalytics.reset();
 }
 
+function avoidTracking() {
+  segmentAnalytics = SegmentSingleton.getInstance();
+
+  segmentAnalytics.avoidTracking();
+}
+
 export {
   initialize,
   logEvent,
@@ -141,4 +147,5 @@ export {
   reset,
   getEventExtraProperties,
   initLicense,
+  avoidTracking,
 };
