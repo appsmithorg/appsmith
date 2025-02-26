@@ -45,16 +45,12 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         CodemirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
-      let shouldShow = false;
+      let shouldShow = true;
 
       if (additionalData?.isJsEditor) {
         if (additionalData?.enableAIAssistance) {
           shouldShow = !isAISlashCommand(editor);
-        } else {
-          shouldShow = true;
         }
-      } else {
-        shouldShow = checkIfCursorInsideBinding(editor);
       }
 
       if (shouldShow) {
