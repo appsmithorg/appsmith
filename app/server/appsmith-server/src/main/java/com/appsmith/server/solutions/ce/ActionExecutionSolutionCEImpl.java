@@ -295,28 +295,40 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .build();
         Mono<ExecuteActionDTO> executeActionDTOMono =
                 createExecuteActionDTO(partFlux).cache();
-        Mono<Plugin> pluginMono = executeActionDTOMono
-                .flatMap(executeActionDTO -> newActionService
-                        .findById(executeActionDTO.getActionId())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION)))
-                        .flatMap(newAction -> {
-                            if (newAction.getPluginId() != null) {
-                                return pluginService.findById(newAction.getPluginId());
-                            } else {
-                                return Mono.empty();
-                            }
-                        }))
-                .cache();
+        Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
+                .findById(executeActionDTO.getActionId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION)))
+                .flatMap(newAction -> {
+                    if (newAction.getPluginId() == null
+                            || newAction.getPluginId().isEmpty()) {
+                        return Mono.empty();
+                    } else {
+                        return pluginService.findById(newAction.getPluginId()).switchIfEmpty(Mono.empty());
+                    }
+                })
+                .cache());
 
-        return pluginMono.flatMap(plugin -> {
-            String pluginName = plugin.getName() != null ? plugin.getName() : NONE;
-            executeActionMetaDTO.setPlugin(plugin);
-            return executeActionDTOMono
-                    .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                    .tag("plugin", pluginName)
-                    .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                    .tap(Micrometer.observation(observationRegistry));
-        });
+        return pluginMono
+                .flatMap(plugin -> {
+                    String pluginName = plugin.getName() != null ? plugin.getName() : NONE;
+                    executeActionMetaDTO.setPlugin(plugin);
+                    return executeActionDTOMono
+                            .flatMap(executeActionDTO ->
+                                    populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                            .tag("plugin", pluginName) // Use plugin name here
+                            .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                            .tap(Micrometer.observation(observationRegistry));
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    // If pluginMono is empty, set plugin to null in executeActionMetaDTO
+                    executeActionMetaDTO.setPlugin(null);
+                    return executeActionDTOMono
+                            .flatMap(executeActionDTO ->
+                                    populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                            .tag("plugin", NONE)
+                            .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                            .tap(Micrometer.observation(observationRegistry));
+                }));
     }
 
     /**
