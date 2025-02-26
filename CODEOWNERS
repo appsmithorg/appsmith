@@ -37,9 +37,9 @@ app/client/src/pages/AppViewer/** @appsmithorg/widgets-blocks
 
 # AI Agents POD
 # AI Agents FE
-app/client/src/widgets/wds/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
-app/client/src/ee/widgets/wds/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
-app/client/packages/carbon-connect/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
+app/client/src/widgets/wds/** @appsmithorg/ai-agents-fe
+app/client/src/ee/widgets/wds/** @appsmithorg/ai-agents-fe
+app/client/packages/carbon-connect/** @appsmithorg/ai-agents-fe
 app/client/generators/** @appsmithorg/ai-agents-fe
 app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ai-agents-fe
 app/client/src/actions/reflowActions.ts @appsmithorg/ai-agents-fe
