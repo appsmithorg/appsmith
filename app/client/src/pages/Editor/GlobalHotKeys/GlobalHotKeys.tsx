@@ -197,12 +197,14 @@ function GlobalHotKeys(props: Props) {
           },
         },
         {
+          allowInInput: true,
           combo: "mod + p",
           global: true,
           label: "Navigate",
           onKeyDown: (e: KeyboardEvent) => onOnmnibarHotKeyDown(e),
         },
         {
+          allowInInput: true,
           combo: "mod + plus",
           global: true,
           label: "Create new",
@@ -210,6 +212,7 @@ function GlobalHotKeys(props: Props) {
             onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION),
         },
         {
+          allowInInput: true,
           combo: "mod + k",
           global: true,
           label: "Show omnibar",
@@ -217,6 +220,7 @@ function GlobalHotKeys(props: Props) {
             onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT),
         },
         {
+          allowInInput: true,
           combo: "mod + d",
           global: true,
           group: "Canvas",
@@ -318,6 +322,7 @@ function GlobalHotKeys(props: Props) {
           },
         },
         {
+          allowInInput: true,
           combo: "mod + enter",
           global: true,
           label: "Execute Action",
