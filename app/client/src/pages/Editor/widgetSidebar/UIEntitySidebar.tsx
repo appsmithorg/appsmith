@@ -16,16 +16,22 @@ import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
-import { useUIExplorerItems } from "./hooks";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+interface UIEntitySidebarProps {
+  focusSearchInput?: boolean;
+  isActive: boolean;
+  cards: WidgetCardProps[];
+  entityLoading?: Partial<Record<WidgetTags, boolean>>;
+  groupedCards: WidgetCardsGroupedByTags;
+}
 
 function UIEntitySidebar({
+  cards,
+  entityLoading,
   focusSearchInput,
+  groupedCards,
   isActive,
-}: {
-  isActive: boolean;
-  focusSearchInput?: boolean;
-}) {
-  const { cards, entityLoading, groupedCards } = useUIExplorerItems();
+}: UIEntitySidebarProps) {
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -91,7 +97,7 @@ function UIEntitySidebar({
   // update widgets list after building blocks have been fetched async
   useEffect(() => {
     setFilteredCards(groupedCards);
-  }, [entityLoading[WIDGET_TAGS.BUILDING_BLOCKS]]);
+  }, [entityLoading?.[WIDGET_TAGS.BUILDING_BLOCKS]]);
 
   useEffect(() => {
     if (focusSearchInput) searchInputRef.current?.focus();
@@ -132,7 +138,10 @@ function UIEntitySidebar({
         )}
         <div>
           {Object.entries(filteredCards).map(([tag, cardsForThisTag]) => {
-            if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
+            if (
+              !cardsForThisTag?.length &&
+              !entityLoading?.[tag as WidgetTags]
+            ) {
               return null;
             }
 
@@ -143,7 +152,7 @@ function UIEntitySidebar({
             return (
               <UIEntityTagGroup
                 cards={cardsForThisTag}
-                isLoading={!!entityLoading[tag as WidgetTags]}
+                isLoading={!!entityLoading?.[tag as WidgetTags]}
                 key={tag}
                 tag={tag}
               />

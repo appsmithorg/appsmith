@@ -9,3 +9,5 @@ export const getAllModules = (
 ): Record<string, Module> | any => {};
 
 export const getCurrentModuleId = (state: AppState) => "";
+
+export const showUIModulesList = (state: AppState) => false;
