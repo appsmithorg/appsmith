@@ -1,11 +1,8 @@
-import React from "react";
-import HotKeysView from "./HotKeysView";
+import { useHotKeysView } from "./useHotKeysView";
 import useOps from "git/hooks/useOps";
 
-function HotKeys() {
+export function useHotKeys() {
   const { toggleOpsModal } = useOps();
 
-  return <HotKeysView toggleOpsModal={toggleOpsModal} />;
+  return useHotKeysView({ toggleOpsModal });
 }
-
-export default HotKeys;

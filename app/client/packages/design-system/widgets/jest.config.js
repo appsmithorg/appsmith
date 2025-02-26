@@ -1,6 +1,6 @@
 const esModules = ["remark-gfm"].join("|");
 
-module.exports = {
+export default {
   preset: "ts-jest",
   roots: ["<rootDir>/src"],
   setupFiles: ["<rootDir>../../../test/__mocks__/reactMarkdown.tsx"],
