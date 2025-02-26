@@ -369,7 +369,7 @@ export default {
     }
 
     const columns = props.orderedTableColumns;
-    const sortByColumnId = props.sortOrder.column;
+    const sortByColumnId = props.sortOrder.column || `latitude`;
 
     let sortedTableData;
     /* 
@@ -454,7 +454,9 @@ export default {
         transformedValueToLabelTableData;
     }
 
-    if (sortByColumnId) {
+    const customSortFunction = props.customSortFunction;
+
+    if (sortByColumnId && !customSortFunction) {
       const sortBycolumn = columns.find(
         (column) => column.id === sortByColumnId,
       );
@@ -966,7 +968,26 @@ export default {
       return isSatisfyingFilters;
     });
 
-    return finalTableData;
+    const sortOrder = props.sortOrder.order ?? "asc";
+
+    if (!customSortFunction || !sortByColumnId || !sortOrder) {
+      return finalTableData;
+    }
+
+    function indirectEval(script) {
+      /**
+       * Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description
+       *  */
+      return (1, eval)(script);
+    }
+
+    try {
+      const sortFunction = indirectEval(customSortFunction);
+
+      return sortFunction(finalTableData, sortByColumnId, sortOrder);
+    } catch (error) {
+      return finalTableData;
+    }
   },
   //
   getUpdatedRow: (props, moment, _) => {
