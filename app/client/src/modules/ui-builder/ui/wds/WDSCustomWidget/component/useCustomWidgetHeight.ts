@@ -14,20 +14,35 @@ export const useCustomWidgetHeight = (
   useLayoutEffect(() => {
     const canvasElem = document.querySelector(".canvas");
 
-    if (canvasElem) {
+    if (!canvasElem) return;
+
+    const updateHeight = () => {
       switch (size) {
         case COMPONENT_SIZE.AUTO:
-          return setComponentHeight("100%");
+          setComponentHeight("100%");
+          break;
         case COMPONENT_SIZE.FIT_PAGE:
-          return setComponentHeight(
+          setComponentHeight(
             getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
           );
+          break;
         default:
-          return setComponentHeight(
+          setComponentHeight(
             getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
           );
+          break;
       }
-    }
+    };
+
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    resizeObserver.observe(canvasElem);
+
+    return () => resizeObserver.disconnect();
   }, [size, isEmbed]);
 
   return componentHeight;

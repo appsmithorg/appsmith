@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class JsonSchemaVersions extends JsonSchemaVersionsFallback {
 
     /**
-     * Only tenant level flags would work over here.
+     * Only org level flags would work over here.
      * @return an Integer which is server version
      */
     @Override

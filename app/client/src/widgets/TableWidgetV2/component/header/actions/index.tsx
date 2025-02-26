@@ -168,6 +168,7 @@ function Actions(props: ActionsPropsType) {
                 columns={props.tableColumns}
                 data={props.tableData}
                 delimiter={props.delimiter}
+                widgetId={props.widgetId}
                 widgetName={props.widgetName}
               />
             )}

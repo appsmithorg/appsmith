@@ -1,19 +1,20 @@
-import React, { memo } from "react";
+import { importSvg } from "@appsmith/ads-old";
 import {
-  Popover,
   Classes,
+  Popover,
   PopoverInteractionKind,
   Position,
 } from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import React, { memo } from "react";
+import styled, { createGlobalStyle } from "styled-components";
+import AppsmithConsole from "utils/AppsmithConsole";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
-import zipcelx from "zipcelx";
-import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
@@ -72,14 +73,10 @@ interface TableDataDownloadProps {
   widgetName: string;
   delimiter: string;
   borderRadius?: string;
+  widgetId: string;
 }
 
 type FileDownloadType = "CSV" | "EXCEL";
-
-interface DataCellProps {
-  value: string | number;
-  type: "string" | "number";
-}
 
 interface DownloadOptionProps {
   label: string;
@@ -91,20 +88,20 @@ const dowloadOptions: DownloadOptionProps[] = [
     label: "Download as CSV",
     value: "CSV",
   },
+  {
+    label: "Download as Excel",
+    value: "EXCEL",
+  },
 ];
 
 const downloadDataAsCSV = (props: {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  csvData: Array<Array<any>>;
+  csvData: Array<Array<unknown>>;
   delimiter: string;
   fileName: string;
 }) => {
   let csvContent = "";
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props.csvData.forEach((infoArray: Array<any>, index: number) => {
+  props.csvData.forEach((infoArray: Array<unknown>, index: number) => {
     const dataString = infoArray.join(props.delimiter);
 
     csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
@@ -143,55 +140,62 @@ function TableDataDownload(props: TableDataDownloadProps) {
       downloadTableDataAsExcel();
     }
   };
-  const downloadTableDataAsExcel = () => {
-    const tableData: Array<Array<DataCellProps>> = [];
-    const tableHeaders: Array<DataCellProps> = props.columns
-      .filter((column: ReactTableColumnProps) => {
-        return column.metaProperties && !column.metaProperties.isHidden;
-      })
-      .map((column: ReactTableColumnProps) => {
-        return {
-          value: column.Header,
-          type:
-            column.columnProperties?.columnType === "number"
-              ? "number"
-              : "string",
-        };
-      });
+  const downloadTableDataAsExcel = async () => {
+    try {
+      // Dynamically import xlsx only when needed
+      const XLSX = await import("xlsx");
+      const tableData: Array<Array<unknown>> = [];
 
-    tableData.push(tableHeaders);
+      const headers = props.columns
+        .filter((column: ReactTableColumnProps) => {
+          return column.metaProperties && !column.metaProperties.isHidden;
+        })
+        .map((column: ReactTableColumnProps) => column.Header);
 
-    for (let row = 0; row < props.data.length; row++) {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: { [key: string]: any } = props.data[row];
-      const tableRow: Array<DataCellProps> = [];
+      tableData.push(headers);
 
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        const type =
-          column.columnProperties?.columnType === "number"
-            ? "number"
-            : "string";
+      for (let row = 0; row < props.data.length; row++) {
+        const data = props.data[row];
+        const tableRow: Array<unknown> = [];
 
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          tableRow.push({
-            value: data[column.alias],
-            type: type,
-          });
-        }
+        props.columns.forEach((column) => {
+          if (column.metaProperties && !column.metaProperties.isHidden) {
+            const value = data[column.alias];
+
+            if (
+              column.columnProperties?.columnType === "number" &&
+              typeof value === "string"
+            ) {
+              tableRow.push(Number(value) || 0);
+            } else {
+              tableRow.push(value);
+            }
+          }
+        });
+
+        tableData.push(tableRow);
       }
 
-      tableData.push(tableRow);
-    }
+      // Create workbook and worksheet using the dynamically imported XLSX
+      const ws = XLSX.utils.aoa_to_sheet(tableData);
+      const wb = XLSX.utils.book_new();
 
-    zipcelx({
-      filename: props.widgetName,
-      sheet: {
-        data: tableData,
-      },
-    });
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+      // Generate and download file
+      XLSX.writeFile(wb, `${props.widgetName}.xlsx`);
+    } catch (error) {
+      AppsmithConsole.error({
+        text: `Error loading Excel export functionality: ${error}`,
+        source: {
+          id: props.widgetId,
+          name: props.widgetName,
+          type: ENTITY_TYPE.WIDGET,
+        },
+      });
+    }
   };
+
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
     const csvData = transformTableDataIntoCsv({

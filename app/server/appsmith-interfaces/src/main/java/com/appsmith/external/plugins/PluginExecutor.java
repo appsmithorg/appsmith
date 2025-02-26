@@ -295,6 +295,39 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
             Map<String, Boolean> featureFlagMap) {
         return this.trigger(connection, datasourceConfiguration, request);
     }
+    /*
+     * Feature flagging implementation is added here as a potential fix to dynamoDB query timeouts problem
+     * This is a temporary fix and will be removed once we get the confirmation from the user that issue is resolved
+     * Even if the issue is not resolved, we will know that fix does not work and hence will be removing the code in any case
+     * https://github.com/appsmithorg/appsmith/issues/39426 Created task here to remove this flag
+     * This implementation ensures that none of the existing plugins have any impact due to feature flagging, hence if else condition
+     * This applies to both datasourceCreate and testDatasource methods added below
+     * */
+    default Mono<C> datasourceCreate(
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+        return this.datasourceCreate(datasourceConfiguration);
+    }
+
+    default Mono<DatasourceTestResult> testDatasource(
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+        return this.datasourceCreate(datasourceConfiguration, isDynamoDBConnectionTimeToLiveEnabled)
+                .flatMap(connection -> {
+                    return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));
+                })
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage() == null
+                            ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
+                            : error.getMessage();
+                    if (error instanceof AppsmithPluginException
+                            && StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                        return Mono.just(new DatasourceTestResult(
+                                ((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                    }
+                    return Mono.just(new DatasourceTestResult(errorMessage));
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
 
     /**
      * This function is responsible for preparing the action and datasource configurations to be ready for execution.
