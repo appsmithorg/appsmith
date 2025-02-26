@@ -48,6 +48,7 @@ const LeftPane = () => {
     <Flex
       backgroundColor="var(--ads-v2-color-bg)"
       borderRight="1px solid var(--ads-v2-color-border)"
+      flexDirection="column"
       height="100%"
       overflow="hidden"
     >
