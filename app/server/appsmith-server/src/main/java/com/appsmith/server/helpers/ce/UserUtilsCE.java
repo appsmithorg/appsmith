@@ -10,7 +10,9 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.services.SessionUserService;
 import io.micrometer.observation.ObservationRegistry;
 import net.minidev.json.JSONObject;
 import reactor.core.observability.micrometer.Micrometer;
@@ -37,6 +39,8 @@ public class UserUtilsCE {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final CommonConfig commonConfig;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
+    private final OrganizationRepository organizationRepository;
+    private final SessionUserService sessionUserService;
 
     public UserUtilsCE(
             ConfigRepository configRepository,
@@ -44,29 +48,31 @@ public class UserUtilsCE {
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
             CommonConfig commonConfig,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
+            OrganizationRepository organizationRepository,
+            SessionUserService sessionUserService) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.observationRegistry = observationRegistry;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
         this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
+        this.organizationRepository = organizationRepository;
+        this.sessionUserService = sessionUserService;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
-        return configRepository
-                .findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
-                .map(config -> Boolean.TRUE)
+
+        return organizationRepository
+                .findByIdAsUser(user, user.getOrganizationId(), AclPermission.MANAGE_ORGANIZATION)
+                .map(organization -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE))
                 .name(CHECK_SUPER_USER_SPAN)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
-        return configRepository
-                .findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
-                .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE));
+        return sessionUserService.getCurrentUser().flatMap(this::isSuperUser);
     }
 
     public Mono<Boolean> makeInstanceAdministrator(List<User> users) {
