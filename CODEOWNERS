@@ -3,8 +3,11 @@
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 # Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
 
-app/client/.husky @KelvinOm
-app/client/.yarn @KelvinOm
+# Some paths highlighted as not existing. This may be due to the fact that we use same file for EE repo as well.
+# Before deleting, make sure that the path does not really exist.
+
+app/client/.husky/** @KelvinOm
+app/client/.yarn/** @KelvinOm
 app/client/.editorconfig @KelvinOm
 app/client/.eslintrc.base.json @KelvinOm
 app/client/.eslintrc.js @KelvinOm
@@ -15,28 +18,71 @@ app/client/.prettierignore @KelvinOm
 app/client/.prettierrc @KelvinOm
 app/client/.yarnrc.yml @KelvinOm
 app/client/jest.config.js @KelvinOm
+app/client/knip.json @KelvinOm
 app/client/package.json @KelvinOm
 app/client/tsconfig.json @KelvinOm
 app/client/tsconfig.path.json @KelvinOm
-
-# WDS team
-app/client/packages/design-system/* @appsmithorg/wds-team
-app/client/packages/storybook/* @appsmithorg/wds-team
-app/client/src/widgets/wds/* @appsmithorg/wds-team @appsmithorg/anvil-team
-
-# Anvil-team
-app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
+app/client/packages/utils/** @KelvinOm
+app/client/packages/eslint-plugin/** @KelvinOm
+app/client/config/** @KelvinOm @alex-golovanov @riodeuno
+app/client/scripts/** @KelvinOm @alex-golovanov @riodeuno
 
 # App viewers pod
-app/client/src/widgets/* @appsmithorg/widgets-blocks
-app/client/src/components/propertyControls/* @appsmithorg/widgets-blocks
+app/client/src/widgets/** @appsmithorg/widgets-blocks
+app/client/src/components/propertyControls/** @appsmithorg/widgets-blocks
 app/client/src/sagas/OneClickBindingSaga.ts @appsmithorg/widgets-blocks
-app/client/src/WidgetQueryGenerators/* @appsmithorg/widgets-blocks
-app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @appsmithorg/widgets-blocks
-app/client/src/pages/AppViewer/* @appsmithorg/widgets-blocks
+app/client/src/WidgetQueryGenerators/** @appsmithorg/widgets-blocks
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/** @appsmithorg/widgets-blocks
+app/client/src/pages/AppViewer/** @appsmithorg/widgets-blocks
+
+# AI Agents POD
+# AI Agents FE
+app/client/src/widgets/wds/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
+app/client/src/ee/widgets/wds/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
+app/client/packages/carbon-connect/** @appsmithorg/wds-team @appsmithorg/ai-agents-fe
+app/client/generators/** @appsmithorg/ai-agents-fe
+app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ai-agents-fe
+app/client/src/actions/reflowActions.ts @appsmithorg/ai-agents-fe
+app/client/src/actions/widgetSelectionActions.ts @appsmithorg/ai-agents-fe
+app/client/src/layoutSystems/anvil/** @appsmithorg/ai-agents-fe
+app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ai-agents-fe
+app/client/src/pages/Editor/CanvasLayoutConversion/** @appsmithorg/ai-agents-fe
+app/client/src/pages/Editor/PropertyPane/** @appsmithorg/ai-agents-fe
+app/client/src/pages/Editor/WidgetsEditor/** @appsmithorg/ai-agents-fe
+app/client/src/reducers/entityReducers/autoHeightReducers/** @appsmithorg/ai-agents-fe
+app/client/src/reflow/** @appsmithorg/ai-agents-fe
+app/client/src/sagas/CanvasSagas/** @appsmithorg/ai-agents-fe
+app/client/src/sagas/ReplaySaga.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/SnapshotSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/ai-agents-fe
+app/client/src/selectors/canvasSelectors.ts @appsmithorg/ai-agents-fe
+app/client/src/selectors/widgetSelectors.ts @appsmithorg/ai-agents-fe
+app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/ai-agents-fe
+app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/ai-agents-fe
+app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/ai-agents-fe
+app/client/src/utils/hooks/useReflow.ts @appsmithorg/ai-agents-fe
+app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/ai-agents-fe
+
+# # AI Agents BE
+app/client/packages/rts/src/chat/** @appsmithorg/ai-agents-be
+app/server/**/appsmith-ai/** @appsmithorg/ai-agents-be
+app/server/**/ai/** @appsmithorg/ai-agents-be
+/app/server/appsmith-plugins/appsmithAiPlugin/** @appsmithorg/ai-agents-be
+
+# WDS team is part of AI Agents POD and responsible for widget design system
+app/client/packages/design-system/** @appsmithorg/wds-team
+app/client/packages/storybook/** @appsmithorg/wds-team
+app/client/packages/icons/** @appsmithorg/wds-team
 
 # New Developers Pod
-app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/** @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierServiceImpl.java @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/UserIdentifierServiceCE.java @nilanshbansal
@@ -51,46 +97,6 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/Feature
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagService.java @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagServiceImpl.java @nilanshbansal
 app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFlagServiceTest.java @nilanshbansal
-
-# UI Builders Pod
-app/client/generators/* @appsmithorg/anvil-team
-app/client/src/actions/canvasSelectionActions.ts @appsmithorg/anvil-team
-app/client/src/actions/reflowActions.ts @appsmithorg/anvil-team
-app/client/src/actions/widgetSelectionActions.ts @appsmithorg/anvil-team
-app/client/src/components/propertyControls/* @appsmithorg/anvil-team
-app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
-app/client/src/pages/Editor/Canvas.tsx @appsmithorg/anvil-team
-app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/anvil-team
-app/client/src/pages/Editor/PropertyPane/* @appsmithorg/anvil-team
-app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/anvil-team
-app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/anvil-team
-app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/anvil-team
-app/client/src/reflow/* @appsmithorg/anvil-team
-app/client/src/sagas/CanvasSagas/* @appsmithorg/anvil-team
-app/client/src/sagas/ReplaySaga.ts @appsmithorg/anvil-team
-app/client/src/sagas/SnapshotSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/anvil-team
-app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/anvil-team
-app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/anvil-team
-app/client/src/selectors/canvasSelectors.ts @appsmithorg/anvil-team
-app/client/src/selectors/widgetSelectors.ts @appsmithorg/anvil-team
-app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/anvil-team
-app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/anvil-team
-app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/anvil-team
-app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/anvil-team
-app/client/src/utils/hooks/useReflow.ts @appsmithorg/anvil-team
-app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/anvil-team
-app/client/src/widgets/BaseWidget.tsx @appsmithorg/anvil-team
-app/client/src/widgets/BaseWidgetHOC/* @appsmithorg/anvil-team
-app/client/src/widgets/CanvasWidget.tsx @appsmithorg/anvil-team
-app/client/src/widgets/ContainerWidget/* @appsmithorg/anvil-team
-app/client/src/widgets/MetaHOC.tsx @appsmithorg/anvil-team
-app/client/src/widgets/withWidgetProps.tsx @appsmithorg/anvil-team
 
 # Git Pod
 app/server/appsmith-git/ @appsmithorg/git-be-reviewers
@@ -122,8 +128,8 @@ app/client/src/components/formControls/utils.ts @ayushpahwa
 app/client/src/entities/Datasource/index.ts @ayushpahwa
 app/client/src/entities/FeatureFlags.ts @ayushpahwa
 app/client/src/navigation/FocusEntity.ts @ayushpahwa
-app/client/src/pages/Editor/APIEditor/* @ayushpahwa
-app/client/src/pages/Editor/DataSourceEditor/* @ayushpahwa
+app/client/src/pages/Editor/APIEditor/** @ayushpahwa
+app/client/src/pages/Editor/DataSourceEditor/** @ayushpahwa
 app/client/src/pages/Editor/IntegrationEditor/DatasourceCard.tsx @ayushpahwa
 app/client/src/pages/Editor/IntegrationEditor/IntegrationsHomeScreen.tsx @ayushpahwa
 app/client/src/pages/Editor/IntegrationEditor/NewApi.tsx @ayushpahwa
