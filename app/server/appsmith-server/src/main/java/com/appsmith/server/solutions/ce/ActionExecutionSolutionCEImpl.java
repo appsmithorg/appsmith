@@ -309,26 +309,23 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .cache());
 
         return pluginMono
-                .flatMap(plugin -> {
-                    String pluginName = plugin.getName() != null ? plugin.getName() : NONE;
+                .map(plugin -> {
                     executeActionMetaDTO.setPlugin(plugin);
-                    return executeActionDTOMono
-                            .flatMap(executeActionDTO ->
-                                    populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                            .tag("plugin", pluginName) // Use plugin name here
-                            .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                            .tap(Micrometer.observation(observationRegistry));
+                    return plugin.getName() != null ? plugin.getName() : NONE;
                 })
-                .switchIfEmpty(Mono.defer(() -> {
-                    // If pluginMono is empty, set plugin to null in executeActionMetaDTO
-                    executeActionMetaDTO.setPlugin(null);
+                .defaultIfEmpty(NONE)
+                .flatMap(pluginName -> {
+                    String name = (String) pluginName;
+                    if (NONE.equals(name)) {
+                        executeActionMetaDTO.setPlugin(null);
+                    }
                     return executeActionDTOMono
                             .flatMap(executeActionDTO ->
                                     populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                            .tag("plugin", NONE)
+                            .tag("plugin", name)
                             .name(ACTION_EXECUTION_SERVER_EXECUTION)
                             .tap(Micrometer.observation(observationRegistry));
-                }));
+                });
     }
 
     /**
