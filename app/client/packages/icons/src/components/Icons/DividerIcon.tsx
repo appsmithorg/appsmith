@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const DividerIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" d="M1 .5a.5.5 0 0 1 1 0v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 1 0 1h-1A1.5 1.5 0 0 1 1 1.5zM0 7.5A.5.5 0 0 1 .5 7h14a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5M1.5 15a.5.5 0 0 1-.5-.5v-1A1.5 1.5 0 0 1 2.5 12h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 1-.5.5M11.5 12a.5.5 0 0 0 0 1h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 0 1 0v-1a1.5 1.5 0 0 0-1.5-1.5zM6 12.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5M11 2.5a.5.5 0 0 0 .5.5h1A1.5 1.5 0 0 0 14 1.5v-1a.5.5 0 0 0-1 0v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 0-.5.5M6.5 2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z" /></svg>;
+export { DividerIcon };
