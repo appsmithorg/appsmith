@@ -207,4 +207,5 @@ public class FieldNameCE {
     public static final String BODY = "body";
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String NONE = "none";
+    public static final String ORGANIZATION_ADMINISTRATOR_ROLE = "Organization Administrator Role";
 }
