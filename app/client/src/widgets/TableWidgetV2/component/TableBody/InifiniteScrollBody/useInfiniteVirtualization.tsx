@@ -1,37 +1,61 @@
-import { useCallback } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 
 interface InfiniteVirtualizationProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
-  totalRecordsCount?: number;
   isLoading: boolean;
-  loadMore: () => void;
   pageSize: number;
 }
 
 interface UseInfiniteVirtualizationReturn {
-  itemCount: number;
-  loadMoreItems: (startIndex: number, stopIndex: number) => void;
-  isItemLoaded: (index: number) => boolean;
+  cachedRows: ReactTableRowType<Record<string, unknown>>[];
+}
+
+interface LoadedRowsCache {
+  [pageIndex: number]: ReactTableRowType<Record<string, unknown>>[];
 }
 
 export const useInfiniteVirtualization = ({
-  isLoading,
-  loadMore,
+  pageSize,
   rows,
-  totalRecordsCount,
 }: InfiniteVirtualizationProps): UseInfiniteVirtualizationReturn => {
-  const loadMoreItems = useCallback(async () => {
-    if (!isLoading) {
-      loadMore();
-    }
+  const [loadedPages, setLoadedPages] = useState<LoadedRowsCache>({});
+  const lastLoadedPageRef = useRef<number>(0);
 
-    return Promise.resolve();
-  }, [isLoading, loadMore]);
+  // Cache rows when they change
+  useEffect(() => {
+    if (rows.length > 0) {
+      // Since we know we get pageSize number of rows each time (except possibly last page)
+      // we can calculate the current page index
+      const currentPageIndex = lastLoadedPageRef.current;
+
+      // Store the current page of rows in cache
+      setLoadedPages((prev) => ({
+        ...prev,
+        [currentPageIndex]: rows,
+      }));
+
+      // Increment the last loaded page counter for next load
+      lastLoadedPageRef.current = currentPageIndex + 1;
+    }
+  }, [rows, pageSize]);
+
+  // Memoize the combined rows from cache
+  const cachedRows = useMemo(() => {
+    const allRows: ReactTableRowType<Record<string, unknown>>[] = [];
+
+    // Add all rows from cache in order
+    Object.keys(loadedPages)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .forEach((pageIndex) => {
+        allRows.push(...loadedPages[pageIndex]);
+      });
+
+    return allRows;
+  }, [loadedPages]);
 
   return {
-    itemCount: totalRecordsCount ?? rows.length,
-    loadMoreItems,
-    isItemLoaded: (index) => !isLoading && index < rows.length,
+    cachedRows,
   };
 };

@@ -33,6 +33,7 @@ export type BodyContextType = {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
+  totalRecordsCount?: number;
 } & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({

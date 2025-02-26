@@ -10,6 +10,9 @@ import type { ReactTableColumnProps, TableSizes } from "./Constants";
 import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
 import { TableBody } from "./TableBody";
+import { MULTISELECT_CHECKBOX_WIDTH } from "modules/ui-builder/ui/wds/WDSTableWidget/component/Constants";
+import TableColumnHeader from "./header/TableColumnHeader";
+import styled from "styled-components";
 
 type VirtualTableProps = TableColumnHeaderProps & {
   getTableBodyProps(
@@ -33,6 +36,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
   totalColumnsWidth?: number;
+  totalRecordsCount?: number;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollContainerStyles: any;
@@ -43,9 +47,9 @@ type VirtualTableProps = TableColumnHeaderProps & {
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
-  return (
-    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
-      {({ scrollableNodeRef }) => (
+  const getTableBody = React.useCallback(
+    (scrollableNodeRef?: React.Ref<SimpleBar>) => {
+      return (
         <TableBody
           accentColor={props.accentColor}
           borderRadius={props.borderRadius}
@@ -80,13 +84,68 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           sortTableColumn={props.sortTableColumn}
           tableSizes={props.tableSizes}
           totalColumnsWidth={props?.totalColumnsWidth}
+          totalRecordsCount={props.totalRecordsCount}
           useVirtual={props.useVirtual}
           widgetId={props.widgetId}
           width={props.width}
         />
-      )}
+      );
+    },
+    [props],
+  );
+
+  return !props.isInfiniteScrollEnabled ? (
+    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
+      {getTableBody(ref)}
     </SimpleBar>
+  ) : (
+    <>
+      <TableColumnHeader
+        accentColor={props.accentColor}
+        borderRadius={props.borderRadius}
+        canFreezeColumn={props.canFreezeColumn}
+        columns={props.columns}
+        disableDrag={props.disableDrag}
+        editMode={props.editMode}
+        enableDrag={props.enableDrag}
+        handleAllRowSelectClick={props.handleAllRowSelectClick}
+        handleColumnFreeze={props.handleColumnFreeze}
+        handleReorderColumn={props.handleReorderColumn}
+        headerGroups={props.headerGroups}
+        headerWidth={
+          props.multiRowSelection && props.totalColumnsWidth
+            ? MULTISELECT_CHECKBOX_WIDTH + props.totalColumnsWidth
+            : props.totalColumnsWidth
+        }
+        isResizingColumn={props.isResizingColumn}
+        isSortable={props.isSortable}
+        multiRowSelection={props.multiRowSelection}
+        prepareRow={props.prepareRow}
+        rowSelectionState={props.rowSelectionState}
+        sortTableColumn={props.sortTableColumn}
+        subPage={props.subPage}
+        widgetId={props.widgetId}
+        width={props.width}
+      />
+      <StyledTableBodyWrapper
+        className="tbody body"
+        multiRowSelection={props.multiRowSelection}
+        totalColumnsWidth={props.totalColumnsWidth || 0}
+      >
+        {getTableBody(ref)}
+      </StyledTableBodyWrapper>
+    </>
   );
 };
 
 export default React.forwardRef(VirtualTable);
+
+const StyledTableBodyWrapper = styled.div<{
+  multiRowSelection?: boolean;
+  totalColumnsWidth: number;
+}>`
+  width: ${(props) =>
+    props.multiRowSelection
+      ? MULTISELECT_CHECKBOX_WIDTH + props.totalColumnsWidth
+      : props.totalColumnsWidth}px !important;
+`;
