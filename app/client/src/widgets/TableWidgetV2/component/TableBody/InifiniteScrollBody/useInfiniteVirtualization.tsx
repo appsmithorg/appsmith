@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
-
 export interface UseInfiniteVirtualizationProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   totalRecordsCount?: number;
