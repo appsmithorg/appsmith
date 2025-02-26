@@ -44,18 +44,12 @@ public class ObservationHelperImpl implements ObservationHelper {
     }
 
     @Override
-    public Span startSpan(Span span, boolean isDetail) {
-        if (!isDetail || commonConfig.isTracingDetail()) {
-            return span.start();
-        } else {
-            return span;
-        }
+    public Span startSpan(Span span) {
+        return span.start();
     }
 
     @Override
-    public void endSpan(Span span, boolean isDetail) {
-        if (!isDetail || commonConfig.isTracingDetail()) {
-            span.end();
-        }
+    public void endSpan(Span span) {
+        span.end();
     }
 }

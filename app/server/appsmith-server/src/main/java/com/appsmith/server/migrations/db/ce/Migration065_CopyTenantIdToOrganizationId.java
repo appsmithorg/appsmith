@@ -64,6 +64,13 @@ public class Migration065_CopyTenantIdToOrganizationId {
     }
 
     private void migrateTenantCollection() {
+
+        // Drop the organization collection if it exists
+        if (mongoTemplate.collectionExists(Organization.class)) {
+            log.info("Dropping existing organization collection");
+            mongoTemplate.dropCollection(Organization.class);
+        }
+
         try {
             // Get the single tenant document
             Document tenant = mongoTemplate.findOne(new Query(), Document.class, "tenant");

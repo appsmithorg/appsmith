@@ -34,7 +34,7 @@ export const FunctionCallingConfigForm = ({
       id: uuid(),
       description: "",
       entityId: "",
-      requiresApproval: false,
+      isApprovalRequired: false,
       entityType: "Query",
     });
   }, [fields]);

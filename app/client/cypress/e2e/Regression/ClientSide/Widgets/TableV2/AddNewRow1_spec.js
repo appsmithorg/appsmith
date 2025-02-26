@@ -1,5 +1,7 @@
 import {
   agHelper,
+  entityExplorer,
+  locators,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -184,6 +186,57 @@ describe(
       //finally turn off allow adding a row then the "add new row" button should be removed from the header section
       propPane.TogglePropertyState("Allow adding a row", "Off");
       cy.get(".t--add-new-row").should("not.exist");
+    });
+
+    it("1.8. should show the selectOptions data of a new row select cell when no data in the table", () => {
+      entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 600, 750);
+      EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
+
+      // add base data
+      propPane.ToggleJSMode("Table data", "On");
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        `{{[
+        {
+          role: "",
+        }
+        ]}}`,
+      );
+
+      // remove all table data
+      propPane.UpdatePropertyFieldValue("Table data", `[]`);
+
+      // allow adding a row
+      propPane.TogglePropertyState("Allow adding a row", "On");
+
+      // Edit role column to select type
+      table.ChangeColumnType("role", "Select", "v2");
+      table.EditColumn("role", "v2");
+      propPane.TogglePropertyState("Editable", "On");
+
+      // Add data to select options
+      agHelper.UpdateCodeInput(
+        locators._controlOption,
+        `
+      {{
+        [
+          {"label": "Software Engineer",
+          "value": 1,},
+          {"label": "Product Manager",
+          "value": 2,},
+          {"label": "UX Designer",
+          "value": 3,}
+        ]  
+      }}
+    `,
+      );
+
+      table.AddNewRow();
+      agHelper.GetNClick(commonlocators.singleSelectWidgetButtonControl);
+      agHelper
+        .GetElement(commonlocators.singleSelectWidgetMenuItem)
+        .contains("Software Engineer")
+        .click();
     });
   },
 );

@@ -1,4 +1,4 @@
-import app from "../server";
+import app from "../ce/server";
 import { RTS_BASE_API_PATH } from "@constants/routes";
 import supertest from "supertest";
 

@@ -1,10 +1,12 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.caching.annotations.DistributedLock;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -13,13 +15,13 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -27,6 +29,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple7;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -43,7 +46,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("!${is.cloud-hosting:false}")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
@@ -60,6 +62,10 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final DeploymentProperties deploymentProperties;
     private final NetworkUtils networkUtils;
     private final PermissionGroupService permissionGroupService;
+    private final OrganizationService organizationService;
+
+    // Delay to avoid 429 between the analytics call.
+    private static final Duration DELAY_BETWEEN_PINGS = Duration.ofMillis(200);
 
     enum UserTrackingType {
         DAU,
@@ -74,14 +80,23 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
+    @DistributedLock(
+            key = "pingSchedule",
+            ttl = 5 * 60 * 60, // 5 hours
+            shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
         if (commonConfig.isTelemetryDisabled()) {
             return;
         }
 
-        Mono.zip(configService.getInstanceId(), networkUtils.getExternalAddress())
-                .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
+        Mono<String> instanceMono = configService.getInstanceId().cache();
+        Mono<String> ipMono = networkUtils.getExternalAddress().cache();
+        organizationService
+                .retrieveAll()
+                .delayElements(DELAY_BETWEEN_PINGS)
+                .flatMap(organization -> Mono.zip(Mono.just(organization.getId()), instanceMono, ipMono))
+                .flatMap(objects -> doPing(objects.getT1(), objects.getT2(), objects.getT3()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
     }
@@ -94,7 +109,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      * @param ipAddress  The external IP address of this instance's machine.
      * @return A publisher that yields the string response of recording the data point.
      */
-    private Mono<String> doPing(String instanceId, String ipAddress) {
+    private Mono<String> doPing(String organizationId, String instanceId, String ipAddress) {
         // Note: Hard-coding Segment auth header and the event name intentionally. These are not intended to be
         // environment specific values, instead, they are common values for all self-hosted environments. As such, they
         // are not intended to be configurable.
@@ -115,7 +130,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         "context",
                         Map.of("ip", ipAddress),
                         "properties",
-                        Map.of("instanceId", instanceId),
+                        Map.of("instanceId", instanceId, "organizationId", organizationId),
                         "event",
                         "Instance Active")))
                 .retrieve()
@@ -124,9 +139,11 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
+    @DistributedLock(key = "pingStats", ttl = 12 * 60 * 60, shouldReleaseLock = false)
     @Observed(name = "pingStats")
     public void pingStats() {
-        if (commonConfig.isTelemetryDisabled()) {
+        // TODO @CloudBilling remove cloud hosting check and migrate the cron to report organization level stats
+        if (commonConfig.isTelemetryDisabled() || commonConfig.isCloudHosting()) {
             return;
         }
 
@@ -152,23 +169,33 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 userCountMono,
                 getUserTrackingDetails());
 
-        publicPermissionGroupIdMono
-                .flatMap(publicPermissionGroupId -> Mono.zip(
-                        configService.getInstanceId().defaultIfEmpty("null"),
-                        networkUtils.getExternalAddress(),
-                        nonDeletedObjectsCountMono,
-                        applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
-                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
+        organizationService
+                .retrieveAll()
+                .delayElements(DELAY_BETWEEN_PINGS)
+                .map(Organization::getId)
+                .zipWith(publicPermissionGroupIdMono)
+                .flatMap(tuple2 -> {
+                    final String organizationId = tuple2.getT1();
+                    final String publicPermissionGroupId = tuple2.getT2();
+                    return Mono.zip(
+                            configService.getInstanceId().defaultIfEmpty("null"),
+                            Mono.just(organizationId),
+                            networkUtils.getExternalAddress(),
+                            nonDeletedObjectsCountMono,
+                            applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
+                                    AclPermission.READ_APPLICATIONS, publicPermissionGroupId));
+                })
                 .flatMap(statsData -> {
                     Map<String, Object> propertiesMap = new java.util.HashMap<>(Map.ofEntries(
                             entry("instanceId", statsData.getT1()),
-                            entry("numOrgs", statsData.getT3().getT1()),
-                            entry("numApps", statsData.getT3().getT2()),
-                            entry("numPages", statsData.getT3().getT3()),
-                            entry("numActions", statsData.getT3().getT4()),
-                            entry("numDatasources", statsData.getT3().getT5()),
-                            entry("numUsers", statsData.getT3().getT6()),
-                            entry("numPublicApps", statsData.getT4()),
+                            entry("organizationId", statsData.getT2()),
+                            entry("numOrgs", statsData.getT4().getT1()),
+                            entry("numApps", statsData.getT4().getT2()),
+                            entry("numPages", statsData.getT4().getT3()),
+                            entry("numActions", statsData.getT4().getT4()),
+                            entry("numDatasources", statsData.getT4().getT5()),
+                            entry("numUsers", statsData.getT4().getT6()),
+                            entry("numPublicApps", statsData.getT5()),
                             entry("version", projectProperties.getVersion()),
                             entry("edition", deploymentProperties.getEdition()),
                             entry("cloudProvider", defaultIfEmpty(deploymentProperties.getCloudProvider(), "")),
@@ -179,9 +206,9 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             entry(ADMIN_EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash()),
                             entry(EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash())));
 
-                    propertiesMap.putAll(statsData.getT3().getT7());
+                    propertiesMap.putAll(statsData.getT4().getT7());
 
-                    final String ipAddress = statsData.getT2();
+                    final String ipAddress = statsData.getT3();
                     return WebClientUtils.create("https://api.segment.io")
                             .post()
                             .uri("/v1/track")

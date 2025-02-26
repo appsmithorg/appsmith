@@ -29,7 +29,7 @@ const defaultProps = {
 };
 
 // mock the postrunactionmap
-jest.mock("ee/components/PostActionRunComponents", () => ({
+jest.mock("ee/PluginActionEditor/components/PostActionRun", () => ({
   PostRunActionComponentMap: {
     test_modal: () => <div data-testid="t--post-run-action-test-modal-form" />,
   },
