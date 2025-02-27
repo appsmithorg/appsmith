@@ -154,17 +154,16 @@ public class VisionCommand implements OpenAICommand {
     }
 
     private List<VisionMessage> transformSystemMessages(Object messages) {
+        List<VisionMessage> visionMessages = new ArrayList<>();
+
         if (messages == null) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_SYSTEM_MESSAGE_FORMAT));
+            return visionMessages;
         }
 
         Type chatListType = new TypeToken<List<LinkedHashMap<String, String>>>() {}.getType();
         try {
             List<LinkedHashMap<String, String>> systemMessagesMap = gson.fromJson(gson.toJson(messages), chatListType);
 
-            List<VisionMessage> visionMessages = new ArrayList<>();
             for (Map<String, String> systemMessageMap : systemMessagesMap) {
                 VisionMessage visionMessage = new VisionMessage();
                 if (StringUtils.hasText(systemMessageMap.get(CONTENT))) {
