@@ -1,25 +1,22 @@
+import { Classes, Icon } from "@blueprintjs/core";
+import { SearchComponent } from "@design-system/widgets-old";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import React from "react";
 import styled from "styled-components";
-import { Icon, Classes } from "@blueprintjs/core";
-import {
-  TableHeaderContentWrapper,
-  PaginationWrapper,
-  PaginationItemWrapper,
-  CommonFunctionsMenuWrapper,
-} from "../../TableStyledWrappers";
-import { SearchComponent } from "@design-system/widgets-old";
-import TableFilters from "./filter";
-import type {
-  ReactTableColumnProps,
-  TableSizes,
-  ReactTableFilter,
-} from "../../Constants";
-import TableDataDownload from "./Download";
-import { Colors } from "constants/Colors";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { lightenColor } from "widgets/WidgetUtils";
-import { PageNumberInput } from "./PageNumberInput";
+import type { ReactTableColumnProps } from "../../Constants";
+import { useAppsmithTable } from "../../TableContext";
+import {
+  CommonFunctionsMenuWrapper,
+  PaginationItemWrapper,
+  PaginationWrapper,
+  TableHeaderContentWrapper,
+} from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
+import TableDataDownload from "./Download";
+import TableFilters from "./filter";
+import { PageNumberInput } from "./PageNumberInput";
 
 const SearchComponentWrapper = styled.div<{
   borderRadius: string;
@@ -93,94 +90,95 @@ const SearchComponentWrapper = styled.div<{
   }
 `;
 
-export interface ActionsPropsType {
-  updatePageNo: (pageNo: number, event?: EventType) => void;
-  nextPageClick: () => void;
-  prevPageClick: () => void;
-  pageNo: number;
-  totalRecordsCount?: number;
-  tableData: Array<Record<string, unknown>>;
-  tableColumns: ReactTableColumnProps[];
-  pageCount: number;
-  currentPageIndex: number;
-  pageOptions: number[];
-  columns: ReactTableColumnProps[];
-  hiddenColumns?: string[];
-  widgetName: string;
-  widgetId: string;
-  searchKey: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchTableData: (searchKey: any) => void;
-  serverSidePaginationEnabled: boolean;
-  filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
-  tableSizes: TableSizes;
-  isVisibleDownload?: boolean;
-  isVisibleFilters?: boolean;
-  isVisiblePagination?: boolean;
-  isVisibleSearch?: boolean;
-  delimiter: string;
-  borderRadius: string;
-  boxShadow: string;
-  accentColor: string;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-  disableAddNewRow: boolean;
-  isInfiniteScrollEnabled: boolean;
-}
+function Actions() {
+  const {
+    accentColor,
+    allowAddNewRow,
+    applyFilter,
+    borderRadius,
+    boxShadow,
+    columns: tableColumns,
+    currentPageIndex,
+    data: tableData,
+    delimiter,
+    disabledAddNewRowSave,
+    filters,
+    isInfiniteScrollEnabled,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
+    nextPageClick,
+    onAddNewRow,
+    pageCount,
+    pageNo,
+    prevPageClick,
+    searchKey,
+    searchTableData,
+    serverSidePaginationEnabled,
+    tableSizes,
+    totalRecordsCount,
+    updatePageNo,
+    widgetId,
+    widgetName,
+  } = useAppsmithTable();
 
-function Actions(props: ActionsPropsType) {
+  const headerColumns = React.useMemo(
+    () =>
+      tableColumns.filter((column: ReactTableColumnProps) => {
+        return column.alias !== "actions";
+      }),
+    [tableColumns],
+  );
+
   return (
     <>
-      {props.isVisibleSearch && (
+      {isVisibleSearch && (
         <SearchComponentWrapper
-          accentColor={props.accentColor}
-          borderRadius={props.borderRadius}
-          boxShadow={props.boxShadow}
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          boxShadow={boxShadow}
         >
           <SearchComponent
-            onSearch={props.searchTableData}
+            onSearch={searchTableData}
             placeholder="Search..."
-            value={props.searchKey}
+            value={searchKey}
           />
         </SearchComponentWrapper>
       )}
-      {(props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.allowAddNewRow) &&
-        !!props.columns.length && (
-          <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-            {props.isVisibleFilters && (
+      {(isVisibleFilters || isVisibleDownload || allowAddNewRow) &&
+        !!headerColumns.length && (
+          <CommonFunctionsMenuWrapper tableSizes={tableSizes}>
+            {isVisibleFilters && (
               <TableFilters
-                accentColor={props.accentColor}
-                applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
-                columns={props.columns}
-                filters={props.filters}
-                widgetId={props.widgetId}
+                accentColor={accentColor}
+                applyFilter={applyFilter}
+                borderRadius={borderRadius}
+                columns={headerColumns}
+                filters={filters}
+                widgetId={widgetId}
               />
             )}
 
-            {props.isVisibleDownload && (
+            {isVisibleDownload && (
               <TableDataDownload
-                borderRadius={props.borderRadius}
-                columns={props.tableColumns}
-                data={props.tableData}
-                delimiter={props.delimiter}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
+                borderRadius={borderRadius}
+                columns={tableColumns}
+                data={tableData}
+                delimiter={delimiter}
+                widgetId={widgetId}
+                widgetName={widgetName}
               />
             )}
 
-            {props.allowAddNewRow && (
+            {allowAddNewRow && (
               <ActionItem
-                borderRadius={props.borderRadius}
+                borderRadius={borderRadius}
                 className="t--add-new-row"
-                disabled={props.disableAddNewRow}
+                disabled={disabledAddNewRowSave}
                 disabledMessage="Save or discard the unsaved row to add a new row"
                 icon="add"
-                selectMenu={props.onAddNewRow}
+                selectMenu={onAddNewRow}
                 selected={false}
                 title="Add new row"
                 width={12}
@@ -188,77 +186,66 @@ function Actions(props: ActionsPropsType) {
             )}
           </CommonFunctionsMenuWrapper>
         )}
-      {!!props.columns.length && props.isVisiblePagination ? (
-        props.isInfiniteScrollEnabled ? (
+      {!!headerColumns.length && isVisiblePagination ? (
+        isInfiniteScrollEnabled ? (
           // When infinite scroll is enabled, n Records or n out of k Records is displayed
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
-              {props.tableData.length}{" "}
-              {props.totalRecordsCount
-                ? `out of ${props.totalRecordsCount}`
-                : ""}{" "}
-              Records
+              {tableData.length}{" "}
+              {totalRecordsCount ? `out of ${totalRecordsCount}` : ""} Records
             </TableHeaderContentWrapper>
           </PaginationWrapper>
-        ) : props.serverSidePaginationEnabled ? (
+        ) : serverSidePaginationEnabled ? (
           // When server side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
-            {props.totalRecordsCount ? (
+            {totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
-                {props.totalRecordsCount} Records
+                {totalRecordsCount} Records
               </TableHeaderContentWrapper>
             ) : null}
             <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
+              accentColor={accentColor}
+              borderRadius={borderRadius}
               className="t--table-widget-prev-page"
-              disabled={props.pageNo === 0}
+              disabled={pageNo === 0}
               onClick={() => {
-                props.prevPageClick();
+                prevPageClick();
               }}
             >
               <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
             </PaginationItemWrapper>
-            {props.totalRecordsCount ? (
+            {totalRecordsCount ? (
               <TableHeaderContentWrapper>
                 Page&nbsp;
                 <PaginationItemWrapper
-                  accentColor={props.accentColor}
-                  borderRadius={props.borderRadius}
+                  accentColor={accentColor}
+                  borderRadius={borderRadius}
                   className="page-item"
                   selected
                 >
-                  {props.pageNo + 1}
+                  {pageNo + 1}
                 </PaginationItemWrapper>
                 &nbsp;
-                <span>{`of ${props.pageCount}`}</span>
+                <span>{`of ${pageCount}`}</span>
               </TableHeaderContentWrapper>
             ) : (
               <PaginationItemWrapper
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
+                accentColor={accentColor}
+                borderRadius={borderRadius}
                 className="page-item"
                 selected
               >
-                {props.pageNo + 1}
+                {pageNo + 1}
               </PaginationItemWrapper>
             )}
             <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
+              accentColor={accentColor}
+              borderRadius={borderRadius}
               className="t--table-widget-next-page"
-              disabled={
-                !!props.totalRecordsCount &&
-                props.pageNo === props.pageCount - 1
-              }
+              disabled={!!totalRecordsCount && pageNo === pageCount - 1}
               onClick={() => {
-                if (
-                  !(
-                    !!props.totalRecordsCount &&
-                    props.pageNo === props.pageCount - 1
-                  )
-                )
-                  props.nextPageClick();
+                if (!(!!totalRecordsCount && pageNo === pageCount - 1))
+                  nextPageClick();
               }}
             >
               <Icon
@@ -272,19 +259,18 @@ function Actions(props: ActionsPropsType) {
           // When client side pagination is enabled, n Records is displayed with prev and next buttons
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
-              {props.tableData?.length} Records
+              {tableData?.length} Records
             </TableHeaderContentWrapper>
             <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
+              accentColor={accentColor}
+              borderRadius={borderRadius}
               className="t--table-widget-prev-page"
-              disabled={props.currentPageIndex === 0}
+              disabled={currentPageIndex === 0}
               onClick={() => {
-                const pageNo =
-                  props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+                const pageNo = currentPageIndex > 0 ? currentPageIndex - 1 : 0;
 
-                !(props.currentPageIndex === 0) &&
-                  props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+                !(currentPageIndex === 0) &&
+                  updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
               }}
             >
               <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
@@ -292,28 +278,26 @@ function Actions(props: ActionsPropsType) {
             <TableHeaderContentWrapper>
               Page{" "}
               <PageNumberInput
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                disabled={props.pageCount === 1}
-                pageCount={props.pageCount}
-                pageNo={props.pageNo + 1}
-                updatePageNo={props.updatePageNo}
+                accentColor={accentColor}
+                borderRadius={borderRadius}
+                disabled={pageCount === 1}
+                pageCount={pageCount}
+                pageNo={pageNo + 1}
+                updatePageNo={updatePageNo}
               />{" "}
-              of {props.pageCount}
+              of {pageCount}
             </TableHeaderContentWrapper>
             <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
+              accentColor={accentColor}
+              borderRadius={borderRadius}
               className="t--table-widget-next-page"
-              disabled={props.currentPageIndex === props.pageCount - 1}
+              disabled={currentPageIndex === pageCount - 1}
               onClick={() => {
                 const pageNo =
-                  props.currentPageIndex < props.pageCount - 1
-                    ? props.currentPageIndex + 1
-                    : 0;
+                  currentPageIndex < pageCount - 1 ? currentPageIndex + 1 : 0;
 
-                !(props.currentPageIndex === props.pageCount - 1) &&
-                  props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+                !(currentPageIndex === pageCount - 1) &&
+                  updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
               }}
             >
               <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
