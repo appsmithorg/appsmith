@@ -36,10 +36,6 @@ export function AppJSContextMenuItems(props: Props) {
     jsActionPermissions,
   );
 
-  if (Boolean(jsAction?.isMainJSCollection)) {
-    return null;
-  }
-
   return (
     <>
       <Rename disabled={!canManageJSAction} jsAction={jsAction} />

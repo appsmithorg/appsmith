@@ -38,11 +38,12 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   });
   const dispatch = useDispatch();
   const contextMenu = useMemo(
-    () => (
-      <EntityContextMenu>
-        <AppJSContextMenuItems jsAction={jsAction} />
-      </EntityContextMenu>
-    ),
+    () =>
+      !Boolean(jsAction?.isMainJSCollection) ? (
+        <EntityContextMenu dataTestId="t--entity-context-menu-trigger">
+          <AppJSContextMenuItems jsAction={jsAction} />
+        </EntityContextMenu>
+      ) : null,
     [jsAction],
   );
 
