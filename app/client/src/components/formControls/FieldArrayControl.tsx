@@ -16,7 +16,7 @@ const CenteredIconButton = styled(Button)<{
 
 const PrimaryBox = styled.div`
   display: flex;
-  width: min-content;
+  width: 100%;
   flex-direction: column;
   padding: 10px 0px 0px 0px;
 
