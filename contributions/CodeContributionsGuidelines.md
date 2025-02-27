@@ -15,7 +15,7 @@ Looking for issues to contribute to? Check out our [Inviting Contribution Issues
 3. Create PR(s) without proper description. 
 4. Requesting for review without latest release pull on PR. 
 5. Raising PR(s) without tests.  
-6. Not going though the code contibution guidelines before first contribution. Just kidding, you are already here 😉
+6. Not going through the code contribution guidelines before first contribution. Just kidding, you are already here 😉
 
 ### 🍴 Git Workflow
 
