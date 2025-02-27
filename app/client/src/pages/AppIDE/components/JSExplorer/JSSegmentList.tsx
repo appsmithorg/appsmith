@@ -13,11 +13,12 @@ import { useJSAdd } from "../JSAdd";
 import { BlankState } from "./BlankState";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { filterEntityGroupsBySearchTerm } from "IDE/utils";
-import { useLocation } from "react-router";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
 import { JSEntity } from "ee/pages/AppIDE/components/JSListItem/ListItem";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -30,9 +31,12 @@ export const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const itemGroups = useSelector(selectJSSegmentEditorList);
 
-  const location = useLocation();
-  const ideType = getIDETypeByUrl(location.pathname);
-  const canCreateActions = useCreateActionsPermissions(ideType);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
@@ -63,7 +67,7 @@ export const ListJSObjects = () => {
       <Flex
         data-testid="t--ide-list"
         flexDirection="column"
-        gap="spaces-4"
+        gap="spaces-3"
         overflowY="auto"
       >
         <EntityGroupsList

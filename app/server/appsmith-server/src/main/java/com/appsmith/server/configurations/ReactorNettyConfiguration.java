@@ -15,8 +15,6 @@ public class ReactorNettyConfiguration implements WebServerFactoryCustomizer<Net
 
     @Override
     public void customize(NettyReactiveWebServerFactory factory) {
-        if (commonConfig.isMetricsDetail()) {
-            factory.addServerCustomizers(httpServer -> httpServer.metrics(true, Function.identity()));
-        }
+        factory.addServerCustomizers(httpServer -> httpServer.metrics(true, Function.identity()));
     }
 }

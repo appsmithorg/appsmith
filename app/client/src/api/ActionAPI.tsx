@@ -9,6 +9,7 @@ import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { PostActionRunConfig } from "./types";
 
 export interface Property {
   key: string;
@@ -86,6 +87,7 @@ export interface ActionResponse {
   readableError?: string;
   responseDisplayFormat?: string;
   pluginErrorDetails?: PluginErrorDetails;
+  postRunAction?: PostActionRunConfig;
 }
 
 //This contains the error details from the plugin that is sent to the client in the response

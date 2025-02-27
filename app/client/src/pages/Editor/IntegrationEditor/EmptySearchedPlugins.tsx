@@ -44,6 +44,8 @@ export default function EmptySearchedPlugins({
     ),
   );
 
+  const pluginNames = plugins.map((plugin) => plugin.name);
+
   const searchedItems =
     filterSearch(
       [
@@ -51,7 +53,7 @@ export default function EmptySearchedPlugins({
         { name: createMessage(CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API) },
         ...mockDatasources,
         ...(isPremiumDatasourcesViewEnabled
-          ? getFilteredPremiumIntegrations(isExternalSaasEnabled)
+          ? getFilteredPremiumIntegrations(isExternalSaasEnabled, pluginNames)
           : []),
       ],
       searchedPlugin,

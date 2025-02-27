@@ -1,8 +1,14 @@
 import { put } from "redux-saga/effects";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionExecutionResponse, ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "entities/Plugin";
+import { getType, Types } from "utils/TypeHelpers";
 
+export enum ActionResponseDataTypes {
+  BINARY = "BINARY",
+}
+
+export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export function* setDefaultActionDisplayFormat(
   actionId: string,
   plugin: Plugin | undefined,
@@ -24,3 +30,30 @@ export function* setDefaultActionDisplayFormat(
     );
   }
 }
+
+export const createActionExecutionResponse = (
+  response: ActionExecutionResponse,
+): ActionResponse => {
+  const payload = response.data;
+
+  if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
+    const respHeaders = payload.headers;
+
+    if (
+      respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+      respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
+      respHeaders[RESP_HEADER_DATATYPE][0] === ActionResponseDataTypes.BINARY &&
+      getType(payload.body) === Types.STRING
+    ) {
+      // Decoding from base64 to handle the binary files because direct
+      // conversion of binary files to string causes corruption in the final output
+      // this is to only handle the download of binary files
+      payload.body = atob(payload.body as string);
+    }
+  }
+
+  return {
+    ...payload,
+    ...response.clientMeta,
+  };
+};

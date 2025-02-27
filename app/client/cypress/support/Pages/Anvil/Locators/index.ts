@@ -1,6 +1,6 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/viewer/canvas/utils";
-import { AnvilDataAttributes } from "../../../../../src/modules/ui-builder/ui/wds/constants";
+import { AnvilDataAttributes } from "../../../../../src/widgets/wds/constants";
 
 // anvil widget based selectors
 const anvilWidgetSelector = "[data-testid=t--anvil-widget-wrapper]";

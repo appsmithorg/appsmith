@@ -47,7 +47,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
+                .switchIfEmpty(Mono.defer(instanceConfigHelper::registerInstance))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
@@ -60,20 +60,12 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
-                // Add cold publisher as we have dependency on the instance registration
-                // TODO Update implementation to fetch license status for all the organizations once multi-tenancy is
-                //  introduced
+                // Cold publisher to wait for upstream execution to complete as we have dependency on the instance
+                // registration
                 .then(Mono.defer(instanceConfigHelper::isLicenseValid)
-                        // Ensure that the organization feature flags are refreshed with the latest values after
-                        // completing
-                        // the
+                        // Ensure that the org feature flags are refreshed with the latest values after completing the
                         // license verification process.
-                        .flatMap(isValid -> {
-                            log.debug(
-                                    "License verification completed with status: {}",
-                                    TRUE.equals(isValid) ? "valid" : "invalid");
-                            return instanceConfigHelper.updateCacheForOrganizationFeatureFlags();
-                        }));
+                        .flatMap(isValid -> instanceConfigHelper.updateCacheForOrganizationFeatureFlags()));
 
         try {
             startupProcess.block();

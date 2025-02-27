@@ -147,7 +147,7 @@ export const FunctionCallingConfigToolField = ({
         <FormControl
           config={{
             controlType: "SWITCH",
-            configProperty: `${props.fieldPath}.requiresApproval`,
+            configProperty: `${props.fieldPath}.isApprovalRequired`,
             formName: props.formName,
             id: props.fieldPath,
             label: "Requires approval",

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { EntityItem } from "@appsmith/ads";
+import { EntityItem, EntityContextMenu } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,7 +20,6 @@ import { jsCollectionIdURL } from "ee/RouteBuilder";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { AppJSContextMenuItems } from "./AppJSContextMenuItems";
 import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem";
-import EntityContextMenu from "IDE/Components/EntityContextMenu";
 
 export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   const jsAction = useSelector((state: AppState) =>

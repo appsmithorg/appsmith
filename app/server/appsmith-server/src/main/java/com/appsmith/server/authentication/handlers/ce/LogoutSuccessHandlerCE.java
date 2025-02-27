@@ -45,7 +45,7 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
+        ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK, true);
         String responseStr;
         try {
             responseStr = objectMapper.writeValueAsString(responseBody);

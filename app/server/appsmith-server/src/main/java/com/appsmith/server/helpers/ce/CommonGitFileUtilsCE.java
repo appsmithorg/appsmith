@@ -143,9 +143,9 @@ public class CommonGitFileUtilsCE {
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      *
-     * @param baseRepoSuffix  path suffix used to create a local repo path
+     * @param baseRepoSuffix       path suffix used to create a local repo path
      * @param artifactExchangeJson application reference object from which entire application can be rehydrated
-     * @param branchName      name of the branch for the current application
+     * @param branchName           name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveArtifactToLocalRepo(
@@ -662,9 +662,9 @@ public class CommonGitFileUtilsCE {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param workspaceId       To which workspace application needs to be rehydrated
+     * @param workspaceId    To which workspace application needs to be rehydrated
      * @param baseArtifactId Root application for the current branched application
-     * @param branchName        for which branch the application needs to rehydrate
+     * @param branchName     for which branch the application needs to rehydrate
      * @param artifactType
      * @return application reference from which entire application can be rehydrated
      */
@@ -786,17 +786,31 @@ public class CommonGitFileUtilsCE {
                 });
     }
 
-    public Mono<Path> moveArtifactFromTemporaryToBaseArtifactIdRepository(
-            Path currentRepositoryPath, Path newRepositoryPath) {
-        Path currentGitPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(currentRepositoryPath);
-        Path targetPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(newRepositoryPath);
+    public Mono<Path> moveRepositoryFromTemporaryStorage(Path temporaryPath, Path absoluteArtifactPath) {
+
+        Path currentGitPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(temporaryPath);
+        Path targetPath = Path.of(gitServiceConfig.getGitRootPath()).resolve(absoluteArtifactPath);
 
         return Mono.fromCallable(() -> {
-                    if (!Files.exists(targetPath)) {
-                        Files.createDirectories(targetPath);
-                    }
+                    try {
+                        if (!Files.exists(targetPath)) {
+                            Files.createDirectories(targetPath);
+                        }
 
-                    return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
+                        return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
+
+                    } catch (IOException exception) {
+                        log.error("File IO exception while moving repository. {}", exception.getMessage());
+                        throw new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, exception.getMessage());
+                    }
+                })
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while moving repository from temporary storage {} to permanent storage {}",
+                            currentGitPath,
+                            targetPath,
+                            error.getMessage());
+                    return Mono.error(error);
                 })
                 .subscribeOn(Schedulers.boundedElastic());
     }

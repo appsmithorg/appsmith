@@ -99,11 +99,12 @@ function InputText(props: InputTextProp) {
 }
 
 class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
-  static getBindingPrefix(tableName: string) {
-    return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
-  }
-
-  static bindingSuffix = `))}}`;
+  static getTableComputeBinding = (
+    tableName: string,
+    stringToEvaluate: string,
+  ) => {
+    return `{{(() => { const tableData = ${tableName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${stringToEvaluate})) : ${stringToEvaluate} })()}}`;
+  };
 
   render() {
     const {
@@ -114,13 +115,9 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       propertyValue,
       theme,
     } = this.props;
-    const tableName = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? ComputeTablePropertyControlV2.getInputComputedValue(
-            propertyValue,
-            tableName,
-          )
+        ? ComputeTablePropertyControlV2.getInputComputedValue(propertyValue)
         : propertyValue
           ? propertyValue
           : defaultValue;
@@ -157,24 +154,37 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     );
   }
 
-  static getInputComputedValue = (propertyValue: string, tableName: string) => {
-    const bindingPrefix =
-      ComputeTablePropertyControlV2.getBindingPrefix(tableName);
+  static getInputComputedValue = (propertyValue: string) => {
+    const MAP_FUNCTION_SIGNATURE = "map((currentRow, currentIndex) => (";
 
-    if (propertyValue.includes(bindingPrefix)) {
-      const value = `${propertyValue.substring(
-        bindingPrefix.length,
-        propertyValue.length -
-          ComputeTablePropertyControlV2.bindingSuffix.length,
-      )}`;
+    const isComputedValue = propertyValue.includes(MAP_FUNCTION_SIGNATURE);
 
-      return JSToString(value);
-    } else {
-      return propertyValue;
-    }
+    if (!isComputedValue) return propertyValue;
+
+    // Extract the computation logic from the full binding string
+    // Input example: "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow.price * 2)) : currentRow.price * 2 })()}}"
+    const mapSignatureIndex = propertyValue.indexOf(MAP_FUNCTION_SIGNATURE);
+
+    // Find the actual computation expression between the map parentheses
+    const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
+    const computationEnd = propertyValue.indexOf("))", computationStart);
+
+    // Extract the computation expression between the map parentheses
+    // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
+    // The actual removal of "currentRow." prefix happens later in JSToString()
+    const computationExpression = propertyValue.substring(
+      computationStart,
+      computationEnd,
+    );
+
+    return JSToString(computationExpression);
   };
 
   getComputedValue = (value: string, tableName: string) => {
+    // Return raw value if:
+    // 1. The value is not a dynamic binding (not wrapped in {{...}})
+    // 2. AND this control is not configured to handle array values via additionalControlData
+    // This allows single values to be returned without table binding computation
     if (
       !isDynamicValue(value) &&
       !this.props.additionalControlData?.isArrayValue
@@ -188,9 +198,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       return stringToEvaluate;
     }
 
-    return `${ComputeTablePropertyControlV2.getBindingPrefix(
+    return ComputeTablePropertyControlV2.getTableComputeBinding(
       tableName,
-    )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
+      stringToEvaluate,
+    );
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

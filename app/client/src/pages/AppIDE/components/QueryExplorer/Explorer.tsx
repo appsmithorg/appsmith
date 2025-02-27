@@ -1,5 +1,5 @@
 import React from "react";
-import { ListQuery } from "./List";
+import { ListQuery } from "./QuerySegmentList";
 import styled from "styled-components";
 import { Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
