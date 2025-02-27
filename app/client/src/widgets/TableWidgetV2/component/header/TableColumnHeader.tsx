@@ -6,6 +6,7 @@ import { HeaderCell } from "../cellComponents/HeaderCell";
 import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { useAppsmithTable } from "../TableContext";
+import type { HeaderGroup } from "react-table";
 
 const StyledHeaderGroup = styled.div<{
   headerWidth: number;
@@ -54,9 +55,7 @@ const TableColumnHeader = () => {
 
   return (
     <div className="thead" onMouseLeave={enableDrag} onMouseOver={disableDrag}>
-      {/* TODO: Fix this the next time the file is edited */}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {headerGroups.map((headerGroup: any, index: number) => {
+      {headerGroups.map((headerGroup: HeaderGroup, index: number) => {
         const headerRowProps = {
           ...headerGroup.getHeaderGroupProps(),
         };
