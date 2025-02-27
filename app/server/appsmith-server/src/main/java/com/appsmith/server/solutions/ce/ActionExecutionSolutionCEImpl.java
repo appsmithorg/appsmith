@@ -297,13 +297,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 createExecuteActionDTO(partFlux).cache();
         Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
                 .findById(executeActionDTO.getActionId())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION)))
                 .flatMap(newAction -> {
                     if (newAction.getPluginId() == null
                             || newAction.getPluginId().isEmpty()) {
                         return Mono.empty();
                     } else {
-                        return pluginService.findById(newAction.getPluginId()).switchIfEmpty(Mono.empty());
+                        return pluginService.findById(newAction.getPluginId());
                     }
                 })
                 .cache());
