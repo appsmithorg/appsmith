@@ -1,6 +1,5 @@
-import { groupBy, keyBy, sortBy } from "lodash";
+import { keyBy } from "lodash";
 import { createSelector } from "reselect";
-import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
@@ -10,32 +9,7 @@ import type { AppState } from "ee/reducers";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getQueryEntityItemUrl } from "ee/pages/AppIDE/layouts/routers/utils/getQueryEntityItemUrl";
-
-export type EditorSegmentList = Array<{
-  group: string | "NA";
-  items: EntityItem[];
-}>;
-
-export const groupAndSortEntitySegmentList = (
-  items: EntityItem[],
-): EditorSegmentList => {
-  const groups = groupBy(items, (item) => {
-    if (item.group) return item.group;
-
-    return "NA";
-  });
-
-  // Entity Segment Lists are sorted alphabetically at both group and item level
-  return sortBy(
-    Object.keys(groups).map((group) => {
-      return {
-        group: group,
-        items: sortBy(groups[group], "title"),
-      };
-    }),
-    "group",
-  );
-};
+import { groupAndSortEntitySegmentList } from "IDE/utils/groupAndSortEntitySegmentList";
 
 export const selectQuerySegmentEditorList = createSelector(
   getQuerySegmentItems,
