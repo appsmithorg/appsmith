@@ -23,9 +23,10 @@ import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
 import { JSEntity } from "ee/pages/AppIDE/components/JSListItem/ListItem";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -42,7 +43,12 @@ export const ListJSObjects = () => {
   const location = useLocation();
   const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId } = useParentEntityInfo(ideType);
-  const canCreateActions = useCreateActionsPermissions(ideType);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const isNewADSTemplatesEnabled = useFeatureFlag(
     FEATURE_FLAG.release_ads_entity_item_enabled,
