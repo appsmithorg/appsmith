@@ -1,10 +1,9 @@
 import React from "react";
-import { Switch, useRouteMatch, useLocation, Route } from "react-router-dom";
+import { Switch, useRouteMatch, useLocation } from "react-router-dom";
 import PageWrapper from "pages/common/PageWrapper";
 import DefaultWorkspacePage from "./defaultWorkspacePage";
 import Settings from "./settings";
-import * as Sentry from "@sentry/react";
-const SentryRoute = Sentry.withSentryRouting(Route);
+import { SentryRoute } from "components/SentryRoute";
 
 export function Workspace() {
   const { path } = useRouteMatch();

@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "ee/pages/common/AppHeader";
-import { Redirect, Route, Router, Switch } from "react-router-dom";
+import { Redirect, Router, Switch } from "react-router-dom";
 import {
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_PATH,
@@ -43,7 +43,6 @@ import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { useDispatch, useSelector } from "react-redux";
 
-import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import Setup from "pages/setup";
@@ -64,8 +63,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
 import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
-
-export const SentryRoute = Sentry.withSentryRouting(Route);
+import { SentryRoute } from "components/SentryRoute";
 
 export const loadingIndicator = <PageLoadingBar />;
 
