@@ -3,8 +3,16 @@ import { ListItem } from "../../../List";
 import type { EntityItemProps } from "./EntityItem.types";
 import clx from "classnames";
 import { EditableEntityName } from "../../EditableEntityName";
+import { useActiveDoubleClick } from "../../../__hooks__";
 
 export const EntityItem = (props: EntityItemProps) => {
+  const { onDoubleClick, startIcon, ...rest } = props;
+
+  const doubleClickOverride = useActiveDoubleClick(
+    props.isSelected || false,
+    onDoubleClick,
+  );
+
   const {
     canEdit,
     isEditing,
@@ -14,8 +22,6 @@ export const EntityItem = (props: EntityItemProps) => {
     onNameSave,
     validateName,
   } = props.nameEditorConfig;
-
-  const { startIcon, ...rest } = props;
 
   const inEditMode = canEdit ? isEditing : false;
 
@@ -63,6 +69,7 @@ export const EntityItem = (props: EntityItemProps) => {
       customTitleComponent={customTitle}
       dataTestId={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
+      onDoubleClick={doubleClickOverride}
       rightControl={rightControl}
     />
   );

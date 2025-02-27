@@ -22,8 +22,10 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
 import { EntityItem } from "@appsmith/ads";
-import { useNameEditorState } from "../hooks/useNameEditorState";
+import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
+import { useActiveDoubleClick } from "@appsmith/ads/src/__hooks__";
+import { noop } from "lodash";
 
 const PageElement = ({
   onClick,
@@ -74,6 +76,17 @@ const PageElement = ({
     },
     [ref, isCurrentPage],
   );
+
+  const handleEnterEditMode = () => {
+    enterEditMode(page.pageId);
+  };
+
+  const doubleClickOverride = useActiveDoubleClick(
+    isCurrentPage,
+    handleEnterEditMode,
+  );
+
+  const handleDoubleClick = canManagePages ? doubleClickOverride : noop;
 
   const switchPage = useCallback(() => {
     AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
@@ -142,8 +155,8 @@ const PageElement = ({
       isSelected={isCurrentPage}
       key={page.pageId}
       nameEditorConfig={nameEditorConfig}
-      onClick={switchPage}
-      onDoubleClick={() => enterEditMode(page.pageId)}
+      onClick={!isCurrentPage ? switchPage : noop}
+      onDoubleClick={handleDoubleClick}
       rightControl={contextMenu}
       rightControlVisibility="hover"
       startIcon={icon}
