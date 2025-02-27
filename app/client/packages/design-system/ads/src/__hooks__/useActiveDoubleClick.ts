@@ -14,13 +14,19 @@ export function useActiveDoubleClick(
 
   useEffect(
     function handleDoubleClickEnableBasedOnSelection() {
+      let timeoutId: ReturnType<typeof setTimeout>;
+
       if (isActive) {
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
           setCanDoubleClick();
         }, 200);
       } else {
         setCannotDoubleClick();
       }
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
     },
     [isActive, setCanDoubleClick, setCannotDoubleClick],
   );
@@ -30,9 +36,7 @@ export function useActiveDoubleClick(
       return noop;
     }
 
-    if (canDoubleClick) {
-      return onDoubleClick;
-    }
+    return onDoubleClick;
   }, [canDoubleClick, onDoubleClick]);
 
   return handleDoubleClick;
