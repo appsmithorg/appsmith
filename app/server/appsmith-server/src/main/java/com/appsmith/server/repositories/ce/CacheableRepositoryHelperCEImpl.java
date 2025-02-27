@@ -189,14 +189,13 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
      */
     @Cache(cacheName = "organization", key = "{#organizationId}")
     @Override
-    public Mono<Organization> fetchDefaultOrganization(String organizationId) {
-        BridgeQuery<Organization> defaultOrganizationCriteria =
-                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
+    public Mono<Organization> getOrganizationById(String organizationId) {
+        BridgeQuery<Organization> idCriteria = Bridge.equal(Organization.Fields.id, organizationId);
         BridgeQuery<Organization> notDeletedCriteria = notDeleted();
-        BridgeQuery<Organization> andCriteria = Bridge.and(defaultOrganizationCriteria, notDeletedCriteria);
+        BridgeQuery<Organization> andCriteria = Bridge.and(idCriteria, notDeletedCriteria);
         Query query = new Query();
         query.addCriteria(andCriteria);
-        log.info("Fetching organization from database as it couldn't be found in the cache!");
+        log.info("Fetching organization {} from database as it couldn't be found in the cache!", organizationId);
         return mongoOperations
                 .findOne(query, Organization.class)
                 .map(organization -> {

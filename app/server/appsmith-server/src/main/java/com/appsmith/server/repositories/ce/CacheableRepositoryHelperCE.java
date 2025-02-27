@@ -21,7 +21,7 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<String> getDefaultOrganizationId();
 
-    Mono<Organization> fetchDefaultOrganization(String organizationId);
+    Mono<Organization> getOrganizationById(String organizationId);
 
     Mono<Void> evictCachedOrganization(String organizationId);
 

@@ -172,8 +172,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                             "No user found while fetching organization features, if the method is called without user "
                                     + "context please use getOrganizationFeatures(String organizationId)");
                     // TODO @CloudBilling - This is a temporary fix to fallback to default organization until we
-                    //  introduce a signup flow based on organization. Currently userSignup will end up in data
-                    //  corruption if the fallback is not provided to create default workspace in EE as this is
+                    //  introduce a signup flow based on multi-organization. Currently userSignup will end up in data
+                    //  corruption if the fallback is not provided to create default workspace in EE, as this is
                     //  controlled via flags, please refer WorkspaceServiceHelperImpl.isCreateWorkspaceAllowed.
                     return organizationService.getDefaultOrganizationId();
                 }))
