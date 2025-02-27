@@ -51,7 +51,7 @@ const VirtualTable = (
   ref: React.Ref<SimpleBar | VirtuosoHandle>,
 ) => {
   const getTableBody = React.useCallback(
-    (scrollableNodeRef?: React.Ref<SimpleBar>) => {
+    (scrollableNodeRef?: React.Ref<SimpleBar | VirtuosoHandle>) => {
       return (
         <TableBody
           accentColor={props.accentColor}
@@ -138,7 +138,7 @@ const VirtualTable = (
         multiRowSelection={props.multiRowSelection}
         totalColumnsWidth={props.totalColumnsWidth || 0}
       >
-        {getTableBody(ref as React.Ref<SimpleBar>)}
+        {getTableBody(ref as React.Ref<VirtuosoHandle>)}
       </StyledTableBodyWrapper>
     </>
   );

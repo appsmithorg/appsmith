@@ -354,7 +354,10 @@ export function Table(props: TableProps) {
               top: 0,
               behavior: "auto",
             });
-          } else {
+          } else if (
+            scrollBarRef.current &&
+            "getScrollElement" in scrollBarRef.current
+          ) {
             // SimpleBar
             scrollBarRef.current.getScrollElement().scrollTop = 0;
           }
@@ -532,7 +535,7 @@ export function Table(props: TableProps) {
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
-                ref={scrollBarRef}
+                ref={scrollBarRef as React.Ref<VirtuosoHandle | SimpleBar>}
                 rowSelectionState={rowSelectionState}
                 scrollContainerStyles={scrollContainerStyles}
                 selectTableRow={props.selectTableRow}
