@@ -417,6 +417,8 @@
     "trim-newlines": "3.0.1",
     "trim": "0.0.3",
     "webpack": "5.76.0",
+    "rollup": "4.22.4",
+    "@rollup/plugin-commonjs": "25.0.7",
     "@blueprintjs/core@^3.43.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",

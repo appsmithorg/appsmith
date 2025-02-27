@@ -12,10 +12,10 @@
     "build": "rollup -c"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@types/lodash": "^4.14.120",
     "normalizr": "^3.6.2",
-    "rollup": "^2.79.2",
+    "rollup": "^4.22.4",
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
