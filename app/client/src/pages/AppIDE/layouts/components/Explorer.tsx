@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { ExplorerContainer } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "ee/AppRouter";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
@@ -21,6 +20,7 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
+import { SentryRoute } from "components/SentryRoute";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
