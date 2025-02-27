@@ -343,6 +343,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
     prev.canFreezeColumn === next.canFreezeColumn &&
-    prev.showConnectDataOverlay === next.showConnectDataOverlay
+    prev.showConnectDataOverlay === next.showConnectDataOverlay &&
+    prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled
   );
 });

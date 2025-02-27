@@ -715,7 +715,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             log.error("Error while computing etag for ConsolidatedAPIResponseDTO", e);
             return "";
         } finally {
-            observationHelper.endSpan(computeEtagSpan, true);
+            observationHelper.endSpan(computeEtagSpan);
         }
     }
 }
