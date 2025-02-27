@@ -37,12 +37,6 @@ const SecondaryBox = styled.div`
     margin-right: 8px;
     margin-bottom: 8px;
   }
-
-  & > .t--form-control-DROP_DOWN,
-  & > .t--form-control-DROP_DOWN > div > div,
-  & > .t--form-control-DROP_DOWN > div > div > div > div {
-    width: 12vw;
-  }
 `;
 
 const AddMoreAction = styled.div`
@@ -81,10 +75,7 @@ function NestedComponents(props: any) {
                 sch = {
                   ...sch,
                   configProperty: `${field}.${sch.key}`,
-                  customStyles: {
-                    width: "20vw",
-                    ...(props.customStyles ?? {}),
-                  },
+                  customStyles: props.customStyles,
                 };
 
                 return (
