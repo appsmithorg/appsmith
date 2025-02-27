@@ -104,8 +104,14 @@ public class VisionCommand implements OpenAICommand {
 
         visionRequestDTO.setModel(model);
 
-        List<VisionMessage> visionMessages = transformSystemMessages(
-                MessageUtils.extractMessages((Map<String, Object>) formData.get(SYSTEM_MESSAGES)));
+        List<VisionMessage> visionMessages = new ArrayList<>();
+        Object systemMessages = formData.get(SYSTEM_MESSAGES);
+
+        if (systemMessages != null) {
+            visionMessages.addAll(
+                    transformSystemMessages(MessageUtils.extractMessages((Map<String, Object>) systemMessages)));
+        }
+
         visionMessages.addAll(
                 transformUserMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(USER_MESSAGES))));
         Float temperature = getTemperatureFromFormData(formData);
