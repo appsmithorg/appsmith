@@ -328,10 +328,12 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
+  const pluginNames = allPlugins.map((plugin) => plugin.name);
+
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
       ? (filterSearch(
-          getFilteredPremiumIntegrations(isExternalSaasEnabled),
+          getFilteredPremiumIntegrations(isExternalSaasEnabled, pluginNames),
           searchedPlugin,
         ) as PremiumIntegration[])
       : [];

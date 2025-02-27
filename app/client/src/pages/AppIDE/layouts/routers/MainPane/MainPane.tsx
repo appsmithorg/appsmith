@@ -1,13 +1,11 @@
 import React from "react";
-import { Route, Switch, useRouteMatch } from "react-router";
-import * as Sentry from "@sentry/react";
+import { Switch, useRouteMatch } from "react-router";
 import { MainPaneRoutes } from "ee/pages/AppIDE/layouts/routers/MainPane/constants";
 import { useSelector } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import { useWidgetSelectionBlockListener } from "../../hooks/useWidgetSelectionBlockListener";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
+import { SentryRoute } from "components/SentryRoute";
 
 export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();

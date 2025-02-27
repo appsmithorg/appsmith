@@ -1,7 +1,6 @@
 import React from "react";
 import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "ee/AppRouter";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
@@ -12,6 +11,7 @@ import EditorTabs from "./EditorTabs";
 import { useCurrentEditorState } from "../../hooks/useCurrentEditorState";
 import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import styled from "styled-components";
+import { SentryRoute } from "components/SentryRoute";
 
 const Container = styled(Flex)`
   // Animating using https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API

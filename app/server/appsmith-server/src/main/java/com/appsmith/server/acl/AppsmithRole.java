@@ -25,6 +25,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION_ADMINISTRATOR_ROLE;
 
 @Getter
 public enum AppsmithRole {
@@ -62,7 +63,7 @@ public enum AppsmithRole {
                     WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_INVITE_USERS,
                     WORKSPACE_EXECUTE_DATASOURCES)),
-    TENANT_ADMIN("", "", Set.of(MANAGE_ORGANIZATION)),
+    ORGANIZATION_ADMIN(ORGANIZATION_ADMINISTRATOR_ROLE, "", Set.of(MANAGE_ORGANIZATION)),
     ;
 
     private Set<AclPermission> permissions;

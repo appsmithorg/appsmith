@@ -24,9 +24,10 @@ import { ActionEntityItem } from "ee/pages/AppIDE/components/QueryEntityItem/Lis
 import { useLocation } from "react-router";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
-import { useCreateActionsPermissions } from "ee/entities/IDE/hooks/useCreateActionsPermissions";
 import { objectKeys } from "@appsmith/utils";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +37,12 @@ export const ListQuery = () => {
   const location = useLocation();
   const ideType = getIDETypeByUrl(location.pathname);
   const { editorId, parentEntityId } = useParentEntityInfo(ideType);
-  const canCreateActions = useCreateActionsPermissions(ideType);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const showWorkflows = useSelector(getShowWorkflowFeature);
 

@@ -4,11 +4,16 @@
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
+  "type": "module",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "test:unit": "yarn g:jest",
-    "build:icons": "npx tsx ./src/scripts/build-icons.ts"
+    "build:icons": "npx tsx ./src/scripts/build-icons.ts",
+    "build:package": "rm -rf build && rollup -c rollup.config.js"
   },
   "dependencies": {
     "@appsmith/wds-headless": "workspace:^",
@@ -34,12 +39,32 @@
     "usehooks-ts": "*"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/helper-compilation-targets": "^7.26.5",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/runtime": "^7.26.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-url": "^8.0.2",
     "@types/fs-extra": "^11.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
-    "@types/react-transition-group": "^4.4.11",
-    "eslint-plugin-storybook": "^0.6.10"
+    "@types/react-transition-group": "^4.4.12",
+    "browserslist": "^4.24.4",
+    "eslint-plugin-storybook": "^0.11.3",
+    "postcss-import": "^16.1.0",
+    "rollup": "^4.34.8",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-postcss": "^4.0.2"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
   }
 }
