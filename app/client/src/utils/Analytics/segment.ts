@@ -7,7 +7,7 @@ import {
 import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 
-enum SegmentInitState {
+enum InitializationStatus {
   WAITING = "waiting",
   INITIALIZED = "initialized",
   FAILED = "failed",
@@ -18,7 +18,7 @@ class SegmentSingleton {
   private static instance: SegmentSingleton;
   private analytics: Analytics | null = null;
   private eventQueue: Array<{ name: string; data: EventProperties }> = [];
-  private initState: SegmentInitState = SegmentInitState.WAITING;
+  private initState: InitializationStatus = InitializationStatus.WAITING;
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -92,7 +92,7 @@ class SegmentSingleton {
       );
 
       this.analytics = analytics;
-      this.initState = SegmentInitState.INITIALIZED;
+      this.initState = InitializationStatus.INITIALIZED;
       // Process queued events after successful initialization
       this.processEventQueue();
 
@@ -101,7 +101,7 @@ class SegmentSingleton {
       log.error("Failed to initialize Segment:", error);
       // Clear the queue if error occurred in init
       this.flushEventQueue();
-      this.initState = SegmentInitState.FAILED;
+      this.initState = InitializationStatus.FAILED;
 
       return false;
     }
@@ -122,13 +122,16 @@ class SegmentSingleton {
   }
 
   public track(eventName: string, eventData: EventProperties) {
-    if (this.initState === SegmentInitState.WAITING) {
+    if (this.initState === InitializationStatus.WAITING) {
       // Only queue events if we're in WAITING state
       this.eventQueue.push({ name: eventName, data: eventData });
       log.debug("Event queued for later processing", eventName, eventData);
     }
 
-    if (this.initState === SegmentInitState.NOT_REQUIRED || !this.analytics) {
+    if (
+      this.initState === InitializationStatus.NOT_REQUIRED ||
+      !this.analytics
+    ) {
       log.debug("Event fired locally", eventName, eventData);
 
       return;
@@ -151,7 +154,7 @@ class SegmentSingleton {
   }
 
   public avoidTracking() {
-    this.initState = SegmentInitState.NOT_REQUIRED;
+    this.initState = InitializationStatus.NOT_REQUIRED;
     this.flushEventQueue();
   }
 
