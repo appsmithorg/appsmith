@@ -13,7 +13,7 @@ import { TableBody } from "./TableBody";
 import { MULTISELECT_CHECKBOX_WIDTH } from "modules/ui-builder/ui/wds/WDSTableWidget/component/Constants";
 import TableColumnHeader from "./header/TableColumnHeader";
 import styled from "styled-components";
-
+import type { VirtuosoHandle } from "react-virtuoso";
 type VirtualTableProps = TableColumnHeaderProps & {
   getTableBodyProps(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
@@ -46,7 +46,10 @@ type VirtualTableProps = TableColumnHeaderProps & {
   loadMoreFromEvaluations: () => void;
 };
 
-const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
+const VirtualTable = (
+  props: VirtualTableProps,
+  ref: React.Ref<SimpleBar | VirtuosoHandle>,
+) => {
   const getTableBody = React.useCallback(
     (scrollableNodeRef?: React.Ref<SimpleBar>) => {
       return (
@@ -95,8 +98,11 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
   );
 
   return !props.isInfiniteScrollEnabled ? (
-    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
-      {getTableBody(ref)}
+    <SimpleBar
+      ref={ref as React.Ref<SimpleBar>}
+      style={props.scrollContainerStyles}
+    >
+      {getTableBody(ref as React.Ref<SimpleBar>)}
     </SimpleBar>
   ) : (
     <>
@@ -132,7 +138,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
         multiRowSelection={props.multiRowSelection}
         totalColumnsWidth={props.totalColumnsWidth || 0}
       >
-        {getTableBody(ref)}
+        {getTableBody(ref as React.Ref<SimpleBar>)}
       </StyledTableBodyWrapper>
     </>
   );

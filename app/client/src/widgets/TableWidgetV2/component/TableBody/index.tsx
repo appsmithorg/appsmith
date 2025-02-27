@@ -12,6 +12,7 @@ import type { HeaderComponentProps } from "../Table";
 import InfiniteScrollBody from "./InifiniteScrollBody";
 import { EmptyRows, Row } from "./Row";
 import { FixedVirtualList } from "./VirtualList";
+import type { VirtuosoHandle } from "react-virtuoso";
 
 export type BodyContextType = {
   accentColor: string;
@@ -98,7 +99,7 @@ const TableBodyComponent = (props: BodyPropsType) => {
 export const TableBody = React.forwardRef(
   (
     props: BodyPropsType & BodyContextType & { useVirtual: boolean },
-    ref: Ref<SimpleBar>,
+    ref: Ref<SimpleBar | VirtuosoHandle>,
   ) => {
     const {
       accentColor,
@@ -168,14 +169,14 @@ export const TableBody = React.forwardRef(
         {isInfiniteScrollEnabled ? (
           <InfiniteScrollBody
             itemCount={rows.length}
-            ref={ref}
+            ref={ref as React.Ref<VirtuosoHandle>}
             rows={rows}
             {...restOfProps}
           />
         ) : useVirtual ? (
           <TableVirtualBodyComponent
             isInfiniteScrollEnabled={false}
-            ref={ref}
+            ref={ref as React.Ref<SimpleBar>}
             rows={rows}
             width={width}
             {...restOfProps}

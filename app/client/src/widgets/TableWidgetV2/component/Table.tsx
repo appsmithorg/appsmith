@@ -45,7 +45,7 @@ import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
 import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
-
+import type { VirtuosoHandle } from "react-virtuoso";
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -279,7 +279,7 @@ export function Table(props: TableProps) {
   const selectedRowIndices = props.selectedRowIndices || emptyArr;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
-  const scrollBarRef = useRef<SimpleBar | null>(null);
+  const scrollBarRef = useRef<SimpleBar | VirtuosoHandle | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
@@ -348,7 +348,16 @@ export function Table(props: TableProps) {
     if (props.isAddRowInProgress) {
       fastdom.mutate(() => {
         if (scrollBarRef && scrollBarRef?.current) {
-          scrollBarRef.current.getScrollElement().scrollTop = 0;
+          if (scrollBarRef.current && "scrollTo" in scrollBarRef.current) {
+            // Virtuoso
+            scrollBarRef.current.scrollTo({
+              top: 0,
+              behavior: "auto",
+            });
+          } else {
+            // SimpleBar
+            scrollBarRef.current.getScrollElement().scrollTop = 0;
+          }
         }
       });
     }
@@ -482,7 +491,7 @@ export function Table(props: TableProps) {
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
-                ref={scrollBarRef}
+                ref={scrollBarRef as React.Ref<SimpleBar>}
                 rowSelectionState={rowSelectionState}
                 scrollContainerStyles={scrollContainerStyles}
                 selectTableRow={props.selectTableRow}

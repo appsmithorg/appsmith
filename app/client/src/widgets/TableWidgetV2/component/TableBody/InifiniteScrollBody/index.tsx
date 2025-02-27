@@ -3,6 +3,7 @@ import type { Row as ReactTableRowType } from "react-table";
 import type { ReactElementType } from "react-window";
 import type { TableSizes } from "../../Constants";
 import VirtuosoBody from "./VirtuosoBody";
+import type { VirtuosoHandle } from "react-virtuoso";
 
 interface InfiniteScrollBodyProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
@@ -17,11 +18,10 @@ interface InfiniteScrollBodyProps {
 }
 
 const InfiniteScrollBody = React.forwardRef(
-  (props: InfiniteScrollBodyProps, ref: React.Ref<unknown>) => {
+  (props: InfiniteScrollBodyProps, ref: React.Ref<VirtuosoHandle>) => {
     return (
       <VirtuosoBody
         height={props.height}
-        innerElementType={props.innerElementType}
         isLoading={props.isLoading}
         itemCount={props.itemCount}
         loadMoreFromEvaluations={props.loadMoreFromEvaluations}

@@ -18,7 +18,7 @@ interface VirtuosoBodyProps {
 }
 
 const VirtuosoBody = React.forwardRef(
-  (props: VirtuosoBodyProps, ref: React.Ref<unknown>) => {
+  (props: VirtuosoBodyProps, ref: React.Ref<VirtuosoHandle>) => {
     const {
       height,
       isLoading,
@@ -114,7 +114,10 @@ const VirtuosoBody = React.forwardRef(
           fixedItemHeight={tableSizes.ROW_HEIGHT} // Add fixed item height for better performance
           itemContent={ItemContent}
           overscan={Math.max(pageSize, 10)} // Increase overscan to render more rows at once
-          ref={ref as React.Ref<VirtuosoHandle>}
+          ref={(instance) => {
+            (ref as React.MutableRefObject<VirtuosoHandle | null>).current =
+              instance;
+          }}
           style={{
             height: effectiveHeight,
             width: "100%",
