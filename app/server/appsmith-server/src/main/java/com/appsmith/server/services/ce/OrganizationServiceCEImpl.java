@@ -217,7 +217,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // More info - https://github.com/appsmithorg/appsmith/issues/33504
                     Mono<Void> evictOrganizationCache = organizationIdMono.flatMap(organizationId -> {
                         log.info("Evicting the organization {} from cache.", organizationId);
-                        return cacheableRepositoryHelper.evictCachedOrganization(defaultOrganizationId);
+                        return cacheableRepositoryHelper.evictCachedOrganization(organizationId);
                     });
                     Mono<Organization> populateOrganizationCache = organizationIdMono.flatMap(organizationId -> {
                         log.info("Fetching the organization {} from the database.", organizationId);
