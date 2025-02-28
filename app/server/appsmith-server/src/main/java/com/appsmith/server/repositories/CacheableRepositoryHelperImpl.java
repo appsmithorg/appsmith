@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce_compatible.CacheableRepositoryHelperCECompatibleImpl;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -11,9 +10,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
         implements CacheableRepositoryHelper {
 
     public CacheableRepositoryHelperImpl(
-            ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
-            ObservationRegistry observationRegistry) {
-        super(mongoOperations, inMemoryCacheableRepositoryHelper, observationRegistry);
+            ReactiveMongoOperations mongoOperations, ObservationRegistry observationRegistry) {
+        super(mongoOperations, observationRegistry);
     }
 }
