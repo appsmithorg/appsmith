@@ -101,7 +101,7 @@ class OrganizationServiceCETest {
         // Todo change this to organization admin once we introduce multitenancy
         userRepository
                 .findByEmail("api_user")
-                .flatMap(user -> userUtils.makeInstanceAdministrator(List.of(user)))
+                .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
         doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
