@@ -278,8 +278,6 @@ export class EntityExplorer {
         PageList.ShowList();
         cy.get(this.locator._entityTestId(entityName)).dblclick();
       } else {
-        // as an entity can be renamed by double clicking on it only when it is selected
-        cy.get(this.locator._entityTestId(entityName)).click();
         cy.get(this.locator._entityTestId(entityName)).dblclick();
       }
     }
