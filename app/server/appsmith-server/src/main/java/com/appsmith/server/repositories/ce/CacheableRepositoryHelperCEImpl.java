@@ -42,9 +42,9 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
-    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
+    private static String defaultOrganizationId;
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.organizationId}")
     @Override
@@ -96,10 +96,10 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache() {
-        Set<String> roleIdsForAnonymousUser = inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
+        Set<String> roleIdsForAnonymousUser = InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
 
         if (roleIdsForAnonymousUser != null && !roleIdsForAnonymousUser.isEmpty()) {
-            return Mono.just(inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds());
+            return Mono.just(InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds());
         }
 
         log.debug(
@@ -111,12 +111,12 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .findOne(Query.query(query), Config.class)
                 .map(publicPermissionGroupConfig ->
                         Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
-                .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
+                .doOnSuccess(InMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
     }
 
     @Override
     public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
-        Set<String> roleIdsForAnonymousUser = inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
+        Set<String> roleIdsForAnonymousUser = InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
 
         if (roleIdsForAnonymousUser != null) {
             return Mono.just(roleIdsForAnonymousUser);
@@ -147,17 +147,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                     log.error(
                             "Unable to find the organizationId for the current user. Falling back to the default organization.");
                     // If the value exists in cache, return it as is
-                    String organizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
-                    if (organizationId != null && !organizationId.isEmpty()) {
-                        return Mono.just(organizationId);
+                    if (StringUtils.hasLength(defaultOrganizationId)) {
+                        return Mono.just(defaultOrganizationId);
                     }
                     BridgeQuery<Organization> defaultOrganizationCriteria =
                             Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
                     Query query = new Query();
                     query.addCriteria(defaultOrganizationCriteria);
                     return mongoOperations.findOne(query, Organization.class).map(defaultOrganization -> {
-                        String defaultOrganizationId = defaultOrganization.getId();
-                        inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(defaultOrganizationId);
+                        defaultOrganizationId = defaultOrganization.getId();
                         return defaultOrganizationId;
                     });
                 }));
@@ -165,7 +163,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<String> getInstanceAdminPermissionGroupId() {
-        String instanceAdminPermissionGroupId = inMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
+        String instanceAdminPermissionGroupId = InMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
         if (instanceAdminPermissionGroupId != null && !instanceAdminPermissionGroupId.isEmpty()) {
             return Mono.just(instanceAdminPermissionGroupId);
         }
@@ -179,7 +177,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                     return (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
                 })
                 .doOnSuccess(permissionGroupId ->
-                        inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
+                        InMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
     }
 
     /**
