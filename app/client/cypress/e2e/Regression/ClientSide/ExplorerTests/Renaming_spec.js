@@ -32,7 +32,10 @@ describe(
         cy.get(".t--context-menu").click({ force: true });
       });
       cy.selectAction("Rename");
-      cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
+      cy.get(explorer.editEntity)
+        .last()
+        .clear()
+        .type(firstApiName, { force: true });
       cy.validateMessage(firstApiName);
       agHelper.PressEnter();
       entityExplorer.ActionContextMenuByEntityName({
@@ -98,7 +101,10 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     });
     cy.selectAction("Rename");
 
-    cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
+    cy.get(explorer.editEntity)
+      .last()
+      .clear()
+      .type(firstApiName, { force: true });
     entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
     cy.wait(2000);

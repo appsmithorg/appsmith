@@ -267,14 +267,23 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     if (entityType === EntityItems.Page && !viaMenu) {
       PageList.ShowList();
+      cy.get(this.locator._entityTestId(entityName)).click();
+      PageList.ShowList();
+      cy.get(this.locator._entityTestId(entityName)).dblclick();
     }
-    if (viaMenu)
-      this.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: entityName,
-        action: "Rename",
-        entityType,
-      });
-    else cy.get(this.locator._entityTestId(entityName)).dblclick();
+    if (entityType !== EntityItems.Page) {
+      if (viaMenu)
+        this.ActionContextMenuByEntityName({
+          entityNameinLeftSidebar: entityName,
+          action: "Rename",
+          entityType,
+        });
+      else {
+        // as an entity can be renamed by double clicking on it only when it is selected
+        cy.get(this.locator._entityTestId(entityName)).click();
+        cy.get(this.locator._entityTestId(entityName)).dblclick();
+      }
+    }
     cy.get(this.locator._entityNameEditing)
       .clear()
       .type(renameVal)
