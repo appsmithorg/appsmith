@@ -28,6 +28,7 @@ import {
   DatasourceSection,
   DatasourceSectionHeading,
   StyledDivider,
+  BetaTag,
 } from "./IntegrationStyledComponents";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import DatasourceItem from "./DatasourceItem";
@@ -38,11 +39,13 @@ import {
   CREATE_NEW_DATASOURCE_REST_API,
   CREATE_NEW_SAAS_SECTION_HEADER,
   createMessage,
+  PREMIUM_DATASOURCES,
 } from "ee/constants/messages";
 import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
+  BETA_PLUGINS,
   getFilteredPremiumIntegrations,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
@@ -229,7 +232,16 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           icon={getAssetUrl(p.iconLocation)}
           key={p.id}
           name={p.name}
-          rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
+          rightSibling={
+            <>
+              {BETA_PLUGINS.includes(p.name) ? (
+                <BetaTag isClosable={false}>
+                  {createMessage(PREMIUM_DATASOURCES.BETA_TAG)}
+                </BetaTag>
+              ) : null}
+              {isCreating && <Spinner className="cta" size={"sm"} />}
+            </>
+          }
         />
       ))}
       <PremiumDatasources plugins={props.premiumPlugins} />

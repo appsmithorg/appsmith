@@ -41,3 +41,5 @@ export const PREMIUM_INTEGRATION_CONTACT_FORM =
 
 export const SCHEDULE_CALL_URL =
   "https://calendly.com/carina-neves-fonseca/appsmith";
+
+export const BETA_PLUGINS = ["Zendesk", "Salesforce", "Slack"];
