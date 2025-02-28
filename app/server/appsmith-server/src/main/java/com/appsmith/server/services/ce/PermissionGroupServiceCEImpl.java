@@ -276,12 +276,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .getCurrentUserOrganizationId()
                 .zipWith(userMapMono)
                 .flatMapMany(tuple -> {
-                    String defaultOrganizationId = tuple.getT1();
+                    String organizationId = tuple.getT1();
                     Map<String, String> userMap = tuple.getT2();
                     return Flux.fromIterable(userIds).flatMap(userId -> {
                         String email = userMap.get(userId);
                         return repository
-                                .evictAllPermissionGroupCachesForUser(email, defaultOrganizationId)
+                                .evictAllPermissionGroupCachesForUser(email, organizationId)
                                 .thenReturn(TRUE);
                     });
                 })
