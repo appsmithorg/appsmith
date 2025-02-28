@@ -70,23 +70,16 @@ public class Migration10000_UpdateSuperUser {
         String instanceAdminPermissionGroupId =
                 (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
-        Query instanceAdminPgQuery = new Query();
-        instanceAdminPgQuery
+        Query permissionGroupQuery = new Query();
+        permissionGroupQuery
                 .addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId))
                 .fields()
                 .include(PermissionGroup.Fields.assignedToUserIds);
-        PermissionGroup instanceAdminPG = mongoTemplate.findOne(instanceAdminPgQuery, PermissionGroup.class);
+        PermissionGroup instanceAdminPG = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         Query organizationQuery = new Query();
         organizationQuery.addCriteria(where(Organization.Fields.slug).is("default"));
         Organization organization = mongoTemplate.findOne(organizationQuery, Organization.class);
-
-        // Find the default organization admin permission group
-        Query orgAdminPermissionGroupQuery = new Query();
-        orgAdminPermissionGroupQuery.addCriteria(
-                where(PermissionGroup.Fields.defaultDomainType).is(Organization.class.getSimpleName()));
-        orgAdminPermissionGroupQuery.addCriteria(
-                where(PermissionGroup.Fields.defaultDomainId).is(organization.getId()));
 
         Set<String> userIds = adminEmails.stream()
                 .map(email -> email.trim())
@@ -110,13 +103,8 @@ public class Migration10000_UpdateSuperUser {
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
 
-        // Assign the users to the instance admin pg
         Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
-        mongoTemplate.updateFirst(instanceAdminPgQuery, update, PermissionGroup.class);
-
-        // Assign the users to the default organization admin pg
-        Update orgAdminUpdate = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
-        mongoTemplate.updateFirst(orgAdminPermissionGroupQuery, orgAdminUpdate, PermissionGroup.class);
+        mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
 
         // Assign all super users to the default role
         updateSuperUserMigrationHelper.assignAllSuperUsersToDefaultRole(
