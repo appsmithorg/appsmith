@@ -64,7 +64,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         usagePulse.setViewMode(usagePulseDTO.getViewMode());
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
+        Mono<String> defaultOrganizationIdMono = organizationService.getCurrentUserOrganizationId();
         Mono<String> instanceIdMono = configService.getInstanceId();
 
         return Mono.zip(currentUserMono, defaultOrganizationIdMono, instanceIdMono)

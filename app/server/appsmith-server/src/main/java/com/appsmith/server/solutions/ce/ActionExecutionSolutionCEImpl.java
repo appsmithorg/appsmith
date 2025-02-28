@@ -252,7 +252,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
+        Mono<String> defaultOrganizationIdMono = organizationService.getCurrentUserOrganizationId();
 
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);

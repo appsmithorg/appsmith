@@ -273,7 +273,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 userRepository.findAllById(userIds).collectMap(user -> user.getId(), user -> user.getEmail());
 
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .zipWith(userMapMono)
                 .flatMapMany(tuple -> {
                     String defaultOrganizationId = tuple.getT1();

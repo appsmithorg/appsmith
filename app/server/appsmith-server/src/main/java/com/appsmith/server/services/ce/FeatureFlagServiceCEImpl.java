@@ -175,7 +175,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     //  introduce a signup flow based on multi-organization. Currently userSignup will end up in data
                     //  corruption if the fallback is not provided to create default workspace in EE, as this is
                     //  controlled via flags, please refer WorkspaceServiceHelperImpl.isCreateWorkspaceAllowed.
-                    return organizationService.getDefaultOrganizationId();
+                    return organizationService.getCurrentUserOrganizationId();
                 }))
                 .flatMap(this::getOrganizationFeatures);
     }

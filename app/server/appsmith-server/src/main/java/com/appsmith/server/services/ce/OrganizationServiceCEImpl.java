@@ -73,9 +73,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.observationRegistry = observationRegistry;
     }
 
-    // TODO @CloudBilling: Rename the method to getCurrentUserOrganizationId for clarity
     @Override
-    public Mono<String> getDefaultOrganizationId() {
+    public Mono<String> getCurrentUserOrganizationId() {
         return ReactiveContextUtils.getCurrentUser()
                 // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
                 //  organization. Update this to get the orgId based on the request origin.
@@ -194,14 +193,13 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
      */
     @Override
     public Mono<Organization> getOrganizationConfiguration() {
-        Mono<Organization> dbOrganizationMono = getDefaultOrganization();
+        Mono<Organization> dbOrganizationMono = getCurrentUserOrganization();
         return getOrganizationConfiguration(dbOrganizationMono);
     }
 
-    // TODO @CloudBilling: Rename the method to getCurrentUserOrganization for clarity.
     @Override
-    public Mono<Organization> getDefaultOrganization() {
-        Mono<String> organizationIdMono = getDefaultOrganizationId().cache();
+    public Mono<Organization> getCurrentUserOrganization() {
+        Mono<String> organizationIdMono = getCurrentUserOrganizationId().cache();
         // Fetching Organization from redis cache
         return organizationIdMono
                 .flatMap(organizationId -> cacheableRepositoryHelper.getOrganizationById(organizationId))
@@ -236,9 +234,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Mono<Organization> updateDefaultOrganizationConfiguration(
-            OrganizationConfiguration organizationConfiguration) {
-        return getDefaultOrganizationId()
+    public Mono<Organization> updateOrganizationConfiguration(OrganizationConfiguration organizationConfiguration) {
+        return getCurrentUserOrganizationId()
                 .flatMap(organizationId -> updateOrganizationConfiguration(organizationId, organizationConfiguration))
                 .flatMap(updatedOrganization -> getOrganizationConfiguration());
     }
@@ -268,7 +265,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     // This function is used to save the organization object in the database and evict the cache
     @Override
     public Mono<Organization> save(Organization organization) {
-        Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(defaultOrganizationId);
+        String orgId = organization.getId();
+        Mono<Void> evictCachedOrganization =
+                StringUtils.hasText(orgId) ? cacheableRepositoryHelper.evictCachedOrganization(orgId) : Mono.empty();
         Mono<Organization> savedOrganizationMono = repository.save(organization).cache();
         return savedOrganizationMono
                 .then(Mono.defer(() -> evictCachedOrganization))
@@ -302,9 +301,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                         }
                         return this.save(organization)
                                 // Fetch the organization again from DB to make sure the downstream chain is consuming
-                                // the
-                                // latest
-                                // DB object and not the modified one because of the client pertinent changes
+                                // the latest DB object and not the modified one because of the client pertinent changes
                                 .then(repository.findById(organization.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForOrganizationFeatureFlags);
                     }
@@ -354,7 +351,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .hasElements()
                 .flatMap(hasElement -> {
                     if (hasElement) {
-                        return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
+                        return repository.disableRestartForAllOrganizations().then(envManager.restartWithoutAclCheck());
                     }
                     return Mono.empty();
                 });
