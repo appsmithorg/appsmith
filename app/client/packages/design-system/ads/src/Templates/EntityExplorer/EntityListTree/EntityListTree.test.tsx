@@ -15,6 +15,7 @@ const name = {
   "1.1.2": "Child 1.1.2",
   "1.2": "Child 1.2",
   "2": "No Children Parent",
+  "1-1": "Child",
 };
 
 const ItemComponent = ({ item }: { item: EntityListTreeItem }) => {
@@ -104,7 +105,7 @@ describe("EntityListTree", () => {
 
     render(<EntityListTree {...props} />);
 
-    expect(screen.getByRole("treeitem", { name: "1-1" })).toBeInTheDocument();
+    expect(screen.getByRole("treeitem", { name: "Child" })).toBeInTheDocument();
   });
 
   it("does not render nested EntityListTree when item is not expanded", () => {
