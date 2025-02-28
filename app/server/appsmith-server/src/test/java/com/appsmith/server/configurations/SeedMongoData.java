@@ -122,14 +122,14 @@ public class SeedMongoData {
         defaultOrganization.setSlug("default");
         defaultOrganization.setPricingPlan(PricingPlan.FREE);
 
-        Mono<String> organizationId = organizationRepository
+        Mono<String> defaultOrganizationIdMono = organizationRepository
                 .findBySlug("default")
                 .switchIfEmpty(organizationRepository.save(defaultOrganization))
                 .map(Organization::getId)
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .zipWith(organizationId.repeat())
+                .zipWith(defaultOrganizationIdMono.repeat())
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
                     String organizationId = tuple.getT2();
