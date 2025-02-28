@@ -741,8 +741,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
 
-  if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
-  Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)) {
+  if (
+    Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
+    Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)
+  ) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept({ release_anvil_enabled: true }, false);
   } else {
