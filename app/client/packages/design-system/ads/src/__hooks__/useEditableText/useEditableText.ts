@@ -115,22 +115,6 @@ export function useEditableText(
     [name, previousName, isEditing],
   );
 
-  // TODO: This is a temporary fix to focus the input after context retention applies focus to its target
-  // this is a nasty hack to re-focus the input after context retention applies focus to its target
-  // this will be addressed in a future task, likely by a focus retention modification
-  useEffect(
-    function recaptureFocusInEventOfFocusRetention() {
-      const input = inputRef.current;
-
-      if (isEditing && input) {
-        setTimeout(() => {
-          input.focus();
-        }, 200);
-      }
-    },
-    [isEditing, inputRef],
-  );
-
   return [
     inputRef,
     editableName,

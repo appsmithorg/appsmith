@@ -611,7 +611,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers)
                 .flatMap(userService::findByEmail)
                 .collectList()
-                .flatMap(userUtils::removeInstanceAdmin);
+                .flatMap(userUtils::removeSuperUser);
 
         Flux<Tuple2<User, Boolean>> usersFlux = Flux.fromIterable(newUsers)
                 .flatMap(email -> userService
@@ -644,7 +644,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .map(results -> results.stream().allMatch(result -> result));
 
         Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
-                .makeInstanceAdministrator(users)
+                .makeSuperUser(users)
                 .flatMap(
                         success -> Flux.fromIterable(users)
                                 .flatMap(user -> sessionUserService

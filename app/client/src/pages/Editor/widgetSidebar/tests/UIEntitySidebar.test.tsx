@@ -5,11 +5,16 @@ import {
 } from "ee/constants/messages";
 import "@testing-library/jest-dom";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  WIDGET_TAGS,
+  type WidgetCardsGroupedByTags,
+  type WidgetTags,
+} from "constants/WidgetConstants";
 import UIEntitySidebar from "../UIEntitySidebar";
 import { cards, groupedCards } from "./UIEntitySidebar.fixture";
 import { render } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 
 jest.mock("utils/hooks/useFeatureFlag", () => ({
   useFeatureFlag: jest.fn(),
@@ -25,9 +30,18 @@ describe("UIEntitySidebar", () => {
     isActive: boolean,
     focusSearchInput: boolean,
   ) => {
+    const mockItems = {
+      cards: cards as unknown as WidgetCardProps[],
+      groupedCards: groupedCards as unknown as WidgetCardsGroupedByTags,
+      entityLoading: {} as Partial<Record<WidgetTags, boolean>>,
+    };
+
     return render(
       <UIEntitySidebar
+        cards={mockItems.cards}
+        entityLoading={mockItems.entityLoading}
         focusSearchInput={focusSearchInput}
+        groupedCards={mockItems.groupedCards}
         isActive={isActive}
       />,
       {
@@ -38,7 +52,6 @@ describe("UIEntitySidebar", () => {
 
   const mockUIExplorerItems = (
     items: unknown = {
-      //return an object with cards, groupedCards and entityLoading states
       cards,
       groupedCards,
       entityLoading: {},
@@ -76,9 +89,19 @@ describe("UIEntitySidebar", () => {
       groupedCards: {},
     });
 
-    const { getByPlaceholderText, queryByTestId } = renderUIEntitySidebar(
-      true,
-      true,
+    const emptyGroupedCards = {} as WidgetCardsGroupedByTags;
+
+    const { getByPlaceholderText, queryByTestId } = render(
+      <UIEntitySidebar
+        cards={[] as WidgetCardProps[]}
+        entityLoading={{} as Partial<Record<WidgetTags, boolean>>}
+        focusSearchInput
+        groupedCards={emptyGroupedCards}
+        isActive
+      />,
+      {
+        initialState: getIDETestState({}),
+      },
     );
 
     const input = getByPlaceholderText(

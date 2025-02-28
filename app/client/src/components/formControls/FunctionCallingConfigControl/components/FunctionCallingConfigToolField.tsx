@@ -71,8 +71,6 @@ export const FunctionCallingConfigToolField = ({
           return "Query";
         case findEntityOption(entityId, entityOptions.JSFunction):
           return "JSFunction";
-        case findEntityOption(entityId, entityOptions.SystemFunction):
-          return "SystemFunction";
       }
 
       return "";
@@ -118,11 +116,7 @@ export const FunctionCallingConfigToolField = ({
               isValid: true,
               // @ts-expect-error FormControl component has incomplete TypeScript definitions for some valid properties
               isSearchable: true,
-              options: [
-                ...entityOptions.Query,
-                ...entityOptions.JSFunction,
-                ...entityOptions.SystemFunction,
-              ],
+              options: [...entityOptions.Query, ...entityOptions.JSFunction],
               optionGroupConfig: {
                 Query: {
                   label: "Queries",
@@ -130,10 +124,6 @@ export const FunctionCallingConfigToolField = ({
                 },
                 JSFunction: {
                   label: "JS Functions",
-                  children: [],
-                },
-                SystemFunction: {
-                  label: "System Functions",
                   children: [],
                 },
               } satisfies Record<

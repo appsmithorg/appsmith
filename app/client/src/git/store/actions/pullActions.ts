@@ -14,7 +14,9 @@ export const pullInitAction = createArtifactAction<PullInitPayload>((state) => {
   return state;
 });
 
-export type PullSuccessPayload = GitAsyncSuccessPayload<PullResponseData>;
+export type PullSuccessPayload = GitAsyncSuccessPayload<
+  PullResponseData["artifact"]
+>;
 
 export const pullSuccessAction = createArtifactAction<PullSuccessPayload>(
   (state) => {
