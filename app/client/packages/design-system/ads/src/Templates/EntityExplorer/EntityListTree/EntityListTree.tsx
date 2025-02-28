@@ -63,7 +63,9 @@ export function EntityListTree(props: EntityListTreeProps) {
             ) : (
               <CollapseSpacer />
             )}
-            <PaddingOverrider>{<ItemComponent item={item} />}</PaddingOverrider>
+            <PaddingOverrider>
+              <ItemComponent item={item} />
+            </PaddingOverrider>
           </EntityItemWrapper>
           {item.children && item.isExpanded ? (
             <EntityListTree
