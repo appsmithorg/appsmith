@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import type { EntityListTreeProps } from "./EntityListTree.types";
 import { Flex } from "../../../Flex";
 import { Icon } from "../../../Icon";
-import { EntityItem } from "../EntityItem";
 import {
   CollapseSpacer,
   PaddingOverrider,
@@ -11,7 +10,7 @@ import {
 } from "./EntityListTree.styles";
 
 export function EntityListTree(props: EntityListTreeProps) {
-  const { onItemExpand } = props;
+  const { ItemComponent, onItemExpand } = props;
 
   const handleOnExpandClick = useCallback(
     (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
@@ -51,7 +50,7 @@ export function EntityListTree(props: EntityListTreeProps) {
             {item.children && item.children.length ? (
               <CollapseWrapper
                 data-itemid={item.id}
-                data-testid="entity-item-expand-icon"
+                data-testid="t--entity-item-expand-icon"
                 onClick={handleOnExpandClick}
               >
                 <Icon
@@ -64,12 +63,11 @@ export function EntityListTree(props: EntityListTreeProps) {
             ) : (
               <CollapseSpacer />
             )}
-            <PaddingOverrider>
-              <EntityItem {...item} />
-            </PaddingOverrider>
+            <PaddingOverrider>{<ItemComponent item={item} />}</PaddingOverrider>
           </EntityItemWrapper>
           {item.children && item.isExpanded ? (
             <EntityListTree
+              ItemComponent={ItemComponent}
               depth={childrenDepth}
               items={item.children}
               onItemExpand={onItemExpand}
