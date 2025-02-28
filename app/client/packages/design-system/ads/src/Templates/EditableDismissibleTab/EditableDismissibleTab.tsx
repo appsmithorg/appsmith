@@ -6,6 +6,7 @@ import { DismissibleTab } from "../../DismissibleTab";
 import { EditableEntityName } from "../EditableEntityName";
 
 import type { EditableDismissibleTabProps } from "./EditableDismissibleTab.types";
+import { useActiveDoubleClick } from "../../__hooks__";
 
 export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
   const {
@@ -33,7 +34,13 @@ export const EditableDismissibleTab = (props: EditableDismissibleTabProps) => {
   const isEditing = propIsEditing ?? localIsEditing;
   const handleEnterEditMode = propOnEnterEditMode ?? localOnEnterEditMode;
   const handleExitEditMode = propOnExitEditMode ?? localOnExitEditMode;
-  const handleDoubleClick = isEditable ? handleEnterEditMode : noop;
+
+  const doubleClickOverride = useActiveDoubleClick(
+    isActive,
+    handleEnterEditMode,
+  );
+
+  const handleDoubleClick = isEditable ? doubleClickOverride : noop;
 
   return (
     <DismissibleTab

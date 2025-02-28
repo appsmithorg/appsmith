@@ -2,8 +2,6 @@ package com.appsmith.server.helpers;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -13,8 +11,6 @@ public class InMemoryCacheableRepositoryHelper {
     private String defaultOrganizationId = null;
 
     private String instanceAdminPermissionGroupId = null;
-
-    private Map<String, String> inMemoryOrganizationIdOrganizationPermissionGroupIdMap = new HashMap<>();
 
     public Set<String> getAnonymousUserPermissionGroupIds() {
         return anonymousUserPermissionGroupIds;
@@ -38,13 +34,5 @@ public class InMemoryCacheableRepositoryHelper {
 
     public String getInstanceAdminPermissionGroupId() {
         return instanceAdminPermissionGroupId;
-    }
-
-    public String getOrganizationAdminPermissionGroupId(String organizationId) {
-        return this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.get(organizationId);
-    }
-
-    public void setOrganizationAdminPermissionGroupId(String organizationId, String permissionGroupId) {
-        this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.put(organizationId, permissionGroupId);
     }
 }
