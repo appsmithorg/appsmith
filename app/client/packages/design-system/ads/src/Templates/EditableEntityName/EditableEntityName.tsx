@@ -23,6 +23,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     normalizeName = false,
     onExitEditing,
     onNameSave,
+    showEllipsis = false,
     size = "small",
     validateName,
   } = props;
@@ -73,26 +74,32 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
   );
 
   useEffect(() => {
-    setShowTooltip(!!isEllipsisActive(longNameRef.current));
-  }, [name]);
+    if (showEllipsis) {
+      setShowTooltip(!!isEllipsisActive(longNameRef.current));
+    }
+  }, [editableName]);
 
-  const tooltipProps: TooltipProps = validationError
-    ? {
-        content: validationError,
-        placement: "bottom",
-        visible: Boolean(validationError),
-        isDisabled: false,
-        mouseEnterDelay: 0,
-        showArrow: true,
-      }
-    : {
-        content: name,
-        placement: "topLeft",
-        isDisabled: !showTooltip,
-        mouseEnterDelay: 1,
-        showArrow: false,
-        ...(!showTooltip ? { visible: false } : {}),
-      };
+  const tooltipProps: TooltipProps = useMemo(
+    () =>
+      validationError
+        ? {
+            content: validationError,
+            placement: "bottom",
+            visible: Boolean(validationError),
+            isDisabled: false,
+            mouseEnterDelay: 0,
+            showArrow: true,
+          }
+        : {
+            content: name,
+            placement: "topLeft",
+            isDisabled: !showTooltip,
+            mouseEnterDelay: 1,
+            showArrow: false,
+            ...(!showTooltip ? { visible: false } : {}),
+          },
+    [name, showTooltip, validationError],
+  );
 
   return (
     <Styled.Root data-size={size}>
@@ -114,7 +121,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
           inputRef={inputRef}
           isEditable={inEditMode}
           kind={size === "small" ? "body-s" : "body-m"}
-          ref={longNameRef}
+          ref={showEllipsis ? longNameRef : null}
         >
           {editableName}
         </Styled.Text>

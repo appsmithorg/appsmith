@@ -38,6 +38,7 @@ export const EntityItem = (props: EntityItemProps) => {
         normalizeName={normalizeName}
         onExitEditing={onEditComplete}
         onNameSave={onNameSave}
+        showEllipsis
         size="medium"
         validateName={validateName}
       />
