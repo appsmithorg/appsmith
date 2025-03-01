@@ -27,11 +27,11 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
 
 export const getFilteredPremiumIntegrations = (
   isExternalSaasEnabled: boolean,
+  pluginNames: string[],
 ) => {
   return isExternalSaasEnabled
     ? PREMIUM_INTEGRATIONS.filter(
-        (integration) =>
-          integration.name !== "Salesforce" && integration.name !== "Zendesk",
+        (integration) => !pluginNames.includes(integration.name),
       )
     : PREMIUM_INTEGRATIONS;
 };
