@@ -38,10 +38,16 @@ function ReleaseVersionRadioGroupView({
 
   return (
     <Flex flexDirection="column" gap="spaces-2" marginBottom="spaces-4">
-      <Text renderAs="p">{RELEASE_VERSION_RADIO_GROUP.TITLE}</Text>
+      <Text data-testid="t--git-release-version-title" renderAs="p">
+        {RELEASE_VERSION_RADIO_GROUP.TITLE}
+      </Text>
       <Flex alignItems="center" gap="spaces-4">
         <Flex minWidth="40px">
-          <Tag isClosable={false} kind="neutral">
+          <Tag
+            data-testid="t--git-release-next-version"
+            isClosable={false}
+            kind="neutral"
+          >
             {nextVersion ?? "-"}
           </Tag>
         </Flex>
@@ -56,7 +62,7 @@ function ReleaseVersionRadioGroupView({
           <Radio value="patch">Patch</Radio>
         </RadioGroup>
       </Flex>
-      <Text kind="body-s" renderAs="p">
+      <Text data-testid="t--git-release-released-at" kind="body-s" renderAs="p">
         {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}: {currentVersion ?? "-"} (
         {releasedAt ?? "-"})
       </Text>

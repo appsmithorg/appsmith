@@ -16,6 +16,7 @@ function ReleaseNotesInput({
     <Flex flexDirection={"column"}>
       <Input
         autoFocus
+        data-testid="t--git-release-notes-input"
         label={RELEASE_NOTES_INPUT.TITLE}
         onChange={onTextChange}
         placeholder={RELEASE_NOTES_INPUT.PLACEHOLDER}
