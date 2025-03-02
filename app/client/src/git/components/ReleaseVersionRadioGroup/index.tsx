@@ -1,6 +1,7 @@
 import React from "react";
 import ReleaseVersionRadioGroupView from "./ReleaseVersionRadioGroupView";
 import noop from "lodash/noop";
+import useLatestCommit from "git/hooks/useLatestCommit";
 
 interface ReleaseVersionRadioGroupProps {
   onVersionChange: (version: string | null) => void;
@@ -9,14 +10,13 @@ interface ReleaseVersionRadioGroupProps {
 function ReleaseVersionRadioGroup({
   onVersionChange = noop,
 }: ReleaseVersionRadioGroupProps) {
-  const currentVersion = "4.1.2";
-  const releasedAt = "2 weeks ago";
+  const { latestCommit } = useLatestCommit();
 
   return (
     <ReleaseVersionRadioGroupView
-      currentVersion={currentVersion}
+      currentVersion={latestCommit?.releaseTagName ?? null}
       onVersionChange={onVersionChange}
-      releasedAt={releasedAt}
+      releasedAt={latestCommit?.releasedAt ?? null}
     />
   );
 }

@@ -5,6 +5,8 @@ export interface FetchLatestCommitResponseData {
   committedAt: string;
   hash: string;
   message: string;
+  releaseTagName: string;
+  releasedAt: string;
 }
 
 export type FetchLatestCommitResponse =
