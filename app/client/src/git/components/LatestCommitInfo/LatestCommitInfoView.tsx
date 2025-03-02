@@ -25,13 +25,13 @@ function LatestCommitInfoView({
       <Flex flex={1} flexDirection="column" gap="spaces-3">
         <Text renderAs="p">{message}</Text>
         <Text kind="body-s" renderAs="p">
-          {authorName} committed {committedAt}
+          {authorName ?? "-"} committed {committedAt ?? "-"}
         </Text>
       </Flex>
       <Flex alignItems="center" justifyContent="center">
         <Flex gap="spaces-2">
           <Icon name="git-commit" size="md" />
-          <Text renderAs="p">{hash}</Text>
+          <Text renderAs="p">{hash ?? "-"}</Text>
         </Flex>
       </Flex>
     </Container>

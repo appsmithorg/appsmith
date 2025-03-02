@@ -15,8 +15,6 @@ import styled from "styled-components";
 // import ReconnectSSHError from "../components/ReconnectSSHError";
 import { GitOpsTab } from "git/constants/enums";
 import noop from "lodash/noop";
-import TabRelease from "./TabRelease";
-import { OPS_MODAL } from "git/ee/constants/messages";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -93,18 +91,10 @@ function OpsModalView({
               >
                 {createMessage(MERGE)}
               </Tab>
-              <Tab
-                data-testid={"t--git-ops-tab-release"}
-                disabled={isProtectedMode}
-                value={GitOpsTab.Release}
-              >
-                {OPS_MODAL.TAB_RELEASE}
-              </Tab>
             </TabsList>
           </Tabs>
           {opsModalTab === GitOpsTab.Deploy && <TabDeploy />}
           {opsModalTab === GitOpsTab.Merge && <TabMerge />}
-          {opsModalTab === GitOpsTab.Release && <TabRelease />}
         </StyledModalContent>
       </Modal>
       {/* <GitErrorPopup /> */}

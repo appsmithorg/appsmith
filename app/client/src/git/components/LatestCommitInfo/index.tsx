@@ -1,13 +1,16 @@
 import React from "react";
 import LatestCommitInfoView from "./LatestCommitInfoView";
+import useLatestCommit from "git/hooks/useLatestCommit";
 
 function LatestCommitInfo() {
+  const { latestCommit } = useLatestCommit();
+
   return (
     <LatestCommitInfoView
-      authorName="John Doe"
-      committedAt="2 days ago"
-      hash="a3e9967"
-      message="Fix package resolution issue when transferring apps across workspaces"
+      authorName={latestCommit?.authorName ?? null}
+      committedAt={latestCommit?.committedAt ?? null}
+      hash={latestCommit?.hash ?? null}
+      message={latestCommit?.message ?? null}
     />
   );
 }
