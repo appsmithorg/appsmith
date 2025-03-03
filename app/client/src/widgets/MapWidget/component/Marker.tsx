@@ -31,10 +31,6 @@ const Marker: React.FC<MarkerProps> = (options) => {
         title,
       });
 
-      googleMapMarker.addListener("click", () => {
-        if (onClick) onClick();
-      });
-
       setMarker(googleMapMarker);
     }
 
@@ -79,9 +75,14 @@ const Marker: React.FC<MarkerProps> = (options) => {
   useEffect(() => {
     if (!marker) return;
 
-    marker.addListener("click", () => {
+    google.maps.event.clearListeners(marker, "click");
+    const clickListener = marker.addListener("click", () => {
       if (onClick) onClick();
     });
+
+    return () => {
+      google.maps.event.removeListener(clickListener);
+    };
   }, [marker, onClick]);
 
   // add dragend event on marker
