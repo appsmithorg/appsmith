@@ -105,9 +105,9 @@ export const EmptyRows = (props: {
   style?: CSSProperties;
   rowCount: number;
 }) => {
-  return <>{RenderEmptyRows(props.rowCount, props.style)}</>;
+  return RenderEmptyRows(props.rowCount, props.style);
 };
 
 export const EmptyRow = (props: { style?: CSSProperties }) => {
-  return RenderEmptyRows(1, props.style)?.[0];
+  return RenderEmptyRows(1, props.style);
 };
