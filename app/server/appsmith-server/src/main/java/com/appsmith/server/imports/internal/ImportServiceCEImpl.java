@@ -193,10 +193,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getArtifactBasedImportService(artifactExchangeJson);
         return permissionGroupRepository
                 .getCurrentUserPermissionGroups()
-                .zipWhen(userPermissionGroup -> {
-                    return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForImportingArtifact(
-                            userPermissionGroup));
-                })
+                .zipWhen(contextBasedImportService::getImportArtifactPermissionProviderForImportingArtifact)
                 .flatMap(tuple2 -> {
                     Set<String> userPermissionGroup = tuple2.getT1();
                     ImportArtifactPermissionProvider permissionProvider = tuple2.getT2();

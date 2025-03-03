@@ -3,10 +3,12 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -88,8 +90,13 @@ public class ThemeImportableServiceCETest {
 
     @AfterEach
     public void cleanup() {
+        User currentUser = ReactiveContextUtils.getCurrentUser().block();
+        if (currentUser == null) {
+            return;
+        }
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspace.getId(), applicationPermission.getDeletePermission(currentUser.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

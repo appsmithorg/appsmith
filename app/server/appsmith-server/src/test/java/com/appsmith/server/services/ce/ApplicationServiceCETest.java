@@ -50,6 +50,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
@@ -416,7 +417,8 @@ public class ApplicationServiceCETest {
             return;
         }
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspaceId, applicationPermission.getDeletePermission(currentUser.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -4169,9 +4171,14 @@ public class ApplicationServiceCETest {
         /*
          * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
          */
+        String orgId = ReactiveContextUtils.getCurrentUser()
+                .map(User::getOrganizationId)
+                .block();
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
-                        .equals(datasourcePermission.getActionCreatePermission().getValue()))
+                        .equals(datasourcePermission
+                                .getActionCreatePermission(orgId)
+                                .getValue()))
                 .collect(Collectors.toSet());
         testDatasource1.setPolicies(newPoliciesWithoutEdit);
         Datasource updatedTestDatasource =

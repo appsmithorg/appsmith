@@ -116,24 +116,25 @@ public class ImportArtifactPermissionProviderCE {
         return hasPermission(datasourcePermission.getEditPermission(), datasource);
     }
 
-    public boolean canCreatePage(Application application) {
+    public boolean canCreatePage(Application application, String organizationId) {
         if (!permissionRequiredToCreatePage) {
             return true;
         }
-        return hasPermission(((ApplicationPermission) artifactPermission).getPageCreatePermission(), application);
+        return hasPermission(
+                ((ApplicationPermission) artifactPermission).getPageCreatePermission(organizationId), application);
     }
 
-    public boolean canCreateAction(NewPage page) {
+    public boolean canCreateAction(NewPage page, String organizationId) {
         if (!permissionRequiredToCreateAction) {
             return true;
         }
-        return hasPermission(contextPermission.getActionCreatePermission(), page);
+        return hasPermission(contextPermission.getActionCreatePermission(organizationId), page);
     }
 
-    public boolean canCreateDatasource(Workspace workspace) {
+    public boolean canCreateDatasource(Workspace workspace, String organizationId) {
         if (!permissionRequiredToCreateDatasource) {
             return true;
         }
-        return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
+        return hasPermission(workspacePermission.getDatasourceCreatePermission(organizationId), workspace);
     }
 }

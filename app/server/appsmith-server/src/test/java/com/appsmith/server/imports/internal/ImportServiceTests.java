@@ -153,6 +153,7 @@ public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
     private static String workspaceId;
+    private static String organizationId;
     private static String defaultEnvironmentId;
     private static String testAppId;
     private static Datasource jsDatasource;
@@ -258,6 +259,7 @@ public class ImportServiceTests {
         workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
+        organizationId = savedWorkspace.getOrganizationId();
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
@@ -4939,7 +4941,7 @@ public class ImportServiceTests {
                     application.setPolicies(application.getPolicies().stream()
                             .filter(policy -> !policy.getPermission()
                                     .equals(applicationPermission
-                                            .getPageCreatePermission()
+                                            .getPageCreatePermission(organizationId)
                                             .getValue()))
                             .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
@@ -4983,7 +4985,7 @@ public class ImportServiceTests {
                     application.setPolicies(application.getPolicies().stream()
                             .filter(policy -> !policy.getPermission()
                                     .equals(applicationPermission
-                                            .getPageCreatePermission()
+                                            .getPageCreatePermission(organizationId)
                                             .getValue()))
                             .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);

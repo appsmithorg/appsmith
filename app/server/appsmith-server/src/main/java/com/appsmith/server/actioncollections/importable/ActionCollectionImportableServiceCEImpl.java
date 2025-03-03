@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -162,10 +163,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                 importedActionCollectionList, mappedImportableResourcesDTO);
                     }
 
-                    return Mono.zip(actionCollectionsInCurrentArtifactMono, actionCollectionsInBranchesMono)
+                    return Mono.zip(
+                                    actionCollectionsInCurrentArtifactMono,
+                                    actionCollectionsInBranchesMono,
+                                    ReactiveContextUtils.getCurrentUser())
                             .flatMap(objects -> {
                                 Map<String, ActionCollection> actionsCollectionsInCurrentArtifact = objects.getT1();
                                 Map<String, ActionCollection> actionsCollectionsInBranches = objects.getT2();
+                                String currentUserOrgId = objects.getT3().getOrganizationId();
 
                                 // set the existing action collections in the result DTO,
                                 // this will be required in next phases when we'll delete the outdated action
@@ -228,7 +233,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .put(idFromJsonFile, existingActionCollection);
                                     } else {
                                         artifactBasedImportableService.createNewResource(
-                                                importingMetaDTO, actionCollection, baseContext);
+                                                importingMetaDTO, actionCollection, baseContext, currentUserOrgId);
 
                                         populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
 

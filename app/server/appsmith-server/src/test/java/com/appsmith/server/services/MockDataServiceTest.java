@@ -103,6 +103,7 @@ public class MockDataServiceTest {
     ApplicationPermission applicationPermission;
 
     String workspaceId = "";
+    String organizationId;
 
     Application testApp = null;
 
@@ -118,6 +119,7 @@ public class MockDataServiceTest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
+        organizationId = workspace.getOrganizationId();
 
         // Create application and page which will be used by the tests to create actions for.
         Application application = new Application();
@@ -132,7 +134,7 @@ public class MockDataServiceTest {
     @AfterEach
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

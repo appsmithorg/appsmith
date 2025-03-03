@@ -29,6 +29,8 @@ class EmailServiceHelperCETest {
     @Autowired
     OrganizationService organizationService;
 
+    private static String organizationId;
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testEnrichWithBrandParams() {
@@ -42,29 +44,32 @@ class EmailServiceHelperCETest {
                     assertThat(map.get(INSTANCE_NAME)).isEqualTo(instanceName);
                 })
                 .verifyComplete();
+        organizationId = defautOrganization.getId();
     }
 
     @Test
     void testGetForgotPasswordTemplate() {
-        assertThat(emailServiceHelperCE.getForgotPasswordTemplate()).isEqualTo(FORGOT_PASSWORD_TEMPLATE_CE);
+        assertThat(emailServiceHelperCE.getForgotPasswordTemplate(organizationId))
+                .isEqualTo(FORGOT_PASSWORD_TEMPLATE_CE);
     }
 
     @Test
     void testGetWorkspaceInviteTemplate() {
-        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.TRUE))
+        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.TRUE, organizationId))
                 .isEqualTo(INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE);
-        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.FALSE))
+        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.FALSE, organizationId))
                 .isEqualTo(INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE);
     }
 
     @Test
     void testGetEmailVerificationTemplate() {
-        assertThat(emailServiceHelperCE.getEmailVerificationTemplate()).isEqualTo(EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE);
+        assertThat(emailServiceHelperCE.getEmailVerificationTemplate(organizationId))
+                .isEqualTo(EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE);
     }
 
     @Test
     void testGetAdminInstanceInviteTemplate() {
-        assertThat(emailServiceHelperCE.getAdminInstanceInviteTemplate())
+        assertThat(emailServiceHelperCE.getAdminInstanceInviteTemplate(organizationId))
                 .isEqualTo(INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE);
     }
 }

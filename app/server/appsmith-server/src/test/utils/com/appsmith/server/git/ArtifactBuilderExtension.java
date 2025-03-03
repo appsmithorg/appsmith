@@ -83,6 +83,7 @@ public class ArtifactBuilderExtension implements AfterEachCallback, BeforeEachCa
 
         contextStore.put(FieldName.WORKSPACE_ID, (workspace.getId()));
         contextStore.put(FieldName.ARTIFACT_ID, (artifact.getId()));
+        contextStore.put(FieldName.ORGANIZATION_ID, (workspace.getOrganizationId()));
     }
 
 
@@ -91,11 +92,12 @@ public class ArtifactBuilderExtension implements AfterEachCallback, BeforeEachCa
 
         ExtensionContext.Store contextStore = extensionContext.getStore(ExtensionContext.Namespace.create(ArtifactBuilderExtension.class));
         String workspaceId = contextStore.get(FieldName.WORKSPACE_ID, String.class);
+        String organizationId = contextStore.get(FieldName.ORGANIZATION_ID, String.class);
 
         // Because right now we only have checks for apps
         // Move this to artifact based model when we fix that
         applicationService
-            .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+            .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
             .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
             .collectList()
             .block();

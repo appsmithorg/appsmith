@@ -153,8 +153,10 @@ public class LayoutServiceTest {
 
     @AfterEach
     public void cleanup() {
+        String orgId =
+                sessionUserService.getCurrentUser().map(User::getOrganizationId).block();
         applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(orgId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

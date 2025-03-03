@@ -8,14 +8,17 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DomainPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +50,15 @@ class ImportArtifactPermissionProviderTest {
     @Autowired
     WorkspacePermission workspacePermission;
 
+    private static String organizationId;
+
+    @BeforeEach
+    public void setup() {
+        organizationId = ReactiveContextUtils.getCurrentUser()
+                .map(User::getOrganizationId)
+                .block();
+    }
+
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {
         ImportArtifactPermissionProvider importArtifactPermissionProvider = ImportArtifactPermissionProvider.builder(
@@ -61,9 +73,9 @@ class ImportArtifactPermissionProviderTest {
         assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewAction()));
         assertTrue(importArtifactPermissionProvider.hasEditPermission(new Datasource()));
 
-        assertTrue(importArtifactPermissionProvider.canCreateDatasource(new Workspace()));
-        assertTrue(importArtifactPermissionProvider.canCreateAction(new NewPage()));
-        assertTrue(importArtifactPermissionProvider.canCreatePage(new Application()));
+        assertTrue(importArtifactPermissionProvider.canCreateDatasource(new Workspace(), organizationId));
+        assertTrue(importArtifactPermissionProvider.canCreateAction(new NewPage(), organizationId));
+        assertTrue(importArtifactPermissionProvider.canCreatePage(new Application(), organizationId));
     }
 
     @Test
@@ -101,9 +113,11 @@ class ImportArtifactPermissionProviderTest {
         // we'll create a permission provider for each domain and check if the create permission is false
 
         List<Tuple2<BaseDomain, AclPermission>> domainAndPermissionList = new ArrayList<>();
-        domainAndPermissionList.add(Tuples.of(new Application(), applicationPermission.getPageCreatePermission()));
-        domainAndPermissionList.add(Tuples.of(new NewPage(), pagePermission.getActionCreatePermission()));
-        domainAndPermissionList.add(Tuples.of(new Workspace(), workspacePermission.getDatasourceCreatePermission()));
+        domainAndPermissionList.add(
+                Tuples.of(new Application(), applicationPermission.getPageCreatePermission(organizationId)));
+        domainAndPermissionList.add(Tuples.of(new NewPage(), pagePermission.getActionCreatePermission(organizationId)));
+        domainAndPermissionList.add(
+                Tuples.of(new Workspace(), workspacePermission.getDatasourceCreatePermission(organizationId)));
 
         for (Tuple2<BaseDomain, AclPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
@@ -112,11 +126,11 @@ class ImportArtifactPermissionProviderTest {
                     createPermissionProviderForDomainCreatePermission(domain, domainAndPermission.getT2());
 
             if (domain instanceof Application) {
-                assertFalse(provider.canCreatePage((Application) domain));
+                assertFalse(provider.canCreatePage((Application) domain, organizationId));
             } else if (domain instanceof NewPage) {
-                assertFalse(provider.canCreateAction((NewPage) domain));
+                assertFalse(provider.canCreateAction((NewPage) domain, organizationId));
             } else if (domain instanceof Workspace) {
-                assertFalse(provider.canCreateDatasource((Workspace) domain));
+                assertFalse(provider.canCreateDatasource((Workspace) domain, organizationId));
             }
         }
     }

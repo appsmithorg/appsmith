@@ -255,8 +255,10 @@ class LayoutActionServiceTest {
 
     @AfterEach
     void cleanup() {
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = workspaceService
+                .getById(workspaceId)
+                .flatMapMany(workspace -> applicationService.findByWorkspaceId(
+                        workspaceId, applicationPermission.getDeletePermission(workspace.getOrganizationId())))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

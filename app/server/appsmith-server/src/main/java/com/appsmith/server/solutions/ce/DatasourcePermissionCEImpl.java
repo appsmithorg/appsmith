@@ -18,7 +18,7 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     }
 
     @Override
-    public AclPermission getDeletePermission() {
+    public AclPermission getDeletePermission(String organizationId) {
         return AclPermission.MANAGE_DATASOURCES;
     }
 
@@ -33,7 +33,7 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     }
 
     @Override
-    public AclPermission getActionCreatePermission() {
+    public AclPermission getActionCreatePermission(String organizationId) {
         return AclPermission.MANAGE_DATASOURCES;
     }
 }
