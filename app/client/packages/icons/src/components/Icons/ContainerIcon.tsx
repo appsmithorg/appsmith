@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const ContainerIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" d="M3.5 0a.5.5 0 0 1 0 1h-1A1.5 1.5 0 0 0 1 2.5v1a.5.5 0 0 1-1 0v-1A2.5 2.5 0 0 1 2.5 0zM3.5 15a.5.5 0 0 0 0-1h-1A1.5 1.5 0 0 1 1 12.5v-1a.5.5 0 0 0-1 0v1A2.5 2.5 0 0 0 2.5 15zM11 .5a.5.5 0 0 1 .5-.5h1A2.5 2.5 0 0 1 15 2.5v1a.5.5 0 0 1-1 0v-1A1.5 1.5 0 0 0 12.5 1h-1a.5.5 0 0 1-.5-.5M11.5 15a.5.5 0 0 1 0-1h1a1.5 1.5 0 0 0 1.5-1.5v-1a.5.5 0 0 1 1 0v1a2.5 2.5 0 0 1-2.5 2.5zM.5 6a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 .5 6M15 6.5a.5.5 0 0 0-1 0v2a.5.5 0 0 0 1 0zM6 .5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 6 .5M6.5 14a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z" /></svg>;
+export { ContainerIcon };

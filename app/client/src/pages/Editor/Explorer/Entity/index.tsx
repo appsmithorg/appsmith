@@ -206,12 +206,7 @@ export const EntityItem = styled.div<{
   }
 `;
 
-const IconWrapper = styled.span`
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
+const IconWrapper = styled.span``;
 
 export const AddButtonWrapper = styled.div`
   height: 100%;
