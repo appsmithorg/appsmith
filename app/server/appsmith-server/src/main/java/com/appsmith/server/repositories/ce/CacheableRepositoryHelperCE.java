@@ -17,11 +17,11 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Void> evictPermissionGroupsUser(String email, String organizationId);
 
-    Mono<String> getDefaultOrganizationId();
+    Mono<String> getCurrentUserOrganizationId();
 
     Mono<String> getInstanceAdminPermissionGroupId();
 
-    Mono<Organization> fetchDefaultOrganization(String organizationId);
+    Mono<Organization> getOrganizationById(String organizationId);
 
     Mono<Void> evictCachedOrganization(String organizationId);
 

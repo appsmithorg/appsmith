@@ -38,7 +38,7 @@ public class Organization extends BaseDomain implements Serializable {
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration
 
-    public static class Fields {
+    public static class Fields extends BaseDomain.Fields {
         public static final String organizationConfiguration_isRestartRequired =
                 dotted(organizationConfiguration, OrganizationConfiguration.Fields.isRestartRequired);
     }

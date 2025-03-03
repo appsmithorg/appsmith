@@ -117,7 +117,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
 
     private Mono<TriggerRequestDTO> setOrganizationAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
                     triggerRequestDTO.setOrganizationId(tuple.getT1());

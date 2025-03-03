@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 public interface OrganizationServiceCE extends CrudService<Organization, String> {
 
-    Mono<String> getDefaultOrganizationId();
+    Mono<String> getCurrentUserOrganizationId();
 
     Mono<Organization> updateOrganizationConfiguration(
             String organizationId, OrganizationConfiguration organizationConfiguration);
@@ -20,9 +20,9 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
 
     Mono<Organization> getOrganizationConfiguration();
 
-    Mono<Organization> getDefaultOrganization();
+    Mono<Organization> getCurrentUserOrganization();
 
-    Mono<Organization> updateDefaultOrganizationConfiguration(OrganizationConfiguration organizationConfiguration);
+    Mono<Organization> updateOrganizationConfiguration(OrganizationConfiguration organizationConfiguration);
 
     Mono<Organization> save(Organization organization);
 
