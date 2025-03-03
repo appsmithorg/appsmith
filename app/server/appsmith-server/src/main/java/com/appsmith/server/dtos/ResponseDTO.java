@@ -1,7 +1,6 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.exceptions.ErrorDTO;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.io.Serializable;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 public class ResponseDTO<T> implements Serializable {
 
     private static final long serialVersionUID = 8965011907233699993L;
@@ -24,11 +22,7 @@ public class ResponseDTO<T> implements Serializable {
     private T data;
 
     public ResponseDTO(HttpStatus status, T data) {
-        this(status.value(), data, null);
-    }
-
-    public ResponseDTO(int status, T data, String message) {
-        this.responseMeta = new ResponseMetaDTO(status, message);
+        this.responseMeta = new ResponseMetaDTO(status);
         this.data = data;
     }
 
