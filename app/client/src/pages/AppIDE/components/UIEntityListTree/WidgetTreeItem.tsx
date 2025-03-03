@@ -37,15 +37,15 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
     useNameEditorState();
 
   const validateName = useValidateEntityName({
-    entityName: widget?.widgetName,
-    entityId: widget?.widgetId,
+    entityName: item.name,
+    entityId: item.id,
   });
 
-  const isLoading = widget ? updatingEntity === widget?.widgetId : false;
-  const isEditing = widget ? editingEntity === widget?.widgetId : false;
+  const isLoading = updatingEntity === item.id;
+  const isEditing = editingEntity === item.id;
   const onNameSave = useCallback(
-    (newName: string) => handleNameSave(widget?.widgetId, newName),
-    [handleNameSave, widget?.widgetId],
+    (newName: string) => handleNameSave(item.id, newName),
+    [handleNameSave, item.id],
   );
 
   const nameEditorConfig = useMemo(
@@ -78,18 +78,15 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
   );
 
   const onDoubleClick = useCallback(
-    () => enterEditMode(widget?.widgetId),
-    [enterEditMode, widget?.widgetId],
+    () => enterEditMode(item.id),
+    [enterEditMode, item.id],
   );
 
   const rightControl = useMemo(
     () => (
-      <WidgetContextMenu
-        canManagePages={canManagePages}
-        widgetId={widget?.widgetId}
-      />
+      <WidgetContextMenu canManagePages={canManagePages} widgetId={item.id} />
     ),
-    [canManagePages, widget?.widgetId],
+    [canManagePages, item.id],
   );
 
   if (!widget) return null;
@@ -104,7 +101,7 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
       rightControl={rightControl}
       rightControlVisibility="hover"
       startIcon={startIcon}
-      title={widget?.widgetName}
+      title={item.name}
     />
   );
 };
