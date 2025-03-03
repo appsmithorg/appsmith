@@ -27,20 +27,22 @@ import java.util.stream.Collectors;
 public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsCE {
 
     private final ConfigService configService;
-    private final PluginService pluginService;
     private final CloudServicesConfig cloudServicesConfig;
+    protected final PluginService pluginService;
 
     private Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> getRemotePlugins(Instant lastUpdatedAt) {
+        return this.fetchPluginsFromCS(lastUpdatedAt, "/api/v1/plugins");
+    }
 
+    protected Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> fetchPluginsFromCS(
+            Instant lastUpdatedAt, String csApiPath) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (!StringUtils.hasLength(baseUrl)) {
             return Mono.empty();
         }
-
         String lastUpdatedAtParam = lastUpdatedAt != null ? "&lastUpdatedAt=" + lastUpdatedAt : "";
-
         return configService.getInstanceId().flatMap(instanceId -> WebClientUtils.create(
-                        baseUrl + "/api/v1/plugins?instanceId=" + instanceId + lastUpdatedAtParam)
+                        baseUrl + csApiPath + "?instanceId=" + instanceId + lastUpdatedAtParam)
                 .get()
                 .exchangeToMono(clientResponse ->
                         clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {}))
@@ -64,19 +66,9 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
                 }));
     }
 
-    @Override
-    public Mono<Void> fetchAndUpdateRemotePlugins(Instant lastUpdatedAt) {
-        // Get all plugins on this instance
-        final Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> availablePluginsMono = pluginService
-                .getAllRemotePlugins()
-                .collect(Collectors.toMap(
-                        plugin -> new PluginScheduledTaskCEImpl.PluginIdentifier(
-                                plugin.getPluginName(), plugin.getVersion()),
-                        plugin -> plugin));
-
-        final Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> newPluginsMono =
-                getRemotePlugins(lastUpdatedAt);
-
+    protected Mono<Void> updatePlugins(
+            Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> availablePluginsMono,
+            Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> newPluginsMono) {
         return Mono.zip(availablePluginsMono, newPluginsMono).flatMap(tuple -> {
             final Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin> availablePlugins = tuple.getT1();
             final Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin> newPlugins = tuple.getT2();
@@ -112,5 +104,21 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
 
             return updatedPluginsWorkspaceFlux.zipWith(workspaceFlux).then();
         });
+    }
+
+    @Override
+    public Mono<Void> fetchAndUpdateRemotePlugins(Instant lastUpdatedAt) {
+        // Get all plugins on this instance
+        final Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> availablePluginsMono = pluginService
+                .getAllRemotePlugins()
+                .collect(Collectors.toMap(
+                        plugin -> new PluginScheduledTaskCEImpl.PluginIdentifier(
+                                plugin.getPluginName(), plugin.getVersion()),
+                        plugin -> plugin));
+
+        final Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> newPluginsMono =
+                getRemotePlugins(lastUpdatedAt);
+
+        return updatePlugins(availablePluginsMono, newPluginsMono);
     }
 }
