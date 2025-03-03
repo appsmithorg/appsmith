@@ -6,7 +6,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import { RadioGroupIcon, SelectThumbnail } from "appsmith-icons";
+import { SelectIcon, SelectThumbnail } from "appsmith-icons";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -60,6 +60,6 @@ export const methodsConfig = {
       },
     };
   },
-  IconCmp: RadioGroupIcon,
+  IconCmp: SelectIcon,
   ThumbnailCmp: SelectThumbnail,
 };
