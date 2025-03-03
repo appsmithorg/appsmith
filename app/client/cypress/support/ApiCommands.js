@@ -145,7 +145,9 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".rc-tooltip-inner").should(($x) => {
-    expect($x).contain(value.concat(" is already being used."));
+    expect($x).contain(
+      value.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 

@@ -52,7 +52,7 @@ describe("EntityListTree", () => {
 
   it("calls onItemExpand when expand icon is clicked", () => {
     render(<EntityListTree {...defaultProps} />);
-    const expandIcon = screen.getByTestId("t--entity-item-expand-icon");
+    const expandIcon = screen.getByTestId("t--entity-collapse-toggle");
 
     fireEvent.click(expandIcon);
     expect(mockOnItemExpand).toHaveBeenCalledWith("1");
@@ -73,7 +73,7 @@ describe("EntityListTree", () => {
     };
 
     render(<EntityListTree {...props} />);
-    const expandIcon = screen.queryByTestId("t--entity-item-expand-icon");
+    const expandIcon = screen.queryByTestId("t--entity-collapse-toggle");
 
     expect(
       screen.getByRole("treeitem", { name: "No Children Parent" }),

@@ -57,7 +57,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     [action],
   );
 
-  const actionPermissions = action.userPermissions || [];
+  const actionPermissions = action?.userPermissions || [];
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
