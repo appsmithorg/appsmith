@@ -1,5 +1,4 @@
 import { useCallback, type MouseEvent } from "react";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { builderURL } from "ee/RouteBuilder";
 import { NavigationMethod } from "utils/history";
@@ -7,6 +6,7 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
+import type { WidgetType } from "constants/WidgetConstants";
 
 export function useSwitchToWidget() {
   const { navigateToWidget } = useNavigateToWidget();
@@ -14,7 +14,10 @@ export function useSwitchToWidget() {
   const selectedWidgets = useSelector(getSelectedWidgets);
 
   return useCallback(
-    (e: MouseEvent, widget: CanvasStructure) => {
+    (
+      e: MouseEvent,
+      widget: { widgetId: string; widgetName: string; type: WidgetType },
+    ) => {
       const isMultiSelect = e.metaKey || e.ctrlKey;
       const isShiftSelect = e.shiftKey;
 
