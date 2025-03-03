@@ -8,11 +8,13 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ActionCollection.Fields;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -118,8 +120,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     protected Mono<Boolean> checkIfNameAllowedBasedOnContext(ActionCollectionDTO collectionDTO) {
         final String pageId = collectionDTO.getPageId();
-        Mono<NewPage> pageMono = newPageService
-                .findById(pageId, pagePermission.getActionCreatePermission())
+        Mono<NewPage> pageMono = ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> newPageService.findById(
+                        pageId, pagePermission.getActionCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
@@ -156,8 +159,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         ActionCollection actionCollection = new ActionCollection();
         actionCollection.setUnpublishedCollection(collectionDTO);
 
-        return newPageService
-                .findById(collectionDTO.getPageId(), pagePermission.getActionCreatePermission())
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> newPageService.findById(
+                        collectionDTO.getPageId(), pagePermission.getActionCreatePermission(user.getOrganizationId())))
                 .map(branchedPage -> {
                     actionCollection.setRefType(branchedPage.getRefType());
                     actionCollection.setRefName(branchedPage.getRefName());
@@ -179,9 +183,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO) {
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
 
-        Mono<NewPage> destinationPageMono = newPageService
-                .findById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
+        Mono<NewPage> destinationPageMono = currentUserMono
+                .flatMap(user -> newPageService.findById(
+                        actionCollectionMoveDTO.getDestinationPageId(),
+                        pagePermission.getActionCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)))
                 .cache();
@@ -241,27 +248,35 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         })
                                         .collect(toSet());
                             })
-                            // fetch the unpublished destination page
-                            .then(newPageService.findPageById(
-                                    actionCollectionMoveDTO.getDestinationPageId(),
-                                    pagePermission.getActionCreatePermission(),
-                                    false))
-                            .flatMap(page -> {
-                                if (page.getLayouts() == null) {
-                                    return Mono.empty();
-                                }
+                            .then(currentUserMono)
+                            .flatMap(user ->
+                                    // fetch the unpublished destination page
+                                    newPageService
+                                            .findPageById(
+                                                    actionCollectionMoveDTO.getDestinationPageId(),
+                                                    pagePermission.getActionCreatePermission(user.getOrganizationId()),
+                                                    false)
+                                            .flatMap(page -> {
+                                                if (page.getLayouts() == null) {
+                                                    return Mono.empty();
+                                                }
 
-                                // 3. Run updateLayout on the new page.
-                                return Flux.fromIterable(page.getLayouts())
-                                        .flatMap(layout -> {
-                                            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
-                                            return updateLayoutService.updateLayout(
-                                                    page.getId(), page.getApplicationId(), layout.getId(), layout);
-                                        })
-                                        .collect(toSet());
-                            })
-                            // 4. Return the saved action.
-                            .thenReturn(savedCollection);
+                                                // 3. Run updateLayout on the new page.
+                                                return Flux.fromIterable(page.getLayouts())
+                                                        .flatMap(layout -> {
+                                                            layout.setDsl(
+                                                                    updateLayoutService.unescapeMongoSpecialCharacters(
+                                                                            layout));
+                                                            return updateLayoutService.updateLayout(
+                                                                    page.getId(),
+                                                                    page.getApplicationId(),
+                                                                    layout.getId(),
+                                                                    layout);
+                                                        })
+                                                        .collect(toSet());
+                                            })
+                                            // 4. Return the saved action.
+                                            .thenReturn(savedCollection));
                 });
     }
 

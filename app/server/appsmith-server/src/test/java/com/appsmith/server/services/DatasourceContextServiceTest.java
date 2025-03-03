@@ -121,6 +121,7 @@ public class DatasourceContextServiceTest {
     String defaultEnvironmentId;
 
     String workspaceId;
+    private static String organizationId;
 
     @BeforeEach
     public void setup() {
@@ -131,6 +132,7 @@ public class DatasourceContextServiceTest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
+        organizationId = workspace.getOrganizationId();
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
@@ -139,7 +141,7 @@ public class DatasourceContextServiceTest {
     @AfterEach
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -188,7 +190,7 @@ public class DatasourceContextServiceTest {
 
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
-                .findById("id1", datasourcePermission.getDeletePermission());
+                .findById("id1", datasourcePermission.getDeletePermission(organizationId));
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
                 .findById("id1", datasourcePermission.getExecutePermission());

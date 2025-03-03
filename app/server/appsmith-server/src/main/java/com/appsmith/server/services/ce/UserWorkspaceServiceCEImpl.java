@@ -165,11 +165,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 .single()
-                .flatMap(permissionGroup -> {
-                    if (this.isLastAdminRoleEntity(permissionGroup)) {
-                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
+                .zipWhen(this::isLastAdminRoleEntity)
+                .map(tuple2 -> {
+                    PermissionGroup permissionGroup = tuple2.getT1();
+                    boolean isLastAdminRoleEntity = tuple2.getT2();
+                    if (isLastAdminRoleEntity) {
+                        throw new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR);
                     }
-                    return Mono.just(permissionGroup);
+                    return permissionGroup;
                 });
 
         /*
@@ -383,9 +386,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     @Override
-    public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
-        return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
-                && permissionGroup.getAssignedToUserIds().size() == 1;
+    public Mono<Boolean> isLastAdminRoleEntity(PermissionGroup permissionGroup) {
+        return Mono.just(permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
+                && permissionGroup.getAssignedToUserIds().size() == 1);
     }
 
     /**

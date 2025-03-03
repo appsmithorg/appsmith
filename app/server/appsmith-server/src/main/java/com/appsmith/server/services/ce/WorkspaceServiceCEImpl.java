@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -166,14 +167,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                    Not using it right now because of circular dependency b/w workspaceService and pluginService
                    Also, since all our deployments are single node, this logic will still work
                 */
-                .flatMap(org -> pluginRepository
+                .flatMap(validatedWorkspace -> pluginRepository
                         .findByDefaultInstall(true)
                         .filter(plugin -> plugin.getId() != null)
                         .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {
-                            org.setPlugins(pluginList);
-                            return org;
+                            validatedWorkspace.setPlugins(pluginList);
+                            return validatedWorkspace;
                         }))
                 // Save the workspace in the db
                 .flatMap(repository::save)
@@ -571,8 +572,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
-                return repository
-                        .findById(workspaceId, workspacePermission.getDeletePermission())
+                return ReactiveContextUtils.getCurrentUser()
+                        .flatMap(user -> repository.findById(
+                                workspaceId, workspacePermission.getDeletePermission(user.getOrganizationId())))
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                         .flatMap(workspace -> {

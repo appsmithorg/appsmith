@@ -74,19 +74,22 @@ public class NewPageServiceTest {
     ApplicationPermission applicationPermission;
 
     String workspaceId = null;
+    String organizationId;
 
     @BeforeEach
     public void setup() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);
-        workspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
+        workspace = workspaceService.create(workspace).block();
+        workspaceId = workspace.getId();
+        organizationId = workspace.getOrganizationId();
     }
 
     @AfterEach
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

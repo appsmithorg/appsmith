@@ -255,8 +255,10 @@ class LayoutActionServiceTest {
 
     @AfterEach
     void cleanup() {
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = workspaceService
+                .getById(workspaceId)
+                .flatMapMany(workspace -> applicationService.findByWorkspaceId(
+                        workspaceId, applicationPermission.getDeletePermission(workspace.getOrganizationId())))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -1328,6 +1330,93 @@ class LayoutActionServiceTest {
         assertNotNull(changedLayoutDTO);
         assertNotNull(changedLayoutDTO.getLayoutOnLoadActionErrors());
         assertEquals(0, changedLayoutDTO.getLayoutOnLoadActionErrors().size());
+    }
+
+    /**
+     * Verifies the extraction of valid executable names from ActionDTO instances
+     * with different naming patterns and module references.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testExtractExecutableNamesFromActionDTO() {
+        // Test case 1: Module instance with multiple levels of module references
+        ActionDTO moduleInstanceActionDTO1 = new ActionDTO();
+        moduleInstanceActionDTO1.setName("_$JSModule1$__$QueryModule1$_QueryModule1");
+        moduleInstanceActionDTO1.setIsPublic(true);
+        moduleInstanceActionDTO1.setRootModuleInstanceId("r1");
+        moduleInstanceActionDTO1.setModuleInstanceId("m1");
+
+        Set<String> executableNames = moduleInstanceActionDTO1.getExecutableNames();
+        assertThat(executableNames)
+                .hasSize(2)
+                .containsExactlyInAnyOrder("_$JSModule1$_QueryModule1", "_$JSModule1$__$QueryModule1$_QueryModule1");
+
+        // Test case 2: Module instance with function reference
+        ActionDTO moduleInstanceActionDTO2 = new ActionDTO();
+        moduleInstanceActionDTO2.setName("_$JSModule2$__$JSModule1$_JSModule1.func1");
+        moduleInstanceActionDTO2.setIsPublic(true);
+        moduleInstanceActionDTO2.setRootModuleInstanceId("r1");
+        moduleInstanceActionDTO2.setModuleInstanceId("m1");
+
+        executableNames = moduleInstanceActionDTO2.getExecutableNames();
+        assertThat(executableNames)
+                .hasSize(2)
+                .containsExactlyInAnyOrder("_$JSModule2$__$JSModule1$_JSModule1.func1", "_$JSModule2$_JSModule1.func1");
+
+        // Test case 3: Simple module instance with function reference
+        ActionDTO moduleInstanceActionDTO3 = new ActionDTO();
+        moduleInstanceActionDTO3.setName("_$JSModule1$_JSModule1.func1");
+        moduleInstanceActionDTO3.setIsPublic(true);
+        moduleInstanceActionDTO3.setRootModuleInstanceId("r1");
+        moduleInstanceActionDTO3.setModuleInstanceId("m1");
+
+        executableNames = moduleInstanceActionDTO3.getExecutableNames();
+        assertThat(executableNames).hasSize(1).containsExactlyInAnyOrder("_$JSModule1$_JSModule1.func1");
+
+        // Test case 4: Page action without module references
+        ActionDTO pageActionDTO1 = new ActionDTO();
+        pageActionDTO1.setName("JSObject.func1");
+        pageActionDTO1.setIsPublic(null);
+
+        executableNames = pageActionDTO1.getExecutableNames();
+        assertThat(executableNames).hasSize(1).containsExactlyInAnyOrder("JSObject.func1");
+
+        // Test case 5: Page action with a simple query name
+        ActionDTO pageActionDTO2 = new ActionDTO();
+        pageActionDTO2.setName("Query1");
+        pageActionDTO2.setIsPublic(null);
+
+        executableNames = pageActionDTO2.getExecutableNames();
+        assertThat(executableNames).hasSize(1).containsExactlyInAnyOrder("Query1");
+
+        // Test case 6: Module instance with deep nesting and function reference
+        ActionDTO moduleInstanceActionDTO4 = new ActionDTO();
+        moduleInstanceActionDTO4.setName("_$JSModule4$__$JSModule3$__$JSModule2$__$JSModule1$_JSModule1.getNow");
+        moduleInstanceActionDTO4.setIsPublic(true);
+        moduleInstanceActionDTO4.setRootModuleInstanceId("r1");
+        moduleInstanceActionDTO4.setModuleInstanceId("m1");
+
+        executableNames = moduleInstanceActionDTO4.getExecutableNames();
+        assertThat(executableNames)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        "_$JSModule4$__$JSModule3$__$JSModule2$__$JSModule1$_JSModule1.getNow",
+                        "_$JSModule4$__$JSModule3$__$JSModule2$_JSModule1.getNow");
+
+        // Test case 7: Module instance with mixed module and query references
+        ActionDTO moduleInstanceActionDTO5 = new ActionDTO();
+        moduleInstanceActionDTO5.setName(
+                "_$JSModule4$__$JSModule3$__$JSModule2$__$JSModule1$_QueryModule1$_QueryModule1");
+        moduleInstanceActionDTO5.setIsPublic(true);
+        moduleInstanceActionDTO5.setRootModuleInstanceId("r1");
+        moduleInstanceActionDTO5.setModuleInstanceId("m1");
+
+        executableNames = moduleInstanceActionDTO5.getExecutableNames();
+        assertThat(executableNames)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        "_$JSModule4$__$JSModule3$__$JSModule2$__$JSModule1$_QueryModule1$_QueryModule1",
+                        "_$JSModule4$__$JSModule3$__$JSModule2$_JSModule1$_QueryModule1");
     }
 
     /**

@@ -152,12 +152,14 @@ public class ActionCollectionServiceTest {
     Datasource datasource;
 
     String workspaceId;
+    private static String organizationId;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
+        organizationId = apiUser.getOrganizationId();
         Workspace toCreate = new Workspace();
         toCreate.setName("ActionCollectionServiceTest");
 
@@ -217,7 +219,7 @@ public class ActionCollectionServiceTest {
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

@@ -284,8 +284,13 @@ public class ActionServiceCE_Test {
 
     @AfterEach
     public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (currentUser == null) {
+            return;
+        }
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspaceId, applicationPermission.getDeletePermission(currentUser.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

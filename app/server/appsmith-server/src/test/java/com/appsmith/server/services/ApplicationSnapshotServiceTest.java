@@ -78,7 +78,8 @@ public class ApplicationSnapshotServiceTest {
             return;
         }
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspace.getId(), applicationPermission.getDeletePermission(user.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
