@@ -369,7 +369,7 @@ export default {
     }
 
     const columns = props.orderedTableColumns;
-    const sortByColumnId = props.sortOrder.column || `latitude`;
+    const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
     /* 
