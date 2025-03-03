@@ -89,7 +89,7 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
       onEditComplete: exitEditMode,
       onNameSave: (newName: string) =>
         dispatch(saveJSObjectNameBasedOnIdeType(jsAction.id, newName, ideType)),
-      validateName: (newName: string) => validateName(newName, item.title),
+      validateName: (newName: string) => validateName(newName),
     };
   }, [
     canEdit,

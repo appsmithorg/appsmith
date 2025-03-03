@@ -5,10 +5,7 @@ export interface FunctionCallingEntityTypeOption {
   iconSrc?: string;
 }
 
-export type FunctionCallingEntityType =
-  | "Query"
-  | "JSFunction"
-  | "SystemFunction";
+export type FunctionCallingEntityType = "Query" | "JSFunction";
 
 export interface FunctionCallingConfigFormToolField {
   id: string;

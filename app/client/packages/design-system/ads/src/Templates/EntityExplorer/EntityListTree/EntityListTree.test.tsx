@@ -1,39 +1,41 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { EntityListTree } from "./EntityListTree";
-import type { EntityListTreeProps } from "./EntityListTree.types";
+import type {
+  EntityListTreeItem,
+  EntityListTreeProps,
+} from "./EntityListTree.types";
 
 const mockOnItemExpand = jest.fn();
-const mockNameEditorConfig = {
-  canEdit: true,
-  isEditing: false,
-  isLoading: false,
-  onEditComplete: jest.fn(),
-  onNameSave: jest.fn(),
-  validateName: jest.fn(),
+
+const name = {
+  "1": "Parent 1",
+  "1.1": "Child 1.1",
+  "1.1.1": "Child 1.1.1",
+  "1.1.2": "Child 1.1.2",
+  "1.2": "Child 1.2",
+  "2": "No Children Parent",
+  "1-1": "Child",
 };
 
-const mockOnClick = jest.fn();
+const ItemComponent = ({ item }: { item: EntityListTreeItem }) => {
+  return <div>{name[item.id as keyof typeof name] || item.id}</div>;
+};
 
 const defaultProps: EntityListTreeProps = {
+  ItemComponent,
   items: [
     {
       id: "1",
-      title: "Parent",
       isExpanded: false,
       isSelected: false,
       isDisabled: false,
-      nameEditorConfig: mockNameEditorConfig,
-      onClick: mockOnClick,
       children: [
         {
           id: "1-1",
-          title: "Child",
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
           children: [],
         },
       ],
@@ -62,13 +64,10 @@ describe("EntityListTree", () => {
       items: [
         {
           id: "2",
-          title: "No Children Parent",
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
           children: [],
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
         },
       ],
     };
@@ -88,21 +87,15 @@ describe("EntityListTree", () => {
       items: [
         {
           id: "1",
-          title: "Parent",
           isExpanded: true,
           isSelected: false,
           isDisabled: false,
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
           children: [
             {
               id: "1-1",
-              title: "Child",
               isExpanded: false,
               isSelected: false,
               isDisabled: false,
-              nameEditorConfig: mockNameEditorConfig,
-              onClick: mockOnClick,
               children: [],
             },
           ],

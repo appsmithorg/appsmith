@@ -10,7 +10,8 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid } from "utils/helpers";
 
 interface UseValidateEntityNameProps {
-  entityName?: string;
+  entityName: string;
+  entityId?: string;
   nameErrorMessage?: (name: string) => string;
 }
 
@@ -18,18 +19,22 @@ interface UseValidateEntityNameProps {
  * Provides a unified way to validate entity names.
  */
 export function useValidateEntityName(props: UseValidateEntityNameProps) {
-  const { entityName, nameErrorMessage = ACTION_NAME_CONFLICT_ERROR } = props;
+  const {
+    entityId = "",
+    entityName,
+    nameErrorMessage = ACTION_NAME_CONFLICT_ERROR,
+  } = props;
 
   const usedEntityNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, ""),
+    (state: AppState) => getUsedActionNames(state, entityId),
     shallowEqual,
   );
 
   return useCallback(
-    (name: string, oldName: string | undefined = entityName): string | null => {
+    (name: string): string | null => {
       if (!name || name.trim().length === 0) {
         return createMessage(ACTION_INVALID_NAME_ERROR);
-      } else if (name !== oldName && !isNameValid(name, usedEntityNames)) {
+      } else if (name !== entityName && !isNameValid(name, usedEntityNames)) {
         return createMessage(nameErrorMessage, name);
       }
 
