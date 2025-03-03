@@ -7,7 +7,7 @@ import { rootSaga } from "ee/sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import routeParamsMiddleware from "ee/RouteParamsMiddleware";
+import routeParamsMiddleware from "ee/middlewares/RouteParamsMiddleware";
 
 const sagaMiddleware = createSagaMiddleware();
 const ignoredSentryActionTypes = [
