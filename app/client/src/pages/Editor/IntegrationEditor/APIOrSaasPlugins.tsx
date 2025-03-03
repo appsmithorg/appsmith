@@ -45,8 +45,8 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
-  BETA_PLUGINS,
   getFilteredPremiumIntegrations,
+  isPluginInBetaState,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
@@ -234,7 +234,7 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           name={p.name}
           rightSibling={
             <>
-              {BETA_PLUGINS.includes(p.name) ? (
+              {isPluginInBetaState(p) ? (
                 <BetaTag isClosable={false}>
                   {createMessage(PREMIUM_DATASOURCES.BETA_TAG)}
                 </BetaTag>
@@ -340,7 +340,9 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
-  const pluginNames = allPlugins.map((plugin) => plugin.name);
+  const pluginNames = allPlugins.map((plugin) =>
+    plugin.name.toLocaleLowerCase(),
+  );
 
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
