@@ -83,6 +83,7 @@ public class ArtifactBuilderExtension implements AfterEachCallback, BeforeEachCa
 
         contextStore.put(FieldName.WORKSPACE_ID, (workspace.getId()));
         contextStore.put(FieldName.ARTIFACT_ID, (artifact.getId()));
+        contextStore.put(FieldName.ORGANIZATION_ID, (workspace.getOrganizationId()));
     }
 
 
