@@ -31,10 +31,6 @@ const Marker: React.FC<MarkerProps> = (options) => {
         title,
       });
 
-      googleMapMarker.addListener("click", () => {
-        if (onClick) onClick();
-      });
-
       setMarker(googleMapMarker);
     }
 
@@ -79,19 +75,32 @@ const Marker: React.FC<MarkerProps> = (options) => {
   useEffect(() => {
     if (!marker) return;
 
-    marker.addListener("click", () => {
+    google.maps.event.clearListeners(marker, "click");
+    const clickListener = marker.addListener("click", () => {
       if (onClick) onClick();
     });
+
+    return () => {
+      google.maps.event.removeListener(clickListener);
+    };
   }, [marker, onClick]);
 
   // add dragend event on marker
   useEffect(() => {
-    if (!marker) return;
+    if (!marker || !onDragEnd) return;
 
-    marker.addListener("dragend", (e: google.maps.MapMouseEvent) => {
-      if (onDragEnd) onDragEnd(e);
-    });
-  }, [marker, options.onDragEnd]);
+    google.maps.event.clearListeners(marker, "dragend");
+    const dragEndListener = marker.addListener(
+      "dragend",
+      (e: google.maps.MapMouseEvent) => {
+        if (onDragEnd) onDragEnd(e);
+      },
+    );
+
+    return () => {
+      google.maps.event.removeListener(dragEndListener);
+    };
+  }, [marker, onDragEnd]);
 
   return null;
 };
