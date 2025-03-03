@@ -4,11 +4,9 @@ import com.appsmith.server.acl.AclPermission;
 
 public interface ContextPermissionCE {
 
-    AclPermission getDeletePermission();
-
     AclPermission getEditPermission();
 
-    default AclPermission getActionCreatePermission() {
+    default AclPermission getActionCreatePermission(String organizationId) {
         return null;
     }
 }

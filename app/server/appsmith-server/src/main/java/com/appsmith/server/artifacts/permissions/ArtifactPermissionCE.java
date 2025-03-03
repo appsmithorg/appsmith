@@ -6,7 +6,7 @@ public interface ArtifactPermissionCE {
 
     AclPermission getEditPermission();
 
-    AclPermission getDeletePermission();
+    AclPermission getDeletePermission(String organizationId);
 
     AclPermission getGitConnectPermission();
 

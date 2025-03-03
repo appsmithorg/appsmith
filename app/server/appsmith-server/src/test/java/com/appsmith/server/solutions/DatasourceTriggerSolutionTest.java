@@ -12,9 +12,11 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -121,8 +123,13 @@ public class DatasourceTriggerSolutionTest {
 
     @AfterEach
     public void cleanup() {
+        User currentUser = ReactiveContextUtils.getCurrentUser().block();
+        if (currentUser == null) {
+            return;
+        }
+        String orgId = currentUser.getOrganizationId();
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(orgId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

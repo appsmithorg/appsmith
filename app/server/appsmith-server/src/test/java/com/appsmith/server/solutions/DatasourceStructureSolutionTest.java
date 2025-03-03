@@ -19,6 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceContextService;
@@ -126,8 +127,13 @@ public class DatasourceStructureSolutionTest {
 
     @AfterEach
     public void cleanup() {
+        User currentUser = ReactiveContextUtils.getCurrentUser().block();
+        if (currentUser == null) {
+            return;
+        }
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspaceId, applicationPermission.getDeletePermission(currentUser.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

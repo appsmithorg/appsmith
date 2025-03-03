@@ -18,6 +18,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
@@ -182,8 +183,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     @Override
     public Mono<ActionExecutionResult> getSchemaPreviewData(
             String datasourceId, String environmentId, Template queryTemplate) {
-        return datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> datasourceService.findById(
+                        datasourceId, datasourcePermission.getActionCreatePermission(user.getOrganizationId())))
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(),
                         environmentId,

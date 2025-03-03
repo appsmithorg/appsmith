@@ -9,7 +9,7 @@ public interface ApplicationPermissionCE extends ArtifactPermission {
 
     AclPermission getCanCommentPermission();
 
-    AclPermission getPageCreatePermission();
+    AclPermission getPageCreatePermission(String organizationId);
 
     AclPermission getManageProtectedBranchPermission();
 

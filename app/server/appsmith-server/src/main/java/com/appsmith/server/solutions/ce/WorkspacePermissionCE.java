@@ -3,9 +3,9 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.server.acl.AclPermission;
 
 public interface WorkspacePermissionCE {
-    AclPermission getDeletePermission();
+    AclPermission getDeletePermission(String organizationId);
 
-    AclPermission getApplicationCreatePermission();
+    AclPermission getApplicationCreatePermission(String organizationId);
 
-    AclPermission getDatasourceCreatePermission();
+    AclPermission getDatasourceCreatePermission(String organizationId);
 }

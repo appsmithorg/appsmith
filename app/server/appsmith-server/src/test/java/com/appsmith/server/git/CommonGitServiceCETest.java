@@ -235,6 +235,8 @@ public class CommonGitServiceCETest {
     @SpyBean
     AnalyticsService analyticsService;
 
+    private static String organizationId;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
         User currentUser = sessionUserService.getCurrentUser().block();
@@ -248,6 +250,7 @@ public class CommonGitServiceCETest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
+        organizationId = workspace.getOrganizationId();
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
@@ -267,7 +270,7 @@ public class CommonGitServiceCETest {
     public void cleanup() {
         Mockito.when(commonGitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

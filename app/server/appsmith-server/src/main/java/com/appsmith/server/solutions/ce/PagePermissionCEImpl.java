@@ -23,12 +23,12 @@ public class PagePermissionCEImpl implements PagePermissionCE, DomainPermissionC
     }
 
     @Override
-    public AclPermission getDeletePermission() {
+    public AclPermission getDeletePermission(String organizationId) {
         return AclPermission.MANAGE_PAGES;
     }
 
     @Override
-    public AclPermission getActionCreatePermission() {
+    public AclPermission getActionCreatePermission(String organizationId) {
         return AclPermission.MANAGE_PAGES;
     }
 }

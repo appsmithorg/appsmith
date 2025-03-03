@@ -32,6 +32,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -228,8 +229,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         // Fetch branched applicationId if connected to git
         Mono<NewPage> pageMono = getOrCreatePage(branchedApplicationId, branchedPageId, tableName);
 
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
+        Mono<DatasourceStorage> datasourceStorageMono = ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> datasourceService.findById(
+                        datasourceId, datasourcePermission.getActionCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
@@ -500,8 +502,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        return applicationService
-                .findById(branchedApplicationId, applicationPermission.getPageCreatePermission())
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> applicationService.findById(
+                        branchedApplicationId, applicationPermission.getPageCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
                 .flatMap(branchedApplication -> newPageService

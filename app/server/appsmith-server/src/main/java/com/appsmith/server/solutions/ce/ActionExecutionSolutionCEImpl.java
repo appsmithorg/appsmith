@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -254,7 +255,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
-
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
@@ -755,17 +755,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                         .tap(Micrometer.observation(observationRegistry)))
-                .flatMap(tuple2 -> {
-                    DatasourceStorage datasourceStorage1 = tuple2.getT1();
-                    DatasourceContext<?> resourceContext = tuple2.getT2();
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(objects -> {
+                    DatasourceStorage datasourceStorage1 = objects.getT1().getT1();
+                    DatasourceContext<?> resourceContext = objects.getT1().getT2();
+                    String organizationId = objects.getT2().getOrganizationId();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
-                            ? featureFlagService
-                                    .getCachedOrganizationFeatureFlags()
-                                    .getFeatures()
-                            : Collections.emptyMap();
+                    Map<String, Boolean> features =
+                            featureFlagService.getCachedOrganizationFeatureFlags(organizationId) != null
+                                    ? featureFlagService
+                                            .getCachedOrganizationFeatureFlags(organizationId)
+                                            .getFeatures()
+                                    : Collections.emptyMap();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed

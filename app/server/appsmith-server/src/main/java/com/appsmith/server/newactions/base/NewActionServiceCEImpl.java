@@ -35,6 +35,7 @@ import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -795,7 +796,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return deleteUnpublishedAction(id, actionPermission.getDeletePermission());
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user ->
+                        deleteUnpublishedAction(id, actionPermission.getDeletePermission(user.getOrganizationId())));
     }
 
     @Override

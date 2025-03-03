@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -152,7 +153,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
-        return createEx(datasource, workspacePermission.getDatasourceCreatePermission(), false, null);
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> createEx(
+                        datasource,
+                        workspacePermission.getDatasourceCreatePermission(user.getOrganizationId()),
+                        false,
+                        null));
     }
 
     // TODO: Check usage
@@ -880,8 +886,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return repository
-                .findById(id, datasourcePermission.getDeletePermission())
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user ->
+                        repository.findById(id, datasourcePermission.getDeletePermission(user.getOrganizationId())))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))

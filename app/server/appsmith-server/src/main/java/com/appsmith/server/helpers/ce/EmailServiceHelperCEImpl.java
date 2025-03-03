@@ -36,39 +36,39 @@ public class EmailServiceHelperCEImpl implements EmailServiceHelperCE {
     }
 
     @Override
-    public String getForgotPasswordTemplate() {
+    public String getForgotPasswordTemplate(String organizationId) {
         return FORGOT_PASSWORD_TEMPLATE_CE;
     }
 
     @Override
-    public String getWorkspaceInviteTemplate(boolean isNewUser) {
+    public String getWorkspaceInviteTemplate(boolean isNewUser, String organizationId) {
         if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
 
         return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
     }
 
     @Override
-    public String getEmailVerificationTemplate() {
+    public String getEmailVerificationTemplate(String organizationId) {
         return EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE;
     }
 
     @Override
-    public String getAdminInstanceInviteTemplate() {
+    public String getAdminInstanceInviteTemplate(String organizationId) {
         return INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE;
     }
 
     @Override
-    public String getJoinInstanceCtaPrimaryText() {
+    public String getJoinInstanceCtaPrimaryText(String organizationId) {
         return PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_CE;
     }
 
     @Override
-    public String getSubjectJoinInstanceAsAdmin(String instanceName) {
+    public String getSubjectJoinInstanceAsAdmin(String instanceName, String organizationId) {
         return INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT;
     }
 
     @Override
-    public String getSubjectJoinWorkspace(String workspaceName) {
+    public String getSubjectJoinWorkspace(String workspaceName, String organizationId) {
         return INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE;
     }
 }

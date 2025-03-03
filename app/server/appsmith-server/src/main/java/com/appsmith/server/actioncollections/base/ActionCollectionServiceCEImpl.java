@@ -11,10 +11,12 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -280,13 +282,18 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollection(id, null, actionPermission.getDeletePermission());
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> deleteUnpublishedActionCollection(
+                        id, null, actionPermission.getDeletePermission(user.getOrganizationId())));
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollection(
-                id, actionPermission.getDeletePermission(), actionPermission.getDeletePermission());
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> deleteUnpublishedActionCollection(
+                        id,
+                        actionPermission.getDeletePermission(user.getOrganizationId()),
+                        actionPermission.getDeletePermission(user.getOrganizationId())));
     }
 
     @Override
@@ -418,10 +425,17 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     protected Mono<ActionCollection> archiveGivenActionCollection(ActionCollection actionCollection) {
-        Flux<NewAction> unpublishedJsActionsFlux = newActionService.findByCollectionIdAndViewMode(
-                actionCollection.getId(), false, actionPermission.getDeletePermission());
-        Flux<NewAction> publishedJsActionsFlux = newActionService.findByCollectionIdAndViewMode(
-                actionCollection.getId(), true, actionPermission.getDeletePermission());
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
+        Flux<NewAction> unpublishedJsActionsFlux =
+                currentUserMono.flatMapMany(user -> newActionService.findByCollectionIdAndViewMode(
+                        actionCollection.getId(),
+                        false,
+                        actionPermission.getDeletePermission(user.getOrganizationId())));
+        Flux<NewAction> publishedJsActionsFlux =
+                currentUserMono.flatMapMany(user -> newActionService.findByCollectionIdAndViewMode(
+                        actionCollection.getId(),
+                        true,
+                        actionPermission.getDeletePermission(user.getOrganizationId())));
         return unpublishedJsActionsFlux
                 .mergeWith(publishedJsActionsFlux)
                 .flatMap(toArchive -> newActionService

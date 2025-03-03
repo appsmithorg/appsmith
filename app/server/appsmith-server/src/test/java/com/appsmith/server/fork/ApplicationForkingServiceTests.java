@@ -600,6 +600,7 @@ public class ApplicationForkingServiceTests {
         targetWorkspace.setName("Target Workspace");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
         final String workspaceId = targetWorkspace.getId();
+        final String orgId = targetWorkspace.getOrganizationId();
 
         Set<Policy> existingPolicies = targetWorkspace.getPolicies();
         /*
@@ -609,7 +610,7 @@ public class ApplicationForkingServiceTests {
         Set<Policy> newPoliciesWithoutCreateDatasource = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
                         .equals(workspacePermission
-                                .getDatasourceCreatePermission()
+                                .getDatasourceCreatePermission(orgId)
                                 .getValue()))
                 .collect(Collectors.toSet());
         targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);

@@ -26,6 +26,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.dtos.RequestAppsmithTokenDTO;
@@ -33,6 +34,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -422,10 +424,13 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                configService.getInstanceId(), pluginService.findById(datasource.getPluginId()))
+                                configService.getInstanceId(),
+                                pluginService.findById(datasource.getPluginId()),
+                                ReactiveContextUtils.getCurrentUser())
                         .flatMap(tuple -> {
                             String instanceId = tuple.getT1();
                             Plugin plugin = tuple.getT2();
+                            User currentUser = tuple.getT3();
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setInstallationKey(instanceId);
                             integrationDTO.setImportForGit(importForGit);
@@ -444,7 +449,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             requestAppsmithTokenDTO.getContextId(),
                                             requestAppsmithTokenDTO.getContextType())
                                     .map(context -> associateIntegrationDTOWithContext(
-                                            integrationDTO, context, requestAppsmithTokenDTO.getContextType()));
+                                            integrationDTO,
+                                            context,
+                                            requestAppsmithTokenDTO.getContextType(),
+                                            currentUser.getOrganizationId()));
                         }))
                 .flatMap(integrationDTO -> {
                     Mono<ClientResponse> clientResponseMono = WebClientUtils.create(
@@ -562,7 +570,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     }
 
     protected IntegrationDTO associateIntegrationDTOWithContext(
-            IntegrationDTO integrationDTO, BaseDomain baseDomain, CreatorContextType contextType) {
+            IntegrationDTO integrationDTO,
+            BaseDomain baseDomain,
+            CreatorContextType contextType,
+            String organizationId) {
         NewPage pageRedirectionDTO = (NewPage) baseDomain;
         integrationDTO.setPageId(pageRedirectionDTO.getBaseIdOrFallback());
         integrationDTO.setApplicationId(pageRedirectionDTO.getApplicationId());
