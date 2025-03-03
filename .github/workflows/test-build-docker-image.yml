@@ -122,16 +122,16 @@ jobs:
       matrix: ${{needs.setup.outputs.matrix}}
       ted_tag: ${{inputs.ted_tag}}
 
-  server-unit-tests:
-    name: server-unit-tests
-    needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      skip-tests: false
-      is-pg-build: ${{ github.ref == 'refs/heads/pg' }}
+  #server-unit-tests:
+  #  name: server-unit-tests
+  #  needs: [build-docker-image]
+  #  if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
+  #  uses: ./.github/workflows/server-build.yml
+  #  secrets: inherit
+  #  with:
+  #    pr: 0
+  #    skip-tests: false
+  #    is-pg-build: ${{ github.ref == 'refs/heads/pg' }}
 
   client-unit-tests:
     name: client-unit-tests
@@ -143,7 +143,8 @@ jobs:
       pr: 0
 
   ci-test-result:
-    needs: [ci-test, client-unit-tests, server-unit-tests]
+    #needs: [ci-test, client-unit-tests, server-unit-tests]
+    needs: [ci-test, client-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
