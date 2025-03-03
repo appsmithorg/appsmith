@@ -134,7 +134,7 @@ const PageElement = ({
             isHidden: !!page.isHidden,
           }),
         ),
-      validateName: (newName: string) => validateName(newName, page.pageName),
+      validateName: (newName: string) => validateName(newName),
       normalizeName: false,
     };
   }, [
