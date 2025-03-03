@@ -155,9 +155,14 @@ describe(
       agHelper.Sleep();
 
       // Assert context switching works when going back to canvas
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      cy.get(`div.t--entity-item[data-selected='true']`).should(
+        "have.length",
+        1,
+      );
 
-      cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+        "Container1",
+      ]);
       cy.get(".t--property-pane-title").should("contain", "Text1");
 
       // Go back to JS editor

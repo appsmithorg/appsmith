@@ -35,12 +35,20 @@ describe("Fork application with Jsobjects", {}, function () {
     for (let i = 1; i <= 11; i++) {
       agHelper.GetNClick(locators._entityTestId(`JS${i}`));
       agHelper.FailIfErrorToast("");
-      agHelper.AssertClassExists(locators._entityTestId(`JS${i}`), "active");
+      agHelper.AssertAttribute(
+        locators._entityTestId(`JS${i}`),
+        "data-selected",
+        "true",
+      );
     }
     for (let i = 12; i <= 17; i++) {
       agHelper.GetNClick(locators._entityTestId(`J${i}`));
       agHelper.FailIfErrorToast("");
-      agHelper.AssertClassExists(locators._entityTestId(`J${i}`), "active");
+      agHelper.AssertAttribute(
+        locators._entityTestId(`J${i}`),
+        "data-selected",
+        "true",
+      );
     }
 
     jsEditor.CreateJSObject('"MiddleName": "Test",\n', {
@@ -51,9 +59,17 @@ describe("Fork application with Jsobjects", {}, function () {
       lineNumber: 5,
     });
     agHelper.GetNClick(locators._entityTestId("J16"));
-    agHelper.AssertClassExists(locators._entityTestId("J16"), "active");
+    agHelper.AssertAttribute(
+      locators._entityTestId("J16"),
+      "data-selected",
+      "true",
+    );
     agHelper.GetNClick(locators._entityTestId("J17"));
-    agHelper.AssertClassExists(locators._entityTestId("J17"), "active");
+    agHelper.AssertAttribute(
+      locators._entityTestId("J17"),
+      "data-selected",
+      "true",
+    );
     agHelper.GetNAssertContains(".CodeMirror-line ", '"MiddleName": "Test"');
   });
 });

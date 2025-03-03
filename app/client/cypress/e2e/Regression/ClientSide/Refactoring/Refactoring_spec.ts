@@ -82,15 +82,30 @@ describe(
         refactorInput.inputWidget.newName,
       );
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
+
+      EditorNavigation.SelectEntityByName(
+        refactorInput.query.oldName,
+        EntityType.Query,
+      );
       entityExplorer.RenameEntityFromExplorer(
         refactorInput.query.oldName,
         refactorInput.query.newName,
+      );
+
+      EditorNavigation.SelectEntityByName(
+        refactorInput.api.oldName,
+        EntityType.Api,
       );
       entityExplorer.RenameEntityFromExplorer(
         refactorInput.api.oldName,
         refactorInput.api.newName,
       );
+
       PageLeftPane.switchSegment(PagePaneSegment.JS);
+      EditorNavigation.SelectEntityByName(
+        refactorInput.jsObject.oldName,
+        EntityType.JSObject,
+      );
       entityExplorer.RenameEntityFromExplorer(
         refactorInput.jsObject.oldName,
         refactorInput.jsObject.newName,
