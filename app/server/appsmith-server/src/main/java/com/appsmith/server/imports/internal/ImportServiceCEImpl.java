@@ -543,8 +543,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     .as(transactionalOperator::transactional);
 
             return importMono
-                    .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
-                            artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
+                    .flatMap(importableArtifact -> {
+                        return postImportHook(importableArtifact)
+                                .then(sendImportedContextAnalyticsEvent(
+                                        artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT));
+                    })
                     .zipWith(currUserMono)
                     .flatMap(tuple -> {
                         Artifact importableArtifact = tuple.getT1();
@@ -563,6 +566,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
         return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Void> postImportHook(Artifact artifact) {
+        return Mono.empty();
     }
 
     /**
