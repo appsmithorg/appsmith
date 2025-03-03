@@ -1,33 +1,31 @@
 import React, { type Ref } from "react";
-import type { Row as ReactTableRowType } from "react-table";
 import { type ReactElementType } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
-import type { TableSizes } from "../../Constants";
+import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
+import { useAppsmithTable } from "../../TableContext";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
-import { FixedInfiniteVirtualList } from "../VirtualList";
 
 interface InfiniteScrollBodyProps {
-  rows: ReactTableRowType<Record<string, unknown>>[];
-  height: number;
-  tableSizes: TableSizes;
-  innerElementType?: ReactElementType;
-  isLoading: boolean;
-  totalRecordsCount?: number;
-  itemCount: number;
-  loadMoreFromEvaluations: () => void;
-  pageSize: number;
+  innerElementType: ReactElementType;
 }
 
 const InfiniteScrollBody = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
-    const { isLoading, loadMoreFromEvaluations, pageSize, rows } = props;
+    const {
+      height,
+      isLoading,
+      nextPageClick,
+      pageSize,
+      subPage: rows,
+      tableSizes,
+    } = useAppsmithTable();
     const { isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
         rows,
         totalRecordsCount: rows.length,
         isLoading,
-        loadMore: loadMoreFromEvaluations,
+        loadMore: nextPageClick,
         pageSize,
       });
 
@@ -40,14 +38,14 @@ const InfiniteScrollBody = React.forwardRef(
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
             <FixedInfiniteVirtualList
-              height={props.height}
+              height={height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
               onItemsRendered={onItemsRendered}
               outerRef={ref}
-              pageSize={props.pageSize}
-              rows={props.rows}
-              tableSizes={props.tableSizes}
+              pageSize={pageSize}
+              rows={rows}
+              tableSizes={tableSizes}
             />
           )}
         </InfiniteLoader>
