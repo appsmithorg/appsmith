@@ -52,6 +52,11 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     loading: false,
     error: null,
   },
+  latestCommit: {
+    value: null,
+    loading: false,
+    error: null,
+  },
   pull: {
     loading: false,
     error: null,
