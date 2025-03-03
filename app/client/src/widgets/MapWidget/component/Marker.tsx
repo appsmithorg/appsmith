@@ -87,12 +87,20 @@ const Marker: React.FC<MarkerProps> = (options) => {
 
   // add dragend event on marker
   useEffect(() => {
-    if (!marker) return;
+    if (!marker || !onDragEnd) return;
 
-    marker.addListener("dragend", (e: google.maps.MapMouseEvent) => {
-      if (onDragEnd) onDragEnd(e);
-    });
-  }, [marker, options.onDragEnd]);
+    google.maps.event.clearListeners(marker, "dragend");
+    const dragEndListener = marker.addListener(
+      "dragend",
+      (e: google.maps.MapMouseEvent) => {
+        if (onDragEnd) onDragEnd(e);
+      },
+    );
+
+    return () => {
+      google.maps.event.removeListener(dragEndListener);
+    };
+  }, [marker, onDragEnd]);
 
   return null;
 };
