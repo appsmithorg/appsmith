@@ -46,7 +46,6 @@ import PremiumDatasources from "./PremiumDatasources";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
 import {
   getFilteredPremiumIntegrations,
-  isPluginInBetaState,
   type PremiumIntegration,
 } from "./PremiumDatasources/Constants";
 import { getDatasourcesLoadingState } from "selectors/datasourceSelectors";
@@ -55,6 +54,7 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { isPluginInBetaState } from "./PremiumDatasources/Helpers";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
