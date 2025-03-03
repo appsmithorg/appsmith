@@ -354,7 +354,7 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
-  const shouldShowSkeleton = useCallback(() => {
+  const shouldShowSkeleton = useMemo(() => {
     // Case 1: Loading without infinite scroll
     if (props.isLoading && !props.isInfiniteScrollEnabled) {
       return true;
@@ -369,8 +369,8 @@ export function Table(props: TableProps) {
     return false;
   }, [props.isLoading, props.isInfiniteScrollEnabled, subPage.length]);
 
-  const getTableWrapClassName = useCallback(() => {
-    if (shouldShowSkeleton()) {
+  const getTableWrapClassName = useMemo(() => {
+    if (shouldShowSkeleton) {
       return Classes.SKELETON;
     }
 
