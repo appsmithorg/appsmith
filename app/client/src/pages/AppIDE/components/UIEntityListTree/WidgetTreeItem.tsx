@@ -12,9 +12,10 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { useSwitchToWidget } from "./hooks/useSwitchToWidget";
 import { WidgetTypeIcon } from "./WidgetTypeIcon";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
-  const widget = useSelector(getWidgetByID(item.id));
+  const widget: WidgetProps | undefined = useSelector(getWidgetByID(item.id));
   const switchToWidget = useSwitchToWidget();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -36,15 +37,15 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
     useNameEditorState();
 
   const validateName = useValidateEntityName({
-    entityName: widget.widgetName,
-    entityId: widget.widgetId,
+    entityName: widget?.widgetName,
+    entityId: widget?.widgetId,
   });
 
-  const isLoading = updatingEntity === widget.widgetId;
-  const isEditing = editingEntity === widget.widgetId;
+  const isLoading = widget ? updatingEntity === widget?.widgetId : false;
+  const isEditing = widget ? editingEntity === widget?.widgetId : false;
   const onNameSave = useCallback(
-    (newName: string) => handleNameSave(widget.widgetId, newName),
-    [handleNameSave, widget.widgetId],
+    (newName: string) => handleNameSave(widget?.widgetId, newName),
+    [handleNameSave, widget?.widgetId],
   );
 
   const nameEditorConfig = useMemo(
@@ -67,8 +68,8 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
   );
 
   const startIcon = useMemo(
-    () => <WidgetTypeIcon type={widget.type} />,
-    [widget.type],
+    () => <WidgetTypeIcon type={widget?.type} />,
+    [widget?.type],
   );
 
   const onClick = useCallback(
@@ -77,19 +78,21 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
   );
 
   const onDoubleClick = useCallback(
-    () => enterEditMode(widget.widgetId),
-    [enterEditMode, widget.widgetId],
+    () => enterEditMode(widget?.widgetId),
+    [enterEditMode, widget?.widgetId],
   );
 
   const rightControl = useMemo(
     () => (
       <WidgetContextMenu
         canManagePages={canManagePages}
-        widgetId={widget.widgetId}
+        widgetId={widget?.widgetId}
       />
     ),
-    [canManagePages, widget.widgetId],
+    [canManagePages, widget?.widgetId],
   );
+
+  if (!widget) return null;
 
   return (
     <EntityItem
@@ -101,7 +104,7 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
       rightControl={rightControl}
       rightControlVisibility="hover"
       startIcon={startIcon}
-      title={widget.widgetName}
+      title={widget?.widgetName}
     />
   );
 };
