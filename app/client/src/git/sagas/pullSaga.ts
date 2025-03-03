@@ -33,7 +33,7 @@ export default function* pullSaga(
       yield put(
         gitArtifactActions.pullSuccess({
           artifactDef,
-          responseData: response.data,
+          responseData: response.data.artifact,
         }),
       );
     }

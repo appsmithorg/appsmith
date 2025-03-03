@@ -100,7 +100,7 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
       onEditComplete: exitEditMode,
       onNameSave: (newName: string) =>
         dispatch(saveActionNameBasedOnIdeType(action.id, newName, ideType)),
-      validateName: (newName: string) => validateName(newName, item.title),
+      validateName: (newName: string) => validateName(newName),
     };
   }, [
     canManageAction,
