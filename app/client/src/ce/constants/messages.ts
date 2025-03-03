@@ -2628,6 +2628,7 @@ export const PREMIUM_DATASOURCES = {
   COMING_SOON_DESCRIPTION: () =>
     "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
+  BETA_TAG: () => "Beta",
 };
 
 export const DATASOURCE_SECURE_TEXT = () =>

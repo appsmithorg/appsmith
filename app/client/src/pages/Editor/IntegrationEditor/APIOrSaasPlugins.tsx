@@ -28,6 +28,7 @@ import {
   DatasourceSection,
   DatasourceSectionHeading,
   StyledDivider,
+  BetaTag,
 } from "./IntegrationStyledComponents";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import DatasourceItem from "./DatasourceItem";
@@ -38,6 +39,7 @@ import {
   CREATE_NEW_DATASOURCE_REST_API,
   CREATE_NEW_SAAS_SECTION_HEADER,
   createMessage,
+  PREMIUM_DATASOURCES,
 } from "ee/constants/messages";
 import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
@@ -52,6 +54,7 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { isPluginInBetaState } from "./PremiumDatasources/Helpers";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -229,7 +232,16 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           icon={getAssetUrl(p.iconLocation)}
           key={p.id}
           name={p.name}
-          rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
+          rightSibling={
+            <>
+              {isPluginInBetaState(p) ? (
+                <BetaTag isClosable={false}>
+                  {createMessage(PREMIUM_DATASOURCES.BETA_TAG)}
+                </BetaTag>
+              ) : null}
+              {isCreating && <Spinner className="cta" size={"sm"} />}
+            </>
+          }
         />
       ))}
       <PremiumDatasources plugins={props.premiumPlugins} />
@@ -328,7 +340,9 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
-  const pluginNames = allPlugins.map((plugin) => plugin.name);
+  const pluginNames = allPlugins.map((plugin) =>
+    plugin.name.toLocaleLowerCase(),
+  );
 
   const premiumPlugins =
     props.showSaasAPIs && props.isPremiumDatasourcesViewEnabled
