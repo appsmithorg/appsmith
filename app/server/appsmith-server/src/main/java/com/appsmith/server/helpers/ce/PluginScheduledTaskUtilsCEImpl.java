@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsCE {
 
     private final ConfigService configService;
-    private final CloudServicesConfig cloudServicesConfig;
     protected final PluginService pluginService;
+    private final CloudServicesConfig cloudServicesConfig;
 
     private Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> getRemotePlugins(Instant lastUpdatedAt) {
         return this.fetchPluginsFromCS(lastUpdatedAt, "/api/v1/plugins");
