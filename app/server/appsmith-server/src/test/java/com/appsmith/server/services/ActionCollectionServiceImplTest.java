@@ -12,9 +12,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -32,9 +34,11 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -99,6 +103,17 @@ public class ActionCollectionServiceImplTest {
 
     @MockBean
     private PolicyGenerator policyGenerator;
+
+    @BeforeAll
+    public static void beforeAll() {
+        User mockUser = new User();
+        mockUser.setOrganizationId("testOrgId");
+        MockedStatic<ReactiveContextUtils> reactiveContextUtilsMockedStatic =
+                Mockito.mockStatic(ReactiveContextUtils.class);
+        reactiveContextUtilsMockedStatic
+                .when(ReactiveContextUtils::getCurrentUser)
+                .thenReturn(Mono.just(mockUser));
+    }
 
     @BeforeEach
     public void setUp() {
