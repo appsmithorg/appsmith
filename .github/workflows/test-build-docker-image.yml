@@ -122,16 +122,16 @@ jobs:
       matrix: ${{needs.setup.outputs.matrix}}
       ted_tag: ${{inputs.ted_tag}}
 
-  #server-unit-tests:
-  #  name: server-unit-tests
-  #  needs: [build-docker-image]
-  #  if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
-  #  uses: ./.github/workflows/server-build.yml
-  #  secrets: inherit
-  #  with:
-  #    pr: 0
-  #    skip-tests: false
-  #    is-pg-build: ${{ github.ref == 'refs/heads/pg' }}
+  server-unit-tests:
+    name: server-unit-tests
+    needs: [build-docker-image]
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: false
+      is-pg-build: ${{ github.ref == 'refs/heads/pg' }}
 
   client-unit-tests:
     name: client-unit-tests
@@ -143,8 +143,7 @@ jobs:
       pr: 0
 
   ci-test-result:
-    #needs: [ci-test, client-unit-tests, server-unit-tests]
-    needs: [ci-test, client-unit-tests]
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
@@ -280,8 +279,7 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          #if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
-          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" ]]; then
+          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
             echo "Integration, Client unit and Server unit tests completed successfully!";
             exit 0;
           elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
@@ -290,15 +288,15 @@ jobs:
           elif [[ "${{ needs.client-unit-tests.result }}" == "skipped" ]]; then
             echo "Client unit tests were skipped";
             exit 1;
-          #elif [[ "${{ needs.server-unit-tests.result }}" == "skipped" ]]; then
-          #  echo "Server unit tests were skipped";
-          #  exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "skipped" ]]; then
+            echo "Server unit tests were skipped";
+            exit 1;
           elif [[ "${{ needs.client-unit-tests.result }}" == "failure" ]]; then
             echo "Client unit tests have failed";
             exit 1;
-          #elif [[ "${{ needs.server-unit-tests.result }}" == "failure" ]]; then
-          #  echo "Server unit tests have failed";
-          #  exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "failure" ]]; then
+            echo "Server unit tests have failed";
+            exit 1;
           else
             echo "Integration tests have failed";
             exit 1;
@@ -397,8 +395,7 @@ jobs:
             org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
 
   package-master:
-    #needs: [ci-test, client-unit-tests, server-unit-tests]
-    needs: [ci-test, client-unit-tests]
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:

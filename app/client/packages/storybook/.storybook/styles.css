@@ -34,3 +34,11 @@ body,
 *:focus {
   outline: none;
 }
+
+.sb-unstyled {
+  background: none !important;
+}
+
+.docblock-argstable-body td {
+  background: none !important;
+}
