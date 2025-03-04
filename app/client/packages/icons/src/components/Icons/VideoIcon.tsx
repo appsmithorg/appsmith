@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const VideoIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M10.757 7.929a.5.5 0 0 0 0-.858l-5-3A.5.5 0 0 0 5 4.5v6a.5.5 0 0 0 .757.429zM6 5.383 9.528 7.5 6 9.617z" clipRule="evenodd" /><path fill="#4C5664" fillRule="evenodd" d="M2.5 1A2.5 2.5 0 0 0 0 3.5v8A2.5 2.5 0 0 0 2.5 14h10a2.5 2.5 0 0 0 2.5-2.5v-8A2.5 2.5 0 0 0 12.5 1zM1 3.5A1.5 1.5 0 0 1 2.5 2h10A1.5 1.5 0 0 1 14 3.5v8a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 1 11.5z" clipRule="evenodd" /></svg>;
+export { VideoIcon };

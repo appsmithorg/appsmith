@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const ImageIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M3 5a2 2 0 1 1 4 0 2 2 0 0 1-4 0m2-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2" clipRule="evenodd" /><path fill="#4C5664" fillRule="evenodd" d="M1 3.5A2.5 2.5 0 0 1 3.5 1h8A2.5 2.5 0 0 1 14 3.5v8a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 1 11.5zM3.5 2A1.5 1.5 0 0 0 2 3.5v8a1.5 1.5 0 0 0 1.305 1.488l6.841-6.842a.5.5 0 0 1 .708 0L13 8.293V3.5A1.5 1.5 0 0 0 11.5 2zM13 9.707l-2.5-2.5L4.707 13H11.5a1.5 1.5 0 0 0 1.5-1.5z" clipRule="evenodd" /></svg>;
+export { ImageIcon };

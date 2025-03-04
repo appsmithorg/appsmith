@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const CategorySliderIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M5.724 7.947a.5.5 0 0 1-.671-.223L4.69 7H2.309l-.362.724a.5.5 0 1 1-.894-.448l2-4a.5.5 0 0 1 .894 0l2 4a.5.5 0 0 1-.223.671M4.19 6 3.5 4.618 2.809 6zM5.05 11H1.5a.5.5 0 0 0 0 1h3.55a2.5 2.5 0 0 0 4.9 0h3.55a.5.5 0 0 0 0-1H9.95a2.5 2.5 0 0 0-4.9 0m2.45-1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3" clipRule="evenodd" /><path fill="#4C5664" d="M9 3.5a.5.5 0 0 0 .5.5h2.793L9.146 7.146A.5.5 0 0 0 9.5 8h4a.5.5 0 0 0 0-1h-2.793l3.147-3.146A.5.5 0 0 0 13.5 3h-4a.5.5 0 0 0-.5.5" /></svg>;
+export { CategorySliderIcon };

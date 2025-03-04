@@ -7,6 +7,7 @@ export enum GitArtifactType {
 export enum GitOpsTab {
   Deploy = "Deploy",
   Merge = "Merge",
+  Release = "Release",
 }
 
 export enum GitSettingsTab {

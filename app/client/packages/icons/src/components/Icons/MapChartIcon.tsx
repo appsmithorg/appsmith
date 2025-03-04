@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const MapChartIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M9.5 2.941 5.725 1.054a.5.5 0 0 0-.45 0L1.276 3.053A.5.5 0 0 0 1 3.5v10a.5.5 0 0 0 .724.447L5.5 12.06l3.776 1.888M9 3.81l-3-1.5v8.882l3 1.5zm-4-1.5v8.882l-3 1.5V3.809z" clipRule="evenodd" /><path fill="#4C5664" fillRule="evenodd" d="m9.5 2.941 3.776-1.888A.5.5 0 0 1 14 1.5v10a.5.5 0 0 1-.276.447l-3.998 2h-.002a.5.5 0 0 1-.448 0M10 12.691V3.809l3-1.5v8.882z" clipRule="evenodd" /></svg>;
+export { MapChartIcon };
