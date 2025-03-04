@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const CodeScannerIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" d="M2 5.5a.5.5 0 0 0 1 0V3h2.5a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5zM9 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3H9.5a.5.5 0 0 1-.5-.5M9 12.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-1 0V12H9.5a.5.5 0 0 0-.5.5M2.5 9a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1H3V9.5a.5.5 0 0 0-.5-.5M.5 7a.5.5 0 0 0 0 1h14a.5.5 0 0 0 0-1z" /></svg>;
+export { CodeScannerIcon };
