@@ -5,6 +5,7 @@ import DefaultBranch from "git/ee/components/DefaultBranch";
 
 const Container = styled.div`
   overflow: auto;
+  min-height: 300px;
 `;
 
 interface TabBranchProps {
