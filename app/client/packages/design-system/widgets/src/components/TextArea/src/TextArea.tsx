@@ -30,6 +30,7 @@ export function TextArea(props: TextAreaProps) {
     isReadOnly,
     isRequired,
     label,
+    maxRows,
     onChange,
     rows = 3,
     size,
@@ -44,9 +45,7 @@ export function TextArea(props: TextAreaProps) {
     () => {},
   );
 
-  const [textFieldHeight, setTextFieldHeightHeight] = useState<number | null>(
-    null,
-  );
+  const [textFieldHeight, setTextFieldHeight] = useState<number | null>(null);
 
   const onHeightChange = useCallback(() => {
     // Quiet textareas always grow based on their text content.
@@ -72,7 +71,7 @@ export function TextArea(props: TextAreaProps) {
       const paddingTop = parseFloat(computedStyle.paddingTop);
       const paddingBottom = parseFloat(computedStyle.paddingBottom);
 
-      setTextFieldHeightHeight(height + paddingTop + paddingBottom);
+      setTextFieldHeight(height + paddingTop + paddingBottom);
 
       input.style.height = `${
         // subtract comptued padding and border to get the actual content height
@@ -113,6 +112,9 @@ export function TextArea(props: TextAreaProps) {
     "--input-height": Boolean(textFieldHeight)
       ? `${textFieldHeight}px`
       : "auto",
+    "--max-height": Boolean(maxRows)
+      ? `calc(${maxRows} * var(--body-line-height))`
+      : "none",
   } as React.CSSProperties;
 
   return (
