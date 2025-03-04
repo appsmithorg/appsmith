@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const CameraIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M7.5 12a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7M5 8.5a2.5 2.5 0 1 0 5 0 2.5 2.5 0 0 0-5 0" clipRule="evenodd" /><path fill="#4C5664" fillRule="evenodd" d="M4.776 1.83A1.5 1.5 0 0 1 6.118 1h2.764a1.5 1.5 0 0 1 1.342.83l.447.894a.5.5 0 0 0 .447.276H13.5A1.5 1.5 0 0 1 15 4.5v8a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 0 12.5v-8A1.5 1.5 0 0 1 1.5 3H2V2h1v1h.882a.5.5 0 0 0 .447-.276zM6.118 2a.5.5 0 0 0-.447.276l-.447.895A1.5 1.5 0 0 1 3.882 4H1.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2.382a1.5 1.5 0 0 1-1.342-.83l-.447-.894A.5.5 0 0 0 8.882 2z" clipRule="evenodd" /></svg>;
+export { CameraIcon };

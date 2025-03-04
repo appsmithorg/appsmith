@@ -9,6 +9,7 @@ import type {
 } from "./EntityListTree.types";
 import { ExplorerContainer } from "../ExplorerContainer";
 import { Flex, Icon } from "../../..";
+import { EntityItem } from "../EntityItem";
 import { noop } from "lodash";
 
 const meta: Meta<typeof EntityListTree> = {
@@ -18,7 +19,6 @@ const meta: Meta<typeof EntityListTree> = {
 
 export default meta;
 
-const onClick = noop;
 const nameEditorConfig = {
   canEdit: true,
   isEditing: false,
@@ -28,60 +28,50 @@ const nameEditorConfig = {
   validateName: () => null,
 };
 
+const names = {
+  "1": "Parent 1",
+  "1.1": "Child 1.1",
+  "1.1.1": "Child 1.1.1",
+  "1.1.2": "Child 1.1.2",
+  "1.2": "Child 1.2",
+  "2": "Parent 2",
+};
+
 const Tree: EntityListTreeProps["items"] = [
   {
-    startIcon: <Icon name="apps-line" />,
     id: "1",
-    title: "Parent 1",
     isExpanded: true,
-    onClick,
-    nameEditorConfig,
+    isSelected: false,
     children: [
       {
-        startIcon: <Icon name="apps-line" />,
         id: "1.1",
-        title: "Child 1",
         isExpanded: false,
         isSelected: true,
-        onClick,
-        nameEditorConfig,
         children: [
           {
-            startIcon: <Icon name="apps-line" />,
             id: "1.1.1",
-            title: "Grandchild 1",
             isExpanded: false,
-            onClick,
-            nameEditorConfig,
+            isSelected: false,
           },
           {
-            startIcon: <Icon name="apps-line" />,
             id: "1.1.2",
             isDisabled: true,
-            title: "Grandchild 2",
             isExpanded: false,
-            onClick,
-            nameEditorConfig,
+            isSelected: false,
           },
         ],
       },
       {
-        startIcon: <Icon name="apps-line" />,
         id: "1.2",
-        title: "Child 2",
         isExpanded: false,
-        onClick,
-        nameEditorConfig,
+        isSelected: false,
       },
     ],
   },
   {
-    startIcon: <Icon name="apps-line" />,
     id: "2",
-    title: "Parent 2",
     isExpanded: false,
-    onClick,
-    nameEditorConfig,
+    isSelected: false,
   },
 ];
 
@@ -97,28 +87,9 @@ const treeUpdate = (
   });
 };
 
-const Template = (props: { outsideSelection: string }) => {
-  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
-  const [selected, setSelected] = React.useState<string | null>(
-    props.outsideSelection,
-  );
+const EntityItemComponent = (props: { item: EntityListTreeItem }) => {
+  const { item } = props;
   const [editing, setEditing] = React.useState<string | null>(null);
-
-  useEffect(
-    function handleSyncOfSelection() {
-      setSelected(props.outsideSelection);
-    },
-    [props.outsideSelection],
-  );
-
-  const onExpandClick = (id: string) => {
-    setExpanded((prev) => ({ ...prev, [id]: !Boolean(prev[id]) }));
-  };
-
-  const onItemSelect = (id: string) => {
-    setSelected(id);
-  };
-
   const onItemEdit = (id: string) => {
     setEditing(id);
   };
@@ -127,27 +98,56 @@ const Template = (props: { outsideSelection: string }) => {
     setEditing(null);
   };
 
+  return (
+    <EntityItem
+      {...item}
+      nameEditorConfig={{
+        ...nameEditorConfig,
+        isEditing: item.id === editing,
+        onEditComplete: completeEdit,
+        onNameSave: noop,
+        validateName: () => null,
+      }}
+      onClick={noop}
+      onDoubleClick={() => onItemEdit(item.id)}
+      startIcon={<Icon name="apps-line" />}
+      title={names[item.id as keyof typeof names] || item.id}
+    />
+  );
+};
+
+const Template = (props: { selectedItem: string }) => {
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
+  const [selected, setSelected] = React.useState<string | null>(
+    props.selectedItem,
+  );
+
+  useEffect(
+    function handleSyncOfSelection() {
+      setSelected(props.selectedItem);
+    },
+    [props.selectedItem],
+  );
+
+  const onExpandClick = (id: string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !Boolean(prev[id]) }));
+  };
+
   const updatedTree = treeUpdate(Tree, (item) => ({
     ...item,
     isExpanded: Boolean(expanded[item.id]),
     isSelected: item.id === selected,
-    onClick: () => onItemSelect(item.id),
-    onDoubleClick: () => onItemEdit(item.id),
-    nameEditorConfig: {
-      canEdit: true,
-      isEditing: item.id === editing,
-      isLoading: false,
-      onEditComplete: completeEdit,
-      onNameSave: noop,
-      validateName: () => null,
-    },
   }));
 
   return (
     <Flex bg="white" overflow="hidden" width="400px">
       <ExplorerContainer borderRight="STANDARD" height="500px" width="255px">
         <Flex flexDirection="column" gap="spaces-2" p="spaces-3">
-          <EntityListTree items={updatedTree} onItemExpand={onExpandClick} />
+          <EntityListTree
+            ItemComponent={EntityItemComponent}
+            items={updatedTree}
+            onItemExpand={onExpandClick}
+          />
         </Flex>
       </ExplorerContainer>
     </Flex>
@@ -157,5 +157,5 @@ const Template = (props: { outsideSelection: string }) => {
 export const Basic = Template.bind({}) as StoryObj;
 
 Basic.args = {
-  outsideSelection: "1",
+  selectedItem: "1",
 };

@@ -1,19 +1,13 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import {
-  useRouteMatch,
-  Route,
-  useLocation,
-  useHistory,
-} from "react-router-dom";
+import { useRouteMatch, useLocation, useHistory } from "react-router-dom";
 import MemberSettings from "ee/pages/workspace/Members";
 import { GeneralSettings } from "pages/workspace/General";
 import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import { navigateToTab } from "ee/pages/workspace/helpers";
 import styled from "styled-components";
 
-import * as Sentry from "@sentry/react";
 import { APPLICATIONS_URL } from "constants/routes/baseRoutes";
-export const SentryRoute = Sentry.withSentryRouting(Route);
+import { SentryRoute } from "components/SentryRoute";
 
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);

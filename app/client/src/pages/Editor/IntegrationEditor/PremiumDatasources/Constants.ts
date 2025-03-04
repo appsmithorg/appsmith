@@ -6,7 +6,7 @@ export interface PremiumIntegration {
   icon: string;
 }
 
-export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
+const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   {
     name: "Zendesk",
     icon: getAssetUrl(`${ASSETS_CDN_URL}/zendesk-icon.png`),
@@ -27,11 +27,12 @@ export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
 
 export const getFilteredPremiumIntegrations = (
   isExternalSaasEnabled: boolean,
+  pluginNames: string[],
 ) => {
   return isExternalSaasEnabled
     ? PREMIUM_INTEGRATIONS.filter(
         (integration) =>
-          integration.name !== "Salesforce" && integration.name !== "Zendesk",
+          !pluginNames.includes(integration.name.toLocaleLowerCase()),
       )
     : PREMIUM_INTEGRATIONS;
 };
@@ -41,3 +42,7 @@ export const PREMIUM_INTEGRATION_CONTACT_FORM =
 
 export const SCHEDULE_CALL_URL =
   "https://calendly.com/carina-neves-fonseca/appsmith";
+
+export const RELEASED_PREMIUM_PLUGINS: string[] = [
+  // Add new released integration plugin names here
+].map((name: string) => name.toLocaleLowerCase());

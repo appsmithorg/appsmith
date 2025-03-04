@@ -2246,7 +2246,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             Mono<? extends ArtifactExchangeJson> artifactJsonFromLastCommitMono = gitHandlingService
                                     .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
                                     .onErrorResume(exception -> {
-                                        log.error("Git recreate Artifact Json Failed : {}", exception.getMessage());
+                                        log.error(
+                                                "Git recreate Artifact Json Failed : {}",
+                                                exception.getMessage(),
+                                                exception);
 
                                         return Mono.error(
                                                 new AppsmithException(
