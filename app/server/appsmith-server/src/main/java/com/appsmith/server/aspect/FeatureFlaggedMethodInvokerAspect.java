@@ -70,8 +70,8 @@ public class FeatureFlaggedMethodInvokerAspect {
         String organizationId = extractOrganizationId(joinPoint.getArgs(), method.getParameters());
 
         if (!StringUtils.hasLength(organizationId)) {
-            String errorMessage = "Add a parameter named organizationId to the method to fetch organization-specific "
-                    + "feature flags for non-reactive methods";
+            String errorMessage =
+                    "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods";
             AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
             log.error(exception.getMessage());
             throw exception;

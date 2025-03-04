@@ -176,8 +176,7 @@ class FeatureFlaggedMethodInvokerAspectTest {
                             "FeatureFlagged",
                             "TestComponentImpl",
                             "ceEeSyncMethodWithoutOrgId",
-                            "Add a parameter named organizationId to the method to fetch organization-specific "
-                                    + "feature flags for non-reactive methods"),
+                            "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods"),
                     e.getMessage());
         } catch (Exception e) {
             assert false;
