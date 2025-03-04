@@ -123,7 +123,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GitBranchesITWithCentralService {
+public class GitBranchesWithCentralServiceIT {
 
     @Autowired
     @RegisterExtension
