@@ -16,7 +16,7 @@ const CenteredIconButton = styled(Button)<{
 
 const PrimaryBox = styled.div`
   display: flex;
-  width: min-content;
+  width: 100%;
   flex-direction: column;
   padding: 10px 0px 0px 0px;
 
@@ -36,12 +36,6 @@ const SecondaryBox = styled.div`
     flex: 1;
     margin-right: 8px;
     margin-bottom: 8px;
-  }
-
-  & > .t--form-control-DROP_DOWN,
-  & > .t--form-control-DROP_DOWN > div > div,
-  & > .t--form-control-DROP_DOWN > div > div > div > div {
-    width: 12vw;
   }
 `;
 
@@ -81,10 +75,7 @@ function NestedComponents(props: any) {
                 sch = {
                   ...sch,
                   configProperty: `${field}.${sch.key}`,
-                  customStyles: {
-                    width: "20vw",
-                    ...(props.customStyles ?? {}),
-                  },
+                  customStyles: props.customStyles,
                 };
 
                 return (

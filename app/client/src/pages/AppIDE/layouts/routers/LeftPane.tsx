@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "ee/AppRouter";
 import {
   APP_LIBRARIES_EDITOR_PATH,
   APP_PACKAGES_EDITOR_PATH,
@@ -18,6 +17,7 @@ import LibrarySidePane from "ee/pages/AppIDE/components/LibrariesList/LibrarySid
 import { getDatasourceUsageCountForApp } from "ee/selectors/entitiesSelector";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { Flex } from "@appsmith/ads";
+import { SentryRoute } from "components/SentryRoute";
 
 const LeftPane = () => {
   const { path } = useRouteMatch();
@@ -48,6 +48,7 @@ const LeftPane = () => {
     <Flex
       backgroundColor="var(--ads-v2-color-bg)"
       borderRight="1px solid var(--ads-v2-color-border)"
+      flexDirection="column"
       height="100%"
       overflow="hidden"
     >

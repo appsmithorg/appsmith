@@ -88,6 +88,11 @@ export const selectCommitState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.commit;
 
+export const selectLatestCommitState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.latestCommit;
+
 export const selectDiscardState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,

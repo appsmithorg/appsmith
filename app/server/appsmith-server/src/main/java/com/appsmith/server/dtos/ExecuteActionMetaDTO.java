@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.domains.Plugin;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +15,5 @@ public class ExecuteActionMetaDTO {
     String environmentId;
     HttpHeaders headers;
     boolean operateWithoutPermission = false;
+    Plugin plugin;
 }
