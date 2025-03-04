@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsCE {
-
+    private final String REMOTE_PLUGINS_FETCH_URL = "/api/v1/plugins";
     private final ConfigService configService;
     protected final PluginService pluginService;
     private final CloudServicesConfig cloudServicesConfig;
 
     private Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> getRemotePlugins(Instant lastUpdatedAt) {
-        return this.fetchPluginsFromCS(lastUpdatedAt, "/api/v1/plugins");
+        return this.fetchPluginsFromCS(lastUpdatedAt, REMOTE_PLUGINS_FETCH_URL);
     }
 
     protected Mono<Map<PluginScheduledTaskCEImpl.PluginIdentifier, Plugin>> fetchPluginsFromCS(
