@@ -1,22 +1,32 @@
 import React from "react";
-import { Flex, Text } from "@appsmith/ads";
+import styled from "styled-components";
+import { Text } from "@appsmith/ads";
 
-interface PaneHeaderProps {
+interface Props {
   title: string;
-  desc?: string;
   rightIcon?: React.ReactNode;
   className?: string;
 }
 
-function PaneHeader({ className, desc, rightIcon, title }: PaneHeaderProps) {
+const Container = styled.div`
+  background: var(--ads-v2-color-gray-50);
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  padding-right: var(--ads-v2-spaces-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  span {
+    line-height: 20px;
+  }
+`;
+
+function PaneHeader(props: Props) {
   return (
-    <Flex alignItems="center" className={className} padding="spaces-4">
-      <Flex flex={1} flexDirection="column" gap="spaces-2">
-        <Text kind="heading-xs">{title}</Text>
-        {desc && <Text kind="body-s">{desc}</Text>}
-      </Flex>
-      {rightIcon ? rightIcon : null}
-    </Flex>
+    <Container className={props.className}>
+      <Text kind="heading-xs">{props.title}</Text>
+      {props.rightIcon ? props.rightIcon : null}
+    </Container>
   );
 }
 

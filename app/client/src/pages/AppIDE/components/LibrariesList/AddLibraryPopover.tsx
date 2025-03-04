@@ -29,7 +29,7 @@ const AddLibraryPopover = () => {
         <Button
           className="t--install-library-button"
           isIconButton
-          kind="secondary"
+          kind="tertiary"
           onClick={() => setOpen(true)}
           size="sm"
           startIcon="add-line"

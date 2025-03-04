@@ -24,11 +24,7 @@ function JSLibrariesSection(props: { showAddButton: boolean }) {
 
   return (
     <>
-      <PaneHeader
-        desc="Integrate external JS code via URL"
-        rightIcon={rightIcon}
-        title="Installed Libraries"
-      />
+      <PaneHeader rightIcon={rightIcon} title="Installed Libraries" />
       {transitions((style, lib) => (
         <animated.div style={style}>
           <LibraryEntity lib={lib} />

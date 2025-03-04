@@ -63,7 +63,6 @@ const Library = styled.li`
   position: relative;
   line-height: 17px;
   padding-left: 8px;
-  padding-right: 8px;
 
   > div:first-child {
     height: 36px;
@@ -173,7 +172,7 @@ const Name = styled.div`
 const Version = styled.div<{ version?: string }>`
   flex-shrink: 0;
   display: ${(props) => (props.version ? "block" : "none")};
-  margin: ${(props) => (props.version ? "0 4px" : "0")};
+  margin: ${(props) => (props.version ? "0 8px" : "0")};
 `;
 
 const PrimaryCTA = function ({ lib }: { lib: JSLibrary }) {

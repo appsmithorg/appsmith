@@ -5,7 +5,6 @@ import styled from "styled-components";
 
 const Container = styled.div`
   overflow: auto;
-  min-height: 300px;
 `;
 
 interface TabGeneralProps {
