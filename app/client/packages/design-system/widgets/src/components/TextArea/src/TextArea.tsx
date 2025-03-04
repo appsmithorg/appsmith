@@ -30,6 +30,7 @@ export function TextArea(props: TextAreaProps) {
     isReadOnly,
     isRequired,
     label,
+    maxHeight,
     onChange,
     rows = 3,
     size,
@@ -113,6 +114,7 @@ export function TextArea(props: TextAreaProps) {
     "--input-height": Boolean(textFieldHeight)
       ? `${textFieldHeight}px`
       : "auto",
+    "--max-height": Boolean(maxHeight) ? `${maxHeight}px` : "none",
   } as React.CSSProperties;
 
   return (

@@ -51,6 +51,7 @@
   align-items: flex-start;
   resize: none;
   font-family: inherit;
+  max-height: var(--max-height);
 }
 
 .input:autofill,
