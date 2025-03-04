@@ -97,6 +97,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.constants.ce.FieldNameCE.NONE;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -292,11 +293,38 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .operateWithoutPermission(operateWithoutPermission)
                 .environmentId(environmentId)
                 .build();
-        Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);
-        return executeActionDTOMono
-                .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                .tap(Micrometer.observation(observationRegistry));
+        Mono<ExecuteActionDTO> executeActionDTOMono =
+                createExecuteActionDTO(partFlux).cache();
+        Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
+                .findById(executeActionDTO.getActionId())
+                .flatMap(newAction -> {
+                    if (newAction.getPluginId() == null
+                            || newAction.getPluginId().isEmpty()) {
+                        return Mono.empty();
+                    } else {
+                        return pluginService.findById(newAction.getPluginId());
+                    }
+                })
+                .cache());
+
+        return pluginMono
+                .map(plugin -> {
+                    executeActionMetaDTO.setPlugin(plugin);
+                    return plugin.getName() != null ? plugin.getName() : NONE;
+                })
+                .defaultIfEmpty(NONE)
+                .flatMap(pluginName -> {
+                    String name = (String) pluginName;
+                    if (NONE.equals(name)) {
+                        executeActionMetaDTO.setPlugin(null);
+                    }
+                    return executeActionDTOMono
+                            .flatMap(executeActionDTO ->
+                                    populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                            .tag("plugin", name)
+                            .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                            .tap(Micrometer.observation(observationRegistry));
+                });
     }
 
     /**
@@ -322,7 +350,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 3. Instantiate the implementation class based on the query type
         Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, executeActionMetaDTO);
-        Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceStorageMono);
+        Mono<Plugin> pluginMono = executeActionMetaDTO.getPlugin() != null
+                ? Mono.just(executeActionMetaDTO.getPlugin())
+                : getCachedPluginForActionExecution(datasourceStorageMono);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query

@@ -12,8 +12,6 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { TableIcon, TableThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
-  IconCmp: TableIcon,
-  ThumbnailCmp: TableThumbnail,
   getQueryGenerationConfig: () => {
     return {
       select: {
@@ -63,4 +61,6 @@ export const methodsConfig = {
       message: `Make sure ${widget.widgetName} is bound to the same data source`,
     };
   },
+  IconCmp: TableIcon,
+  ThumbnailCmp: TableThumbnail,
 };
