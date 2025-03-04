@@ -68,15 +68,12 @@ export function TextArea(props: TextAreaProps) {
 
       const computedStyle = getComputedStyle(input);
       const height = parseFloat(computedStyle.height) || 0;
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const marginTop = parseFloat(computedStyle.marginTop);
+      const marginBottom = parseFloat(computedStyle.marginBottom);
 
-      setTextFieldHeight(height + paddingTop + paddingBottom);
+      setTextFieldHeight(height + marginTop + marginBottom);
 
-      input.style.height = `${
-        // subtract comptued padding and border to get the actual content height
-        input.scrollHeight - paddingTop - paddingBottom
-      }px`;
+      input.style.height = `${input.scrollHeight}px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
     }
