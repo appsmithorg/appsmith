@@ -469,7 +469,7 @@ export function Table(props: TableProps) {
             </TableHeaderWrapper>
           </SimpleBar>
         )}
-        <div className={getTableWrapClassName()} ref={tableWrapperRef}>
+        <div className={getTableWrapClassName} ref={tableWrapperRef}>
           <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
               <StaticTable
