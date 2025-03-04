@@ -10,14 +10,14 @@ export const removeNewLineChars = (inputValue: string) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
 };
 
-export const getInputValue = (inputValue: unknown) => {
+export const getInputValue = (inputValue: unknown): string => {
   if (typeof inputValue === "object" || typeof inputValue === "boolean") {
     inputValue = JSON.stringify(inputValue, null, 2);
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
     inputValue += "";
   }
 
-  return inputValue;
+  return String(inputValue || "");
 };
 const computeCursorIndex = (editor: CodeMirror.Editor) => {
   const cursor = editor.getCursor();
