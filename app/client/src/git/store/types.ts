@@ -19,6 +19,7 @@ import type {
 import type { FetchGlobalSSHKeyResponseData } from "git/requests/fetchGlobalSSHKeyRequest.types";
 import type { FetchRefsResponseData } from "git/requests/fetchRefsRequest.types";
 import type { GitArtifactDef } from "git/types";
+import type { FetchLatestCommitResponseData } from "git/requests/fetchLatestCommitRequest.types";
 
 export interface GitApiError extends ApiResponseError {
   errorType?: string;
@@ -41,6 +42,7 @@ export interface GitArtifactAPIResponsesReduxState
   connect: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
   commit: GitAsyncStateWithoutValue;
+  latestCommit: GitAsyncState<FetchLatestCommitResponseData>;
   pull: GitAsyncStateWithoutValue;
   discard: GitAsyncStateWithoutValue;
   mergeStatus: GitAsyncState<FetchMergeStatusResponseData>;

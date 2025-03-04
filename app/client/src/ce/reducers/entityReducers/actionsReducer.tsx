@@ -119,7 +119,7 @@ export const handlers = {
           baseId: action.payload.name,
           id: action.payload.name,
         },
-        isLoading: false,
+        isLoading: true,
       },
     ]);
   },
@@ -133,6 +133,7 @@ export const handlers = {
         a.config.id === action.payload.name
       ) {
         a.config = action.payload;
+        a.isLoading = false;
       }
     });
   },

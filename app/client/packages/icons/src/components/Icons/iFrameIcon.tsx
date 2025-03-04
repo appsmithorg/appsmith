@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const iFrameIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" d="M10.854 5.146a.5.5 0 0 0-.708.708L11.793 7.5l-1.647 1.646a.5.5 0 0 0 .708.708l2-2a.5.5 0 0 0 0-.708zM4.854 5.146a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L3.207 7.5l1.647-1.646a.5.5 0 0 0 0-.708M8.974 4.658a.5.5 0 1 0-.948-.316l-2 6a.5.5 0 1 0 .948.316z" /><path fill="#4C5664" fillRule="evenodd" d="M2.5 1A2.5 2.5 0 0 0 0 3.5v8A2.5 2.5 0 0 0 2.5 14h10a2.5 2.5 0 0 0 2.5-2.5v-8A2.5 2.5 0 0 0 12.5 1zM1 3.5A1.5 1.5 0 0 1 2.5 2h10A1.5 1.5 0 0 1 14 3.5v8a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 1 11.5z" clipRule="evenodd" /></svg>;
+export { iFrameIcon };
