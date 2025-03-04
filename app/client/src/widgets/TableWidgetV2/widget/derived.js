@@ -987,8 +987,8 @@ export default {
 
       return sortFunction(tableData, finalTableData, sortByColumnId, sortOrder);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log("Custom sort function error:", error);
+      /* eslint-disable no-console */
+      console.error("Custom sort function error:", error);
 
       return finalTableData;
     }
