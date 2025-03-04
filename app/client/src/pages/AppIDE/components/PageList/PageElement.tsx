@@ -24,7 +24,6 @@ import history, { NavigationMethod } from "utils/history";
 import { EntityItem } from "@appsmith/ads";
 import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
-import { useActiveDoubleClick } from "@appsmith/ads/src/__hooks__";
 import { noop } from "lodash";
 
 const PageElement = ({
@@ -81,12 +80,7 @@ const PageElement = ({
     enterEditMode(page.pageId);
   };
 
-  const doubleClickOverride = useActiveDoubleClick(
-    isCurrentPage,
-    handleEnterEditMode,
-  );
-
-  const handleDoubleClick = canManagePages ? doubleClickOverride : noop;
+  const handleDoubleClick = canManagePages ? handleEnterEditMode : noop;
 
   const switchPage = useCallback(() => {
     AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
