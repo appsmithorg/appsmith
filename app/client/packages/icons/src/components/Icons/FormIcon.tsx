@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const FormIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h14a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 4V2h13v2zM.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h14a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM1 9V7h13v2z" clipRule="evenodd" /><path fill="#4C5664" d="M7.724 12.053a.5.5 0 0 1 .223.67l-1 2a.5.5 0 0 1-.8.13l-1-1a.5.5 0 0 1 .707-.707l.509.51.69-1.38a.5.5 0 0 1 .67-.223M11.854 12.146a.5.5 0 0 0-.708.708l.647.646-.647.646a.5.5 0 0 0 .708.708l.646-.647.646.647a.5.5 0 0 0 .708-.708l-.647-.646.647-.646a.5.5 0 0 0-.708-.708l-.646.647z" /></svg>;
+export { FormIcon };
