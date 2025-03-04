@@ -6,15 +6,11 @@ import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const removeNewLineChars = (inputValue: any) => {
+export const removeNewLineChars = (inputValue: string) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getInputValue = (inputValue: any) => {
+export const getInputValue = (inputValue: unknown) => {
   if (typeof inputValue === "object" || typeof inputValue === "boolean") {
     inputValue = JSON.stringify(inputValue, null, 2);
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
@@ -170,3 +166,12 @@ export function shouldShowSlashCommandMenu(
     SlashCommandMenuOnFocusWidgetProps[widgetType].includes(propertyPath)
   );
 }
+
+// Checks if the input value is only one word
+export const isSingleWord = (editor: CodeMirror.Editor) => {
+  const value = editor.getValue();
+  // Split the value by whitespace
+  const stringSegments = value.split(/\s+/);
+
+  return stringSegments.length === 1;
+};
