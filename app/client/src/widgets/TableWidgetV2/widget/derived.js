@@ -269,6 +269,7 @@ export default {
     /* Make a shallow copy */
     const primaryColumns = props.primaryColumns || {};
     let processedTableData = [...props.processedTableData];
+    let tableData = [...props.tableData];
     const derivedColumns = {};
 
     Object.keys(primaryColumns).forEach((id) => {
@@ -984,8 +985,11 @@ export default {
     try {
       const sortFunction = indirectEval(customSortFunction);
 
-      return sortFunction(finalTableData, sortByColumnId, sortOrder);
+      return sortFunction(tableData, finalTableData, sortByColumnId, sortOrder);
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log("Custom sort function error:", error);
+
       return finalTableData;
     }
   },
