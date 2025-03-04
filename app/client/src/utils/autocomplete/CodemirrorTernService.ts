@@ -753,12 +753,22 @@ class CodeMirrorTernService {
         libraryNamespace: selected.origin?.split("/")[1],
       });
 
+      // Check if the completion ends with parentheses () or closing brackets }}
       const hasParenthesis = selected.text.endsWith("()");
+      const endsWithBindingBrackets = selected.text.endsWith("}}");
 
+      // Position cursor handling:
+      // 1. For functions - place cursor between parentheses e.g. myFunction(|)
+      // 2. For completions with }} - place cursor before }} e.g. {{Api1.data|}}
       if (selected.type === AutocompleteDataType.FUNCTION && hasParenthesis) {
         cm.setCursor({
           line: cm.getCursor().line,
           ch: cm.getCursor().ch - 1,
+        });
+      } else if (endsWithBindingBrackets) {
+        cm.setCursor({
+          line: cm.getCursor().line,
+          ch: cm.getCursor().ch - 2,
         });
       }
     });
