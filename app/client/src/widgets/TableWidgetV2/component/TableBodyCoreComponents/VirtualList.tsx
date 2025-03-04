@@ -4,9 +4,10 @@ import React, { type Ref } from "react";
 import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRow, Row } from "./Row";
+import { Row } from "./Row";
 import type { TableSizes } from "../Constants";
 import type SimpleBar from "simplebar-react";
+import { EmptyRows } from "../cellComponents/EmptyCell";
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
   const { data, index, style } = rowProps;
@@ -24,7 +25,7 @@ const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
       />
     );
   } else {
-    return <EmptyRow style={style} />;
+    return <EmptyRows rows={1} style={style} />;
   }
 }, areEqual);
 

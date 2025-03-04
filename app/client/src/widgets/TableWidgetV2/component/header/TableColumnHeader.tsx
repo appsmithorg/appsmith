@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import styled from "styled-components";
 import { getDragHandlers } from "widgets/TableWidgetV2/widget/utilities";
-import { RenderEmptyRows } from "../cellComponents/EmptyCell";
+import { EmptyRows } from "../cellComponents/EmptyCell";
 import { HeaderCell } from "../cellComponents/HeaderCell";
 import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
@@ -14,6 +14,7 @@ const StyledHeaderGroup = styled.div<{
   display: flex;
   width: ${(props) => props.headerWidth}px !important;
 `;
+
 const TableColumnHeader = () => {
   const {
     accentColor,
@@ -28,6 +29,7 @@ const TableColumnHeader = () => {
     rowSelectionState,
     totalColumnsWidth,
   } = useAppsmithTable();
+
   const headerWidth = React.useMemo(
     () =>
       multiRowSelection && totalColumnsWidth
@@ -109,7 +111,7 @@ const TableColumnHeader = () => {
           </StyledHeaderGroup>
         );
       })}
-      {headerGroups.length === 0 && RenderEmptyRows(1, {})}
+      {headerGroups.length === 0 && <EmptyRows rows={1} />}
     </div>
   );
 };

@@ -1,8 +1,7 @@
-import type { CSSProperties, Key } from "react";
+import type { Key } from "react";
 import React from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { RenderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { useAppsmithTable } from "../TableContext";
@@ -100,14 +99,3 @@ export function Row(props: RowType) {
     </div>
   );
 }
-
-export const EmptyRows = (props: {
-  style?: CSSProperties;
-  rowCount: number;
-}) => {
-  return RenderEmptyRows(props.rowCount, props.style);
-};
-
-export const EmptyRow = (props: { style?: CSSProperties }) => {
-  return RenderEmptyRows(1, props.style);
-};

@@ -20,7 +20,15 @@ const addStickyModifierClass = (
     : "";
 };
 
-export const RenderEmptyRows = (rowCount: number, style?: CSSProperties) => {
+interface EmptyRowsProps {
+  rows: number;
+  style?: CSSProperties;
+}
+
+export const EmptyRows: React.FC<EmptyRowsProps> = ({
+  rows: rowCount,
+  style,
+}) => {
   const {
     accentColor,
     borderRadius,

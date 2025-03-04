@@ -1,12 +1,13 @@
 import { render } from "@testing-library/react";
 import React from "react";
-import { EmptyRows, Row } from "../../TableBodyCoreComponents/Row";
+import { Row } from "../../TableBodyCoreComponents/Row";
 import * as TableContext from "../../TableContext";
 import { useAppsmithTable } from "../../TableContext";
 import { StaticTableBodyComponent } from "../StaticTableBody";
 import type { Row as ReactTableRowType } from "react-table";
 import { TABLE_SIZES, CompactModeTypes } from "../../Constants";
 import type { TableContextState } from "../../TableContext";
+import { EmptyRows } from "../../cellComponents/EmptyCell";
 
 // Mock the required dependencies
 jest.mock("../../TableContext", () => ({
@@ -19,6 +20,10 @@ jest.mock("../../TableBodyCoreComponents/Row", () => ({
       Row {index}
     </div>
   )),
+}));
+
+// Mock the EmptyRows component
+jest.mock("../../cellComponents/EmptyCell", () => ({
   EmptyRows: jest.fn(() => <div data-testid="mocked-empty-rows" />),
 }));
 
@@ -208,7 +213,7 @@ describe("StaticTableBodyComponent", () => {
       expect(container.querySelector(".tbody")).toBeTruthy();
       expect(getByTestId("mocked-empty-rows")).toBeTruthy();
       expect(EmptyRows).toHaveBeenCalledWith(
-        { rowCount: 5 },
+        expect.objectContaining({ rows: 5 }),
         expect.anything(),
       );
     });
@@ -230,7 +235,7 @@ describe("StaticTableBodyComponent", () => {
       expect(getByTestId("mocked-empty-rows")).toBeTruthy();
       expect(Row).toHaveBeenCalledTimes(1);
       expect(EmptyRows).toHaveBeenCalledWith(
-        { rowCount: 2 },
+        expect.objectContaining({ rows: 2 }),
         expect.anything(),
       );
     });

@@ -101,7 +101,7 @@ function Actions() {
     currentPageIndex,
     data: tableData,
     delimiter,
-    disabledAddNewRowSave,
+    editableCell,
     filters,
     isInfiniteScrollEnabled,
     isVisibleDownload,
@@ -175,7 +175,7 @@ function Actions() {
               <ActionItem
                 borderRadius={borderRadius}
                 className="t--add-new-row"
-                disabled={disabledAddNewRowSave}
+                disabled={!!editableCell?.column}
                 disabledMessage="Save or discard the unsaved row to add a new row"
                 icon="add"
                 selectMenu={onAddNewRow}
