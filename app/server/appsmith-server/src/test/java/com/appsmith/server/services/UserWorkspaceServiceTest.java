@@ -328,7 +328,7 @@ public class UserWorkspaceServiceTest {
         // Ensure neither of the users are super users
         User api_user = userRepository.findByEmail("api_user").block();
         User test_user = userRepository.findByEmail("usertest@usertest.com").block();
-        userUtils.removeSuperUser(List.of(api_user, test_user)).block();
+        userUtils.removeInstanceAdmin(List.of(api_user, test_user)).block();
         Workspace workspace = new Workspace();
         workspace.setName("Test org");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
