@@ -75,6 +75,6 @@ export const Validation: Story = {
 
 export const MaxHeight: Story = {
   args: {
-    maxHeight: 100,
+    maxRows: 8,
   },
 };
