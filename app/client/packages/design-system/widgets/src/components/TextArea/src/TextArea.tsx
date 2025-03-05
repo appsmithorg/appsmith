@@ -76,6 +76,12 @@ export function TextArea(props: TextAreaProps) {
       input.style.height = `${input.scrollHeight}px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
+
+      if (input.scrollHeight > input.clientHeight) {
+        input.setAttribute("data-has-scrollbar", "true");
+      } else {
+        input.removeAttribute("data-has-scrollbar");
+      }
     }
   }, [props.height]);
 
