@@ -17,6 +17,7 @@ export const EntityItem = (props: EntityItemProps) => {
     canEdit,
     isEditing,
     isLoading,
+    normalizeName = false,
     onEditComplete,
     onNameSave,
     validateName,
@@ -34,8 +35,10 @@ export const EntityItem = (props: EntityItemProps) => {
         isFixedWidth
         isLoading={isLoading}
         name={props.title}
+        normalizeName={normalizeName}
         onExitEditing={onEditComplete}
         onNameSave={onNameSave}
+        showEllipsis
         size="medium"
         validateName={validateName}
       />
@@ -44,6 +47,7 @@ export const EntityItem = (props: EntityItemProps) => {
     canEdit,
     isEditing,
     isLoading,
+    normalizeName,
     onEditComplete,
     onNameSave,
     props.title,
@@ -65,7 +69,7 @@ export const EntityItem = (props: EntityItemProps) => {
       {...rest}
       className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
-      data-testid={`t--entity-item-${props.title}`}
+      data-testId={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
       onDoubleClick={doubleClickOverride}
       rightControl={rightControl}
