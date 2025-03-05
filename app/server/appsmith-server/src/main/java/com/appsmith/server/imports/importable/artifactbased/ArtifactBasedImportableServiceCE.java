@@ -40,7 +40,8 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
         }
     }
 
-    void createNewResource(ImportingMetaDTO importingMetaDTO, T actionCollection, Context baseContext);
+    void createNewResource(
+            ImportingMetaDTO importingMetaDTO, T actionCollection, Context baseContext, String organizationId);
 
     default T getExistingEntityInCurrentBranchForImportedEntity(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,

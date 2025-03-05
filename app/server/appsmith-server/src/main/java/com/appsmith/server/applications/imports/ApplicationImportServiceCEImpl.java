@@ -24,6 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.helpers.ImportExportUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportServiceCE;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -90,19 +91,23 @@ public class ApplicationImportServiceCEImpl
             Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID);
 
     @Override
-    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
+    public Mono<ImportArtifactPermissionProvider> getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissionGroups) {
-        return ImportArtifactPermissionProvider.builder(
-                        applicationPermission,
-                        pagePermission,
-                        actionPermission,
-                        datasourcePermission,
-                        workspacePermission)
-                .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                .permissionRequiredToCreateDatasource(true)
-                .permissionRequiredToEditDatasource(true)
-                .currentUserPermissionGroups(userPermissionGroups)
-                .build();
+
+        return ReactiveContextUtils.getCurrentUser().map(currentUser -> {
+            String userOrgId = currentUser.getOrganizationId();
+            return ImportArtifactPermissionProvider.builder(
+                            applicationPermission,
+                            pagePermission,
+                            actionPermission,
+                            datasourcePermission,
+                            workspacePermission)
+                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission(userOrgId))
+                    .permissionRequiredToCreateDatasource(true)
+                    .permissionRequiredToEditDatasource(true)
+                    .currentUserPermissionGroups(userPermissionGroups)
+                    .build();
+        });
     }
 
     @Override

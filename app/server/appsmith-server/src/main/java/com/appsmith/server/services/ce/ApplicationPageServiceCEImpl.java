@@ -37,6 +37,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -158,8 +159,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             }
         }
 
-        Mono<Application> applicationMono = applicationService
-                .findById(page.getApplicationId(), applicationPermission.getPageCreatePermission())
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+
+        Mono<Application> applicationMono = userMono.flatMap(user -> applicationService.findById(
+                        page.getApplicationId(),
+                        applicationPermission.getPageCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
                 .cache();
@@ -476,7 +480,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono.flatMap(user -> {
             Mono<Workspace> workspaceMono = workspaceRepository
-                    .findById(workspaceId, workspacePermission.getApplicationCreatePermission())
+                    .findById(workspaceId, workspacePermission.getApplicationCreatePermission(user.getOrganizationId()))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -506,8 +510,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = applicationRepository
-                .findById(id, applicationPermission.getDeletePermission())
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
+        Mono<Application> applicationMono = currentUserMono
+                .flatMap(currentUser -> applicationRepository.findById(
+                        id, applicationPermission.getDeletePermission(currentUser.getOrganizationId())))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
@@ -518,11 +524,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
          * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
          * */
         return applicationMono
-                .flatMapMany(application -> {
+                .zipWith(currentUserMono)
+                .flatMapMany(tuple2 -> {
+                    Application application = tuple2.getT1();
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
+                    User user = tuple2.getT2();
                     if (GitUtils.isArtifactConnectedToGit(application.getGitArtifactMetadata())) {
                         return applicationService.findAllApplicationsByBaseApplicationId(
-                                gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
+                                gitData.getDefaultArtifactId(),
+                                applicationPermission.getDeletePermission(user.getOrganizationId()));
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -554,12 +564,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     protected Mono<Application> deleteApplicationResources(Application application) {
-        return actionCollectionService
-                .archiveActionCollectionByApplicationId(application.getId(), actionPermission.getDeletePermission())
-                .then(newActionService.archiveActionsByApplicationId(
-                        application.getId(), actionPermission.getDeletePermission()))
-                .then(newPageService.archivePagesByApplicationId(
-                        application.getId(), pagePermission.getDeletePermission()))
+        Mono<String> currentUserOrgIdMono = ReactiveContextUtils.getCurrentUser()
+                .map(User::getOrganizationId)
+                .cache();
+        return currentUserOrgIdMono
+                .flatMap(orgId -> actionCollectionService.archiveActionCollectionByApplicationId(
+                        application.getId(), actionPermission.getDeletePermission(orgId)))
+                .then(currentUserOrgIdMono)
+                .flatMap(orgId -> newActionService.archiveActionsByApplicationId(
+                        application.getId(), actionPermission.getDeletePermission(orgId)))
+                .then(currentUserOrgIdMono)
+                .flatMap(orgId -> newPageService.archivePagesByApplicationId(
+                        application.getId(), pagePermission.getDeletePermission(orgId)))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive);
     }
@@ -904,12 +920,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
-        return deleteUnpublishedPageEx(
-                id,
-                pagePermission.getDeletePermission(),
-                applicationPermission.getReadPermission(),
-                actionPermission.getDeletePermission(),
-                actionPermission.getDeletePermission());
+        return ReactiveContextUtils.getCurrentUser().flatMap(user -> {
+            String organizationId = user.getOrganizationId();
+            return deleteUnpublishedPageEx(
+                    id,
+                    pagePermission.getDeletePermission(organizationId),
+                    applicationPermission.getReadPermission(),
+                    actionPermission.getDeletePermission(organizationId),
+                    actionPermission.getDeletePermission(organizationId));
+        });
     }
 
     private Mono<PageDTO> deleteUnpublishedPageEx(
@@ -1478,12 +1497,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 
-        return UserPermissionUtils.validateDomainObjectPermissionsOrError(
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,
                         FieldName.DATASOURCE,
                         permissionGroupService.getSessionUserPermissionGroupIds(),
-                        datasourcePermission.getActionCreatePermission(),
-                        AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS)
+                        datasourcePermission.getActionCreatePermission(user.getOrganizationId()),
+                        AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS))
                 .thenReturn(Boolean.TRUE);
     }
 }

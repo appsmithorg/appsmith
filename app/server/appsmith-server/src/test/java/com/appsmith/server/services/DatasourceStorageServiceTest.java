@@ -79,7 +79,8 @@ public class DatasourceStorageServiceTest {
     @AfterEach
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .findByWorkspaceId(
+                        workspace.getId(), applicationPermission.getDeletePermission(workspace.getOrganizationId()))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

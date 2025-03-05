@@ -7,17 +7,17 @@ import java.util.Map;
 public interface EmailServiceHelperCE {
     Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin);
 
-    String getForgotPasswordTemplate();
+    String getForgotPasswordTemplate(String organizationId);
 
-    String getWorkspaceInviteTemplate(boolean isNewUser);
+    String getWorkspaceInviteTemplate(boolean isNewUser, String organizationId);
 
-    String getEmailVerificationTemplate();
+    String getEmailVerificationTemplate(String organizationId);
 
-    String getAdminInstanceInviteTemplate();
+    String getAdminInstanceInviteTemplate(String organizationId);
 
-    String getJoinInstanceCtaPrimaryText();
+    String getJoinInstanceCtaPrimaryText(String organizationId);
 
-    String getSubjectJoinInstanceAsAdmin(String instanceName);
+    String getSubjectJoinInstanceAsAdmin(String instanceName, String organizationId);
 
-    String getSubjectJoinWorkspace(String workspaceName);
+    String getSubjectJoinWorkspace(String workspaceName, String organizationId);
 }

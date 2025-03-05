@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -16,6 +17,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
@@ -434,8 +436,11 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     existingSavedPages.stream()
                             .filter(newPage -> !StringUtils.isEmpty(newPage.getGitSyncId()))
                             .forEach(newPage -> savedPagesGitIdToPageMap.put(newPage.getGitSyncId(), newPage));
-
-                    return Flux.fromIterable(pages).flatMap(newPage -> {
+                    Flux<User> currentUserFlux =
+                            ReactiveContextUtils.getCurrentUser().cache().repeat();
+                    return Flux.fromIterable(pages).zipWith(currentUserFlux).flatMap(tuple -> {
+                        NewPage newPage = tuple.getT1();
+                        User currentUser = tuple.getT2();
                         log.debug(
                                 "Importing page: {}",
                                 newPage.getUnpublishedPage().getName());
@@ -464,7 +469,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             return newPageService.save(existingPage);
                         } else {
                             // check if user has permission to add new page to the application
-                            if (!importingMetaDTO.getPermissionProvider().canCreatePage(application)) {
+                            if (!importingMetaDTO
+                                    .getPermissionProvider()
+                                    .canCreatePage(application, currentUser.getOrganizationId())) {
                                 log.error(
                                         "User does not have permission to create page in application with id: {}",
                                         application.getId());

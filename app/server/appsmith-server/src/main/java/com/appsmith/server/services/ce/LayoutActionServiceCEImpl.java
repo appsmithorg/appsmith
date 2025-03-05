@@ -12,11 +12,13 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -145,8 +147,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         final String destinationPageId = actionMoveDTO.getDestinationPageId();
         action.setPageId(destinationPageId);
 
-        Mono<NewPage> destinationPageMono = newPageService
-                .findById(destinationPageId, pagePermission.getActionCreatePermission())
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
+
+        Mono<NewPage> destinationPageMono = currentUserMono
+                .flatMap(user -> newPageService.findById(
+                        destinationPageId, pagePermission.getActionCreatePermission(user.getOrganizationId())))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)));
 
@@ -186,9 +191,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
-                                .then(newPageService.findPageById(
+                                .then(currentUserMono)
+                                .flatMap(user -> newPageService.findPageById(
                                         actionMoveDTO.getDestinationPageId(),
-                                        pagePermission.getActionCreatePermission(),
+                                        pagePermission.getActionCreatePermission(user.getOrganizationId()),
                                         false))
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
@@ -339,11 +345,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        AclPermission aclPermission =
-                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
-
-        return newPageService
-                .findById(actionDTO.getPageId(), aclPermission)
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(currentUser -> {
+                    AclPermission aclPermission = isJsAction
+                            ? pagePermission.getReadPermission()
+                            : pagePermission.getActionCreatePermission(currentUser.getOrganizationId());
+                    return newPageService.findById(actionDTO.getPageId(), aclPermission);
+                })
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
@@ -425,15 +433,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
-        // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
-        // Else fetch the page with create action permission to ensure that the user has the right to create an action
-        AclPermission aclPermission =
-                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
 
         Mono<NewPage> pageMono = newPage != null
                 ? Mono.just(newPage)
-                : newPageService
-                        .findById(action.getPageId(), aclPermission)
+                : ReactiveContextUtils.getCurrentUser()
+                        .flatMap(currentUser -> {
+                            // If the action is a JS action, then we don't need to validate the page. Fetch the page
+                            // with read.
+                            // Else fetch the page with create action permission to ensure that the user has the right
+                            // to create an action
+                            AclPermission aclPermission = isJsAction
+                                    ? pagePermission.getReadPermission()
+                                    : pagePermission.getActionCreatePermission(currentUser.getOrganizationId());
+                            return newPageService.findById(action.getPageId(), aclPermission);
+                        })
                         .name(GET_PAGE_BY_ID)
                         .tap(Micrometer.observation(observationRegistry))
                         .switchIfEmpty(Mono.error(new AppsmithException(

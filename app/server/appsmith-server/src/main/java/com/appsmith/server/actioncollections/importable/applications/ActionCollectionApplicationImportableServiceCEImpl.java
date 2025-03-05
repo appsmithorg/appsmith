@@ -89,8 +89,11 @@ public class ActionCollectionApplicationImportableServiceCEImpl
 
     @Override
     public void createNewResource(
-            ImportingMetaDTO importingMetaDTO, ActionCollection actionCollection, Context baseContext) {
-        if (!importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) baseContext)) {
+            ImportingMetaDTO importingMetaDTO,
+            ActionCollection actionCollection,
+            Context baseContext,
+            String organizationId) {
+        if (!importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) baseContext, organizationId)) {
             throw new AppsmithException(
                     AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, ((NewPage) baseContext).getId());
         }

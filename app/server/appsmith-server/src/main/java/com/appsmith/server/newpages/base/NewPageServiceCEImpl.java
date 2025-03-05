@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -477,7 +478,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        return archiveByIdEx(id, pagePermission.getDeletePermission());
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user -> archiveByIdEx(id, pagePermission.getDeletePermission(user.getOrganizationId())));
     }
 
     @Override

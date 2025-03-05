@@ -32,7 +32,7 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     }
 
     @Override
-    public AclPermission getDeletePermission() {
+    public AclPermission getDeletePermission(String organizationId) {
         return AclPermission.MANAGE_APPLICATIONS;
     }
 
@@ -47,7 +47,7 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     }
 
     @Override
-    public AclPermission getPageCreatePermission() {
+    public AclPermission getPageCreatePermission(String organizationId) {
         return AclPermission.MANAGE_APPLICATIONS;
     }
 

@@ -501,12 +501,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .filter(applicationId -> !application.getId().equals(applicationId))
                 .cache();
 
-        List<Mono<Void>> updateInheritedDomainsList =
+        Mono<List<Mono<Void>>> updateInheritedDomainsListMono =
                 updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
         List<Mono<Void>> updateIndependentDomainsList = updatePoliciesForIndependentDomains(
                 application, permissionGroupId, addViewAccess, otherApplicationsForThisRoleFlux);
 
-        return Flux.fromIterable(updateInheritedDomainsList)
+        return updateInheritedDomainsListMono
+                .flatMapMany(Flux::fromIterable)
                 .flatMap(voidMono -> voidMono)
                 .thenMany(Flux.fromIterable(updateIndependentDomainsList))
                 .flatMap(voidMono -> voidMono)
@@ -604,7 +605,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return list;
     }
 
-    protected List<Mono<Void>> updatePoliciesForInheritingDomains(
+    protected Mono<List<Mono<Void>>> updatePoliciesForInheritingDomains(
             Application application, Map<String, Policy> applicationPolicyMap, Boolean addViewAccess) {
 
         List<Mono<Void>> list = new ArrayList<>();
@@ -635,7 +636,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .then();
         list.add(updatedThemesMono);
 
-        return list;
+        return Mono.just(list);
     }
 
     public Mono<Application> setTransientFields(Application application) {

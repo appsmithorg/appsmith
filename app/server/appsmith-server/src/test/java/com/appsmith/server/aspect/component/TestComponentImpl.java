@@ -40,19 +40,25 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
-    public String ceEeSyncMethod(String arg) {
+    public String ceEeSyncMethod(String arg, String organizationId) {
         return arg + "ee_impl_method";
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
-    public void ceEeThrowAppsmithException(String arg) {
+    public void ceEeThrowAppsmithException(String arg, String organizationId) {
         throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "This is a test exception");
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
-    public void ceEeThrowNonAppsmithException(String arg) {
+    public void ceEeThrowNonAppsmithException(String arg, String organizationId) {
         throw new RuntimeException("This is a test exception");
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
+    public String ceEeSyncMethodWithoutOrgId(String arg) {
+        return arg + "ee_impl_method";
     }
 }

@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import static java.lang.Boolean.TRUE;
@@ -28,7 +29,7 @@ public class ActionPermissionCEImpl implements ActionPermissionCE, DomainPermiss
     }
 
     @Override
-    public AclPermission getDeletePermission() {
+    public AclPermission getDeletePermission(@NotNull String organizationId) {
         return AclPermission.MANAGE_ACTIONS;
     }
 }

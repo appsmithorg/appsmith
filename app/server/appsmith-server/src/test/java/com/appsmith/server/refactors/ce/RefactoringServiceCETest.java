@@ -145,6 +145,7 @@ class RefactoringServiceCETest {
     Datasource datasource;
 
     String workspaceId;
+    private static String organizationId;
 
     String branchName;
 
@@ -154,6 +155,7 @@ class RefactoringServiceCETest {
     public void setup() {
         newPageService.deleteAll().block();
         User currentUser = sessionUserService.getCurrentUser().block();
+        organizationId = currentUser.getOrganizationId();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
@@ -249,7 +251,7 @@ class RefactoringServiceCETest {
     @AfterEach
     public void cleanup() {
         List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission(organizationId))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

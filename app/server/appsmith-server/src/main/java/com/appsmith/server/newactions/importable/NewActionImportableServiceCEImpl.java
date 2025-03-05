@@ -11,6 +11,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -20,6 +21,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -305,11 +307,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
                 updateActionNameBeforeMerge(importedNewActionList, mappedImportableResourcesDTO);
             }
-
-            return Mono.zip(actionsInCurrentArtifactMono, actionsInOtherBranchesMono)
+            Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser();
+            return Mono.zip(actionsInCurrentArtifactMono, actionsInOtherBranchesMono, currentUserMono)
                     .flatMap(objects -> {
                         Map<String, NewAction> actionsInCurrentArtifact = objects.getT1();
                         Map<String, NewAction> actionsInBranches = objects.getT2();
+                        String currentUserOrgId = objects.getT3().getOrganizationId();
 
                         // set the existing actions in the result DTO,
                         // this will be required in next phases when we'll delete the outdated actions
@@ -370,7 +373,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             } else {
 
                                 artifactBasedImportableService.createNewResource(
-                                        importingMetaDTO, newAction, baseContext);
+                                        importingMetaDTO, newAction, baseContext, currentUserOrgId);
 
                                 populateDomainMappedReferences(mappedImportableResourcesDTO, newAction);
 

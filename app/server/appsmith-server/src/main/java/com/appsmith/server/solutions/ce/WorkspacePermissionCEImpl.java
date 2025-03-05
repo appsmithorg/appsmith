@@ -21,17 +21,17 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainP
     }
 
     @Override
-    public AclPermission getDeletePermission() {
+    public AclPermission getDeletePermission(String organizationId) {
         return AclPermission.MANAGE_WORKSPACES;
     }
 
     @Override
-    public AclPermission getApplicationCreatePermission() {
+    public AclPermission getApplicationCreatePermission(String organizationId) {
         return AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
     }
 
     @Override
-    public AclPermission getDatasourceCreatePermission() {
+    public AclPermission getDatasourceCreatePermission(String organizationId) {
         return AclPermission.WORKSPACE_MANAGE_DATASOURCES;
     }
 }
