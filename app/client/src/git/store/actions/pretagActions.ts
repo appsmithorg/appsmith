@@ -5,17 +5,18 @@ import type {
 import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { PretagResponseData } from "git/requests/pretagRequest.types";
 
-export interface FetchLatestCommitInitPayload {
+export interface PretagInitPayload {
   artifactId: string;
 }
 
-export const pretagInitAction =
-  createArtifactAction<FetchLatestCommitInitPayload>((state) => {
+export const pretagInitAction = createArtifactAction<PretagInitPayload>(
+  (state) => {
     state.apiResponses.pretag.loading = true;
     state.apiResponses.pretag.error = null;
 
     return state;
-  });
+  },
+);
 
 export const pretagSuccessAction = createArtifactAction<
   GitAsyncSuccessPayload<PretagResponseData>
