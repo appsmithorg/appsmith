@@ -1,16 +1,16 @@
 import React from "react";
 import LatestCommitInfoView from "./LatestCommitInfoView";
-import useLatestCommit from "git/hooks/useLatestCommit";
+import usePretag from "git/hooks/usePretag";
 
 function LatestCommitInfo() {
-  const { latestCommit } = useLatestCommit();
+  const { pretagResponse } = usePretag();
 
   return (
     <LatestCommitInfoView
-      authorName={latestCommit?.authorName ?? null}
-      committedAt={latestCommit?.committedAt ?? null}
-      hash={latestCommit?.hash ?? null}
-      message={latestCommit?.message ?? null}
+      authorName={pretagResponse?.author.name ?? null}
+      committedAt={pretagResponse?.committedAt ?? null}
+      hash={pretagResponse?.hash ?? null}
+      message={pretagResponse?.message ?? null}
     />
   );
 }

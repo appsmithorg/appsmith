@@ -142,10 +142,10 @@ import {
   updateCurrentBranchAction,
 } from "./actions/currentBranchActions";
 import {
-  fetchLatestCommitErrorAction,
-  fetchLatestCommitInitAction,
-  fetchLatestCommitSuccessAction,
-} from "./actions/fetchLatestCommitActions";
+  pretagErrorAction,
+  pretagInitAction,
+  pretagSuccessAction,
+} from "./actions/pretagActions";
 
 const initialState: GitArtifactRootReduxState = {};
 
@@ -210,9 +210,9 @@ export const gitArtifactSlice = createSlice({
     pullError: pullErrorAction,
     toggleOpsModal: toggleOpsModalAction,
     toggleConflictErrorModal: toggleConflictErrorModalAction,
-    fetchLatestCommitInit: fetchLatestCommitInitAction,
-    fetchLatestCommitSuccess: fetchLatestCommitSuccessAction,
-    fetchLatestCommitError: fetchLatestCommitErrorAction,
+    pretagInit: pretagInitAction,
+    pretagSuccess: pretagSuccessAction,
+    pretagError: pretagErrorAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,

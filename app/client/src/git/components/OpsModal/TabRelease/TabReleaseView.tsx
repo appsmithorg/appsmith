@@ -3,7 +3,8 @@ import LatestCommitInfo from "git/components/LatestCommitInfo";
 import ReleaseNotesInput from "git/components/ReleaseNotesInput";
 import ReleaseVersionRadioGroup from "git/components/ReleaseVersionRadioGroup";
 import { TAB_RELEASE } from "git/ee/constants/messages";
-import React, { useCallback, useState } from "react";
+import noop from "lodash/noop";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -21,11 +22,22 @@ const StyledModalFooter = styled(ModalFooter)`
   min-height: 52px;
 `;
 
-function TabRelease() {
+interface TabReleaseProps {
+  fetchPretag: () => void;
+}
+
+function TabReleaseView({ fetchPretag = noop }: TabReleaseProps) {
   const [releaseVersion, setReleaseVersion] = useState<string | null>(null);
   const [releaseNotes, setReleaseNotes] = useState<string | null>(null);
 
   const isReleaseDisabled = !releaseVersion || !releaseNotes;
+
+  useEffect(
+    function fetchPretagOnInitEffect() {
+      fetchPretag();
+    },
+    [fetchPretag],
+  );
 
   const handleClickOnRelease = useCallback(() => {}, []);
 
@@ -57,4 +69,4 @@ function TabRelease() {
   );
 }
 
-export default TabRelease;
+export default TabReleaseView;
