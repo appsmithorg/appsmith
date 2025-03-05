@@ -409,6 +409,19 @@ export default [
         hidden: (props: TableWidgetProps) => !props.isSortable,
         dependencies: ["isSortable"],
       },
+      {
+        helpText:
+          "Function should expect three arguments: tableData, columnId, and sortOrder. Return the sorted tableData.",
+        propertyName: "customSortFunction",
+        label: "Custom Sort Function",
+        controlType: "INPUT_TEXT",
+        placeholderText:
+          "{{(data, columnId, order) => { /* Return sorted data */ }}}",
+        inputType: "JS",
+        isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) => !props.isSortable,
+        dependencies: ["isSortable"],
+      },
     ],
     expandedByDefault: false,
   },
