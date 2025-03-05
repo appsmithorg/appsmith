@@ -7,7 +7,7 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
-  isSingleWord,
+  shouldShowAutocompleteWithBindingBrackets,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "ee/selectors/entitiesSelector";
@@ -52,8 +52,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         if (additionalData?.enableAIAssistance) {
           shouldShow = !isAISlashCommand(editor);
         }
-      } else if (isSingleWord(editor)) {
-        // Show hints if typing first word
+      } else if (shouldShowAutocompleteWithBindingBrackets(editor)) {
         shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);

@@ -3,7 +3,7 @@ import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { WidgetEntity, ActionEntity } from "ee/entities/DataTree/types";
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
-import { EditorSize } from "./EditorConfig";
+import { EditorModes, EditorSize } from "./EditorConfig";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
 export const removeNewLineChars = (inputValue: string) => {
@@ -168,8 +168,22 @@ export function shouldShowSlashCommandMenu(
 }
 
 // Checks if the input value is only one word
-export const isSingleWord = (editor: CodeMirror.Editor) => {
+export const shouldShowAutocompleteWithBindingBrackets = (
+  editor: CodeMirror.Editor,
+) => {
+  const editorMode = editor.getModeAt(editor.getCursor());
+
+  if (editorMode?.name === EditorModes.SQL) {
+    return false;
+  }
+
   const value = editor.getValue();
+
+  // Do not show if the value is "/"
+  if (value.startsWith("/") || value.trim() === "") {
+    return false;
+  }
+
   // Split the value by whitespace
   const stringSegments = value.split(/\s+/);
 
