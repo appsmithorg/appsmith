@@ -354,6 +354,29 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
+  const shouldShowSkeleton = useMemo(() => {
+    // Case 1: Loading without infinite scroll
+    if (props.isLoading && !props.isInfiniteScrollEnabled) {
+      return true;
+    }
+
+    // Case 2: Loading with infinite scroll but no data in table yet
+    if (props.isLoading && props.isInfiniteScrollEnabled && !subPage.length) {
+      return true;
+    }
+
+    // Otherwise, don't show skeleton
+    return false;
+  }, [props.isLoading, props.isInfiniteScrollEnabled, subPage.length]);
+
+  const getTableWrapClassName = useMemo(() => {
+    if (shouldShowSkeleton) {
+      return Classes.SKELETON;
+    }
+
+    return shouldUseVirtual ? "tableWrap virtual" : "tableWrap";
+  }, [shouldShowSkeleton, shouldUseVirtual]);
+
   return (
     <>
       {showConnectDataOverlay && (
@@ -447,16 +470,7 @@ export function Table(props: TableProps) {
             </TableHeaderWrapper>
           </SimpleBar>
         )}
-        <div
-          className={
-            props.isLoading
-              ? Classes.SKELETON
-              : shouldUseVirtual
-                ? "tableWrap virtual"
-                : "tableWrap"
-          }
-          ref={tableWrapperRef}
-        >
+        <div className={getTableWrapClassName} ref={tableWrapperRef}>
           <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
               <StaticTable
@@ -533,6 +547,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
+                totalRecordsCount={props.totalRecordsCount}
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}

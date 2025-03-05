@@ -30,6 +30,7 @@ export function TextArea(props: TextAreaProps) {
     isReadOnly,
     isRequired,
     label,
+    maxRows,
     onChange,
     rows = 3,
     size,
@@ -44,9 +45,7 @@ export function TextArea(props: TextAreaProps) {
     () => {},
   );
 
-  const [textFieldHeight, setTextFieldHeightHeight] = useState<number | null>(
-    null,
-  );
+  const [textFieldHeight, setTextFieldHeight] = useState<number | null>(null);
 
   const onHeightChange = useCallback(() => {
     // Quiet textareas always grow based on their text content.
@@ -69,15 +68,12 @@ export function TextArea(props: TextAreaProps) {
 
       const computedStyle = getComputedStyle(input);
       const height = parseFloat(computedStyle.height) || 0;
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const marginTop = parseFloat(computedStyle.marginTop);
+      const marginBottom = parseFloat(computedStyle.marginBottom);
 
-      setTextFieldHeightHeight(height + paddingTop + paddingBottom);
+      setTextFieldHeight(height + marginTop + marginBottom);
 
-      input.style.height = `${
-        // subtract comptued padding and border to get the actual content height
-        input.scrollHeight - paddingTop - paddingBottom
-      }px`;
+      input.style.height = `${input.scrollHeight}px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
     }
@@ -113,6 +109,9 @@ export function TextArea(props: TextAreaProps) {
     "--input-height": Boolean(textFieldHeight)
       ? `${textFieldHeight}px`
       : "auto",
+    "--max-height": Boolean(maxRows)
+      ? `calc(${maxRows} * var(--body-line-height))`
+      : "none",
   } as React.CSSProperties;
 
   return (
