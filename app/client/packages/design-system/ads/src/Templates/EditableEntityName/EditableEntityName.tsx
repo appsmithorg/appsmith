@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Spinner } from "../../Spinner";
-import { Tooltip, type TooltipProps } from "../../Tooltip";
+import { Tooltip } from "../../Tooltip";
 import { useEditableText } from "../../__hooks__";
 
 import * as Styled from "./EditableEntityName.styles";
@@ -84,45 +84,39 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     [editableName, showEllipsis],
   );
 
-  // Tooltip can either show the validation error or the name incase of long names
-  const tooltipProps: TooltipProps = useMemo(
-    () =>
-      validationError
-        ? {
-            content: validationError,
-            placement: "bottom",
-            visible: true,
-            isDisabled: false,
-            mouseEnterDelay: 0,
-            showArrow: true,
-          }
-        : {
-            content: name,
-            placement: "topLeft",
-            isDisabled: !showTooltip,
-            mouseEnterDelay: 1,
-            showArrow: false,
-          },
-    [name, showTooltip, validationError],
-  );
-
   return (
     <Styled.Root data-size={size}>
       {startIcon}
-      <Tooltip {...tooltipProps}>
-        <Styled.Text
-          aria-invalid={Boolean(validationError)}
-          className={clsx("t--entity-name", { editing: inEditMode })}
-          data-isediting={inEditMode}
-          data-isfixedwidth={isFixedWidth}
-          inputProps={inputProps}
-          inputRef={inputRef}
-          isEditable={inEditMode}
-          kind={size === "small" ? "body-s" : "body-m"}
-          ref={showEllipsis ? longNameRef : null}
+      <Tooltip
+        content={name}
+        isDisabled={!showTooltip}
+        key="entity-name"
+        mouseEnterDelay={1}
+        placement="topLeft"
+        showArrow={false}
+      >
+        <Tooltip
+          content={validationError}
+          isDisabled={false}
+          mouseEnterDelay={0}
+          placement="bottom"
+          showArrow
+          visible={Boolean(validationError)}
         >
-          {editableName}
-        </Styled.Text>
+          <Styled.Text
+            aria-invalid={Boolean(validationError)}
+            className={clsx("t--entity-name", { editing: inEditMode })}
+            data-isediting={inEditMode}
+            data-isfixedwidth={isFixedWidth}
+            inputProps={inputProps}
+            inputRef={inputRef}
+            isEditable={inEditMode}
+            kind={size === "small" ? "body-s" : "body-m"}
+            ref={showEllipsis ? longNameRef : null}
+          >
+            {editableName}
+          </Styled.Text>
+        </Tooltip>
       </Tooltip>
     </Styled.Root>
   );
