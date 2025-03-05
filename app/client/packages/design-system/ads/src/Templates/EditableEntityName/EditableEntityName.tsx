@@ -85,7 +85,6 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
   );
 
   // Tooltip can either show the validation error or the name incase of long names
-  // Maybe we should use two different tooltips for this @Ankita
   const tooltipProps: TooltipProps = useMemo(
     () =>
       validationError
