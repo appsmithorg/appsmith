@@ -104,7 +104,7 @@ export const WidgetContextMenu = (props: {
       <MenuContent
         align="start"
         className={clsx(
-          "t--widget-context-menu",
+          "t--entity-context-menu",
           EntityClassNames.CONTEXT_MENU_CONTENT,
         )}
         key={widgetId}

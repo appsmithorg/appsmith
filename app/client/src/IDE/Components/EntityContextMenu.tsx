@@ -8,7 +8,7 @@ import {
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 interface Props {
-  children?: React.ReactNode[] | React.ReactNode;
+  children: React.ReactNode[] | React.ReactNode;
   dataTestId?: string;
 }
 

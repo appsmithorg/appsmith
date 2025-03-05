@@ -89,6 +89,8 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
     [canManagePages, item.id],
   );
 
+  if (!widget) return null;
+
   return (
     <EntityItem
       id={item.id}
