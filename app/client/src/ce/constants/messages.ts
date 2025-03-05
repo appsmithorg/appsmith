@@ -2635,3 +2635,5 @@ export const DATASOURCE_SECURE_TEXT = () =>
   `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;
 
 export const TABLE_LOADING_RECORDS = () => "loading records";
+
+export const UPCOMING_SAAS_INTEGRATIONS = () => "Upcoming SaaS Integrations";
