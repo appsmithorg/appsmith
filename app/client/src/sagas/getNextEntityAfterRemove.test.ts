@@ -1,7 +1,7 @@
 import { EditorState } from "IDE/enums";
 import { PluginType } from "entities/Plugin";
 import * as FocusEntityObj from "navigation/FocusEntity";
-import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";
+import { RedirectAction, getNextEntityAfterRemove } from "./helper";
 import { FocusEntity } from "navigation/FocusEntity";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 
