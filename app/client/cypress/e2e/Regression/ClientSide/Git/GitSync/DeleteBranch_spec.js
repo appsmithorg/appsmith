@@ -83,7 +83,7 @@ describe(
     });
 
     it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
-      gitSync.CreateGitBranch("", true);
+      gitSync.CreateGitBranch("", true, false);
       cy.wait(1000);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
