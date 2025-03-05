@@ -56,6 +56,11 @@
   margin-block: var(--inner-spacing-1);
 }
 
+.inputGroup:has([data-has-scrollbar]):has(.input:is(textarea))
+  [data-input-suffix] {
+  right: calc(var(--sizing-1) + var(--scrollbar-width));
+}
+
 .input:autofill,
 .input:autofill:hover,
 .input:autofill:focus,
