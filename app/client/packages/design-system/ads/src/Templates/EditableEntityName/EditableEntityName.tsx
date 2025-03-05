@@ -89,7 +89,6 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     () =>
       validationError
         ? {
-            key: "validation-error",
             content: validationError,
             placement: "bottom",
             visible: true,
@@ -98,7 +97,6 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
             showArrow: true,
           }
         : {
-            key: "entity-name",
             content: name,
             placement: "topLeft",
             isDisabled: !showTooltip,
