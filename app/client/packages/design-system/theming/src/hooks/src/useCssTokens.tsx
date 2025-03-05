@@ -5,6 +5,7 @@ import { objectKeys } from "@appsmith/utils";
 import type { Theme } from "../../theme";
 import type { ThemeToken, Typography } from "../../token";
 import { cssRule, getTypographyClassName } from "../../utils";
+import { getScrollbarWidth } from "@appsmith/utils";
 
 const fontFamilyCss = () => {
   const fontFamilyCss =
@@ -91,11 +92,18 @@ export function useCssTokens(props: Theme) {
     }
   }, [colorMode]);
 
+  const scrollbarWidthClassName = useMemo(() => {
+    return css`
+      --scrollbar-width: ${getScrollbarWidth()}px;
+    `;
+  }, []);
+
   return {
     colorClassName,
     colorModeClassName,
     fontFamilyClassName,
     typographyClassName,
     providerClassName,
+    scrollbarWidthClassName,
   };
 }
