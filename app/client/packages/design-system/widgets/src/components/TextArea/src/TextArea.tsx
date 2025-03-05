@@ -73,7 +73,7 @@ export function TextArea(props: TextAreaProps) {
 
       setTextFieldHeight(height + marginTop + marginBottom);
 
-      input.style.height = `${input.scrollHeight}px`;
+      input.style.height = `${input.scrollHeight + 1}px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
 
