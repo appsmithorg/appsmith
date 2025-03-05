@@ -3,13 +3,12 @@ import type { Row as ReactTableRowType } from "react-table";
 export interface UseInfiniteVirtualizationProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   isLoading: boolean;
+  loadMore: () => void;
   pageSize: number;
 }
 
 export interface UseInfiniteVirtualizationReturn {
-  isItemLoaded: (index: number) => boolean;
-  itemCount: number;
-  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<void>;
+  loadMoreItems: () => Promise<void>;
   cachedRows: ReactTableRowType<Record<string, unknown>>[];
 }
 
@@ -22,17 +21,10 @@ export const useInfiniteVirtualization = ({
   loadMore,
   pageSize,
   rows,
-  totalRecordsCount,
 }: UseInfiniteVirtualizationProps): UseInfiniteVirtualizationReturn => {
   const [loadedPages, setLoadedPages] = useState<LoadedRowsCache>({});
   const lastLoadedPageRef = useRef<number>(0);
   const hasMoreDataRef = useRef<boolean>(true); // Track if more data is available
-
-  const maxPages = useMemo(() => {
-    if (!totalRecordsCount) return Infinity;
-
-    return Math.ceil(totalRecordsCount / pageSize);
-  }, [totalRecordsCount, pageSize]);
 
   useEffect(() => {
     if (rows.length > 0) {
@@ -69,46 +61,15 @@ export const useInfiniteVirtualization = ({
     return allRows;
   }, [loadedPages]);
 
-  const isItemLoaded = useCallback(
-    (index: number) => {
-      const pageIndex = Math.floor(index / pageSize);
-
-      return (
-        pageIndex >= maxPages ||
-        pageIndex < lastLoadedPageRef.current ||
-        !hasMoreDataRef.current
-      );
-    },
-    [pageSize, maxPages],
-  );
-
-  const itemCount = useMemo(() => {
-    // If we know there's no more data, cap itemCount at cachedRows.length
-    if (!hasMoreDataRef.current) {
-      return cachedRows.length;
+  const loadMoreItems = useCallback(async () => {
+    if (!isLoading && hasMoreDataRef.current) {
+      loadMore();
     }
 
-    return totalRecordsCount || cachedRows.length;
-  }, [totalRecordsCount, cachedRows.length]);
-
-  const loadMoreItems = useCallback(
-    async (startIndex: number, stopIndex: number) => {
-      if (!isLoading && hasMoreDataRef.current) {
-        const targetPage = Math.floor(stopIndex / pageSize);
-
-        if (targetPage >= lastLoadedPageRef.current && targetPage < maxPages) {
-          loadMore();
-        }
-      }
-
-      return Promise.resolve();
-    },
-    [isLoading, loadMore, pageSize, maxPages],
-  );
+    return Promise.resolve();
+  }, [isLoading, loadMore]);
 
   return {
-    isItemLoaded,
-    itemCount,
     loadMoreItems,
     cachedRows,
   };

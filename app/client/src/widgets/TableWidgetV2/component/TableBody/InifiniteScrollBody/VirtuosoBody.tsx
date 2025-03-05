@@ -30,16 +30,41 @@ const VirtuosoBody = React.forwardRef(
       pageSize,
       rows,
       tableSizes,
+      totalRecordsCount,
     } = props;
 
     // Track if we're currently loading more data to prevent multiple requests
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    const { cachedRows } = useInfiniteVirtualization({
+    const { cachedRows, loadMoreItems } = useInfiniteVirtualization({
       rows,
       isLoading,
+      loadMore: loadMoreFromEvaluations,
       pageSize,
     });
+
+    // Proactively fetch more data when initial rows are loaded
+    useEffect(() => {
+      // Check if we need to fetch more data
+      const shouldFetchMore =
+        !isLoading &&
+        !isLoadingMore &&
+        cachedRows.length > 0 && // We have some initial data
+        cachedRows.length < (totalRecordsCount || Infinity) && // There's more data to fetch
+        cachedRows.length <= pageSize; // We've only loaded the first page
+
+      if (shouldFetchMore) {
+        setIsLoadingMore(true);
+        loadMoreItems();
+      }
+    }, [
+      cachedRows.length,
+      isLoading,
+      isLoadingMore,
+      loadMoreItems,
+      pageSize,
+      totalRecordsCount,
+    ]);
 
     // Reset loading state when isLoading prop changes
     useEffect(() => {
@@ -53,19 +78,19 @@ const VirtuosoBody = React.forwardRef(
       if (
         !isLoading &&
         !isLoadingMore &&
-        cachedRows.length < (props.totalRecordsCount || cachedRows.length)
+        cachedRows.length < (totalRecordsCount || Infinity)
       ) {
         setIsLoadingMore(true);
-        loadMoreFromEvaluations();
+        loadMoreItems();
       }
 
       return Promise.resolve();
     }, [
+      cachedRows.length,
       isLoading,
       isLoadingMore,
-      loadMoreFromEvaluations,
-      cachedRows.length,
-      props.totalRecordsCount,
+      loadMoreItems,
+      totalRecordsCount,
     ]);
 
     // TR component for rendering table rows
@@ -91,13 +116,13 @@ const VirtuosoBody = React.forwardRef(
       // Only show loading indicator if there are more items to load
       if (
         (isLoading || isLoadingMore) &&
-        cachedRows.length < (props.totalRecordsCount || cachedRows.length)
+        cachedRows.length < (totalRecordsCount || Infinity)
       ) {
         return <LoadingIndicator />;
       }
 
       return null;
-    }, [isLoading, isLoadingMore, cachedRows.length, props.totalRecordsCount]);
+    }, [isLoading, isLoadingMore, cachedRows.length, totalRecordsCount]);
 
     // Calculate the effective height for the virtuoso component
     // Ensure height is not negative or too small
@@ -118,16 +143,19 @@ const VirtuosoBody = React.forwardRef(
     // Calculate the total count for Virtuoso
     // Add a small buffer to prevent abrupt changes in scroll height
     const totalCount = useMemo(() => {
-      const count = props.totalRecordsCount || cachedRows.length;
+      const count = totalRecordsCount || cachedRows.length;
 
       // Add a small buffer if we're loading more data to maintain scroll position
       return isLoadingMore ? count + Math.min(pageSize, 5) : count;
-    }, [cachedRows.length, isLoadingMore, pageSize, props.totalRecordsCount]);
+    }, [cachedRows.length, isLoadingMore, pageSize, totalRecordsCount]);
 
     // Calculate the number of rows to keep in DOM based on viewport height
     // This helps reduce jittery effect by keeping more rows rendered
     const rowsToKeepInDOM =
       Math.ceil(effectiveHeight / tableSizes.ROW_HEIGHT) * 3;
+
+    // Calculate the overscan value to ensure we fetch data proactively
+    const overscanValue = Math.max(pageSize, rowsToKeepInDOM);
 
     return (
       <div
@@ -148,11 +176,11 @@ const VirtuosoBody = React.forwardRef(
           fixedItemHeight={tableSizes.ROW_HEIGHT}
           increaseViewportBy={{
             top: rowsToKeepInDOM * tableSizes.ROW_HEIGHT,
-            bottom: rowsToKeepInDOM * tableSizes.ROW_HEIGHT,
+            bottom: overscanValue * tableSizes.ROW_HEIGHT,
           }}
           initialTopMostItemIndex={0}
           itemContent={(index) => rowContent(index)}
-          overscan={Math.max(pageSize, rowsToKeepInDOM)}
+          overscan={overscanValue}
           ref={(instance) => {
             (
               ref as React.MutableRefObject<TableVirtuosoHandle | null>
