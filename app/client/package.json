@@ -392,7 +392,7 @@
     "ts-jest-mock-import-meta": "^0.12.0",
     "ts-node": "^10.9.1",
     "webpack": "^5.64.4",
-    "webpack-dev-server": "^4.6.0",
+    "webpack-dev-server": "^5.2.0",
     "webpack-manifest-plugin": "^4.0.2",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
     "workbox-webpack-plugin": "^6.4.1",
