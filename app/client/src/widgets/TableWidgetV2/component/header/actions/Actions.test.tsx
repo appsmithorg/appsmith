@@ -1,8 +1,9 @@
-import React from "react";
-import { render, fireEvent, screen } from "@testing-library/react";
-import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
 import "@testing-library/jest-dom";
+import { fireEvent, render, screen } from "@testing-library/react";
+import React from "react";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { TableProvider, type TableProviderProps } from "../../TableContext";
 import Actions from "./index";
 
 // Mock child components
@@ -34,15 +35,14 @@ jest.mock("./Download", () => ({
   __esModule: true,
   default: () => <div data-testid="table-download">Download</div>,
 }));
-
 describe("TableWidget Actions Component", () => {
-  const defaultProps = {
+  const defaultProps: TableProviderProps = {
     updatePageNo: jest.fn(),
     nextPageClick: jest.fn(),
     prevPageClick: jest.fn(),
     pageNo: 0,
-    tableData: [],
-    tableColumns: [],
+    children: <div />,
+    data: [],
     pageCount: 5,
     currentPageIndex: 0,
     pageOptions: [1, 2, 3, 4, 5],
@@ -52,17 +52,6 @@ describe("TableWidget Actions Component", () => {
     searchTableData: jest.fn(),
     serverSidePaginationEnabled: false,
     applyFilter: jest.fn(),
-    tableSizes: {
-      COLUMN_HEADER_HEIGHT: 32,
-      EDITABLE_CELL_HEIGHT: 30,
-      EDIT_ICON_TOP: 10,
-      ROW_FONT_SIZE: 14,
-      ROW_HEIGHT: 40,
-      ROW_VIRTUAL_OFFSET: 3,
-      TABLE_HEADER_HEIGHT: 40,
-      VERTICAL_EDITOR_PADDING: 0,
-      VERTICAL_PADDING: 6,
-    },
     isVisibleDownload: true,
     isVisibleFilters: true,
     isVisiblePagination: true,
@@ -73,7 +62,6 @@ describe("TableWidget Actions Component", () => {
     accentColor: "#553DE9",
     allowAddNewRow: false,
     onAddNewRow: jest.fn(),
-    disableAddNewRow: false,
     isInfiniteScrollEnabled: false,
     isAddRowInProgress: false,
     onAddNewRowAction: jest.fn(),
@@ -109,27 +97,74 @@ describe("TableWidget Actions Component", () => {
         },
       },
     ],
+    // Additional required props for TableProvider
+    isHeaderVisible: true,
+    compactMode: "DEFAULT",
+    handleAllRowSelectClick: jest.fn(),
+    headerGroups: [],
+    totalColumnsWidth: 800,
+    isResizingColumn: { current: false },
+    prepareRow: jest.fn(),
+    rowSelectionState: null,
+    subPage: [],
+    getTableBodyProps: jest.fn(),
+    width: 800,
+    height: 400,
+    pageSize: 10,
+    editMode: false,
+    editableCell: {
+      column: "column1",
+      index: 0,
+      value: "",
+      initialValue: "",
+      inputValue: "",
+      __originalIndex__: 0,
+    },
+    sortTableColumn: jest.fn(),
+    handleResizeColumn: jest.fn(),
+    handleReorderColumn: jest.fn(),
+    selectTableRow: jest.fn(),
+    selectedRowIndex: -1,
+    selectedRowIndices: [],
+    disableDrag: jest.fn(),
+    enableDrag: jest.fn(),
+    toggleAllRowSelect: jest.fn(),
+    triggerRowSelection: false,
+    filters: [],
+    isSortable: true,
+    multiRowSelection: false,
+    columnWidthMap: {},
+    onBulkEditDiscard: jest.fn(),
+    onBulkEditSave: jest.fn(),
+    showConnectDataOverlay: false,
+    onConnectData: jest.fn(),
+    isLoading: false,
+  };
+
+  const renderWithTableProvider = (props: Partial<TableProviderProps>) => {
+    return render(
+      <ThemeProvider theme={lightTheme}>
+        <TableProvider {...defaultProps} {...props}>
+          <Actions />
+        </TableProvider>
+      </ThemeProvider>,
+    );
   };
 
   it("1. Renders search component when isVisibleSearch is true", () => {
-    render(<Actions {...defaultProps} columns={[]} />);
+    renderWithTableProvider({});
     expect(screen.getByTestId("search-input")).toBeInTheDocument();
   });
+
   it("2. Does not render search component when isVisibleSearch is false", () => {
-    render(<Actions {...defaultProps} columns={[]} isVisibleSearch={false} />);
+    renderWithTableProvider({ isVisibleSearch: false });
     expect(screen.queryByTestId("search-input")).not.toBeInTheDocument();
   });
 
   it("3. Calls searchTableData when search input changes", () => {
     const searchTableData = jest.fn();
 
-    render(
-      <Actions
-        {...defaultProps}
-        columns={[]}
-        searchTableData={searchTableData}
-      />,
-    );
+    renderWithTableProvider({ searchTableData });
 
     const searchInput = screen.getByTestId("search-input");
 
@@ -141,15 +176,12 @@ describe("TableWidget Actions Component", () => {
   it("4. Renders pagination controls when isVisiblePagination is true and serverSidePagination is false", () => {
     const tableData = [{ id: 1 }, { id: 2 }];
 
-    render(
-      <Actions
-        {...defaultProps}
-        isVisiblePagination
-        pageCount={1}
-        tableData={tableData}
-        totalRecordsCount={5}
-      />,
-    );
+    renderWithTableProvider({
+      isVisiblePagination: true,
+      pageCount: 1,
+      data: tableData,
+      totalRecordsCount: 5,
+    });
 
     expect(screen.getByText("2 Records")).toBeInTheDocument();
     expect(screen.getByText(/Page/)).toBeInTheDocument();
@@ -159,15 +191,12 @@ describe("TableWidget Actions Component", () => {
   it("5. Calls nextPageClick when next button is clicked", () => {
     const nextPageClick = jest.fn();
 
-    render(
-      <Actions
-        {...defaultProps}
-        isVisiblePagination
-        pageCount={3}
-        totalRecordsCount={5}
-        updatePageNo={nextPageClick}
-      />,
-    );
+    renderWithTableProvider({
+      isVisiblePagination: true,
+      pageCount: 3,
+      totalRecordsCount: 5,
+      updatePageNo: nextPageClick,
+    });
 
     const nextButton = screen
       .getByText("chevron-right")
@@ -182,17 +211,14 @@ describe("TableWidget Actions Component", () => {
   it("6. Calls prevPageClick when previous button is clicked", () => {
     const prevPageClick = jest.fn();
 
-    render(
-      <Actions
-        {...defaultProps}
-        currentPageIndex={1}
-        isVisiblePagination
-        pageCount={3}
-        pageNo={2}
-        totalRecordsCount={5}
-        updatePageNo={prevPageClick}
-      />,
-    );
+    renderWithTableProvider({
+      currentPageIndex: 1,
+      isVisiblePagination: true,
+      pageCount: 3,
+      pageNo: 2,
+      totalRecordsCount: 5,
+      updatePageNo: prevPageClick,
+    });
 
     const prevButton = screen
       .getByText("chevron-left")
@@ -205,11 +231,9 @@ describe("TableWidget Actions Component", () => {
   });
 
   it("7. Renders add new row button when allowAddNewRow is true", () => {
-    render(
-      <ThemeProvider theme={lightTheme}>
-        <Actions {...defaultProps} allowAddNewRow />
-      </ThemeProvider>,
-    );
+    renderWithTableProvider({
+      allowAddNewRow: true,
+    });
 
     expect(screen.getByText(/Add new row/)).toBeInTheDocument();
   });
@@ -217,13 +241,10 @@ describe("TableWidget Actions Component", () => {
   it("8. Shows correct record count with infinite scroll enabled and no total records count", () => {
     const tableData = [{ id: 1 }, { id: 2 }];
 
-    render(
-      <Actions
-        {...defaultProps}
-        isInfiniteScrollEnabled
-        tableData={tableData}
-      />,
-    );
+    renderWithTableProvider({
+      isInfiniteScrollEnabled: true,
+      data: tableData,
+    });
 
     expect(screen.getByText("2 Records")).toBeInTheDocument();
   });
@@ -232,14 +253,11 @@ describe("TableWidget Actions Component", () => {
     const tableData = [{ id: 1 }, { id: 2 }];
     const totalRecordsCount = 10;
 
-    render(
-      <Actions
-        {...defaultProps}
-        isInfiniteScrollEnabled
-        tableData={tableData}
-        totalRecordsCount={totalRecordsCount}
-      />,
-    );
+    renderWithTableProvider({
+      isInfiniteScrollEnabled: true,
+      data: tableData,
+      totalRecordsCount,
+    });
 
     expect(screen.getByText("2 out of 10 Records")).toBeInTheDocument();
   });
