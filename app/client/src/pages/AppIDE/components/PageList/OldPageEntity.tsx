@@ -7,7 +7,7 @@ import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import PageContextMenu from "./PageContextMenu";
+import PageContextMenu from "./ContextMenu/OldPageContextMenu";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

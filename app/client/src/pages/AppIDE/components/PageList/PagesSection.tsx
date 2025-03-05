@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { ListItemContainer, ListWithHeader } from "@appsmith/ads";
+import { ListWithHeader } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
 
 import { selectAllPages } from "ee/selectors/entitiesSelector";
 import type { Page } from "entities/Page";
@@ -17,12 +16,11 @@ import AddPageContextMenu from "./AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
-import { PageElement } from "./PageElement";
+import { PageList } from "./PageList";
 import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
-  const location = useLocation();
   const pages: Page[] = useSelector(selectAllPages);
   const applicationId = useSelector(getCurrentApplicationId);
   const userAppPermissions = useSelector(
@@ -53,16 +51,6 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
 
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
-  const pageElements = useMemo(
-    () =>
-      pages.map((page) => (
-        <ListItemContainer key={page.pageId}>
-          <PageElement onClick={onItemSelected} page={page} />
-        </ListItemContainer>
-      )),
-    [pages, location.pathname, onItemSelected],
-  );
-
   const createPageContextMenu = useMemo(() => {
     if (!canCreatePages) return null;
 
@@ -91,7 +79,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       headerText={`All Pages (${pages.length})`}
       maxHeight={"300px"}
     >
-      {pageElements}
+      <PageList onItemSelected={onItemSelected} pages={pages} />
     </ListWithHeader>
   );
 };
