@@ -145,8 +145,8 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject1").length).toEqual(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-JSObject1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-JSObject1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-jsobject1").classList.contains("active"),

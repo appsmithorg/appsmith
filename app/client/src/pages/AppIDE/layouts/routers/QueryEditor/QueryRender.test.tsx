@@ -156,8 +156,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Api1").length).toEqual(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Api1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Api1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(getByTestId("t--ide-tab-api1").classList.contains("active")).toBe(
         true,
@@ -367,8 +367,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Query1").length).toBe(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Query1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Query1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-query1").classList.contains("active"),
@@ -571,8 +571,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Sheets1").length).toBe(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Sheets1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Sheets1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-sheets1").classList.contains("active"),

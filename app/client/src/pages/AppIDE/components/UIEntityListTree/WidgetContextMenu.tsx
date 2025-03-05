@@ -21,6 +21,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 
 export const WidgetContextMenu = (props: {
@@ -98,7 +99,13 @@ export const WidgetContextMenu = (props: {
           startIcon="more-2-fill"
         />
       </MenuTrigger>
-      <MenuContent align="start" key={widgetId} side="right" width="300px">
+      <MenuContent
+        align="start"
+        className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+        key={widgetId}
+        side="right"
+        width="300px"
+      >
         {menuContent}
       </MenuContent>
     </Menu>

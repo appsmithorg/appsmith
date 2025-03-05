@@ -26,7 +26,7 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

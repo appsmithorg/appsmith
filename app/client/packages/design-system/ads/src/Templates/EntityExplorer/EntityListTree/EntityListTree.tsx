@@ -50,7 +50,10 @@ export function EntityListTree(props: EntityListTreeProps) {
             {item.children && item.children.length ? (
               <CollapseWrapper
                 data-itemid={item.id}
-                data-testid="t--entity-item-expand-icon"
+                data-testid="t--entity-collapse-toggle"
+                id={
+                  item.isExpanded ? "arrow-down-s-line" : "arrow-right-s-line"
+                }
                 onClick={handleOnExpandClick}
               >
                 <Icon
