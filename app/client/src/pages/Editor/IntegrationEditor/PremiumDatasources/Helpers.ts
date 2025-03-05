@@ -4,12 +4,6 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginType, type Plugin } from "entities/Plugin";
 import { isRelevantEmail } from "utils/formhelpers";
 
-export const getTagText = (isBusinessOrEnterprise?: boolean) => {
-  return isBusinessOrEnterprise
-    ? createMessage(PREMIUM_DATASOURCES.SOON_TAG)
-    : createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG);
-};
-
 export const handlePremiumDatasourceClick = (
   integrationName: string,
   isBusinessOrEnterprise?: boolean,
