@@ -52,11 +52,6 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     loading: false,
     error: null,
   },
-  latestCommit: {
-    value: null,
-    loading: false,
-    error: null,
-  },
   pull: {
     loading: false,
     error: null,
@@ -130,6 +125,11 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     error: null,
   },
   sshKey: {
+    value: null,
+    loading: false,
+    error: null,
+  },
+  pretag: {
     value: null,
     loading: false,
     error: null,
