@@ -53,6 +53,7 @@ import {
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
 import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
+import { handleModuleWidgetCreationSaga } from "ee/sagas/moduleInterfaceSaga";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -378,12 +379,17 @@ export function* getUpdateDslAfterCreatingChild(
   // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
   // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
   // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+  let updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
     [addChildPayload.newWidgetId],
     widgets,
   );
+
+  updatedWidgets = yield call(handleModuleWidgetCreationSaga, {
+    addChildPayload,
+    widgets: updatedWidgets,
+  });
 
   return updatedWidgets;
 }
