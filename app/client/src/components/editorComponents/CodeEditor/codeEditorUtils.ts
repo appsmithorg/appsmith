@@ -3,25 +3,21 @@ import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { WidgetEntity, ActionEntity } from "ee/entities/DataTree/types";
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
-import { EditorSize } from "./EditorConfig";
+import { EditorModes, EditorSize } from "./EditorConfig";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const removeNewLineChars = (inputValue: any) => {
+export const removeNewLineChars = (inputValue: string) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getInputValue = (inputValue: any) => {
+export const getInputValue = (inputValue: unknown): string => {
   if (typeof inputValue === "object" || typeof inputValue === "boolean") {
     inputValue = JSON.stringify(inputValue, null, 2);
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
     inputValue += "";
   }
 
-  return inputValue;
+  return String(inputValue || "");
 };
 const computeCursorIndex = (editor: CodeMirror.Editor) => {
   const cursor = editor.getCursor();
@@ -170,3 +166,26 @@ export function shouldShowSlashCommandMenu(
     SlashCommandMenuOnFocusWidgetProps[widgetType].includes(propertyPath)
   );
 }
+
+// Checks if the input value is only one word
+export const shouldShowAutocompleteWithBindingBrackets = (
+  editor: CodeMirror.Editor,
+) => {
+  const editorMode = editor.getModeAt(editor.getCursor());
+
+  if (editorMode?.name === EditorModes.SQL) {
+    return false;
+  }
+
+  const value = editor.getValue();
+
+  // Do not show if the value is "/"
+  if (value.startsWith("/") || value.trim() === "") {
+    return false;
+  }
+
+  // Split the value by whitespace
+  const stringSegments = value.split(/\s+/);
+
+  return stringSegments.length === 1;
+};
