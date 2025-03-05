@@ -15,3 +15,5 @@ export { default as PluginActionNameEditor } from "./components/PluginActionName
 export type { PluginActionEditorState } from "./store/pluginEditorReducer";
 
 export { DocsMenuItem } from "./components/PluginActionToolbar/components/DocsMenuItem";
+
+export { default as DatasourceInfo } from "./components/PluginActionResponse/components/DatasourceTab/DatasourceInfo";

@@ -1,8 +1,6 @@
 import React from "react";
 import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
-
-import { SentryRoute } from "ee/AppRouter";
 import {
   ADD_PATH,
   BUILDER_CUSTOM_PATH,
@@ -19,6 +17,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { SentryRoute } from "components/SentryRoute";
 
 const UISegment = () => {
   const { path } = useRouteMatch();

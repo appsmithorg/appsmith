@@ -1,7 +1,7 @@
 import React from "react";
 import { Switch, useRouteMatch } from "react-router";
 import { JSEditorRoutes } from "ee/pages/AppIDE/layouts/routers/JSEditor/constants";
-import { SentryRoute } from "ee/AppRouter";
+import { SentryRoute } from "components/SentryRoute";
 
 const JSEditorPane = () => {
   const { path } = useRouteMatch();

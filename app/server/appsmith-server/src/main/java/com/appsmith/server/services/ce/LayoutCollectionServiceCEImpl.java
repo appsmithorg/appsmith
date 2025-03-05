@@ -5,6 +5,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.ActionCollection.Fields;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -31,6 +32,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -285,8 +287,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         return branchedActionCollectionMono.flatMap(dbActionCollection -> {
             BridgeUpdate updateObj = Bridge.update();
             String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
+            String updatedAtPath = Fields.updatedAt;
 
             updateObj.set(path, actionCollectionDTO.getBody());
+            updateObj.set(updatedAtPath, Instant.now());
 
             return actionCollectionRepository.updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj);
         });
