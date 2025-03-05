@@ -148,7 +148,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get the user
         Mono<User> userMono = organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .flatMap(organizationId ->
                         userRepository.findByEmailAndOrganizationId(changeUserGroupDTO.getUsername(), organizationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(

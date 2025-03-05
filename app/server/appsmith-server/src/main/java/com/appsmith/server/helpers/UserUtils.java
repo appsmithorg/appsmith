@@ -19,7 +19,6 @@ public class UserUtils extends UserUtilsCE {
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
             CommonConfig commonConfig,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
             OrganizationRepository organizationRepository,
             SessionUserService sessionUserService) {
         super(
@@ -28,7 +27,6 @@ public class UserUtils extends UserUtilsCE {
                 cacheableRepositoryHelper,
                 observationRegistry,
                 commonConfig,
-                inMemoryCacheableRepositoryHelper,
                 organizationRepository,
                 sessionUserService);
     }

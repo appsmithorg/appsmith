@@ -46,7 +46,7 @@ public class OrganizationControllerCE {
     @PutMapping("")
     public Mono<ResponseDTO<Organization>> updateOrganizationConfiguration(
             @RequestBody OrganizationConfiguration organizationConfiguration) {
-        return service.updateDefaultOrganizationConfiguration(organizationConfiguration)
+        return service.updateOrganizationConfiguration(organizationConfiguration)
                 .map(organization -> new ResponseDTO<>(HttpStatus.OK, organization));
     }
 }
