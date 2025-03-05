@@ -12,7 +12,6 @@ interface InfiniteScrollBodyProps {
   innerElementType?: ReactElementType;
   isLoading: boolean;
   totalRecordsCount?: number;
-  itemCount: number;
   loadMoreFromEvaluations: () => void;
   pageSize: number;
 }
