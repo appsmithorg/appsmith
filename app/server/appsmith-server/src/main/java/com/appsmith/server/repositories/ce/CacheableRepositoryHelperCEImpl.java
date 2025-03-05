@@ -98,7 +98,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     public Mono<String> getOrganizationAdminPermissionGroupId(String organizationId) {
 
         String organizationAdminPermissionGroupId =
-                inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(organizationId);
+                InMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(organizationId);
         if (hasLength(organizationAdminPermissionGroupId)) {
             return Mono.just(organizationAdminPermissionGroupId);
         }
@@ -119,7 +119,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .map(permissionGroup -> permissionGroup.getId())
                 .next()
                 .doOnSuccess(
-                        permissionGroupId -> inMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
+                        permissionGroupId -> InMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
                                 organizationId, permissionGroupId));
     }
 

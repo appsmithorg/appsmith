@@ -16,14 +16,13 @@ public class InMemoryCacheableRepositoryHelper {
     @Setter
     private static String instanceAdminPermissionGroupId = null;
 
-    private Map<String, String> inMemoryOrganizationIdOrganizationPermissionGroupIdMap = new HashMap<>();
+    private static final Map<String, String> inMemoryOrganizationIdOrganizationPermissionGroupIdMap = new HashMap<>();
 
-    public String getOrganizationAdminPermissionGroupId(String organizationId) {
-        return this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.get(organizationId);
+    public static String getOrganizationAdminPermissionGroupId(String organizationId) {
+        return inMemoryOrganizationIdOrganizationPermissionGroupIdMap.get(organizationId);
     }
 
-    public void setOrganizationAdminPermissionGroupId(String organizationId, String permissionGroupId) {
-        this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.put(organizationId, permissionGroupId);
+    public static void setOrganizationAdminPermissionGroupId(String organizationId, String permissionGroupId) {
+        inMemoryOrganizationIdOrganizationPermissionGroupIdMap.put(organizationId, permissionGroupId);
     }
-
 }

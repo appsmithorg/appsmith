@@ -38,7 +38,6 @@ public class UserUtilsCE {
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final CommonConfig commonConfig;
-    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final OrganizationRepository organizationRepository;
     private final SessionUserService sessionUserService;
 
@@ -48,7 +47,6 @@ public class UserUtilsCE {
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
             CommonConfig commonConfig,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
             OrganizationRepository organizationRepository,
             SessionUserService sessionUserService) {
         this.configRepository = configRepository;
@@ -56,7 +54,6 @@ public class UserUtilsCE {
         this.observationRegistry = observationRegistry;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
-        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
         this.organizationRepository = organizationRepository;
         this.sessionUserService = sessionUserService;
     }
@@ -183,7 +180,7 @@ public class UserUtilsCE {
 
     public Mono<PermissionGroup> getInstanceAdminPermissionGroup() {
 
-        String instanceAdminPermissionGroupId = inMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
+        String instanceAdminPermissionGroupId = InMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
         if (hasLength(instanceAdminPermissionGroupId)) {
             return permissionGroupRepository.findById(instanceAdminPermissionGroupId);
         }
@@ -193,14 +190,14 @@ public class UserUtilsCE {
             String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
             return permissionGroupRepository
                     .findById(defaultPermissionGroup)
-                    .doOnSuccess(permissionGroup -> inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(
+                    .doOnSuccess(permissionGroup -> InMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(
                             permissionGroup.getId()));
         });
     }
 
     public Mono<PermissionGroup> getDefaultOrganizationAdminPermissionGroup() {
-        return cacheableRepositoryHelper.getDefaultOrganizationId().flatMap(orgId -> {
-            String permissionGroupId = inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(orgId);
+        return cacheableRepositoryHelper.getCurrentUserOrganizationId().flatMap(orgId -> {
+            String permissionGroupId = InMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(orgId);
             if (hasLength(permissionGroupId)) {
                 return permissionGroupRepository.findById(permissionGroupId);
             }
@@ -208,7 +205,7 @@ public class UserUtilsCE {
                     .findByDefaultDomainIdAndDefaultDomainType(orgId, Organization.class.getSimpleName())
                     .next()
                     .doOnSuccess(
-                            permissionGroup -> inMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
+                            permissionGroup -> InMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
                                     orgId, permissionGroup.getId()));
         });
     }
