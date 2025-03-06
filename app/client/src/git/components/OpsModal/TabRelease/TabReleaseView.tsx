@@ -24,9 +24,21 @@ const StyledModalFooter = styled(ModalFooter)`
 
 interface TabReleaseProps {
   fetchPretag: () => void;
+  createReleaseTag: (params: {
+    tag: string;
+    releaseNote: string;
+    commitSHA: string;
+  }) => void;
+  isCreateReleaseTagLoading: boolean;
+  latestCommitSHA: string | null;
 }
 
-function TabReleaseView({ fetchPretag = noop }: TabReleaseProps) {
+function TabReleaseView({
+  createReleaseTag = noop,
+  fetchPretag = noop,
+  isCreateReleaseTagLoading = false,
+  latestCommitSHA = null,
+}: TabReleaseProps) {
   const [releaseVersion, setReleaseVersion] = useState<string | null>(null);
   const [releaseNotes, setReleaseNotes] = useState<string | null>(null);
 
@@ -39,7 +51,13 @@ function TabReleaseView({ fetchPretag = noop }: TabReleaseProps) {
     [fetchPretag],
   );
 
-  const handleClickOnRelease = useCallback(() => {}, []);
+  const handleClickOnRelease = useCallback(() => {
+    createReleaseTag({
+      tag: releaseVersion ?? "",
+      releaseNote: releaseNotes ?? "",
+      commitSHA: latestCommitSHA ?? "",
+    });
+  }, [createReleaseTag, latestCommitSHA, releaseNotes, releaseVersion]);
 
   return (
     <>
@@ -59,6 +77,7 @@ function TabReleaseView({ fetchPretag = noop }: TabReleaseProps) {
       <StyledModalFooter>
         <Button
           isDisabled={isReleaseDisabled}
+          isLoading={isCreateReleaseTagLoading}
           onClick={handleClickOnRelease}
           size="md"
         >

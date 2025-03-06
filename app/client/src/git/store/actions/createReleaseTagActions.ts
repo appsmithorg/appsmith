@@ -2,6 +2,7 @@ import { createArtifactAction } from "../helpers/createArtifactAction";
 import type { GitAsyncErrorPayload } from "../types";
 
 export interface CreateReleaseTagInitPayload {
+  artifactId: string;
   tag: string;
   releaseNote: string;
   commitSHA: string;

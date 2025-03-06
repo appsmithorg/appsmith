@@ -93,6 +93,11 @@ export const selectPretagState = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses?.pretag;
 
+export const selectCreateReleaseTagState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses?.createReleaseTag;
+
 export const selectDiscardState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
