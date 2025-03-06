@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import type { DropTargetMonitor } from "react-dnd";
 import { DndProvider, useDrop } from "react-dnd";
-import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
+import { HTML5Backend, NativeTypes } from "react-dnd-html5-backend";
 import { Button } from "@appsmith/ads";
 import type { IconNames } from "@appsmith/ads";
 import { Icon } from "@appsmith/ads";
@@ -259,7 +259,7 @@ function FilePickerComponent(props: FilePickerProps) {
 
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
-      const files = monitor.getItem().files;
+      const files = (monitor.getItem() as any).files;
 
       if (!files) {
         return;

@@ -1,5 +1,6 @@
+import type { CheckoutRefResponseData } from "git/requests/checkoutRefRequest.types";
 import { createArtifactAction } from "../helpers/createArtifactAction";
-import type { GitAsyncErrorPayload } from "../types";
+import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
 
 export interface CheckoutBranchInitPayload {
   artifactId: string;
@@ -15,13 +16,17 @@ export const checkoutBranchInitAction =
     return state;
   });
 
-export const checkoutBranchSuccessAction = createArtifactAction((state) => {
-  state.apiResponses.checkoutBranch.loading = false;
-  state.apiResponses.checkoutBranch.error = null;
-  state.ui.checkoutDestBranch = null;
+export type CheckoutBranchSuccessPayload =
+  GitAsyncSuccessPayload<CheckoutRefResponseData>;
 
-  return state;
-});
+export const checkoutBranchSuccessAction =
+  createArtifactAction<CheckoutBranchSuccessPayload>((state) => {
+    state.apiResponses.checkoutBranch.loading = false;
+    state.apiResponses.checkoutBranch.error = null;
+    state.ui.checkoutDestBranch = null;
+
+    return state;
+  });
 
 export const checkoutBranchErrorAction =
   createArtifactAction<GitAsyncErrorPayload>((state, action) => {

@@ -100,50 +100,61 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         };
     }
 
-    /**
-     * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
-     *
-     * @param filePart : filePart from which the contents would be made
-     * @return : Json entity which implements ArtifactExchangeJson
-     */
-    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart) {
-
-        final MediaType contentType = filePart.headers().getContentType();
+    @Override
+    public Mono<String> readFilePartToString(Part file) {
+        final MediaType contentType = file.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             log.error("Invalid content type, {}", contentType);
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
 
-        return DataBufferUtils.join(filePart.content())
-                .map(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(data);
-                })
-                .map(jsonString -> {
-                    gsonBuilder.registerTypeAdapter(ArtifactExchangeJson.class, artifactExchangeJsonAdapter);
-                    Gson gson = gsonBuilder.create();
-                    return gson.fromJson(jsonString, ArtifactExchangeJson.class);
-                });
+        return DataBufferUtils.join(file.content()).map(dataBuffer -> {
+            byte[] data = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(data);
+            DataBufferUtils.release(dataBuffer);
+            return new String(data);
+        });
+    }
+
+    /**
+     * This method takes JSON content and makes a JSON entity which implements the ArtifactExchangeJson interface.
+     *
+     * @param jsonString JSON string to parse
+     * @return JSON entity which implements ArtifactExchangeJson
+     */
+    @Override
+    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(String jsonString) {
+        return Mono.fromCallable(() -> {
+            gsonBuilder.registerTypeAdapter(ArtifactExchangeJson.class, artifactExchangeJsonAdapter);
+            Gson gson = gsonBuilder.create();
+            return gson.fromJson(jsonString, ArtifactExchangeJson.class);
+        });
+    }
+
+    @Override
+    public Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
+            Part filePart, String workspaceId, String artifactId) {
+        return readFilePartToString(filePart)
+                .flatMap(jsonContents ->
+                        extractArtifactExchangeJsonAndSaveArtifact(jsonContents, workspaceId, artifactId));
     }
 
     /**
      * Hydrates an Artifact within the specified workspace by saving the provided JSON file.
      *
-     * @param filePart    The filePart representing the Artifact object to be saved.
+     * @param jsonContents    The jsonContents representing the Artifact object to be saved.
      *                    The Artifact implements the Artifact interface.
      * @param workspaceId The identifier for the destination workspace.
      */
     @Override
     public Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
-            Part filePart, String workspaceId, String artifactId) {
+            String jsonContents, String workspaceId, String artifactId) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ArtifactImportDTO> importedContextMono = extractArtifactExchangeJson(filePart)
+        Mono<ArtifactImportDTO> importedContextMono = extractArtifactExchangeJson(jsonContents)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(artifactId)) {
                         return importNewArtifactInWorkspaceFromJson(workspaceId, contextJson);
@@ -532,8 +543,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     .as(transactionalOperator::transactional);
 
             return importMono
-                    .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
-                            artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
+                    .flatMap(importableArtifact -> {
+                        return postImportHook(importableArtifact)
+                                .then(sendImportedContextAnalyticsEvent(
+                                        artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT));
+                    })
                     .zipWith(currUserMono)
                     .flatMap(tuple -> {
                         Artifact importableArtifact = tuple.getT1();
@@ -552,6 +566,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
         return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    protected Mono<Void> postImportHook(Artifact artifact) {
+        return Mono.empty();
     }
 
     /**

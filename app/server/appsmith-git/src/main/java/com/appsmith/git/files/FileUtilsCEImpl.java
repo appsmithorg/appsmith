@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.models.GitResourceIdentity;
 import com.appsmith.external.git.models.GitResourceMap;
 import com.appsmith.external.git.models.GitResourceType;
@@ -75,6 +76,7 @@ import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
+import static com.appsmith.git.constants.ce.CommonConstantsCE.DELIMITER_PATH;
 
 @Slf4j
 @Getter
@@ -83,6 +85,7 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 public class FileUtilsCEImpl implements FileInterface {
 
     private final GitServiceConfig gitServiceConfig;
+    protected final FSGitHandler fsGitHandler;
     private final GitExecutor gitExecutor;
     protected final FileOperations fileOperations;
     private final ObservationHelper observationHelper;
@@ -101,11 +104,13 @@ public class FileUtilsCEImpl implements FileInterface {
 
     public FileUtilsCEImpl(
             GitServiceConfig gitServiceConfig,
+            FSGitHandler fsGitHandler,
             GitExecutor gitExecutor,
             FileOperations fileOperations,
             ObservationHelper observationHelper,
             ObjectMapper objectMapper) {
         this.gitServiceConfig = gitServiceConfig;
+        this.fsGitHandler = fsGitHandler;
         this.gitExecutor = gitExecutor;
         this.fileOperations = fileOperations;
         this.observationHelper = observationHelper;
@@ -247,7 +252,7 @@ public class FileUtilsCEImpl implements FileInterface {
         // Repo path will be:
         // baseRepo : root/workspaceId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
-        return gitExecutor
+        return fsGitHandler
                 .resetToLastCommit(baseRepoSuffix, branchName)
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
@@ -263,12 +268,48 @@ public class FileUtilsCEImpl implements FileInterface {
                 .subscribeOn(scheduler);
     }
 
+    protected Set<String> getWhitelistedPaths() {
+        String pages = PAGE_DIRECTORY + DELIMITER_PATH;
+        String datasources = DATASOURCE_DIRECTORY + DELIMITER_PATH;
+        String themes = CommonConstants.THEME + JSON_EXTENSION;
+        String application = CommonConstants.APPLICATION + JSON_EXTENSION;
+        String metadata = CommonConstants.METADATA + JSON_EXTENSION;
+        String customJsLibs = JS_LIB_DIRECTORY + DELIMITER_PATH;
+
+        return new HashSet<>(Set.of(pages, datasources, themes, application, metadata, customJsLibs));
+    }
+
+    protected Boolean isWhiteListedPath(Set<String> whiteListedPaths, String relativePath) {
+
+        // Not expecting the relative path to ever be empty.
+        // .git is internal file this shouldn't be whitelisted
+        if (!StringUtils.hasText(relativePath) || relativePath.contains(".git/")) {
+            return Boolean.FALSE;
+        }
+
+        // cases where the path is a direct root config object
+        if (whiteListedPaths.contains(relativePath)) {
+            return Boolean.TRUE;
+        }
+
+        String[] tokens = relativePath.strip().split(DELIMITER_PATH);
+        // it means that path is not a root config object and adheres to the given whitelisted path
+        if (tokens.length > 1 && whiteListedPaths.contains(tokens[0] + DELIMITER_PATH)) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
     protected Set<String> getExistingFilesInRepo(Path baseRepo) throws IOException {
+        Set<String> whiteListedPaths = getWhitelistedPaths();
         try (Stream<Path> stream = Files.walk(baseRepo).parallel()) {
             return stream.filter(path -> {
                         try {
-                            return !path.toString().contains(".git" + File.separator)
-                                    && (Files.isRegularFile(path) || FileUtils.isEmptyDirectory(path.toFile()));
+                            return (Files.isRegularFile(path) || FileUtils.isEmptyDirectory(path.toFile()))
+                                    && isWhiteListedPath(
+                                            whiteListedPaths,
+                                            baseRepo.relativize(path).toString());
                         } catch (IOException e) {
                             log.error("Unable to find file details. Please check the file at file path: {}", path);
                             log.error("Assuming that it does not exist for now ...");
@@ -586,7 +627,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
                 String resourceType = ACTION_COLLECTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                observationHelper.startSpan(span, true);
+                observationHelper.startSpan(span);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -596,7 +637,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.debug(e.getMessage());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return false;
     }
@@ -622,7 +663,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 String resourceType = NEW_ACTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                observationHelper.startSpan(span, true);
+                observationHelper.startSpan(span);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -632,7 +673,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return false;
     }
@@ -1196,6 +1237,16 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (GitAPIException | IOException exception) {
             metadataMono = Mono.error(exception);
         }
+
+        return metadataMono.subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<Object> reconstructMetadataFromGitRepository(Path repoSuffix) {
+        Mono<Object> metadataMono = Mono.fromCallable(() -> {
+            Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix);
+            return fileOperations.readFile(baseRepoPath.resolve(CommonConstants.METADATA + JSON_EXTENSION));
+        });
 
         return metadataMono.subscribeOn(scheduler);
     }

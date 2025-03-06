@@ -3,18 +3,25 @@ import { ListItem } from "../../../List";
 import type { EntityItemProps } from "./EntityItem.types";
 import clx from "classnames";
 import { EditableEntityName } from "../../EditableEntityName";
+import { useActiveDoubleClick } from "../../../__hooks__";
 
 export const EntityItem = (props: EntityItemProps) => {
+  const { onDoubleClick, startIcon, ...rest } = props;
+
+  const doubleClickOverride = useActiveDoubleClick(
+    props.isSelected || false,
+    onDoubleClick,
+  );
+
   const {
     canEdit,
     isEditing,
     isLoading,
+    normalizeName = false,
     onEditComplete,
     onNameSave,
     validateName,
   } = props.nameEditorConfig;
-
-  const { startIcon, ...rest } = props;
 
   const inEditMode = canEdit ? isEditing : false;
 
@@ -28,8 +35,10 @@ export const EntityItem = (props: EntityItemProps) => {
         isFixedWidth
         isLoading={isLoading}
         name={props.title}
+        normalizeName={normalizeName}
         onExitEditing={onEditComplete}
         onNameSave={onNameSave}
+        showEllipsis
         size="medium"
         validateName={validateName}
       />
@@ -38,6 +47,7 @@ export const EntityItem = (props: EntityItemProps) => {
     canEdit,
     isEditing,
     isLoading,
+    normalizeName,
     onEditComplete,
     onNameSave,
     props.title,
@@ -59,8 +69,9 @@ export const EntityItem = (props: EntityItemProps) => {
       {...rest}
       className={clx("t--entity-item", props.className)}
       customTitleComponent={customTitle}
-      data-testid={`t--entity-item-${props.title}`}
+      dataTestId={`t--entity-item-${props.title}`}
       id={"entity-" + props.id}
+      onDoubleClick={doubleClickOverride}
       rightControl={rightControl}
     />
   );

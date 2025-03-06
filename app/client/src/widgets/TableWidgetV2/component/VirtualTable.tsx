@@ -37,6 +37,10 @@ type VirtualTableProps = TableColumnHeaderProps & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollContainerStyles: any;
   useVirtual: boolean;
+  isInfiniteScrollEnabled: boolean;
+  isLoading: boolean;
+  totalRecordsCount?: number;
+  loadMoreFromEvaluations: () => void;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
@@ -59,8 +63,11 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           height={props.height}
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
+          isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+          isLoading={props.isLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
+          loadMoreFromEvaluations={props.loadMoreFromEvaluations}
           multiRowSelection={!!props.multiRowSelection}
           pageSize={props.pageSize}
           prepareRow={props.prepareRow}
@@ -74,6 +81,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           sortTableColumn={props.sortTableColumn}
           tableSizes={props.tableSizes}
           totalColumnsWidth={props?.totalColumnsWidth}
+          totalRecordsCount={props.totalRecordsCount}
           useVirtual={props.useVirtual}
           widgetId={props.widgetId}
           width={props.width}

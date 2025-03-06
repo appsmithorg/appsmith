@@ -1123,6 +1123,10 @@ const SalesforceIcon = importSvg(
   async () => import("../__assets__/icons/ads/salesforce.svg"),
 );
 
+const StateInspectorIcon = importSvg(
+  async () => import("../__assets__/icons/ads/state-inspector.svg"),
+);
+
 const MdFileIcon = importSvg(
   async () => import("../__assets__/icons/ads/md-file.svg"),
 );
@@ -1560,6 +1564,7 @@ const ICON_LOOKUP = {
   zendesk: ZendeskIcon,
   "google-drive": GoogleDriveIcon,
   salesforce: SalesforceIcon,
+  "state-inspector": StateInspectorIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

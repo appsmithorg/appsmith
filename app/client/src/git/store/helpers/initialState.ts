@@ -13,6 +13,7 @@ import type {
 const gitArtifactInitialUIState: GitArtifactUIReduxState = {
   initializing: false,
   initialized: false,
+  currentBranch: null,
   connectModalOpen: false,
   connectSuccessModalOpen: false,
   disconnectBaseArtifactId: null,
@@ -48,6 +49,11 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     error: null,
   },
   commit: {
+    loading: false,
+    error: null,
+  },
+  latestCommit: {
+    value: null,
     loading: false,
     error: null,
   },

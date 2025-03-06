@@ -66,7 +66,7 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
 
-import { getCurrentTenant } from "ee/actions/tenantActions";
+import { getCurrentOrganization } from "ee/actions/organizationActions";
 import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
@@ -106,7 +106,7 @@ export interface ReduxURLChangeAction {
 
 export interface DeployConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
+  organizationConfig: ApiResponse;
   featureFlags: ApiResponse<FeatureFlags>;
   userProfile: ApiResponse;
   pages: FetchApplicationResponse;
@@ -120,7 +120,7 @@ export interface DeployConsolidatedApi {
 
 export interface EditConsolidatedApi {
   productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
+  organizationConfig: ApiResponse;
   featureFlags: ApiResponse<FeatureFlags>;
   userProfile: ApiResponse;
   pages: FetchApplicationResponse;
@@ -285,8 +285,13 @@ export function* getInitResponses({
     throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
 
-  const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
-    response || {};
+  const {
+    featureFlags,
+    organizationConfig,
+    productAlert,
+    userProfile,
+    ...rest
+  } = response || {};
   //actions originating from INITIALIZE_CURRENT_PAGE should update user details
   //other actions are not necessary
 
@@ -298,7 +303,7 @@ export function* getInitResponses({
 
   yield put(fetchFeatureFlagsInit(featureFlags));
 
-  yield put(getCurrentTenant(false, tenantConfig));
+  yield put(getCurrentOrganization(false, organizationConfig));
 
   yield put(fetchProductAlertInit(productAlert));
   yield call(

@@ -67,6 +67,8 @@ export class staticSplit {
   private async createAttempt() {
     const client = await this.dbClient.connect();
     try {
+      const workflowName = this.util.getVars().gitWorkflowName;
+      const commitMsgWithWorkflow = `${this.util.getVars().commitMsg}_${workflowName}`;
       const runResponse = await client.query(
         `INSERT INTO public."attempt" ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
           VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -78,7 +80,7 @@ export class staticSplit {
           this.util.getVars().repository,
           this.util.getVars().committer,
           this.util.getVars().tag,
-          this.util.getVars().commitMsg,
+          commitMsgWithWorkflow,
           this.util.getVars().branch,
         ],
       );

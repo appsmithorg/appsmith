@@ -1,7 +1,7 @@
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type { AnvilNewWidgetsPayload } from "../../actions/actionTypes";
 import { AnvilReduxActionTypes } from "../../actions/actionTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
@@ -9,7 +9,7 @@ import type {
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
 import { type ReduxAction } from "actions/ReduxActionTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getMainCanvasLastRowHighlight } from "../anvilDraggingSagas/helpers";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";

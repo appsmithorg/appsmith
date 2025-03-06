@@ -5,7 +5,7 @@ import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories"
 import { render } from "test/testUtils";
 import InputWidget from "widgets/InputWidgetV2";
 import { ModalWidget } from "widgets/ModalWidget/widget";
-import { WDSModalWidget } from "modules/ui-builder/ui/wds//WDSModalWidget/widget";
+import { WDSModalWidget } from "widgets/wds//WDSModalWidget/widget";
 import { withLayoutSystemWidgetHOC } from "./withLayoutSystemWidgetHOC";
 import { LayoutSystemTypes } from "./types";
 import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";

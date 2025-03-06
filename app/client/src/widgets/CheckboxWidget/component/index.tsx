@@ -6,7 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { Checkbox } from "components/wds";
+import { Checkbox } from "./Checkbox";
 
 interface StyledCheckboxContainerProps {
   isValid: boolean;

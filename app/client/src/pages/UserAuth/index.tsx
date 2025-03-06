@@ -1,11 +1,10 @@
 import React from "react";
-import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
+import { Switch, useLocation, useRouteMatch } from "react-router-dom";
 import Login from "pages/UserAuth/Login";
 import SignUp from "pages/UserAuth/SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
-import * as Sentry from "@sentry/react";
 import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -17,10 +16,9 @@ import VerificationError from "./VerificationError";
 import FooterLinks from "./FooterLinks";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getOrganizationConfig } from "ee/selectors/organizationSelectors";
 import { getAppsmithConfigs } from "ee/configs";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
+import { SentryRoute } from "components/SentryRoute";
 
 export function UserAuth() {
   const { path } = useRouteMatch();
@@ -29,7 +27,7 @@ export function UserAuth() {
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const isMobileDevice = useIsMobileDevice();
-  const tenantConfig = useSelector(getTenantConfig);
+  const organizationConfig = useSelector(getOrganizationConfig);
   const { cloudHosting } = getAppsmithConfigs();
 
   return (
@@ -43,7 +41,7 @@ export function UserAuth() {
         {isMobileDevice && (
           <img
             className="h-8 mx-auto"
-            src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            src={getAssetUrl(organizationConfig.brandLogoUrl)}
           />
         )}
         <Switch location={location}>

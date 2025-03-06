@@ -5,7 +5,7 @@ import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernServic
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
 import { SlashCommand } from "entities/Action";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";

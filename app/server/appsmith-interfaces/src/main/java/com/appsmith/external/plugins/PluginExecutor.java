@@ -186,6 +186,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
+     * This function is being called as a hook after saving a datasource.
+     */
+    default Mono<DatasourceStorage> postSaveHook(DatasourceStorage datasourceStorage) {
+        return Mono.just(datasourceStorage);
+    }
+
+    /**
      * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation
      * easier for the user.
      *
@@ -248,12 +255,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     // TODO: Following methods of executeParameterizedWithFlags, executeParameterizedWithMetricsAndFlags,
-    // triggerWithFlags are
-    // added
-    // to support feature flags in the plugin modules. Current implementation of featureFlagService is only available in
-    // server module
-    // and not available in any of the plugin modules due to dependencies on SessionUserService, TenantService etc.
-    // Hence, these methods are added to support feature flags in the plugin modules.
+    // triggerWithFlags are added to support feature flags in the plugin modules. Current implementation of
+    // featureFlagService is only available in server module and not available in any of the plugin modules due to
+    // dependencies on SessionUserService, OrganizationService etc. Hence, these methods are added to support feature
+    // flags in the plugin modules.
     // Ideal solution would be to move featureFlagService and its dependencies to the shared interface module
     // But this is a bigger change and will be done in future. Current change of passing flags was done to resolve
     // release blocker
@@ -289,6 +294,39 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
             TriggerRequestDTO request,
             Map<String, Boolean> featureFlagMap) {
         return this.trigger(connection, datasourceConfiguration, request);
+    }
+    /*
+     * Feature flagging implementation is added here as a potential fix to dynamoDB query timeouts problem
+     * This is a temporary fix and will be removed once we get the confirmation from the user that issue is resolved
+     * Even if the issue is not resolved, we will know that fix does not work and hence will be removing the code in any case
+     * https://github.com/appsmithorg/appsmith/issues/39426 Created task here to remove this flag
+     * This implementation ensures that none of the existing plugins have any impact due to feature flagging, hence if else condition
+     * This applies to both datasourceCreate and testDatasource methods added below
+     * */
+    default Mono<C> datasourceCreate(
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+        return this.datasourceCreate(datasourceConfiguration);
+    }
+
+    default Mono<DatasourceTestResult> testDatasource(
+            DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+        return this.datasourceCreate(datasourceConfiguration, isDynamoDBConnectionTimeToLiveEnabled)
+                .flatMap(connection -> {
+                    return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));
+                })
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage() == null
+                            ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
+                            : error.getMessage();
+                    if (error instanceof AppsmithPluginException
+                            && StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                        return Mono.just(new DatasourceTestResult(
+                                ((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                    }
+                    return Mono.just(new DatasourceTestResult(errorMessage));
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**

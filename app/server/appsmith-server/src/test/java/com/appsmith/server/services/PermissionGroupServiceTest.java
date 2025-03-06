@@ -96,7 +96,7 @@ public class PermissionGroupServiceTest {
         // Make api_user instance admin before running the test
         userRepository
                 .findByEmail("api_user")
-                .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
+                .flatMap(user -> userUtils.makeInstanceAdministrator(List.of(user)))
                 .block();
 
         PermissionGroup testPermissionGroup = new PermissionGroup();

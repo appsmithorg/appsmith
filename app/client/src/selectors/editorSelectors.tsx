@@ -4,7 +4,7 @@ import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AppLayoutConfig,
   PageListReduxState,
@@ -41,7 +41,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
@@ -897,9 +897,7 @@ export const getJSCollectionDataById = createSelector(
 export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (state: AppState, baseCollectionId: any) => baseCollectionId,
+    (state: AppState, baseCollectionId: string) => baseCollectionId,
   ],
   (jsActions, baseCollectionId) => {
     const action = jsActions.find(

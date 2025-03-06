@@ -5,13 +5,13 @@ import type {
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, EmptyRow, Row } from "./Row";
+import { type ReactElementType } from "react-window";
+import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
-import type SimpleBar from "simplebar-react";
+import InfiniteScrollBody from "./InifiniteScrollBody";
+import { EmptyRows, Row } from "./Row";
+import { FixedVirtualList } from "./VirtualList";
 
 export type BodyContextType = {
   accentColor: string;
@@ -49,26 +49,6 @@ export const BodyContext = React.createContext<BodyContextType>({
   totalColumnsWidth: 0,
 });
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
-
-  if (index < data.length) {
-    const row = data[index];
-
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        row={row}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRow style={style} />;
-  }
-}, areEqual);
-
 interface BodyPropsType {
   getTableBodyProps(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
@@ -79,28 +59,25 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
+  isInfiniteScrollEnabled?: boolean;
+  isLoading: boolean;
+  loadMoreFromEvaluations: () => void;
+  totalRecordsCount?: number;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<SimpleBar>) => {
     return (
       <div className="simplebar-content-wrapper">
-        <FixedSizeList
-          className="virtual-list simplebar-content"
-          height={
-            props.height -
-            props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * props.tableSizes.VERTICAL_PADDING
-          }
+        <FixedVirtualList
+          height={props.height}
           innerElementType={props.innerElementType}
-          itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
+          itemCount={props.rows.length}
           outerRef={ref}
-          width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-        >
-          {rowRenderer}
-        </FixedSizeList>
+          pageSize={props.pageSize}
+          rows={props.rows}
+          tableSizes={props.tableSizes}
+        />
       </div>
     );
   },
@@ -137,6 +114,7 @@ export const TableBody = React.forwardRef(
       handleReorderColumn,
       headerGroups,
       isAddRowInProgress,
+      isInfiniteScrollEnabled,
       isResizingColumn,
       isSortable,
       multiRowSelection,
@@ -188,15 +166,27 @@ export const TableBody = React.forwardRef(
           totalColumnsWidth: props.totalColumnsWidth,
         }}
       >
-        {useVirtual ? (
+        {isInfiniteScrollEnabled ? (
+          <InfiniteScrollBody
+            ref={ref}
+            rows={rows}
+            totalRecordsCount={props.totalRecordsCount ?? rows.length}
+            {...restOfProps}
+          />
+        ) : useVirtual ? (
           <TableVirtualBodyComponent
+            isInfiniteScrollEnabled={false}
             ref={ref}
             rows={rows}
             width={width}
             {...restOfProps}
           />
         ) : (
-          <TableBodyComponent rows={rows} {...restOfProps} />
+          <TableBodyComponent
+            isInfiniteScrollEnabled={false}
+            rows={rows}
+            {...restOfProps}
+          />
         )}
       </BodyContext.Provider>
     );

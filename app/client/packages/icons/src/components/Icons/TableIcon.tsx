@@ -1,4 +1,4 @@
 import * as React from "react";
 import type { SVGProps } from "react";
-const TableIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" {...props}><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" d="M11.5 1.5h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2M7.5 5.5v8M1.5 5.5h12M1.5 9.5h12" /></svg>;
+const TableIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillRule="evenodd" d="M3.5 1A2.5 2.5 0 0 0 1 3.5v8A2.5 2.5 0 0 0 3.5 14h8a2.5 2.5 0 0 0 2.5-2.5v-8A2.5 2.5 0 0 0 11.5 1zM13 9V6H8v3zm-5 1h5v1.5a1.5 1.5 0 0 1-1.5 1.5H8zM7 9V6H2v3zm-5 1h5v3H3.5A1.5 1.5 0 0 1 2 11.5zm0-5h11V3.5A1.5 1.5 0 0 0 11.5 2h-8A1.5 1.5 0 0 0 2 3.5z" clipRule="evenodd" /></svg>;
 export { TableIcon };

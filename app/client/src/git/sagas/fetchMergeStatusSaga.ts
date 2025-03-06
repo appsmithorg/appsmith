@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import fetchMergeStatusRequest from "git/requests/fetchMergeStatusRequest";
 import type {
   FetchMergeStatusRequestParams,
@@ -8,9 +7,9 @@ import type { FetchMergeStatusInitPayload } from "git/store/actions/fetchMergeSt
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectGitApiContractsEnabled } from "git/store/selectors/gitFeatureFlagSelectors";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import handleApiErrors from "./helpers/handleApiErrors";
 
 export default function* fetchMergeStatusSaga(
   action: GitArtifactPayloadAction<FetchMergeStatusInitPayload>,
@@ -46,15 +45,12 @@ export default function* fetchMergeStatusSaga(
       );
     }
   } catch (e) {
-    if (response && response.responseMeta.error) {
-      const { error } = response.responseMeta;
+    const error = handleApiErrors(e as Error, response);
 
+    if (error) {
       yield put(
         gitArtifactActions.fetchMergeStatusError({ artifactDef, error }),
       );
-    } else {
-      log.error(e);
-      captureException(e);
     }
   }
 }

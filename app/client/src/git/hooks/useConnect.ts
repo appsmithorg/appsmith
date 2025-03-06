@@ -55,6 +55,12 @@ export default function useConnect() {
     [artifactDef, dispatch],
   );
 
+  const resetConnect = useCallback(() => {
+    if (artifactDef) {
+      dispatch(gitArtifactActions.resetConnect({ artifactDef }));
+    }
+  }, [artifactDef, dispatch]);
+
   return {
     isConnectLoading: connectState?.loading ?? false,
     connectError: connectState?.error ?? null,
@@ -63,5 +69,6 @@ export default function useConnect() {
     toggleConnectModal,
     isConnectSuccessModalOpen: isConnectSuccessModalOpen ?? false,
     toggleConnectSuccessModal,
+    resetConnect,
   };
 }

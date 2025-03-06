@@ -1151,8 +1151,8 @@ export const NO_COPIED_SSH_KEY = () => "Could not copy SSH key";
 // Git Branch Protection
 export const UPDATE = () => "Update";
 export const DEFAULT_BRANCH = () => "Default branch";
-export const DEFAULT_BRANCH_DESC = () =>
-  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const DEFAULT_BRANCH_DESC = (artifactNoun: string) =>
+  `This is the base branch of the ${artifactNoun}. Users launching the ${artifactNoun} from the dashboard will see the deployed version from this branch.`;
 export const BRANCH_PROTECTION = () => "Branch protection";
 export const BRANCH_PROTECTION_DESC = () =>
   "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
@@ -1179,17 +1179,22 @@ export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
 export const GIT_CONNECT_SUCCESS_TITLE = () => "Successfully connected to Git";
 export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
   "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = () =>
-  "Continue to edit application";
+export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = (
+  artifactType: string = "applications",
+) => `Continue to edit ${artifactType}`;
 export const GIT_CONNECT_SUCCESS_ACTION_SETTINGS = () => "Protect your branch";
 export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
   "We recommend protecting your default branch to have a seamless collaboration.";
+export const GIT_CONNECT_SUCCESS_GENERIC_MESSAGE = (artifactType: string) =>
+  `You're all set! Your ${artifactType} is now connected to Git.`;
 export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
 export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
 export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
   "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
 export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
   "Learn more about branch protection";
+export const GIT_CONNECT_SUCCESS_GENERIC_DOC_CTA = () =>
+  "Learn more about how to work with Git.";
 // Git Connection Success end
 
 export const GENERAL = () => "General";
@@ -1775,6 +1780,7 @@ export const CONTEXT_SETTINGS = () => "Settings";
 export const CONTEXT_PARTIAL_EXPORT = () => "Export";
 export const CONTEXT_PARTIAL_IMPORT = () => "Import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
+export const CONTEXT_INSPECT_STATE = () => "Inspect state";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
 
@@ -2622,7 +2628,10 @@ export const PREMIUM_DATASOURCES = {
   COMING_SOON_DESCRIPTION: () =>
     "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
+  BETA_TAG: () => "Beta",
 };
 
 export const DATASOURCE_SECURE_TEXT = () =>
   `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;
+
+export const TABLE_LOADING_RECORDS = () => "loading records";

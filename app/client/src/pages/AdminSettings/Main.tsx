@@ -6,7 +6,7 @@ import SettingsForm from "pages/AdminSettings/SettingsForm";
 import { getWrapperCategory } from "ee/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getOrganizationPermissions } from "ee/selectors/organizationSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
@@ -17,7 +17,7 @@ const Main = () => {
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const user = useSelector(getCurrentUser);
-  const tenantPermissions = useSelector(getTenantPermissions);
+  const organizationPermissions = useSelector(getOrganizationPermissions);
   const isSuperUser = user?.isSuperUser || false;
   const wrapperCategory = getWrapperCategory(
     AdminConfig.wrapperCategories,
@@ -39,7 +39,7 @@ const Main = () => {
         to={getAdminSettingsPath(
           isFeatureEnabled,
           isSuperUser,
-          tenantPermissions,
+          organizationPermissions,
         )}
       />
     );

@@ -15,6 +15,7 @@ import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import joptsimple.internal.Strings;
@@ -54,8 +55,8 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     private final AnalyticsService analyticsService;
     private final NetworkUtils networkUtils;
     private final ReleaseNotesService releaseNotesService;
-
     private final RTSCaller rtsCaller;
+    private final OrganizationService organizationService;
 
     private boolean isRtsAccessible = false;
 
@@ -225,8 +226,25 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                 });
     }
 
+    /**
+     * Method to trigger update for the organization feature flags. This method is called during the startup of
+     * the application. It's required at the startup to ensure that the feature flags are up-to-date which will then be
+     * consumed by {@link com.appsmith.server.aspect.FeatureFlaggedMethodInvokerAspect} in a non-reactive manner.
+     * In case the user tries to fetch the feature flags before the cache is updated, the aspect will fallback to the
+     * earlier cached data i.e. disabled state.
+     * @return  Empty Mono
+     */
     @Override
-    public Mono<Void> updateCacheForTenantFeatureFlags() {
-        return featureFlagService.getTenantFeatures().then();
+    public Mono<Void> updateCacheForOrganizationFeatureFlags() {
+        // TODO @CloudBilling: Fix this to update feature flags for all organizations and also should not affect the
+        //  startup
+        return organizationService
+                .retrieveAll()
+                .flatMap(org -> featureFlagService.getOrganizationFeatures(org.getId()))
+                .onErrorResume(error -> {
+                    log.error("Error while updating cache for org feature flags", error);
+                    return Mono.empty();
+                })
+                .then();
     }
 }

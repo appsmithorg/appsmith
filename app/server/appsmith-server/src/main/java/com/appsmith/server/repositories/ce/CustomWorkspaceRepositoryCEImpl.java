@@ -30,10 +30,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+            Set<String> workspaceIds, String organizationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
-                        .equal(Workspace.Fields.tenantId, tenantId))
+                        .equal(Workspace.Fields.organizationId, organizationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -42,7 +42,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
         return sessionUserService.getCurrentUser().flatMapMany(user -> queryBuilder()
-                .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
+                .criteria(Bridge.equal(Workspace.Fields.organizationId, user.getOrganizationId()))
                 .permission(permission)
                 .all());
     }

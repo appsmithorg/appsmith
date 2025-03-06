@@ -19,6 +19,7 @@ export function useEditableText(
   exitEditing: () => void,
   validateName: (name: string) => string | null,
   onNameSave: (name: string) => void,
+  normalizeName?: boolean,
 ): [
   RefObject<HTMLInputElement>,
   string,
@@ -87,7 +88,9 @@ export function useEditableText(
 
   const handleTitleChange = useEventCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const value = normaliseName(e.target.value);
+      const value = normalizeName
+        ? normaliseName(e.target.value)
+        : e.target.value;
 
       setEditableName(value);
       validate(value);
@@ -113,22 +116,6 @@ export function useEditableText(
       }
     },
     [name, previousName, isEditing],
-  );
-
-  // TODO: This is a temporary fix to focus the input after context retention applies focus to its target
-  // this is a nasty hack to re-focus the input after context retention applies focus to its target
-  // this will be addressed in a future task, likely by a focus retention modification
-  useEffect(
-    function recaptureFocusInEventOfFocusRetention() {
-      const input = inputRef.current;
-
-      if (isEditing && input) {
-        setTimeout(() => {
-          input.focus();
-        }, 200);
-      }
-    },
-    [isEditing, inputRef],
   );
 
   return [

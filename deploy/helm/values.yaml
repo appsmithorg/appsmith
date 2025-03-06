@@ -121,7 +121,7 @@ strategyType: RollingUpdate
 ##
 initContainer: {}
   # redis:
-  #   image: docker.io/bitnami/redis-cluster:7.0.13-debian-11-r10
+  #   image: docker.io/redis:7.0.15
   # mongodb:
   #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
   # postgresql:

@@ -42,7 +42,7 @@ import { profileFn } from "instrumentation/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Linter } from "eslint-linter-browserify";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { AppsmithEntity } from "ee/entities/DataTree/types";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";

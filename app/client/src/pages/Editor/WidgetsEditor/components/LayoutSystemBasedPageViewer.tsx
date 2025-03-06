@@ -1,7 +1,7 @@
 import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBannerCTA";
 import React from "react";
 import { MainContainerWrapper } from "./MainContainerWrapper";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/AppSettings";
 import { useSelector } from "react-redux";
 import {
   getCanvasWidth,

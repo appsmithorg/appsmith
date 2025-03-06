@@ -5,6 +5,7 @@ import {
   connectErrorAction,
   connectInitAction,
   connectSuccessAction,
+  resetConnectAction,
 } from "./actions/connectActions";
 import {
   fetchMetadataErrorAction,
@@ -136,6 +137,15 @@ import {
   generateSSHKeySuccessAction,
   resetGenerateSSHKeyAction,
 } from "./actions/generateSSHKeyActions";
+import {
+  resetCurrentBranchAction,
+  updateCurrentBranchAction,
+} from "./actions/currentBranchActions";
+import {
+  fetchLatestCommitErrorAction,
+  fetchLatestCommitInitAction,
+  fetchLatestCommitSuccessAction,
+} from "./actions/fetchLatestCommitActions";
 
 const initialState: GitArtifactRootReduxState = {};
 
@@ -157,6 +167,7 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
+    resetConnect: resetConnectAction,
     fetchSSHKeyInit: fetchSSHKeyInitAction,
     fetchSSHKeySuccess: fetchSSHKeySuccessAction,
     fetchSSHKeyError: fetchSSHKeyErrorAction,
@@ -199,6 +210,9 @@ export const gitArtifactSlice = createSlice({
     pullError: pullErrorAction,
     toggleOpsModal: toggleOpsModalAction,
     toggleConflictErrorModal: toggleConflictErrorModalAction,
+    fetchLatestCommitInit: fetchLatestCommitInitAction,
+    fetchLatestCommitSuccess: fetchLatestCommitSuccessAction,
+    fetchLatestCommitError: fetchLatestCommitErrorAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,
@@ -214,6 +228,8 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
     toggleBranchPopup: toggleBranchPopupAction,
+    updateCurrentBranch: updateCurrentBranchAction,
+    resetCurrentBranch: resetCurrentBranchAction,
 
     // settings
     toggleSettingsModal: toggleSettingsModalAction,
