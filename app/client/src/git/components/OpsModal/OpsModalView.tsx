@@ -99,16 +99,16 @@ function OpsModalView({
               >
                 {createMessage(MERGE)}
               </Tab>
+              {isTaggingEnabled && (
+                <Tab
+                  data-testid={"t--git-ops-tab-tag"}
+                  disabled={isProtectedMode}
+                  value={GitOpsTab.Release}
+                >
+                  {OPS_MODAL.TAB_RELEASE}
+                </Tab>
+              )}
             </TabsList>
-            {isTaggingEnabled && (
-              <Tab
-                data-testid={"t--git-ops-tab-tag"}
-                disabled={isProtectedMode}
-                value={GitOpsTab.Release}
-              >
-                {OPS_MODAL.TAB_RELEASE}
-              </Tab>
-            )}
           </Tabs>
           {opsModalTab === GitOpsTab.Deploy && <TabDeploy />}
           {opsModalTab === GitOpsTab.Merge && <TabMerge />}

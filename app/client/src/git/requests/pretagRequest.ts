@@ -10,6 +10,6 @@ export default async function pretagRequest(
   branchedArtifactId: string,
 ): AxiosPromise<PretagResponse> {
   return Api.get(
-    `${GIT_BASE_URL}/${artifactType}/${branchedArtifactId}/commit/latest`,
+    `${GIT_BASE_URL}/${artifactType}/${branchedArtifactId}/pretag`,
   );
 }

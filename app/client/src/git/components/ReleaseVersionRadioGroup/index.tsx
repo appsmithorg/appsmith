@@ -14,7 +14,7 @@ function ReleaseVersionRadioGroup({
 
   return (
     <ReleaseVersionRadioGroupView
-      currentVersion={pretagResponse?.releaseTagName ?? null}
+      latestReleaseVersion={pretagResponse?.releaseTagName ?? null}
       onVersionChange={onVersionChange}
       releasedAt={pretagResponse?.releasedAt ?? null}
     />

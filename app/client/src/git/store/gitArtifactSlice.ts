@@ -146,6 +146,11 @@ import {
   pretagInitAction,
   pretagSuccessAction,
 } from "./actions/pretagActions";
+import {
+  createReleaseTagErrorAction,
+  createReleaseTagInitAction,
+  createReleaseTagSuccessAction,
+} from "./actions/createReleaseTagActions";
 
 const initialState: GitArtifactRootReduxState = {};
 
@@ -210,9 +215,6 @@ export const gitArtifactSlice = createSlice({
     pullError: pullErrorAction,
     toggleOpsModal: toggleOpsModalAction,
     toggleConflictErrorModal: toggleConflictErrorModalAction,
-    pretagInit: pretagInitAction,
-    pretagSuccess: pretagSuccessAction,
-    pretagError: pretagErrorAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,
@@ -259,6 +261,14 @@ export const gitArtifactSlice = createSlice({
     pollAutocommitProgressStart: pollAutocommitProgressStartAction,
     pollAutocommitProgressStop: pollAutocommitProgressStopAction,
     toggleAutocommitDisableModal: toggleAutocommitDisableModalAction,
+
+    // release tags
+    pretagInit: pretagInitAction,
+    pretagSuccess: pretagSuccessAction,
+    pretagError: pretagErrorAction,
+    createReleaseTagInit: createReleaseTagInitAction,
+    createReleaseTagSuccess: createReleaseTagSuccessAction,
+    createReleaseTagError: createReleaseTagErrorAction,
 
     ...gitArtifactCaseReducers,
   },

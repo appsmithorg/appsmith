@@ -23,9 +23,12 @@ function LatestCommitInfoView({
   return (
     <Container marginBottom="spaces-4" padding="spaces-3">
       <Flex flex={1} flexDirection="column" gap="spaces-3">
-        <Text renderAs="p">{message}</Text>
+        <Text renderAs="p">{message ?? "My latest commit message"}</Text>
         <Text kind="body-s" renderAs="p">
-          {authorName ?? "-"} committed {committedAt ?? "-"}
+          {authorName && !committedAt ? `Committed by ${authorName}` : null}
+          {authorName && committedAt
+            ? `${authorName} committed ${committedAt ?? "-"}`
+            : null}
         </Text>
       </Flex>
       <Flex alignItems="center" justifyContent="center">

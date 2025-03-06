@@ -61,6 +61,7 @@ export interface GitArtifactAPIResponsesReduxState
   sshKey: GitAsyncState<FetchSSHKeyResponseData>;
   generateSSHKey: GitAsyncStateWithoutValue;
   pretag: GitAsyncState<PretagResponseData>;
+  createReleaseTag: GitAsyncStateWithoutValue;
 }
 
 export interface GitArtifactUIReduxState

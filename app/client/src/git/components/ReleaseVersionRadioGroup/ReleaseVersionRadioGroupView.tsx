@@ -7,23 +7,23 @@ import noop from "lodash/noop";
 type ReleaseType = "major" | "minor" | "patch" | null;
 
 interface ReleaseVersionRadioGroupViewProps {
-  currentVersion: string | null;
+  latestReleaseVersion: string | null;
   onVersionChange: (value: string | null) => void;
   releasedAt: string | null;
 }
 
 function ReleaseVersionRadioGroupView({
-  currentVersion = null,
+  latestReleaseVersion = null,
   onVersionChange = noop,
   releasedAt = null,
 }: ReleaseVersionRadioGroupViewProps) {
   const [releaseType, setReleaseType] = useState<ReleaseType>("patch");
 
   const nextVersion = useMemo(() => {
-    if (!currentVersion || !releaseType) return null;
+    if (!releaseType) return null;
 
-    return inc(currentVersion, releaseType);
-  }, [currentVersion, releaseType]);
+    return inc(latestReleaseVersion ?? "0.0.0", releaseType);
+  }, [latestReleaseVersion, releaseType]);
 
   useEffect(
     function releaseVersionChangeEffect() {
@@ -62,10 +62,16 @@ function ReleaseVersionRadioGroupView({
           <Radio value="patch">Patch</Radio>
         </RadioGroup>
       </Flex>
-      <Text data-testid="t--git-release-released-at" kind="body-s" renderAs="p">
-        {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}: {currentVersion ?? "-"} (
-        {releasedAt ?? "-"})
-      </Text>
+      {latestReleaseVersion && (
+        <Text
+          data-testid="t--git-release-released-at"
+          kind="body-s"
+          renderAs="p"
+        >
+          {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}:{" "}
+          {latestReleaseVersion ?? "-"} ({releasedAt ?? "-"})
+        </Text>
+      )}
     </Flex>
   );
 }
