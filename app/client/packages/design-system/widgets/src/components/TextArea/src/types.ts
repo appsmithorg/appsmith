@@ -11,4 +11,5 @@ export interface TextAreaProps extends AriaTextFieldProps, FieldProps {
   fieldClassName?: string;
   inputClassName?: string;
   size?: Exclude<keyof typeof SIZES, "xSmall">;
+  maxRows?: number;
 }
