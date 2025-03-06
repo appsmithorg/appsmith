@@ -34,6 +34,9 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
     public static final String SPRING_SESSION_PATTERN = "spring:session:sessions:*";
     private static final String SESSION_ATTRIBUTE = "sessionAttr:";
 
+    // TODO @CloudBilling: Remove this method and resort to {@link ReactiveContextUtils#getCurrentUser()} to avoid
+    //  adding the SessionUserService dependency where only current user session is required
+    @Deprecated
     @Override
     public Mono<User> getCurrentUser() {
         return ReactiveSecurityContextHolder.getContext()

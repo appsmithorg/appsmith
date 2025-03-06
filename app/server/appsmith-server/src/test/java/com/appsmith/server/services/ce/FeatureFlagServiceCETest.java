@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
@@ -288,8 +289,9 @@ public class FeatureFlagServiceCETest {
     @WithUserDetails(value = "api_user")
     public void getCachedOrganizationFeatureFlags_withDefaultOrganization_organizationFeatureFlagsAreCached() {
 
+        String orgId = ReactiveContextUtils.getCurrentUser().block().getOrganizationId();
         // Assert that the cached feature flags are empty before the remote fetch
-        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags();
+        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags(orgId);
         assertThat(cachedFeaturesBeforeRemoteCall.getFeatures()).hasSize(1);
         assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
 
@@ -305,7 +307,7 @@ public class FeatureFlagServiceCETest {
 
                     // Check if the cached feature flags are updated after the remote fetch
                     CachedFeatures cachedFeaturesAfterRemoteCall =
-                            featureFlagService.getCachedOrganizationFeatureFlags();
+                            featureFlagService.getCachedOrganizationFeatureFlags(orgId);
                     assertFalse(cachedFeaturesAfterRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
                 })
                 .verifyComplete();

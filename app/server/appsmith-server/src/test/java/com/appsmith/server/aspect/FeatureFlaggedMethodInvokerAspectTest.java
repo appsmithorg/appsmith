@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
@@ -42,7 +43,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.FALSE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags(any()))
+                .thenReturn(cachedFeatures);
     }
 
     @Test
@@ -110,7 +112,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     void ceEeSyncMethod_eeImplTest() {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags(any()))
+                .thenReturn(cachedFeatures);
         String result = testComponent.ceEeSyncMethod("arg_");
         assertEquals("arg_ee_impl_method", result);
     }
@@ -125,7 +128,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     void ceEeThrowAppsmithException_eeImplTest() {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags(any()))
+                .thenReturn(cachedFeatures);
         assertThrows(
                 AppsmithException.class,
                 () -> testComponent.ceEeThrowAppsmithException("arg_"),
@@ -136,7 +140,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
     void ceEeThrowNonAppsmithException_eeImplTest_throwExceptionFromAspect() {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags(any()))
+                .thenReturn(cachedFeatures);
         assertThrows(
                 AppsmithException.class,
                 () -> testComponent.ceEeThrowNonAppsmithException("arg_"),
