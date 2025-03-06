@@ -83,7 +83,7 @@ describe(
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.JSONFORM);
       _.propPane.EnterJSContext(
         "sourcedata",
-        JSON.stringify(schema, null, 2),
+        JSON.stringify(schema) + " ",
         true,
         false,
       );
