@@ -134,6 +134,11 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     loading: false,
     error: null,
   },
+  createReleaseTag: {
+    loading: false,
+    error: null,
+  },
+
   // EE
   ...gitArtifactAPIResponsesInitialStateExtended,
 };
