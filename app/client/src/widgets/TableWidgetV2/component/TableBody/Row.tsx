@@ -1,11 +1,15 @@
 import type { CSSProperties, Key } from "react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
-import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
+import {
+  MULTISELECT_CHECKBOX_WIDTH,
+  StickyType,
+  TABLE_SIZES,
+} from "../Constants";
 
 interface RowType {
   className?: string;
@@ -14,19 +18,111 @@ interface RowType {
   style?: ListChildComponentProps["style"];
 }
 
+interface CellWithColumnProps {
+  column: {
+    columnProperties?: {
+      allowCellWrapping?: boolean;
+    };
+  };
+}
+
 export function Row(props: RowType) {
+  const { index, row } = props;
+  const rowRef = useRef<HTMLDivElement>(null);
   const {
     accentColor,
     borderRadius,
     columns,
     isAddRowInProgress,
+    listRef,
     multiRowSelection,
     prepareRow,
     primaryColumnId,
+    rowHeights,
+    rowNeedsMeasurement,
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
   } = useContext(BodyContext);
+
+  useEffect(() => {
+    if (
+      rowNeedsMeasurement.current &&
+      rowNeedsMeasurement.current[index] === false
+    ) {
+      return;
+    }
+
+    const element = rowRef.current;
+
+    if (!element || !row) return;
+
+    const cellIndexesWithAllowCellWrapping: number[] = [];
+    const cellIndexesWithHTMLCell: number[] = [0];
+
+    try {
+      row.cells.forEach((cell, index: number) => {
+        try {
+          const typedCell = cell as unknown as CellWithColumnProps;
+
+          if (typedCell.column.columnProperties?.allowCellWrapping) {
+            cellIndexesWithAllowCellWrapping.push(index);
+          }
+        } catch (e) {
+          // Handle potential errors
+        }
+      });
+    } catch (error) {}
+
+    // Get all child elements
+    const children = element.children;
+    let normalCellHeight = 0;
+    let htmlCellHeight = 0;
+
+    cellIndexesWithAllowCellWrapping.forEach((index: number) => {
+      const child = children[index] as HTMLElement;
+      const dynamicContent = child.querySelector(
+        ".t--table-cell-tooltip-target",
+      );
+
+      if (dynamicContent) {
+        const styles = window.getComputedStyle(dynamicContent);
+
+        normalCellHeight +=
+          (dynamicContent as HTMLElement).offsetHeight +
+          parseFloat(styles.marginTop) +
+          parseFloat(styles.marginBottom) +
+          parseFloat(styles.paddingTop) +
+          parseFloat(styles.paddingBottom);
+      }
+    });
+
+    cellIndexesWithHTMLCell.forEach((index: number) => {
+      const child = children[index] as HTMLElement;
+      const dynamicContent = child.querySelector(
+        '[data-testid="t--table-widget-v2-html-cell"]>span',
+      );
+
+      if (dynamicContent) {
+        const styles = window.getComputedStyle(dynamicContent);
+
+        htmlCellHeight +=
+          (dynamicContent as HTMLElement).offsetHeight +
+          parseFloat(styles.marginTop) +
+          parseFloat(styles.marginBottom) +
+          parseFloat(styles.paddingTop) * 2 +
+          parseFloat(styles.paddingBottom) * 2;
+      }
+    });
+
+    const totalHeight =
+      Math.max(normalCellHeight, htmlCellHeight) +
+      TABLE_SIZES.DEFAULT.VERTICAL_PADDING * 2;
+
+    rowHeights.current && (rowHeights.current[index] = totalHeight);
+    rowNeedsMeasurement.current && (rowNeedsMeasurement.current[index] = false);
+    listRef && listRef.current?.resetAfterIndex(index);
+  }, [index, row]);
 
   prepareRow?.(props.row);
   const rowProps = {
@@ -61,6 +157,7 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
+      ref={rowRef}
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}

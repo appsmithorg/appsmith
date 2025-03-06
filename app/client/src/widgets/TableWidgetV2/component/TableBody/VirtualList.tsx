@@ -1,12 +1,16 @@
-import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import React from "react";
-import type { ListChildComponentProps } from "react-window";
-import type { Row as ReactTableRowType } from "react-table";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRow, Row } from "./Row";
-import type { TableSizes } from "../Constants";
+import React, { useCallback, useContext } from "react";
+import type { Row as ReactTableRowType } from "react-table";
+import type {
+  ListChildComponentProps,
+  ListOnItemsRenderedProps,
+  ReactElementType,
+} from "react-window";
+import { VariableSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
+import { BodyContext } from ".";
+import type { TableSizes } from "../Constants";
+import { EmptyRow, Row } from "./Row";
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
   const { data, index, style } = rowProps;
@@ -35,7 +39,7 @@ interface BaseVirtualListProps {
   innerElementType?: ReactElementType;
   outerRef?: React.Ref<SimpleBar>;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
-  infiniteLoaderListRef?: React.Ref<FixedSizeList>;
+  infiniteLoaderListRef?: React.Ref<VariableSizeList>;
   itemCount: number;
   pageSize: number;
 }
@@ -50,9 +54,44 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   rows,
   tableSizes,
 }: BaseVirtualListProps) {
+  const { listRef, rowHeights } = useContext(BodyContext);
+
+  const combinedRef = (list: VariableSizeList | null) => {
+    // Handle infiniteLoaderListRef
+    if (infiniteLoaderListRef) {
+      if (typeof infiniteLoaderListRef === "function") {
+        infiniteLoaderListRef(list);
+      } else {
+        (
+          infiniteLoaderListRef as React.MutableRefObject<VariableSizeList | null>
+        ).current = list;
+      }
+    }
+
+    // Handle listRef - only if it's a mutable ref
+    if (listRef && "current" in listRef) {
+      (listRef as React.MutableRefObject<VariableSizeList | null>).current =
+        list;
+    }
+  };
+
+  const getItemSize = useCallback(
+    (index: number) => {
+      try {
+        return rowHeights.current?.[index]
+          ? Math.max(rowHeights.current?.[index], tableSizes.ROW_HEIGHT)
+          : tableSizes.ROW_HEIGHT;
+      } catch (error) {
+        return tableSizes.ROW_HEIGHT;
+      }
+    },
+    [rowHeights.current, tableSizes.ROW_HEIGHT],
+  );
+
   return (
-    <FixedSizeList
+    <VariableSizeList
       className="virtual-list simplebar-content"
+      estimatedItemSize={tableSizes.ROW_HEIGHT}
       height={
         height -
         tableSizes.TABLE_HEADER_HEIGHT -
@@ -61,14 +100,14 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
       innerElementType={innerElementType}
       itemCount={itemCount}
       itemData={rows}
-      itemSize={tableSizes.ROW_HEIGHT}
+      itemSize={getItemSize}
       onItemsRendered={onItemsRendered}
       outerRef={outerRef}
-      ref={infiniteLoaderListRef}
+      ref={combinedRef}
       width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
     >
       {rowRenderer}
-    </FixedSizeList>
+    </VariableSizeList>
   );
 });
 

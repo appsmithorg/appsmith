@@ -1,10 +1,10 @@
-import type { Ref } from "react";
-import React from "react";
+import React, { useEffect, type Ref, type RefObject, useRef } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
+import type { VariableSizeList } from "react-window";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
@@ -33,6 +33,9 @@ export type BodyContextType = {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
+  rowHeights: RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement: RefObject<{ [key: number]: boolean }>;
+  listRef: RefObject<VariableSizeList> | null;
 } & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -47,6 +50,9 @@ export const BodyContext = React.createContext<BodyContextType>({
   primaryColumnId: "",
   isAddRowInProgress: false,
   totalColumnsWidth: 0,
+  rowHeights: { current: {} },
+  rowNeedsMeasurement: { current: {} },
+  listRef: null,
 });
 
 interface BodyPropsType {
@@ -133,6 +139,15 @@ export const TableBody = React.forwardRef(
       ...restOfProps
     } = props;
 
+    const listRef = useRef<VariableSizeList>(null);
+    const rowHeights = useRef<{ [key: number]: number }>({});
+    // Keep track of which rows need measurement
+    const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
+
+    useEffect(() => {
+      rowNeedsMeasurement.current = {};
+    }, [rows]);
+
     return (
       <BodyContext.Provider
         value={{
@@ -164,6 +179,9 @@ export const TableBody = React.forwardRef(
           rows,
           getTableBodyProps: props.getTableBodyProps,
           totalColumnsWidth: props.totalColumnsWidth,
+          rowHeights: rowHeights,
+          rowNeedsMeasurement: rowNeedsMeasurement,
+          listRef: listRef,
         }}
       >
         {isInfiniteScrollEnabled ? (
