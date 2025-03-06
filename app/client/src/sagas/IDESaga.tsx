@@ -29,9 +29,9 @@ import {
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   getNextEntityAfterRemove,
-  getUpdatedTabs,
   RedirectAction,
-} from "./helper";
+} from "IDE/utils/getNextEntityAfterRemove";
+import { getUpdatedTabs } from "IDE/utils/getUpdatedTabs";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id, params } = entityInfo;
