@@ -17,7 +17,7 @@ export const EntityItem = (props: EntityItemProps) => {
     canEdit,
     isEditing,
     isLoading,
-    normalizeName = false,
+    normalizeName = true,
     onEditComplete,
     onNameSave,
     validateName,

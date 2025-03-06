@@ -564,6 +564,11 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return repository.findByType(PluginType.REMOTE);
     }
 
+    @Override
+    public Flux<Plugin> getPluginsByType(PluginType pluginType) {
+        return repository.findByType(pluginType);
+    }
+
     private Map<?, ?> loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
         try (InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
