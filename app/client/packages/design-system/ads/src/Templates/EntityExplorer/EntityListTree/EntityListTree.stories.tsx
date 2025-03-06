@@ -28,36 +28,35 @@ const nameEditorConfig = {
   validateName: () => null,
 };
 
-const names = {
-  "1": "Parent 1",
-  "1.1": "Child 1.1",
-  "1.1.1": "Child 1.1.1",
-  "1.1.2": "Child 1.1.2",
-  "1.2": "Child 1.2",
-  "2": "Parent 2",
-};
-
 const Tree: EntityListTreeProps["items"] = [
   {
     id: "1",
     isExpanded: true,
     isSelected: false,
+    name: "Parent 1",
+    type: "LIST_WIDGET",
     children: [
       {
         id: "1.1",
         isExpanded: false,
         isSelected: true,
+        name: "Child 1.1",
+        type: "CONTAINER_WIDGET",
         children: [
           {
             id: "1.1.1",
             isExpanded: false,
             isSelected: false,
+            name: "Child 1.1.1",
+            type: "IMAGE_WIDGET",
           },
           {
             id: "1.1.2",
             isDisabled: true,
             isExpanded: false,
             isSelected: false,
+            name: "Child 1.1.2",
+            type: "TEXT_WIDGET",
           },
         ],
       },
@@ -65,6 +64,8 @@ const Tree: EntityListTreeProps["items"] = [
         id: "1.2",
         isExpanded: false,
         isSelected: false,
+        name: "Child 1.2",
+        type: "TABLE_WIDGET",
       },
     ],
   },
@@ -72,6 +73,8 @@ const Tree: EntityListTreeProps["items"] = [
     id: "2",
     isExpanded: false,
     isSelected: false,
+    name: "Parent 2",
+    type: "BUTTON_WIDGET",
   },
 ];
 
@@ -111,7 +114,7 @@ const EntityItemComponent = (props: { item: EntityListTreeItem }) => {
       onClick={noop}
       onDoubleClick={() => onItemEdit(item.id)}
       startIcon={<Icon name="apps-line" />}
-      title={names[item.id as keyof typeof names] || item.id}
+      title={item.name}
     />
   );
 };
