@@ -171,10 +171,14 @@ jobs:
           REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY }} \
           REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT }} \
           REACT_APP_FARO_STACK_ID=${{ secrets.REACT_APP_FARO_STACK_ID }} \
-            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_EDITION="Community" \
-            yarn build
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+          REACT_APP_VERSION_EDITION="Community" \
+          yarn build || EXIT_CODE=$?
+
+          if [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" -gt 1 ]; then
+            exit $EXIT_CODE
+          fi
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
