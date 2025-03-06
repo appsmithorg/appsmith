@@ -7,7 +7,7 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { call, delay, put, select } from "redux-saga/effects";
 import PaneNavigation from "../PaneNavigation";
-import type { Plugin } from "api/PluginApi";
+import type { Plugin } from "entities/Plugin";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import history from "utils/history";

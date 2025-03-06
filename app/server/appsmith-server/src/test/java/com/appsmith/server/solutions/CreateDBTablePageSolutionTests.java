@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -340,7 +341,7 @@ public class CreateDBTablePageSolutionTests {
         Application gitConnectedApp = new Application();
         gitConnectedApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("crudTestBranch");
+        gitData.setRefName("crudTestBranch");
         gitConnectedApp.setGitApplicationMetadata(gitData);
         applicationPageService
                 .createApplication(gitConnectedApp, testWorkspace.getId())
@@ -348,12 +349,12 @@ public class CreateDBTablePageSolutionTests {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     gitData.setDefaultApplicationId(application.getId());
                     return applicationService.save(application).zipWhen(application1 -> exportService
-                            .exportByArtifactIdAndBranchName(application1.getId(), gitData.getBranchName(), APPLICATION)
+                            .exportByArtifactIdAndBranchName(application1.getId(), gitData.getRefName(), APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
-                        testWorkspace.getId(), tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                        testWorkspace.getId(), tuple.getT1().getId(), tuple.getT2(), gitData.getRefName()))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
@@ -366,8 +367,12 @@ public class CreateDBTablePageSolutionTests {
                 .createPage(newPage)
                 .flatMap(savedPage ->
                         solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId))
-                .flatMap(crudPageResponseDTO -> newPageService.findByBranchNameAndBasePageId(
-                        gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), READ_PAGES, null));
+                .flatMap(crudPageResponseDTO -> newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        RefType.branch,
+                        gitData.getRefName(),
+                        crudPageResponseDTO.getPage().getId(),
+                        READ_PAGES,
+                        null));
 
         StepVerifier.create(resultMono.zipWhen(newPage1 -> getActions(newPage1.getId())))
                 .assertNext(tuple -> {
@@ -378,14 +383,14 @@ public class CreateDBTablePageSolutionTests {
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo("crud-admin-page-with-git-connected-app");
 
-                    assertThat(newPage1.getBranchName()).isEqualTo(gitData.getBranchName());
+                    assertThat(newPage1.getBranchName()).isEqualTo(gitData.getRefName());
                     assertThat(newPage1.getBaseId()).isEqualTo(newPage1.getId());
 
                     assertThat(actionList).hasSize(4);
                     NewAction newAction = actionList.get(0);
                     assertThat(newAction.getBaseId())
                             .isEqualTo(actionList.get(0).getId());
-                    assertThat(newAction.getBranchName()).isEqualTo(gitData.getBranchName());
+                    assertThat(newAction.getBranchName()).isEqualTo(gitData.getRefName());
                 })
                 .verifyComplete();
     }

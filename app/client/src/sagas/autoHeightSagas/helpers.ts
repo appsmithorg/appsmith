@@ -8,10 +8,10 @@ import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/aut
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
@@ -20,7 +20,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
-  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+  const isPreviewMode: boolean = yield select(selectCombinedPreviewMode);
   const appMode: APP_MODE = yield select(getAppMode);
 
   return isPreviewMode || appMode === APP_MODE.PUBLISHED;

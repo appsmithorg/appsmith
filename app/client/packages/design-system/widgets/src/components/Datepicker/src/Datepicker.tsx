@@ -5,6 +5,7 @@ import {
   Calendar,
   inputFieldStyles,
   TimeField,
+  useRootContainer,
 } from "@appsmith/wds";
 import clsx from "clsx";
 import React from "react";
@@ -44,6 +45,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
   const timeMaxValue = (
     props.maxValue && "hour" in props.maxValue ? props.maxValue : null
   ) as TimeValue;
+  const root = useRootContainer();
 
   return (
     <HeadlessDatePicker
@@ -55,9 +57,6 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
       {...rest}
     >
       {({ state }) => {
-        const root = document.body.querySelector(
-          "[data-theme-provider]",
-        ) as HTMLButtonElement;
         const timeGranularity =
           state.granularity === "hour" ||
           state.granularity === "minute" ||
@@ -80,7 +79,6 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
               isLoading={isLoading}
               size={size}
             />
-            <FieldError>{errorMessage}</FieldError>
             <Popover
               UNSTABLE_portalContainer={root}
               className={clsx(datePickerStyles.popover, popoverClassName)}
@@ -96,7 +94,11 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
                       label="Time"
                       maxValue={timeMaxValue}
                       minValue={timeMinValue}
-                      onChange={state.setTimeValue}
+                      onChange={(value) => {
+                        if (value) {
+                          state.setTimeValue(value);
+                        }
+                      }}
                       placeholderValue={timePlaceholder}
                       value={state.timeValue}
                     />
@@ -104,6 +106,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
                 )}
               </Dialog>
             </Popover>
+            <FieldError>{errorMessage}</FieldError>
           </>
         );
       }}

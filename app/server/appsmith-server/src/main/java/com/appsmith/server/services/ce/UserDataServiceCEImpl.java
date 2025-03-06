@@ -20,8 +20,8 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
@@ -54,7 +54,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final ApplicationRepository applicationRepository;
 
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
@@ -73,7 +73,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             ApplicationRepository applicationRepository,
-            TenantService tenantService) {
+            OrganizationService organizationService) {
         super(validator, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
@@ -81,7 +81,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
         this.applicationRepository = applicationRepository;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
     }
 
     @Override
@@ -105,9 +105,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> getForUserEmail(String email) {
-        return tenantService
-                .getDefaultTenantId()
-                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(email, tenantId))
+        return organizationService
+                .getDefaultOrganizationId()
+                .flatMap(organizationId -> userRepository.findByEmailAndOrganizationId(email, organizationId))
                 .flatMap(this::getForUser);
     }
 
@@ -124,9 +124,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService
                 .getCurrentUser()
-                .flatMap(user -> tenantService
-                        .getDefaultTenantId()
-                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId)))
+                .flatMap(user -> organizationService
+                        .getDefaultOrganizationId()
+                        .flatMap(organizationId ->
+                                userRepository.findByEmailAndOrganizationId(user.getEmail(), organizationId)))
                 .flatMap(user -> updateForUser(user, updates));
     }
 
@@ -170,9 +171,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
 
         return Mono.justOrEmpty(user.getId())
-                .switchIfEmpty(tenantService
-                        .getDefaultTenantId()
-                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
+                .switchIfEmpty(organizationService
+                        .getDefaultOrganizationId()
+                        .flatMap(organizationId ->
+                                userRepository.findByEmailAndOrganizationId(user.getEmail(), organizationId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
                 .flatMap(userId -> repository
                         .saveReleaseNotesViewedVersion(userId, version)

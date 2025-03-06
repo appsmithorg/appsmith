@@ -40,7 +40,7 @@ function DropdownFieldWrapper(props: DropdownFieldWrapperProps) {
     >
       {props.options.map((option: SelectOptionProps) => {
         return (
-          <Option key={option.id} value={option.value}>
+          <Option key={option.value} value={option.value}>
             {option.label || option.value}
           </Option>
         );

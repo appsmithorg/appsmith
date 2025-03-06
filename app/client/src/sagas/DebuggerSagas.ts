@@ -8,14 +8,14 @@ import {
   debuggerLogInit,
   deleteErrorLog,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   Log,
   LogActionPayload,
   LogObject,
 } from "entities/AppsmithConsole";
-import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
   all,
@@ -35,7 +35,7 @@ import {
   getAppMode,
 } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { type Plugin, PluginType } from "entities/Plugin";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
@@ -44,7 +44,6 @@ import { createLogTitleString } from "components/editorComponents/Debugger/helpe
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
@@ -56,6 +55,11 @@ import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
 } from "ee/sagas/helpers";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { getIDEViewMode } from "../selectors/ideSelectors";
+import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
+import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/utils/getDebuggerPaneConfig";
+import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/constants";
 
 let blockedSource: string | null = null;
 
@@ -284,10 +288,17 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
             allFormatedLogs.push(formattedLog);
           }
 
-          yield put(addErrorLogs(allFormatedLogs));
           yield put(debuggerLog(allFormatedLogs));
         }
         break;
+      case LOG_TYPE.JS_EXECUTION_ERROR: {
+        const filteredLogs = payload.filter(
+          (log) => log.source && log.source.propertyPath && log.text,
+        );
+
+        yield put(debuggerLog(filteredLogs));
+        break;
+      }
       case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
         {
           const allFormatedLogs: Log[] = [];
@@ -675,17 +686,25 @@ function* deleteDebuggerErrorLogsSaga(
 // takes a log object array and stores it in the redux store
 export function* storeLogs(logs: LogObject[]) {
   AppsmithConsole.addLogs(
-    logs.map((log: LogObject) => {
-      return {
-        text: createLogTitleString(log.data),
-        logData: log.data,
-        source: log.source,
-        severity: log.severity,
-        timestamp: log.timestamp,
-        category: LOG_CATEGORY.USER_GENERATED,
-        isExpanded: false,
-      };
-    }),
+    logs
+      .filter((log) => {
+        if (log.severity === Severity.ERROR) {
+          return log.source;
+        }
+
+        return true;
+      })
+      .map((log: LogObject) => {
+        return {
+          text: `console.${log.method}(${createLogTitleString(log.data)})`,
+          logData: log.data,
+          source: log.source,
+          severity: log.severity,
+          timestamp: log.timestamp,
+          category: LOG_CATEGORY.USER_GENERATED,
+          isExpanded: false,
+        };
+      }),
   );
 }
 
@@ -860,6 +879,17 @@ function* activeFieldDebuggerErrorHandler(
   }
 }
 
+function* showDebuggerOnExecutionError() {
+  const currentEntity = identifyEntityFromPath(location.pathname);
+  const ideState: EditorViewMode = yield select(getIDEViewMode);
+
+  const config = getDebuggerPaneConfig(currentEntity, ideState);
+
+  yield put(
+    config.set({ open: true, selectedTab: DEBUGGER_TAB_KEYS.LOGS_TAB }),
+  );
+}
+
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
@@ -870,6 +900,10 @@ export default function* debuggerSagasListeners() {
     takeEvery(
       ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
       deleteDebuggerErrorLogsSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.SHOW_DEBUGGER_LOGS,
+      showDebuggerOnExecutionError,
     ),
   ]);
 }

@@ -7,7 +7,8 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.ce.DatasourceTriggerSolutionCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,8 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
             DatasourcePermission datasourcePermission,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService) {
+            OrganizationService organizationService,
+            FeatureFlagService featureFlagService) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -40,6 +42,7 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
                 datasourcePermission,
                 environmentPermission,
                 configService,
-                tenantService);
+                organizationService,
+                featureFlagService);
     }
 }

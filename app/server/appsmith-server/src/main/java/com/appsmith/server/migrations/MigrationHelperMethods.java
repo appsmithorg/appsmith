@@ -21,7 +21,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -211,7 +211,7 @@ public class MigrationHelperMethods {
     }
 
     public static void evictPermissionCacheForUsers(
-            Set<String> userIds, MongoTemplate mongoTemplate, PermissionGroupRepository permissionGroupRepository) {
+            Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
@@ -223,8 +223,8 @@ public class MigrationHelperMethods {
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
-                permissionGroupRepository
-                        .evictAllPermissionGroupCachesForUser(user.getEmail(), user.getTenantId())
+                cacheableRepositoryHelper
+                        .evictPermissionGroupsUser(user.getEmail(), user.getOrganizationId())
                         .block();
             }
         });

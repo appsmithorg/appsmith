@@ -15,7 +15,7 @@ import {
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -96,6 +96,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
   }
+
   componentDidMount() {
     // set replay data
     this.props.initializeReplayEntity(
@@ -182,10 +183,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
 
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
-      if (
-        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
-        _.get(authentication, "sendScopeWithRefreshToken") === ""
-      ) {
+      if (_.get(authentication, "sendScopeWithRefreshToken") === undefined) {
         this.props.change("authentication.sendScopeWithRefreshToken", false);
       }
     }

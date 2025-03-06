@@ -1,5 +1,6 @@
 import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
-import { EditorEntityTab, EditorState } from "ee/entities/IDE/constants";
+import { EditorState } from "IDE/enums";
+import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import "jest-styled-components";
@@ -11,15 +12,20 @@ import { ThemeProvider } from "styled-components";
 import Onboarding from ".";
 import { unitTestBaseMockStore } from "../unitTestUtils";
 
-jest.mock("pages/Editor/IDE/hooks", () => ({
+jest.mock("IDE/hooks/useCurrentAppState", () => ({
   useCurrentAppState: jest.fn().mockReturnValue(EditorState.EDITOR),
+}));
+
+jest.mock("pages/AppIDE/hooks/useCurrentEditorState", () => ({
   useCurrentEditorState: jest.fn(),
 }));
 
 const mockStore = configureStore([]);
 const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
+  const {
+    useCurrentEditorState,
+  } = require("pages/AppIDE/hooks/useCurrentEditorState");
 
   useCurrentEditorState.mockImplementation(() => ({
     segment,

@@ -98,7 +98,7 @@ describe(
       _.debuggerHelper.DoesConsoleLogExist(logString, false);
 
       // Run function and verify logs are visible
-      _.agHelper.GetNClick(_.jsEditor._runButton);
+      _.jsEditor.toolbar.clickRunButton();
       _.agHelper.GetNClick(_.jsEditor._logsTab);
       _.debuggerHelper.DoesConsoleLogExist(logString);
     });
@@ -292,8 +292,6 @@ describe(
       _.debuggerHelper.OpenDebugger();
 
       _.debuggerHelper.ClicklogEntityLink();
-
-      cy.get(".t--js-action-name-edit-field").should("exist");
     });
 
     it("10. Bug #24039 - Logs errors from setInterval callback into debugger", () => {

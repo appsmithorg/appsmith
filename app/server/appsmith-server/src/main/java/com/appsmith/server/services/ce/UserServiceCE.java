@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.CrudService;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,7 +19,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Mono<User> findByEmailAndOrganizationId(String email, String organizationId);
 
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
@@ -30,6 +31,8 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
+    Mono<Integer> updateWithoutPermission(String id, UpdateDefinition updateObj);
+
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
     Mono<Boolean> isUsersEmpty();
@@ -37,6 +40,8 @@ public interface UserServiceCE extends CrudService<User, String> {
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
+
+    Mono<User> signupIfAllowed(User user);
 
     Mono<User> updateWithoutPermission(String id, User update);
 

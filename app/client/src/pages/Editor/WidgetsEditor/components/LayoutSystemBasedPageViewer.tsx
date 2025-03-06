@@ -1,16 +1,16 @@
 import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBannerCTA";
 import React from "react";
 import { MainContainerWrapper } from "./MainContainerWrapper";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/AppSettings";
 import { useSelector } from "react-redux";
 import {
   getCanvasWidth,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
 import { useShowSnapShotBanner } from "pages/Editor/CanvasLayoutConversion/hooks/useShowSnapShotBanner";
+import { useGitProtectedMode } from "pages/Editor/gitSync/hooks/modHooks";
 
 /**
  * LayoutSystemBasedPageViewer
@@ -25,7 +25,7 @@ export const LayoutSystemBasedPageViewer = ({
 }) => {
   const currentPageId = useSelector(getCurrentPageId);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isProtectedMode = useGitProtectedMode();
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const canvasWidth = useSelector(getCanvasWidth);
   const shouldShowSnapShotBanner = useShowSnapShotBanner(

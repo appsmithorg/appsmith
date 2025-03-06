@@ -1,6 +1,5 @@
-import { groupBy, keyBy, sortBy } from "lodash";
+import { keyBy } from "lodash";
 import { createSelector } from "reselect";
-import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
@@ -8,34 +7,9 @@ import {
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
-
-export type EditorSegmentList = Array<{
-  group: string | "NA";
-  items: EntityItem[];
-}>;
-
-export const groupAndSortEntitySegmentList = (
-  items: EntityItem[],
-): EditorSegmentList => {
-  const groups = groupBy(items, (item) => {
-    if (item.group) return item.group;
-
-    return "NA";
-  });
-
-  // Entity Segment Lists are sorted alphabetically at both group and item level
-  return sortBy(
-    Object.keys(groups).map((group) => {
-      return {
-        group: group,
-        items: sortBy(groups[group], "title"),
-      };
-    }),
-    "group",
-  );
-};
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getQueryEntityItemUrl } from "ee/pages/AppIDE/layouts/routers/utils/getQueryEntityItemUrl";
+import { groupAndSortEntitySegmentList } from "IDE/utils/groupAndSortEntitySegmentList";
 
 export const selectQuerySegmentEditorList = createSelector(
   getQuerySegmentItems,
@@ -74,10 +48,10 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
 
 export const getLastQueryTab = createSelector(
   selectQuerySegmentEditorTabs,
-  getCurrentPageId,
-  (tabs, pageId) => {
+  getCurrentBasePageId,
+  (tabs, basePageId) => {
     if (tabs.length) {
-      const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+      const url = getQueryEntityItemUrl(tabs[tabs.length - 1], basePageId);
       const urlWithoutQueryParams = url.split("?")[0];
 
       return identifyEntityFromPath(urlWithoutQueryParams);

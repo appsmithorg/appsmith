@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,

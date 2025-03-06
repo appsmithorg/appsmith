@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { getPropsForJSActionEntity } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import type { JSActionEntity } from "ee/entities/DataTree/types";

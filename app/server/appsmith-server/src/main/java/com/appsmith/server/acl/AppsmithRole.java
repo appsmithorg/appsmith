@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
@@ -25,10 +25,11 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION_ADMINISTRATOR_ROLE;
 
 @Getter
 public enum AppsmithRole {
-    ORGANIZATION_ADMIN(
+    WORKSPACE_ADMIN(
             ADMINISTRATOR,
             WORKSPACE_ADMINISTRATOR_DESCRIPTION,
             Set.of(
@@ -40,7 +41,7 @@ public enum AppsmithRole {
                     WORKSPACE_DELETE_DATASOURCES,
                     WORKSPACE_DELETE_APPLICATIONS,
                     DELETE_WORKSPACES)),
-    ORGANIZATION_DEVELOPER(
+    WORKSPACE_DEVELOPER(
             DEVELOPER,
             WORKSPACE_DEVELOPER_DESCRIPTION,
             Set.of(
@@ -54,7 +55,7 @@ public enum AppsmithRole {
                     WORKSPACE_CREATE_DATASOURCE,
                     WORKSPACE_DELETE_DATASOURCES,
                     WORKSPACE_DELETE_APPLICATIONS)),
-    ORGANIZATION_VIEWER(
+    WORKSPACE_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(
@@ -62,7 +63,7 @@ public enum AppsmithRole {
                     WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_INVITE_USERS,
                     WORKSPACE_EXECUTE_DATASOURCES)),
-    TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
+    ORGANIZATION_ADMIN(ORGANIZATION_ADMINISTRATOR_ROLE, "", Set.of(MANAGE_ORGANIZATION)),
     ;
 
     private Set<AclPermission> permissions;

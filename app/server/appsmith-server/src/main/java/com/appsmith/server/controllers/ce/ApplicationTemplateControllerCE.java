@@ -34,7 +34,7 @@ public class ApplicationTemplateControllerCE {
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
         return applicationTemplateService
                 .getActiveTemplates(null)
-                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
+                .map(templates -> new ResponseDTO<>(HttpStatus.OK, templates));
     }
 
     @JsonView(Views.Public.class)
@@ -42,7 +42,7 @@ public class ApplicationTemplateControllerCE {
     public Mono<ResponseDTO<ApplicationTemplate>> getTemplateDetails(@PathVariable String templateId) {
         return applicationTemplateService
                 .getTemplateDetails(templateId)
-                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
+                .map(templates -> new ResponseDTO<>(HttpStatus.OK, templates));
     }
 
     @JsonView(Views.Public.class)
@@ -52,15 +52,13 @@ public class ApplicationTemplateControllerCE {
         return applicationTemplateService
                 .getSimilarTemplates(templateId, params)
                 .collectList()
-                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
+                .map(templates -> new ResponseDTO<>(HttpStatus.OK, templates));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("filters")
     public Mono<ResponseDTO<ApplicationTemplate>> getFilters() {
-        return applicationTemplateService
-                .getFilters()
-                .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
+        return applicationTemplateService.getFilters().map(filters -> new ResponseDTO<>(HttpStatus.OK, filters));
     }
 
     @JsonView(Views.Public.class)
@@ -69,19 +67,19 @@ public class ApplicationTemplateControllerCE {
             @PathVariable String templateId, @PathVariable String workspaceId) {
         return applicationTemplateService
                 .importApplicationFromTemplate(templateId, workspaceId)
-                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
+                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK, importedApp));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("{templateId}/merge/{branchedApplicationId}/{organizationId}")
+    @PostMapping("{templateId}/merge/{branchedApplicationId}/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(
             @PathVariable String templateId,
             @PathVariable String branchedApplicationId,
-            @PathVariable String organizationId,
+            @PathVariable String workspaceId,
             @RequestBody(required = false) List<String> pagesToImport) {
         return applicationTemplateService
-                .mergeTemplateWithApplication(templateId, branchedApplicationId, organizationId, pagesToImport)
-                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
+                .mergeTemplateWithApplication(templateId, branchedApplicationId, workspaceId, pagesToImport)
+                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK, importedApp));
     }
 
     @JsonView(Views.Public.class)
@@ -89,7 +87,7 @@ public class ApplicationTemplateControllerCE {
     public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(@RequestBody TemplateDTO resource) {
         return applicationTemplateService
                 .publishAsCommunityTemplate(resource)
-                .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
+                .map(template -> new ResponseDTO<>(HttpStatus.OK, template));
     }
 
     @JsonView(Views.Public.class)
@@ -97,6 +95,6 @@ public class ApplicationTemplateControllerCE {
     public Mono<ResponseDTO<Boolean>> publishAppsmithTemplate(@RequestBody TemplateDTO resource) {
         return applicationTemplateService
                 .publishAppsmithTemplate(resource)
-                .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
+                .map(template -> new ResponseDTO<>(HttpStatus.OK, template));
     }
 }

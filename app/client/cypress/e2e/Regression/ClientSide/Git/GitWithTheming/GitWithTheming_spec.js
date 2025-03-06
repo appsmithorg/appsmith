@@ -111,41 +111,6 @@ describe(
       cy.get(commonlocators.backToEditor).click();
       cy.wait(2000);
     });
-    // commenting test until bug is closed
-    /*it("Bug #14645 Custom themes are not getting copied for create branch", function() {
-    cy.xpath("(//button[@type='button'])").should(
-      "have.css",
-      "background-color",
-      backgroudColorChildBranch,
-    );
-    cy.switchGitBranch("master");
-    cy.xpath("(//button[@type='button'])").should(
-      "have.css",
-      "background-color",
-      backgroudColorMaster,
-    );
-    // delete tempBranch
-    cy.get(gitSyncLocators.branchButton).click();
-    cy.get(gitSyncLocators.branchListItem)
-      .eq(1)
-      .trigger("mouseenter")
-      .within(() => {
-        cy.get(gitSyncLocators.gitBranchContextMenu).click();
-        cy.get(gitSyncLocators.gitBranchDelete).click();
-      });
-    cy.wait("@deleteBranch").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(gitSyncLocators.closeBranchList).click();
-    // verify the app doesnt crash
-    cy.xpath("(//button[@type='button'])").should(
-      "have.css",
-      "background-color",
-      backgroudColorMaster,
-    );
-  }); */
 
     after(() => {
       //clean up

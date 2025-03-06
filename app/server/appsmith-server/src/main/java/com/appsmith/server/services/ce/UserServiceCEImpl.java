@@ -7,9 +7,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -31,9 +31,9 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import jakarta.validation.Validator;
@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -76,7 +77,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
-import static com.appsmith.server.constants.FieldName.TENANT;
+import static com.appsmith.server.constants.FieldName.ORGANIZATION;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -96,7 +97,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final CommonConfig commonConfig;
     private final UserDataService userDataService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
@@ -127,7 +128,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserDataService userDataService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
@@ -142,7 +143,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordEncoder = passwordEncoder;
         this.commonConfig = commonConfig;
         this.userDataService = userDataService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.userUtils = userUtils;
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
@@ -153,12 +154,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return tenantService.getDefaultTenantId().flatMap(tenantId -> findByEmailAndTenantId(email, tenantId));
+        return organizationService
+                .getDefaultOrganizationId()
+                .flatMap(organizationId -> findByEmailAndOrganizationId(email, organizationId));
     }
 
     @Override
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        return repository.findByEmailAndTenantId(email, tenantId);
+    public Mono<User> findByEmailAndOrganizationId(String email, String organizationId) {
+        return repository.findByEmailAndOrganizationId(email, organizationId);
     }
 
     /**
@@ -304,9 +307,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
-        Mono<Tenant> tenantMono = tenantService
-                .getDefaultTenant()
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
+        Mono<Organization> organizationMono = organizationService
+                .getDefaultOrganization()
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
 
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
@@ -324,13 +328,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
-                        .zipWith(tenantMono)
+                        .zipWith(organizationMono)
                         .flatMap(tuple -> {
                             User userFromDb = tuple.getT1();
-                            TenantConfiguration tenantConfiguration =
-                                    tuple.getT2().getTenantConfiguration();
-                            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
-                                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+                            OrganizationConfiguration organizationConfiguration =
+                                    tuple.getT2().getOrganizationConfiguration();
+                            boolean isStrongPasswordPolicyEnabled = organizationConfiguration != null
+                                    && Boolean.TRUE.equals(
+                                            organizationConfiguration.getIsStrongPasswordPolicyEnabled());
 
                             if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
                                 return isStrongPasswordPolicyEnabled
@@ -394,25 +399,27 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
-            if (userBeforeSave.getTenantId() == null) {
-                return tenantService.getDefaultTenantId().map(tenantId -> {
-                    userBeforeSave.setTenantId(tenantId);
+        Mono<User> userWithOrgMono = Mono.just(user).flatMap(userBeforeSave -> {
+            if (userBeforeSave.getOrganizationId() == null) {
+                return organizationService.getDefaultOrganizationId().map(organizationId -> {
+                    userBeforeSave.setOrganizationId(organizationId);
                     return userBeforeSave;
                 });
             }
-            // The tenant has been set already. No need to set the default tenant id.
+            // The org has been set already. No need to set the default org id.
             return Mono.just(userBeforeSave);
         });
 
         // Save the new user
-        return userWithTenantMono
+        return userWithOrgMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
+                        return userUtils
+                                .makeInstanceAdministrator(List.of(crudUser))
+                                .then(Mono.just(crudUser));
                     }
                     return Mono.just(crudUser);
                 })
@@ -424,6 +431,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
         return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
+    }
+
+    protected Mono<Boolean> isSignupAllowed(User user) {
+        return Mono.just(TRUE);
     }
 
     @Override
@@ -441,17 +452,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
-                        // First enable the user
-                        savedUser.setIsEnabled(true);
-                        savedUser.setSource(user.getSource());
-                        // In case of form login, store the encrypted password.
-                        savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser).map(updatedUser -> {
-                            UserSignupDTO userSignupDTO = new UserSignupDTO();
-                            userSignupDTO.setUser(updatedUser);
-                            return userSignupDTO;
+                        return isSignupAllowed(user).flatMap(isSignupAllowed -> {
+                            if (isSignupAllowed) {
+                                // First enable the user
+                                savedUser.setIsEnabled(true);
+                                savedUser.setSource(user.getSource());
+                                // In case of form login, store the encrypted password.
+                                savedUser.setPassword(user.getPassword());
+                                return repository.save(savedUser).map(updatedUser -> {
+                                    UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                    userSignupDTO.setUser(updatedUser);
+                                    return userSignupDTO;
+                                });
+                            }
+
+                            return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
                         });
                     }
+
                     return Mono.error(
                             new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
@@ -509,7 +527,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-    private Mono<User> signupIfAllowed(User user) {
+    @Override
+    public Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
@@ -566,6 +585,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
+    }
+
+    @Override
+    public Mono<Integer> updateWithoutPermission(String id, UpdateDefinition updateObj) {
+        Mono<User> userFromRepository = repository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository.flatMap(existingUser -> repository.updateById(id, updateObj));
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
@@ -652,7 +680,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
-        Mono<Boolean> isSuperUserMono = userFromDbMono.flatMap(userUtils::isSuperUser);
+        Mono<Boolean> isSuperUserMono =
+                userFromDbMono.flatMap(userUtils::isSuperUser).defaultIfEmpty(false);
 
         return Mono.zip(
                         isUsersEmpty(),
@@ -732,13 +761,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     if (TRUE.equals(user.getEmailVerified())) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
                     }
-                    return tenantService.getTenantConfiguration().flatMap(tenant -> {
+                    return organizationService.getOrganizationConfiguration().flatMap(organization -> {
                         Boolean emailVerificationEnabled =
-                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
-                        // Email verification not enabled at tenant
+                                organization.getOrganizationConfiguration().isEmailVerificationEnabled();
+                        // Email verification not enabled at organization level
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
-                                    new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
+                                    new AppsmithException(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED));
                         }
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())

@@ -54,7 +54,7 @@ export default {
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
-import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm'
+import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.15.0/+esm'
 import Markdown from 'https://cdn.jsdelivr.net/npm/react-markdown@9.0.1/+esm'
 
 function App() {
@@ -66,7 +66,7 @@ function App() {
 
 	const handleReset = () => {
 		setCurrentIndex(0);
-		appsmith.triggerEvent("onReset");
+		appsmith.triggerEvent("onResetClick");
 	};
 
 	return (

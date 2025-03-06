@@ -24,8 +24,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -106,7 +107,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     NewPageService newPageService;
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     @SpyBean
@@ -128,13 +129,16 @@ class ActionExecutionSolutionCEImplTest {
     ConfigService configService;
 
     @SpyBean
-    TenantService tenantService;
+    OrganizationService organizationService;
 
     @SpyBean
     CommonConfig commonConfig;
 
     @SpyBean
     ActionExecutionSolutionHelper actionExecutionSolutionHelper;
+
+    @SpyBean
+    FeatureFlagService featureFlagService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -165,9 +169,10 @@ class ActionExecutionSolutionCEImplTest {
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService,
+                organizationService,
                 commonConfig,
-                actionExecutionSolutionHelper);
+                actionExecutionSolutionHelper,
+                featureFlagService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

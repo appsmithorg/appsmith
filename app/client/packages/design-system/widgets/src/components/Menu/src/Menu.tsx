@@ -1,28 +1,30 @@
-import React, { createContext, useContext } from "react";
-import { listStyles, Popover } from "@appsmith/wds";
+import {
+  Popover,
+  listBoxStyles,
+  useRootContainer,
+  POPOVER_LIST_BOX_MAX_HEIGHT,
+} from "@appsmith/wds";
+import React from "react";
 import { Menu as HeadlessMenu } from "react-aria-components";
 
 import type { MenuProps } from "./types";
-
-const MenuNestingContext = createContext(0);
+import clsx from "clsx";
 
 export const Menu = (props: MenuProps) => {
-  const { children } = props;
-  const root = document.body.querySelector(
-    "[data-theme-provider]",
-  ) as HTMLButtonElement;
-
-  const nestingLevel = useContext(MenuNestingContext);
-  const isRootMenu = nestingLevel === 0;
+  const { children, className, ...rest } = props;
+  const root = useRootContainer();
 
   return (
-    <MenuNestingContext.Provider value={nestingLevel + 1}>
-      {/* Only the parent Popover should be placed in the root. Placing child popoves in root would cause the menu to function incorrectly */}
-      <Popover UNSTABLE_portalContainer={isRootMenu ? root : undefined}>
-        <HeadlessMenu className={listStyles.listBox} {...props}>
-          {children}
-        </HeadlessMenu>
-      </Popover>
-    </MenuNestingContext.Provider>
+    <Popover
+      UNSTABLE_portalContainer={root}
+      maxHeight={POPOVER_LIST_BOX_MAX_HEIGHT}
+    >
+      <HeadlessMenu
+        className={clsx(listBoxStyles.listBox, className)}
+        {...rest}
+      >
+        {children}
+      </HeadlessMenu>
+    </Popover>
   );
 };

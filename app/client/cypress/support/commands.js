@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
+
 dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
@@ -35,6 +36,7 @@ const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import { PluginActionForm } from "./Pages/PluginActionForm";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -47,11 +49,13 @@ const homePageTS = ObjectsRegistry.HomePage;
 const table = ObjectsRegistry.Table;
 
 const chainStart = Symbol();
+const pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
+    window.localStorage.setItem("NUDGE_SHOWN_SPLIT_PANE", "true");
   });
 };
 
@@ -222,9 +226,6 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
 
   // Logout is a POST request in CE
   let httpMethod = "POST";
-  if (CURRENT_REPO === REPO.EE) {
-    httpMethod = "GET";
-  }
 
   if (CURRENT_REPO === REPO.CE)
     toCheckgetPluginForm &&
@@ -579,11 +580,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
 
-  if (CURRENT_REPO === REPO.CE) {
-    cy.intercept("POST", "/api/v1/logout").as("postLogout");
-  } else if (CURRENT_REPO === REPO.EE) {
-    cy.intercept("GET", "/api/v1/logout").as("postLogout");
-  }
+  cy.intercept("POST", "/api/v1/logout").as("postLogout");
+
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
@@ -813,7 +811,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -838,7 +836,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
   cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait(2000);
-  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+  cy.xpath("//div[@class='tr'][1]//div[@class='td as-mask'][6]//span")
     .invoke("text")
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -1052,7 +1050,7 @@ cy.all = function (...commands) {
 };
 
 Cypress.Commands.add("getEntityName", () => {
-  let entityName = cy.get(apiwidget.ApiName).invoke("text");
+  let entityName = agHelper.GetObjectName();
   return entityName;
 });
 
@@ -1075,9 +1073,9 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
-  cy.get(queryLocators.settings).click();
+  pluginActionForm.toolbar.toggleSettings();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-  cy.xpath(queryLocators.query).click();
+  pluginActionForm.toolbar.toggleSettings();
 });
 
 Cypress.Commands.add("isInViewport", (element) => {

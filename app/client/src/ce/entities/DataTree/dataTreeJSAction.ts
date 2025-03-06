@@ -1,6 +1,6 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type {
   JSActionEntity,
@@ -46,7 +46,7 @@ export const generateDataTreeJSAction = (
   const dependencyMap: DependencyMap = {};
 
   dependencyMap["body"] = [];
-  const actions = js.config.actions;
+  const actions = js.config.actions || [];
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
@@ -89,6 +89,7 @@ export const generateDataTreeJSAction = (
       dynamicBindingPathList: dynamicBindingPathList,
       variables: listVariables,
       dependencyMap: dependencyMap,
+      actionNames: new Set(actions.map((action) => action.name)),
     },
   };
 };

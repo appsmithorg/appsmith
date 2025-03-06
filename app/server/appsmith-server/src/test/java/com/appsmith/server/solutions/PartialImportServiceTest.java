@@ -37,6 +37,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,19 +46,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.http.codec.multipart.Part;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.security.test.context.support.WithUserDetails;
-import reactor.core.publisher.Flux;
+import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -239,7 +235,7 @@ public class PartialImportServiceTest {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("master");
+        gitData.setRefName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -252,16 +248,10 @@ public class PartialImportServiceTest {
                 .block();
     }
 
-    private FilePart createFilePart(String filePath) {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
-                        new ClassPathResource(filePath), new DefaultDataBufferFactory(), 4096)
-                .cache();
-
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
-
-        return filepart;
+    @SneakyThrows
+    private String readResource(String filePath) {
+        return StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource(filePath).getInputStream(), StandardCharsets.UTF_8);
     }
 
     @Test
@@ -282,10 +272,10 @@ public class PartialImportServiceTest {
                 .block()
                 .getId();
 
-        Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-resource.json");
+        String jsonContents = readResource("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, jsonContents)
                 .flatMap(application -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(pageId, Optional.empty())
@@ -331,14 +321,15 @@ public class PartialImportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        savedPage.setBranchName("master");
+        savedPage.setRefName("master");
         savedPage = applicationPageService.createPage(savedPage).block();
 
-        Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
+        String jsonContents =
+                readResource("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
 
         PageDTO finalSavedPage = savedPage;
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), "master", filePart)
+                .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), jsonContents)
                 .flatMap(application1 -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(finalSavedPage.getId(), Optional.empty())
@@ -395,12 +386,12 @@ public class PartialImportServiceTest {
                 .block()
                 .getId();
 
-        Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-resource.json");
+        String jsonContents = readResource("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
-                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, jsonContents)
                 .then(partialImportService.importResourceInPage(
-                        workspaceId, testApplication.getId(), pageId, null, filePart))
+                        workspaceId, testApplication.getId(), pageId, jsonContents))
                 .flatMap(application -> {
                     Mono<List<NewAction>> actionList = newActionService
                             .findByPageId(pageId, Optional.empty())
@@ -450,15 +441,15 @@ public class PartialImportServiceTest {
     @WithUserDetails(value = "api_user")
     public void testPartialImportWithBuildingBlock_nameClash_success() {
 
-        Part filePart = createFilePart("test_assets/ImportExportServiceTest/building-block.json");
+        String jsonContents = readResource("test_assets/ImportExportServiceTest/building-block.json");
         ApplicationJson applicationJson = (ApplicationJson)
-                importService.extractArtifactExchangeJson(filePart).block();
+                importService.extractArtifactExchangeJson(jsonContents).block();
         // Mock the call to fetch the json file from CS
         Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId"))
                 .thenReturn(Mono.just(applicationJson));
 
         ApplicationJson applicationJson1 = (ApplicationJson)
-                importService.extractArtifactExchangeJson(filePart).block();
+                importService.extractArtifactExchangeJson(jsonContents).block();
         Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId1"))
                 .thenReturn(Mono.just(applicationJson1));
 

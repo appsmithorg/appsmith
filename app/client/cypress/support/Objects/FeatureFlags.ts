@@ -1,10 +1,9 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import { ObjectsRegistry } from "./Registry";
-import produce from "immer";
 
 const defaultFlags = {
-  release_side_by_side_ide_enabled: true,
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
+  release_git_modularisation_enabled: true,
 };
 
 export const featureFlagIntercept = (
@@ -32,6 +31,7 @@ export const getConsolidatedDataApi = (
   reload = true,
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    delete req.headers["if-none-match"];
     req.reply((res: any) => {
       if (
         res.statusCode === 200 ||
@@ -39,12 +39,13 @@ export const getConsolidatedDataApi = (
         res.statusCode === 500
       ) {
         const originalResponse = res?.body;
-        const updatedResponse = produce(originalResponse, (draft: any) => {
-          draft.data.featureFlags.data = {
-            ...flags,
-          };
-        });
-        return res.send(updatedResponse);
+        try {
+          const updatedResponse = JSON.parse(JSON.stringify(originalResponse));
+          updatedResponse.data.featureFlags.data = { ...flags };
+          return res.send(updatedResponse);
+        } catch (e) {
+          cy.log(`vamsi error `, e);
+        }
       }
     });
   }).as("getConsolidatedData");
@@ -86,20 +87,19 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
+      delete req.headers["if-none-match"];
       if (res.statusCode === 200) {
         const originalResponse = res?.body;
-        const updatedResponse = produce(originalResponse, (draft: any) => {
-          draft.data.featureFlags.data = {};
-          Object.keys(originalResponse.data.featureFlags.data).forEach(
-            (flag) => {
-              if (LICENSE_FEATURE_FLAGS.includes(flag)) {
-                draft.data.featureFlags.data[flag] =
-                  originalResponse.data.featureFlags.data[flag];
-              }
-            },
-          );
-          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+        const updatedResponse = JSON.parse(JSON.stringify(originalResponse));
+        updatedResponse.data.featureFlags.data = {};
+        Object.keys(originalResponse.data.featureFlags.data).forEach((flag) => {
+          if (LICENSE_FEATURE_FLAGS.includes(flag)) {
+            updatedResponse.data.featureFlags.data[flag] =
+              originalResponse.data.featureFlags.data[flag];
+          }
         });
+        updatedResponse.data.featureFlags.data["release_app_sidebar_enabled"] =
+          true;
         return res.send(updatedResponse);
       }
     });

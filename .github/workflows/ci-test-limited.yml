@@ -41,13 +41,14 @@ jobs:
 
     # Service containers to run with this job. Required for running tests
     services:
-      # Label used to access the service container
       redis:
-        # Docker Hub image for Redis
         image: redis
         ports:
-          # Opens tcp port 6379 on the host and service container
           - 6379:6379
+      postgres:
+        image: postgres:14
+        ports:
+          - 5432:5432
       mongo:
         image: mongo
         ports:
@@ -150,6 +151,7 @@ jobs:
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
+          sudo systemctl disable --now ssh.socket
           mkdir -p ~/git-server/keys
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
@@ -219,12 +221,15 @@ jobs:
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
-
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          sudo apt-get remove google-chrome-stable
+          wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -334,6 +339,11 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
+          CYPRESS_SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+          CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+          CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          CYPRESS_HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
+          GITHUB_WORKFLOW : ${{ github.workflow }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
@@ -414,7 +424,7 @@ jobs:
         if: failure()
         with:
           name: server-logs
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
 
       # Set status = success

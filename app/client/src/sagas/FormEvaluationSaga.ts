@@ -1,6 +1,14 @@
 import type { ActionPattern } from "redux-saga/effects";
-import { call, take, select, put, actionChannel } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  call,
+  take,
+  select,
+  put,
+  actionChannel,
+  all,
+  takeLatest,
+} from "redux-saga/effects";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
@@ -28,14 +36,19 @@ import {
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
-import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import type { Plugin } from "entities/Plugin";
+import {
+  doesPluginRequireDatasource,
+  type ActionParentEntityTypeInterface,
+} from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { objectKeys } from "@appsmith/utils";
 
 export interface FormEvalActionPayload {
   formId: string;
   datasourceId?: string;
   pluginId?: string;
+  editorContextType: ActionParentEntityTypeInterface;
   actionConfiguration?: ActionConfig;
   editorConfig?: FormConfigType[];
   settingConfig?: FormConfigType[];
@@ -138,7 +151,7 @@ export function* fetchDynamicValuesSaga(
   datasourceId: string,
   pluginId: string,
 ) {
-  for (const key of Object.keys(queueOfValuesToBeFetched)) {
+  for (const key of objectKeys(queueOfValuesToBeFetched)) {
     queueOfValuesToBeFetched[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
@@ -160,6 +173,49 @@ export function* fetchDynamicValuesSaga(
       values: queueOfValuesToBeFetched,
     },
   });
+}
+
+function* fetchPaginatedDynamicValuesSaga(
+  action: ReduxAction<{
+    value: ConditionalOutput;
+    dynamicFetchedValues: DynamicValues;
+    actionId: string;
+    datasourceId: string;
+    pluginId: string;
+    identifier: string;
+  }>,
+) {
+  try {
+    const {
+      actionId,
+      datasourceId,
+      dynamicFetchedValues,
+      identifier,
+      pluginId,
+      value,
+    } = action.payload;
+
+    const nextPageResponse: DynamicValues = yield call(
+      fetchDynamicValueSaga,
+      value,
+      Object.assign({}, dynamicFetchedValues),
+      actionId,
+      datasourceId,
+      pluginId,
+    );
+
+    // Set the values to the state once all values are fetched
+    yield put({
+      type: ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_SUCCESS,
+      payload: {
+        actionId,
+        identifier,
+        value: nextPageResponse,
+      },
+    });
+  } catch (e) {
+    log.error(e);
+  }
 }
 
 function* fetchDynamicValueSaga(
@@ -214,15 +270,20 @@ function* fetchDynamicValueSaga(
         // we extract the action diff path of the param value from the dynamic binding i.e. actionConfiguration.formData.sheetUrl.data
         const dynamicBindingValue = getDynamicBindings(value as string)
           ?.jsSnippets[0];
-        // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
-        const dataTreeActionConfigPath =
-          getDataTreeActionConfigPath(dynamicBindingValue);
-        // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
-        // TODOD: Find a better way to pass the workspaceId
-        const evaluatedValue = get(
-          { ...evalAction, workspaceId },
-          dataTreeActionConfigPath,
-        );
+        let evaluatedValue = value as string;
+
+        if (dynamicBindingValue) {
+          // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
+          const dataTreeActionConfigPath =
+            getDataTreeActionConfigPath(dynamicBindingValue);
+
+          // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
+          // TODOD: Find a better way to pass the workspaceId
+          evaluatedValue = get(
+            { ...evalAction, workspaceId },
+            dataTreeActionConfigPath,
+          );
+        }
 
         // if it exists, we store it in the substituted params object.
         // we check if that value is enclosed in dynamic bindings i.e the value has not been evaluated or somehow still contains a js expression
@@ -314,4 +375,13 @@ export default function* formEvaluationChangeListener() {
       Sentry.captureException(e);
     }
   }
+}
+
+export function* formEvaluationSagas() {
+  yield all([
+    takeLatest(
+      ReduxActionTypes.FETCH_FORM_DYNAMIC_VAL_NEXT_PAGE_INIT,
+      fetchPaginatedDynamicValuesSaga,
+    ),
+  ]);
 }

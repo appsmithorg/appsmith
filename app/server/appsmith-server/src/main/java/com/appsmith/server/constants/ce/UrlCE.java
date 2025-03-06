@@ -27,11 +27,13 @@ public class UrlCE {
     public static final String THEME_URL = BASE_URL + VERSION + "/themes";
     public static final String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     public static final String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
-    public static final String TENANT_URL = BASE_URL + VERSION + "/tenants";
+    public static final String ORGANIZATION_URL = BASE_URL + VERSION + "/tenants";
     public static final String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
     public static final String PRODUCT_ALERT = BASE_URL + VERSION + "/product-alert";
     public static final String SEARCH_ENTITY_URL = BASE_URL + VERSION + "/search-entities";
     public static final String CONSOLIDATED_API_URL = BASE_URL + VERSION + "/consolidated-api";
+    public static final String GIT_APPLICATION_URL = BASE_URL + VERSION + "/git/applications";
+    public static final String GIT_ARTIFACT_URL = BASE_URL + VERSION + "/git/artifacts";
 
     // Sub-paths
     public static final String MOCKS = "/mocks";

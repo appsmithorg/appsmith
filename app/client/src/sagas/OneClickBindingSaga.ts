@@ -1,13 +1,12 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginType } from "entities/Plugin";
 import {
   ActionCreationSourceTypeEnum,
   ActionExecutionContext,
-  PluginType,
   type Action,
   type QueryActionConfig,
 } from "entities/Action";

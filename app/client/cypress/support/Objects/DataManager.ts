@@ -108,6 +108,16 @@ export class DataManager {
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      Snowflake_accountName: Cypress.env("SNOWFLAKE_ACCOUNT_NAME"),
+      Snowflake_warehouseName: "COMPUTE_WH",
+      Snowflake_databaseName: "TESTDB",
+      Snowflake_defaultSchema: "PUBLIC",
+      Snowflake_role: "SYSADMIN",
+      Snowflake_username: Cypress.env("SNOWFLAKE_USERNAME"),
+      Snowflake_password: Cypress.env("SNOWFLAKE_PASSWORD"),
+
+      hubspotBearerToken: Cypress.env("HUBSPOT_TOKEN"),
     },
 
     Staging: {
@@ -200,6 +210,16 @@ export class DataManager {
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      Snowflake_accountName: Cypress.env("SNOWFLAKE_ACCOUNT_NAME"),
+      Snowflake_warehouseName: "COMPUTE_WH",
+      Snowflake_databaseName: "TESTDB",
+      Snowflake_defaultSchema: "PUBLIC",
+      Snowflake_role: "SYSADMIN",
+      Snowflake_username: Cypress.env("SNOWFLAKE_USERNAME"),
+      Snowflake_password: Cypress.env("SNOWFLAKE_PASSWORD"),
+
+      hubspotBearerToken: Cypress.env("HUBSPOT_TOKEN"),
     },
   };
 

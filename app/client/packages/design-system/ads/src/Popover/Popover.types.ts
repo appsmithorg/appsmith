@@ -20,4 +20,6 @@ export type PopoverContentProps = {
   className?: string;
   /** the minimum size of the popover */
   size?: PopoverSize;
+  /** render an arrow pointing to the trigger */
+  showArrow?: boolean;
 } & RadixPopoverContentProps;

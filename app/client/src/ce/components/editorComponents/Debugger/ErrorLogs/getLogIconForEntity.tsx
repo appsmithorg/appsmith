@@ -1,7 +1,7 @@
 import type { FunctionComponent } from "react";
 import React from "react";
 import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import {
   ApiMethodIcon,
@@ -9,7 +9,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 type IconProps = LogItemProps & {
   pluginImages: Record<string, string>;

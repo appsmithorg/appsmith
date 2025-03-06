@@ -4,13 +4,9 @@ import set from "lodash/set";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
 import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { UpdateActionProps } from "./types";
 
-export interface UpdateActionProps {
-  entityName: string;
-  dataPath: string;
-  data: unknown;
-  dataPathRef?: string;
-}
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
 
@@ -25,6 +21,29 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   }
 
   const evalTree = dataTreeEvaluator.getEvalTree();
+
+  updateActionsToEvalTree(evalTree, actionsToUpdate);
+
+  const updatedProperties: string[][] = [];
+
+  actionsToUpdate.forEach(({ dataPath, entityName }) => {
+    updatedProperties.push([entityName, dataPath]);
+  });
+  evalTreeWithChanges({
+    data: {
+      updatedValuePaths: updatedProperties,
+      metaUpdates: [],
+    },
+    method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
+    webworkerTelemetry: {},
+  });
+}
+
+export function updateActionsToEvalTree(
+  evalTree: DataTree,
+  actionsToUpdate?: UpdateActionProps[],
+) {
+  if (!actionsToUpdate) return;
 
   for (const actionToUpdate of actionsToUpdate) {
     const { dataPath, dataPathRef, entityName } = actionToUpdate;
@@ -44,18 +63,4 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
 
     DataStore.setActionData(path, data);
   }
-
-  const updatedProperties: string[][] = [];
-
-  actionsToUpdate.forEach(({ dataPath, entityName }) => {
-    updatedProperties.push([entityName, dataPath]);
-  });
-  evalTreeWithChanges({
-    data: {
-      updatedValuePaths: updatedProperties,
-      metaUpdates: [],
-    },
-    method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
-    webworkerTelemetry: {},
-  });
 }

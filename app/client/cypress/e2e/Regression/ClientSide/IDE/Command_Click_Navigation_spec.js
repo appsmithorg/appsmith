@@ -1,3 +1,4 @@
+import ApiEditor from "../../../../locators/ApiEditor";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import {
   agHelper,
@@ -86,7 +87,7 @@ describe(
 
       //Assert working on url field
       cy.updateCodeInput(
-        ".t--dataSourceField",
+        ApiEditor.dataSourceField,
         "http://host.docker.internal:5001/{{ SQL_Query.data }}",
       );
       agHelper.Sleep();

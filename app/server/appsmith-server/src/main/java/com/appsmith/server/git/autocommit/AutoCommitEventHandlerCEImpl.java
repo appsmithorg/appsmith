@@ -4,12 +4,14 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -28,14 +30,16 @@ import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
 import static java.lang.Boolean.TRUE;
@@ -170,7 +174,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         Map<String, Object> analyticsProps = new HashMap<>();
         analyticsProps.put("appId", autoCommitEvent.getApplicationId());
         analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
-        analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
+        analyticsProps.put("workspaceId", autoCommitEvent.getWorkspaceId());
         analyticsProps.put("isSystemGenerated", true);
         analyticsProps.put("repoUrl", autoCommitEvent.getRepoUrl());
 
@@ -212,9 +216,17 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                          ApplicationJson to file system conversion will use this field to decide
                          which pages need to be written back to file system.
                         */
-                        Set<String> pageNamesSet = new HashSet<>(updatedPageNamesList);
+
+                        Set<String> pageNamesSet =
+                                updatedPageNamesList.stream().map(Tuple2::getT1).collect(Collectors.toSet());
+                        Set<String> pageIdentifiersSet =
+                                updatedPageNamesList.stream().map(Tuple2::getT2).collect(Collectors.toSet());
                         ModifiedResources modifiedResources = new ModifiedResources();
                         modifiedResources.putResource(PAGE_LIST, pageNamesSet);
+                        modifiedResources
+                                .getModifiedResourceIdentifiers()
+                                .get(GitResourceType.CONTEXT_CONFIG)
+                                .addAll(pageIdentifiersSet);
                         modifiedResources.setAllModified(true);
                         applicationJson.setModifiedResources(modifiedResources);
                         return applicationJson;
@@ -236,7 +248,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
      * @param latestSchemaVersion latest dsl schema version obtained from RTS
      * @return list of names of the pages that have been migrated.
      */
-    private Mono<List<String>> migratePageDsl(List<NewPage> newPageList, Integer latestSchemaVersion) {
+    private Mono<List<Tuple2<String, String>>> migratePageDsl(List<NewPage> newPageList, Integer latestSchemaVersion) {
         return Flux.fromIterable(newPageList)
                 .filter(newPage -> {
                     // filter the pages which have unpublished page with layouts and where dsl version is not latest
@@ -249,8 +261,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                     }
                     return false;
                 })
-                .map(NewPage::getUnpublishedPage)
-                .flatMap(pageDTO -> {
+                .flatMap(newPage -> {
+                    PageDTO pageDTO = newPage.getUnpublishedPage();
                     Layout layout = pageDTO.getLayouts().get(0);
                     return dslMigrationUtils
                             .migratePageDsl(layout.getDsl())
@@ -258,7 +270,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                 layout.setDsl(migratedDsl);
                                 return migratedDsl;
                             })
-                            .thenReturn(pageDTO.getName());
+                            .thenReturn(Tuples.of(pageDTO.getName(), newPage.getGitSyncId()));
                 })
                 .collectList();
     }

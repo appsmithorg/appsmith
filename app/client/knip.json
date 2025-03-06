@@ -27,15 +27,12 @@
     "src/ee/utils/serviceWorkerUtils.ts"
   ],
   "ignoreDependencies": [
-    "craco-alias",
-    "craco-babel-loader",
     "babel-plugin-lodash",
     "@types/google.maps",
     "@types/web",
     "postcss-url",
     "@types/dom-view-transitions",
     "@types/jest",
-    "@sentry/webpack-plugin",
     "compression-webpack-plugin",
     "webpack-retry-chunk-load-plugin",
     "lint-staged",
@@ -47,6 +44,7 @@
     "@aws-sdk/lib-storage",
     "@octokit/rest",
     "@faker-js/faker",
+    "@grafana/faro-webpack-plugin",
     "pg",
     "factory.ts"
   ]

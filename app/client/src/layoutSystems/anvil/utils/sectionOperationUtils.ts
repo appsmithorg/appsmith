@@ -6,14 +6,14 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { generateReactKey } from "utils/generators";
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
-import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**

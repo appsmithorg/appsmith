@@ -7,8 +7,8 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -24,9 +24,9 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,7 +108,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final UserUtils userUtils;
 
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
     private final ObjectMapper objectMapper;
 
@@ -138,7 +138,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             PermissionGroupService permissionGroupService,
             ConfigService configService,
             UserUtils userUtils,
-            TenantService tenantService,
+            OrganizationService organizationService,
             ObjectMapper objectMapper,
             EmailService emailService) {
 
@@ -155,7 +155,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.permissionGroupService = permissionGroupService;
         this.configService = configService;
         this.userUtils = userUtils;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.objectMapper = objectMapper;
         this.emailService = emailService;
     }
@@ -172,12 +172,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
-        final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
+        final Set<String> organizationConfigWhitelist = allowedOrganizationConfiguration();
 
-        // We remove all the variables that aren't defined in our env variable whitelist or in the TenantConfiguration
-        // class. This is because the configuration can be saved either in the .env file or the tenant collection
+        // We remove all the variables that aren't defined in our env variable whitelist or in the
+        // OrganizationConfiguration
+        // class. This is because the configuration can be saved either in the .env file or the organization collection
         variablesNotInWhitelist.removeAll(VARIABLE_WHITELIST);
-        variablesNotInWhitelist.removeAll(tenantConfigWhitelist);
+        variablesNotInWhitelist.removeAll(organizationConfigWhitelist);
 
         if (!variablesNotInWhitelist.isEmpty()) {
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST);
@@ -263,7 +264,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return valueBuilder.toString();
     }
 
-    // Expect user object to be null when this method is getting called to run the tenant specific migrations without
+    // Expect user object to be null when this method is getting called to run the org specific migrations without
     // user context
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
         if (changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
@@ -284,12 +285,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     /**
-     * This function returns a set of String based on the JsonProperty annotations in the TenantConfiguration class
+     * This function returns a set of String based on the JsonProperty annotations in the OrganizationConfiguration class
      *
      * @return
      */
-    private Set<String> allowedTenantConfiguration() {
-        return AppsmithBeanUtils.getAllFields(TenantConfiguration.class)
+    private Set<String> allowedOrganizationConfiguration() {
+        return AppsmithBeanUtils.getAllFields(OrganizationConfiguration.class)
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
                     return jsonProperty == null ? field.getName() : jsonProperty.value();
@@ -298,57 +299,61 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     /**
-     * This function sets the value in the TenantConfiguration object based on the JsonProperty annotation of the field
+     * This function sets the value in the OrganizationConfiguration object based on the JsonProperty annotation of the field
      * The key must be exactly equal to the json annotation
      *
-     * @param tenantConfiguration
+     * @param organizationConfiguration
      * @param key
      * @param value
      */
-    private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
-        Stream<Field> fieldStream = AppsmithBeanUtils.getAllFields(TenantConfiguration.class);
+    private void setConfigurationByKey(OrganizationConfiguration organizationConfiguration, String key, String value) {
+        Stream<Field> fieldStream = AppsmithBeanUtils.getAllFields(OrganizationConfiguration.class);
         fieldStream.forEach(field -> {
             JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
             if (jsonProperty != null && jsonProperty.value().equals(key)) {
                 try {
                     field.setAccessible(true);
                     Object typedValue = ConvertUtils.convert(value, field.getType());
-                    field.set(tenantConfiguration, typedValue);
+                    field.set(organizationConfiguration, typedValue);
                 } catch (IllegalAccessException e) {
                     // Catch the error, log it and then do nothing.
                     log.error(
-                            "Got error while parsing the JSON annotations from TenantConfiguration class. Cause: ", e);
+                            "Got error while parsing the JSON annotations from OrganizationConfiguration class. Cause: ",
+                            e);
                 }
             } else if (field.getName().equals(key)) {
                 try {
                     field.setAccessible(true);
                     Object typedValue = ConvertUtils.convert(value, field.getType());
-                    field.set(tenantConfiguration, typedValue);
+                    field.set(organizationConfiguration, typedValue);
                 } catch (IllegalAccessException e) {
                     // Catch the error, log it and then do nothing.
-                    log.error("Got error while attempting to save property to TenantConfiguration class. Cause: ", e);
+                    log.error(
+                            "Got error while attempting to save property to OrganizationConfiguration class. Cause: ",
+                            e);
                 }
             }
         });
     }
 
-    private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
-        TenantConfiguration tenantConfiguration = new TenantConfiguration();
-        // Write the changes to the tenant collection in configuration field
+    private Mono<Organization> updateOrganizationConfiguration(String organizationId, Map<String, String> changes) {
+        OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
+        // Write the changes to the organization collection in configuration field
         return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
                     String key = map.getKey();
                     String value = map.getValue();
-                    setConfigurationByKey(tenantConfiguration, key, value);
+                    setConfigurationByKey(organizationConfiguration, key, value);
                     return map;
                 })
-                .then(Mono.just(tenantConfiguration))
-                .flatMap(updatedTenantConfig -> tenantService.updateTenantConfiguration(tenantId, tenantConfiguration));
+                .then(Mono.just(organizationConfiguration))
+                .flatMap(updatedOrganizationConfig ->
+                        organizationService.updateOrganizationConfiguration(organizationId, organizationConfiguration));
     }
 
     @Override
     public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
-        // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
+        // This flow is pertinent for any variables that need to change in the .env file or be saved in the organization
         // configuration
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, changes).thenReturn(user))
@@ -356,8 +361,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         // For configuration variables, save the variables to the config collection instead of .env file
                         // We ideally want to migrate all variables from .env file to the config collection for better
                         // scalability
-                        // Write the changes to the tenant collection in configuration field
-                        .flatMap(originalVariables -> updateTenantConfiguration(user.getTenantId(), changes)
+                        // Write the changes to the organization collection in configuration field
+                        .flatMap(originalVariables -> updateOrganizationConfiguration(user.getOrganizationId(), changes)
                                 .then(sendAnalyticsEvent(user, originalVariables, changes))
                                 .thenReturn(originalVariables)))
                 .flatMap(originalValues -> {
@@ -453,9 +458,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Map<String, String> originalVariables = parseToMap(originalContent);
 
         final Map<String, String> envFileChanges = new HashMap<>(changes);
-        final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
+        final Set<String> organizationConfigurationKeys = allowedOrganizationConfiguration();
         for (final String key : changes.keySet()) {
-            if (tenantConfigurationKeys.contains(key)) {
+            if (organizationConfigurationKeys.contains(key)) {
                 envFileChanges.remove(key);
             }
         }
@@ -606,7 +611,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers)
                 .flatMap(userService::findByEmail)
                 .collectList()
-                .flatMap(userUtils::removeSuperUser);
+                .flatMap(userUtils::removeInstanceAdmin);
 
         Flux<Tuple2<User, Boolean>> usersFlux = Flux.fromIterable(newUsers)
                 .flatMap(email -> userService
@@ -639,7 +644,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .map(results -> results.stream().allMatch(result -> result));
 
         Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
-                .makeSuperUser(users)
+                .makeInstanceAdministrator(users)
                 .flatMap(
                         success -> Flux.fromIterable(users)
                                 .flatMap(user -> sessionUserService

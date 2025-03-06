@@ -9,7 +9,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -27,19 +28,22 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginRepository pluginRepository;
     private final ConfigService configService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
+    private final FeatureFlagService featureFlagService;
 
     public PluginTriggerSolutionCEImpl(
             DatasourceTriggerSolution datasourceTriggerSolution,
             PluginExecutorHelper pluginExecutorHelper,
             PluginRepository pluginRepository,
             ConfigService configService,
-            TenantService tenantService) {
+            OrganizationService organizationService,
+            FeatureFlagService featureFlagService) {
         this.datasourceTriggerSolution = datasourceTriggerSolution;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.pluginRepository = pluginRepository;
         this.configService = configService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
+        this.featureFlagService = featureFlagService;
     }
 
     /**
@@ -74,6 +78,11 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         Mono<PluginExecutor> pluginExecutorMono =
                 pluginMono.flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)));
 
+        // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
+        // Once thoroughly tested, this flag can be removed
+        Map<String, Boolean> featureFlagMap =
+                featureFlagService.getCachedOrganizationFeatureFlags().getFeatures();
+
         /*
          * Since there is no datasource provided, we are passing the Datasource Context connection and datasourceConfiguration as null.
          * We will leave the execution to respective plugin executor.
@@ -82,9 +91,9 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
             Plugin plugin = pair.getT1();
             PluginExecutor pluginExecutor = pair.getT2();
             setHeadersToTriggerRequest(plugin, httpHeaders, triggerRequestDTO);
-            return setTenantAndInstanceId(triggerRequestDTO)
-                    .flatMap(updatedTriggerRequestDTO ->
-                            ((PluginExecutor<Object>) pluginExecutor).trigger(null, null, updatedTriggerRequestDTO));
+            return setOrganizationAndInstanceId(triggerRequestDTO)
+                    .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
+                            .triggerWithFlags(null, null, updatedTriggerRequestDTO, featureFlagMap));
         });
     }
 
@@ -106,12 +115,12 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         });
     }
 
-    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
-        return tenantService
-                .getDefaultTenantId()
+    private Mono<TriggerRequestDTO> setOrganizationAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
+        return organizationService
+                .getDefaultOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
-                    triggerRequestDTO.setTenantId(tuple.getT1());
+                    triggerRequestDTO.setOrganizationId(tuple.getT1());
                     triggerRequestDTO.setInstanceId(tuple.getT2());
                     return triggerRequestDTO;
                 });

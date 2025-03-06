@@ -7,7 +7,7 @@ import {
   type WidgetEntityConfig,
   ENTITY_TYPE,
 } from "ee/entities/DataTree/types";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Plugin";
 
 export const getEntityPayloadInfo: Record<
   string,

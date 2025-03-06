@@ -1,20 +1,15 @@
 import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
 import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
-import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
@@ -160,6 +155,3 @@ export class DataTreeFactory {
     };
   }
 }
-
-export { ENTITY_TYPE, EvaluationSubstitutionType };
-export type { EntityTypeValue };

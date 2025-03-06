@@ -1,35 +1,40 @@
 import { get } from "lodash";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import {
-  type ReduxAction,
-  toastMessageErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
+  toastMessageErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { flushErrors, safeCrashApp } from "actions/errorActions";
+import {
+  type ErrorPayloadType,
+  flushErrors,
+  safeCrashApp,
+} from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
-import { ERROR_CODES, SERVER_ERROR_CODES } from "ee/constants/ApiConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import {
+  AXIOS_CONNECTION_ABORTED_CODE,
+  ERROR_CODES,
+  SERVER_ERROR_CODES,
+} from "ee/constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { put, takeLatest, call, select } from "redux-saga/effects";
+import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
+  createMessage,
+  DEFAULT_ERROR_MESSAGE,
+  ERROR_0,
   ERROR_401,
   ERROR_403,
   ERROR_500,
-  ERROR_0,
-  DEFAULT_ERROR_MESSAGE,
-  createMessage,
 } from "ee/constants/messages";
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
@@ -131,21 +136,22 @@ export function* validateResponse(
 
   if (
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
-      response.responseMeta.error.code,
+      response.responseMeta?.error?.code,
     )
   ) {
-    throw new IncorrectBindingError(response.responseMeta.error.message);
+    throw new IncorrectBindingError(response.responseMeta?.error?.message);
   }
 
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
-      error: new Error(response.responseMeta.error.message),
+      error: new Error(response.responseMeta?.error?.message),
       logToSentry,
       show,
     },
   });
-  throw Error(response.responseMeta.error.message);
+
+  throw Error(response.responseMeta?.error?.message);
 }
 
 export function getResponseErrorMessage(response: ApiResponse) {
@@ -178,11 +184,6 @@ export function extractClientDefinedErrorMetadata(
   }
 }
 
-export interface ErrorPayloadType {
-  code?: number | string;
-  message?: string;
-  crash?: boolean;
-}
 const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {

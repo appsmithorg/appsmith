@@ -30,7 +30,11 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EditableCell, TableVariant } from "../constants";
+import {
+  ColumnTypes,
+  type EditableCell,
+  type TableVariant,
+} from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -130,6 +134,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  isInfiniteScrollEnabled: boolean;
 }
 
 const defaultColumn = {
@@ -323,11 +328,21 @@ export function Table(props: TableProps) {
     props.width,
   ]);
 
+  /**
+   * What this really translates is to fixed height rows:
+   * shouldUseVirtual: false -> fixed height row, irrespective of content small or big
+   * shouldUseVirtual: true -> height adjusts acc to content
+   * Right now all HTML content is dynamic height in nature hence
+   * for server paginated tables it needs this extra handling.
+   */
   const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
-    );
+    props.isInfiniteScrollEnabled ||
+    (props.serverSidePaginationEnabled &&
+      !props.columns.some(
+        (column) =>
+          !!column.columnProperties.allowCellWrapping ||
+          column.metaProperties?.type === ColumnTypes.HTML,
+      ));
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
@@ -338,6 +353,29 @@ export function Table(props: TableProps) {
       });
     }
   }, [props.isAddRowInProgress]);
+
+  const shouldShowSkeleton = useMemo(() => {
+    // Case 1: Loading without infinite scroll
+    if (props.isLoading && !props.isInfiniteScrollEnabled) {
+      return true;
+    }
+
+    // Case 2: Loading with infinite scroll but no data in table yet
+    if (props.isLoading && props.isInfiniteScrollEnabled && !subPage.length) {
+      return true;
+    }
+
+    // Otherwise, don't show skeleton
+    return false;
+  }, [props.isLoading, props.isInfiniteScrollEnabled, subPage.length]);
+
+  const getTableWrapClassName = useMemo(() => {
+    if (shouldShowSkeleton) {
+      return Classes.SKELETON;
+    }
+
+    return shouldUseVirtual ? "tableWrap virtual" : "tableWrap";
+  }, [shouldShowSkeleton, shouldUseVirtual]);
 
   return (
     <>
@@ -403,6 +441,7 @@ export function Table(props: TableProps) {
                   disabledAddNewRowSave={props.disabledAddNewRowSave}
                   filters={props.filters}
                   isAddRowInProgress={props.isAddRowInProgress}
+                  isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
                   isVisibleDownload={props.isVisibleDownload}
                   isVisibleFilters={props.isVisibleFilters}
                   isVisiblePagination={props.isVisiblePagination}
@@ -431,16 +470,7 @@ export function Table(props: TableProps) {
             </TableHeaderWrapper>
           </SimpleBar>
         )}
-        <div
-          className={
-            props.isLoading
-              ? Classes.SKELETON
-              : shouldUseVirtual
-                ? "tableWrap virtual"
-                : "tableWrap"
-          }
-          ref={tableWrapperRef}
-        >
+        <div className={getTableWrapClassName} ref={tableWrapperRef}>
           <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
               <StaticTable
@@ -458,8 +488,10 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
@@ -474,7 +506,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
-                useVirtual={shouldUseVirtual}
+                useVirtual={false}
                 widgetId={props.widgetId}
                 width={props.width}
               />
@@ -496,8 +528,11 @@ export function Table(props: TableProps) {
                 headerGroups={headerGroups}
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
+                isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+                isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
+                loadMoreFromEvaluations={props.nextPageClick}
                 multiRowSelection={props?.multiRowSelection}
                 pageSize={props.pageSize}
                 prepareRow={prepareRow}
@@ -512,6 +547,7 @@ export function Table(props: TableProps) {
                 subPage={subPage}
                 tableSizes={tableSizes}
                 totalColumnsWidth={totalColumnsWidth}
+                totalRecordsCount={props.totalRecordsCount}
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}

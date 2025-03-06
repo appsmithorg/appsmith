@@ -7,6 +7,11 @@ import { lightTheme } from "selectors/themeSelectors";
 import PrimaryCTA from "./PrimaryCTA";
 import configureStore from "redux-mock-store";
 
+jest.mock("pages/Editor/gitSync/hooks/modHooks", () => ({
+  ...jest.requireActual("pages/Editor/gitSync/hooks/modHooks"),
+  useGitProtectedMode: jest.fn(() => false),
+}));
+
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
   useHistory: () => ({ push: jest.fn() }),

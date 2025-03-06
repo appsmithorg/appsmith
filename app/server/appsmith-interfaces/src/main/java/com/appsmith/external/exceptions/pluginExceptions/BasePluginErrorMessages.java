@@ -18,4 +18,11 @@ public abstract class BasePluginErrorMessages {
     public static final String DS_MISSING_SSH_HOSTNAME_ERROR_MSG = "SSH host value cannot be empty";
     public static final String DS_INVALID_SSH_HOSTNAME_ERROR_MSG =
             "SSH host value cannot contain `/` or `:` " + "characters.";
+    public static final String INVALID_SSH_KEY_FORMAT_ERROR_MSG =
+            "Invalid SSH key format. Supported formats: OpenSSH, PKCS#8, or RSA PEM.";
+    public static final String SSH_KEY_PARSING_ERROR_MSG = "The provided SSH key could not be parsed.";
+    public static final String ERROR_INVALID_MULTIPART_DATA =
+            "Unable to parse content. Expected an array or object of multipart data";
+    public static final String ERROR_INVALID_BASE64_FORMAT =
+            "Invalid BASE64 format. Expected format: data:mimetype;base64,content";
 }

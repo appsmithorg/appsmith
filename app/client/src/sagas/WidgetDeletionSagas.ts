@@ -5,7 +5,7 @@ import type {
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -25,7 +25,7 @@ import { flattenDeep, omit, orderBy } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {

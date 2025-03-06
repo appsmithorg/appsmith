@@ -6,7 +6,7 @@
 
 1. Cypress tests are located in the `app/client/cypress` directory.
 
-1. All the test spec _must_ be in the e2e directory only i.e `app/client/cypress/e2e`
+1. All the test spec _must_ be in the e2e directory only i.e. `app/client/cypress/e2e`
 
 1. You can create directories under `app/client/cypress` but make sure you place the spec within the `app/client/cypress/e2e` directory.
 

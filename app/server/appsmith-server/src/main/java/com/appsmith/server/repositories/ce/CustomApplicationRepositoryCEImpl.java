@@ -161,8 +161,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Flux<Application> getApplicationByGitBaseApplicationId(String baseApplicationId, AclPermission permission) {
 
         return queryBuilder()
-                .criteria(
-                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId))
+                .criteria(Bridge.or(
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId),
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultArtifactId, baseApplicationId)))
                 .permission(permission)
                 .all();
     }
@@ -297,5 +298,43 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 return Flux.just(application.getId());
             }
         });
+    }
+
+    @Override
+    public Flux<Application> findByIdIn(List<String> ids) {
+        final BridgeQuery<Application> q = Bridge.in(Application.Fields.id, ids);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Flux<Application> findByWorkspaceId(String workspaceId) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Mono<Long> countByWorkspaceId(String workspaceId) {
+        final BridgeQuery<Application> q = Bridge.equal(Application.Fields.workspaceId, workspaceId);
+        return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId) {
+        final BridgeQuery<Application> q =
+                Bridge.equal(Application.Fields.clonedFromApplicationId, clonedFromApplicationId);
+        return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Mono<Long> countByDeletedAtNull() {
+        final BridgeQuery<Application> q = Bridge.isNull(Application.Fields.deletedAt);
+        return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration) {
+        final BridgeQuery<Application> q = Bridge.<Application>equal(Application.Fields.id, id)
+                .equal(Application.Fields.exportWithConfiguration, exportWithConfiguration);
+        return queryBuilder().criteria(q).one();
     }
 }

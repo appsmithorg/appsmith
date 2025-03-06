@@ -17,10 +17,8 @@ import type {
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import {
-  DataTreeFactory,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import {
   getIsMobileBreakPoint,
   getMetaWidgets,
@@ -41,6 +39,11 @@ import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "ee/selectors/workflowSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import { getCurrentEnvironmentName } from "ee/selectors/dataTreeCyclicSelectors";
+import { objectKeys } from "@appsmith/utils";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -130,6 +133,15 @@ const getMetaWidgetsFromUnevaluatedDataTree = createSelector(
     DataTreeFactory.metaWidgets(metaWidgets, widgetsMeta, loadingEntities),
 );
 
+// * This is only for internal use to avoid cyclic dependency issue
+const getPageListState = (state: AppState) => state.entities.pageList;
+const getCurrentPageName = createSelector(
+  getPageListState,
+  (pageList: PageListReduxState) =>
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
+      ?.pageName,
+);
+
 export const getUnevaluatedDataTree = createSelector(
   getActionsFromUnevaluatedDataTree,
   getJSActionsFromUnevaluatedDataTree,
@@ -137,7 +149,22 @@ export const getUnevaluatedDataTree = createSelector(
   getMetaWidgetsFromUnevaluatedDataTree,
   getAppData,
   getSelectedAppThemeProperties,
-  (actions, jsActions, widgets, metaWidgets, appData, theme) => {
+  getCurrentAppWorkspace,
+  getCurrentApplication,
+  getCurrentPageName,
+  getCurrentEnvironmentName,
+  (
+    actions,
+    jsActions,
+    widgets,
+    metaWidgets,
+    appData,
+    theme,
+    currentWorkspace,
+    currentApplication,
+    getCurrentPageName,
+    currentEnvironmentName,
+  ) => {
     let dataTree: UnEvalTree = {
       ...actions.dataTree,
       ...jsActions.dataTree,
@@ -155,6 +182,10 @@ export const getUnevaluatedDataTree = createSelector(
       // taking precedence in case the key is the same
       store: appData.store,
       theme,
+      currentPageName: getCurrentPageName,
+      workspaceName: currentWorkspace.name,
+      appName: currentApplication?.name,
+      currentEnvironmentName,
     } as AppsmithEntity;
     (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     dataTree = { ...dataTree, ...metaWidgets.dataTree };
@@ -197,7 +228,7 @@ export const getWidgetEvalValues = createSelector(
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   (tree: DataTree) => {
-    return _.omit(tree, Object.keys(DATATREE_INTERNAL_KEYWORDS));
+    return _.omit(tree, objectKeys(DATATREE_INTERNAL_KEYWORDS));
   },
 );
 

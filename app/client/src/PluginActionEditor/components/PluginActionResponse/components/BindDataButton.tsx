@@ -25,8 +25,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getWidgets } from "sagas/selectors";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
+import type { FlattenedWidgetProps } from "ee/reducers/entityReducers/canvasWidgetsStructureReducer";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { addSuggestedWidget } from "actions/widgetActions";
@@ -164,10 +164,7 @@ function getWidgetProps(
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
-          dynamicPropertyPathList:
-            suggestedWidget.bindingQuery === "data"
-              ? []
-              : [{ key: "tableData" }],
+          dynamicPropertyPathList: [{ key: "tableData" }],
         },
         parentRowSpace: 10,
       };
@@ -380,7 +377,7 @@ function BindDataButton(props: BindDataButtonProps) {
           size="sm"
           startIcon="binding-new"
         >
-          Bind Data
+          Display on UI
         </Button>
       </MenuTrigger>
       <MenuContent

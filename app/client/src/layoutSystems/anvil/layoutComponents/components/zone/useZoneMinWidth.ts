@@ -3,22 +3,20 @@ import { ChildrenMapContext } from "layoutSystems/anvil/context/childrenMapConte
 import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getRenderMode,
-} from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import isObject from "lodash/isObject";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export function useZoneMinWidth() {
   const childrenMap: Record<string, WidgetProps> =
     useContext(ChildrenMapContext);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   const renderMode: RenderModes = useSelector(getRenderMode);
-  const isPreviewMode: boolean = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode: boolean = useSelector(selectCombinedPreviewMode);
 
   if (renderMode === RenderModes.CANVAS && !isPreviewMode) return "auto";
 

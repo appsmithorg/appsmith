@@ -5,6 +5,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.ActionCollection.Fields;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -31,6 +32,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +159,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         return newPageService
                 .findById(collectionDTO.getPageId(), pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
-                    actionCollection.setBranchName(branchedPage.getBranchName());
+                    actionCollection.setRefType(branchedPage.getRefType());
+                    actionCollection.setRefName(branchedPage.getRefName());
                     actionCollectionService.generateAndSetPolicies(branchedPage, actionCollection);
                     actionCollection.setUnpublishedCollection(collectionDTO);
 
@@ -284,8 +287,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         return branchedActionCollectionMono.flatMap(dbActionCollection -> {
             BridgeUpdate updateObj = Bridge.update();
             String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
+            String updatedAtPath = Fields.updatedAt;
 
             updateObj.set(path, actionCollectionDTO.getBody());
+            updateObj.set(updatedAtPath, Instant.now());
 
             return actionCollectionRepository.updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj);
         });
@@ -342,7 +347,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         actionCollectionDTO.getName() + "." + actionDTO.getName());
                                 actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
-                                actionDTO.setBranchName(branchedActionCollection.getBranchName());
+                                actionDTO.setRefType(branchedActionCollection.getRefType());
+                                actionDTO.setRefName(branchedActionCollection.getRefName());
 
                                 // actionCollectionService is a new action, we need to create one
                                 if (duplicateNames.contains(actionDTO.getName())) {
@@ -380,9 +386,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
                             log.debug(
-                                    "Failed to delete action with id {}, branch {} for collection: {}",
+                                    "Failed to delete action with id {}, {} {} for collection: {}",
                                     x.getBaseId(),
-                                    x.getBranchName(),
+                                    x.getRefType(),
+                                    x.getRefName(),
                                     actionCollectionDTO.getName());
                             log.error(throwable.getMessage());
                             return Mono.empty();

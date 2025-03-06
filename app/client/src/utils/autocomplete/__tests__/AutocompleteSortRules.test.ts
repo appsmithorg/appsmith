@@ -5,7 +5,7 @@ import type {
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "../CodemirrorTernService";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 describe("Autocomplete Ranking", () => {
   it("Blocks platform functions in data fields", () => {
@@ -207,6 +207,7 @@ describe("Autocomplete Ranking", () => {
       {
         text: "Table1",
         displayText: "Table1",
+        isEntityName: true,
         className:
           "CodeMirror-Tern-completion CodeMirror-Tern-completion-object",
         data: {
@@ -284,6 +285,21 @@ describe("Autocomplete Ranking", () => {
         recencyWeight: 2,
         isEntityName: false,
       },
+      {
+        text: "Query1.data",
+        displayText: "Query1.data",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-unknown",
+        data: {
+          name: "Query1.data",
+          type: "[?]",
+          doc: "The response of the action",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "ARRAY",
+        isHeader: false,
+      },
     ];
     const currentFieldInfo: unknown = {
       expectedType: "ARRAY",
@@ -347,11 +363,11 @@ describe("Autocomplete Ranking", () => {
       .map((c) => c.displayText);
 
     expect(sortedCompletionsText).toEqual([
+      "Query1.data",
       "Table2.updatedRowIndices",
       "Table2.updatedRows",
-      "Table2.updatedRow",
       "appsmith",
-      "Table1",
+      "Table2.updatedRow",
     ]);
   });
 });

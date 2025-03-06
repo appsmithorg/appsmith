@@ -3,7 +3,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type {
   ActionEntity,
   ActionEntityConfig,
@@ -57,14 +57,11 @@ export function getWidgetDependencies(
   widgetEntity: WidgetEntity,
   widgetConfig: WidgetEntityConfig,
 ): Record<string, string[]> {
-  let dependencies: Record<string, string[]> = {};
   const widgetName = widgetEntity.widgetName;
-  const widgetInternalDependencies = addWidgetPropertyDependencies({
+  const dependencies: Record<string, string[]> = addWidgetPropertyDependencies({
     widgetConfig,
     widgetName,
   });
-
-  dependencies = { ...widgetInternalDependencies };
 
   const dependencyMap = widgetConfig.dependencyMap;
 
@@ -97,7 +94,7 @@ export function getWidgetDependencies(
     const existingDeps = dependencies[fullPropertyPath] || [];
     const newDeps = union(existingDeps, dynamicPathDependencies);
 
-    dependencies = { ...dependencies, [fullPropertyPath]: newDeps };
+    dependencies[fullPropertyPath] = newDeps;
   }
 
   return dependencies;

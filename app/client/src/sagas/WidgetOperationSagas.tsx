@@ -1,7 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction, ReduxActionType } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -37,7 +34,7 @@ import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   actionChannel,
   all,

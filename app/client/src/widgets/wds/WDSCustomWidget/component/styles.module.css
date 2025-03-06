@@ -1,0 +1,49 @@
+.container {
+  height: var(--component-height, 100%);
+  max-height: var(--max-height, unset);
+  border-radius: inherit;
+  overflow: hidden;
+  width: 100%;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.iframe[data-size="fit-page"] {
+  max-height: 100%;
+}
+
+/* Widgets like zone and section can toggle their visual separation. When the visual separation is turned on ( on either zone or section ),
+  it adds a gutter padding around them. In order to account for the gutter top and bottom padding, we subtract 2x the gutter padding
+  from the chat-height so that the widget does not overflow.
+
+  So total height of widget = chat-height - gutter padding of section/zone ( 2x --outer-spacing-3 ) - gutter padding of canvas ( --outer-spacing-4 ).
+  Note: in embed mode, then canvas has no paddings.
+
+  Note that the gutter padding for section and zone is same, so it does not matter if the visual separation is on zone or section.
+*/
+:is(
+    [elevation="1"][data-elevation="true"],
+    [elevation="2"][data-elevation="true"]
+  )
+  .container {
+  --max-height: calc(var(--component-height) - ((var(--outer-spacing-3) * 2)));
+}
+
+/** This is for the case when there is visual separation on both zone and section.
+  In this case, we need to subtract 4x ( 2x top and 2x bottom since the gutter padding is on zone and section both)
+  the gutter padding from the chat-height so that the widget does not overflow. This case overrides the above two cases.
+
+  So total height of widget = chat-height - gutter padding of section - gutter padding of zone - gutter padding of canvas
+
+  Since the gutter padding for section and zone is same, we use 4x the gutter padding ( 2x top + 2x bottom )
+*/
+[elevation="1"][data-elevation="true"]
+  [elevation="2"][data-elevation="true"]
+  .container {
+  --max-height: calc(var(--component-height) - ((var(--outer-spacing-3) * 4)));
+}

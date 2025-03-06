@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
@@ -61,6 +61,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
   }
+
   static type = "SELECT_WIDGET";
 
   static getConfig() {

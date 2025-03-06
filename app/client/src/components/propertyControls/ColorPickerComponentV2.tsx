@@ -29,7 +29,7 @@ import {
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getBrandColors } from "ee/selectors/tenantSelectors";
+import { getBrandColors } from "ee/selectors/organizationSelectors";
 import FocusTrap from "focus-trap-react";
 import { createMessage, FULL_COLOR_PICKER_LABEL } from "ee/constants/messages";
 
@@ -95,14 +95,13 @@ export const StyledInputGroup = styled(InputGroup)<{
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
-    &:focus {
+    &:focus-visible {
       outline: var(--ads-v2-border-width-outline) solid
         var(--ads-v2-color-outline);
       outline-offset: var(--ads-v2-offset-outline);
     }
 
-    &:hover,
-    &:focus {
+    &:hover {
       border-color: ${({ $isValid }) =>
         $isValid
           ? "var(--ads-v2-color-border-emphasis)"

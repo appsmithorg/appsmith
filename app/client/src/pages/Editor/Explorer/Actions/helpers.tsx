@@ -6,14 +6,10 @@ import {
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import {
-  isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
-import { generateReactKey } from "utils/generators";
+import { isGraphqlPlugin } from "entities/Action";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 
-import type { Plugin } from "api/PluginApi";
+import { generateReactKey } from "utils/generators";
 import {
   apiEditorIdURL,
   queryEditorIdURL,
@@ -62,7 +58,8 @@ export const resolveActionURL = ({
     pluginType === PluginType.DB ||
     pluginType === PluginType.REMOTE ||
     pluginType === PluginType.AI ||
-    pluginType === PluginType.INTERNAL
+    pluginType === PluginType.INTERNAL ||
+    pluginType === PluginType.EXTERNAL_SAAS
   ) {
     return queryEditorIdURL({
       baseParentEntityId,
@@ -86,6 +83,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       PluginType.REMOTE,
       PluginType.AI,
       PluginType.INTERNAL,
+      PluginType.EXTERNAL_SAAS,
     ],
     icon: dbQueryIcon,
     key: generateReactKey(),

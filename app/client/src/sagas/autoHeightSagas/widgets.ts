@@ -8,7 +8,7 @@ import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
-} from "reducers/entityReducers/canvasWidgetsReducer";
+} from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
@@ -38,7 +38,7 @@ import {
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 import WidgetFactory from "WidgetProvider/factory";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
 import { getAppMode } from "ee/selectors/entitiesSelector";

@@ -9,7 +9,6 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -187,8 +186,8 @@ describe(
     it("9. On discard failure an error message should be show and user should be able to discard again", () => {
       cy.Createpage(page3);
 
-      agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
-      agHelper.AssertElementVisibility(gitSyncLocators.discardChanges);
+      agHelper.GetNClick(gitSync.locators.quickActionsCommitBtn);
+      agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
       cy.intercept("PUT", "/api/v1/git/discard/app/*", {
         body: {
           responseMeta: {
@@ -206,19 +205,19 @@ describe(
       });
 
       agHelper
-        .GetElement(gitSyncLocators.discardChanges)
+        .GetElement(gitSync.locators.opsDiscardBtn)
         .children()
         .should("have.text", "Discard & pull");
 
-      agHelper.GetNClick(gitSyncLocators.discardChanges);
+      agHelper.GetNClick(gitSync.locators.opsDiscardBtn);
       agHelper.AssertContains(
         Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
       );
       agHelper
-        .GetElement(gitSyncLocators.discardChanges)
+        .GetElement(gitSync.locators.opsDiscardBtn)
         .children()
         .should("have.text", "Are you sure?");
-      agHelper.GetNClick(gitSyncLocators.discardChanges);
+      agHelper.GetNClick(gitSync.locators.opsDiscardBtn);
       agHelper.AssertContains(
         Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
       );
@@ -226,7 +225,7 @@ describe(
       agHelper.Sleep(2000);
 
       agHelper.AssertElementVisibility(".ads-v2-callout__children");
-      agHelper.AssertElementVisibility(gitSyncLocators.discardChanges);
+      agHelper.AssertElementVisibility(gitSync.locators.opsDiscardBtn);
     });
 
     after(() => {

@@ -53,7 +53,7 @@ import store from "store";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
@@ -217,7 +217,7 @@ abstract class BaseWidget<
 
     actionPayload.triggerPropertyName &&
       AppsmithConsole.info({
-        text: `${actionPayload.triggerPropertyName} triggered`,
+        text: `Event ${actionPayload.triggerPropertyName} fired`,
         source: {
           type: ENTITY_TYPE.WIDGET,
           id: this.props.widgetId,
@@ -535,10 +535,12 @@ export const WIDGET_DISPLAY_PROPS = {
   isDisabled: true,
   backgroundColor: true,
 };
+
 export interface WidgetError extends Error {
   type: "property" | "configuration" | "other";
   path?: string;
 }
+
 export interface WidgetErrorProps {
   errors?: WidgetError[];
 }

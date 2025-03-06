@@ -1,6 +1,6 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import { AppSettingsTabs } from "pages/AppIDE/components/AppSettings/AppSettings";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {
@@ -11,25 +11,6 @@ const initialState: AppSettingsPaneReduxState = {
 };
 
 const appSettingsPaneReducer = createReducer(initialState, {
-  [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
-    state: AppSettingsPaneReduxState,
-    action: ReduxAction<AppSettingsPaneContext>,
-  ): AppSettingsPaneReduxState => {
-    return {
-      ...state,
-      isOpen: true,
-      context: action.payload,
-    };
-  },
-  [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (
-    state: AppSettingsPaneReduxState,
-  ): AppSettingsPaneReduxState => {
-    return {
-      ...state,
-      isOpen: false,
-      context: undefined,
-    };
-  },
   [ReduxActionTypes.UPDATE_APP_SETTINGS_PANE_SELECTED_TAB]: (
     state: AppSettingsPaneReduxState,
     action: ReduxAction<AppSettingsPaneReduxState>,

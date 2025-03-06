@@ -467,17 +467,10 @@ public class CurlImporterServiceTest {
                         curlImporterService.importAction(command, null, page.getId(), "actionName", workspaceId))
                 .cache();
 
-        // As importAction updates the ids with the defaultIds before sending the response to client we have to again
-        // fetch branched action
-        Mono<NewAction> branchedSavedActionMono =
-                branchedResultMono.flatMap(actionDTO -> newActionService.findByBranchNameAndBaseActionId(
-                        "testBranch", actionDTO.getId(), false, AclPermission.MANAGE_ACTIONS));
-
-        StepVerifier.create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))
+        StepVerifier.create(Mono.zip(branchedResultMono, branchedPageMono, branchedResultMono))
                 .assertNext(tuple -> {
                     ActionDTO action1 = tuple.getT1();
-                    NewPage newPage = tuple.getT2();
-                    NewAction newAction = tuple.getT3();
+                    ActionDTO actionDTO = tuple.getT3();
 
                     assertThat(action1).isNotNull();
                     assertThat(action1.getDatasource()).isNotNull();
@@ -494,9 +487,9 @@ public class CurlImporterServiceTest {
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
-                    assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
+                    assertThat(actionDTO.getBaseId()).isEqualTo(actionDTO.getId());
 
-                    assertThat(newAction.getBranchName()).isEqualTo("testBranch");
+                    assertThat(actionDTO.getRefName()).isEqualTo("testBranch");
                 })
                 .verifyComplete();
     }

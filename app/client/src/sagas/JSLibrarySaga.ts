@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -21,7 +21,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
-import { EvalWorker } from "./EvaluationsSaga";
+import { evalWorker as EvalWorker } from "utils/workerInstances";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "ee/selectors/applicationSelectors";
@@ -31,7 +31,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
 import { toast } from "@appsmith/ads";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 export function parseErrorMessage(text: string) {

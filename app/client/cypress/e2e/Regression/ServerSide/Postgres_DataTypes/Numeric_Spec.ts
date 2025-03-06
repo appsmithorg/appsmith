@@ -47,7 +47,7 @@ describe(
         .then(($noRecMsg) =>
           expect($noRecMsg).to.eq("No data records to show"),
         );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
     });
 
     it("3. Creating all queries - numerictypes", () => {
@@ -59,7 +59,7 @@ describe(
         "Insert",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
 
       query = `UPDATE public."numerictypes" SET
     "bigintid" = {{Updatebigint.text}},
@@ -72,7 +72,7 @@ describe(
         "Update",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
 
       query = `DELETE FROM public."numerictypes"`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -81,7 +81,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."numerictypes"`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -90,7 +90,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
 
       query = `DELETE FROM public."numerictypes"
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
@@ -100,7 +100,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
     });
 
     it("4. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {

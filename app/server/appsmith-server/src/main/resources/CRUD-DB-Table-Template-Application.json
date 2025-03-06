@@ -3879,7 +3879,7 @@
           " { ...get_exported_app.data, decryptedFields: undefined, datasourceList: get_exported_app.data.datasourceList, \"datasourceConfigurationStructureList\": get_exported_app.data.datasourceList.map((source) => { return {datasourceId: source.name, structure: appsmith.store[source.pluginId] == undefined ? {}: appsmith.store[source.pluginId].data} } ) } "
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -3926,7 +3926,7 @@
           " { ...get_exported_app.data, decryptedFields: undefined, datasourceList: get_exported_app.data.datasourceList, \"datasourceConfigurationStructureList\": get_exported_app.data.datasourceList.map((source) => { return {datasourceId: source.name, structure: appsmith.store[source.pluginId] == undefined ? {}: appsmith.store[source.pluginId].data} } ) } "
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4143,7 +4143,7 @@
           "async () => {\n  get_exported_app.run(() => {\n    const arr = JSON.parse(datasource_arr.text);\n    arr.map(row => {\n      get_datasource_structure.run((res, params) => {\n        storeValue(params.name, res);\n      }, undefined, row);\n    });\n  });\n}"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "deleted": false,
           "pluginId": "js-plugin",
           "name": "UNUSED_DATASOURCE",
@@ -4183,7 +4183,7 @@
           "async () => {\n  get_exported_app.run(() => {\n    const arr = JSON.parse(datasource_arr.text);\n    arr.map(row => {\n      get_datasource_structure.run((res, params) => {\n        storeValue(params.name, res);\n      }, undefined, row);\n    });\n  });\n}"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "deleted": false,
           "pluginId": "js-plugin",
           "name": "UNUSED_DATASOURCE",
@@ -4236,7 +4236,7 @@
           "tableName_input.text"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4290,7 +4290,7 @@
           "tableName_input.text"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4343,7 +4343,7 @@
           "search_keys_input.text"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4395,7 +4395,7 @@
           "search_keys_input.text"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4448,7 +4448,7 @@
           "gsheet_ds_input.text.split(\"datasources/\")[1].split(\"/\" || \"?\")[0]"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",
@@ -4500,7 +4500,7 @@
           "gsheet_ds_input.text.split(\"datasources/\")[1].split(\"/\" || \"?\")[0]"
         ],
         "datasource": {
-          "organizationId": "6171a062b7de236aa183ee0e",
+          "workspaceId": "6171a062b7de236aa183ee0e",
           "invalids": [],
           "deleted": false,
           "pluginId": "restapi-plugin",

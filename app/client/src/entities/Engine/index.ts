@@ -5,7 +5,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
@@ -17,10 +16,11 @@ import history from "utils/history";
 import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import type { Span } from "instrumentation/types";
+import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
+import { getPersistentAppStore } from "constants/AppConstants";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -114,14 +114,16 @@ export default abstract class AppEngine {
     }
 
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    const currentGitBranch: ReturnType<typeof getCurrentGitBranch> =
-      yield select(getCurrentGitBranch);
+    const currentBranch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
 
     yield put(
       updateAppStore(
-        getPersistentAppStore(application.id, branch || currentGitBranch),
+        getPersistentAppStore(application.id, branch || currentBranch),
       ),
     );
+
     const defaultPageId: string = yield select(getDefaultPageId);
     const defaultPageBaseId: string = yield select(getDefaultBasePageId);
     const toLoadPageId: string = page?.id || defaultPageId;

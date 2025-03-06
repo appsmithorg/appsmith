@@ -28,7 +28,7 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
-    Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission);
+    Flux<Workspace> findByIdsIn(Set<String> ids, String organizationId, AclPermission permission);
 
     Flux<Workspace> getAll(AclPermission permission);
 

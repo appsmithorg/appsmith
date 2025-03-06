@@ -102,6 +102,7 @@ jobs:
         client-prettier,
         client-unit-tests,
         client-lint,
+        client-check-cyclic-deps,
       ]
     if: always()
     runs-on: ubuntu-latest
@@ -116,6 +117,7 @@ jobs:
            "${{ needs.client-build.result }}" == "failure" || \
            "${{ needs.client-prettier.result }}" == "failure" || \
            "${{ needs.client-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-check-cyclic-deps.result }}" == "failure" || \
            "${{ needs.client-lint.result }}" == "failure" ]]; then
             echo "Quality checks failed";
             exit 1;

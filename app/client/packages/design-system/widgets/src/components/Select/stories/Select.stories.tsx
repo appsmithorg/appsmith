@@ -1,6 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Select, Button, Flex, SIZES, ListBoxItem } from "@appsmith/wds";
+import {
+  Select,
+  Button,
+  Flex,
+  SIZES,
+  ListBoxItem,
+  type SelectProps,
+} from "@appsmith/wds";
 
 import { selectItems, selectItemsWithIcons } from "./selectData";
 
@@ -40,7 +47,10 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
       {Object.keys(SIZES)
-        .filter((size) => !["xSmall", "large"].includes(size))
+        .filter(
+          (size): size is NonNullable<SelectProps["size"]> =>
+            !["xSmall", "large"].includes(size),
+        )
         .map((size) => (
           <Select key={size} label={size} placeholder={size} size={size}>
             {selectItems.map((item) => (
@@ -77,11 +87,13 @@ export const Validation: Story = {
       }}
     >
       <Flex direction="column" gap="spacing-5" width="sizing-60">
-        <Select
-          errorMessage="There is an error"
-          isRequired
-          label="Validation"
-        />
+        <Select errorMessage="There is an error" isRequired label="Validation">
+          {selectItems.map((item) => (
+            <ListBoxItem key={item.id} textValue={item.label}>
+              {item.label}
+            </ListBoxItem>
+          ))}
+        </Select>
         <Button type="submit">Submit</Button>
       </Flex>
     </form>

@@ -16,8 +16,8 @@ import {
 } from "./types";
 import { compileSrcDoc } from "./utility";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { useParentEntityInfo } from "ee/IDE/hooks/useParentEntityInfo";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 
 let connectionTimeout: number;
 
@@ -29,8 +29,8 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
     true,
   );
 
-  const editorType = useEditorType(location.pathname);
-  const { parentEntityId } = useParentEntityInfo(editorType);
+  const ideType = getIDETypeByUrl(location.pathname);
+  const { parentEntityId } = useParentEntityInfo(ideType);
 
   const [contextValue, setContextValue] =
     useState<CustomWidgetBuilderContextValueType>(DEFAULT_CONTEXT_VALUE);

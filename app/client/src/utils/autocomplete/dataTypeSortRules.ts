@@ -1,13 +1,22 @@
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
-  STRING: ["selectedRow", "data", "text"],
-  NUMBER: ["selectedRow", "data", "text"],
-  OBJECT: [],
-  ARRAY: [],
+  STRING: ["selectedRow", "data", "text", "selectedOptionValue", "value"],
+  NUMBER: ["selectedRow", "pageOffset", "pageSize", "data", "text"],
+  OBJECT: ["formData"],
+  ARRAY: ["selectedOptionValues", "selectedValues"],
   FUNCTION: ["run()"],
-  BOOLEAN: ["selectedRow", "data"],
-  UNKNOWN: ["selectedRow", "data", "run()"],
+  BOOLEAN: ["isValid", "selectedRow", "data", "isChecked", "isSwitchedOn"],
+  UNKNOWN: [
+    "selectedRow",
+    "data",
+    "run()",
+    "pageSize",
+    "pageOffset",
+    "selectedOptionValue",
+    "text",
+    "value",
+  ],
 };
 
 export const DataTreeFunctionSortOrder = [

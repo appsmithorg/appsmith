@@ -8,7 +8,7 @@ import type { AppState } from "ee/reducers";
 import type { User } from "constants/userConstants";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
-import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
+import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";

@@ -1,5 +1,4 @@
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -10,44 +9,37 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
-import { getUserSource } from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
-export interface UserAndAppDetails {
+export interface AppDetails {
   pageId: string;
   appId: string;
   appMode: APP_MODE | undefined;
   appName: string;
   isExampleApp: boolean;
-  userId: string;
-  email: string;
-  source: string;
   instanceId: string;
 }
 
-export function* getUserAndAppDetails() {
+export function* getAppDetails() {
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const currentApp: ReturnType<typeof getCurrentApplication> = yield select(
     getCurrentApplication,
   );
-  const user: ReturnType<typeof getCurrentUser> = yield select(getCurrentUser);
   const instanceId: ReturnType<typeof getInstanceId> =
     yield select(getInstanceId);
   const pageId: ReturnType<typeof getCurrentPageId> =
     yield select(getCurrentPageId);
-  const userAndAppDetails: UserAndAppDetails = {
+
+  const appDetails: AppDetails = {
     pageId,
     appId: currentApp?.id || "",
     appMode,
     appName: currentApp?.name || "",
     isExampleApp: currentApp?.appIsExample || false,
-    userId: user?.username || "",
-    email: user?.email || "",
-    source: getUserSource(),
     instanceId: instanceId,
   };
 
-  return userAndAppDetails;
+  return appDetails;
 }
 export function* logDynamicTriggerExecution({
   dynamicTrigger,
@@ -65,13 +57,10 @@ export function* logDynamicTriggerExecution({
     appId,
     appMode,
     appName,
-    email,
     instanceId,
     isExampleApp,
     pageId,
-    source,
-    userId,
-  }: UserAndAppDetails = yield call(getUserAndAppDetails);
+  }: AppDetails = yield call(getAppDetails);
   const widget: ReturnType<typeof getWidget> | undefined = yield select(
     (state: AppState) => getWidget(state, triggerMeta.source?.id || ""),
   );
@@ -89,12 +78,6 @@ export function* logDynamicTriggerExecution({
     appMode,
     appName,
     isExampleApp,
-    userData: {
-      userId,
-      email,
-      appId,
-      source,
-    },
     widgetName: widget?.widgetName,
     widgetType: widget?.type,
     propertyName: triggerMeta.triggerPropertyName,
@@ -114,12 +97,6 @@ export function* logDynamicTriggerExecution({
       appMode,
       appName,
       isExampleApp,
-      userData: {
-        userId,
-        email,
-        appId,
-        source,
-      },
       widgetName: widget?.widgetName,
       widgetType: widget?.type,
       propertyName: triggerMeta.triggerPropertyName,

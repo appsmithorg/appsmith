@@ -1,6 +1,6 @@
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import equal from "fast-deep-equal/es6";
@@ -12,7 +12,7 @@ import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/boxHelpers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { SelectedArenaDimensions } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 

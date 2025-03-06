@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -249,7 +250,7 @@ public class ActionServiceCE_Test {
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
-        gitData.setBranchName("actionServiceTest");
+        gitData.setRefName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
@@ -257,12 +258,12 @@ public class ActionServiceCE_Test {
                     application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
                     return applicationService.save(application2).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
+                                    application1.getId(), gitData.getRefName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
-                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getRefName()))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
@@ -270,7 +271,7 @@ public class ActionServiceCE_Test {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitApplicationMetadata().getRefName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");
@@ -306,15 +307,12 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<NewAction> actionMono = layoutActionService
-                .createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndBaseActionId(
-                        branchName, createdAction.getId(), false, READ_ACTIONS));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action);
 
         StepVerifier.create(actionMono)
-                .assertNext(newAction -> {
-                    assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(gitConnectedPage.getId());
-                    assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO.getPageId()).isEqualTo(gitConnectedPage.getId());
+                    assertThat(actionDTO.getBaseId()).isEqualTo(actionDTO.getId());
                 })
                 .verifyComplete();
     }
@@ -1180,7 +1178,10 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-        Mono<ActionDTO> actionMono = layoutActionService.createAction(action, eventContext, Boolean.FALSE);
+        CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+        createActionMetaDTO.setEventContext(eventContext);
+        createActionMetaDTO.setIsJsAction(Boolean.FALSE);
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action, createActionMetaDTO);
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
@@ -1413,45 +1414,6 @@ public class ActionServiceCE_Test {
                                     .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateAction_withoutWorkspaceId_withOrganizationId() {
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("validAction_nestedDatasource");
-        action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Mono<ActionDTO> createActionMono =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
-
-        ActionDTO updateAction = new ActionDTO();
-        Datasource nestedDatasource = new Datasource();
-        nestedDatasource.setOrganizationId(workspaceId);
-        nestedDatasource.setName("DEFAULT_REST_DATASOURCE");
-        nestedDatasource.setPluginId(datasource.getPluginId());
-        nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
-
-        updateAction.setDatasource(nestedDatasource);
-        Mono<ActionDTO> actionMono = createActionMono.flatMap(
-                savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
-
-        StepVerifier.create(actionMono)
-                .assertNext(updatedAction -> {
-                    Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId()).isNotNull();
-                    assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
     }

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { PluginType } from "entities/Action";
+import { PluginType } from "entities/Plugin";
 import {
   Button,
   Menu,

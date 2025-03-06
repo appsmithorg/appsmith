@@ -21,10 +21,7 @@ import {
 } from "actions/autoHeightActions";
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
-import {
-  combinedPreviewModeSelector,
-  getOccupiedSpacesSelectorForContainer,
-} from "selectors/editorSelectors";
+import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -42,6 +39,7 @@ import {
 import DragLayerComponent from "./DragLayerComponent";
 import Onboarding from "./OnBoarding";
 import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -54,6 +52,7 @@ export type DropTargetComponentProps = PropsWithChildren<{
   isMobile?: boolean;
   mobileBottomRow?: number;
   isListWidgetCanvas?: boolean;
+  showOnboardingText?: boolean;
 }>;
 
 const StyledDropTarget = styled.div`
@@ -196,7 +195,7 @@ function useUpdateRows(
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(selectCombinedPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -326,7 +325,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   const shouldOnboard =
-    !(childWidgets && childWidgets.length) && !isDragging && !props.parentId;
+    !(childWidgets && childWidgets.length) &&
+    !isDragging &&
+    // If the parentId is not set (true for main canvas), or the showOnboardingText is true (for module canvas)
+    (!props.parentId || props.showOnboardingText);
 
   // The drag layer is the one with the grid dots.
   // They need to show in certain scenarios

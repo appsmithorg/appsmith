@@ -6,6 +6,7 @@ import { getAppMode } from "ee/selectors/entitiesSelector";
 import store from "store";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "ee/constants/UsagePulse";
+import { getInstanceId } from "ee/selectors/organizationSelectors";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {
@@ -14,6 +15,9 @@ export const fetchWithRetry = (config: {
   retries: number;
   retryTimeout: number;
 }) => {
+  const instanceId = getInstanceId(store.getState());
+  const anonymousUserId = AnalyticsUtil.getAnonymousId();
+
   fetch(config.url, {
     method: "POST",
     credentials: "same-origin",
@@ -34,6 +38,12 @@ export const fetchWithRetry = (config: {
           payload: config.payload,
           retries: config.retries - 1,
           retryTimeout: config.retryTimeout,
+        });
+      } else {
+        // add analytics for failed usage pulse
+        AnalyticsUtil.logEvent("MALFORMED_USAGE_PULSE", {
+          anonymousUserId,
+          instanceId,
         });
       }
     });

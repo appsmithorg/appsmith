@@ -399,8 +399,6 @@ describe(
       cy.get("@jsObjName").then((jsObjName: any) => {
         jsObj = jsObjName;
       });
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
       // Add settings for each function (according to data)
       Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
         (functionSetting) => {
@@ -410,15 +408,16 @@ describe(
           );
         },
       );
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
+
+      // open settings popup
+      jsEditor.toolbar.toggleSettings();
       //After JSObj is created - check methods are in alphabetical order
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       agHelper.RefreshPage();
       agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
-      // Switch to settings tab and assert order
-      agHelper.GetNClick(jsEditor._settingsTab);
+      // open settings popup
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
     });
 
@@ -463,14 +462,15 @@ describe(
       agHelper.Sleep();
 
       EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
-      agHelper.GetNClick(jsEditor._settingsTab);
+
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       // rename functions and assert order
-      agHelper.GetNClick(jsEditor._codeTab);
+      jsEditor.toolbar.toggleSettings();
       jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
       agHelper.Sleep(3000);
-      agHelper.GetNClick(jsEditor._settingsTab);
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -499,8 +499,6 @@ return "yes";`;
         prettify: false,
       });
 
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
       // Enable all settings
       jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true);
 
@@ -546,17 +544,18 @@ return "yes";`;
       jsEditor.AssertParseError(true);
       // Assert that response tab is not empty
       agHelper.AssertContains("No signs of trouble here!", "not.exist");
-      // Assert presence of typeError in response tab
-      agHelper.AssertContains('"Table1.unknown" is undefined', "exist");
-      agHelper.AssertContains("TypeError", "exist");
 
       // click the error tab
       agHelper.GetNClick(locators._errorTab);
       // Assert that errors tab is not empty
       agHelper.AssertContains("No signs of trouble here!", "not.exist");
       // Assert presence of typeError in error tab
-      agHelper.AssertContains('"Table1.unknown" is undefined', "exist");
-      agHelper.AssertContains("TypeError", "exist");
+      debuggerHelper.AssertDebugError(
+        `"unknown" doesn't exist in Table1`,
+        "",
+        true,
+        false,
+      );
 
       // Fix parse error and assert that debugger error is removed
       jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
@@ -564,8 +563,9 @@ return "yes";`;
       jsEditor.RunJSObj();
       //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
       agHelper.AssertElementAbsence(locators._btnSpinner, 10000);
+      // Lint error should still be seen
       agHelper.GetNClick(locators._errorTab);
-      agHelper.AssertContains('"Table1.unknown" is undefined', "not.exist");
+      agHelper.AssertContains(`"unknown" doesn't exist in Table1`, "exist");
 
       // Switch back to response tab
       agHelper.GetNClick(locators._responseTab);
@@ -579,7 +579,7 @@ return "yes";`;
       jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
       // Assert that parse error is removed from debugger when function is deleted
       agHelper.GetNClick(locators._errorTab);
-      agHelper.AssertContains('"Table1.unknown" is undefined.', "not.exist");
+      agHelper.AssertContains(`"unknown" doesn't exist in Table1`, "not.exist");
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.JSObject,

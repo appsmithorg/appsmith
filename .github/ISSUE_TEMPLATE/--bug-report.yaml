@@ -72,7 +72,7 @@ body:
   id: video
   attributes:
     label: Issue video log
-    description: "Share a loom video recording of how the issue can be reporduced"
+    description: "Share a loom video recording of how the issue can be reproduced"
     placeholder: "https://www.loom.com/share/d54e04bc68e24798..."
   validations:
     required: false

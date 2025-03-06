@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.clonepage.ClonePageServiceCE;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -31,7 +32,8 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                 .flatMap(action -> {
                     // Set new page id in the actionDTO
                     ActionDTO actionDTO = action.getUnpublishedAction();
-                    actionDTO.setBranchName(clonePageMetaDTO.getBranchName());
+                    actionDTO.setRefType(clonePageMetaDTO.getRefType());
+                    actionDTO.setRefName(clonePageMetaDTO.getRefName());
 
                     actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
 
@@ -54,7 +56,10 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     // Indicates that source of action creation is clone page action
                     cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
                     copyNestedNonNullProperties(actionDTO, cloneActionDTO);
-                    return layoutActionService.createAction(cloneActionDTO, eventContext, isJsAction);
+                    CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+                    createActionMetaDTO.setIsJsAction(isJsAction);
+                    createActionMetaDTO.setEventContext(eventContext);
+                    return layoutActionService.createAction(cloneActionDTO, createActionMetaDTO);
                 })
                 .then();
     }

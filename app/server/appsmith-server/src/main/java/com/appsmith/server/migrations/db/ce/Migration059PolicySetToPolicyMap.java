@@ -91,7 +91,13 @@ public class Migration059PolicySetToPolicyMap {
         tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class).block();
         assert defaultTenant != null : "Default tenant not found";
-        cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
+
+        // The following code line has been commented as part of Tenant to Organization migration. The function does not
+        // exist
+        // anymore and no need to evict the cached tenant anymore because Migration 065 would migrate the tenant to
+        // organization
+        // and a new cache line would be set for the organization.
+        //        cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
     }
 
     private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {

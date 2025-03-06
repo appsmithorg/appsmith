@@ -336,7 +336,13 @@ describe(
       checkSameOptionsWhileAddingNewRow();
     });
 
-    it("10. should check that 'new row select options' is working", () => {
+    it("10. check that table shows with select options mismatch", () => {
+      cy.readTableV2data(0, 0).then((val) => {
+        expect(val).to.equal("#1");
+      });
+    });
+
+    it("11. should check that 'new row select options' is working", () => {
       const checkNewRowOptions = () => {
         // New row select options should be visible when "Same options in new row" is turned off
         _.propPane.TogglePropertyState("Same options in new row", "Off");
@@ -401,14 +407,14 @@ describe(
       checkNoOptionState();
     });
 
-    it("11. should check that server side filering is working", () => {
+    it("12. should check that server side filering is working", () => {
       _.dataSources.CreateDataSource("Postgres");
       _.dataSources.CreateQueryAfterDSSaved(
         "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
       );
       _.dataSources.ToggleUsePreparedStatement(false);
       cy.wait("@saveAction");
-      cy.get(".t--run-query").click();
+      cy.get(_.dataSources._runQueryBtn).click();
       cy.wait("@postExecute");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");

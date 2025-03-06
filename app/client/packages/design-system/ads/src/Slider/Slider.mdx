@@ -1,0 +1,13 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as SliderStories from "./Slider.stories";
+
+<Meta of={SliderStories} />
+
+# Slider
+
+A slider component is used for numerical value input that fall within the range. Users may drag a thumb along a track with a mouse or using touch input. They may also use arrow keys on their keyboard.
+
+This UI pattern is ideal alternative to a fixed set of options for selecting a price range or adjusting volume.
+
+<Canvas of={SliderStories.SliderStory} />

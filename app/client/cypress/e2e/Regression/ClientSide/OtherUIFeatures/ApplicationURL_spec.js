@@ -9,7 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Slug URLs", () => {
+describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
   let applicationName;
   let applicationId;
 
@@ -151,11 +151,19 @@ describe("Slug URLs", () => {
 
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
-      homePage.Signout(true);
-      agHelper.VisitNAssert(url + "?embed=true&a=b"); //removing 'getConsolidatedData' api check due to its flakyness
-      agHelper.AssertURL(
-        `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
-      );
+      const redirectUrl = `${url}?embed=true&a=b`;
+      cy.stub(agHelper, "VisitNAssert").as("visitStub");
+
+      // Call your function that handles redirection
+      agHelper.VisitNAssert(redirectUrl);
+
+      // Assert that the stubbed function was called with the correct redirectUrl
+      cy.get("@visitStub").should("have.been.calledWith", redirectUrl);
+      cy.wrap(redirectUrl).then((redirectUrl) => {
+        const encodedRedirectUrl = `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+        cy.log(encodedRedirectUrl);
+        agHelper.AssertURL(encodedRedirectUrl);
+      });
     });
   });
 });

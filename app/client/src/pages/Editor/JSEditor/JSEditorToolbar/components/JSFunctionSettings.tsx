@@ -1,18 +1,18 @@
 import React, { useCallback, useState } from "react";
 import { Flex, Switch, Text } from "@appsmith/ads";
-import JSFunctionSettingsView, {
-  type JSFunctionSettingsProps,
-} from "./old/JSFunctionSettings";
 import type { JSAction } from "entities/JSCollection";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
+import {
+  createMessage,
+  JS_EDITOR_SETTINGS,
+  NO_JS_FUNCTIONS,
+} from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { OnUpdateSettingsProps } from "../types";
 
 interface Props {
   disabled: boolean;
   actions: JSAction[];
-  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  onUpdateSettings: (props: OnUpdateSettingsProps) => void;
 }
 
 interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
@@ -47,6 +47,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     <Flex
       className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
       gap="spaces-4"
+      id={`${props.action.name}-settings`}
       key={props.action.id}
       w="100%"
     >
@@ -68,22 +69,6 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
  * It conditionally renders the old or new version of the component based on a feature flag.
  */
 export const JSFunctionSettings = (props: Props) => {
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
-  // If the feature flag is disabled, render the old version of the component
-  if (!isActionRedesignEnabled) {
-    return (
-      <JSFunctionSettingsView
-        actions={props.actions}
-        disabled={props.disabled}
-        onUpdateSettings={props.onUpdateSettings}
-      />
-    );
-  }
-
-  // Render the new version of the component
   return (
     <Flex flexDirection="column" gap="spaces-4" w="100%">
       <Text kind="heading-xs">
@@ -97,6 +82,9 @@ export const JSFunctionSettings = (props: Props) => {
           onUpdateSettings={props.onUpdateSettings}
         />
       ))}
+      {props.actions.length === 0 && (
+        <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
+      )}
     </Flex>
   );
 };

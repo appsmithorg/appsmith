@@ -19,6 +19,17 @@ on:
         required: false
         type: number
         default: 1
+      update_snapshot:
+          description: 'Give option to update snapshot (true/false)'
+          required: false
+          type: boolean
+          default: false
+      specs_to_run:
+        description: 'Cypress spec file(s) to run'
+        required: false
+        type: string
+        default: 'no_data'
+
   workflow_call:
     inputs:
       pr:
@@ -35,6 +46,16 @@ on:
         required: false
         type: number
         default: 1
+      update_snapshot:
+          description: 'Give option to update snapshot (true/false)'
+          required: false
+          type: boolean
+          default: false
+      specs_to_run:
+        description: 'Cypress spec file(s) to run'
+        required: false
+        type: string
+        default: 'no_data'
 
 jobs:
   ci-test-limited:
@@ -111,22 +132,77 @@ jobs:
           else
             echo "rerun=false" >> $GITHUB_OUTPUT
           fi
+       
+      - name: Upload existing snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-existing-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true    
 
-      # Get specs to run
+      # Step to get specs from the file or use the provided specs
       - name: Get specs to run
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
-          specs_to_run=""
-          while IFS= read -r line
-          do
-            if [[ $line =~ ^#|^\/\/ ]]; then
-              continue
-            else
+          ls -l
+          echo "[DEBUG] Checking inputs.specs_to_run: '${{ inputs.specs_to_run }}'"
+          echo "[DEBUG] Checking github.event.inputs.specs_to_run: '${{ github.event.inputs.specs_to_run }}'"
+          
+          # Determine the source of the specs_to_run input
+          if [[ -n "${{ inputs.specs_to_run }}" ]]; then
+            specs_to_run="${{ inputs.specs_to_run }}" # For workflow_call
+            echo "[INFO] specs_to_run provided via workflow_call: $specs_to_run"
+          elif [[ -n "${{ github.event.inputs.specs_to_run }}" ]]; then
+            specs_to_run="${{ github.event.inputs.specs_to_run }}" # For workflow_dispatch
+            echo "[INFO] specs_to_run provided via workflow_dispatch: $specs_to_run"
+          else
+            specs_to_run=""
+            echo "[INFO] No specs provided. Falling back to limited-tests.txt."
+          fi
+
+          # Check if specs_to_run is provided; if not, use the fallback file
+          echo "[DEBUG] Initial specs_to_run value: '$specs_to_run'"
+
+          if [[ "$specs_to_run" == *"no_data"* || -z "$specs_to_run" || "$specs_to_run" == "" ]]; then
+            echo "[INFO] No specs provided or 'no_data' detected, falling back to limited-tests.txt file."
+
+            # Verify if the fallback file exists
+            limited_tests_file="${{ github.workspace }}/app/client/cypress/limited-tests.txt"
+            ls -l ${{ github.workspace }}/app/client/cypress/limited-tests.txt
+            cat ${{ github.workspace }}/app/client/cypress/limited-tests.txt
+            specs_to_run=""
+
+            # Read each line of limited-tests.txt
+            while IFS= read -r line || [[ -n "$line" ]]; do
+              echo "[DEBUG] Read line: '$line'" 
+
+              # Skip comments and empty lines
+              if [[ $line =~ ^#|^\/\/ || -z $line ]]; then
+                echo "[DEBUG] Skipped line: '$line'" # Indicate skipped lines
+                continue
+              fi
+
+              # Add the line to specs_to_run
               specs_to_run="$specs_to_run,$line"
+            done < ${{ github.workspace }}/app/client/cypress/limited-tests.txt
+
+            # Remove leading comma
+            specs_to_run=${specs_to_run#,}
+            echo "[DEBUG] Final specs_to_run after processing limited-tests.txt: $specs_to_run"
+
+            # If no specs found, return an error
+            if [[ -z "$specs_to_run" ]]; then
+              echo "[ERROR] No specs found in limited-tests.txt after processing!" >&2
+              exit 1
             fi
-          done < app/client/cypress/limited-tests.txt
-          specs_to_run=${specs_to_run#,}
+          else
+            echo "[INFO] Using provided specs: $specs_to_run"
+          fi
+
+          # Log the final specs_to_run value
+          echo "[DEBUG] Setting specs_to_run to GitHub environment variable: $specs_to_run"
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
+          
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
@@ -160,6 +236,7 @@ jobs:
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
+          sudo systemctl disable --now ssh.socket
           mkdir -p ~/git-server/keys
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
@@ -230,11 +307,14 @@ jobs:
           chmod a+x ./cypress/setup-test-ci.sh
           ./cypress/setup-test-ci.sh
 
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: |
-          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+      - name: Install Google Chrome 129.0.6668.100
+        run: |
+          sudo apt-get remove google-chrome-stable
+          wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_129.0.6668.100-1_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./google-chrome-stable_129.0.6668.100-1_amd64.deb
+          echo "BROWSER_PATH=$(which google-chrome)" >> $GITHUB_ENV
+          google-chrome --version
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -343,24 +423,42 @@ jobs:
             CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
             CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
             CYPRESS_STATIC_ALLOCATION: true
+            CYPRESS_SNOWFLAKE_ACCOUNT_NAME: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+            CYPRESS_SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+            CYPRESS_SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+            CYPRESS_HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
             NODE_ENV: development
+            GITHUB_WORKFLOW : ${{ github.workflow }}
         run: |
             cd app/client
-            npx cypress-repeat-pro run -n ${{ inputs.run_count }} --force \
-                --spec ${{ env.specs_to_run }} \
-                --config-file "cypress_ci_custom.config.ts"
+            if [[ "${{ inputs.update_snapshot }}" == "true" ]]; then
+              echo "Running Cypress with snapshot updates..."
+              CYPRESS_updateSnapshots=true npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+                --spec "${{ inputs.specs_to_run }}" \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}" || echo "Cypress tests failed, proceeding with summary check..."
+            else
+              echo "Running Cypress tests without snapshot updates..."
+              npx cypress-repeat-pro run -n "${{ inputs.run_count }}" --force \
+                --spec "${{ env.specs_to_run }}" \
+                --config-file "cypress_ci_custom.config.ts" \
+                --browser "${{ env.BROWSER_PATH }}" || echo "Cypress tests failed, proceeding with summary check..."
+            fi
+
             cat cy-repeat-summary.txt
+
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
 
             # Check for test results and store the status in the file
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
-                echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
+              echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
             else
-                echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
+              echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
             fi
-            cat "$FAILURE_FLAG_FILE"
 
+            cat "$FAILURE_FLAG_FILE"
+            
       - name: Trim number of cypress log files
         if: failure()
         run: |
@@ -449,8 +547,16 @@ jobs:
         if: always()
         with:
           name: server-logs
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
+
+      - name: Upload new compared snapshot data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-new-compare-snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true   
 
       # Set status = success
       - name: Save the status of the run

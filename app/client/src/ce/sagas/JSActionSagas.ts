@@ -1,7 +1,4 @@
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -70,15 +67,16 @@ import {
 } from "sagas/helper";
 import { toast } from "@appsmith/ads";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -144,6 +142,7 @@ export function* createJSCollectionSaga(
     });
   }
 }
+
 export function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {

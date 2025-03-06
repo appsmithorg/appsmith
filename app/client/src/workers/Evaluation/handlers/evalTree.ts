@@ -30,10 +30,11 @@ import {
   profileFn,
   newWebWorkerSpanData,
   profileAsyncFn,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+} from "instrumentation/generateWebWorkerTraces";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { Attributes } from "instrumentation/types";
+import { updateActionsToEvalTree } from "./updateActionData";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +71,7 @@ export async function evalTree(
   let isNewWidgetAdded = false;
 
   const {
+    actionDataPayloadConsolidated,
     affectedJSObjects,
     allActionValidationConfig,
     appMode,
@@ -94,7 +96,7 @@ export async function evalTree(
   let isNewTree = false;
 
   try {
-    (webworkerTelemetry.__spanAttributes as SpanAttributes)["firstEvaluation"] =
+    (webworkerTelemetry.__spanAttributes as Attributes)["firstEvaluation"] =
       !dataTreeEvaluator;
 
     if (!dataTreeEvaluator) {
@@ -190,6 +192,13 @@ export async function evalTree(
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
+      const tree = dataTreeEvaluator.getEvalTree();
+
+      // during update cycles update actions to the dataTree directly
+      // this is useful in cases where we have debounced updateActionData and a regular evaluation
+      // triggered together, in those cases we merge them both into a regular evaluation
+      updateActionsToEvalTree(tree, actionDataPayloadConsolidated);
+
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
@@ -212,6 +221,7 @@ export async function evalTree(
             configTree,
             webworkerTelemetry,
             affectedJSObjects,
+            actionDataPayloadConsolidated,
           ),
       );
 

@@ -8,7 +8,7 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -62,7 +62,7 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Plugin";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -70,6 +70,7 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
+  JS_EXECUTION_TRIGGERED,
 } from "ee/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -94,9 +95,8 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "ee/utils/analyticsHelpers";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
@@ -207,6 +207,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+
+      // Initialize actions array if undefined
+      if (!jsActionTobeUpdated.actions) {
+        jsActionTobeUpdated.actions = [];
+      }
+
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
 
       if (data.nameChangedActions.length) {
@@ -462,17 +468,27 @@ export function* handleExecuteJSFunctionSaga(data: {
     collection,
   );
 
+  AppsmithConsole.info({
+    text: createMessage(JS_EXECUTION_TRIGGERED),
+    source: {
+      type: ENTITY_TYPE.JSACTION,
+      name: jsActionPathNameToDisplay,
+      id: collectionId,
+    },
+  });
+
   try {
     const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
     let isDirty = false;
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any = null;
+    let errors = [];
 
     if (localExecutionAllowed) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response: { isDirty: false; result: any } = yield call(
+      const response: { isDirty: false; result: any; errors: any } = yield call(
         executeJSFunction,
         action,
         collection,
@@ -481,6 +497,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 
       result = response.result;
       isDirty = response.isDirty;
+      errors = response.errors;
     }
     // open response tab in debugger on runnning or page load js action.
 
@@ -511,15 +528,17 @@ export function* handleExecuteJSFunctionSaga(data: {
     });
 
     if (localExecutionAllowed) {
-      AppsmithConsole.info({
-        text: createMessage(JS_EXECUTION_SUCCESS),
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: jsActionPathNameToDisplay,
-          id: collectionId,
-        },
-        state: { response: result },
-      });
+      if (!errors.length) {
+        AppsmithConsole.info({
+          text: createMessage(JS_EXECUTION_SUCCESS),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: jsActionPathNameToDisplay,
+            id: collectionId,
+          },
+          state: { response: result },
+        });
+      }
     } else {
       yield put({
         type: ReduxActionTypes.JS_ACTION_REMOTE_EXECUTION_INIT,
@@ -546,7 +565,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       {
         payload: {
           id: actionId,
-          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          logType: LOG_TYPE.JS_EXECUTION_ERROR,
           text: createMessage(JS_EXECUTION_FAILURE),
           source: {
             type: ENTITY_TYPE.JSACTION,
@@ -852,11 +871,7 @@ function* handleCreateNewJSFromActionCreator(
 
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
   // created while having context of the canvas
-  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
-
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
-  }
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
 
   // Create the JS Object with the given function name
   const pageId: string = yield select(getCurrentPageId);
@@ -914,5 +929,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
       handleCreateNewJSFromActionCreator,
     ),
+    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

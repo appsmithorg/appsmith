@@ -1,5 +1,5 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
@@ -7,10 +7,10 @@ import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { builderURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
-  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { type ReduxAction } from "actions/ReduxActionTypes";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";

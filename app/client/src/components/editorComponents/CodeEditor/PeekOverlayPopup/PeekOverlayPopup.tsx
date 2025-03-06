@@ -1,17 +1,23 @@
-import type { MutableRefObject } from "react";
-import { useState } from "react";
-import React, { useEffect, useRef } from "react";
-import ReactJson from "react-json-view";
-import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
+import React, {
+  type MutableRefObject,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import { useEventCallback } from "usehooks-ts";
 import { componentWillAppendToBody } from "react-append-to-body";
-import _, { debounce } from "lodash";
+import { debounce, get } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
-import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { Divider } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "ee/selectors/entitiesSelector";
+import * as Styled from "./styles";
+import { CONTAINER_MAX_HEIGHT_PX, PEEK_OVERLAY_DELAY } from "./constants";
+import { getDataTypeHeader, getPropertyData } from "./utils";
+import { JSONViewer, Size } from "../../JSONViewer";
+import { InspectStateHeaderButton } from "components/editorComponents/Debugger/StateInspector/CTAs";
+import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 
 export interface PeekOverlayStateProps {
   objectName: string;
@@ -31,154 +37,101 @@ export const PeekOverlayPopUp = componentWillAppendToBody(
   PeekOverlayPopUpContent,
 );
 
-export const PEEK_OVERLAY_DELAY = 200;
-
-const getPropertyData = (src: unknown, propertyPath: string[]) => {
-  return propertyPath.length > 0 ? _.get(src, propertyPath) : src;
-};
-
-const getDataTypeHeader = (data: unknown) => {
-  const dataType = typeof data;
-
-  if (dataType === "object") {
-    if (Array.isArray(data)) return "array";
-
-    if (data === null) return "null";
-  }
-
-  return dataType;
-};
-
 export function PeekOverlayPopUpContent(
   props: PeekOverlayStateProps & {
     hidePeekOverlay: () => void;
   },
 ) {
-  const CONTAINER_MAX_HEIGHT_PX = 252;
+  const { hidePeekOverlay, objectName, position, propertyPath } = props;
   const dataWrapperRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const dataTree = useSelector(getDataTree);
   const configTree = useSelector(getConfigTree);
   const jsActions = useSelector(getJSCollections);
 
   const filteredData = filterInternalProperties(
-    props.objectName,
-    dataTree[props.objectName],
+    objectName,
+    dataTree[objectName],
     jsActions,
     dataTree,
     configTree,
   );
 
-  // Because getPropertyData can return a function
-  // And we don't want to execute it.
-  const [jsData] = useState(() =>
-    getPropertyData(filteredData, props.propertyPath),
+  let id: string | undefined;
+  const entityType = get(dataTree, [objectName, "ENTITY_TYPE"]);
+
+  if (entityType && objectName in configTree) {
+    const entityInfo = getEntityPayloadInfo[entityType](configTree[objectName]);
+
+    if (entityInfo) id = entityInfo.id;
+  }
+
+  const [jsData, dataType] = useMemo(
+    // Because getPropertyData can return a function
+    // And we don't want to execute it.
+    () => {
+      const jsData = getPropertyData(filteredData, propertyPath);
+      const dataType = getDataTypeHeader(jsData);
+
+      return [jsData, dataType];
+    },
+    [filteredData, propertyPath],
   );
 
-  const [dataType] = useState(getDataTypeHeader(jsData));
+  const debouncedHide = debounce(hidePeekOverlay, PEEK_OVERLAY_DELAY);
 
-  useEffect(() => {
-    const wheelCallback = () => {
-      props.hidePeekOverlay();
+  const getPositionValues = useCallback(() => {
+    const positionValues: { $left: string; $bottom?: string; $top?: string } = {
+      // Always have a minimum of 8px from the left
+      $left: Math.max(position.right - 300, 8) + "px",
     };
 
-    window.addEventListener("wheel", wheelCallback);
+    // if the peek overlay is going to be more than the container height, then show it from the bottom
+    if (position.top >= CONTAINER_MAX_HEIGHT_PX) {
+      positionValues.$bottom = `calc(100vh - ${position.top}px)`;
+    } else {
+      positionValues.$top = `${position.bottom}px`;
+    }
 
-    return () => {
-      window.removeEventListener("wheel", wheelCallback);
-    };
-  }, []);
+    return positionValues;
+  }, [position]);
 
-  useEffect(() => {
-    if (!dataWrapperRef.current) return;
-
-    dataWrapperRef.current.addEventListener("copy", textSelectAnalytics);
-
-    return () =>
-      dataWrapperRef.current?.removeEventListener("copy", textSelectAnalytics);
-  }, [dataWrapperRef, dataWrapperRef.current]);
-
-  const debouncedHide = debounce(
-    () => props.hidePeekOverlay(),
-    PEEK_OVERLAY_DELAY,
-  );
-
-  const getLeftPosition = (position: DOMRect) => {
-    let left = position.right - 300;
-
-    if (left < 0) left = 8;
-
-    return left;
-  };
+  const onWheel = useEventCallback((ev: React.WheelEvent) => {
+    ev.stopPropagation();
+    hidePeekOverlay();
+  });
 
   return (
-    <div
+    <Styled.PeekOverlayContainer
       className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}
       id="t--peek-overlay-container"
-      onMouseEnter={() => debouncedHide.cancel()}
-      onMouseLeave={() => debouncedHide()}
-      onWheel={(ev) => ev.stopPropagation()}
-      style={{
-        minHeight: "46px",
-        maxHeight: `${CONTAINER_MAX_HEIGHT_PX}px`,
-        width: "300px",
-        backgroundColor: "var(--ads-v2-color-bg)",
-        boxShadow: "0px 0px 10px #0000001A", // color used from designs
-        borderRadius: "var(--ads-v2-border-radius)",
-        left: `${getLeftPosition(props.position)}px`,
-        ...(props.position.top >= CONTAINER_MAX_HEIGHT_PX
-          ? {
-              bottom: `calc(100vh - ${props.position.top}px)`,
-            }
-          : {
-              top: `${props.position.bottom}px`,
-            }),
-      }}
+      onMouseEnter={debouncedHide.cancel}
+      onMouseLeave={debouncedHide}
+      onWheel={onWheel}
+      {...getPositionValues()}
     >
-      <div
-        className="first-letter:uppercase"
-        style={{
-          height: "24px",
-          color: "var(--appsmith-color-black-700)",
-          padding: "4px 0px 4px 12px",
-          fontSize: "10px",
-        }}
-      >
-        {dataType}
-      </div>
-      <Divider style={{ display: "block" }} />
-      <div
-        id="t--peek-overlay-data"
-        ref={dataWrapperRef}
-        style={{
-          minHeight: "20px",
-          padding: "2px 0px 2px 12px",
-          fontSize: "10px",
-        }}
-      >
+      <Styled.Header>
+        <Styled.DataType
+          className="first-letter:uppercase"
+          data-testid="t--peek-overlay-data-type"
+        >
+          {dataType}
+        </Styled.DataType>
+        {propertyPath.length === 0 && id ? (
+          <InspectStateHeaderButton entityId={id} />
+        ) : null}
+      </Styled.Header>
+
+      <Styled.BlockDivider />
+      <Styled.PeekOverlayData id="t--peek-overlay-data" ref={dataWrapperRef}>
         {(dataType === "object" || dataType === "array") && jsData !== null && (
-          <JsonWrapper
-            onClick={objectCollapseAnalytics}
-            style={{
-              minHeight: "20px",
-              maxHeight: "225px",
-              overflowY: "auto",
-            }}
-          >
-            <ReactJson src={jsData} {...reactJsonProps} />
-          </JsonWrapper>
+          <Styled.JsonWrapper className="as-mask">
+            <JSONViewer size={Size.SMALL} src={jsData} />
+          </Styled.JsonWrapper>
         )}
-        {/* TODO: Fix this the next time the file is edited */}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "function" && <div>{(jsData as any).toString()}</div>}
-        {/* TODO: Fix this the next time the file is edited */}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "boolean" && <div>{(jsData as any).toString()}</div>}
-        {/* TODO: Fix this the next time the file is edited */}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "string" && <div>{(jsData as any).toString()}</div>}
-        {/* TODO: Fix this the next time the file is edited */}
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {dataType === "number" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "function" && <div>{jsData.toString()}</div>}
+        {dataType === "boolean" && <div>{jsData.toString()}</div>}
+        {dataType === "string" && <div>{jsData.toString()}</div>}
+        {dataType === "number" && <div>{jsData.toString()}</div>}
         {((dataType !== "object" &&
           dataType !== "function" &&
           dataType !== "boolean" &&
@@ -187,14 +140,12 @@ export function PeekOverlayPopUpContent(
           dataType !== "number") ||
           jsData === null) && (
           <div>
-            {/* TODO: Fix this the next time the file is edited */}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(jsData as any)?.toString() ?? jsData ?? jsData === undefined
+            {jsData?.toString() ?? jsData ?? jsData === undefined
               ? "undefined"
               : "null"}
           </div>
         )}
-      </div>
-    </div>
+      </Styled.PeekOverlayData>
+    </Styled.PeekOverlayContainer>
   );
 }

@@ -1,7 +1,5 @@
-import {
-  ReduxActionTypes,
-  type ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ReduxActionType } from "actions/ReduxActionTypes";
 import type { Action } from "entities/Action";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
@@ -14,7 +12,7 @@ import log from "loglevel";
 import { all, put, select, takeEvery } from "redux-saga/effects";
 import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
 
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import {
   recordAnalyticsForSideBySideNavigation,
   recordAnalyticsForSideBySideWidgetHover,
@@ -33,7 +31,8 @@ import {
 import type { focusWidget } from "actions/widgetActions";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
+import { isInSideBySideEditor } from "IDE/utils/isInSideBySideEditor";
+import { getCurrentEntityInfo } from "IDE/utils/getCurrentEntityInfo";
 
 export function* sendAnalyticsEventSaga(
   type: ReduxActionType,

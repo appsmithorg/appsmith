@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
-import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { debounce, random, sortBy } from "lodash";
 import type {
@@ -23,23 +22,15 @@ import type { ActionResponse } from "api/ActionAPI";
 import type { Module } from "ee/constants/ModuleConstants";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import {
+  dbQueryIcon,
   ENTITY_ICON_SIZE,
   EntityIcon,
   JsFileIconV2,
-  dbQueryIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { PluginType } from "entities/Action";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { Plugin } from "api/PluginApi";
+import { type Plugin, PluginType } from "entities/Plugin";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { Icon } from "@appsmith/ads";
-import {
-  EditorEntityTab,
-  EditorEntityTabState,
-  EditorState,
-  EditorViewMode,
-} from "ee/entities/IDE/constants";
-import { FocusEntity } from "navigation/FocusEntity";
 import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
@@ -456,84 +447,4 @@ export function getPluginImagesFromPlugins(plugins: Plugin[]) {
   });
 
   return pluginImages;
-}
-
-/**
- * Resolve segment and segmentMode based on entity type.
- */
-export function getCurrentEntityInfo(entity: FocusEntity) {
-  switch (entity) {
-    case FocusEntity.QUERY:
-    case FocusEntity.API:
-    case FocusEntity.QUERY_MODULE_INSTANCE:
-      return {
-        segment: EditorEntityTab.QUERIES,
-        segmentMode: EditorEntityTabState.Edit,
-      };
-    case FocusEntity.QUERY_LIST:
-      return {
-        segment: EditorEntityTab.QUERIES,
-        segmentMode: EditorEntityTabState.List,
-      };
-    case FocusEntity.QUERY_ADD:
-      return {
-        segment: EditorEntityTab.QUERIES,
-        segmentMode: EditorEntityTabState.Add,
-      };
-    case FocusEntity.JS_OBJECT:
-    case FocusEntity.JS_MODULE_INSTANCE:
-      return {
-        segment: EditorEntityTab.JS,
-        segmentMode: EditorEntityTabState.Edit,
-      };
-    case FocusEntity.JS_OBJECT_ADD:
-      return {
-        segment: EditorEntityTab.JS,
-        segmentMode: EditorEntityTabState.Add,
-      };
-    case FocusEntity.JS_OBJECT_LIST:
-      return {
-        segment: EditorEntityTab.JS,
-        segmentMode: EditorEntityTabState.List,
-      };
-    case FocusEntity.CANVAS:
-      return {
-        segment: EditorEntityTab.UI,
-        segmentMode: EditorEntityTabState.Add,
-      };
-    case FocusEntity.PROPERTY_PANE:
-      return {
-        segment: EditorEntityTab.UI,
-        segmentMode: EditorEntityTabState.Edit,
-      };
-    case FocusEntity.WIDGET_LIST:
-      return {
-        segment: EditorEntityTab.UI,
-        segmentMode: EditorEntityTabState.List,
-      };
-    default:
-      return {
-        segment: EditorEntityTab.UI,
-        segmentMode: EditorEntityTabState.Add,
-      };
-  }
-}
-
-/**
- * Check if use is currently working is side-by-side editor mode.
- */
-export function isInSideBySideEditor({
-  appState,
-  segment,
-  viewMode,
-}: {
-  viewMode: EditorViewMode;
-  appState: EditorState;
-  segment: EditorEntityTab;
-}) {
-  return (
-    viewMode === EditorViewMode.SplitScreen &&
-    appState === EditorState.EDITOR &&
-    segment !== EditorEntityTab.UI
-  );
 }

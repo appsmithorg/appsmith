@@ -45,8 +45,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -73,6 +74,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -95,6 +97,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.constants.ce.FieldNameCE.NONE;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -119,9 +122,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
+    private final FeatureFlagService featureFlagService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -148,9 +152,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService,
+            OrganizationService organizationService,
             CommonConfig commonConfig,
-            ActionExecutionSolutionHelper actionExecutionSolutionHelper) {
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper,
+            FeatureFlagService featureFlagService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -168,9 +173,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
         this.configService = configService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.commonConfig = commonConfig;
         this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
+        this.featureFlagService = featureFlagService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -247,16 +253,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
+        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
 
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
         return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
-                        instanceIdMono, defaultTenantIdMono)
+                        instanceIdMono, defaultOrganizationIdMono)
                 .map(tuple -> {
                     String instanceId = tuple.getT1();
-                    String tenantId = tuple.getT2();
+                    String organizationId = tuple.getT2();
                     populatedExecuteActionDTO.setActionId(newAction.getId());
                     populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
@@ -267,7 +273,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 newAction.getUnpublishedAction().getDatasource().getId());
                     }
                     populatedExecuteActionDTO.setInstanceId(instanceId);
-                    populatedExecuteActionDTO.setTenantId(tenantId);
+                    populatedExecuteActionDTO.setOrganizationId(organizationId);
                     return populatedExecuteActionDTO;
                 }));
     }
@@ -287,11 +293,38 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .operateWithoutPermission(operateWithoutPermission)
                 .environmentId(environmentId)
                 .build();
-        Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);
-        return executeActionDTOMono
-                .flatMap(executeActionDTO -> populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
-                .name(ACTION_EXECUTION_SERVER_EXECUTION)
-                .tap(Micrometer.observation(observationRegistry));
+        Mono<ExecuteActionDTO> executeActionDTOMono =
+                createExecuteActionDTO(partFlux).cache();
+        Mono<Plugin> pluginMono = executeActionDTOMono.flatMap(executeActionDTO -> newActionService
+                .findById(executeActionDTO.getActionId())
+                .flatMap(newAction -> {
+                    if (newAction.getPluginId() == null
+                            || newAction.getPluginId().isEmpty()) {
+                        return Mono.empty();
+                    } else {
+                        return pluginService.findById(newAction.getPluginId());
+                    }
+                })
+                .cache());
+
+        return pluginMono
+                .map(plugin -> {
+                    executeActionMetaDTO.setPlugin(plugin);
+                    return plugin.getName() != null ? plugin.getName() : NONE;
+                })
+                .defaultIfEmpty(NONE)
+                .flatMap(pluginName -> {
+                    String name = (String) pluginName;
+                    if (NONE.equals(name)) {
+                        executeActionMetaDTO.setPlugin(null);
+                    }
+                    return executeActionDTOMono
+                            .flatMap(executeActionDTO ->
+                                    populateAndExecuteAction(executeActionDTO, executeActionMetaDTO))
+                            .tag("plugin", name)
+                            .name(ACTION_EXECUTION_SERVER_EXECUTION)
+                            .tap(Micrometer.observation(observationRegistry));
+                });
     }
 
     /**
@@ -317,7 +350,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 3. Instantiate the implementation class based on the query type
         Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, executeActionMetaDTO);
-        Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceStorageMono);
+        Mono<Plugin> pluginMono = executeActionMetaDTO.getPlugin() != null
+                ? Mono.just(executeActionMetaDTO.getPlugin())
+                : getCachedPluginForActionExecution(datasourceStorageMono);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
@@ -726,13 +761,22 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
+                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
+                            ? featureFlagService
+                                    .getCachedOrganizationFeatureFlags()
+                                    .getFeatures()
+                            : Collections.emptyMap();
+
+                    // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
+                    // Once thoroughly tested, this flag can be removed
                     return ((PluginExecutor<Object>) pluginExecutor)
-                            .executeParameterizedWithMetrics(
+                            .executeParameterizedWithMetricsAndFlags(
                                     resourceContext.getConnection(),
                                     executeActionDTO,
                                     datasourceStorage1.getDatasourceConfiguration(),
                                     actionDTO.getActionConfiguration(),
-                                    observationRegistry)
+                                    observationRegistry,
+                                    features)
                             .map(actionExecutionResult -> {
                                 ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                 if (actionExecutionRequest == null) {
@@ -1069,7 +1113,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             actionDTO.getName(),
                             "datasource",
                             Map.of("name", datasourceStorage.getName()),
-                            "orgId",
+                            "workspaceId",
                             application.getWorkspaceId(),
                             "appId",
                             actionDTO.getApplicationId(),

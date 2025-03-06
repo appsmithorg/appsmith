@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 import { get, set } from "lodash";
 import type { AppState } from "ee/reducers";
 
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import {
   getParentWithEnhancementFn,
   getWidgetEnhancementFn,

@@ -83,7 +83,7 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
             Files.createDirectories(path);
             String resourceType = WIDGETS;
             span.tag(RESOURCE_TYPE, resourceType);
-            observationHelper.startSpan(span, true);
+            observationHelper.startSpan(span);
 
             writeToFile(
                     objectReader.readTree(sourceEntity.toString()),
@@ -91,7 +91,7 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
         } catch (IOException e) {
             log.debug("Error while writings widgets data to file, {}", e.getMessage());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
     }
 
@@ -103,13 +103,13 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
             resourceType = METADATA;
         }
         span.tag(RESOURCE_TYPE, resourceType);
-        observationHelper.startSpan(span, true);
+        observationHelper.startSpan(span);
 
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             objectWriter.writeValue(fileWriter, sourceEntity);
             return true;
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
     }
 
@@ -122,7 +122,7 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
     @Override
     public Object readFile(Path filePath) {
         Span span = observationHelper.createSpan(GitSpan.FILE_READ);
-        observationHelper.startSpan(span, true);
+        observationHelper.startSpan(span);
 
         Object file;
         try (FileReader reader = new FileReader(filePath.toFile())) {
@@ -131,7 +131,7 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
             log.error("Error while reading file {} with message {} with cause", filePath, e.getMessage(), e.getCause());
             return null;
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return file;
     }
@@ -167,9 +167,9 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
         if (metadata == null) {
             return 1;
         }
+
         JsonNode json = objectMapper.valueToTree(metadata);
-        int fileFormatVersion = json.get(CommonConstants.FILE_FORMAT_VERSION).asInt();
-        return fileFormatVersion;
+        return json.get(CommonConstants.FILE_FORMAT_VERSION).asInt();
     }
 
     @Override
@@ -289,14 +289,14 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
     @Override
     public String readFileAsString(Path filePath) {
         Span span = observationHelper.createSpan(GitSpan.FILE_READ);
-        observationHelper.startSpan(span, true);
+        observationHelper.startSpan(span);
         String data = CommonConstants.EMPTY_STRING;
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
             log.error("Error while reading the file from git repo {} ", e.getMessage());
         } finally {
-            observationHelper.endSpan(span, true);
+            observationHelper.endSpan(span);
         }
         return data;
     }

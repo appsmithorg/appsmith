@@ -37,7 +37,7 @@ public class TriggerRequestDTO {
     String datasourceId;
     String actionId;
     String instanceId;
-    String tenantId;
+    String organizationId;
     // this param is expected to be sent by the client if needed
     String workspaceId;
 

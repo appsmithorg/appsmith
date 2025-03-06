@@ -5,24 +5,35 @@ import {
   inputFieldStyles,
   TextAreaInput,
 } from "@appsmith/wds";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import { useControlledState } from "@react-stately/utils";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { TextField as HeadlessTextField } from "react-aria-components";
+import { useDebounceCallback, useResizeObserver } from "usehooks-ts";
 
 import type { TextAreaProps } from "./types";
+
+// usehooks-ts does not export Size type, so declare it ourselves
+interface Size {
+  width?: number;
+}
 
 export function TextArea(props: TextAreaProps) {
   const {
     contextualHelp,
     errorMessage,
+    fieldClassName,
+    inputClassName,
     isDisabled,
     isInvalid,
     isLoading,
     isReadOnly,
     isRequired,
     label,
+    maxRows,
     onChange,
+    rows = 3,
+    size,
     suffix,
     value,
     ...rest
@@ -31,10 +42,10 @@ export function TextArea(props: TextAreaProps) {
   const [inputValue, setInputValue] = useControlledState(
     props.value,
     props.defaultValue ?? "",
-    () => {
-      //
-    },
+    () => {},
   );
+
+  const [textFieldHeight, setTextFieldHeight] = useState<number | null>(null);
 
   const onHeightChange = useCallback(() => {
     // Quiet textareas always grow based on their text content.
@@ -56,21 +67,23 @@ export function TextArea(props: TextAreaProps) {
       input.style.height = "auto";
 
       const computedStyle = getComputedStyle(input);
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const height = parseFloat(computedStyle.height) || 0;
+      const marginTop = parseFloat(computedStyle.marginTop);
+      const marginBottom = parseFloat(computedStyle.marginBottom);
 
-      input.style.height = `${
-        // subtract comptued padding and border to get the actual content height
-        input.scrollHeight -
-        paddingTop -
-        paddingBottom +
-        // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
-        1
-      }px`;
+      setTextFieldHeight(height + marginTop + marginBottom);
+
+      input.style.height = `${input.scrollHeight + 1}px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
+
+      if (input.scrollHeight > input.clientHeight) {
+        input.setAttribute("data-has-scrollbar", "true");
+      } else {
+        input.removeAttribute("data-has-scrollbar");
+      }
     }
-  }, [inputRef, props.height]);
+  }, [props.height]);
 
   useLayoutEffect(() => {
     if (inputRef.current) {
@@ -78,15 +91,45 @@ export function TextArea(props: TextAreaProps) {
     }
   }, [onHeightChange, inputValue]);
 
+  const [{ width }, setSize] = useState<Size>({
+    width: undefined,
+  });
+
+  const onResize = useDebounceCallback(setSize, 200);
+
+  useResizeObserver({
+    ref: inputRef,
+    onResize,
+  });
+
+  useEffect(
+    function updateHeight() {
+      onHeightChange();
+    },
+    [width],
+  );
+
+  const styles = {
+    // The --input-height it may be useful to align the prefix or suffix.
+    // Why can't we do this with CSS? Reason is that the height of the input is calculated based on the content.
+    "--input-height": Boolean(textFieldHeight)
+      ? `${textFieldHeight}px`
+      : "auto",
+    "--max-height": Boolean(maxRows)
+      ? `calc(${maxRows} * var(--body-line-height))`
+      : "none",
+  } as React.CSSProperties;
+
   return (
     <HeadlessTextField
       {...rest}
-      className={clsx(inputFieldStyles.field)}
+      className={clsx(inputFieldStyles.field, fieldClassName)}
       isDisabled={isDisabled}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
       onChange={chain(onChange, setInputValue)}
+      style={styles}
       value={value}
     >
       <FieldLabel
@@ -97,9 +140,12 @@ export function TextArea(props: TextAreaProps) {
         {label}
       </FieldLabel>
       <TextAreaInput
+        className={inputClassName}
         isLoading={isLoading}
         isReadOnly={isReadOnly}
         ref={inputRef}
+        rows={rows}
+        size={size}
         suffix={suffix}
         value={value}
       />

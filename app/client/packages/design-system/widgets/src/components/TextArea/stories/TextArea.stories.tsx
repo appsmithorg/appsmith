@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Flex, TextArea, Button } from "@appsmith/wds";
 
 const meta: Meta<typeof TextArea> = {
-  title: "WDS/Widgets/TextArea",
+  title: "WDS/Widgets/Text Area",
   component: TextArea,
   tags: ["autodocs"],
   args: {
@@ -71,4 +71,10 @@ export const Validation: Story = {
       </Flex>
     </Form>
   ),
+};
+
+export const MaxHeight: Story = {
+  args: {
+    maxRows: 8,
+  },
 };

@@ -6,7 +6,7 @@ import type {
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "ee/entities/DataTree/types";
 
 import InputWidget from "widgets/InputWidgetV2";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";

@@ -25,10 +25,8 @@ import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -62,16 +60,13 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
-import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
-import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -444,65 +439,6 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, PermissionGroup.class, assignedToUserIds_deleted_compound_index);
     }
 
-    /**
-     * Changing the order of this function to 10000 so that it always gets executed at the end.
-     * This ensures that any permission changes for super users happen once all other migrations are completed
-     */
-    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
-    public void updateSuperUsers(
-            MongoTemplate mongoTemplate,
-            PermissionGroupRepository permissionGroupRepository,
-            PolicySolution policySolution,
-            PolicyGenerator policyGenerator) {
-        // Read the admin emails from the environment and update the super users accordingly
-        String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
-
-        Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
-
-        Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
-        Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
-
-        String instanceAdminPermissionGroupId =
-                (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
-
-        Query permissionGroupQuery = new Query();
-        permissionGroupQuery
-                .addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId))
-                .fields()
-                .include(PermissionGroup.Fields.assignedToUserIds);
-        PermissionGroup instanceAdminPG = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
-
-        Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
-        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
-
-        Set<String> userIds = adminEmails.stream()
-                .map(email -> email.trim())
-                .map(String::toLowerCase)
-                .map(email -> {
-                    Query userQuery = new Query();
-                    userQuery.addCriteria(where(User.Fields.email).is(email));
-                    User user = mongoTemplate.findOne(userQuery, User.class);
-
-                    if (user == null) {
-                        log.info("Creating super user with username {}", email);
-                        user = updateSuperUserMigrationHelper.createNewUser(
-                                email, tenant, instanceAdminPG, mongoTemplate, policySolution, policyGenerator);
-                    }
-
-                    return user.getId();
-                })
-                .collect(Collectors.toSet());
-
-        Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
-        Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, permissionGroupRepository);
-
-        Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
-        mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
-    }
-
     @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
     public void updateBadThemeState(
             MongoTemplate mongoTemplate,
@@ -614,7 +550,7 @@ public class DatabaseChangelog2 {
                 policySolution.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
         // Now add admin permissions to the tenant
-        Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
+        Set<Permission> tenantPermissions = ORGANIZATION_ADMIN.getPermissions().stream()
                 .map(permission -> new Permission(defaultTenant.getId(), permission))
                 .collect(Collectors.toSet());
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());

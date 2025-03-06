@@ -25,7 +25,7 @@ describe(
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("PostgreSQL");
         guid = uid.toLowerCase();
-        agHelper.RenameWithInPane("Postgres_1_" + guid, false);
+        agHelper.RenameDatasource("Postgres_1_" + guid);
         dataSources.FillPostgresDSForm();
         dataSources.TestSaveDatasource();
 
@@ -56,7 +56,7 @@ describe(
     it("2. Create new datasource for user test_conn_user", () => {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
-      agHelper.RenameWithInPane("Postgres_2_" + guid, false);
+      agHelper.RenameDatasource("Postgres_2_" + guid);
       const userName = "test_conn_user_" + guid;
       dataSources.FillPostgresDSForm("Production", false, userName, "password");
       dataSources.TestSaveDatasource();
