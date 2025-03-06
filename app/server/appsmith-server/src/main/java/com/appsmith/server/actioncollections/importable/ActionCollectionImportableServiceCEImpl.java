@@ -173,8 +173,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                 // collections
                                 resultDTO.setExistingActionCollections(actionsCollectionsInCurrentArtifact.values());
 
-                                List<ActionCollection> newActionCollections = new ArrayList<>();
-                                List<ActionCollection> existingActionCollections = new ArrayList<>();
+                                // Use a synchronised list to avoid concurrent modification exception
+                                List<ActionCollection> newActionCollections =
+                                        Collections.synchronizedList(new ArrayList<>());
+                                List<ActionCollection> existingActionCollections =
+                                        Collections.synchronizedList(new ArrayList<>());
 
                                 return Flux.fromIterable(importedActionCollectionList)
                                         .flatMap(actionCollection -> {

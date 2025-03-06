@@ -315,8 +315,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         // this will be required in next phases when we'll delete the outdated actions
                         importActionResultDTO.setExistingActions(actionsInCurrentArtifact.values());
 
-                        List<NewAction> newNewActionList = new ArrayList<>();
-                        List<NewAction> existingNewActionList = new ArrayList<>();
+                        // Use synchronised lists to avoid concurrent modification exceptions
+                        List<NewAction> newNewActionList = Collections.synchronizedList(new ArrayList<>());
+                        List<NewAction> existingNewActionList = Collections.synchronizedList(new ArrayList<>());
 
                         return Flux.fromIterable(importedNewActionList)
                                 .flatMap(newAction -> {
