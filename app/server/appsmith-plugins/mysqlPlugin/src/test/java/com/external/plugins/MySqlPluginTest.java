@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -76,7 +77,15 @@ import static reactor.core.publisher.Mono.zip;
 @Testcontainers
 public class MySqlPluginTest {
 
-    static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
+    static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
 
     ConnectionContext<ConnectionPool> instanceConnectionContext;
 
@@ -1318,7 +1327,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testNullObjectWithPreparedStatement() {
-        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor());
+        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig()));
         doReturn(false).when(pluginExecutor).isIsOperatorUsed(any());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
