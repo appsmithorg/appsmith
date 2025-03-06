@@ -60,7 +60,7 @@ export const ContextMenu = (props: Props) => {
     props.hasExportPermission && props.isCurrentPage;
 
   return (
-    <EntityContextMenu dataTestid={EntityClassNames.CONTEXT_MENU}>
+    <EntityContextMenu dataTestId={EntityClassNames.CONTEXT_MENU}>
       <Rename disabled={!canManagePages} pageId={props.pageId} />
       <MenuSeparator />
       <Clone
