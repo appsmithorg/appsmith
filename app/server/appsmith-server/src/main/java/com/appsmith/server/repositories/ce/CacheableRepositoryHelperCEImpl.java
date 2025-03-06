@@ -171,7 +171,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         }
 
         BridgeQuery<Organization> defaultOrganizationCriteria =
-            Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
+                Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultOrganizationCriteria);
 
