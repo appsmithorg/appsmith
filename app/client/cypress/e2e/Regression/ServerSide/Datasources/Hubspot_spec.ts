@@ -20,7 +20,13 @@ const myDsName = "HubspotDS";
 describe(
   "Hubspot Basic Tests",
   {
-    tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl", "@tag.Hubspot"],
+    tags: [
+      "@tag.Datasource",
+      "@tag.Git",
+      "@tag.AccessControl",
+      "@tag.Hubspot",
+      "@tag.excludeForAirgap",
+    ],
   },
   () => {
     it("1. Validate the configuration of Hubspot datasource", () => {

@@ -11,8 +11,6 @@ import java.util.function.Function;
 @Component
 public class ReactorNettyConfiguration implements WebServerFactoryCustomizer<NettyReactiveWebServerFactory> {
 
-    private final CommonConfig commonConfig;
-
     @Override
     public void customize(NettyReactiveWebServerFactory factory) {
         factory.addServerCustomizers(httpServer -> httpServer.metrics(true, Function.identity()));

@@ -69,6 +69,7 @@ const EntityGroup = <T,>({
             group.renderList(item)
           ) : (
             <ListItem
+              dataTestId={`entity-group-item-${(item as ListItemProps)?.title}`}
               key={(item as ListItemProps)?.title || `item-${index}`}
               {...(item as ListItemProps)}
             />
