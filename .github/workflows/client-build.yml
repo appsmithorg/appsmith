@@ -156,7 +156,8 @@ jobs:
           fi
 
       # We burn React environment & the Segment analytics key into the build itself.
-      # This is to ensure that we don't need to configure it in each installation
+      # This is to ensure that we don't need to configure it in each installation.
+      # Client build fails only on errors (EXIT_CODE > 1); warnings (EXIT_CODE <= 1) don’t affect it.
       - name: Create the bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
