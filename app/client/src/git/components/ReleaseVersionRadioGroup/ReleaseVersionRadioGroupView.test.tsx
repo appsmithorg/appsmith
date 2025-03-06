@@ -60,13 +60,11 @@ describe("ReleaseVersionRadioGroupView", () => {
   });
 
   it("should handle null values for latestReleaseVersion and releasedAt", () => {
-    const { getByTestId } = renderComponent({
+    const { queryByTestId } = renderComponent({
       latestReleaseVersion: null,
       releasedAt: null,
     });
 
-    expect(getByTestId("t--git-release-released-at").textContent).toBe(
-      "Last released: - (-)",
-    );
+    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
   });
 });
