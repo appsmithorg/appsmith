@@ -2,27 +2,30 @@ package com.appsmith.server.helpers;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Configuration
+@Getter
+@Setter
 public class InMemoryCacheableRepositoryHelper {
-    @Getter
-    @Setter
-    private static Set<String> anonymousUserPermissionGroupIds = null;
 
-    @Getter
-    @Setter
-    private static String instanceAdminPermissionGroupId = null;
+    private Set<String> anonymousUserPermissionGroupIds = null;
 
-    private static final Map<String, String> inMemoryOrganizationIdOrganizationPermissionGroupIdMap = new HashMap<>();
+    private String defaultOrganizationId = null;
 
-    public static String getOrganizationAdminPermissionGroupId(String organizationId) {
-        return inMemoryOrganizationIdOrganizationPermissionGroupIdMap.get(organizationId);
+    private String instanceAdminPermissionGroupId = null;
+
+    private final Map<String, String> inMemoryOrganizationIdOrganizationPermissionGroupIdMap = new HashMap<>();
+
+    public String getOrganizationAdminPermissionGroupId(String organizationId) {
+        return this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.get(organizationId);
     }
 
-    public static void setOrganizationAdminPermissionGroupId(String organizationId, String permissionGroupId) {
-        inMemoryOrganizationIdOrganizationPermissionGroupIdMap.put(organizationId, permissionGroupId);
+    public void setOrganizationAdminPermissionGroupId(String organizationId, String permissionGroupId) {
+        this.inMemoryOrganizationIdOrganizationPermissionGroupIdMap.put(organizationId, permissionGroupId);
     }
 }

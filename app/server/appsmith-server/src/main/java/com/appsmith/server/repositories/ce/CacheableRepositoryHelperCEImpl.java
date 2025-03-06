@@ -43,6 +43,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final ObservationRegistry observationRegistry;
     private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
     private static String defaultOrganizationId;
+    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.organizationId}")
     @Override
@@ -98,7 +99,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     public Mono<String> getOrganizationAdminPermissionGroupId(String organizationId) {
 
         String organizationAdminPermissionGroupId =
-                InMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(organizationId);
+                inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(organizationId);
         if (hasLength(organizationAdminPermissionGroupId)) {
             return Mono.just(organizationAdminPermissionGroupId);
         }
@@ -119,16 +120,16 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .map(permissionGroup -> permissionGroup.getId())
                 .next()
                 .doOnSuccess(
-                        permissionGroupId -> InMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
+                        permissionGroupId -> inMemoryCacheableRepositoryHelper.setOrganizationAdminPermissionGroupId(
                                 organizationId, permissionGroupId));
     }
 
     @Override
     public Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache() {
-        Set<String> roleIdsForAnonymousUser = InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
+        Set<String> roleIdsForAnonymousUser = inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
 
         if (roleIdsForAnonymousUser != null && !roleIdsForAnonymousUser.isEmpty()) {
-            return Mono.just(InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds());
+            return Mono.just(inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds());
         }
 
         log.debug(
@@ -140,12 +141,12 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .findOne(Query.query(query), Config.class)
                 .map(publicPermissionGroupConfig ->
                         Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
-                .doOnSuccess(InMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
+                .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
     }
 
     @Override
     public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
-        Set<String> roleIdsForAnonymousUser = InMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
+        Set<String> roleIdsForAnonymousUser = inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds();
 
         if (roleIdsForAnonymousUser != null) {
             return Mono.just(roleIdsForAnonymousUser);
