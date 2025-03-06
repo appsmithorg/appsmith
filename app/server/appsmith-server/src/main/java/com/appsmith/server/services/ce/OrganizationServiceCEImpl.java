@@ -14,7 +14,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -75,28 +74,15 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     @Override
     public Mono<String> getCurrentUserOrganizationId() {
-        return ReactiveContextUtils.getCurrentUser()
-                // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
-                //  organization. Update this to get the orgId based on the request origin.
-                .flatMap(user -> StringUtils.hasText(user.getOrganizationId())
-                        ? Mono.just(user.getOrganizationId())
-                        : Mono.empty())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "Unable to find the organizationId for the current user. Falling back to the default organization.");
-                    // If the value exists in cache, return it as is
-                    if (StringUtils.hasLength(defaultOrganizationId)) {
-                        return Mono.just(defaultOrganizationId);
-                    }
-                    return repository
-                            .findBySlug(FieldName.DEFAULT)
-                            .map(Organization::getId)
-                            .map(organizationId -> {
-                                // Set the cache value before returning.
-                                this.defaultOrganizationId = organizationId;
-                                return organizationId;
-                            });
-                }));
+        // If the value exists in cache, return it as is
+        if (StringUtils.hasLength(defaultOrganizationId)) {
+            return Mono.just(defaultOrganizationId);
+        }
+        return repository.findBySlug(FieldName.DEFAULT).map(Organization::getId).map(organizationId -> {
+            // Set the cache value before returning.
+            this.defaultOrganizationId = organizationId;
+            return organizationId;
+        });
     }
 
     @Override

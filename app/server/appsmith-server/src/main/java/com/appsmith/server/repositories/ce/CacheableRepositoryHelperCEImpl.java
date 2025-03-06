@@ -12,7 +12,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import io.micrometer.observation.ObservationRegistry;
@@ -166,29 +165,21 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<String> getCurrentUserOrganizationId() {
+        String defaultOrganizationId = inMemoryCacheableRepositoryHelper.getDefaultOrganizationId();
+        if (defaultOrganizationId != null && !defaultOrganizationId.isEmpty()) {
+            return Mono.just(defaultOrganizationId);
+        }
 
-        return ReactiveContextUtils.getCurrentUser()
-                // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
-                //  organization. Update this to get the orgId based on the request origin.
-                .flatMap(user -> StringUtils.hasText(user.getOrganizationId())
-                        ? Mono.just(user.getOrganizationId())
-                        : Mono.empty())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "Unable to find the organizationId for the current user. Falling back to the default organization.");
-                    // If the value exists in cache, return it as is
-                    if (StringUtils.hasLength(defaultOrganizationId)) {
-                        return Mono.just(defaultOrganizationId);
-                    }
-                    BridgeQuery<Organization> defaultOrganizationCriteria =
-                            Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
-                    Query query = new Query();
-                    query.addCriteria(defaultOrganizationCriteria);
-                    return mongoOperations.findOne(query, Organization.class).map(defaultOrganization -> {
-                        defaultOrganizationId = defaultOrganization.getId();
-                        return defaultOrganizationId;
-                    });
-                }));
+        BridgeQuery<Organization> defaultOrganizationCriteria =
+            Bridge.equal(Organization.Fields.slug, FieldName.DEFAULT);
+        Query query = new Query();
+        query.addCriteria(defaultOrganizationCriteria);
+
+        return mongoOperations.findOne(query, Organization.class).map(defaultOrganization -> {
+            String newDefaultOrganizationId = defaultOrganization.getId();
+            inMemoryCacheableRepositoryHelper.setDefaultOrganizationId(newDefaultOrganizationId);
+            return newDefaultOrganizationId;
+        });
     }
 
     /**
