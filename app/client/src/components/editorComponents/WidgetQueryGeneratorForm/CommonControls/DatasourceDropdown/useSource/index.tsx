@@ -155,6 +155,30 @@ export function useSource(searchText: string) {
     return [...widgetOptions, ...filteredQueryOptions];
   }, [filteredQueryOptions, widgetOptions]);
 
+  const error = useMemo(() => {
+    if (config.datasource) {
+      return "";
+    }
+
+    // DROPDOWN_VARIANT.CONNECT_TO_QUERY acts like query selector for us (we use it in AI widget)
+    // so we need to check if the selected query exists in the queryOptions
+    // if it does not exist, we need to show error that the query is not found
+    if (
+      datasourceDropdownVariant === DROPDOWN_VARIANT.CONNECT_TO_QUERY &&
+      propertyValue
+    ) {
+      const selectedQuery = queryOptions.find(
+        (option) => option.value === propertyValue,
+      );
+
+      if (!selectedQuery) {
+        return `Chat query is required`;
+      }
+    }
+
+    return errorMsg;
+  }, [config.datasource, errorMsg, queryOptions, propertyValue]);
+
   return {
     constants,
     datasourceOptions: filteredDatasourceOptions,
@@ -165,7 +189,7 @@ export function useSource(searchText: string) {
     connectToOptions,
     isSourceOpen,
     onSourceClose,
-    error: config.datasource ? "" : errorMsg,
+    error: error,
     disabled: isConnecting,
   };
 }
