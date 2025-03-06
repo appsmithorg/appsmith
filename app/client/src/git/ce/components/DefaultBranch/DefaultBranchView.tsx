@@ -39,6 +39,10 @@ const SectionDesc = styled(Text)`
 const StyledSelect = styled(Select)`
   width: 240px;
   margin-right: 12px;
+
+  .rc-virtual-list-holder {
+    max-height: 120px !important;
+  }
 `;
 
 const StyledLink = styled(Link)`
