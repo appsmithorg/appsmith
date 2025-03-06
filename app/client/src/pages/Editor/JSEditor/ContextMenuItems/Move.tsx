@@ -41,7 +41,7 @@ export const Move = ({ disabled, jsAction }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger startIcon="swap-horizontal">
+      <MenuSubTrigger disabled={disabled} startIcon="swap-horizontal">
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
