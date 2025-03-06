@@ -462,38 +462,42 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             existingPage.setDeletedAt(newPage.getDeletedAt());
                             existingPage.setPolicies(existingPagePolicy);
                             return newPageService.save(existingPage);
-                        } else {
-                            // check if user has permission to add new page to the application
-                            if (!importingMetaDTO.getPermissionProvider().canCreatePage(application)) {
-                                log.error(
-                                        "User does not have permission to create page in application with id: {}",
-                                        application.getId());
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                        FieldName.APPLICATION,
-                                        application.getId()));
-                            }
-                            if (application.getGitApplicationMetadata() != null) {
-
-                                if (!pagesFromOtherBranches.containsKey(newPage.getGitSyncId())) {
-                                    return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
-                                }
-
-                                NewPage branchedPage = pagesFromOtherBranches.get(newPage.getGitSyncId());
-                                newPage.setBaseId(branchedPage.getBaseId());
-                                newPage.setRefType(importingMetaDTO.getRefType());
-                                newPage.setRefName(importingMetaDTO.getRefName());
-                                newPage.getUnpublishedPage()
-                                        .setDeletedAt(branchedPage
-                                                .getUnpublishedPage()
-                                                .getDeletedAt());
-                                newPage.setDeletedAt(branchedPage.getDeletedAt());
-                                // Set policies from existing branch object
-                                newPage.setPolicies(branchedPage.getPolicies());
-                                return newPageService.save(newPage);
-                            }
-                            return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
                         }
+                        // check if user has permission to add new page to the application
+                        return importingMetaDTO
+                                .getPermissionProvider()
+                                .canCreatePage(application)
+                                .flatMap(canCreatePage -> {
+                                    if (!canCreatePage) {
+                                        log.error(
+                                                "User does not have permission to create page in application with id: {}",
+                                                application.getId());
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                FieldName.APPLICATION,
+                                                application.getId()));
+                                    }
+                                    if (application.getGitApplicationMetadata() != null) {
+
+                                        if (!pagesFromOtherBranches.containsKey(newPage.getGitSyncId())) {
+                                            return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
+                                        }
+
+                                        NewPage branchedPage = pagesFromOtherBranches.get(newPage.getGitSyncId());
+                                        newPage.setBaseId(branchedPage.getBaseId());
+                                        newPage.setRefType(importingMetaDTO.getRefType());
+                                        newPage.setRefName(importingMetaDTO.getRefName());
+                                        newPage.getUnpublishedPage()
+                                                .setDeletedAt(branchedPage
+                                                        .getUnpublishedPage()
+                                                        .getDeletedAt());
+                                        newPage.setDeletedAt(branchedPage.getDeletedAt());
+                                        // Set policies from existing branch object
+                                        newPage.setPolicies(branchedPage.getPolicies());
+                                        return newPageService.save(newPage);
+                                    }
+                                    return saveNewPageAndUpdateBaseId(newPage, importingMetaDTO);
+                                });
                     });
                 })
                 .onErrorResume(error -> {

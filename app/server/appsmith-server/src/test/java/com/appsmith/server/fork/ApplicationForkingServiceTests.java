@@ -610,6 +610,7 @@ public class ApplicationForkingServiceTests {
                 .filter(policy -> !policy.getPermission()
                         .equals(workspacePermission
                                 .getDatasourceCreatePermission()
+                                .block()
                                 .getValue()))
                 .collect(Collectors.toSet());
         targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);

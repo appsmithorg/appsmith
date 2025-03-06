@@ -152,7 +152,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
-        return createEx(datasource, workspacePermission.getDatasourceCreatePermission(), false, null);
+        return workspacePermission
+                .getDatasourceCreatePermission()
+                .flatMap(permission -> createEx(datasource, permission, false, null));
     }
 
     // TODO: Check usage
@@ -880,8 +882,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return repository
-                .findById(id, datasourcePermission.getDeletePermission())
+        return datasourcePermission
+                .getDeletePermission()
+                .flatMap(permission -> repository.findById(id, permission))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))

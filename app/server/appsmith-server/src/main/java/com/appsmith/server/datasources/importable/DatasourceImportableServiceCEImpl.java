@@ -301,43 +301,47 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 .filter(ds -> ds.getName().equals(datasourceStorage.getName())
                         && datasourceStorage.getPluginId().equals(ds.getPluginId()))
                 .next() // Get the first matching datasource, we don't need more than one here.
-                .switchIfEmpty(Mono.defer(() -> {
-                    // check if user has permission to create datasource
-                    if (!permissionProvider.canCreateDatasource(workspace)) {
-                        log.error(
-                                "Unauthorized to create datasource: {} in workspace: {}",
-                                datasourceStorage.getName(),
-                                workspace.getName());
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                FieldName.DATASOURCE,
-                                datasourceStorage.getName()));
-                    }
+                .switchIfEmpty(Mono.defer(
+                        () -> permissionProvider.canCreateDatasource(workspace).flatMap(canCreateDatasource -> {
+                            // check if user has permission to create datasource
+                            if (!canCreateDatasource) {
+                                log.error(
+                                        "Unauthorized to create datasource: {} in workspace: {}",
+                                        datasourceStorage.getName(),
+                                        workspace.getName());
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE,
+                                        datasourceStorage.getName()));
+                            }
 
-                    if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-                        datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
-                    }
-                    // No matching existing datasource found, so create a new one.
-                    datasourceStorage.setIsConfigured(
-                            datasourceConfig != null && datasourceConfig.getAuthentication() != null);
-                    datasourceStorage.setEnvironmentId(environmentId);
+                            if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+                                datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
+                            }
+                            // No matching existing datasource found, so create a new one.
+                            datasourceStorage.setIsConfigured(
+                                    datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                            datasourceStorage.setEnvironmentId(environmentId);
 
-                    return datasourceService
-                            .findByNameAndWorkspaceId(datasourceStorage.getName(), workspace.getId(), null)
-                            .flatMap(duplicateNameDatasource ->
-                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspace.getId()))
-                            .map(dsName -> {
-                                datasourceStorage.setName(datasourceStorage.getName() + dsName);
+                            return datasourceService
+                                    .findByNameAndWorkspaceId(datasourceStorage.getName(), workspace.getId(), null)
+                                    .flatMap(duplicateNameDatasource -> getUniqueSuffixForDuplicateNameEntity(
+                                            duplicateNameDatasource, workspace.getId()))
+                                    .map(dsName -> {
+                                        datasourceStorage.setName(datasourceStorage.getName() + dsName);
 
-                                return datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage);
-                            })
-                            .switchIfEmpty(Mono.just(
-                                    datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage)))
-                            // DRY RUN queries are not saved, so we need to create them separately at the import service
-                            // solution
-                            .flatMap(datasource -> datasourceService.createWithoutPermissions(
-                                    datasource, mappedImportableResourcesDTO.getDatasourceStorageDryRunQueries()));
-                }))
+                                        return datasourceService.createDatasourceFromDatasourceStorage(
+                                                datasourceStorage);
+                                    })
+                                    .switchIfEmpty(Mono.just(
+                                            datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage)))
+                                    // DRY RUN queries are not saved, so we need to create them separately at the import
+                                    // service
+                                    // solution
+                                    .flatMap(datasource -> datasourceService.createWithoutPermissions(
+                                            datasource,
+                                            mappedImportableResourcesDTO.getDatasourceStorageDryRunQueries()));
+                        })))
                 .onErrorResume(throwable -> {
                     log.error("failed to import datasource", throwable);
                     return Mono.error(throwable);

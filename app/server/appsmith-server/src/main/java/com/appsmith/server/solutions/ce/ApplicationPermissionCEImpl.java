@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, DomainPermissionCE {
@@ -32,8 +33,8 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     }
 
     @Override
-    public AclPermission getDeletePermission() {
-        return AclPermission.MANAGE_APPLICATIONS;
+    public Mono<AclPermission> getDeletePermission() {
+        return Mono.just(AclPermission.MANAGE_APPLICATIONS);
     }
 
     @Override
@@ -47,8 +48,8 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     }
 
     @Override
-    public AclPermission getPageCreatePermission() {
-        return AclPermission.MANAGE_APPLICATIONS;
+    public Mono<AclPermission> getPageCreatePermission() {
+        return Mono.just(AclPermission.MANAGE_APPLICATIONS);
     }
 
     @Override

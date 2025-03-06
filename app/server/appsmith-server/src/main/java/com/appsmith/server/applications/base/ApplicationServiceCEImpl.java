@@ -593,10 +593,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         // the same level in the hierarchy. A user may have permission to change view on application, but
         // may not have explicit permissions on the datasource.
         Mono<Void> updatedDatasourcesMono = datasourceIdsMono
-                .flatMapMany(datasourceIds -> {
-                    return policySolution.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
-                            datasourceIds, datasourcePolicyMap, addViewAccess);
-                })
+                .flatMapMany(datasourceIds ->
+                        policySolution.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
+                                datasourceIds, datasourcePolicyMap, addViewAccess))
                 .then();
 
         list.add(updatedDatasourcesMono);

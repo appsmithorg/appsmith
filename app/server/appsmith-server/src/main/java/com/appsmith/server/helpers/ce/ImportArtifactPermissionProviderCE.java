@@ -16,6 +16,7 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
@@ -116,24 +117,28 @@ public class ImportArtifactPermissionProviderCE {
         return hasPermission(datasourcePermission.getEditPermission(), datasource);
     }
 
-    public boolean canCreatePage(Application application) {
+    public Mono<Boolean> canCreatePage(Application application) {
         if (!permissionRequiredToCreatePage) {
-            return true;
+            return Mono.just(true);
         }
-        return hasPermission(((ApplicationPermission) artifactPermission).getPageCreatePermission(), application);
+        return ((ApplicationPermission) artifactPermission)
+                .getPageCreatePermission()
+                .map(permission -> hasPermission(permission, application));
     }
 
-    public boolean canCreateAction(NewPage page) {
+    public Mono<Boolean> canCreateAction(NewPage page) {
         if (!permissionRequiredToCreateAction) {
-            return true;
+            return Mono.just(true);
         }
-        return hasPermission(contextPermission.getActionCreatePermission(), page);
+        return contextPermission.getActionCreatePermission().map(permission -> hasPermission(permission, page));
     }
 
-    public boolean canCreateDatasource(Workspace workspace) {
+    public Mono<Boolean> canCreateDatasource(Workspace workspace) {
         if (!permissionRequiredToCreateDatasource) {
-            return true;
+            return Mono.just(true);
         }
-        return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
+        return workspacePermission
+                .getDatasourceCreatePermission()
+                .map(permission -> hasPermission(permission, workspace));
     }
 }

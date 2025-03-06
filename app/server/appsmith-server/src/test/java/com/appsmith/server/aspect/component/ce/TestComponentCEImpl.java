@@ -27,13 +27,17 @@ public class TestComponentCEImpl implements TestComponentCE {
     }
 
     @Override
-    public String ceEeSyncMethod(String arg) {
-        return arg + "ce_impl_method";
+    public Mono<String> ceEeSyncMethod(String arg) {
+        return Mono.just(arg + "ce_impl_method");
     }
 
     @Override
-    public void ceEeThrowAppsmithException(String arg) {}
+    public Mono<Void> ceEeThrowAppsmithException(String arg) {
+        return Mono.empty();
+    }
 
     @Override
-    public void ceEeThrowNonAppsmithException(String arg) {}
+    public Mono<Void> ceEeThrowNonAppsmithException(String arg) {
+        return Mono.empty();
+    }
 }
