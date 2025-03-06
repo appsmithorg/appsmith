@@ -21,7 +21,7 @@ const useBlockExecution = () => {
   // this gets the url of the current action's datasource
   const actionDatasourceUrl =
     action.datasource.datasourceConfiguration?.url || "";
-  const actionDatasourceUrlPath = action.actionConfiguration.path || "";
+  const actionDatasourceUrlPath = action.actionConfiguration?.path || "";
   // this gets the name of the current action's datasource
   const actionDatasourceName = action.datasource.name || "";
 
