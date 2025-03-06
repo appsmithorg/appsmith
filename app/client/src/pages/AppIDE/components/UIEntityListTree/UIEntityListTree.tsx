@@ -18,6 +18,7 @@ export const UIEntityListTree = () => {
     name: widget.widgetName,
     isSelected: selectedWidgets.includes(widget.widgetId),
     isExpanded: expandedWidgets.includes(widget.widgetId),
+    type: widget.type,
   }));
 
   return (

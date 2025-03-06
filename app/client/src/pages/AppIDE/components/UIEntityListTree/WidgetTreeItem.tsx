@@ -68,8 +68,8 @@ export const WidgetTreeItem = ({ item }: { item: EntityListTreeItem }) => {
   );
 
   const startIcon = useMemo(
-    () => <WidgetTypeIcon type={widget?.type} />,
-    [widget?.type],
+    () => <WidgetTypeIcon type={item.type} />,
+    [item.type],
   );
 
   const onClick = useCallback(
