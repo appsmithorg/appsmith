@@ -29,6 +29,7 @@ export { TableThumbnail } from "./components/Thumbnails/TableThumbnail";
 export { ToolbarButtonsThumbnail } from "./components/Thumbnails/ToolbarButtonsThumbnail";
 export { ZoneThumbnail } from "./components/Thumbnails/ZoneThumbnail";
 export { AIAvatarCustomIcon } from "./components/CustomIcons/AIAvatarCustomIcon";
+export { EmptyStateIllustrationCustomIcon } from "./components/CustomIcons/EmptyStateIllustrationCustomIcon";
 export { AIChatIcon } from "./components/Icons/AIChatIcon";
 export { AudioIcon } from "./components/Icons/AudioIcon";
 export { ButtonIcon } from "./components/Icons/ButtonIcon";

@@ -40,7 +40,7 @@ public class CacheableRepositoryTest {
     @BeforeEach()
     public void setup() {
         User api_user = userRepository.findByEmail("api_user").block();
-        userUtils.makeSuperUser(List.of(api_user)).block();
+        userUtils.makeInstanceAdministrator(List.of(api_user)).block();
     }
 
     @Test

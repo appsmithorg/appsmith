@@ -8,7 +8,8 @@ import {
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 interface Props {
-  children?: React.ReactNode[] | React.ReactNode;
+  children: React.ReactNode[] | React.ReactNode;
+  dataTestId?: string;
 }
 
 const EntityContextMenu = (props: Props) => {
@@ -26,7 +27,7 @@ const EntityContextMenu = (props: Props) => {
           >
             <Button
               className={EntityClassNames.CONTEXT_MENU}
-              data-testid="t--more-action-trigger"
+              data-testid={props.dataTestId}
               isIconButton
               kind="tertiary"
               startIcon="more-2-fill"
