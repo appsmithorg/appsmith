@@ -31,7 +31,7 @@ export const Copy = ({ action, disabled }: Props) => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger startIcon="duplicate">
+      <MenuSubTrigger disabled={disabled} startIcon="duplicate">
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
       <MenuSubContent style={{ maxHeight: "350px" }} width="220px">
