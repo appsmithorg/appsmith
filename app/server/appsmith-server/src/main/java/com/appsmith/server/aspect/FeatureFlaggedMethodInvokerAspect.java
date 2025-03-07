@@ -15,11 +15,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 @RequiredArgsConstructor
 @Aspect
@@ -64,9 +66,23 @@ public class FeatureFlaggedMethodInvokerAspect {
         } else if (Flux.class.isAssignableFrom(returnType)) {
             return featureFlagMono.flatMapMany(isSupported -> (Flux<?>) invokeMethod(isSupported, joinPoint, method));
         }
+
+        // For supporting non-reactive methods with feature flagging annotation we need to extract organizationId from
+        // method arguments and then check if the feature flag is enabled for that organization. This hampers the code
+        // readability so avoid non-reactive methods for @FeatureFlagged unless the method is getting called from server
+        // internal flows where the user context is not provided.
+        String organizationId = extractOrganizationId(joinPoint.getArgs(), method.getParameters());
+
+        if (!StringUtils.hasLength(organizationId)) {
+            String errorMessage =
+                    "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods";
+            AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
+            log.error(exception.getMessage());
+            throw exception;
+        }
         // For non-reactive methods with feature flagging annotation we will be using the in memory feature flag cache
         // which is getting updated whenever the organization feature flags are updated.
-        return invokeMethod(isFeatureFlagEnabled(flagName), joinPoint, method);
+        return invokeMethod(isFeatureFlagEnabled(flagName, organizationId), joinPoint, method);
     }
 
     private Object invokeMethod(Boolean isFeatureSupported, ProceedingJoinPoint joinPoint, Method method) {
@@ -106,10 +122,26 @@ public class FeatureFlaggedMethodInvokerAspect {
                 error);
     }
 
-    boolean isFeatureFlagEnabled(FeatureFlagEnum flagName) {
-        CachedFeatures cachedFeatures = featureFlagService.getCachedOrganizationFeatureFlags();
+    boolean isFeatureFlagEnabled(FeatureFlagEnum flagName, String organizationId) {
+        CachedFeatures cachedFeatures = featureFlagService.getCachedOrganizationFeatureFlags(organizationId);
         return cachedFeatures != null
                 && !CollectionUtils.isNullOrEmpty(cachedFeatures.getFeatures())
                 && Boolean.TRUE.equals(cachedFeatures.getFeatures().get(flagName.name()));
+    }
+
+    private String extractOrganizationId(Object[] args, Parameter[] parameters) {
+        if (args == null || parameters == null || args.length != parameters.length) {
+            return null;
+        }
+
+        // First try to find parameter named exactly "organizationId" or "orgId"
+        for (int i = 0; i < parameters.length; i++) {
+            String paramName = parameters[i].getName();
+            if ((paramName.equals("organizationId") || paramName.equals("orgId")) && args[i] instanceof String) {
+                return (String) args[i];
+            }
+        }
+
+        return null;
     }
 }
