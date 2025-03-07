@@ -12,8 +12,18 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
+import { PopoutEditor } from "components/editorComponents/CodeEditor/PopoutEditor/PopoutEditor";
+import { Flex } from "@appsmith/ads";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
+  state = {
+    popOutVisible: false,
+  };
+
+  onExpanded = () => {
+    this.setState({ popOutVisible: true });
+  };
+
   render() {
     const {
       controlConfig,
@@ -33,20 +43,51 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (expected) props.expected = expected;
 
     return (
-      <LazyCodeEditor
-        additionalDynamicData={this.props.additionalAutoComplete}
-        hinting={[bindingHintHelper, slashCommandHintHelper]}
-        input={{ value: propertyValue, onChange: this.onChange }}
-        maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
-        mode={EditorModes.TEXT_WITH_BINDING}
-        positionCursorInsideBinding
-        size={EditorSize.EXTENDED}
-        tabBehaviour={TabBehaviour.INDENT}
-        theme={this.props.theme}
-        useValidationMessage={useValidationMessage}
-        {...props}
-        AIAssisted
-      />
+      <div className="relative">
+        {this.state.popOutVisible ? (
+          <Flex
+            alignItems="center"
+            bg="var(--ads-v2-color-black-400)"
+            border="1px solid var(--ads-v2-color-border)"
+            borderRadius="var(--ads-v2-border-radius)"
+            h="36px"
+            justifyContent="center"
+            w="100%"
+          >
+            <p className="text-sm font-medium">Expanded</p>
+          </Flex>
+        ) : (
+          <LazyCodeEditor
+            additionalDynamicData={this.props.additionalAutoComplete}
+            hinting={[bindingHintHelper, slashCommandHintHelper]}
+            input={{ value: propertyValue, onChange: this.onChange }}
+            isExpanded={this.state.popOutVisible}
+            maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
+            mode={EditorModes.TEXT_WITH_BINDING}
+            onExpandTriggerClick={this.onExpanded}
+            positionCursorInsideBinding
+            showExpandTrigger
+            showLightningMenu={false}
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={this.props.theme}
+            useValidationMessage={useValidationMessage}
+            {...props}
+            AIAssisted
+          />
+        )}
+        {this.state.popOutVisible && (
+          <PopoutEditor
+            {...props}
+            label={this.props.propertyName}
+            onChange={this.onChange}
+            onClose={() => this.setState({ popOutVisible: false })}
+            theme={this.props.theme}
+            value={this.props.propertyValue}
+            widgetName={this.props.widgetProperties.widgetName}
+          />
+        )}
+      </div>
     );
   }
 
