@@ -151,16 +151,17 @@ class FeatureFlaggedMethodInvokerAspectTest {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
         Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags("organizationId"))
-            .thenReturn(cachedFeatures);
+                .thenReturn(cachedFeatures);
         try {
             testComponent.ceEeSyncMethodWithoutOrganization("arg_");
         } catch (AppsmithException e) {
-            assertEquals(AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
-                FeatureFlagged.class.getSimpleName(),
-                "TestComponentImpl",
-                "ceEeSyncMethodWithoutOrganization",
-                "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods"
-            ), e.getMessage());
+            assertEquals(
+                    AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
+                            FeatureFlagged.class.getSimpleName(),
+                            "TestComponentImpl",
+                            "ceEeSyncMethodWithoutOrganization",
+                            "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods"),
+                    e.getMessage());
         }
     }
 }
