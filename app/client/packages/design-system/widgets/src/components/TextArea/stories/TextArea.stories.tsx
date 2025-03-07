@@ -72,3 +72,9 @@ export const Validation: Story = {
     </Form>
   ),
 };
+
+export const MaxHeight: Story = {
+  args: {
+    maxRows: 8,
+  },
+};

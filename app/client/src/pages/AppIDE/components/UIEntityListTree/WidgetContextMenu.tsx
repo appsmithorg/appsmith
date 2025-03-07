@@ -23,6 +23,8 @@ import {
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import clsx from "clsx";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;
@@ -87,6 +89,7 @@ export const WidgetContextMenu = (props: {
     editWidgetName,
     showBinding,
     widget?.isDeletable,
+    widgetId,
   ]);
 
   return (
@@ -101,7 +104,10 @@ export const WidgetContextMenu = (props: {
       </MenuTrigger>
       <MenuContent
         align="start"
-        className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+        className={clsx(
+          "t--entity-context-menu",
+          EntityClassNames.CONTEXT_MENU_CONTENT,
+        )}
         key={widgetId}
         side="right"
         width="300px"

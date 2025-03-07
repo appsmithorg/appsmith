@@ -20,6 +20,7 @@ import { jsCollectionIdURL } from "ee/RouteBuilder";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { AppJSContextMenuItems } from "./AppJSContextMenuItems";
 import type { EntityItem as EntityItemProps } from "ee/IDE/Interfaces/EntityItem";
+import clsx from "clsx";
 
 export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   const jsAction = useSelector((state: AppState) =>
@@ -37,15 +38,17 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
     entityName: item.title,
   });
   const dispatch = useDispatch();
-  const contextMenu = useMemo(
-    () =>
-      !Boolean(jsAction?.isMainJSCollection) ? (
-        <EntityContextMenu dataTestId="t--entity-context-menu-trigger">
-          <AppJSContextMenuItems jsAction={jsAction} />
-        </EntityContextMenu>
-      ) : null,
-    [jsAction],
-  );
+  const contextMenu = useMemo(() => {
+    if (Boolean(jsAction.isMainJSCollection)) {
+      return null;
+    }
+
+    return (
+      <EntityContextMenu>
+        <AppJSContextMenuItems jsAction={jsAction} />
+      </EntityContextMenu>
+    );
+  }, [jsAction]);
 
   const jsActionPermissions = jsAction.userPermissions || [];
 
@@ -79,7 +82,7 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
         invokedBy: NavigationMethod.EntityExplorer,
       });
     }
-  }, [parentEntityId, jsAction.baseId, jsAction.name, location.pathname]);
+  }, [jsAction.baseId, jsAction.name, location.pathname, navigateToUrl]);
 
   const nameEditorConfig = useMemo(() => {
     return {
@@ -94,18 +97,19 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
   }, [
     canEdit,
     editingEntity,
-    exitEditMode,
-    ideType,
-    item.title,
     jsAction.id,
-    dispatch,
     updatingEntity,
+    exitEditMode,
+    dispatch,
+    ideType,
     validateName,
   ]);
 
   return (
     <EntityItem
-      className={`t--jsaction ${canEdit ? "editable" : ""}`}
+      className={clsx("t--jsaction", {
+        editable: canEdit,
+      })}
       id={jsAction.id}
       isSelected={activeActionBaseId === item.key}
       key={jsAction.id}

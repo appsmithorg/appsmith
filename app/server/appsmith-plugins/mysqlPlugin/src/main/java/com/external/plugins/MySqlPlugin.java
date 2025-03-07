@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -161,6 +162,11 @@ public class MySqlPlugin extends BasePlugin {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final ConnectionPoolConfig connectionPoolConfig;
+
+        public MySqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+            this.connectionPoolConfig = connectionPoolConfig;
+        }
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -668,9 +674,12 @@ public class MySqlPlugin extends BasePlugin {
                 try {
                     connectionContext = getConnectionContext(
                             datasourceConfiguration, CONNECTION_METHOD_INDEX, MYSQL_DEFAULT_PORT, ConnectionPool.class);
-                    ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
-                    connectionContext.setConnection(pool);
-                    return Mono.just(connectionContext);
+                    return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> {
+                        ConnectionPool pool =
+                                getNewConnectionPool(datasourceConfiguration, connectionContext, maxPoolSize);
+                        connectionContext.setConnection(pool);
+                        return Mono.just(connectionContext);
+                    });
                 } catch (AppsmithPluginException e) {
                     return Mono.error(e);
                 }

@@ -7,12 +7,11 @@ import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import PageContextMenu from "./PageContextMenu";
+import { ContextMenu } from "./ContextMenu";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { AppState } from "ee/reducers";
@@ -26,7 +25,7 @@ import { useNameEditorState } from "IDE/hooks/useNameEditorState";
 import { useValidateEntityName } from "IDE";
 import { noop } from "lodash";
 
-const PageElement = ({
+export const PageEntity = ({
   onClick,
   page,
 }: {
@@ -99,19 +98,30 @@ const PageElement = ({
     }
   }, [location.pathname, navigateToUrl, dispatch, page.pageName, onClick]);
 
-  const contextMenu = (
-    <PageContextMenu
-      applicationId={applicationId as string}
-      className={EntityClassNames.CONTEXT_MENU}
-      hasExportPermission={hasExportPermission}
-      isCurrentPage={isCurrentPage}
-      isDefaultPage={page.isDefault}
-      isHidden={!!page.isHidden}
-      key={page.pageId + "_context-menu"}
-      name={page.pageName}
-      onItemSelected={onClick}
-      pageId={page.pageId}
-    />
+  const contextMenu = useMemo(
+    () => (
+      <ContextMenu
+        applicationId={applicationId as string}
+        hasExportPermission={hasExportPermission}
+        isCurrentPage={isCurrentPage}
+        isDefaultPage={page.isDefault}
+        isHidden={!!page.isHidden}
+        key={page.pageId + "_context-menu"}
+        onItemSelected={onClick}
+        pageId={page.pageId}
+        pageName={page.pageName}
+      />
+    ),
+    [
+      applicationId,
+      hasExportPermission,
+      isCurrentPage,
+      page.isDefault,
+      page.isHidden,
+      page.pageId,
+      page.pageName,
+      onClick,
+    ],
   );
 
   const nameEditorConfig = useMemo(() => {
@@ -158,5 +168,3 @@ const PageElement = ({
     />
   );
 };
-
-export { PageElement };

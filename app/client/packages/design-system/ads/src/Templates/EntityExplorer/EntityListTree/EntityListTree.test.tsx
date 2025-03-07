@@ -21,6 +21,7 @@ const defaultProps: EntityListTreeProps = {
       isSelected: false,
       isDisabled: false,
       name: "Parent 1",
+      type: "CONTAINER_WIDGET",
       children: [
         {
           id: "1-1",
@@ -29,6 +30,7 @@ const defaultProps: EntityListTreeProps = {
           isDisabled: false,
           name: "Child 1.1",
           children: [],
+          type: "TABLE_WIDGET",
         },
       ],
     },
@@ -61,6 +63,7 @@ describe("EntityListTree", () => {
           isDisabled: false,
           name: "No Children Parent",
           children: [],
+          type: "TABLE_WIDGET",
         },
       ],
     };
@@ -84,6 +87,7 @@ describe("EntityListTree", () => {
           isSelected: false,
           isDisabled: false,
           name: "Parent 1",
+          type: "CONTAINER_WIDGET",
           children: [
             {
               id: "1-1",
@@ -92,6 +96,7 @@ describe("EntityListTree", () => {
               isDisabled: false,
               name: "Child 1.1",
               children: [],
+              type: "TABLE_WIDGET",
             },
           ],
         },

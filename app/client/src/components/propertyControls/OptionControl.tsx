@@ -10,6 +10,7 @@ class OptionControl extends BaseControl<ControlProps> {
   render() {
     return (
       <KeyValueComponent
+        allowEmpty={this.props.controlConfig?.allowEmpty as boolean}
         pairs={this.props.propertyValue}
         updatePairs={this.updateOptions}
       />

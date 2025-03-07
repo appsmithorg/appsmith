@@ -75,6 +75,8 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   );
   const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
+  const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
+
   const switchToAction = useCallback(() => {
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
@@ -105,11 +107,12 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   }, [
     canManageAction,
     editingEntity,
-    exitEditMode,
-    ideType,
-    item.title,
     action.id,
     updatingEntity,
+    exitEditMode,
+    dispatch,
+    ideType,
+    validateName,
   ]);
 
   return (

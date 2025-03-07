@@ -15,7 +15,7 @@ import * as Styled from "./EntityContextMenu.styles";
 
 interface Props {
   dataTestId?: string;
-  children?: React.ReactNode[] | React.ReactNode;
+  children: React.ReactNode[] | React.ReactNode;
   tooltipContent?: React.ReactNode;
 }
 

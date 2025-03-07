@@ -16,7 +16,7 @@ import AddPageContextMenu from "./AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/organizationSelectors";
-import { PageElement } from "./PageElement";
+import { PageList } from "./PageList";
 import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
@@ -51,14 +51,6 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
 
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
-  const pageElements = useMemo(
-    () =>
-      pages.map((page) => (
-        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
-      )),
-    [pages, onItemSelected],
-  );
-
   const createPageContextMenu = useMemo(() => {
     if (!canCreatePages) return null;
 
@@ -87,7 +79,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       headerText={`All Pages (${pages.length})`}
       maxHeight={"300px"}
     >
-      {pageElements}
+      <PageList onItemSelected={onItemSelected} pages={pages} />
     </ListWithHeader>
   );
 };

@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { Spinner, Tooltip, type TooltipProps } from "../..";
+import { Spinner } from "../../Spinner";
+import { Tooltip } from "../../Tooltip";
 import { useEditableText } from "../../__hooks__";
 
 import * as Styled from "./EditableEntityName.styles";
 
 import type { EditableEntityNameProps } from "./EditableEntityName.types";
+import clsx from "clsx";
 
 export const isEllipsisActive = (element: HTMLElement | null) => {
   return element && element.clientWidth < element.scrollWidth;
@@ -20,7 +22,7 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
     isFixedWidth,
     isLoading,
     name,
-    normalizeName = false,
+    normalizeName = true,
     onExitEditing,
     onNameSave,
     showEllipsis = false,
@@ -67,64 +69,55 @@ export const EditableEntityName = (props: EditableEntityNameProps) => {
         paddingTop: "4px",
         paddingBottom: "4px",
         top: "-5px",
+        placeholder: "Name",
       },
       placeholder: "Name",
     }),
     [handleKeyUp, handleTitleChange, inputTestId],
   );
 
-  useEffect(() => {
-    if (showEllipsis) {
-      setShowTooltip(!!isEllipsisActive(longNameRef.current));
-    }
-  }, [editableName]);
-
-  const tooltipProps: TooltipProps = useMemo(
-    () =>
-      validationError
-        ? {
-            content: validationError,
-            placement: "bottom",
-            visible: Boolean(validationError),
-            isDisabled: false,
-            mouseEnterDelay: 0,
-            showArrow: true,
-          }
-        : {
-            content: name,
-            placement: "topLeft",
-            isDisabled: !showTooltip,
-            mouseEnterDelay: 1,
-            showArrow: false,
-            ...(!showTooltip ? { visible: false } : {}),
-          },
-    [name, showTooltip, validationError],
+  useEffect(
+    function handleShowTooltipOnEllipsis() {
+      if (showEllipsis) {
+        setShowTooltip(!!isEllipsisActive(longNameRef.current));
+      }
+    },
+    [editableName, showEllipsis],
   );
 
   return (
     <Styled.Root data-size={size}>
       {startIcon}
       <Tooltip
-        content={tooltipProps.content}
-        isDisabled={tooltipProps.isDisabled}
-        mouseEnterDelay={tooltipProps.mouseEnterDelay}
-        placement={tooltipProps.placement}
-        showArrow={tooltipProps.showArrow}
-        {...(tooltipProps.visible ? { visible: tooltipProps.visible } : {})}
+        content={name}
+        isDisabled={!showTooltip}
+        key="entity-name"
+        mouseEnterDelay={1}
+        placement="topLeft"
+        showArrow={false}
       >
-        <Styled.Text
-          aria-invalid={Boolean(validationError)}
-          className={`t--entity-name ${inEditMode ? "editing" : ""}`}
-          data-isediting={inEditMode}
-          data-isfixedwidth={isFixedWidth}
-          inputProps={inputProps}
-          inputRef={inputRef}
-          isEditable={inEditMode}
-          kind={size === "small" ? "body-s" : "body-m"}
-          ref={showEllipsis ? longNameRef : null}
+        <Tooltip
+          content={validationError}
+          isDisabled={false}
+          mouseEnterDelay={0}
+          placement="bottom"
+          showArrow
+          visible={Boolean(validationError)}
         >
-          {editableName}
-        </Styled.Text>
+          <Styled.Text
+            aria-invalid={Boolean(validationError)}
+            className={clsx("t--entity-name", { editing: inEditMode })}
+            data-isediting={inEditMode}
+            data-isfixedwidth={isFixedWidth}
+            inputProps={inputProps}
+            inputRef={inputRef}
+            isEditable={inEditMode}
+            kind={size === "small" ? "body-s" : "body-m"}
+            ref={showEllipsis ? longNameRef : null}
+          >
+            {editableName}
+          </Styled.Text>
+        </Tooltip>
       </Tooltip>
     </Styled.Root>
   );

@@ -1,14 +1,14 @@
-import { groupBy, sortBy } from "lodash";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
+import { groupBy, sortBy } from "lodash";
 
-export type EditorSegmentList = Array<{
+export type EditorSegmentList<T> = Array<{
   group: string | "NA";
-  items: EntityItem[];
+  items: T[];
 }>;
 
-export const groupAndSortEntitySegmentList = (
-  items: EntityItem[],
-): EditorSegmentList => {
+export const groupAndSortEntitySegmentList = <T extends EntityItem>(
+  items: T[],
+): EditorSegmentList<T> => {
   const groups = groupBy(items, (item) => {
     if (item.group) return item.group;
 
