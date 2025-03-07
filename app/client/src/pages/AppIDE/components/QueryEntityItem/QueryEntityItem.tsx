@@ -73,7 +73,6 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     action.pluginType,
     pluginGroups[action.pluginId],
   );
-  const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
