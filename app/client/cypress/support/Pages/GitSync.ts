@@ -88,6 +88,7 @@ export class GitSync {
     repoLimitErrorModalDisconnectLink:
       "[data-testid='t--git-repo-limit-error-disconnect-link']",
     deployMenuConnect: "[data-testid='t--git-deploy-menu-connect']",
+    createNewBranchButton: ".t--create-new-branch-button",
   };
 
   public OpenConnectModal() {
@@ -535,5 +536,30 @@ export class GitSync {
       .then((searchParams) => new URLSearchParams(searchParams))
       .invoke("get", "branch")
       .should("equal", branch);
+  }
+
+  public verifyNoDuplicateBranch(branch = "br") {
+    this.agHelper.AssertElementVisibility(this.locators.quickActionsPullBtn);
+    this.agHelper.AssertElementExist(this.locators.quickActionsCommitBtn);
+    cy.waitUntil(
+      () => {
+        this.agHelper.GetNClick(this.locators.quickActionsBranchBtn, 0, true);
+        if (this.agHelper.IsElementVisible(this.locators.branchSearchInput)) {
+          return true; //visible, return true to stop waiting
+        }
+        return false; //not visible, return false to continue waiting
+      },
+      { timeout: Cypress.config("pageLoadTimeout") },
+    );
+    cy.get("@guid").then((uid) => {
+      this.agHelper.TypeText(
+        this.locators.branchSearchInput,
+        `{selectall}` + `${branch + uid}`,
+        { parseSpecialCharSeq: true },
+      );
+    });
+
+    this.agHelper.AssertElementAbsence(this.locators.createNewBranchButton);
+    this.agHelper.GetNClick(this.locators.branchCloseBtn);
   }
 }
