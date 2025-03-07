@@ -51,37 +51,39 @@ interface MetaWidgetPropertyUpdate {
 
 export const initialState: MetaWidgetsReduxState = {};
 
-const metaWidgetsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.MODIFY_META_WIDGETS]: (
-    state: MetaWidgetsReduxState,
-    action: ReduxAction<ModifyMetaWidgetPayload>,
-  ) => {
-    const { addOrUpdate, creatorId, deleteIds, propertyUpdates } =
-      action.payload;
+const modifyMetaWidgets = (
+  state: MetaWidgetsReduxState,
+  action: ReduxAction<ModifyMetaWidgetPayload>,
+) => {
+  const { addOrUpdate, creatorId, deleteIds, propertyUpdates } = action.payload;
 
-    if (addOrUpdate) {
-      Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
-        state[metaWidgetId] = { ...widgetProps };
-        state[metaWidgetId].isMetaWidget = true;
-        state[metaWidgetId].creatorId = creatorId;
-      });
+  if (addOrUpdate) {
+    Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
+      state[metaWidgetId] = { ...widgetProps };
+      state[metaWidgetId].isMetaWidget = true;
+      state[metaWidgetId].creatorId = creatorId;
+    });
+  }
+
+  deleteIds.forEach((deleteId) => {
+    if (state[deleteId]?.creatorId === creatorId) {
+      delete state[deleteId];
     }
+  });
 
-    deleteIds.forEach((deleteId) => {
-      if (state[deleteId]?.creatorId === creatorId) {
-        delete state[deleteId];
-      }
-    });
+  (propertyUpdates || []).forEach(({ path, value }) => {
+    const [widgetId, ...propertyPathChunks] = split(path, ".");
+    const propertyPath = propertyPathChunks.join(".");
 
-    (propertyUpdates || []).forEach(({ path, value }) => {
-      const [widgetId, ...propertyPathChunks] = split(path, ".");
-      const propertyPath = propertyPathChunks.join(".");
+    set(state[widgetId], propertyPath, value);
+  });
 
-      set(state[widgetId], propertyPath, value);
-    });
+  return state;
+};
 
-    return state;
-  },
+const metaWidgetsReducer = createImmerReducer(initialState, {
+  [ReduxActionTypes.MODIFY_META_WIDGETS]: modifyMetaWidgets,
+  [ReduxActionTypes.MODIFY_META_WIDGETS_WITHOUT_EVAL]: modifyMetaWidgets,
   [ReduxActionTypes.DELETE_META_WIDGETS]: (
     state: MetaWidgetsReduxState,
     action: ReduxAction<DeleteMetaWidgetsPayload>,
