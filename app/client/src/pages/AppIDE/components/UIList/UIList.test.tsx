@@ -93,7 +93,7 @@ describe("Widget List in Explorer tests", () => {
     const widgetsTree: Element = await component.findByText(
       children[0].widgetName,
       {
-        selector: "span.t--entity-name",
+        selector: "div.t--entity-name",
       },
       { timeout: 3000 },
     );
@@ -346,8 +346,8 @@ describe("Widget List in Explorer tests", () => {
 
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const collapsible: any = component.getByTestId(
-        `t--entity-collapse-toggle`,
+      const collapsible: any = component.container.querySelector(
+        `.t--entity-collapse-toggle[id="arrow-right-s-line"]`,
       );
 
       fireEvent.click(collapsible);
