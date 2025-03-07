@@ -38,7 +38,7 @@ import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { Page } from "entities/Page";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
-import { AppIDEModals } from "ee/pages/IDE/components/AppIDEModals";
+import { AppIDEModals } from "ee/pages/AppIDE/components/AppIDEModals";
 
 interface EditorProps {
   currentApplicationId?: string;
