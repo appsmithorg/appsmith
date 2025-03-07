@@ -571,8 +571,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
-                return repository
-                        .findById(workspaceId, workspacePermission.getDeletePermission())
+                return workspacePermission
+                        .getDeletePermission()
+                        .flatMap(permission -> repository.findById(workspaceId, permission))
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                         .flatMap(workspace -> {

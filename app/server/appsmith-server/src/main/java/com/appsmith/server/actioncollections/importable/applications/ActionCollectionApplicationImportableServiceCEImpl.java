@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -88,26 +89,31 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     }
 
     @Override
-    public void createNewResource(
+    public Mono<ActionCollection> createNewResource(
             ImportingMetaDTO importingMetaDTO, ActionCollection actionCollection, Context baseContext) {
-        if (!importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) baseContext)) {
-            throw new AppsmithException(
-                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, ((NewPage) baseContext).getId());
-        }
+        Mono<Boolean> canCreateAction = importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) baseContext);
+        return canCreateAction.flatMap(canCreate -> {
+            if (!canCreate) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, ((NewPage) baseContext).getId()));
+            }
 
-        // this will generate the id and other auto generated fields e.g. createdAt
-        actionCollection.updateForBulkWriteOperation();
-        actionCollectionService.generateAndSetPolicies((NewPage) baseContext, actionCollection);
+            // this will generate the id and other auto generated fields e.g. createdAt
+            actionCollection.updateForBulkWriteOperation();
+            actionCollectionService.generateAndSetPolicies((NewPage) baseContext, actionCollection);
 
-        // create or update base id for the action
-        // values already set to base id are kept unchanged
-        actionCollection.setBaseId(actionCollection.getBaseIdOrFallback());
-        actionCollection.setRefType(importingMetaDTO.getRefType());
-        actionCollection.setRefName(importingMetaDTO.getRefName());
+            // create or update base id for the action
+            // values already set to base id are kept unchanged
+            actionCollection.setBaseId(actionCollection.getBaseIdOrFallback());
+            actionCollection.setRefType(importingMetaDTO.getRefType());
+            actionCollection.setRefName(importingMetaDTO.getRefName());
 
-        // generate gitSyncId if it's not present
-        if (actionCollection.getGitSyncId() == null) {
-            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + UUID.randomUUID());
-        }
+            // generate gitSyncId if it's not present
+            if (actionCollection.getGitSyncId() == null) {
+                actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + UUID.randomUUID());
+            }
+
+            return Mono.just(actionCollection);
+        });
     }
 }

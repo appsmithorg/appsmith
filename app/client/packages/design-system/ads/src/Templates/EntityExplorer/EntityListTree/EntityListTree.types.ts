@@ -5,6 +5,7 @@ export interface EntityListTreeItem {
   isDisabled?: boolean;
   id: string;
   name: string;
+  type: string;
 }
 
 export interface EntityListTreeProps {
