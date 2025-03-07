@@ -19,8 +19,8 @@ const InfiniteScrollBody = React.forwardRef(
       nextPageClick,
       pageSize,
       subPage: rows,
-      totalRecordsCount,
       tableSizes,
+      totalRecordsCount,
     } = useAppsmithTable();
     const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
