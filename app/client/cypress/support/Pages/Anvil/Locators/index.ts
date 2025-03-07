@@ -31,27 +31,6 @@ const anvilModalWidgetSelectors = {
   },
 };
 
-const anvilAIChatWidgetSelectors = {
-  anvilAIChatInputSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-input-text-area"]`;
-  },
-  anvilAIChatSendButtonSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-input-send-button"]`;
-  },
-  anvilAIChatMessageListSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-message-list"]`;
-  },
-  anvilAIChatMessageItemSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-message-item"]`;
-  },
-  anvilAIChatHeaderDeleteButtonSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-header-delete-button"]`;
-  },
-  anvilAIChatPromptSuggestionListSelector: (widgetName: string) => {
-    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} [data-testid="t--ai-chat-prompt-suggestion-list"]`;
-  },
-};
-
 const anvilOnCanvasUISelectors = {
   anvilOnCanvasWidgetNameSelector:
     "[data-testid=t--anvil-draggable-widget-name]",
@@ -86,7 +65,6 @@ const anvilWidgetsLocators = {
   WDSMODAL: "wdsmodalwidget",
   SECTION: "sectionwidget",
   ZONE: "zonewidget",
-  WDSAICHAT: "wdsaichatwidget",
 };
 
 export const anvilLocators = {
@@ -96,5 +74,4 @@ export const anvilLocators = {
   ...anvilSectionAndZonesBasedSelectors,
   ...anvilDnDBasedSelectors,
   ...anvilOnCanvasUISelectors,
-  ...anvilAIChatWidgetSelectors,
 };
