@@ -21,7 +21,6 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import clsx from "clsx";
