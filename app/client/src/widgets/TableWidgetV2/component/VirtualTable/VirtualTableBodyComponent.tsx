@@ -17,6 +17,7 @@ const VirtualTableBodyComponent = React.forwardRef(
         <FixedVirtualList
           height={height}
           innerElementType={props.innerElementType}
+          itemCount={rows.length}
           outerRef={ref}
           pageSize={pageSize}
           rows={rows}
