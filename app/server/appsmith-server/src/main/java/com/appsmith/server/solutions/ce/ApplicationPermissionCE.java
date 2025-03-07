@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.artifacts.permissions.ArtifactPermission;
+import reactor.core.publisher.Mono;
 
 public interface ApplicationPermissionCE extends ArtifactPermission {
 
@@ -9,7 +10,7 @@ public interface ApplicationPermissionCE extends ArtifactPermission {
 
     AclPermission getCanCommentPermission();
 
-    AclPermission getPageCreatePermission();
+    Mono<AclPermission> getPageCreatePermission();
 
     AclPermission getManageProtectedBranchPermission();
 

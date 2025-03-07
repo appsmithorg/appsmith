@@ -19,7 +19,7 @@ import java.util.Set;
 public interface ArtifactBasedImportServiceCE<
         T extends Artifact, U extends ArtifactImportDTO, V extends ArtifactExchangeJson> {
 
-    ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
+    Mono<ImportArtifactPermissionProvider> getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissions);
 
     ImportArtifactPermissionProvider getImportArtifactPermissionProviderForUpdatingArtifact(

@@ -255,8 +255,9 @@ class LayoutActionServiceTest {
 
     @AfterEach
     void cleanup() {
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = applicationPermission
+                .getDeletePermission()
+                .flatMapMany(permission -> applicationService.findByWorkspaceId(workspaceId, permission))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -476,13 +477,17 @@ class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
-                        newAction.getUnpublishedAction().getExecuteOnLoad())
-                .isTrue());
+        StepVerifier.create(newActionService.findById(createdAction1.getId()))
+                .assertNext(
+                        newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
+                                .isTrue())
+                .verifyComplete();
 
-        StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
-                        newAction.getUnpublishedAction().getExecuteOnLoad())
-                .isFalse());
+        StepVerifier.create(newActionService.findById(createdAction2.getId()))
+                .assertNext(
+                        newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad())
+                                .isFalse())
+                .verifyComplete();
 
         dsl = new JSONObject();
         dsl.put("widgetName", "firstWidget");

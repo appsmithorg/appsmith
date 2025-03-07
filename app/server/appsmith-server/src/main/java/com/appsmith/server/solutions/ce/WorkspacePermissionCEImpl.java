@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainPermissionCE {
@@ -21,17 +22,17 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainP
     }
 
     @Override
-    public AclPermission getDeletePermission() {
-        return AclPermission.MANAGE_WORKSPACES;
+    public Mono<AclPermission> getDeletePermission() {
+        return Mono.just(AclPermission.MANAGE_WORKSPACES);
     }
 
     @Override
-    public AclPermission getApplicationCreatePermission() {
-        return AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+    public Mono<AclPermission> getApplicationCreatePermission() {
+        return Mono.just(AclPermission.WORKSPACE_MANAGE_APPLICATIONS);
     }
 
     @Override
-    public AclPermission getDatasourceCreatePermission() {
-        return AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+    public Mono<AclPermission> getDatasourceCreatePermission() {
+        return Mono.just(AclPermission.WORKSPACE_MANAGE_DATASOURCES);
     }
 }
