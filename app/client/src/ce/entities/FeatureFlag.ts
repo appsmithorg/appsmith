@@ -49,6 +49,7 @@ export const FEATURE_FLAG = {
     "config_mask_session_recordings_enabled",
   config_user_session_recordings_enabled:
     "config_user_session_recordings_enabled",
+  release_ads_entity_item_enabled: "release_ads_entity_item_enabled",
   release_external_saas_plugins_enabled:
     "release_external_saas_plugins_enabled",
   release_tablev2_infinitescroll_enabled:
@@ -95,6 +96,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   kill_session_recordings_enabled: false,
   config_user_session_recordings_enabled: true,
   config_mask_session_recordings_enabled: true,
+  release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
   release_tablev2_infinitescroll_enabled: false,
 };
