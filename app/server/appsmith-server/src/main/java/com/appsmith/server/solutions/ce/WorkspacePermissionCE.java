@@ -1,11 +1,12 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import reactor.core.publisher.Mono;
 
 public interface WorkspacePermissionCE {
-    AclPermission getDeletePermission();
+    Mono<AclPermission> getDeletePermission();
 
-    AclPermission getApplicationCreatePermission();
+    Mono<AclPermission> getApplicationCreatePermission();
 
-    AclPermission getDatasourceCreatePermission();
+    Mono<AclPermission> getDatasourceCreatePermission();
 }

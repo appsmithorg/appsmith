@@ -118,8 +118,9 @@ public class UserWorkspaceServiceUnitTest {
             // Do not proceed with cleanup, because user context doesn't exist.
             return;
         }
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = applicationPermission
+                .getDeletePermission()
+                .flatMapMany(permission -> applicationService.findByWorkspaceId(workspace.getId(), permission))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();

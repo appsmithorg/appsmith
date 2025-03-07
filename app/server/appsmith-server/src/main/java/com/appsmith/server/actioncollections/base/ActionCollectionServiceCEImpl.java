@@ -280,13 +280,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollection(id, null, actionPermission.getDeletePermission());
+        return actionPermission
+                .getDeletePermission()
+                .flatMap(permission -> deleteUnpublishedActionCollection(id, null, permission));
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollection(
-                id, actionPermission.getDeletePermission(), actionPermission.getDeletePermission());
+        return actionPermission
+                .getDeletePermission()
+                .flatMap(permission -> deleteUnpublishedActionCollection(id, permission, permission));
     }
 
     @Override
@@ -418,10 +421,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     protected Mono<ActionCollection> archiveGivenActionCollection(ActionCollection actionCollection) {
-        Flux<NewAction> unpublishedJsActionsFlux = newActionService.findByCollectionIdAndViewMode(
-                actionCollection.getId(), false, actionPermission.getDeletePermission());
-        Flux<NewAction> publishedJsActionsFlux = newActionService.findByCollectionIdAndViewMode(
-                actionCollection.getId(), true, actionPermission.getDeletePermission());
+        Mono<AclPermission> deleteActionPermissionMono =
+                actionPermission.getDeletePermission().cache();
+        Flux<NewAction> unpublishedJsActionsFlux = deleteActionPermissionMono.flatMapMany(permission ->
+                newActionService.findByCollectionIdAndViewMode(actionCollection.getId(), false, permission));
+        Flux<NewAction> publishedJsActionsFlux = deleteActionPermissionMono.flatMapMany(permission ->
+                newActionService.findByCollectionIdAndViewMode(actionCollection.getId(), true, permission));
         return unpublishedJsActionsFlux
                 .mergeWith(publishedJsActionsFlux)
                 .flatMap(toArchive -> newActionService

@@ -182,8 +182,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     @Override
     public Mono<ActionExecutionResult> getSchemaPreviewData(
             String datasourceId, String environmentId, Template queryTemplate) {
-        return datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
+        return datasourcePermission
+                .getActionCreatePermission()
+                .flatMap(permission -> datasourceService.findById(datasourceId, permission))
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(),
                         environmentId,
