@@ -93,7 +93,7 @@ public class UserSignupTest {
         organization = new Organization();
         OrganizationConfiguration configuration = new OrganizationConfiguration();
         organization.setOrganizationConfiguration(configuration);
-        Mockito.when(organizationService.getDefaultOrganization()).thenReturn(Mono.just(organization));
+        Mockito.when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
     }
 
     private String createRandomString(int length) {
@@ -142,7 +142,7 @@ public class UserSignupTest {
         user.setPassword(createRandomString(LOGIN_PASSWORD_MAX_LENGTH - 1));
 
         organization.getOrganizationConfiguration().setIsStrongPasswordPolicyEnabled(true);
-        Mockito.when(organizationService.getDefaultOrganization()).thenReturn(Mono.just(organization));
+        Mockito.when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
         Mono<User> userMono = userSignup.signupAndLogin(user, exchange);
         StepVerifier.create(userMono)
                 .expectErrorSatisfies(throwable -> {

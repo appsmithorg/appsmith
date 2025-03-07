@@ -266,7 +266,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     private Mono<DatasourceStorage> setAdditionalMetadataInDatasourceStorage(DatasourceStorage datasourceStorage) {
-        Mono<String> organizationIdMono = organizationService.getDefaultOrganizationId();
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
         Mono<String> instanceIdMono = configService.getInstanceId();
 
         Map<String, Object> metadata = new HashMap<>();

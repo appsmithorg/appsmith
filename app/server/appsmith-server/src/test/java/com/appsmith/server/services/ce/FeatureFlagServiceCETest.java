@@ -211,7 +211,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(new HashMap<>());
@@ -234,7 +234,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
@@ -257,7 +257,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
