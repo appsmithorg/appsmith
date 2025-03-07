@@ -19,6 +19,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     colorModeClassName,
     fontFamilyClassName,
     providerClassName,
+    scrollbarWidthClassName,
     typographyClassName,
   } = useCssTokens(theme);
 
@@ -32,6 +33,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
           fontFamilyClassName,
           providerClassName,
           typographyClassName,
+          scrollbarWidthClassName,
         )}
         data-theme-provider=""
         ref={providerRef}
