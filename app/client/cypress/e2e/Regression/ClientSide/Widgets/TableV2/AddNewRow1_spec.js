@@ -204,7 +204,7 @@ describe(
       );
 
       // remove all table data
-      propPane.UpdatePropertyFieldValue("Table data", `[]`);
+      propPane.UpdatePropertyFieldValue("Table data", `[] `);
 
       // allow adding a row
       propPane.TogglePropertyState("Allow adding a row", "On");
