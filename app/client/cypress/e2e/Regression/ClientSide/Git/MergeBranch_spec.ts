@@ -1,4 +1,4 @@
-import commonLocators from "../../../../../locators/commonlocators.json";
+import commonLocators from "../../../../locators/commonlocators.json";
 
 import {
   agHelper,
