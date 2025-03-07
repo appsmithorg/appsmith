@@ -39,7 +39,7 @@ export type FlattenedWidgetProps<orType = never> =
  * @param updateLayoutDiff
  * @returns list of widgets that were updated
  */
-function getUpdatedWidgetLists(
+export function getUpdatedWidgetLists(
   updateLayoutDiff: Diff<
     CanvasWidgetsReduxState,
     {

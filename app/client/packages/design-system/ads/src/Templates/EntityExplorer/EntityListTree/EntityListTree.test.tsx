@@ -1,40 +1,36 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { EntityListTree } from "./EntityListTree";
-import type { EntityListTreeProps } from "./EntityListTree.types";
+import type {
+  EntityListTreeItem,
+  EntityListTreeProps,
+} from "./EntityListTree.types";
 
 const mockOnItemExpand = jest.fn();
-const mockNameEditorConfig = {
-  canEdit: true,
-  isEditing: false,
-  isLoading: false,
-  onEditComplete: jest.fn(),
-  onNameSave: jest.fn(),
-  validateName: jest.fn(),
+
+const ItemComponent = ({ item }: { item: EntityListTreeItem }) => {
+  return <div>{item.name}</div>;
 };
 
-const mockOnClick = jest.fn();
-
 const defaultProps: EntityListTreeProps = {
+  ItemComponent,
   items: [
     {
       id: "1",
-      title: "Parent",
       isExpanded: false,
       isSelected: false,
       isDisabled: false,
-      nameEditorConfig: mockNameEditorConfig,
-      onClick: mockOnClick,
+      name: "Parent 1",
+      type: "CONTAINER_WIDGET",
       children: [
         {
           id: "1-1",
-          title: "Child",
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
+          name: "Child 1.1",
           children: [],
+          type: "TABLE_WIDGET",
         },
       ],
     },
@@ -50,7 +46,7 @@ describe("EntityListTree", () => {
 
   it("calls onItemExpand when expand icon is clicked", () => {
     render(<EntityListTree {...defaultProps} />);
-    const expandIcon = screen.getByTestId("entity-item-expand-icon");
+    const expandIcon = screen.getByTestId("t--entity-collapse-toggle");
 
     fireEvent.click(expandIcon);
     expect(mockOnItemExpand).toHaveBeenCalledWith("1");
@@ -62,19 +58,18 @@ describe("EntityListTree", () => {
       items: [
         {
           id: "2",
-          title: "No Children Parent",
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
+          name: "No Children Parent",
           children: [],
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
+          type: "TABLE_WIDGET",
         },
       ],
     };
 
     render(<EntityListTree {...props} />);
-    const expandIcon = screen.queryByTestId("entity-item-expand-icon");
+    const expandIcon = screen.queryByTestId("t--entity-collapse-toggle");
 
     expect(
       screen.getByRole("treeitem", { name: "No Children Parent" }),
@@ -88,22 +83,20 @@ describe("EntityListTree", () => {
       items: [
         {
           id: "1",
-          title: "Parent",
           isExpanded: true,
           isSelected: false,
           isDisabled: false,
-          nameEditorConfig: mockNameEditorConfig,
-          onClick: mockOnClick,
+          name: "Parent 1",
+          type: "CONTAINER_WIDGET",
           children: [
             {
               id: "1-1",
-              title: "Child",
               isExpanded: false,
               isSelected: false,
               isDisabled: false,
-              nameEditorConfig: mockNameEditorConfig,
-              onClick: mockOnClick,
+              name: "Child 1.1",
               children: [],
+              type: "TABLE_WIDGET",
             },
           ],
         },
@@ -112,12 +105,14 @@ describe("EntityListTree", () => {
 
     render(<EntityListTree {...props} />);
 
-    expect(screen.getByRole("treeitem", { name: "Child" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("treeitem", { name: "Child 1.1" }),
+    ).toBeInTheDocument();
   });
 
   it("does not render nested EntityListTree when item is not expanded", () => {
     render(<EntityListTree {...defaultProps} />);
 
-    expect(screen.queryByRole("treeitem", { name: "Child" })).toBeNull();
+    expect(screen.queryByRole("treeitem", { name: "Child 1.1" })).toBeNull();
   });
 });

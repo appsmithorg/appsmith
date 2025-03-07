@@ -1,0 +1,4 @@
+import * as React from "react";
+import type { SVGProps } from "react";
+const FilePickerIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={15} height={15} fill="none" {...props}><path fill="#4C5664" fillOpacity={0.5} d="M7.146 11.146a.5.5 0 0 0 .708.708L10 9.707V14.5a.5.5 0 0 0 1 0V9.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0z" /><path fill="#4C5664" fillRule="evenodd" d="M3.5 1A1.5 1.5 0 0 0 2 2.5v10A1.5 1.5 0 0 0 3.5 14h2a.5.5 0 0 1 0 1h-2A2.5 2.5 0 0 1 1 12.5v-10A2.5 2.5 0 0 1 3.5 0h5a.5.5 0 0 1 .354.146L13 4.293V6.5a.5.5 0 0 1-1 0V5H8.5v-.5H8V1zm5.5.707L11.293 4H9z" clipRule="evenodd" /><path fill="#4C5664" d="M8.5 4.5H8a.5.5 0 0 0 .5.5z" /></svg>;
+export { FilePickerIcon };

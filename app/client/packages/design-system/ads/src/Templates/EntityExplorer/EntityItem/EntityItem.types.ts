@@ -21,5 +21,7 @@ export interface EntityItemProps
     onNameSave: (newName: string) => void;
     // Provide a function validate the new name
     validateName: (newName: string) => string | null;
+    // Whether entity name should be normalized on renaming
+    normalizeName?: boolean;
   };
 }

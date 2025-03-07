@@ -278,6 +278,29 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
+  const shouldShowSkeleton = useMemo(() => {
+    // Case 1: Loading without infinite scroll
+    if (props.isLoading && !props.isInfiniteScrollEnabled) {
+      return true;
+    }
+
+    // Case 2: Loading with infinite scroll but no data in table yet
+    if (props.isLoading && props.isInfiniteScrollEnabled && !subPage.length) {
+      return true;
+    }
+
+    // Otherwise, don't show skeleton
+    return false;
+  }, [props.isLoading, props.isInfiniteScrollEnabled, subPage.length]);
+
+  const getTableWrapClassName = useMemo(() => {
+    if (shouldShowSkeleton) {
+      return Classes.SKELETON;
+    }
+
+    return shouldUseVirtual ? "tableWrap virtual" : "tableWrap";
+  }, [shouldShowSkeleton, shouldUseVirtual]);
+
   return (
     <TableProvider
       currentPageIndex={currentPageIndex}
@@ -324,16 +347,7 @@ export function Table(props: TableProps) {
           widgetId={props.widgetId}
         />
         {isHeaderVisible && <TableHeader />}
-        <div
-          className={
-            props.isLoading
-              ? Classes.SKELETON
-              : shouldUseVirtual
-                ? "tableWrap virtual"
-                : "tableWrap"
-          }
-          ref={tableWrapperRef}
-        >
+        <div className={getTableWrapClassName} ref={tableWrapperRef}>
           <div {...getTableProps()} className="table column-freeze">
             {shouldUseVirtual ? <VirtualTable /> : <StaticTable />}
           </div>

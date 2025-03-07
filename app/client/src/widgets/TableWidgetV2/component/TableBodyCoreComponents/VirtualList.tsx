@@ -33,20 +33,21 @@ interface BaseVirtualListProps {
   height: number;
   tableSizes: TableSizes;
   rows: ReactTableRowType<Record<string, unknown>>[];
-  pageSize: number;
   innerElementType?: ReactElementType;
   outerRef: Ref<SimpleBar>;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
   infiniteLoaderListRef?: React.Ref<FixedSizeList>;
+  itemCount: number;
+  pageSize: number;
 }
 
 const BaseVirtualList = React.memo(function BaseVirtualList({
   height,
   infiniteLoaderListRef,
   innerElementType,
+  itemCount,
   onItemsRendered,
   outerRef,
-  pageSize,
   rows,
   tableSizes,
 }: BaseVirtualListProps) {
@@ -59,7 +60,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
         2 * tableSizes.VERTICAL_PADDING
       }
       innerElementType={innerElementType}
-      itemCount={Math.max(rows.length, pageSize)}
+      itemCount={itemCount}
       itemData={rows}
       itemSize={tableSizes.ROW_HEIGHT}
       onItemsRendered={onItemsRendered}

@@ -50,14 +50,14 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const dispatch = useDispatch();
   const contextMenu = useMemo(
     () => (
-      <EntityContextMenu>
+      <EntityContextMenu dataTestId="t--entity-context-menu-trigger">
         <AppQueryContextMenuItems action={action} />
       </EntityContextMenu>
     ),
     [action],
   );
 
-  const actionPermissions = action.userPermissions || [];
+  const actionPermissions = action?.userPermissions || [];
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -73,6 +73,8 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
     action.pluginType,
     pluginGroups[action.pluginId],
   );
+
+  const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const switchToAction = useCallback(() => {
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
@@ -99,30 +101,31 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
       onEditComplete: exitEditMode,
       onNameSave: (newName: string) =>
         dispatch(saveActionNameBasedOnIdeType(action.id, newName, ideType)),
-      validateName: (newName: string) => validateName(newName, item.title),
+      validateName: (newName: string) => validateName(newName),
     };
   }, [
     canManageAction,
     editingEntity,
-    exitEditMode,
-    ideType,
-    item.title,
     action.id,
     updatingEntity,
+    exitEditMode,
+    dispatch,
+    ideType,
+    validateName,
   ]);
 
   return (
     <EntityItem
       className="action t--action-entity"
       id={action.id}
-      isSelected={activeActionBaseId === action.id}
+      isSelected={activeActionBaseId === item.key}
       key={action.id}
       nameEditorConfig={nameEditorConfig}
       onClick={switchToAction}
       onDoubleClick={() => enterEditMode(action.id)}
       rightControl={contextMenu}
       rightControlVisibility="hover"
-      startIcon={item.icon}
+      startIcon={icon}
       title={item.title}
     />
   );

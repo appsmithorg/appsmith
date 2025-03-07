@@ -14,15 +14,15 @@ import {
 import * as Styled from "./EntityContextMenu.styles";
 
 interface Props {
-  dataTestid?: string;
-  children?: React.ReactNode[] | React.ReactNode;
+  dataTestId?: string;
+  children: React.ReactNode[] | React.ReactNode;
   tooltipContent?: React.ReactNode;
 }
 
 export const EntityContextMenu = (props: Props) => {
   const {
     children,
-    dataTestid = DEFAULT_DATA_TEST_ID,
+    dataTestId = DEFAULT_DATA_TEST_ID,
     tooltipContent = DEFAULT_TOOLTIP_CONTENT,
   } = props;
 
@@ -40,7 +40,7 @@ export const EntityContextMenu = (props: Props) => {
           >
             <Button
               className={EntityClassNames.CONTEXT_MENU}
-              data-testid={dataTestid}
+              data-testid={dataTestId}
               isIconButton
               kind="tertiary"
               startIcon="more-2-fill"

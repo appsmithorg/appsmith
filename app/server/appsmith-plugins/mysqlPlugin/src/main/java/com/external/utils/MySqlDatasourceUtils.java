@@ -245,7 +245,7 @@ public class MySqlDatasourceUtils {
     }
 
     public static ConnectionPool getNewConnectionPool(
-            DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext)
+            DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext, Integer maxPoolSize)
             throws AppsmithPluginException {
         ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration, connectionContext);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
@@ -260,7 +260,7 @@ public class MySqlDatasourceUtils {
          */
         ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
                 .maxIdleTime(MAX_IDLE_TIME)
-                .maxSize(MAX_CONNECTION_POOL_SIZE)
+                .maxSize(maxPoolSize != null ? maxPoolSize : MAX_CONNECTION_POOL_SIZE)
                 .backgroundEvictionInterval(BACKGROUND_EVICTION_TIME)
                 .maxLifeTime(MAX_LIFE_TIME)
                 .build();

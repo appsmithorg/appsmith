@@ -4,6 +4,7 @@ import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
 import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
+import { LoadingIndicator } from "../../LoadingIndicator";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
 interface InfiniteScrollBodyProps {
@@ -18,12 +19,13 @@ const InfiniteScrollBody = React.forwardRef(
       nextPageClick,
       pageSize,
       subPage: rows,
+      totalRecordsCount,
       tableSizes,
     } = useAppsmithTable();
-    const { isItemLoaded, itemCount, loadMoreItems } =
+    const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
         rows,
-        totalRecordsCount: rows.length,
+        totalRecordsCount,
         isLoading,
         loadMore: nextPageClick,
         pageSize,
@@ -33,22 +35,25 @@ const InfiniteScrollBody = React.forwardRef(
       <div className="simplebar-content-wrapper">
         <InfiniteLoader
           isItemLoaded={isItemLoaded}
-          itemCount={itemCount + 5}
+          itemCount={itemCount}
           loadMoreItems={loadMoreItems}
+          minimumBatchSize={pageSize}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
             <FixedInfiniteVirtualList
               height={height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
+              itemCount={itemCount}
               onItemsRendered={onItemsRendered}
               outerRef={ref}
               pageSize={pageSize}
-              rows={rows}
+              rows={cachedRows}
               tableSizes={tableSizes}
             />
           )}
         </InfiniteLoader>
+        {isLoading && <LoadingIndicator />}
       </div>
     );
   },
