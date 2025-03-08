@@ -89,8 +89,15 @@ describe(
         expect(location.pathname).includes(newPathname);
       });
 
-      cy.request("PUT", `/api/v1/applications/${applicationId}`, {
-        applicationVersion: 1,
+      cy.request({
+        method: "PUT",
+        url: `/api/v1/applications/${applicationId}`,
+        headers: {
+          "X-Requested-By": "Appsmith",
+        },
+        body: {
+          applicationVersion: 1,
+        },
       });
 
       _.gitSync.CreateGitBranch(cleanUrlBranch, true);
