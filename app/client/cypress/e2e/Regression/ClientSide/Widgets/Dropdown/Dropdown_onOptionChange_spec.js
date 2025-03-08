@@ -94,7 +94,6 @@ describe(
         'SELECT * FROM public."country" LIMIT 10;',
       );
       // Going to HomePage where the button widget is located and opeing it's property pane.
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("selectwidget");
       cy.reload();

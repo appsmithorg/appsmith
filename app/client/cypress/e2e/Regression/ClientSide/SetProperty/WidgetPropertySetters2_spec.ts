@@ -14,6 +14,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Widget Property Setters - Part II - Tc #2409",
@@ -135,7 +136,7 @@ describe(
         false,
       );
       jsEditor.RunJSObj();
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageList.VerifyIsCurrentPage("Page1");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper
         .GetText(
@@ -176,7 +177,7 @@ describe(
       }`,
         false,
       );
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON)); //Asserting before setTimeout JS function execution, button is visible
       agHelper.Sleep(2000); //waiting for settimeout to execute
       agHelper.AssertElementAbsence(
@@ -235,7 +236,7 @@ describe(
       }`,
         false,
       );
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", false, false);
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", false);
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2), //Asserting before setTimeout JS function execution, Input is visible

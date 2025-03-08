@@ -57,14 +57,6 @@ Cypress.Commands.add("onlyQueryRun", () => {
   cy.get(".ads-v2-spinner").should("not.exist");
 });
 
-Cypress.Commands.add("hoverAndClick", (entity) => {
-  cy.xpath(
-    "//div[text()='" +
-      entity +
-      "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]",
-  ).click({ force: true });
-});
-
 Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.queryMoreAction).first().click();
   cy.get(queryEditor.deleteUsingContext).click();

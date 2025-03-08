@@ -254,9 +254,9 @@ export class JSEditor {
       entityNameinLeftSidebar: entityName,
       action: "Rename",
     });
-    cy.xpath(this.locator._entityNameEditing(entityName)).type(
-      renameVal + "{enter}",
-    );
+    cy.get(this.locator._entityNameEditing)
+      .clear()
+      .type(renameVal + "{enter}");
     PageLeftPane.assertPresence(renameVal);
   }
 

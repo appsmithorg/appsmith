@@ -108,11 +108,6 @@ describe(
         action: "Rename",
       });
       cy.EditApiNameFromExplorer("SecondAPI");
-      cy.xpath(apiwidget.popover)
-        .last()
-        .should("be.hidden")
-        .invoke("show")
-        .click({ force: true });
       ee.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "SecondAPI",
         action: "Move to page",

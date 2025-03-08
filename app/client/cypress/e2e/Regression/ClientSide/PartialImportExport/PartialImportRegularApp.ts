@@ -25,7 +25,7 @@ describe(
       entityExplorer.RenameEntityFromExplorer(
         "Page1",
         "Home",
-        false,
+        true,
         entityItems.Page,
       );
     });
