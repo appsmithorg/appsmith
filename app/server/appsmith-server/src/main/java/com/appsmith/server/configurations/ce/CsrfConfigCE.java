@@ -41,9 +41,9 @@ import java.util.UUID;
 public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, ServerWebExchangeMatcher, WebFilter {
 
     @SuppressWarnings("UastIncorrectHttpHeaderInspection")
-    private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
+    public static final String X_REQUESTED_BY_NAME = "X-Requested-By";
 
-    private static final String X_REQUESTED_BY_VALUE = "Appsmith";
+    public static final String X_REQUESTED_BY_VALUE = "Appsmith";
 
     @SuppressWarnings("UastIncorrectHttpHeaderInspection")
     public static final String VERSION_HEADER = "X-Appsmith-Version";
@@ -153,7 +153,7 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
     /**
      * Override to add exemptions.
      */
-    protected static boolean isUrlExemptedFromCsrf(@NonNull String urlPath) {
+    protected boolean isUrlExemptedFromCsrf(@NonNull String urlPath) {
         return false;
     }
 }
