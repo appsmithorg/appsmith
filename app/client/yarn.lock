@@ -126,7 +126,7 @@ __metadata:
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
     colorjs.io: ^0.5.2
-    lodash: "*"
+    lodash: ">=4.17.21"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -169,7 +169,7 @@ __metadata:
     browserslist: ^4.24.4
     clsx: ^2.0.0
     eslint-plugin-storybook: ^0.11.3
-    lodash: "*"
+    lodash: ">=4.17.21"
     postcss-import: ^16.1.0
     react-aria-components: ^1.6.0
     react-markdown: ^9.0.1
@@ -13669,7 +13669,7 @@ __metadata:
     linkedom: ^0.14.20
     lint-staged: ^14.0.1
     localforage: ^1.7.3
-    lodash: ^4.17.21
+    lodash: ">=4.17.21"
     lodash-es: 4.17.21
     loglevel: ^1.7.1
     lottie-web: ^5.7.4
@@ -24261,7 +24261,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:*, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:~4.17.21":
+"lodash@npm:>=4.17.21, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
