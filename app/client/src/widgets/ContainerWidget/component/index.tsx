@@ -29,7 +29,8 @@ const StyledContainerComponent = styled.div<
 
   ${(props) =>
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
-  opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
+  opacity: ${(props) =>
+    props.resizeDisabled && !props.forceFullOpacity ? "0.8" : "1"};
 
   background: ${(props) => props.backgroundColor};
   &:hover {
@@ -53,6 +54,7 @@ interface ContainerWrapperProps {
   type: WidgetType;
   dropDisabled?: boolean;
   $noScroll: boolean;
+  forceFullOpacity?: boolean;
 }
 
 function ContainerComponentWrapper(
@@ -133,6 +135,7 @@ function ContainerComponentWrapper(
           : ""
       }`}
       dropDisabled={props.dropDisabled}
+      forceFullOpacity={props.forceFullOpacity}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
@@ -153,6 +156,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
         dropDisabled={props.dropDisabled}
+        forceFullOpacity={props.forceFullOpacity}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -184,6 +188,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
         dropDisabled={props.dropDisabled}
+        forceFullOpacity={props.forceFullOpacity}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -223,6 +228,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   justifyContent?: string;
   alignItems?: string;
   dropDisabled?: boolean;
+  forceFullOpacity?: boolean;
   layoutSystemType?: LayoutSystemTypes;
   isListItemContainer?: boolean;
 }

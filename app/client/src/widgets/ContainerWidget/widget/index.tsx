@@ -416,6 +416,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
+  forceFullOpacity?: boolean; // used to force full opacity for ui module instance meta widgets
 }
 
 export default ContainerWidget;
