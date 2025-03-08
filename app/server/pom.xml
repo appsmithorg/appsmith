@@ -106,6 +106,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
                 <configuration>
+                    <forkCount>4</forkCount>  <!-- Run each test class in its own JVM -->
+                    <reuseForks>false</reuseForks>  <!-- Do not reuse JVM processes -->
                     <printSummary>true</printSummary>
                     <!-- Allow JUnit to access the test classes -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
