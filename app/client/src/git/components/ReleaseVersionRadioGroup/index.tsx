@@ -1,7 +1,7 @@
 import React from "react";
 import ReleaseVersionRadioGroupView from "./ReleaseVersionRadioGroupView";
 import noop from "lodash/noop";
-import useLatestCommit from "git/hooks/useLatestCommit";
+import usePretag from "git/hooks/usePretag";
 
 interface ReleaseVersionRadioGroupProps {
   onVersionChange: (version: string | null) => void;
@@ -10,13 +10,13 @@ interface ReleaseVersionRadioGroupProps {
 function ReleaseVersionRadioGroup({
   onVersionChange = noop,
 }: ReleaseVersionRadioGroupProps) {
-  const { latestCommit } = useLatestCommit();
+  const { pretagResponse } = usePretag();
 
   return (
     <ReleaseVersionRadioGroupView
-      currentVersion={latestCommit?.releaseTagName ?? null}
+      latestReleaseVersion={pretagResponse?.releaseTagName ?? null}
       onVersionChange={onVersionChange}
-      releasedAt={latestCommit?.releasedAt ?? null}
+      releasedAt={pretagResponse?.releasedAt ?? null}
     />
   );
 }

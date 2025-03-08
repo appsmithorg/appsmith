@@ -1,5 +1,5 @@
 export const OPS_MODAL = {
-  TAB_RELEASE: "RELEASE",
+  TAB_RELEASE: "Release",
 };
 
 export const TAB_RELEASE = {

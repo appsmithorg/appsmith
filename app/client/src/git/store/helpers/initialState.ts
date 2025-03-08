@@ -52,11 +52,6 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     loading: false,
     error: null,
   },
-  latestCommit: {
-    value: null,
-    loading: false,
-    error: null,
-  },
   pull: {
     loading: false,
     error: null,
@@ -134,6 +129,16 @@ const gitArtifactInitialAPIResponses: GitArtifactAPIResponsesReduxState = {
     loading: false,
     error: null,
   },
+  pretag: {
+    value: null,
+    loading: false,
+    error: null,
+  },
+  createReleaseTag: {
+    loading: false,
+    error: null,
+  },
+
   // EE
   ...gitArtifactAPIResponsesInitialStateExtended,
 };

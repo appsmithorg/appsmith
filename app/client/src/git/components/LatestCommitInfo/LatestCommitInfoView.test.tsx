@@ -20,7 +20,7 @@ describe("LatestCommitInfoView", () => {
   });
 
   it("renders correctly with null authorName", () => {
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <LatestCommitInfoView
         authorName={null}
         committedAt="2025-03-01"
@@ -29,9 +29,8 @@ describe("LatestCommitInfoView", () => {
       />,
     );
 
+    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
     expect(getByText("Initial commit")).toBeInTheDocument();
-    expect(getByText("- committed 2025-03-01")).toBeInTheDocument();
-    expect(getByText("abc123")).toBeInTheDocument();
   });
 
   it("renders correctly with null committedAt", () => {
@@ -45,8 +44,7 @@ describe("LatestCommitInfoView", () => {
     );
 
     expect(getByText("Initial commit")).toBeInTheDocument();
-    expect(getByText("John Doe committed -")).toBeInTheDocument();
-    expect(getByText("abc123")).toBeInTheDocument();
+    expect(getByText("Committed by John Doe")).toBeInTheDocument();
   });
 
   it("renders correctly with null hash", () => {
@@ -61,7 +59,6 @@ describe("LatestCommitInfoView", () => {
 
     expect(getByText("Initial commit")).toBeInTheDocument();
     expect(getByText("John Doe committed 2025-03-01")).toBeInTheDocument();
-    expect(getByText("-")).toBeInTheDocument();
   });
 
   it("renders correctly with null message", () => {
@@ -79,7 +76,7 @@ describe("LatestCommitInfoView", () => {
   });
 
   it("renders correctly with all null props", () => {
-    const { getByText } = render(
+    const { queryByTestId } = render(
       <LatestCommitInfoView
         authorName={null}
         committedAt={null}
@@ -88,7 +85,6 @@ describe("LatestCommitInfoView", () => {
       />,
     );
 
-    expect(getByText("- committed -")).toBeInTheDocument();
-    expect(getByText("-")).toBeInTheDocument();
+    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
   });
 });

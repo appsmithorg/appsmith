@@ -9,7 +9,7 @@ describe("ReleaseVersionRadioGroupView", () => {
   const renderComponent = (props = {}) => {
     return render(
       <ReleaseVersionRadioGroupView
-        currentVersion="1.0.0"
+        latestReleaseVersion="1.0.0"
         onVersionChange={mockOnVersionChange}
         releasedAt="2023-01-01"
         {...props}
@@ -59,14 +59,12 @@ describe("ReleaseVersionRadioGroupView", () => {
     expect(mockOnVersionChange).toHaveBeenCalledWith("2.0.0");
   });
 
-  it("should handle null values for currentVersion and releasedAt", () => {
-    const { getByTestId } = renderComponent({
-      currentVersion: null,
+  it("should handle null values for latestReleaseVersion and releasedAt", () => {
+    const { queryByTestId } = renderComponent({
+      latestReleaseVersion: null,
       releasedAt: null,
     });
 
-    expect(getByTestId("t--git-release-released-at").textContent).toBe(
-      "Last released: - (-)",
-    );
+    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
   });
 });
