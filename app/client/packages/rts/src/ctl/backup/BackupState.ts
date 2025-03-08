@@ -1,5 +1,7 @@
 export class BackupState {
   readonly args: readonly string[];
+  readonly dbUrl: string;
+
   readonly initAt: string = new Date().toISOString().replace(/:/g, "-");
   readonly errors: string[] = [];
 
@@ -8,8 +10,9 @@ export class BackupState {
 
   isEncryptionEnabled: boolean = false;
 
-  constructor(args: string[]) {
+  constructor(args: string[], url: string) {
     this.args = Object.freeze([...args]);
+    this.dbUrl = url;
 
     // We seal `this` so that no link in the chain can "add" new properties to the state. This is intentional. If any
     // link wants to save data in the `BackupState`, which shouldn't even be needed in most cases, it should do so by
