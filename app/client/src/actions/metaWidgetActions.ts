@@ -11,6 +11,13 @@ export const modifyMetaWidgets = (payload: ModifyMetaWidgetPayload) => ({
   payload,
 });
 
+export const modifyMetaWidgetsWithoutEval = (
+  payload: ModifyMetaWidgetPayload,
+) => ({
+  type: ReduxActionTypes.MODIFY_META_WIDGETS_WITHOUT_EVAL,
+  payload,
+});
+
 export const deleteMetaWidgets = (
   payload: DeleteMetaWidgetsPayload,
 ): ReduxAction<DeleteMetaWidgetsPayload> => {
