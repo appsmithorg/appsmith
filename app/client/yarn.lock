@@ -13737,6 +13737,7 @@ __metadata:
     react-redux: ^7.2.4
     react-refresh: ^0.11.0
     react-responsive: ^9.0.0-beta.3
+    react-rnd: ^10.5.2
     react-router: ^5.1.2
     react-router-dom: ^5.1.2
     react-spring: ^9.4.0
@@ -29140,6 +29141,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"re-resizable@npm:6.11.2":
+  version: 6.11.2
+  resolution: "re-resizable@npm:6.11.2"
+  peerDependencies:
+    react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 6e754c459f5e3b878184a4f3bffaef2f64ee32e4375e6a93f5f302eecc55d15f91fc7970d28a3ceb17b36292b421039b9cfcfe2ecef7785f44aeeb2d1baefa1a
+  languageName: node
+  linkType: hard
+
 "react-app-polyfill@npm:^3.0.0":
   version: 3.0.0
   resolution: "react-app-polyfill@npm:3.0.0"
@@ -29480,6 +29491,19 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
+  languageName: node
+  linkType: hard
+
+"react-draggable@npm:4.4.6":
+  version: 4.4.6
+  resolution: "react-draggable@npm:4.4.6"
+  dependencies:
+    clsx: ^1.1.1
+    prop-types: ^15.8.1
+  peerDependencies:
+    react: ">= 16.3.0"
+    react-dom: ">= 16.3.0"
+  checksum: 9b15aac59244873ac4561c5a2bead43a56e18d406e0a5f242bd4f9d151c074530c02b99387983104bf43417292f9cf8d063e554ed08d88792235e3fbc965f1b8
   languageName: node
   linkType: hard
 
@@ -29843,6 +29867,20 @@ __metadata:
   peerDependencies:
     react: ">=16.8.0"
   checksum: 21eee419e95238ac6683556e2af2082da32fd8b47bca1f050cd1e931f4a5d4f0a7277ef36b2884033d7b3ba83f410cef68e24c7666b04e0e1eda8829f827400c
+  languageName: node
+  linkType: hard
+
+"react-rnd@npm:^10.5.2":
+  version: 10.5.2
+  resolution: "react-rnd@npm:10.5.2"
+  dependencies:
+    re-resizable: 6.11.2
+    react-draggable: 4.4.6
+    tslib: 2.6.2
+  peerDependencies:
+    react: ">=16.3.0"
+    react-dom: ">=16.3.0"
+  checksum: 0ca7f46fabd0f095998ba45c7463d2a433b5a91b1691f0ec1a210aae527ede09d0f75f57259f8579faf5dd677cfae6ec8a5767ec2c95444005698f31a8dc6e13
   languageName: node
   linkType: hard
 
@@ -33603,6 +33641,13 @@ __metadata:
   version: 2.3.0
   resolution: "tslib@npm:2.3.0"
   checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.6.2":
+  version: 2.6.2
+  resolution: "tslib@npm:2.6.2"
+  checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad
   languageName: node
   linkType: hard
 
