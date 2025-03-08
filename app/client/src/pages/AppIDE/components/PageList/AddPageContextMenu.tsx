@@ -5,17 +5,11 @@ import {
 } from "pages/Editor/Explorer/Entity";
 import EntityAddButton from "pages/Editor/Explorer/Entity/AddButton";
 import styled from "styled-components";
-import { useParams } from "react-router";
-import { useDispatch } from "react-redux";
-import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
-import { showTemplatesModal } from "actions/templateActions";
 import {
-  ADD_PAGE_FROM_TEMPLATE,
   ADD_PAGE_TOOLTIP,
   CANVAS_NEW_PAGE_CARD,
   createMessage,
   CREATE_PAGE,
-  GENERATE_PAGE_ACTION_TITLE,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { ButtonSizes } from "@appsmith/ads";
@@ -27,13 +21,8 @@ import {
   Tooltip,
   Text,
 } from "@appsmith/ads";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
-import {
-  LayoutSystemFeatures,
-  useLayoutSystemFeatures,
-} from "layoutSystems/common/useLayoutSystemFeatures";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { useGenPageItems } from "ee/pages/AppIDE/hooks/useGenPageItems";
 
 const Wrapper = styled.div`
   .title {
@@ -61,17 +50,8 @@ function AddPageContextMenu({
   openMenu,
 }: SubMenuProps) {
   const [show, setShow] = useState(openMenu);
-  const dispatch = useDispatch();
-  const { basePageId } = useParams<ExplorerURLParams>();
-  const isAirgappedInstance = isAirgapped();
 
-  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableForkingFromTemplates, enableGenerateCrud] =
-    checkLayoutSystemFeatures([
-      LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
-      LayoutSystemFeatures.ENABLE_GENERATE_CRUD_APP,
-    ]);
-
+  const ContextMenuGeneratePageItems = useGenPageItems();
   const ContextMenuItems = useMemo(() => {
     const items = [
       {
@@ -81,31 +61,11 @@ function AddPageContextMenu({
         "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
+      ...ContextMenuGeneratePageItems,
     ];
 
-    if (enableGenerateCrud) {
-      items.push({
-        title: createMessage(GENERATE_PAGE_ACTION_TITLE),
-        icon: "database-2-line",
-        onClick: () => dispatch(openGeneratePageModal()),
-        "data-testid": "generate-page",
-        key: "GENERATE_PAGE",
-      });
-    }
-
-    if (enableForkingFromTemplates && !isAirgappedInstance) {
-      items.push({
-        title: createMessage(ADD_PAGE_FROM_TEMPLATE),
-        icon: "layout-2-line",
-        onClick: () =>
-          dispatch(showTemplatesModal({ isOpenFromCanvas: false })),
-        "data-testid": "add-page-from-template",
-        key: "ADD_PAGE_FROM_TEMPLATE",
-      });
-    }
-
     return items;
-  }, [basePageId, enableGenerateCrud]);
+  }, [createPageCallback, ContextMenuGeneratePageItems]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {

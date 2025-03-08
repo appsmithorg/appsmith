@@ -28,25 +28,17 @@ import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { setupPageAction, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
-import ImportedApplicationSuccessModal from "pages/Editor/gitSync/ImportSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
-import TemplatesModal from "pages/Templates/TemplatesModal";
-import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import { Spinner } from "@appsmith/ads";
-import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
-import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import type { Page } from "entities/Page";
-import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
-import GeneratePageModal from "pages/Editor/GeneratePage";
-import { GitModals } from "./components/GitModals";
 import { GitApplicationContextProvider } from "git-artifact-helpers/application/components";
+import { AppIDEModals } from "ee/pages/AppIDE/components/AppIDEModals";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -193,15 +185,7 @@ class Editor extends Component<Props> {
           <GitApplicationContextProvider>
             <GlobalHotKeys>
               <IDE />
-              <GitModals />
-              <TemplatesModal />
-              <ImportedApplicationSuccessModal />
-              <ReconnectDatasourceModal />
-              <SignpostingOverlay />
-              <PartialExportModal />
-              <PartialImportModal />
-              <AppCURLImportModal />
-              <GeneratePageModal />
+              <AppIDEModals />
             </GlobalHotKeys>
           </GitApplicationContextProvider>
         </div>
