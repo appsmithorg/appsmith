@@ -123,25 +123,38 @@ export class EntityExplorer {
     );
   }
 
+  private deleteQueryUnderDatasource(dsName: string) {
+    return cy.get("body").then(($body) => {
+      if ($body.find(`span:contains('${dsName}')`).length === 0) return;
+
+      return this.agHelper
+        .GetElement(this._visibleTextSpan(dsName))
+        .siblings()
+        .children()
+        .then(($items) => {
+          if ($items.length > 0) {
+            cy.wrap($items[0])
+              .find("button[data-testid='t--entity-context-menu-trigger']")
+              .click({
+                force: true,
+              });
+            cy.xpath(this.locator._contextMenuItem("Delete")).click({
+              force: true,
+            });
+            this.agHelper.GetNClick(
+              this.locator._contextMenuItem("Are you sure?"),
+            );
+            cy.wait(500);
+            this.deleteQueryUnderDatasource(dsName);
+          }
+        });
+    });
+  }
+
   public DeleteAllQueriesForDB(dsName: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    this.agHelper
-      .GetElement(this._visibleTextSpan(dsName))
-      .siblings()
-      .children()
-      .each(($el: any) => {
-        cy.wrap($el)
-          .find(".t--entity-name")
-          .invoke("text")
-          .then(($query) => {
-            this.ActionContextMenuByEntityName({
-              entityNameinLeftSidebar: $query as string,
-              action: "Delete",
-              entityType: EntityItems.Query,
-            });
-          });
-      });
+    this.deleteQueryUnderDatasource(dsName);
   }
 
   public SearchWidgetPane(widgetType: string) {
