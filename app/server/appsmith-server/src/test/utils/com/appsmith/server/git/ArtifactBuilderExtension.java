@@ -94,8 +94,8 @@ public class ArtifactBuilderExtension implements AfterEachCallback, BeforeEachCa
 
         // Because right now we only have checks for apps
         // Move this to artifact based model when we fix that
-        applicationService
-            .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        applicationPermission.getDeletePermission().flatMapMany(permission -> applicationService
+            .findByWorkspaceId(workspaceId, permission))
             .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
             .collectList()
             .block();

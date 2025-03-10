@@ -38,9 +38,9 @@ public class UserUtilsCE {
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final CommonConfig commonConfig;
-    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final OrganizationRepository organizationRepository;
     private final SessionUserService sessionUserService;
+    private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
 
     public UserUtilsCE(
             ConfigRepository configRepository,
@@ -48,17 +48,17 @@ public class UserUtilsCE {
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
             CommonConfig commonConfig,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
             OrganizationRepository organizationRepository,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.observationRegistry = observationRegistry;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
-        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
         this.organizationRepository = organizationRepository;
         this.sessionUserService = sessionUserService;
+        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
@@ -199,7 +199,7 @@ public class UserUtilsCE {
     }
 
     public Mono<PermissionGroup> getDefaultOrganizationAdminPermissionGroup() {
-        return cacheableRepositoryHelper.getDefaultOrganizationId().flatMap(orgId -> {
+        return cacheableRepositoryHelper.getCurrentUserOrganizationId().flatMap(orgId -> {
             String permissionGroupId = inMemoryCacheableRepositoryHelper.getOrganizationAdminPermissionGroupId(orgId);
             if (hasLength(permissionGroupId)) {
                 return permissionGroupRepository.findById(permissionGroupId);

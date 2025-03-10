@@ -214,7 +214,7 @@ describe("Tern server", () => {
       MockCodemirrorEditor.getValue.mockReturnValueOnce(
         testCase.input.codeEditor.value,
       );
-      MockCodemirrorEditor.getCursor.mockReturnValueOnce(
+      MockCodemirrorEditor.getCursor.mockReturnValue(
         testCase.input.codeEditor.cursor,
       );
       MockCodemirrorEditor.getDoc.mockReturnValue(
@@ -689,6 +689,11 @@ describe("Tern server completion", () => {
       ch: 30,
       sticky: null,
     });
+
+    MockCodemirrorEditor.getValue.mockReturnValue(
+      "\t\tconst users = await QueryMod",
+    );
+
     MockCodemirrorEditor.getTokenAt.mockResolvedValue(mockToken);
     CodemirrorTernService.fieldEntityInformation = fieldEntityInformation;
     CodemirrorTernService.entityDef = entityDef;

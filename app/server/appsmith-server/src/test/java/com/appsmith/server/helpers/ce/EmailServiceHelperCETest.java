@@ -46,25 +46,28 @@ class EmailServiceHelperCETest {
 
     @Test
     void testGetForgotPasswordTemplate() {
-        assertThat(emailServiceHelperCE.getForgotPasswordTemplate()).isEqualTo(FORGOT_PASSWORD_TEMPLATE_CE);
+        assertThat(emailServiceHelperCE.getForgotPasswordTemplate().block()).isEqualTo(FORGOT_PASSWORD_TEMPLATE_CE);
     }
 
     @Test
     void testGetWorkspaceInviteTemplate() {
-        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.TRUE))
+        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.TRUE).block())
                 .isEqualTo(INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE);
-        assertThat(emailServiceHelperCE.getWorkspaceInviteTemplate(Boolean.FALSE))
+        assertThat(emailServiceHelperCE
+                        .getWorkspaceInviteTemplate(Boolean.FALSE)
+                        .block())
                 .isEqualTo(INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE);
     }
 
     @Test
     void testGetEmailVerificationTemplate() {
-        assertThat(emailServiceHelperCE.getEmailVerificationTemplate()).isEqualTo(EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE);
+        assertThat(emailServiceHelperCE.getEmailVerificationTemplate().block())
+                .isEqualTo(EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE);
     }
 
     @Test
     void testGetAdminInstanceInviteTemplate() {
-        assertThat(emailServiceHelperCE.getAdminInstanceInviteTemplate())
+        assertThat(emailServiceHelperCE.getAdminInstanceInviteTemplate().block())
                 .isEqualTo(INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE);
     }
 }

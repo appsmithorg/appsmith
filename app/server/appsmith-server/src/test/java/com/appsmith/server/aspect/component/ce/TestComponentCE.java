@@ -13,9 +13,9 @@ public interface TestComponentCE {
 
     Flux<String> ceEeDiffMethodReturnsFlux();
 
-    String ceEeSyncMethod(String arg);
+    Mono<String> ceEeSyncMethod(String arg);
 
-    void ceEeThrowAppsmithException(String arg);
+    Mono<Void> ceEeThrowAppsmithException(String arg);
 
-    void ceEeThrowNonAppsmithException(String arg);
+    Mono<Void> ceEeThrowNonAppsmithException(String arg);
 }

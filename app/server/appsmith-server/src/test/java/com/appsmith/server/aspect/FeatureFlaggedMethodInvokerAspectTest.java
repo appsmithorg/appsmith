@@ -19,7 +19,6 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
@@ -108,42 +107,39 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void ceEeSyncMethod_eeImplTest() {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
-        String result = testComponent.ceEeSyncMethod("arg_");
-        assertEquals("arg_ee_impl_method", result);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
+                .thenReturn(Mono.just(true));
+        StepVerifier.create(testComponent.ceEeSyncMethod("arg_"))
+                .assertNext(result -> assertEquals("arg_ee_impl_method", result))
+                .verifyComplete();
     }
 
     @Test
     void ceEeSyncMethod_ceImplTest() {
-        String result = testComponent.ceEeSyncMethod("arg_");
-        assertEquals("arg_ce_impl_method", result);
+        StepVerifier.create(testComponent.ceEeSyncMethod("arg_"))
+                .assertNext(result -> assertEquals("arg_ce_impl_method", result))
+                .verifyComplete();
     }
 
     @Test
     void ceEeThrowAppsmithException_eeImplTest() {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
-        assertThrows(
-                AppsmithException.class,
-                () -> testComponent.ceEeThrowAppsmithException("arg_"),
-                AppsmithError.GENERIC_BAD_REQUEST.getMessage("This is a test exception"));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
+                .thenReturn(Mono.just(true));
+        StepVerifier.create(testComponent.ceEeThrowAppsmithException("arg_"))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.GENERIC_BAD_REQUEST.getMessage("This is a test exception")))
+                .verify();
     }
 
     @Test
     void ceEeThrowNonAppsmithException_eeImplTest_throwExceptionFromAspect() {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
-        assertThrows(
-                AppsmithException.class,
-                () -> testComponent.ceEeThrowNonAppsmithException("arg_"),
-                AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
-                        "FeatureFlagged",
-                        "TestComponentImpl",
-                        "ceEeThrowNonAppsmithException",
-                        "Exception while invoking super class method"));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
+                .thenReturn(Mono.just(true));
+        StepVerifier.create(testComponent.ceEeThrowNonAppsmithException("arg_"))
+                .expectErrorMatches(throwable -> throwable instanceof RuntimeException
+                        && throwable.getMessage().equals("This is a test exception"))
+                .verify();
     }
 }
