@@ -95,7 +95,18 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
 
     const metaWidgetChildrenStructure = useSelector(
-      getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
+      getMetaWidgetChildrenStructure(
+        widgetId,
+        type,
+        /**
+         * With UI modules there is a possiblity of the module to have modals
+         * These modals would be meta widgets and would be added to the metaWidgetsReducer.
+         * These modals needs to be placed in the children of the main container widget.
+         * The main container widget by default does not has the flag hasMetaWidgets set to true.
+         * So we need to check for the widgetId to be the main container widgetId.
+         */
+        hasMetaWidgets || widgetId === MAIN_CONTAINER_WIDGET_ID,
+      ),
       equal,
     );
 

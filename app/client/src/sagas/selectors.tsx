@@ -42,6 +42,27 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
   return state.entities.metaWidgets;
 };
 
+export const getModalWidgetByName = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (state: AppState, widgetName: string) => widgetName,
+  (widgets, metaWidgets, widgetName) => {
+    for (const widget of Object.values(widgets)) {
+      if (widget.widgetName === widgetName && widget.type === "MODAL_WIDGET") {
+        return widget;
+      }
+    }
+
+    for (const widget of Object.values(metaWidgets)) {
+      if (widget.widgetName === widgetName && widget.type === "MODAL_WIDGET") {
+        return widget;
+      }
+    }
+
+    return null;
+  },
+);
+
 export const getCanvasAndMetaWidgets = createSelector(
   getWidgets,
   getMetaWidgets,
@@ -73,11 +94,22 @@ export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
 };
 
-export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
-  return Object.values(state.entities.canvasWidgets)
-    .filter((widget: FlattenedWidgetProps) => widget.type === type)
-    .map((widget: FlattenedWidgetProps) => widget.widgetId);
-};
+export const getWidgetIdsByType = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (_state: AppState, widgetType: WidgetType) => widgetType,
+  (canvasWidgets, metaWidgets, widgetType) => {
+    const canvasWidgetIds = Object.values(canvasWidgets)
+      .filter((widget: FlattenedWidgetProps) => widget.type === widgetType)
+      .map((widget: FlattenedWidgetProps) => widget.widgetId);
+
+    const metaWidgetIds = Object.values(metaWidgets)
+      .filter((widget: FlattenedWidgetProps) => widget.type === widgetType)
+      .map((widget: FlattenedWidgetProps) => widget.widgetId);
+
+    return [...canvasWidgetIds, ...metaWidgetIds];
+  },
+);
 
 export const getAllDetachedWidgetIds = memoize(
   (canvasWidgets: CanvasWidgetsReduxState) => {
