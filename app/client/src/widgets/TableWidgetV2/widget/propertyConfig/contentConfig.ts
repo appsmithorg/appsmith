@@ -425,7 +425,7 @@ export default [
         inputType: "JS",
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) =>
-          props.isSortable &&
+          !props.isSortable ||
           !Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
         dependencies: ["isSortable"],
       },
