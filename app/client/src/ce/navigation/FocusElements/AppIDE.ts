@@ -55,7 +55,7 @@ import {
   setSelectedEntityUrl,
   setSelectedJSObject,
   setSelectedQuery,
-} from "ee/navigation/FocusSetters";
+} from "ee/navigation/AppIDEFocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
