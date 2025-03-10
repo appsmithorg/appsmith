@@ -2,7 +2,7 @@ import React from "react";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { useAppsmithTable } from "../TableContext";
-import InfiniteScrollBody from "./InifiniteScrollBody";
+import InfiniteScrollBodyComponent from "./InifiniteScrollBody";
 import VirtualTableBodyComponent from "./VirtualTableBodyComponent";
 import VirtualTableInnerElement from "./VirtualTableInnerElement";
 
@@ -14,7 +14,7 @@ const VirtualTable = (_: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
     <SimpleBar ref={ref} style={scrollContainerStyles}>
       {({ scrollableNodeRef }) =>
         isInfiniteScrollEnabled ? (
-          <InfiniteScrollBody
+          <InfiniteScrollBodyComponent
             innerElementType={VirtualTableInnerElement}
             ref={scrollableNodeRef}
           />

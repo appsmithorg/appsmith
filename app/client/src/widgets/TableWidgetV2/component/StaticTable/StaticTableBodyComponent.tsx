@@ -1,8 +1,8 @@
-import { Row } from "../../TableBodyCoreComponents/Row";
+import { Row } from "../TableBodyCoreComponents/Row";
 
 import React from "react";
-import { useAppsmithTable } from "../../TableContext";
-import { EmptyRows } from "../../cellComponents/EmptyCell";
+import { useAppsmithTable } from "../TableContext";
+import { EmptyRows } from "../cellComponents/EmptyCell";
 
 export const StaticTableBodyComponent = () => {
   const { getTableBodyProps, pageSize, subPage: rows } = useAppsmithTable();

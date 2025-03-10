@@ -3,7 +3,7 @@ import React from "react";
 import { Row } from "../../TableBodyCoreComponents/Row";
 import * as TableContext from "../../TableContext";
 import { useAppsmithTable } from "../../TableContext";
-import { StaticTableBodyComponent } from "../StaticTableBody";
+import { StaticTableBodyComponent } from "../StaticTableBodyComponent";
 import type { Row as ReactTableRowType } from "react-table";
 import { TABLE_SIZES, CompactModeTypes } from "../../Constants";
 import type { TableContextState } from "../../TableContext";

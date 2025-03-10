@@ -11,7 +11,7 @@ interface InfiniteScrollBodyProps {
   innerElementType: ReactElementType;
 }
 
-const InfiniteScrollBody = React.forwardRef(
+const InfiniteScrollBodyComponent = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
     const {
       height,
@@ -59,4 +59,4 @@ const InfiniteScrollBody = React.forwardRef(
   },
 );
 
-export default InfiniteScrollBody;
+export default InfiniteScrollBodyComponent;
