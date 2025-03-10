@@ -16,7 +16,6 @@ import com.appsmith.server.services.UserIdentifierService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -160,24 +159,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
-        return sessionUserService
-                .getCurrentUser()
-                // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
-                //  organization. Update this to get the orgId based on the request origin.
-                .flatMap(user -> StringUtils.hasText(user.getOrganizationId())
-                        ? Mono.just(user.getOrganizationId())
-                        : Mono.empty())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "No user found while fetching organization features, if the method is called without user "
-                                    + "context please use getOrganizationFeatures(String organizationId)");
-                    // TODO @CloudBilling - This is a temporary fix to fallback to default organization until we
-                    //  introduce a signup flow based on organization. Currently userSignup will end up in data
-                    //  corruption if the fallback is not provided to create default workspace in EE as this is
-                    //  controlled via flags, please refer WorkspaceServiceHelperImpl.isCreateWorkspaceAllowed.
-                    return organizationService.getDefaultOrganizationId();
-                }))
-                .flatMap(this::getOrganizationFeatures);
+        return organizationService.getCurrentUserOrganizationId().flatMap(this::getOrganizationFeatures);
     }
 
     @Override

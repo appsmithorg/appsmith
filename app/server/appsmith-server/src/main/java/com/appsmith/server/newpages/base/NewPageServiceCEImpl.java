@@ -477,7 +477,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        return archiveByIdEx(id, pagePermission.getDeletePermission());
+        return pagePermission.getDeletePermission().flatMap(permission -> archiveByIdEx(id, permission));
     }
 
     @Override

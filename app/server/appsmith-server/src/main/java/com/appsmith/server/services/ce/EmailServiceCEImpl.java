@@ -34,11 +34,16 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         params.put(RESET_URL, resetUrl);
         return emailServiceHelper
                 .enrichWithBrandParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        email,
-                        String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
-                        emailServiceHelper.getForgotPasswordTemplate(),
-                        updatedParams));
+                .zipWith(emailServiceHelper.getForgotPasswordTemplate())
+                .flatMap(tuple2 -> {
+                    Map<String, String> updatedParams = tuple2.getT1();
+                    String forgotPasswordTemplate = tuple2.getT2();
+                    return emailSender.sendMail(
+                            email,
+                            String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
+                            forgotPasswordTemplate,
+                            updatedParams);
+                });
     }
 
     @Override
@@ -55,16 +60,20 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         originHeader,
                         URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
                 : originHeader;
-        String emailSubject = emailServiceHelper.getSubjectJoinWorkspace(workspaceInvitedTo.getName());
+        Mono<String> emailSubjectMono = emailServiceHelper.getSubjectJoinWorkspace(workspaceInvitedTo.getName());
+        Mono<String> workspaceInviteTemplateMono = emailServiceHelper.getWorkspaceInviteTemplate(isNewUser);
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
         return emailServiceHelper
                 .enrichWithBrandParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        invitedUser.getEmail(),
-                        emailSubject,
-                        emailServiceHelper.getWorkspaceInviteTemplate(isNewUser),
-                        updatedParams));
+                .zipWith(Mono.zip(emailSubjectMono, workspaceInviteTemplateMono))
+                .flatMap(objects -> {
+                    Map<String, String> updatedParams = objects.getT1();
+                    String emailSubject = objects.getT2().getT1();
+                    String workspaceInviteTemplate = objects.getT2().getT2();
+                    return emailSender.sendMail(
+                            invitedUser.getEmail(), emailSubject, workspaceInviteTemplate, updatedParams);
+                });
     }
 
     @Override
@@ -73,11 +82,16 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
         return emailServiceHelper
                 .enrichWithBrandParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        user.getEmail(),
-                        EMAIL_VERIFICATION_EMAIL_SUBJECT,
-                        emailServiceHelper.getEmailVerificationTemplate(),
-                        updatedParams));
+                .zipWith(emailServiceHelper.getEmailVerificationTemplate())
+                .flatMap(tuple2 -> {
+                    Map<String, String> updatedParams = tuple2.getT1();
+                    String emailVerificationTemplate = tuple2.getT2();
+                    return emailSender.sendMail(
+                            user.getEmail(),
+                            EMAIL_VERIFICATION_EMAIL_SUBJECT,
+                            emailVerificationTemplate,
+                            updatedParams);
+                });
     }
 
     @Override
@@ -92,21 +106,28 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 : originHeader;
         params.put(PRIMARY_LINK_URL, inviteUrl);
 
-        String primaryLinkText = emailServiceHelper.getJoinInstanceCtaPrimaryText();
-        params.put(PRIMARY_LINK_TEXT, primaryLinkText);
+        Mono<String> primaryLinkTextMono = emailServiceHelper.getJoinInstanceCtaPrimaryText();
 
         if (invitingUser != null) {
             params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
         }
-        return emailServiceHelper.enrichWithBrandParams(params, originHeader).flatMap(updatedParams -> {
-            String instanceName = updatedParams.get(INSTANCE_NAME);
-            String subject = emailServiceHelper.getSubjectJoinInstanceAsAdmin(instanceName);
-            return emailSender.sendMail(
-                    invitedUser.getEmail(),
-                    subject,
-                    emailServiceHelper.getAdminInstanceInviteTemplate(),
-                    updatedParams);
-        });
+        return primaryLinkTextMono
+                .flatMap(primaryLinkText -> {
+                    params.put(PRIMARY_LINK_TEXT, primaryLinkText);
+                    return emailServiceHelper.enrichWithBrandParams(params, originHeader);
+                })
+                .zipWhen(updatedParams -> {
+                    return Mono.zip(
+                            emailServiceHelper.getSubjectJoinInstanceAsAdmin(updatedParams.get(INSTANCE_NAME)),
+                            emailServiceHelper.getAdminInstanceInviteTemplate());
+                })
+                .flatMap(objects -> {
+                    Map<String, String> updatedParams = objects.getT1();
+                    String subject = objects.getT2().getT1();
+                    String adminInstanceInviteTemplate = objects.getT2().getT2();
+                    return emailSender.sendMail(
+                            invitedUser.getEmail(), subject, adminInstanceInviteTemplate, updatedParams);
+                });
     }
 
     private Map<String, String> getInviteToWorkspaceEmailParams(

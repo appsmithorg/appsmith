@@ -228,8 +228,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         // Fetch branched applicationId if connected to git
         Mono<NewPage> pageMono = getOrCreatePage(branchedApplicationId, branchedPageId, tableName);
 
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
+        Mono<DatasourceStorage> datasourceStorageMono = datasourcePermission
+                .getActionCreatePermission()
+                .flatMap(permission -> datasourceService.findById(datasourceId, permission))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
@@ -500,8 +501,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        return applicationService
-                .findById(branchedApplicationId, applicationPermission.getPageCreatePermission())
+        return applicationPermission
+                .getPageCreatePermission()
+                .flatMap(permission -> applicationService.findById(branchedApplicationId, permission))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
                 .flatMap(branchedApplication -> newPageService

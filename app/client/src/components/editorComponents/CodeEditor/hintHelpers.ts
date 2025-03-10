@@ -7,6 +7,7 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
+  shouldShowAutocompleteWithBindingBrackets,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "ee/selectors/entitiesSelector";
@@ -45,14 +46,14 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         CodemirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
-      let shouldShow = false;
+      let shouldShow = true;
 
       if (additionalData?.isJsEditor) {
         if (additionalData?.enableAIAssistance) {
           shouldShow = !isAISlashCommand(editor);
-        } else {
-          shouldShow = true;
         }
+      } else if (shouldShowAutocompleteWithBindingBrackets(editor)) {
+        shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }

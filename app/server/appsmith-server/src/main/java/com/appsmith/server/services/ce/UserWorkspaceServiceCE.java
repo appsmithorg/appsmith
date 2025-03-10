@@ -22,7 +22,7 @@ public interface UserWorkspaceServiceCE {
 
     Mono<Map<String, List<MemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds);
 
-    Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup);
+    Mono<Boolean> isLastAdminRoleEntity(PermissionGroup permissionGroup);
 
     Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder(String hostname);
 }

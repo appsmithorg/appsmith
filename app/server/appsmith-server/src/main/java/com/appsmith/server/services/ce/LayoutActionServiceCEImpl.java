@@ -145,8 +145,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         final String destinationPageId = actionMoveDTO.getDestinationPageId();
         action.setPageId(destinationPageId);
 
-        Mono<NewPage> destinationPageMono = newPageService
-                .findById(destinationPageId, pagePermission.getActionCreatePermission())
+        Mono<NewPage> destinationPageMono = pagePermission
+                .getActionCreatePermission()
+                .flatMap(permission -> newPageService.findById(destinationPageId, permission))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)));
 
@@ -186,10 +187,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
-                                .then(newPageService.findPageById(
-                                        actionMoveDTO.getDestinationPageId(),
-                                        pagePermission.getActionCreatePermission(),
-                                        false))
+                                .then(pagePermission
+                                        .getActionCreatePermission()
+                                        .flatMap(permission -> newPageService.findPageById(
+                                                actionMoveDTO.getDestinationPageId(), permission, false)))
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -339,11 +340,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        AclPermission aclPermission =
-                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+        Mono<AclPermission> aclPermissionMono =
+                isJsAction ? Mono.just(pagePermission.getReadPermission()) : pagePermission.getActionCreatePermission();
 
-        return newPageService
-                .findById(actionDTO.getPageId(), aclPermission)
+        return aclPermissionMono
+                .flatMap(permission -> newPageService.findById(actionDTO.getPageId(), permission))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
@@ -427,13 +428,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
         // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
         // Else fetch the page with create action permission to ensure that the user has the right to create an action
-        AclPermission aclPermission =
-                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+        Mono<AclPermission> aclPermissionMono =
+                isJsAction ? Mono.just(pagePermission.getReadPermission()) : pagePermission.getActionCreatePermission();
 
         Mono<NewPage> pageMono = newPage != null
                 ? Mono.just(newPage)
-                : newPageService
-                        .findById(action.getPageId(), aclPermission)
+                : aclPermissionMono
+                        .flatMap(permission -> newPageService.findById(action.getPageId(), permission))
                         .name(GET_PAGE_BY_ID)
                         .tap(Micrometer.observation(observationRegistry))
                         .switchIfEmpty(Mono.error(new AppsmithException(
