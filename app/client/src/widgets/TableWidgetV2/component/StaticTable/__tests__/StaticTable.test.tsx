@@ -30,7 +30,7 @@ jest.mock("../../header/TableColumnHeader", () => ({
   default: () => <div data-testid="mock-table-header">Table Header</div>,
 }));
 
-jest.mock("../StaticTableBody", () => ({
+jest.mock("../StaticTableBodyComponent", () => ({
   StaticTableBodyComponent: () => (
     <div data-testid="mock-table-body">Table Body</div>
   ),
