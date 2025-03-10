@@ -4,7 +4,7 @@
   "searchApi": ".t--sidebar input[type=text]",
   "createapi": ".t--createBlankApiCard",
   "createAuthApiDatasource": ".t--createAuthApiDatasource",
-  "popover": "button[data-testid='t--more-action-trigger']",
+  "popover": "button[data-testid='t--entity-context-menu-trigger']",
   "moveTo": ".single-select >div:contains('Move to')",
   "copyTo": ".single-select >div:contains('Copy to page')",
   "home": ".single-select >div:contains('Page1')",

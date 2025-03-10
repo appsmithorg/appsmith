@@ -76,7 +76,7 @@ export class LeftPane {
       this.locators.expandCollapseArrow(itemName),
     );
     cy.xpath(this.locators.expandCollapseArrow(itemName))
-      .invoke("attr", "id")
+      .invoke("attr", "data-icon")
       .then((state) => {
         const closed = state === "arrow-right-s-line";
         const opened = state === "arrow-down-s-line";
