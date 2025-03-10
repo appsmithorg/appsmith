@@ -7,7 +7,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
+import {
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+  CUSTOM_SORT_FUNCTION_ENABLED,
+} from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -409,9 +412,27 @@ export default [
         hidden: (props: TableWidgetProps) => !props.isSortable,
         dependencies: ["isSortable"],
       },
+      {
+        helperText:
+          "Client side only, custom sort function(overrides default sorting)",
+        helpText:
+          "Function should expect three arguments: tableData, columnId, and sortOrder. Return the sorted tableData.",
+        propertyName: "customSortFunction",
+        label: "Custom Sort Function",
+        controlType: "INPUT_TEXT",
+        placeholderText:
+          "{{(data, columnId, order) => { /* Return sorted data */ }}}",
+        inputType: "JS",
+        isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) =>
+          props.isSortable &&
+          !Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
+        dependencies: ["isSortable"],
+      },
     ],
     expandedByDefault: false,
   },
+
   {
     sectionName: "Adding a row",
     children: [
