@@ -106,7 +106,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> getForUserEmail(String email) {
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .flatMap(organizationId -> userRepository.findByEmailAndOrganizationId(email, organizationId))
                 .flatMap(this::getForUser);
     }
@@ -125,7 +125,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(user -> organizationService
-                        .getDefaultOrganizationId()
+                        .getCurrentUserOrganizationId()
                         .flatMap(organizationId ->
                                 userRepository.findByEmailAndOrganizationId(user.getEmail(), organizationId)))
                 .flatMap(user -> updateForUser(user, updates));
@@ -172,7 +172,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         return Mono.justOrEmpty(user.getId())
                 .switchIfEmpty(organizationService
-                        .getDefaultOrganizationId()
+                        .getCurrentUserOrganizationId()
                         .flatMap(organizationId ->
                                 userRepository.findByEmailAndOrganizationId(user.getEmail(), organizationId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
