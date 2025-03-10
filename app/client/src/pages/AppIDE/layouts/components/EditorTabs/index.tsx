@@ -28,6 +28,10 @@ import { ScreenModeToggle } from "./ScreenModeToggle";
 import { EditableTab } from "./EditableTab";
 import { TabSelectors } from "./constants";
 import { AddTab } from "./AddTab";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const EditorTabs = () => {
   const location = useLocation();
@@ -45,6 +49,13 @@ const EditorTabs = () => {
   const hideAdd = segmentMode === EditorEntityTabState.Add || !files.length;
 
   const currentEntity = identifyEntityFromPath(location.pathname);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pagePermissions = useSelector(getPagePermissions);
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
   const showEntityListButton =
     ideViewMode === EditorViewMode.SplitScreen && files.length > 0;
 
@@ -121,11 +132,13 @@ const EditorTabs = () => {
               />
             );
           })}
-          <AddTab
-            isListActive={isListViewActive}
-            newTabClickCallback={handleNewTabClick}
-            onClose={closeClickHandler}
-          />
+          {canCreateActions && (
+            <AddTab
+              isListActive={isListViewActive}
+              newTabClickCallback={handleNewTabClick}
+              onClose={closeClickHandler}
+            />
+          )}
         </EntityTabBar>
         <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
       </EntityTabsHeader>
