@@ -24,9 +24,18 @@ export const StyledLink = styled((props) => {
 `;
 
 export const AppsmithLink = () => {
-  const handleOnClick = useCallback(() => {
-    history.push(APPLICATIONS_URL);
-  }, []);
+  const handleOnClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.stopPropagation();
+
+      if (e.ctrlKey || e.metaKey) {
+        window.open(APPLICATIONS_URL, "_blank");
+      } else {
+        history.push(APPLICATIONS_URL);
+      }
+    },
+    [],
+  );
 
   return (
     <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">

@@ -36,39 +36,39 @@ public class EmailServiceHelperCEImpl implements EmailServiceHelperCE {
     }
 
     @Override
-    public String getForgotPasswordTemplate() {
-        return FORGOT_PASSWORD_TEMPLATE_CE;
+    public Mono<String> getForgotPasswordTemplate() {
+        return Mono.just(FORGOT_PASSWORD_TEMPLATE_CE);
     }
 
     @Override
-    public String getWorkspaceInviteTemplate(boolean isNewUser) {
-        if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
+    public Mono<String> getWorkspaceInviteTemplate(boolean isNewUser) {
+        if (isNewUser) return Mono.just(INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE);
 
-        return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
+        return Mono.just(INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE);
     }
 
     @Override
-    public String getEmailVerificationTemplate() {
-        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE;
+    public Mono<String> getEmailVerificationTemplate() {
+        return Mono.just(EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE);
     }
 
     @Override
-    public String getAdminInstanceInviteTemplate() {
-        return INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE;
+    public Mono<String> getAdminInstanceInviteTemplate() {
+        return Mono.just(INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE);
     }
 
     @Override
-    public String getJoinInstanceCtaPrimaryText() {
-        return PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_CE;
+    public Mono<String> getJoinInstanceCtaPrimaryText() {
+        return Mono.just(PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_CE);
     }
 
     @Override
-    public String getSubjectJoinInstanceAsAdmin(String instanceName) {
-        return INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT;
+    public Mono<String> getSubjectJoinInstanceAsAdmin(String instanceName) {
+        return Mono.just(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT);
     }
 
     @Override
-    public String getSubjectJoinWorkspace(String workspaceName) {
-        return INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE;
+    public Mono<String> getSubjectJoinWorkspace(String workspaceName) {
+        return Mono.just(INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE);
     }
 }

@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import static java.lang.Boolean.TRUE;
 
@@ -18,8 +19,8 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     }
 
     @Override
-    public AclPermission getDeletePermission() {
-        return AclPermission.MANAGE_DATASOURCES;
+    public Mono<AclPermission> getDeletePermission() {
+        return Mono.just(AclPermission.MANAGE_DATASOURCES);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     }
 
     @Override
-    public AclPermission getActionCreatePermission() {
-        return AclPermission.MANAGE_DATASOURCES;
+    public Mono<AclPermission> getActionCreatePermission() {
+        return Mono.just(AclPermission.MANAGE_DATASOURCES);
     }
 }

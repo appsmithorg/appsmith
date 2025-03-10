@@ -59,6 +59,7 @@ import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
+import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 declare global {
   interface Window {
@@ -243,6 +244,7 @@ export function SignUp(props: SignUpFormProps) {
           method="POST"
           onSubmit={(e) => handleSubmit(e)}
         >
+          <CsrfTokenInput />
           <FormGroup
             intent={error ? "danger" : "none"}
             label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
