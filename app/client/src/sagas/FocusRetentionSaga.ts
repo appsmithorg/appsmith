@@ -139,7 +139,11 @@ class FocusRetention {
         parentElement,
       );
 
-      removeKeys.push(`${parentPath}#${branch}`);
+      if (focusEntityInfo.params.basePageId) {
+        removeKeys.push(`${parentPath}#${branch}`);
+      } else {
+        removeKeys.push(parentPath);
+      }
     }
 
     for (const key of removeKeys) {
