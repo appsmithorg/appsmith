@@ -416,17 +416,23 @@ export default [
         helperText:
           "Client side only, custom sort function(overrides default sorting)",
         helpText:
-          "Function should expect three arguments: tableData, columnId, and sortOrder. Return the sorted tableData.",
+          "Function should expect four arguments: originalTableData, computedTableData, columnId, and sortOrder. Return the sorted tableData.",
         propertyName: "customSortFunction",
         label: "Custom Sort Function",
         controlType: "INPUT_TEXT",
+        inputType: "MULTI_LINE_TEXT",
         placeholderText:
-          "{{(data, columnId, order) => { /* Return sorted data */ }}}",
-        inputType: "JS",
+          "{{(originalTableData, computedTableData, columnId, order) => { /* Return sorted table data */ }}}",
+        defaultValue:
+          "{{(originalTableData, computedTableData, columnId, order) => { /* Return sorted table data */ }}}",
+        controlConfig: {
+          maxHeight: "400px",
+          height: "100px",
+        },
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) =>
           !props.isSortable ||
-          !Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
+          Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
         dependencies: ["isSortable"],
       },
     ],
