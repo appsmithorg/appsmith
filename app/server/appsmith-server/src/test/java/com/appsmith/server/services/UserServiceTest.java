@@ -283,7 +283,7 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(newUser.getEmail().toLowerCase(), user.getEmail());
                     assertEquals(LoginSource.FORM, user.getSource());
                     assertThat(user.getIsEnabled()).isTrue();
                 })
@@ -308,7 +308,7 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(newUser.getEmail().toLowerCase(), user.getEmail());
                     assertEquals(LoginSource.GOOGLE, user.getSource());
                     assertTrue(user.getIsEnabled());
                 })
@@ -512,7 +512,7 @@ public class UserServiceTest {
         passwordResetToken.setFirstRequestTime(Instant.now());
 
         // mock the passwordResetTokenRepository to return request count 3 in 24 hours
-        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(testEmail, any()))
+        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(any(), any()))
                 .thenReturn(Mono.just(passwordResetToken));
 
         ResetUserPasswordDTO resetUserPasswordDTO = new ResetUserPasswordDTO();
@@ -542,7 +542,7 @@ public class UserServiceTest {
     public void verifyPasswordResetToken_WhenTokenDoesNotExist_ThrowsException() {
         String testEmail = "abc@example.org";
         // mock the passwordResetTokenRepository to return empty
-        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(testEmail, any()))
+        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(any(), any()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, "123456789")))
@@ -556,7 +556,7 @@ public class UserServiceTest {
         passwordResetToken.setTokenHash(passwordEncoder.encode(token1));
 
         // mock the passwordResetTokenRepository to return empty
-        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(testEmail, any()))
+        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(any(), any()))
                 .thenReturn(Mono.just(passwordResetToken));
 
         StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, token2)))
@@ -588,7 +588,7 @@ public class UserServiceTest {
 
         // ** check if token is not present in DB ** //
         // mock the passwordResetTokenRepository to return empty
-        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(testEmail, any()))
+        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(any(), any()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
@@ -600,7 +600,7 @@ public class UserServiceTest {
         passwordResetToken.setTokenHash(passwordEncoder.encode("abcdef"));
 
         // mock the passwordResetTokenRepository to return empty
-        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(testEmail, any()))
+        Mockito.when(passwordResetTokenRepository.findByEmailAndOrganizationId(any(), any()))
                 .thenReturn(Mono.just(passwordResetToken));
 
         StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
@@ -665,23 +665,27 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void emailVerificationTokenGenerate_WhenInstanceEmailVerificationIsNotEnabled_ThrowsException() {
         String testEmail = "test-email-for-verification";
 
+        Mono<Organization> currentUserOrganizationMono =
+                organizationService.getCurrentUserOrganization().cache();
         // create user
         User newUser = new User();
         newUser.setEmail(testEmail);
-        Mono<User> userMono = userRepository.save(newUser);
+        Mono<User> userMono = currentUserOrganizationMono.flatMap(organization -> {
+            newUser.setOrganizationId(organization.getId());
+            return userRepository.save(newUser);
+        });
 
         // Setting Organization Config emailVerificationEnabled to FALSE
-        Mono<Organization> organizationMono = organizationService
-                .getCurrentUserOrganization()
-                .flatMap(organization -> {
-                    OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
-                    organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
-                    organization.setOrganizationConfiguration(organizationConfiguration);
-                    return organizationService.update(organization.getId(), organization);
-                });
+        Mono<Organization> organizationMono = currentUserOrganizationMono.flatMap(organization -> {
+            OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+            organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
+            organization.setOrganizationConfiguration(organizationConfiguration);
+            return organizationService.update(organization.getId(), organization);
+        });
 
         Mono<Boolean> emailVerificationMono =
                 userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
@@ -694,31 +698,32 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void emailVerificationTokenGenerate_WhenUserEmailAlreadyVerified_ThrowsException() {
         String testEmail = "test-email-for-verification-user-already-verified";
 
-        // create user
+        // Get current organization first
+        Organization organization =
+                organizationService.getCurrentUserOrganization().block();
+
+        // create user with organization ID
         User newUser = new User();
         newUser.setEmail(testEmail);
         newUser.setEmailVerified(Boolean.TRUE);
-        Mono<User> userMono = userRepository.save(newUser);
+        newUser.setOrganizationId(organization.getId());
+        userRepository.save(newUser).block();
 
         // Setting Organization Config emailVerificationEnabled to TRUE
-        Mono<Organization> organizationMono = organizationService
-                .getCurrentUserOrganization()
-                .flatMap(organization -> {
-                    OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
-                    organizationConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
-                    organization.setOrganizationConfiguration(organizationConfiguration);
-                    return organizationService.update(organization.getId(), organization);
-                });
+
+        OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
+        organizationConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
+        organization.setOrganizationConfiguration(organizationConfiguration);
+        organizationService.update(organization.getId(), organization).block();
 
         Mono<Boolean> emailVerificationMono =
                 userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
 
-        Mono<Boolean> resultMono = userMono.then(organizationMono).then(emailVerificationMono);
-
-        StepVerifier.create(resultMono)
+        StepVerifier.create(emailVerificationMono)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_VERIFIED.getMessage())
                 .verify();
     }

@@ -410,16 +410,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithOrgMono = Mono.just(user).flatMap(userBeforeSave -> {
-            if (userBeforeSave.getOrganizationId() == null) {
-                return organizationService.getCurrentUserOrganizationId().map(organizationId -> {
-                    userBeforeSave.setOrganizationId(organizationId);
-                    return userBeforeSave;
-                });
-            }
-            // The org has been set already. No need to set the default org id.
-            return Mono.just(userBeforeSave);
-        });
+        Mono<User> userWithOrgMono = Mono.just(user)
+                .flatMap(userBeforeSave -> {
+                    if (userBeforeSave.getOrganizationId() == null) {
+                        return organizationService
+                                .getCurrentUserOrganizationId()
+                                .map(organizationId -> {
+                                    userBeforeSave.setOrganizationId(organizationId);
+                                    return userBeforeSave;
+                                });
+                    }
+                    // The org has been set already. No need to set the default org id.
+                    return Mono.just(userBeforeSave);
+                })
+                .cache();
         // Save the new user
         return userWithOrgMono
                 .flatMap(this::validateObject)
@@ -434,7 +438,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
-                        repository.findByEmail(user.getUsername()),
+                        userWithOrgMono.flatMap(userWithOrg -> repository.findByEmailAndOrganizationId(
+                                user.getUsername(), userWithOrg.getOrganizationId())),
                         userDataService.getForUserEmail(user.getUsername())))
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
