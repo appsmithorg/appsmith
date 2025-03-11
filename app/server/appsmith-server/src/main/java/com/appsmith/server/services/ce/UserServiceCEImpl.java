@@ -189,28 +189,33 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        return repository
-                .findByEmail(email)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
-                .flatMap(user -> {
-                    // an user found with the provided email address
-                    // Generate the password reset link for the user
-                    return passwordResetTokenRepository
-                            .findByEmail(user.getEmail())
-                            .switchIfEmpty(Mono.defer(() -> {
-                                PasswordResetToken passwordResetToken = new PasswordResetToken();
-                                passwordResetToken.setEmail(user.getEmail());
-                                passwordResetToken.setRequestCount(0);
-                                passwordResetToken.setFirstRequestTime(Instant.now());
-                                return Mono.just(passwordResetToken);
-                            }))
-                            .map(resetToken -> {
-                                // check the validity of the token
-                                validateResetLimit(resetToken);
-                                resetToken.setTokenHash(passwordEncoder.encode(token));
-                                return resetToken;
+        return organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(organizationId -> {
+                    return repository
+                            .findByEmailAndOrganizationId(email, organizationId)
+                            .switchIfEmpty(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                                    email, organizationId))
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                            .flatMap(user -> {
+                                // an user found with the provided email address
+                                // Generate the password reset link for the user
+                                return passwordResetTokenRepository
+                                        .findByEmailAndOrganizationId(user.getEmail(), user.getOrganizationId())
+                                        .switchIfEmpty(Mono.defer(() -> {
+                                            PasswordResetToken passwordResetToken = new PasswordResetToken();
+                                            passwordResetToken.setEmail(user.getEmail());
+                                            passwordResetToken.setRequestCount(0);
+                                            passwordResetToken.setFirstRequestTime(Instant.now());
+                                            return Mono.just(passwordResetToken);
+                                        }))
+                                        .map(resetToken -> {
+                                            // check the validity of the token
+                                            validateResetLimit(resetToken);
+                                            resetToken.setTokenHash(passwordEncoder.encode(token));
+                                            return resetToken;
+                                        });
                             });
                 })
                 .flatMap(passwordResetTokenRepository::save)
@@ -284,8 +289,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
-        return passwordResetTokenRepository
-                .findByEmail(emailTokenDTO.getEmail())
+        return organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(organizationId -> passwordResetTokenRepository.findByEmailAndOrganizationId(
+                        emailTokenDTO.getEmail(), organizationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
                 .map(obj -> this.passwordEncoder.matches(emailTokenDTO.getToken(), obj.getTokenHash()));
     }
@@ -309,10 +316,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<Organization> organizationMono = organizationService
                 .getCurrentUserOrganization()
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)))
+                .cache();
 
-        return passwordResetTokenRepository
-                .findByEmail(emailTokenDTO.getEmail())
+        return organizationMono
+                .flatMap(organization -> passwordResetTokenRepository.findByEmailAndOrganizationId(
+                        emailTokenDTO.getEmail(), organization.getId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
                 .map(passwordResetToken -> {
                     boolean matches =
@@ -358,8 +367,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             // password flow to set up their password, enable the user's account as well
                             userFromDb.setIsEnabled(true);
 
-                            return passwordResetTokenRepository
-                                    .findByEmail(userFromDb.getEmail())
+                            return organizationService
+                                    .getCurrentUserOrganizationId()
+                                    .flatMap(
+                                            organizationId -> passwordResetTokenRepository.findByEmailAndOrganizationId(
+                                                    userFromDb.getEmail(), organizationId))
                                     .switchIfEmpty(Mono.error(new AppsmithException(
                                             AppsmithError.NO_RESOURCE_FOUND,
                                             FieldName.TOKEN,
@@ -408,7 +420,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             // The org has been set already. No need to set the default org id.
             return Mono.just(userBeforeSave);
         });
-
         // Save the new user
         return userWithOrgMono
                 .flatMap(this::validateObject)
@@ -447,8 +458,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository
-                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
+        return organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(organizationId -> {
+                    return repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                            user.getUsername(), organizationId);
+                })
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         return isSignupAllowed(user).flatMap(isSignupAllowed -> {
@@ -729,7 +744,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
-        return repository.findAllByEmailIn(emails);
+        return organizationService
+                .getCurrentUserOrganizationId()
+                .flatMapMany(organizationId -> repository.findAllByEmailInAndOrganizationId(emails, organizationId));
     }
 
     @Override
@@ -752,9 +769,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
-        Mono<User> userMono = repository.findByEmail(email).cache();
-        return userMono.switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
-                .switchIfEmpty(
+        Mono<User> userMono = organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(organizationId -> repository
+                        .findByEmailAndOrganizationId(email, organizationId)
+                        .switchIfEmpty(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                                email, organizationId)))
+                .cache();
+
+        return userMono.switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
                     if (TRUE.equals(user.getEmailVerified())) {

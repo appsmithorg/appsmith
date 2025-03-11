@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 public class CustomFormLoginServiceImplUnitTest {
@@ -22,16 +24,19 @@ public class CustomFormLoginServiceImplUnitTest {
 
     private ReactiveUserDetailsService reactiveUserDetailsService;
 
+    @MockBean
+    UserOrganizationHelper userOrganizationHelper;
+
     @BeforeEach
     public void setUp() {
-        reactiveUserDetailsService = new CustomFormLoginServiceImpl(repository);
+        reactiveUserDetailsService = new CustomFormLoginServiceImpl(repository, userOrganizationHelper);
     }
 
     @Test
     public void findByUsername_WhenUserNameNotFound_ThrowsException() {
         String sampleEmail = "sample-email@example.com";
         Mockito.when(repository.findByEmail(sampleEmail)).thenReturn(Mono.empty());
-        Mockito.when(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(sampleEmail))
+        Mockito.when(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(sampleEmail, any()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail))
@@ -47,7 +52,7 @@ public class CustomFormLoginServiceImplUnitTest {
         user.setEmail(sampleEmail2.toLowerCase());
 
         Mockito.when(repository.findByEmail(sampleEmail2)).thenReturn(Mono.empty());
-        Mockito.when(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(sampleEmail2))
+        Mockito.when(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(sampleEmail2, any()))
                 .thenReturn(Mono.just(user));
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail2))

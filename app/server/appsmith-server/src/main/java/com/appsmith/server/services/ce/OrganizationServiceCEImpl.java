@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -40,8 +41,6 @@ import static java.lang.Boolean.TRUE;
 public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Organization, String>
         implements OrganizationServiceCE {
 
-    private String defaultOrganizationId = null;
-
     private final ConfigService configService;
 
     private final EnvManager envManager;
@@ -53,6 +52,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final CommonConfig commonConfig;
     private final ObservationRegistry observationRegistry;
 
+    private final UserOrganizationHelper userOrganizationHelper;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -62,7 +63,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            UserOrganizationHelper userOrganizationHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -70,19 +72,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
+        this.userOrganizationHelper = userOrganizationHelper;
     }
 
     @Override
     public Mono<String> getCurrentUserOrganizationId() {
-        // If the value exists in cache, return it as is
-        if (StringUtils.hasLength(defaultOrganizationId)) {
-            return Mono.just(defaultOrganizationId);
-        }
-        return repository.findBySlug(FieldName.DEFAULT).map(Organization::getId).map(organizationId -> {
-            // Set the cache value before returning.
-            this.defaultOrganizationId = organizationId;
-            return organizationId;
-        });
+        return userOrganizationHelper.getCurrentUserOrganizationId();
     }
 
     @Override
