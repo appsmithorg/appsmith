@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/react";
 import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
+import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -47,6 +48,7 @@ const VerifyUser = (
   return (
     <Container title={"Verifying"}>
       <form action={submitUrl} id="verification-form" method="POST">
+        <CsrfTokenInput />
         {Array.from(queryParams.entries()).map((param) => {
           return (
             <input
