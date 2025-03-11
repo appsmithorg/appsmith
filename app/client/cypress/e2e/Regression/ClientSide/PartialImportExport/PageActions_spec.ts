@@ -13,19 +13,19 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe("Check Page Actions Menu", {}, function () {
   it("1. Verify Page Actions when a page is selected", function () {
     homePage.RenameApplication("PageActions");
     PageList.AddNewPage("New blank page");
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
-    PageList.ShowList();
-    agHelper.GetNClick(entityExplorer._contextMenu("Page2"), 0, true);
-    agHelper.GetNClick(locators._contextMenuItem("Rename"));
-    agHelper.TypeText(propPane._placeholderName, `NewPage{enter}`, {
-      parseSpecialCharSeq: true,
-      clear: true,
-    });
+    entityExplorer.RenameEntityFromExplorer(
+      "Page2",
+      "NewPage",
+      true,
+      EntityItems.Page,
+    );
 
     PageList.ClonePage("NewPage");
     PageList.HidePage("NewPage Copy");
@@ -80,13 +80,12 @@ describe("Check Page Actions Menu", {}, function () {
 
   it("2. Verify Page Actions when a page is not selected", function () {
     EditorNavigation.NavigateToPage("Page1", true);
-    PageList.ShowList();
-    agHelper.GetNClick(entityExplorer._contextMenu("NewPage"), 0, true);
-    agHelper.GetNClick(locators._contextMenuItem("Rename"));
-    agHelper.TypeText(propPane._placeholderName, `Page2{enter}`, {
-      parseSpecialCharSeq: true,
-      clear: true,
-    });
+    entityExplorer.RenameEntityFromExplorer(
+      "NewPage",
+      "Page2",
+      true,
+      EntityItems.Page,
+    );
 
     PageList.ClonePage("Page2");
     EditorNavigation.NavigateToPage("Page1", true);
@@ -104,12 +103,12 @@ describe("Check Page Actions Menu", {}, function () {
   it("3. Verify Page Actions when a home page is selected", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
     PageList.ShowList();
-    agHelper.GetNClick(entityExplorer._contextMenu("Page1"), 0, true);
-    agHelper.GetNClick(locators._contextMenuItem("Rename"));
-    agHelper.TypeText(propPane._placeholderName, `HomePage{enter}`, {
-      parseSpecialCharSeq: true,
-      clear: true,
-    });
+    entityExplorer.RenameEntityFromExplorer(
+      "Page1",
+      "HomePage",
+      true,
+      EntityItems.Page,
+    );
 
     PageList.ClonePage("HomePage");
     PageList.HidePage("HomePage Copy");
