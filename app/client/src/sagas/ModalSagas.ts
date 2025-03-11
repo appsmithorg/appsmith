@@ -23,8 +23,8 @@ import {
 } from "ee/constants/ReduxActionConstants";
 
 import {
-  getModalWidgetByName,
   getWidget,
+  getWidgetByName,
   getWidgetIdsByType,
   getWidgetMetaProps,
   getWidgets,
@@ -136,7 +136,7 @@ export function* showModalByNameSaga(
   action: ReduxAction<{ modalName: string }>,
 ) {
   const modal: FlattenedWidgetProps | null = yield select(
-    getModalWidgetByName,
+    getWidgetByName,
     action.payload.modalName,
   );
 
@@ -201,7 +201,7 @@ export function* closeModalSaga(
     // If modalName is provided, we just want to close this modal
     if (modalName) {
       const widget: FlattenedWidgetProps | null = yield select(
-        getModalWidgetByName,
+        getWidgetByName,
         modalName,
       );
 

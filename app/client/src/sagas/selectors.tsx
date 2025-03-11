@@ -42,27 +42,6 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
   return state.entities.metaWidgets;
 };
 
-export const getModalWidgetByName = createSelector(
-  getWidgets,
-  getMetaWidgets,
-  (state: AppState, widgetName: string) => widgetName,
-  (widgets, metaWidgets, widgetName) => {
-    for (const widget of Object.values(widgets)) {
-      if (widget.widgetName === widgetName && widget.type === "MODAL_WIDGET") {
-        return widget;
-      }
-    }
-
-    for (const widget of Object.values(metaWidgets)) {
-      if (widget.widgetName === widgetName && widget.type === "MODAL_WIDGET") {
-        return widget;
-      }
-    }
-
-    return null;
-  },
-);
-
 export const getCanvasAndMetaWidgets = createSelector(
   getWidgets,
   getMetaWidgets,
@@ -220,17 +199,26 @@ export const getExistingPageNames = (state: AppState) => {
   return map;
 };
 
-export const getWidgetByName = (
-  state: AppState,
-  widgetName: string,
-): FlattenedWidgetProps | undefined => {
-  const widgets = state.entities.canvasWidgets;
+export const getWidgetByName = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (state: AppState, widgetName: string) => widgetName,
+  (widgets, metaWidgets, widgetName) => {
+    for (const widget of Object.values(widgets)) {
+      if (widget.widgetName === widgetName) {
+        return widget;
+      }
+    }
 
-  return _.find(
-    Object.values(widgets),
-    (widget) => widget.widgetName === widgetName,
-  );
-};
+    for (const widget of Object.values(metaWidgets)) {
+      if (widget.widgetName === widgetName) {
+        return widget;
+      }
+    }
+
+    return null;
+  },
+);
 
 export const getAllPageIdentities = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => ({

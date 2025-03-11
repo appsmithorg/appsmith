@@ -84,6 +84,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
     );
   }, [
     props.children,
+    props.positioning,
     props.shouldScrollContents,
     props.widgetId,
     props.componentHeight,
