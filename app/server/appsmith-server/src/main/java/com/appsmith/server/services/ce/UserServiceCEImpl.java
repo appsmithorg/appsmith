@@ -207,6 +207,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                             PasswordResetToken passwordResetToken = new PasswordResetToken();
                                             passwordResetToken.setEmail(user.getEmail());
                                             passwordResetToken.setRequestCount(0);
+                                            passwordResetToken.setOrganizationId(organizationId);
                                             passwordResetToken.setFirstRequestTime(Instant.now());
                                             return Mono.just(passwordResetToken);
                                         }))
