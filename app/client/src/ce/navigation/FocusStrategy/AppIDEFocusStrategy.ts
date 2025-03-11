@@ -1,5 +1,8 @@
 import { all, select, take } from "redux-saga/effects";
-import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
+import type {
+  FocusPath,
+  FocusStrategy,
+} from "ee/navigation/FocusStrategy/types";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
 import type { FocusEntityInfo } from "navigation/FocusEntity";

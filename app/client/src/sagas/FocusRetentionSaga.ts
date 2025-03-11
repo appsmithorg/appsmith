@@ -22,46 +22,10 @@ import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
-
-export interface FocusPath {
-  key: string;
-  entityInfo: FocusEntityInfo;
-}
-
-export type FocusElementsConfigList = {
-  [key in FocusEntity]?: FocusElementConfig[];
-};
-
-export interface FocusStrategy {
-  focusElements: FocusElementsConfigList;
-  /** based on the route change, what states need to be set in the upcoming route **/
-  getEntitiesForSet: (
-    previousPath: string,
-    currentPath: string,
-    state: AppsmithLocationState,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ) => Generator<any, Array<FocusPath>, any>;
-  /** based on the route change, what states need to be stored for the previous route **/
-  getEntitiesForStore: (
-    path: string,
-    currentPath: string,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ) => Generator<any, Array<FocusPath>, any>;
-  /** For entities with hierarchy, return the parent entity path for storing its state  **/
-  getEntityParentUrl: (
-    entityInfo: FocusEntityInfo,
-    parentEntity: FocusEntity,
-  ) => string;
-  /** Define a wait (saga) before we start setting states  **/
-  waitForPathLoad: (
-    currentPath: string,
-    previousPath: string,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ) => Generator<any, void, any>;
-}
+import type {
+  FocusPath,
+  FocusStrategy,
+} from "ee/navigation/FocusStrategy/types";
 
 /**
  * Context switching works by restoring the states of ui elements to as they were
