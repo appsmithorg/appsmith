@@ -163,7 +163,7 @@
     "path-to-regexp": "^6.3.0",
     "pluralize": "^8.0.0",
     "popper.js": "^1.15.0",
-    "prismjs": "^1.27.0",
+    "prismjs": "^1.30.0",
     "prompts": "^2.4.2",
     "proxy-memoize": "^1.2.0",
     "rc-pagination": "^3.1.3",

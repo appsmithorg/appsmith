@@ -13704,7 +13704,7 @@ __metadata:
     postcss-preset-env: ^7.0.1
     postcss-url: ^10.1.3
     prettier: ^3.0.3
-    prismjs: ^1.27.0
+    prismjs: ^1.30.0
     prompts: ^2.4.2
     prop-types: ^15.8.1
     proxy-memoize: ^1.2.0
@@ -28530,7 +28530,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prismjs@npm:^1.27.0, prismjs@npm:~1.27.0":
+"prismjs@npm:^1.27.0, prismjs@npm:^1.30.0":
+  version: 1.30.0
+  resolution: "prismjs@npm:1.30.0"
+  checksum: a68eddd4c5f1c506badb5434b0b28a7cc2479ed1df91bc4218e6833c7971ef40c50ec481ea49749ac964256acb78d8b66a6bd11554938e8998e46c18b5f9a580
+  languageName: node
+  linkType: hard
+
+"prismjs@npm:~1.27.0":
   version: 1.27.0
   resolution: "prismjs@npm:1.27.0"
   checksum: 85c7f4a3e999073502cc9e1882af01e3709706369ec254b60bff1149eda701f40d02512acab956012dc7e61cfd61743a3a34c1bd0737e8dbacd79141e5698bbc
