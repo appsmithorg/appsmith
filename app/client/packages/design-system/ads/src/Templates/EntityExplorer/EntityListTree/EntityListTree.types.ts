@@ -4,6 +4,8 @@ export interface EntityListTreeItem {
   isSelected: boolean;
   isDisabled?: boolean;
   id: string;
+  name: string;
+  type: string;
 }
 
 export interface EntityListTreeProps {

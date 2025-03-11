@@ -17,6 +17,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.FieldName.INSTANCE_ID;
+import static com.appsmith.server.constants.FieldName.ORGANIZATION_ID;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -41,18 +45,24 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
+    private final ConfigService configService;
+    private final OrganizationService organizationService;
 
     public DatasourceStorageServiceCEImpl(
             DatasourceStorageRepository repository,
             DatasourcePermission datasourcePermission,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            ConfigService configService,
+            OrganizationService organizationService) {
         this.repository = repository;
         this.datasourcePermission = datasourcePermission;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.analyticsService = analyticsService;
+        this.configService = configService;
+        this.organizationService = organizationService;
     }
 
     @Override
@@ -254,8 +264,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     }
                     return repository
                             .save(unsavedDatasourceStorage)
-                            .then(this.executePostSaveActions(unsavedDatasourceStorage))
-                            .thenReturn(unsavedDatasourceStorage);
+                            .flatMap(savedDatasourceStorage -> setAdditionalMetadataInDatasourceStorage(
+                                            savedDatasourceStorage)
+                                    .flatMap(this::executePostSaveActions)
+                                    .thenReturn(savedDatasourceStorage));
                 });
     }
 
@@ -263,6 +275,21 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     public Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage) {
         datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
         return Mono.just(datasourceStorage);
+    }
+
+    private Mono<DatasourceStorage> setAdditionalMetadataInDatasourceStorage(DatasourceStorage datasourceStorage) {
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
+        Mono<String> instanceIdMono = configService.getInstanceId();
+
+        Map<String, Object> metadata = new HashMap<>();
+
+        return organizationIdMono.zipWith(instanceIdMono).map(tuple -> {
+            // Change this to ORGANIZATION_ID once we have the organizationId field in the datasource storage
+            metadata.put(ORGANIZATION_ID, tuple.getT1());
+            metadata.put(INSTANCE_ID, tuple.getT2());
+            datasourceStorage.setMetadata(metadata);
+            return datasourceStorage;
+        });
     }
 
     private DatasourceStorage sanitizeDatasourceStorage(DatasourceStorage datasourceStorage) {

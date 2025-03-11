@@ -86,7 +86,7 @@ class OrganizationServiceCETest {
     @BeforeEach
     public void setup() throws IOException {
         final Organization organization =
-                organizationService.getDefaultOrganization().block();
+                organizationService.getCurrentUserOrganization().block();
         assert organization != null;
         originalOrganizationConfiguration = organization.getOrganizationConfiguration();
 
@@ -101,7 +101,7 @@ class OrganizationServiceCETest {
         // Todo change this to organization admin once we introduce multitenancy
         userRepository
                 .findByEmail("api_user")
-                .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
+                .flatMap(user -> userUtils.makeInstanceAdministrator(List.of(user)))
                 .block();
         doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
@@ -111,7 +111,7 @@ class OrganizationServiceCETest {
         Organization updatedOrganization = new Organization();
         updatedOrganization.setOrganizationConfiguration(originalOrganizationConfiguration);
         organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .flatMap(organizationId -> organizationService.update(organizationId, updatedOrganization))
                 .doOnError(error -> {
                     System.err.println("Error during cleanup: " + error.getMessage());
@@ -136,7 +136,7 @@ class OrganizationServiceCETest {
         changes.setGoogleMapsKey("test-key");
 
         final Mono<OrganizationConfiguration> resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .map(Organization::getOrganizationConfiguration);
 
         StepVerifier.create(resultMono)
@@ -151,7 +151,7 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<?> resultMono = organizationService.updateDefaultOrganizationConfiguration(changes);
+        final Mono<?> resultMono = organizationService.updateOrganizationConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -167,7 +167,7 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<?> resultMono = organizationService.updateDefaultOrganizationConfiguration(changes);
+        final Mono<?> resultMono = organizationService.updateOrganizationConfiguration(changes);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> {
@@ -208,7 +208,7 @@ class OrganizationServiceCETest {
         Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
 
         final Mono<OrganizationConfiguration> resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
@@ -234,7 +234,7 @@ class OrganizationServiceCETest {
         Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
 
         final Mono<OrganizationConfiguration> resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
@@ -253,7 +253,7 @@ class OrganizationServiceCETest {
         changes.setEmailVerificationEnabled(Boolean.FALSE);
 
         final Mono<OrganizationConfiguration> resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
@@ -357,7 +357,7 @@ class OrganizationServiceCETest {
     void updateOrganizationConfiguration_updateStrongPasswordPolicy_success() {
 
         // Ensure that the default organization does not have strong password policy setup
-        Mono<Organization> organizationMono = organizationService.getDefaultOrganization();
+        Mono<Organization> organizationMono = organizationService.getCurrentUserOrganization();
         StepVerifier.create(organizationMono)
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getIsStrongPasswordPolicyEnabled())
@@ -369,7 +369,7 @@ class OrganizationServiceCETest {
         final OrganizationConfiguration changes = new OrganizationConfiguration();
         changes.setIsStrongPasswordPolicyEnabled(TRUE);
         Mono<OrganizationConfiguration> resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
@@ -383,7 +383,7 @@ class OrganizationServiceCETest {
         // Ensure that the strong password policy is disabled after the update
         changes.setIsStrongPasswordPolicyEnabled(FALSE);
         resultMono = organizationService
-                .updateDefaultOrganizationConfiguration(changes)
+                .updateOrganizationConfiguration(changes)
                 .then(organizationService.getOrganizationConfiguration())
                 .map(Organization::getOrganizationConfiguration);
 
@@ -403,10 +403,11 @@ class OrganizationServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDeserializationErrors() {
-        String organizationId = organizationService.getDefaultOrganizationId().block();
+        String organizationId =
+                organizationService.getCurrentUserOrganizationId().block();
         Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("organization:" + organizationId);
-        Mono<Organization> organizationMono = organizationService.getDefaultOrganization();
+        Mono<Organization> organizationMono = organizationService.getCurrentUserOrganization();
         StepVerifier.create(evictCachedOrganization.then(organizationMono).then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();

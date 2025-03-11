@@ -76,8 +76,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.FieldName.ORGANIZATION;
+import static com.appsmith.server.constants.ce.FieldNameCE.USER;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -155,7 +155,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> findByEmail(String email) {
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .flatMap(organizationId -> findByEmailAndOrganizationId(email, organizationId));
     }
 
@@ -308,9 +308,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         Mono<Organization> organizationMono = organizationService
-                .getDefaultOrganization()
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
+                .getCurrentUserOrganization()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)));
 
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
@@ -401,7 +400,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> userWithOrgMono = Mono.just(user).flatMap(userBeforeSave -> {
             if (userBeforeSave.getOrganizationId() == null) {
-                return organizationService.getDefaultOrganizationId().map(organizationId -> {
+                return organizationService.getCurrentUserOrganizationId().map(organizationId -> {
                     userBeforeSave.setOrganizationId(organizationId);
                     return userBeforeSave;
                 });
@@ -417,7 +416,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
+                        return userUtils
+                                .makeInstanceAdministrator(List.of(crudUser))
+                                .then(Mono.just(crudUser));
                     }
                     return Mono.just(crudUser);
                 })

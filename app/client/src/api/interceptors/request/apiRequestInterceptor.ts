@@ -6,7 +6,6 @@ import { isAirgapped } from "ee/utils/airgapHelpers";
 import type { InternalAxiosRequestConfig } from "axios";
 
 import getQueryParamsObject from "utils/getQueryParamsObject";
-import { addRequestedByHeader } from "./addRequestedByHeader";
 import { increaseGitApiTimeout } from "./increaseGitApiTimeout";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { addVersionHeader as _addVersionHeader } from "./addVersionHeader";
@@ -61,7 +60,6 @@ const addVersionHeader = (config: InternalAxiosRequestConfig) => {
 export const apiRequestInterceptor = (config: InternalAxiosRequestConfig) => {
   const interceptorPipeline = compose<InternalAxiosRequestConfig>(
     blockAirgappedRoutes,
-    addRequestedByHeader,
     addVersionHeader,
     addGitBranchHeader,
     increaseGitApiTimeout,

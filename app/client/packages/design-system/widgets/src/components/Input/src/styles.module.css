@@ -51,6 +51,14 @@
   align-items: flex-start;
   resize: none;
   font-family: inherit;
+  max-height: var(--max-height);
+  padding-block: 0;
+  margin-block: var(--inner-spacing-1);
+}
+
+.inputGroup:has([data-has-scrollbar]):has(.input:is(textarea))
+  [data-input-suffix] {
+  right: calc(var(--sizing-1) + var(--scrollbar-width));
 }
 
 .input:autofill,

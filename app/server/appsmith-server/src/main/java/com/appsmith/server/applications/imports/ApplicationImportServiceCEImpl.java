@@ -90,19 +90,21 @@ public class ApplicationImportServiceCEImpl
             Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID);
 
     @Override
-    public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
+    public Mono<ImportArtifactPermissionProvider> getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissionGroups) {
-        return ImportArtifactPermissionProvider.builder(
-                        applicationPermission,
-                        pagePermission,
-                        actionPermission,
-                        datasourcePermission,
-                        workspacePermission)
-                .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                .permissionRequiredToCreateDatasource(true)
-                .permissionRequiredToEditDatasource(true)
-                .currentUserPermissionGroups(userPermissionGroups)
-                .build();
+        return workspacePermission
+                .getApplicationCreatePermission()
+                .map(appCreatePermission -> ImportArtifactPermissionProvider.builder(
+                                applicationPermission,
+                                pagePermission,
+                                actionPermission,
+                                datasourcePermission,
+                                workspacePermission)
+                        .requiredPermissionOnTargetWorkspace(appCreatePermission)
+                        .permissionRequiredToCreateDatasource(true)
+                        .permissionRequiredToEditDatasource(true)
+                        .currentUserPermissionGroups(userPermissionGroups)
+                        .build());
     }
 
     @Override

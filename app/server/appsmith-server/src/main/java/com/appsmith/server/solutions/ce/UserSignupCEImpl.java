@@ -56,12 +56,12 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.ce.FieldNameCE.USER;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -131,9 +131,8 @@ public class UserSignupCEImpl implements UserSignupCE {
         }
 
         Mono<Organization> organizationMono = organizationService
-                .getDefaultOrganization()
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
+                .getCurrentUserOrganization()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)));
 
         // - Only creating user if the password strength is acceptable as per the organization policy
         // - Welcome email will be sent post user email verification
@@ -290,7 +289,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     Mono<Boolean> makeSuperUserMono = userUtils
-                            .makeSuperUser(List.of(user))
+                            .makeInstanceAdministrator(List.of(user))
                             .elapsed()
                             .map(pair -> {
                                 log.debug(

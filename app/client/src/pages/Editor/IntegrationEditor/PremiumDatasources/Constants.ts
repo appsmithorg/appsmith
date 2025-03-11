@@ -6,7 +6,7 @@ export interface PremiumIntegration {
   icon: string;
 }
 
-export const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
+const PREMIUM_INTEGRATIONS: PremiumIntegration[] = [
   {
     name: "Zendesk",
     icon: getAssetUrl(`${ASSETS_CDN_URL}/zendesk-icon.png`),
@@ -31,7 +31,8 @@ export const getFilteredPremiumIntegrations = (
 ) => {
   return isExternalSaasEnabled
     ? PREMIUM_INTEGRATIONS.filter(
-        (integration) => !pluginNames.includes(integration.name),
+        (integration) =>
+          !pluginNames.includes(integration.name.toLocaleLowerCase()),
       )
     : PREMIUM_INTEGRATIONS;
 };

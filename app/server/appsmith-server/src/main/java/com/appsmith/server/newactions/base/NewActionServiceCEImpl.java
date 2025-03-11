@@ -795,7 +795,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return deleteUnpublishedAction(id, actionPermission.getDeletePermission());
+        return actionPermission.getDeletePermission().flatMap(permission -> deleteUnpublishedAction(id, permission));
     }
 
     @Override

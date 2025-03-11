@@ -10,9 +10,7 @@ import { getInstanceId } from "ee/selectors/organizationSelectors";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  url: any;
+  url: string;
   payload: Record<string, unknown>;
   retries: number;
   retryTimeout: number;
@@ -25,6 +23,7 @@ export const fetchWithRetry = (config: {
     credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
+      "X-Requested-By": "Appsmith",
     },
     body: JSON.stringify(config.payload),
     keepalive: true,

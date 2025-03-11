@@ -28,10 +28,8 @@ import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -66,8 +64,6 @@ import java.util.UUID;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_DATASOURCES_WITH_STORAGES;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_PLUGINS_IN_WORKSPACE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ID;
-import static com.appsmith.server.constants.ce.FieldNameCE.TENANT_ID;
 import static com.appsmith.server.dtos.DBOpsType.SAVE;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
@@ -97,9 +93,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final RateLimitService rateLimitService;
     private final FeatureFlagService featureFlagService;
     private final ObservationRegistry observationRegistry;
-    private final OrganizationService organizationService;
-    private final ConfigService configService;
-
     // Defines blocking duration for test as well as connection created for query execution
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
     // attempts
@@ -125,9 +118,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry,
-            OrganizationService organizationService,
-            ConfigService configService) {
+            ObservationRegistry observationRegistry) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -146,13 +137,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.rateLimitService = rateLimitService;
         this.featureFlagService = featureFlagService;
         this.observationRegistry = observationRegistry;
-        this.organizationService = organizationService;
-        this.configService = configService;
     }
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
-        return createEx(datasource, workspacePermission.getDatasourceCreatePermission(), false, null);
+        return workspacePermission
+                .getDatasourceCreatePermission()
+                .flatMap(permission -> createEx(datasource, permission, false, null));
     }
 
     // TODO: Check usage
@@ -233,48 +224,33 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         return datasourceMono.flatMap(savedDatasource -> this.organiseDatasourceStorages(savedDatasource)
-                .flatMap(datasourceStorageX -> setAdditionalMetadataInDatasourceStorage(datasourceStorageX)
-                        .flatMap(datasourceStorage -> {
-                            // Make sure that we are creating entries only if the id is not already populated
-                            if (hasText(datasourceStorage.getId())) {
-                                return Mono.just(datasourceStorage);
-                            }
+                .flatMap(datasourceStorage -> {
+                    // Make sure that we are creating entries only if the id is not already populated
+                    if (hasText(datasourceStorage.getId())) {
+                        return Mono.just(datasourceStorage);
+                    }
 
-                            return datasourceStorageService
-                                    .create(datasourceStorage, isDryOps)
-                                    .map(datasourceStorage1 -> {
-                                        if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                            List<DatasourceStorage> datasourceStorages =
-                                                    datasourceStorageDryRunQueries.get(SAVE);
-                                            if (datasourceStorages == null) {
-                                                datasourceStorages = new ArrayList<>();
-                                            }
-                                            datasourceStorages.add(datasourceStorage1);
-                                            datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
-                                        }
-                                        return datasourceStorage1;
-                                    });
-                        }))
+                    return datasourceStorageService
+                            .create(datasourceStorage, isDryOps)
+                            .map(datasourceStorage1 -> {
+                                if (datasourceStorageDryRunQueries != null && isDryOps) {
+                                    List<DatasourceStorage> datasourceStorages =
+                                            datasourceStorageDryRunQueries.get(SAVE);
+                                    if (datasourceStorages == null) {
+                                        datasourceStorages = new ArrayList<>();
+                                    }
+                                    datasourceStorages.add(datasourceStorage1);
+                                    datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
+                                }
+                                return datasourceStorage1;
+                            });
+                })
                 .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                 .collectMap(DatasourceStorageDTO::getEnvironmentId)
                 .map(savedStorages -> {
                     savedDatasource.setDatasourceStorages(savedStorages);
                     return savedDatasource;
                 }));
-    }
-
-    private Mono<DatasourceStorage> setAdditionalMetadataInDatasourceStorage(DatasourceStorage datasourceStorage) {
-        Mono<String> organizationIdMono = organizationService.getDefaultOrganizationId();
-        Mono<String> instanceIdMono = configService.getInstanceId();
-
-        Map<String, Object> metadata = new HashMap<>();
-
-        return organizationIdMono.zipWith(instanceIdMono).map(tuple -> {
-            metadata.put(TENANT_ID, tuple.getT1());
-            metadata.put(INSTANCE_ID, tuple.getT2());
-            datasourceStorage.setMetadata(metadata);
-            return datasourceStorage;
-        });
     }
 
     // this requires an EE override multiple environments
@@ -880,8 +856,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return repository
-                .findById(id, datasourcePermission.getDeletePermission())
+        return datasourcePermission
+                .getDeletePermission()
+                .flatMap(permission -> repository.findById(id, permission))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))

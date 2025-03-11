@@ -3,12 +3,6 @@ import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isRelevantEmail } from "utils/formhelpers";
 
-export const getTagText = (isBusinessOrEnterprise?: boolean) => {
-  return isBusinessOrEnterprise
-    ? createMessage(PREMIUM_DATASOURCES.SOON_TAG)
-    : createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG);
-};
-
 export const handlePremiumDatasourceClick = (
   integrationName: string,
   isBusinessOrEnterprise?: boolean,

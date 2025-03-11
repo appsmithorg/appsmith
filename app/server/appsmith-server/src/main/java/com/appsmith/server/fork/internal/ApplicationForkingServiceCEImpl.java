@@ -433,8 +433,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService
-                .findById(targetWorkspaceId, workspacePermission.getApplicationCreatePermission())
+        final Mono<Workspace> targetWorkspaceMono = workspacePermission
+                .getApplicationCreatePermission()
+                .flatMap(permission -> workspaceService.findById(targetWorkspaceId, permission))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
@@ -636,20 +637,22 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             permissionGroupIdsMono,
                             actionPermission.getEditPermission(),
                             AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-            Mono<Boolean> workspaceValidatedForCreateApplicationPermission =
-                    UserPermissionUtils.validateDomainObjectPermissionsOrError(
+            Mono<Boolean> workspaceValidatedForCreateApplicationPermission = workspacePermission
+                    .getApplicationCreatePermission()
+                    .flatMap(permission -> UserPermissionUtils.validateDomainObjectPermissionsOrError(
                             workspaceFlux,
                             FieldName.WORKSPACE,
                             permissionGroupIdsMono,
-                            workspacePermission.getApplicationCreatePermission(),
-                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-            Mono<Boolean> workspaceValidatedForCreateDatasourcePermission =
-                    UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                            permission,
+                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS));
+            Mono<Boolean> workspaceValidatedForCreateDatasourcePermission = workspacePermission
+                    .getDatasourceCreatePermission()
+                    .flatMap(permission -> UserPermissionUtils.validateDomainObjectPermissionsOrError(
                             workspaceFlux,
                             FieldName.WORKSPACE,
                             permissionGroupIdsMono,
-                            workspacePermission.getDatasourceCreatePermission(),
-                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+                            permission,
+                            AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS));
 
             return Mono.when(
                             pagesValidatedForPermission,

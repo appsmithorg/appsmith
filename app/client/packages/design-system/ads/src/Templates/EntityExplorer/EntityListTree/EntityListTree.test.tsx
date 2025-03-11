@@ -8,18 +8,8 @@ import type {
 
 const mockOnItemExpand = jest.fn();
 
-const name = {
-  "1": "Parent 1",
-  "1.1": "Child 1.1",
-  "1.1.1": "Child 1.1.1",
-  "1.1.2": "Child 1.1.2",
-  "1.2": "Child 1.2",
-  "2": "No Children Parent",
-  "1-1": "Child",
-};
-
 const ItemComponent = ({ item }: { item: EntityListTreeItem }) => {
-  return <div>{name[item.id as keyof typeof name] || item.id}</div>;
+  return <div>{item.name}</div>;
 };
 
 const defaultProps: EntityListTreeProps = {
@@ -30,13 +20,17 @@ const defaultProps: EntityListTreeProps = {
       isExpanded: false,
       isSelected: false,
       isDisabled: false,
+      name: "Parent 1",
+      type: "CONTAINER_WIDGET",
       children: [
         {
           id: "1-1",
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
+          name: "Child 1.1",
           children: [],
+          type: "TABLE_WIDGET",
         },
       ],
     },
@@ -52,7 +46,7 @@ describe("EntityListTree", () => {
 
   it("calls onItemExpand when expand icon is clicked", () => {
     render(<EntityListTree {...defaultProps} />);
-    const expandIcon = screen.getByTestId("t--entity-item-expand-icon");
+    const expandIcon = screen.getByTestId("t--entity-collapse-toggle");
 
     fireEvent.click(expandIcon);
     expect(mockOnItemExpand).toHaveBeenCalledWith("1");
@@ -67,13 +61,15 @@ describe("EntityListTree", () => {
           isExpanded: false,
           isSelected: false,
           isDisabled: false,
+          name: "No Children Parent",
           children: [],
+          type: "TABLE_WIDGET",
         },
       ],
     };
 
     render(<EntityListTree {...props} />);
-    const expandIcon = screen.queryByTestId("t--entity-item-expand-icon");
+    const expandIcon = screen.queryByTestId("t--entity-collapse-toggle");
 
     expect(
       screen.getByRole("treeitem", { name: "No Children Parent" }),
@@ -90,13 +86,17 @@ describe("EntityListTree", () => {
           isExpanded: true,
           isSelected: false,
           isDisabled: false,
+          name: "Parent 1",
+          type: "CONTAINER_WIDGET",
           children: [
             {
               id: "1-1",
               isExpanded: false,
               isSelected: false,
               isDisabled: false,
+              name: "Child 1.1",
               children: [],
+              type: "TABLE_WIDGET",
             },
           ],
         },
@@ -105,12 +105,14 @@ describe("EntityListTree", () => {
 
     render(<EntityListTree {...props} />);
 
-    expect(screen.getByRole("treeitem", { name: "Child" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("treeitem", { name: "Child 1.1" }),
+    ).toBeInTheDocument();
   });
 
   it("does not render nested EntityListTree when item is not expanded", () => {
     render(<EntityListTree {...defaultProps} />);
 
-    expect(screen.queryByRole("treeitem", { name: "Child" })).toBeNull();
+    expect(screen.queryByRole("treeitem", { name: "Child 1.1" })).toBeNull();
   });
 });

@@ -44,7 +44,7 @@ export default function EmptySearchedPlugins({
     ),
   );
 
-  const pluginNames = plugins.map((plugin) => plugin.name);
+  const pluginNames = plugins.map((plugin) => plugin.name.toLocaleLowerCase());
 
   const searchedItems =
     filterSearch(

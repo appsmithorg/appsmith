@@ -669,7 +669,7 @@ public class UserServiceTest {
 
         // Setting Organization Config emailVerificationEnabled to FALSE
         Mono<Organization> organizationMono = organizationService
-                .getDefaultOrganization()
+                .getCurrentUserOrganization()
                 .flatMap(organization -> {
                     OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
                     organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
@@ -699,7 +699,7 @@ public class UserServiceTest {
 
         // Setting Organization Config emailVerificationEnabled to TRUE
         Mono<Organization> organizationMono = organizationService
-                .getDefaultOrganization()
+                .getCurrentUserOrganization()
                 .flatMap(organization -> {
                     OrganizationConfiguration organizationConfiguration = organization.getOrganizationConfiguration();
                     organizationConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
