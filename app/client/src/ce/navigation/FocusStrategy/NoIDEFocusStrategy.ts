@@ -1,4 +1,4 @@
-import type { FocusStrategy } from "sagas/FocusRetentionSaga";
+import type { FocusStrategy } from "ee/navigation/FocusStrategy/types";
 import NoIDEFocusElements from "../FocusElements/NoIDE";
 export const NoIDEFocusStrategy: FocusStrategy = {
   focusElements: NoIDEFocusElements,
