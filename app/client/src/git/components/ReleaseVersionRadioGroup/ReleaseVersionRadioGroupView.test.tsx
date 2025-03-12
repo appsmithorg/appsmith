@@ -4,7 +4,7 @@ import ReleaseVersionRadioGroupView from "./ReleaseVersionRadioGroupView";
 import "@testing-library/jest-dom";
 
 describe("ReleaseVersionRadioGroupView", () => {
-  const releasedAt = Math.floor((Date.now() - 23000) / 1000);
+  const releasedAt = Math.floor((Date.now() - 3600000) / 1000);
   const mockOnVersionChange = jest.fn();
 
   const renderComponent = (props = {}) => {
@@ -32,7 +32,7 @@ describe("ReleaseVersionRadioGroupView", () => {
       "v1.0.1",
     );
     expect(getByTestId("t--git-release-released-at").textContent).toBe(
-      "Last released: v1.0.0 (23 secs ago)",
+      "Last released: v1.0.0 (1 hr ago)",
     );
     expect(getByRole("radio", { name: /patch/i })).toBeChecked();
   });

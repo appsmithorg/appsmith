@@ -4,7 +4,7 @@ import LatestCommitInfoView from "./LatestCommitInfoView";
 import "@testing-library/jest-dom";
 
 describe("LatestCommitInfoView", () => {
-  const currentTimestamp = Math.floor((Date.now() - 23000) / 1000);
+  const currentTimestamp = Math.floor((Date.now() - 3600000) / 1000);
 
   it("renders correctly with all props", () => {
     const { getByTestId } = render(
@@ -21,7 +21,7 @@ describe("LatestCommitInfoView", () => {
       "Initial commit",
     );
     expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
-      "John Doe committed 23 secs ago",
+      "John Doe committed 1 hr ago",
     );
     expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent(
       "abc123",
@@ -81,7 +81,7 @@ describe("LatestCommitInfoView", () => {
       "Initial commit",
     );
     expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
-      "John Doe committed 23 secs ago",
+      "John Doe committed 1 hr ago",
     );
     expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent("-");
   });
@@ -101,7 +101,7 @@ describe("LatestCommitInfoView", () => {
       "No commit message found",
     );
     expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
-      "John Doe committed 23 secs ago",
+      "John Doe committed 1 hr ago",
     );
     expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent(
       "abc123",
