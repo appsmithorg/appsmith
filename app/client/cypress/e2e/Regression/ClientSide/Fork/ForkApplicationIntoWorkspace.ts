@@ -40,7 +40,8 @@ describe("Fork Application", {}, () => {
     agHelper.AssertElementVisibility(locators._tableWidget);
   });
 
-  it("2. Verify fork application into different workspace", () => {
+  //Bug: https://github.com/appsmithorg/appsmith/issues/35527
+  it.skip("2. Verify fork application into different workspace", () => {
     let newWorkspace = workspaceName + "WS2";
     homePage.CreateNewWorkspace(newWorkspace, true);
     homePage.SelectWorkspace(workspaceName);
