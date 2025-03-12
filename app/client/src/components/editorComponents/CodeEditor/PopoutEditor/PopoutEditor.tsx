@@ -101,7 +101,7 @@ export function PopoutEditor(props: PopoutEditorProps) {
               startIcon="close-x"
             />
           </Styled.Header>
-          <Styled.EditorContainer>
+          <Styled.EditorContainer className="resize-handle">
             <LazyCodeEditor
               additionalDynamicData={additionalAutocomplete}
               borderLess
@@ -114,6 +114,7 @@ export function PopoutEditor(props: PopoutEditorProps) {
               tabBehaviour={TabBehaviour.INDENT}
               theme={theme}
               {...editorProps}
+              height={325}
             />
           </Styled.EditorContainer>
         </Styled.PopoutContainer>

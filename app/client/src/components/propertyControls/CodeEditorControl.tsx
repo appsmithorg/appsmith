@@ -47,15 +47,13 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         {this.state.popOutVisible ? (
           <Flex
             alignItems="center"
-            bg="var(--ads-v2-color-black-400)"
+            bg="var(--ads-v2-color-bg)"
             border="1px solid var(--ads-v2-color-border)"
             borderRadius="var(--ads-v2-border-radius)"
             h="36px"
             justifyContent="center"
             w="100%"
-          >
-            <p className="text-sm font-medium">Expanded</p>
-          </Flex>
+          />
         ) : (
           <LazyCodeEditor
             additionalDynamicData={this.props.additionalAutoComplete}
@@ -79,7 +77,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         {this.state.popOutVisible && (
           <PopoutEditor
             {...props}
-            label={this.props.propertyName}
+            label={this.props.label}
             onChange={this.onChange}
             onClose={() => this.setState({ popOutVisible: false })}
             theme={this.props.theme}
