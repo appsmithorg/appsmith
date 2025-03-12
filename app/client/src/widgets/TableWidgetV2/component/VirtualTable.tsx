@@ -67,12 +67,15 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           isLoading={props.isLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}
+          listRef={null}
           loadMoreFromEvaluations={props.loadMoreFromEvaluations}
           multiRowSelection={!!props.multiRowSelection}
           pageSize={props.pageSize}
           prepareRow={props.prepareRow}
           primaryColumnId={props.primaryColumnId}
           ref={scrollableNodeRef}
+          rowHeights={{ current: {} }}
+          rowNeedsMeasurement={{ current: {} }}
           rowSelectionState={props.rowSelectionState}
           rows={props.subPage}
           selectTableRow={props.selectTableRow}
