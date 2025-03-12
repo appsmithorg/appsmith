@@ -1,8 +1,7 @@
 import { Button, Flex } from "@appsmith/ads";
-import type { ActionResponse } from "api/ActionAPI";
-import { type Action } from "entities/Action";
+import { ErrorBoundary } from "@sentry/react";
+import { type VisualizationElements } from "entities/Action";
 import React, { useState } from "react";
-import { parseActionResponse } from "../Response/utils";
 import { EmptyVisualization } from "./components/EmptyVisualization";
 import { LoadingOverlay } from "./components/LoadingOverlay";
 import { PromptInput } from "./components/PromptInput";
@@ -10,24 +9,23 @@ import { Result } from "./components/Result";
 import { SuggestionButtons } from "./components/SuggestionButtons";
 import { useGenerateVisualization } from "./useGenerateVisualization";
 import { useSaveVisualization } from "./useSaveVisualization";
-import { ErrorBoundary } from "@sentry/react";
 
 interface VisualizationProps {
-  action: Action;
-  actionResponse?: ActionResponse;
+  entityId: string;
+  visualizationElements?: VisualizationElements;
+  response?: string | Record<string, unknown>[];
 }
 
 const BOTTOM_BAR_HEIGHT = 37;
 
 export const Visualization = (props: VisualizationProps) => {
-  const { action, actionResponse } = props;
+  const { entityId, response, visualizationElements } = props;
   const [prompt, setPrompt] = useState("");
-  const { response } = parseActionResponse(actionResponse);
   const generateVisualization = useGenerateVisualization(
-    action.id,
-    action.visualization?.result,
+    entityId,
+    visualizationElements,
   );
-  const saveVisualization = useSaveVisualization(action.id);
+  const saveVisualization = useSaveVisualization(entityId);
 
   return (
     // TODO: Remove the hardcoded height
