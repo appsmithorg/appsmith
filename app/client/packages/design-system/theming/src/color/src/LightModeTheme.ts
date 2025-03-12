@@ -354,7 +354,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Simplified and adjusted version of bgAccentHover algorithm (bgNeutral has very low or no chroma)
 
     if (this.bgNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.3;
+      color.oklch.l += 0.5;
     }
 
     if (this.bgNeutral.oklch.l > 0.06 && this.bgNeutral.oklch.l < 0.14) {
@@ -749,7 +749,7 @@ export class LightModeTheme implements ColorModeTheme {
 
     // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
-      color.oklch.l = 0.45;
+      color.oklch.l = 0.35;
 
       if (this.seedIsAchromatic) {
         color.oklch.c = 0;
@@ -967,18 +967,19 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdAccent() {
     // Accent border color. Lighter and less saturated than accent to put focus on the text label and create nice-looking harmony.
-    const color = this.seedColor.clone();
+    const color = this.fgAccent.clone();
 
     // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
-    if (this.bg.contrastAPCA(this.seedColor) <= 25) {
-      if (this.seedIsAchromatic) {
+    if (this.bg.contrastAPCA(color) <= 25) {
+      // If seed is achromatic make sure we don't produce parasitic coloring. Our standard achromatic cut-off is set too high for the very light seeds, so using chroma value checks instead.
+      if (color.oklch.c <= 0.04) {
         color.oklch.l = 0.55;
         color.oklch.c = 0;
       }
 
-      if (!this.seedIsAchromatic) {
+      if (color.oklch.c > 0.04) {
         color.oklch.l = 0.55;
-        color.oklch.c = 0.15;
+        color.oklch.c = 0.08;
       }
     }
 
@@ -989,8 +990,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of accent border, used in outlined buttons
     const color = this.bdAccent.clone();
 
-    color.oklch.l += 0.2;
-    color.oklch.c -= 0.12;
+    color.oklch.l += 0.35;
 
     return color;
   }
@@ -1053,7 +1053,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Slightly subtler version of neutral border, used in outlined buttons
     const color = this.bdNeutral.clone();
 
-    color.oklch.l += 0.2;
+    color.oklch.l += 0.35;
 
     return color;
   }
