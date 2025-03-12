@@ -33,6 +33,10 @@ export interface FocusStrategy {
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
+  ) => string;
+  /** Get focus history key for the URL */
+  getUrlKey: (
+    url: string,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, string, any>;

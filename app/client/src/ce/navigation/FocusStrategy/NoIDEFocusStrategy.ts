@@ -8,8 +8,11 @@ export const NoIDEFocusStrategy: FocusStrategy = {
   *getEntitiesForStore() {
     return [];
   },
-  getEntityParentUrl: function* () {
+  getEntityParentUrl: (): string => {
     return "";
+  },
+  getUrlKey: function* (url: string) {
+    return url;
   },
   *waitForPathLoad() {},
 };

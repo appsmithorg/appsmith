@@ -58,7 +58,6 @@ import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
-import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -339,14 +338,8 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         const currentUrl = window.location.pathname;
-        const branch: string | undefined = yield select(
-          selectGitApplicationCurrentBranch,
-        );
 
-        yield call(
-          FocusRetention.handleRemoveFocusHistory,
-          `${currentUrl}#${branch}`,
-        );
+        yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
 
         if (!disallowUndo) {
           // close property pane after delete
@@ -492,14 +485,10 @@ function* deleteAllSelectedWidgetsSaga(
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
 
-    const branch: string | undefined = yield select(
-      selectGitApplicationCurrentBranch,
-    );
-
     for (const widget of selectedWidgets) {
       yield call(
         FocusRetention.handleRemoveFocusHistory,
-        `${widgetURL({ selectedWidgets: [widget] })}#${branch}`,
+        widgetURL({ selectedWidgets: [widget] }),
       );
     }
 

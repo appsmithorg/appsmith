@@ -87,20 +87,26 @@ class FocusRetention {
 
   public *handleRemoveFocusHistory(url: string) {
     const removeKeys: string[] = [];
+    const entityKey: string = yield call(this.focusStrategy.getUrlKey, url);
     const focusEntityInfo = identifyEntityFromPath(url);
 
-    removeKeys.push(`${url}`);
+    removeKeys.push(`${entityKey}`);
 
     const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
 
     if (parentElement) {
-      const parentPath: string = yield call(
+      const parentUrl: string = yield call(
         this.focusStrategy.getEntityParentUrl,
         focusEntityInfo,
         parentElement,
       );
 
-      removeKeys.push(parentPath);
+      const parentEntityKey: string = yield call(
+        this.focusStrategy.getUrlKey,
+        parentUrl,
+      );
+
+      removeKeys.push(parentEntityKey);
     }
 
     for (const key of removeKeys) {

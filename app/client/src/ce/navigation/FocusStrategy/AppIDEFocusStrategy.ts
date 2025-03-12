@@ -1,4 +1,4 @@
-import { all, call, select, take } from "redux-saga/effects";
+import { all, select, take } from "redux-saga/effects";
 import type {
   FocusPath,
   FocusStrategy,
@@ -205,8 +205,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
 
       if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
-        const parentPath = yield call(
-          AppIDEFocusStrategy.getEntityParentUrl,
+        const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,
         );
@@ -218,7 +217,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
             appState: prevFocusEntityInfo.appState,
             params: prevFocusEntityInfo.params,
           },
-          key: parentPath,
+          key: `${parentPath}#${branch}`,
         });
       }
     }
@@ -259,14 +258,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
 
     return entities;
   },
-  getEntityParentUrl: function* (
+  getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
-  ) {
+  ): string => {
     let parentUrl: string = "";
-    const branch: string | undefined = yield select(
-      selectGitApplicationCurrentBranch,
-    );
 
     if (parentEntity === FocusEntity.WIDGET_LIST) {
       parentUrl = widgetListURL({
@@ -293,7 +289,14 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     }
 
     // We do not have to add any query params because this url is used as the key
-    return `${parentUrl.split("?")[0]}#${branch}`;
+    return parentUrl.split("?")[0];
+  },
+  getUrlKey: function* (url: string) {
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
+
+    return `${url}#${branch}`;
   },
   *waitForPathLoad(currentPath: string, previousPath?: string) {
     if (previousPath) {

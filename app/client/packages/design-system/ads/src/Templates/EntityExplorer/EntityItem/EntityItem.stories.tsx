@@ -54,7 +54,6 @@ const Template = (props: EntityItemProps) => {
               },
               onClick,
               rightControl,
-              rightControlVisibility: "hover",
             }}
           />
           <Callout>Double click the name to edit it</Callout>
