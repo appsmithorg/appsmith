@@ -292,7 +292,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     }
 
     // We do not have to add any query params because this url is used as the key
-    return parentUrl.split("?")[0] + `#${branch}`;
+    return `${parentUrl.split("?")[0]}#${branch}`;
   },
   *waitForPathLoad(currentPath: string, previousPath?: string) {
     if (previousPath) {

@@ -33,7 +33,9 @@ export interface FocusStrategy {
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
-  ) => Generator<unknown, string, unknown>;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => Generator<any, string, any>;
   /** Define a wait (saga) before we start setting states  **/
   waitForPathLoad: (
     currentPath: string,
