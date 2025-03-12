@@ -109,10 +109,12 @@ export const StyledListItem = styled.div<{
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {
       visibility: hidden;
+      width: 0;
     }
 
     &:hover ${RightControlWrapper} {
       visibility: visible;
+      width: auto;
     }
   }
 
