@@ -1,4 +1,4 @@
-import { all, select, take } from "redux-saga/effects";
+import { all, call, select, take } from "redux-saga/effects";
 import type {
   FocusPath,
   FocusStrategy,
@@ -205,7 +205,8 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
 
       if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
-        const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
+        const parentPath = yield call(
+          AppIDEFocusStrategy.getEntityParentUrl,
           prevFocusEntityInfo,
           parentEntity,
         );
