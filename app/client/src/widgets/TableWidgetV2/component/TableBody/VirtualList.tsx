@@ -78,9 +78,10 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   const getItemSize = useCallback(
     (index: number) => {
       try {
-        return rowHeights.current?.[index]
-          ? Math.max(rowHeights.current?.[index], tableSizes.ROW_HEIGHT)
-          : tableSizes.ROW_HEIGHT;
+        // Add a minimum height threshold to prevent rows from being too small
+        const rowHeight = rowHeights.current?.[index] || tableSizes.ROW_HEIGHT;
+
+        return Math.max(rowHeight, tableSizes.ROW_HEIGHT);
       } catch (error) {
         return tableSizes.ROW_HEIGHT;
       }
@@ -114,8 +115,8 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
 /**
  * The difference between next two components is in the number of arguments they expect.
  */
-export const FixedInfiniteVirtualList = React.memo(
-  function FixedInfiniteVirtualList(props: BaseVirtualListProps) {
+export const VariableHeightInfiniteVirtualList = React.memo(
+  function VariableHeightInfiniteVirtualList(props: BaseVirtualListProps) {
     return <BaseVirtualList {...props} />;
   },
 );

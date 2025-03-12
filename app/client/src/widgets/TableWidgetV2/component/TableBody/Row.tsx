@@ -1,5 +1,5 @@
 import type { CSSProperties, Key } from "react";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
@@ -10,6 +10,7 @@ import {
   StickyType,
   TABLE_SIZES,
 } from "../Constants";
+import useColumnVariableHeight from "./useColumnVariableHeight";
 
 interface RowType {
   className?: string;
@@ -44,6 +45,12 @@ export function Row(props: RowType) {
     selectedRowIndices,
     selectTableRow,
   } = useContext(BodyContext);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const wrappingColumns = useColumnVariableHeight(columns);
+
+  useEffect(() => {
+    setForceUpdate((prev) => prev + 1);
+  }, [wrappingColumns]);
 
   useEffect(() => {
     if (
@@ -60,19 +67,16 @@ export function Row(props: RowType) {
     const cellIndexesWithAllowCellWrapping: number[] = [];
     const cellIndexesWithHTMLCell: number[] = [0];
 
-    try {
+    if (row?.cells && Array.isArray(row.cells)) {
       row.cells.forEach((cell, index: number) => {
-        try {
-          const typedCell = cell as unknown as CellWithColumnProps;
+        const typedCell = cell as unknown as CellWithColumnProps;
 
-          if (typedCell.column.columnProperties?.allowCellWrapping) {
-            cellIndexesWithAllowCellWrapping.push(index);
-          }
-        } catch (e) {
-          // Handle potential errors
+        // Use optional chaining to safely access nested properties
+        if (typedCell?.column?.columnProperties?.allowCellWrapping) {
+          cellIndexesWithAllowCellWrapping.push(index);
         }
       });
-    } catch (error) {}
+    }
 
     // Get all child elements
     const children = element.children;
@@ -122,7 +126,7 @@ export function Row(props: RowType) {
     rowHeights.current && (rowHeights.current[index] = totalHeight);
     rowNeedsMeasurement.current && (rowNeedsMeasurement.current[index] = false);
     listRef && listRef.current?.resetAfterIndex(index);
-  }, [index, row]);
+  }, [index, row, forceUpdate]);
 
   prepareRow?.(props.row);
   const rowProps = {

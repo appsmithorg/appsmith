@@ -5,7 +5,7 @@ import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
 import type { TableSizes } from "../../Constants";
 import { LoadingIndicator } from "../../LoadingIndicator";
-import { FixedInfiniteVirtualList } from "../VirtualList";
+import { VariableHeightInfiniteVirtualList } from "../VirtualList";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
 interface InfiniteScrollBodyProps {
@@ -46,7 +46,7 @@ const InfiniteScrollBody = React.forwardRef(
           minimumBatchSize={pageSize}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
-            <FixedInfiniteVirtualList
+            <VariableHeightInfiniteVirtualList
               height={props.height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
