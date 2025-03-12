@@ -100,6 +100,11 @@ public class RedisUtils {
         });
     }
 
+    /**
+     * Expect to use this method when you want to delete all the sessions in this Appsmith instance.
+     * This would be required for whenever any attribute related to sessions becomes invalid at a systemic level.
+     * Use with caution, every user will be logged out.
+     */
     public Mono<Void> deleteAllSessionsIncludingCurrentUser() {
         AtomicInteger deletedKeysCount = new AtomicInteger(0);
 
