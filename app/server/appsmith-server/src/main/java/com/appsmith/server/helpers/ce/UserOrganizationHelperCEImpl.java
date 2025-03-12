@@ -27,7 +27,7 @@ public class UserOrganizationHelperCEImpl implements UserOrganizationHelperCE {
         return getDefaultOrganizationId();
     }
 
-    private Mono<String> getDefaultOrganizationId() {
+    protected Mono<String> getDefaultOrganizationId() {
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(inMemoryCacheableRepositoryHelper.getDefaultOrganizationId())) {
             return Mono.just(inMemoryCacheableRepositoryHelper.getDefaultOrganizationId());
