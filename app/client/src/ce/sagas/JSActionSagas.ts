@@ -549,7 +549,10 @@ export function* closeJSActionTabSaga(
     selectGitApplicationCurrentBranch,
   );
 
-  yield call(FocusRetention.handleRemoveFocusHistory, `${currentUrl}${branch}`);
+  yield call(
+    FocusRetention.handleRemoveFocusHistory,
+    `${currentUrl}#${branch}`,
+  );
   yield call(handleJSEntityRedirect, id);
   yield put(closeJsActionTabSuccess({ id, parentId }));
 }
