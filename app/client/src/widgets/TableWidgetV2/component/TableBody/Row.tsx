@@ -2,7 +2,7 @@ import type { CSSProperties, Key } from "react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { BodyContext } from ".";
+import { BodyContext } from "./BodyContext";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import {

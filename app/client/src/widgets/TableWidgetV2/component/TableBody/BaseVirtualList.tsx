@@ -8,7 +8,7 @@ import type {
 } from "react-window";
 import { VariableSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
-import { BodyContext } from ".";
+import { BodyContext } from "./BodyContext";
 import type { TableSizes } from "../Constants";
 import { EmptyRow, Row } from "./Row";
 
