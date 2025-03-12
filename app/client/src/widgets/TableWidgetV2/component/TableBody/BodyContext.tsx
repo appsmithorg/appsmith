@@ -1,4 +1,3 @@
-// Create a new file for the context
 import React, { type RefObject } from "react";
 import type {
   Row as ReactTableRowType,
