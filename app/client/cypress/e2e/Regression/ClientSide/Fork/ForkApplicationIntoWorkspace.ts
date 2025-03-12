@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
-describe("Fork Application", {}, () => {
+describe("Fork Application", { tags: ["@tag.Fork"] }, () => {
   let workspaceName: any;
   let appName: any;
   before(() => {
