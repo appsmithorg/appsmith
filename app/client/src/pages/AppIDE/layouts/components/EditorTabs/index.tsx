@@ -46,6 +46,7 @@ const EditorTabs = () => {
   const [showNudge, dismissNudge] = useShowSideBySideNudge();
   const { addClickHandler } = useIDETabClickHandlers();
   const isJSLoading = useIsJSAddLoading();
+  const hideAdd = segmentMode === EditorEntityTabState.Add || !files.length;
 
   const currentEntity = identifyEntityFromPath(location.pathname);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -54,10 +55,6 @@ const EditorTabs = () => {
     isFeatureEnabled,
     pagePermissions,
   );
-  const hideAdd =
-    segmentMode === EditorEntityTabState.Add ||
-    !files.length ||
-    !canCreateActions;
 
   const showEntityListButton =
     ideViewMode === EditorViewMode.SplitScreen && files.length > 0;
@@ -135,11 +132,13 @@ const EditorTabs = () => {
               />
             );
           })}
-          <AddTab
-            isListActive={isListViewActive}
-            newTabClickCallback={handleNewTabClick}
-            onClose={closeClickHandler}
-          />
+          {canCreateActions && (
+            <AddTab
+              isListActive={isListViewActive}
+              newTabClickCallback={handleNewTabClick}
+              onClose={closeClickHandler}
+            />
+          )}
         </EntityTabBar>
         <ScreenModeToggle dismissNudge={dismissNudge} showNudge={showNudge} />
       </EntityTabsHeader>

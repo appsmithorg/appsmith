@@ -11,7 +11,7 @@ const Container = styled.div`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function PushFailedWarning({ closeHandler, error }: any) {
   return (
-    <Container>
+    <Container className="ankita">
       <Callout isClosable kind="error" onClose={closeHandler}>
         <>
           <Text type={TextType.H5}>{error.errorType}</Text>
