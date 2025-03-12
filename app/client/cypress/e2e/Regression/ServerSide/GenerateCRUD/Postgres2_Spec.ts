@@ -28,7 +28,9 @@ describe(
     });
 
     it("1. Create new CRUD Table 'Vessels' and populate & refresh Entity Explorer to find the new table", () => {
-      const tableCreateQuery = `CREATE TABLE Vessels(
+      const tableCreateQuery = `DROP TABLE IF EXISTS Vessels;
+      
+      CREATE TABLE Vessels(
         SHIP_ID                  INTEGER  NOT NULL PRIMARY KEY
        ,CALLSIGN                 VARCHAR(7)
        ,SHIPNAME                 VARCHAR(30) NOT NULL

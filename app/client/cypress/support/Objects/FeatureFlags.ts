@@ -45,7 +45,7 @@ export const getConsolidatedDataApi = (
           updatedResponse.data.featureFlags.data = { ...flags };
           return res.send(updatedResponse);
         } catch (e) {
-          cy.log(`vamsi error `, e);
+          cy.log(`Featureflags.ts error `, e);
         }
       }
     });
