@@ -38,7 +38,6 @@ import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -254,12 +253,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
         return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
-                        instanceIdMono, defaultOrganizationIdMono)
+                        instanceIdMono, organizationIdMono)
                 .map(tuple -> {
                     String instanceId = tuple.getT1();
                     String organizationId = tuple.getT2();
@@ -755,11 +754,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                         .tap(Micrometer.observation(observationRegistry)))
-                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .zipWith(organizationService.getCurrentUserOrganizationId())
                 .flatMap(objects -> {
                     DatasourceStorage datasourceStorage1 = objects.getT1().getT1();
                     DatasourceContext<?> resourceContext = objects.getT1().getT2();
-                    String organizationId = objects.getT2().getOrganizationId();
+                    String organizationId = objects.getT2();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();

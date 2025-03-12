@@ -72,7 +72,7 @@ const TableVirtualBodyComponent = React.forwardRef(
         <FixedVirtualList
           height={props.height}
           innerElementType={props.innerElementType}
-          itemCount={props.rows.length}
+          itemCount={Math.max(props.rows.length, props.pageSize)}
           outerRef={ref}
           pageSize={props.pageSize}
           rows={props.rows}

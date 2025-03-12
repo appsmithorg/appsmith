@@ -64,8 +64,9 @@ describe("hint helpers", () => {
         toCall: "closeHint" | "showHint";
         getLine?: string[];
       }
+
       const cases: Case[] = [
-        { value: "ABC", cursor: { ch: 3, line: 0 }, toCall: "closeHint" },
+        { value: "ABC", cursor: { ch: 3, line: 0 }, toCall: "showHint" },
         { value: "{{ }}", cursor: { ch: 3, line: 0 }, toCall: "showHint" },
         {
           value: '{ name: "{{}}" }',
@@ -91,7 +92,7 @@ describe("hint helpers", () => {
         {
           value: "{test(",
           cursor: { ch: 1, line: 0 },
-          toCall: "closeHint",
+          toCall: "showHint",
         },
         {
           value: "justanystring {{}}",
@@ -101,7 +102,7 @@ describe("hint helpers", () => {
       ];
 
       cases.forEach((testCase) => {
-        MockCodemirrorEditor.getValue.mockReturnValueOnce(testCase.value);
+        MockCodemirrorEditor.getValue.mockReturnValue(testCase.value);
         MockCodemirrorEditor.getCursor.mockReturnValue(testCase.cursor);
 
         if (testCase.getLine) {

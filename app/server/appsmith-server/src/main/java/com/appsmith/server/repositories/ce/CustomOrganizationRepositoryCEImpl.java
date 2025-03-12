@@ -16,8 +16,8 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
         implements CustomOrganizationRepositoryCE {
 
     @Override
-    public Mono<Integer> disableRestartForAllTenants() {
-        log.info("Disabling restart for all tenants");
+    public Mono<Integer> disableRestartForAllOrganizations() {
+        log.info("Disabling restart for all organizations");
         return queryBuilder()
                 .criteria(Bridge.isTrue(organizationConfiguration_isRestartRequired))
                 .updateAll(Bridge.update().set(organizationConfiguration_isRestartRequired, false));

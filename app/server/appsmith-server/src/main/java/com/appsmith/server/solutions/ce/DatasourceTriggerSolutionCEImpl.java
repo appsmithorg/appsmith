@@ -173,7 +173,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private Mono<TriggerRequestDTO> populateTriggerRequestDto(
             TriggerRequestDTO triggerRequestDTO, Datasource datasource) {
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
                     triggerRequestDTO.setOrganizationId(tuple.getT1());

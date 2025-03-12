@@ -13,8 +13,8 @@ public class CacheableRepositoryHelperCECompatibleImpl extends CacheableReposito
         implements CacheableRepositoryHelperCECompatible {
     public CacheableRepositoryHelperCECompatibleImpl(
             ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
-            ObservationRegistry observationRegistry) {
-        super(mongoOperations, inMemoryCacheableRepositoryHelper, observationRegistry);
+            ObservationRegistry observationRegistry,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+        super(mongoOperations, observationRegistry, inMemoryCacheableRepositoryHelper);
     }
 }

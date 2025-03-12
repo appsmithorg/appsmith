@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.OrganizationService;
@@ -212,7 +211,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(new HashMap<>());
@@ -235,7 +234,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
@@ -258,7 +257,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
@@ -289,7 +288,7 @@ public class FeatureFlagServiceCETest {
     @WithUserDetails(value = "api_user")
     public void getCachedOrganizationFeatureFlags_withDefaultOrganization_organizationFeatureFlagsAreCached() {
 
-        String orgId = ReactiveContextUtils.getCurrentUser().block().getOrganizationId();
+        String orgId = organizationService.getCurrentUserOrganizationId().block();
         // Assert that the cached feature flags are empty before the remote fetch
         CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags(orgId);
         assertThat(cachedFeaturesBeforeRemoteCall.getFeatures()).hasSize(1);
