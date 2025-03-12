@@ -90,7 +90,7 @@ class FocusRetention {
     const entityKey: string = yield call(this.focusStrategy.getUrlKey, url);
     const focusEntityInfo = identifyEntityFromPath(url);
 
-    removeKeys.push(`${entityKey}`);
+    removeKeys.push(entityKey);
 
     const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
 
