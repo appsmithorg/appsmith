@@ -11,6 +11,7 @@ import {
   TABLE_SIZES,
 } from "../Constants";
 import useColumnVariableHeight from "./useColumnVariableHeight";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 interface RowType {
   className?: string;
@@ -23,6 +24,7 @@ interface CellWithColumnProps {
   column: {
     columnProperties?: {
       allowCellWrapping?: boolean;
+      columnType: ColumnTypes;
     };
   };
 }
@@ -46,7 +48,7 @@ export function Row(props: RowType) {
     selectTableRow,
   } = useContext(BodyContext);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const wrappingColumns = useColumnVariableHeight(columns);
+  const wrappingColumns = useColumnVariableHeight(columns, row);
 
   useEffect(() => {
     setForceUpdate((prev) => prev + 1);
@@ -71,9 +73,14 @@ export function Row(props: RowType) {
       row.cells.forEach((cell, index: number) => {
         const typedCell = cell as unknown as CellWithColumnProps;
 
-        // Use optional chaining to safely access nested properties
         if (typedCell?.column?.columnProperties?.allowCellWrapping) {
           cellIndexesWithAllowCellWrapping.push(index);
+        }
+
+        if (
+          typedCell?.column?.columnProperties?.columnType === ColumnTypes.HTML
+        ) {
+          cellIndexesWithHTMLCell.push(index);
         }
       });
     }
