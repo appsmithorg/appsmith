@@ -29,6 +29,8 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_DEFAULT_ORGANIZATION_SPAN;
@@ -116,6 +118,11 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .flatMap(tuple2 -> {
                     Organization organization = tuple2.getT2();
                     OrganizationConfiguration oldConfig = tuple2.getT1();
+                    List<Mono<Boolean>> sideEffectsMonos =
+                            calculateOrganizationConfigurationUpdateSideEffects(oldConfig, organizationConfiguration);
+
+                    Mono<List<Boolean>> allSideEffectsMono =
+                            Flux.fromIterable(sideEffectsMonos).flatMap(x -> x).collectList();
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
@@ -126,8 +133,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // hence it will not be evaluated again
                     return updatedOrganizationMono
                             .then(Mono.defer(() -> evictOrganizationCache))
+                            .then(Mono.defer(() -> allSideEffectsMono))
                             .then(updatedOrganizationMono);
                 });
+    }
+
+    protected List<Mono<Boolean>> calculateOrganizationConfigurationUpdateSideEffects(
+            OrganizationConfiguration oldConfig, OrganizationConfiguration organizationConfiguration) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -243,6 +256,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
         // Only copy the values that are pertinent to the client
         organizationConfiguration.copyNonSensitiveValues(dbOrganization.getOrganizationConfiguration());
+        clientOrganization.setId(dbOrganization.getId());
         clientOrganization.setUserPermissions(dbOrganization.getUserPermissions());
 
         return Mono.just(clientOrganization);

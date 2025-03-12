@@ -8,6 +8,9 @@ const AddMoreIcon = importRemixIcon(
 const AddMoreFillIcon = importRemixIcon(
   async () => import("remixicon-react/AddCircleFillIcon"),
 );
+const ArrowGoForwardLineIcon = importRemixIcon(
+  async () => import("remixicon-react/ArrowGoForwardLineIcon"),
+);
 const ArrowGoBackLineIcon = importRemixIcon(
   async () => import("remixicon-react/ArrowGoBackLineIcon"),
 );
@@ -1178,6 +1181,7 @@ const ICON_LOOKUP = {
   "add-line": AddLineIcon,
   "add-more": AddMoreIcon,
   "add-more-fill": AddMoreFillIcon,
+  "arrow-go-forward": ArrowGoForwardLineIcon,
   "alert-fill": AlertFillIcon,
   "alert-line": AlertLineIcon,
   "align-center": AlignCenter,

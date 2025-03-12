@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React, { type Ref } from "react";
+import React, { type ReactNode, type Ref } from "react";
 
 import { Flex } from "../../Flex";
 import { Text } from "../../Text";
@@ -9,6 +9,7 @@ import { useSidebar } from "./use-sidebar";
 
 interface SidebarContentProps {
   title?: string;
+  extraTitleButton?: ReactNode;
   className?: string;
   children: React.ReactNode;
 }
@@ -17,7 +18,7 @@ const _SidebarContent = (
   props: SidebarContentProps,
   ref: Ref<HTMLDivElement>,
 ) => {
-  const { children, className, title, ...rest } = props;
+  const { children, className, extraTitleButton, title, ...rest } = props;
   const { isMobile, setState, state } = useSidebar();
 
   return (
@@ -39,26 +40,29 @@ const _SidebarContent = (
               className={styles.sidebarTitle}
               fontWeight={500}
               lineClamp={1}
-              textAlign="center"
             >
               {title}
             </Text>
           )}
-          {!isMobile && (
-            <Button
-              className={styles.sidebarHeaderExpandButton}
-              color="neutral"
-              icon={
-                state === "full-width"
-                  ? "arrows-diagonal-minimize"
-                  : "arrows-diagonal-2"
-              }
-              onPress={() =>
-                setState(state === "full-width" ? "expanded" : "full-width")
-              }
-              variant="ghost"
-            />
-          )}
+
+          <Flex>
+            {extraTitleButton}
+            {!isMobile && (
+              <Button
+                className={styles.sidebarHeaderExpandButton}
+                color="neutral"
+                icon={
+                  state === "full-width"
+                    ? "arrows-diagonal-minimize"
+                    : "arrows-diagonal-2"
+                }
+                onPress={() =>
+                  setState(state === "full-width" ? "expanded" : "full-width")
+                }
+                variant="ghost"
+              />
+            )}
+          </Flex>
         </Flex>
         <div className={styles.sidebarContentInner}>{children}</div>
       </Flex>
