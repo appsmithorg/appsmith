@@ -4,75 +4,108 @@ import LatestCommitInfoView from "./LatestCommitInfoView";
 import "@testing-library/jest-dom";
 
 describe("LatestCommitInfoView", () => {
+  const currentTimestamp = Math.floor((Date.now() - 23000) / 1000);
+
   it("renders correctly with all props", () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <LatestCommitInfoView
         authorName="John Doe"
-        committedAt="2025-03-01"
+        committedAt={currentTimestamp}
         hash="abc123"
+        isLoading={false}
         message="Initial commit"
       />,
     );
 
-    expect(getByText("Initial commit")).toBeInTheDocument();
-    expect(getByText("John Doe committed 2025-03-01")).toBeInTheDocument();
-    expect(getByText("abc123")).toBeInTheDocument();
+    expect(getByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "Initial commit",
+    );
+    expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
+      "John Doe committed 23 secs ago",
+    );
+    expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent(
+      "abc123",
+    );
   });
 
   it("renders correctly with null authorName", () => {
-    const { getByText, queryByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <LatestCommitInfoView
         authorName={null}
-        committedAt="2025-03-01"
+        committedAt={currentTimestamp}
         hash="abc123"
+        isLoading={false}
         message="Initial commit"
       />,
     );
 
-    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
-    expect(getByText("Initial commit")).toBeInTheDocument();
+    expect(
+      queryByTestId("t--git-latest-commit-commited-by"),
+    ).not.toBeInTheDocument();
+    expect(getByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "Initial commit",
+    );
   });
 
   it("renders correctly with null committedAt", () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <LatestCommitInfoView
         authorName="John Doe"
         committedAt={null}
         hash="abc123"
+        isLoading={false}
         message="Initial commit"
       />,
     );
 
-    expect(getByText("Initial commit")).toBeInTheDocument();
-    expect(getByText("Committed by John Doe")).toBeInTheDocument();
+    expect(getByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "Initial commit",
+    );
+    expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
+      "Committed by John Doe",
+    );
   });
 
   it("renders correctly with null hash", () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <LatestCommitInfoView
         authorName="John Doe"
-        committedAt="2025-03-01"
+        committedAt={currentTimestamp}
         hash={null}
+        isLoading={false}
         message="Initial commit"
       />,
     );
 
-    expect(getByText("Initial commit")).toBeInTheDocument();
-    expect(getByText("John Doe committed 2025-03-01")).toBeInTheDocument();
+    expect(getByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "Initial commit",
+    );
+    expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
+      "John Doe committed 23 secs ago",
+    );
+    expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent("-");
   });
 
   it("renders correctly with null message", () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <LatestCommitInfoView
         authorName="John Doe"
-        committedAt="2025-03-01"
+        committedAt={currentTimestamp}
         hash="abc123"
+        isLoading={false}
         message={null}
       />,
     );
 
-    expect(getByText("John Doe committed 2025-03-01")).toBeInTheDocument();
-    expect(getByText("abc123")).toBeInTheDocument();
+    expect(getByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "No commit message found",
+    );
+    expect(getByTestId("t--git-latest-commit-commited-by")).toHaveTextContent(
+      "John Doe committed 23 secs ago",
+    );
+    expect(getByTestId("t--git-latest-commit-hash")).toHaveTextContent(
+      "abc123",
+    );
   });
 
   it("renders correctly with all null props", () => {
@@ -81,10 +114,33 @@ describe("LatestCommitInfoView", () => {
         authorName={null}
         committedAt={null}
         hash={null}
+        isLoading={false}
         message={null}
       />,
     );
 
-    expect(queryByTestId("t--git-release-released-at")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--git-latest-commit-commited-by"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--git-latest-commit-message")).toHaveTextContent(
+      "No commit message found",
+    );
+    expect(queryByTestId("t--git-latest-commit-hash")).toHaveTextContent("-");
+  });
+
+  it("renders loading state correctly", () => {
+    const { getByTestId } = render(
+      <LatestCommitInfoView
+        authorName="John Doe"
+        committedAt={currentTimestamp}
+        hash="abc123"
+        isLoading
+        message="Initial commit"
+      />,
+    );
+
+    expect(getByTestId("t--git-latest-commit-loading")).toHaveTextContent(
+      "Fetching latest commit...",
+    );
   });
 });

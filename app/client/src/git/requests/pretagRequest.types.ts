@@ -5,12 +5,13 @@ export interface PretagResponseData {
     name: string;
     email: string;
   };
-  committedAt: string;
+
+  commitedAt: number;
   hash: string;
-  message: string;
+  commitMessage: string;
 
   releaseTagName: string;
-  releasedAt: string;
+  releasedAt: number;
   isReleasable: boolean;
 }
 

@@ -3,13 +3,14 @@ import { Flex, Radio, RadioGroup, Tag, Text } from "@appsmith/ads";
 import { RELEASE_VERSION_RADIO_GROUP } from "git/ee/constants/messages";
 import { inc } from "semver";
 import noop from "lodash/noop";
+import { howMuchTimeBeforeText } from "utils/helpers";
 
 type ReleaseType = "major" | "minor" | "patch" | null;
 
 interface ReleaseVersionRadioGroupViewProps {
   latestReleaseVersion: string | null;
   onVersionChange: (value: string | null) => void;
-  releasedAt: string | null;
+  releasedAt: number | null;
 }
 
 function ReleaseVersionRadioGroupView({
@@ -19,10 +20,19 @@ function ReleaseVersionRadioGroupView({
 }: ReleaseVersionRadioGroupViewProps) {
   const [releaseType, setReleaseType] = useState<ReleaseType>("patch");
 
+  const readableReleaseAt = releasedAt
+    ? howMuchTimeBeforeText(new Date(releasedAt * 1000).toString())
+    : null;
+
   const nextVersion = useMemo(() => {
     if (!releaseType) return null;
 
-    return inc(latestReleaseVersion ?? "0.0.0", releaseType);
+    const latestReleaseVersionVal = latestReleaseVersion
+      ? latestReleaseVersion.slice(1)
+      : "0.0.0";
+    const nextReleaseVersionVal = inc(latestReleaseVersionVal, releaseType);
+
+    return `v${nextReleaseVersionVal}`;
   }, [latestReleaseVersion, releaseType]);
 
   useEffect(
@@ -69,7 +79,8 @@ function ReleaseVersionRadioGroupView({
           renderAs="p"
         >
           {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}:{" "}
-          {latestReleaseVersion ?? "-"} ({releasedAt ?? "-"})
+          {latestReleaseVersion ?? "-"}{" "}
+          {readableReleaseAt ? `(${readableReleaseAt} ago)` : null}
         </Text>
       )}
     </Flex>
