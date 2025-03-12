@@ -218,7 +218,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
             appState: prevFocusEntityInfo.appState,
             params: prevFocusEntityInfo.params,
           },
-          key: `${parentPath}#${branch}`,
+          key: parentPath,
         });
       }
     }

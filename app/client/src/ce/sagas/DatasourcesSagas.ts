@@ -451,7 +451,7 @@ export function* deleteDatasourceSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const currentUrl = `${window.location.pathname}`;
+      const currentUrl = window.location.pathname;
 
       yield call(handleDatasourceDeleteRedirect, id);
       yield call(
