@@ -1,6 +1,5 @@
-import { Button, Input } from "@appsmith/ads";
+import { Button, Flex, Input } from "@appsmith/ads";
 import React from "react";
-import styled from "styled-components";
 
 interface PromptInputProps {
   value: string;
@@ -10,25 +9,20 @@ interface PromptInputProps {
   isDisabled: boolean;
 }
 
-const PromptForm = styled.form`
-  display: flex;
-  flex: 1;
-  gap: var(--ads-v2-spaces-3);
-`;
-
 export const PromptInput = (props: PromptInputProps) => {
   const { isDisabled, isLoading, onChange, onSubmit, value } = props;
 
   return (
-    <PromptForm
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-    >
+    // We can't use a form here because editor already wrapped in a form
+    <Flex flex="1" gap="spaces-3">
       <Input
         isDisabled={isDisabled}
         onChange={onChange}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onSubmit();
+          }
+        }}
         placeholder="Describe the data visualisation you want"
         size="md"
         value={value}
@@ -38,10 +32,10 @@ export const PromptInput = (props: PromptInputProps) => {
         isIconButton
         isLoading={isLoading}
         kind="primary"
+        onClick={onSubmit}
         size="md"
         startIcon="arrow-up-line"
-        type="submit"
       />
-    </PromptForm>
+    </Flex>
   );
 };
