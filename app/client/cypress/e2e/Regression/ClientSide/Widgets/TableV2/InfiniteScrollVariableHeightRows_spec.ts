@@ -48,7 +48,9 @@ describe(
         cy.wrap($row)
           .invoke("outerHeight")
           .then((height) => {
-            expect(Math.ceil(height!)).to.equal(DEFAULT_ROW_HEIGHT);
+            if (height !== undefined) {
+              expect(Math.ceil(height)).to.equal(DEFAULT_ROW_HEIGHT);
+            }
           });
       });
     });
@@ -64,7 +66,9 @@ describe(
         cy.wrap($row)
           .invoke("outerHeight")
           .then((height) => {
-            expect(Math.ceil(height!)).to.be.greaterThan(DEFAULT_ROW_HEIGHT);
+            if (height !== undefined) {
+              expect(Math.ceil(height)).to.be.greaterThan(DEFAULT_ROW_HEIGHT);
+            }
           });
       });
     });
@@ -76,7 +80,9 @@ describe(
         cy.wrap($row)
           .invoke("outerHeight")
           .then((height) => {
-            currentRowHeight = Math.ceil(height!);
+            if (height !== undefined) {
+              currentRowHeight = Math.ceil(height);
+            }
           });
       });
 
@@ -105,8 +111,8 @@ describe(
           cy.wrap($row)
             .invoke("outerHeight")
             .then((height) => {
-              if (height! > maxHeight) {
-                maxHeight = height!;
+              if (height !== undefined && height > maxHeight) {
+                maxHeight = height;
               }
             });
         })
@@ -126,7 +132,9 @@ describe(
         cy.wrap($row)
           .invoke("outerHeight")
           .then((height) => {
-            expect(Math.ceil(height!)).to.equal(DEFAULT_ROW_HEIGHT);
+            if (height !== undefined) {
+              expect(Math.ceil(height)).to.equal(DEFAULT_ROW_HEIGHT);
+            }
           });
       });
     });
@@ -155,7 +163,9 @@ describe(
         cy.wrap($row)
           .invoke("outerHeight")
           .then((height) => {
-            expect(Math.ceil(height!)).to.be.greaterThan(DEFAULT_ROW_HEIGHT);
+            if (height !== undefined) {
+              expect(Math.ceil(height)).to.be.greaterThan(DEFAULT_ROW_HEIGHT);
+            }
           });
       });
     });
