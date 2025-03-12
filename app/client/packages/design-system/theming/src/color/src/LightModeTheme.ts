@@ -107,15 +107,20 @@ export class LightModeTheme implements ColorModeTheme {
 
       bd: this.bd.to("sRGB").toString(),
       bdAccent: this.bdAccent.to("sRGB").toString(),
+      bdAccentSubtle: this.bdAccentSubtle.to("sRGB").toString(),
       bdFocus: this.bdFocus.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.to("sRGB").toString(),
       bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
+      bdNeutralSubtle: this.bdNeutralSubtle.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
+      bdPositiveSubtle: this.bdPositiveSubtle.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
       bdNegativeHover: this.bdNegativeHover.to("sRGB").toString(),
+      bdNegativeSubtle: this.bdNegativeSubtle.to("sRGB").toString(),
       bdWarning: this.bdWarning.to("sRGB").toString(),
       bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
+      bdWarningSubtle: this.bdWarningSubtle.to("sRGB").toString(),
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
@@ -980,6 +985,16 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdAccentSubtle() {
+    // Slightly subtler version of accent border, used in outlined buttons
+    const color = this.bdAccent.clone();
+
+    color.oklch.l += 0.2;
+    color.oklch.c -= 0.12;
+
+    return color;
+  }
+
   private get bdFocus() {
     // Keyboard focus outline
     const color = this.bgAccent.clone();
@@ -1034,6 +1049,15 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdNeutralSubtle() {
+    // Slightly subtler version of neutral border, used in outlined buttons
+    const color = this.bdNeutral.clone();
+
+    color.oklch.l += 0.2;
+
+    return color;
+  }
+
   private get bdPositive() {
     // Positive (green) border. Additional compensations are applied if seed is withing green range.
     const color = this.bgPositive.clone();
@@ -1066,6 +1090,16 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Lightness of bdPositive is known, no additional checks like in bdNeutralHover
     color.oklch.l += 0.1;
+
+    return color;
+  }
+
+  private get bdPositiveSubtle() {
+    // Slightly subtler version of negative border, used in outlined buttons
+    const color = this.bdPositive.clone();
+
+    color.oklch.l += 0.07;
+    color.oklch.c -= 0.09;
 
     return color;
   }
@@ -1106,6 +1140,16 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdNegativeSubtle() {
+    // Slightly subtler version of negative border, used in outlined buttons
+    const color = this.bdNegative.clone();
+
+    color.oklch.l += 0.1;
+    color.oklch.h -= 0.05;
+
+    return color;
+  }
+
   private get bdWarning() {
     // Warning (yellow) border. Produced out of bgNegative. Additional compensations are applied if seed is within yellow range.
     const color = this.bgWarning.clone();
@@ -1142,6 +1186,15 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdWarningSubtle() {
+    // Slightly subtler version of warning border, used in outlined buttons
+    const color = this.bdWarning.clone();
+
+    color.oklch.l += 0.05;
+    color.oklch.c -= 0.05;
+
+    return color;
+  }
   private get bdOnAccent() {
     // Separator on bgAccent, low contrast to not pull attention from actual separated content elements
     const color = this.bgAccent.clone();
