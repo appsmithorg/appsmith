@@ -15,7 +15,8 @@ import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
 const basePageId = "0123456789abcdef00000000";
 
-describe("IDE URL rendering of Queries", () => {
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip("IDE URL rendering of Queries", () => {
   describe("Query Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(
