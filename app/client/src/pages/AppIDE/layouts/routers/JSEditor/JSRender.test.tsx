@@ -129,6 +129,9 @@ describe("IDE Render: JS", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js1.baseId}`,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 

@@ -140,6 +140,9 @@ describe("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}`,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
@@ -352,6 +355,9 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
@@ -564,6 +570,9 @@ describe("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
