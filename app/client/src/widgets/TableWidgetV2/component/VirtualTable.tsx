@@ -41,6 +41,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
   isLoading: boolean;
   totalRecordsCount?: number;
   loadMoreFromEvaluations: () => void;
+  isItemLoaded: (index: number) => boolean;
 };
 
 const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
@@ -64,6 +65,7 @@ const VirtualTable = (props: VirtualTableProps, ref: React.Ref<SimpleBar>) => {
           innerElementType={VirtualTableInnerElement}
           isAddRowInProgress={props.isAddRowInProgress}
           isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+          isItemLoaded={props.isItemLoaded}
           isLoading={props.isLoading}
           isResizingColumn={props.isResizingColumn}
           isSortable={props.isSortable}

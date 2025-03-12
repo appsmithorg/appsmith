@@ -1920,6 +1920,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   };
 
+  getRowIndex = (rowIndex: number) => {
+    const { pageSize } = this.props;
+
+    return rowIndex % pageSize;
+  };
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell = (props: any) => {
@@ -1927,7 +1933,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.getColumnByOriginalId(
         props.cell.column.columnProperties.originalId,
       ) || props.cell.column.columnProperties;
-    const rowIndex = props.cell.row.index;
+    const rowIndex = this.getRowIndex(props.cell.row.index);
 
     /*
      * We don't need to render cells that don't display data (button, iconButton, etc)

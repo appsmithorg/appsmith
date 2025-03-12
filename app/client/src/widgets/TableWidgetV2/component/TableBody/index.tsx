@@ -63,6 +63,7 @@ interface BodyPropsType {
   isLoading: boolean;
   loadMoreFromEvaluations: () => void;
   totalRecordsCount?: number;
+  isItemLoaded: (index: number) => boolean;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(

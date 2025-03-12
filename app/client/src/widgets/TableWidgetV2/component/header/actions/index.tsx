@@ -95,7 +95,7 @@ const SearchComponentWrapper = styled.div<{
 
 export interface ActionsPropsType {
   updatePageNo: (pageNo: number, event?: EventType) => void;
-  nextPageClick: () => void;
+  nextPageClick: (startIndex: number, endIndex: number) => void;
   prevPageClick: () => void;
   pageNo: number;
   totalRecordsCount?: number;

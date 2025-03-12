@@ -90,7 +90,7 @@ export interface TableProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
   isSortable?: boolean;
-  nextPageClick: () => void;
+  nextPageClick: (startIndex: number, endIndex: number) => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
@@ -135,6 +135,7 @@ export interface TableProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
+  isItemLoaded: (index: number) => boolean;
 }
 
 const defaultColumn = {
@@ -276,6 +277,7 @@ export function Table(props: TableProps) {
     () => page.slice(startIndex, endIndex),
     [page, startIndex, endIndex],
   );
+
   const selectedRowIndices = props.selectedRowIndices || emptyArr;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -529,6 +531,7 @@ export function Table(props: TableProps) {
                 height={props.height}
                 isAddRowInProgress={props.isAddRowInProgress}
                 isInfiniteScrollEnabled={props.isInfiniteScrollEnabled}
+                isItemLoaded={props.isItemLoaded}
                 isLoading={props.isLoading}
                 isResizingColumn={isResizingColumn}
                 isSortable={props.isSortable}
