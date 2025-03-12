@@ -138,8 +138,9 @@ public class DatasourceContextServiceTest {
 
     @AfterEach
     public void cleanup() {
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = applicationPermission
+                .getDeletePermission()
+                .flatMapMany(permission -> applicationService.findByWorkspaceId(workspaceId, permission))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -188,7 +189,7 @@ public class DatasourceContextServiceTest {
 
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
-                .findById("id1", datasourcePermission.getDeletePermission());
+                .findById("id1", datasourcePermission.getDeletePermission().block());
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
                 .findById("id1", datasourcePermission.getExecutePermission());

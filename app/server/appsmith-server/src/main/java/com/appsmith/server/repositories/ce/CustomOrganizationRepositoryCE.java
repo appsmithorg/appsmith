@@ -7,7 +7,7 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Mono;
 
 public interface CustomOrganizationRepositoryCE extends AppsmithRepository<Organization> {
-    Mono<Integer> disableRestartForAllTenants();
+    Mono<Integer> disableRestartForAllOrganizations();
 
     Mono<Organization> findByIdAsUser(User user, String id, AclPermission permission);
 }

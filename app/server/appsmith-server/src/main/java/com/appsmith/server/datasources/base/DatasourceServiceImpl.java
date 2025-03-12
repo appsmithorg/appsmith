@@ -8,10 +8,8 @@ import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -43,9 +41,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry,
-            OrganizationService organizationService,
-            ConfigService configService) {
+            ObservationRegistry observationRegistry) {
 
         super(
                 repository,
@@ -64,8 +60,6 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 environmentPermission,
                 rateLimitService,
                 featureFlagService,
-                observationRegistry,
-                organizationService,
-                configService);
+                observationRegistry);
     }
 }

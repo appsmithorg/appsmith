@@ -28,7 +28,6 @@ import {
   DatasourceSection,
   DatasourceSectionHeading,
   StyledDivider,
-  BetaTag,
 } from "./IntegrationStyledComponents";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import DatasourceItem from "./DatasourceItem";
@@ -39,7 +38,7 @@ import {
   CREATE_NEW_DATASOURCE_REST_API,
   CREATE_NEW_SAAS_SECTION_HEADER,
   createMessage,
-  PREMIUM_DATASOURCES,
+  UPCOMING_SAAS_INTEGRATIONS,
 } from "ee/constants/messages";
 import scrollIntoView from "scroll-into-view-if-needed";
 import PremiumDatasources from "./PremiumDatasources";
@@ -54,7 +53,6 @@ import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
 import { filterSearch } from "./util";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { isPluginInBetaState } from "./PremiumDatasources/Helpers";
 
 interface CreateAPIOrSaasPluginsProps {
   location: {
@@ -81,6 +79,7 @@ interface CreateAPIOrSaasPluginsProps {
   authApiPlugin?: Plugin;
   restAPIVisible?: boolean;
   graphQLAPIVisible?: boolean;
+  isGACEnabled?: boolean;
 }
 
 export const API_ACTION = {
@@ -232,19 +231,12 @@ function APIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
           icon={getAssetUrl(p.iconLocation)}
           key={p.id}
           name={p.name}
-          rightSibling={
-            <>
-              {isPluginInBetaState(p) ? (
-                <BetaTag isClosable={false}>
-                  {createMessage(PREMIUM_DATASOURCES.BETA_TAG)}
-                </BetaTag>
-              ) : null}
-              {isCreating && <Spinner className="cta" size={"sm"} />}
-            </>
-          }
+          rightSibling={isCreating && <Spinner className="cta" size={"sm"} />}
         />
       ))}
-      <PremiumDatasources plugins={props.premiumPlugins} />
+      {!props.isGACEnabled && (
+        <PremiumDatasources plugins={props.premiumPlugins} />
+      )}
     </DatasourceContainer>
   );
 }
@@ -289,6 +281,16 @@ function CreateAPIOrSaasPlugins(props: CreateAPIOrSaasPluginsProps) {
         </DatasourceSectionHeading>
         <APIOrSaasPlugins {...props} />
       </DatasourceSection>
+      {props.premiumPlugins.length > 0 && props.isGACEnabled ? (
+        <DatasourceSection id="upcoming-saas-integrations">
+          <DatasourceSectionHeading kind="heading-m">
+            {createMessage(UPCOMING_SAAS_INTEGRATIONS)}
+          </DatasourceSectionHeading>
+          <DatasourceContainer data-testid="upcoming-datasource-card-container">
+            <PremiumDatasources isGACEnabled plugins={props.premiumPlugins} />
+          </DatasourceContainer>
+        </DatasourceSection>
+      ) : null}
     </>
   );
 }
@@ -340,6 +342,12 @@ const mapStateToProps = (
     FEATURE_FLAG.release_external_saas_plugins_enabled,
   );
 
+  // We are using this feature flag to identify whether its the enterprise/business user - ref : https://www.notion.so/appsmith/Condition-for-showing-Premium-Soon-tag-datasources-184fe271b0e2802cb55bd63f468df60d
+  const isGACEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
   const pluginNames = allPlugins.map((plugin) =>
     plugin.name.toLocaleLowerCase(),
   );
@@ -372,6 +380,7 @@ const mapStateToProps = (
     restAPIVisible,
     graphQLAPIVisible,
     isCreating: props.isCreating || getDatasourcesLoadingState(state),
+    isGACEnabled,
   };
 };
 

@@ -153,8 +153,9 @@ public class LayoutServiceTest {
 
     @AfterEach
     public void cleanup() {
-        applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        applicationPermission
+                .getDeletePermission()
+                .flatMapMany(permission -> applicationService.findByWorkspaceId(workspaceId, permission))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -524,16 +525,16 @@ public class LayoutServiceTest {
                             "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
                             "dynamicPost",
                             """
-                        some dynamic {{
-                        (function(ignoredAction1){
-                        \tlet a = ignoredAction1.data
-                        \tlet ignoredAction2 = { data: "nothing" }
-                        \tlet b = ignoredAction2.data
-                        \tlet c = "ignoredAction3.data"
-                        \t// ignoredAction4.data
-                        \treturn aPostAction.data
-                        })(anotherPostAction.data)}}
-                        """,
+                some dynamic {{
+                (function(ignoredAction1){
+                \tlet a = ignoredAction1.data
+                \tlet ignoredAction2 = { data: "nothing" }
+                \tlet b = ignoredAction2.data
+                \tlet c = "ignoredAction3.data"
+                \t// ignoredAction4.data
+                \treturn aPostAction.data
+                })(anotherPostAction.data)}}
+                """,
                             "dynamicPostWithAutoExec",
                             "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete",

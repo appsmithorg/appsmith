@@ -19,17 +19,17 @@ public class UserUtils extends UserUtilsCE {
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ObservationRegistry observationRegistry,
             CommonConfig commonConfig,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
             OrganizationRepository organizationRepository,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
         super(
                 configRepository,
                 permissionGroupRepository,
                 cacheableRepositoryHelper,
                 observationRegistry,
                 commonConfig,
-                inMemoryCacheableRepositoryHelper,
                 organizationRepository,
-                sessionUserService);
+                sessionUserService,
+                inMemoryCacheableRepositoryHelper);
     }
 }
