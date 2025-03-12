@@ -144,6 +144,7 @@ import {
 import { handleQueryEntityRedirect } from "./IDESaga";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -577,6 +578,9 @@ export function* deleteActionSaga(
   }>,
 ) {
   try {
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
     const currentUrl = window.location.pathname;
@@ -623,7 +627,10 @@ export function* deleteActionSaga(
       });
     }
 
-    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+    yield call(
+      FocusRetention.handleRemoveFocusHistory,
+      `${currentUrl}#${branch}`,
+    );
 
     if (ideType === IDE_TYPE.App) {
       yield call(handleQueryEntityRedirect, action.id);
@@ -1259,8 +1266,14 @@ export function* closeActionTabSaga(
 ) {
   const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
+  const branch: string | undefined = yield select(
+    selectGitApplicationCurrentBranch,
+  );
 
-  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+  yield call(
+    FocusRetention.handleRemoveFocusHistory,
+    `${currentUrl}#${branch}`,
+  );
   yield call(handleQueryEntityRedirect, id);
   yield put(closeQueryActionTabSuccess({ id, parentId }));
 }

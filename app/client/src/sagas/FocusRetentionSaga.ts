@@ -21,7 +21,6 @@ import type { Plugin } from "entities/Plugin";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
-import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 import type {
   FocusPath,
   FocusStrategy,
@@ -87,27 +86,21 @@ class FocusRetention {
   }
 
   public *handleRemoveFocusHistory(url: string) {
-    const branch: string | undefined = yield select(
-      selectGitApplicationCurrentBranch,
-    );
     const removeKeys: string[] = [];
     const focusEntityInfo = identifyEntityFromPath(url);
 
-    removeKeys.push(`${url}#${branch}`);
+    removeKeys.push(`${url}`);
 
     const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
 
     if (parentElement) {
-      const parentPath = this.focusStrategy.getEntityParentUrl(
+      const parentPath: string = yield call(
+        this.focusStrategy.getEntityParentUrl,
         focusEntityInfo,
         parentElement,
       );
 
-      if (focusEntityInfo.params.basePageId) {
-        removeKeys.push(`${parentPath}#${branch}`);
-      } else {
-        removeKeys.push(parentPath);
-      }
+      removeKeys.push(parentPath);
     }
 
     for (const key of removeKeys) {

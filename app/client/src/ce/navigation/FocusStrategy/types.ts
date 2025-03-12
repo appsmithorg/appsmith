@@ -33,7 +33,7 @@ export interface FocusStrategy {
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
-  ) => string;
+  ) => Generator<unknown, string, unknown>;
   /** Define a wait (saga) before we start setting states  **/
   waitForPathLoad: (
     currentPath: string,

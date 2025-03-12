@@ -77,6 +77,7 @@ import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { EvaluationReduxAction } from "actions/EvaluationReduxActionTypes";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -333,13 +334,19 @@ export function* deleteJSCollectionSaga(
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     const ideType = getIDETypeByUrl(currentUrl);
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
 
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+      yield call(
+        FocusRetention.handleRemoveFocusHistory,
+        `${currentUrl}#${branch}`,
+      );
 
       if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
@@ -538,8 +545,11 @@ export function* closeJSActionTabSaga(
 ) {
   const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
+  const branch: string | undefined = yield select(
+    selectGitApplicationCurrentBranch,
+  );
 
-  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+  yield call(FocusRetention.handleRemoveFocusHistory, `${currentUrl}${branch}`);
   yield call(handleJSEntityRedirect, id);
   yield put(closeJsActionTabSuccess({ id, parentId }));
 }

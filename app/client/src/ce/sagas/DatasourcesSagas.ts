@@ -184,6 +184,7 @@ import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionH
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
 import { openGeneratePageModalWithSelectedDS } from "../../utils/GeneratePageUtils";
+import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 
 export function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -441,6 +442,9 @@ export function* deleteDatasourceSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.deleteDatasource(id);
 
@@ -450,7 +454,10 @@ export function* deleteDatasourceSaga(
       const currentUrl = `${window.location.pathname}`;
 
       yield call(handleDatasourceDeleteRedirect, id);
-      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+      yield call(
+        FocusRetention.handleRemoveFocusHistory,
+        `${currentUrl}#${branch}`,
+      );
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",

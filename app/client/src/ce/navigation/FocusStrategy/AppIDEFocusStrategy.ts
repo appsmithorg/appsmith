@@ -258,11 +258,14 @@ export const AppIDEFocusStrategy: FocusStrategy = {
 
     return entities;
   },
-  getEntityParentUrl: (
+  getEntityParentUrl: function* (
     entityInfo: FocusEntityInfo,
     parentEntity: FocusEntity,
-  ): string => {
+  ) {
     let parentUrl: string = "";
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
 
     if (parentEntity === FocusEntity.WIDGET_LIST) {
       parentUrl = widgetListURL({
@@ -289,7 +292,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     }
 
     // We do not have to add any query params because this url is used as the key
-    return parentUrl.split("?")[0];
+    return parentUrl.split("?")[0] + `#${branch}`;
   },
   *waitForPathLoad(currentPath: string, previousPath?: string) {
     if (previousPath) {
