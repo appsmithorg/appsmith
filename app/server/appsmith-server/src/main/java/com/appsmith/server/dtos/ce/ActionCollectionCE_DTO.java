@@ -144,4 +144,12 @@ public class ActionCollectionCE_DTO {
     }
 
     public static class Fields {}
+
+    public String getArtifactId() {
+        return this.getApplicationId();
+    }
+
+    public String getContextId() {
+        return this.getPageId();
+    }
 }
