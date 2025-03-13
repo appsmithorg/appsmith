@@ -11,6 +11,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -145,10 +146,12 @@ public class ActionCollectionCE_DTO {
 
     public static class Fields {}
 
+    @JsonIgnore
     public String getArtifactId() {
         return this.getApplicationId();
     }
 
+    @JsonIgnore
     public String getContextId() {
         return this.getPageId();
     }
