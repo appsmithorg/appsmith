@@ -27,11 +27,11 @@ public class CustomCookieWebSessionIdResolverCE extends CookieWebSessionIdResolv
 
     @Override
     public void setSessionId(ServerWebExchange exchange, String id) {
-        addCookieInitializers();
+        addCookieInitializers(exchange);
         super.setSessionId(exchange, id);
     }
 
-    protected void addCookieInitializers() {
+    protected void addCookieInitializers(ServerWebExchange exchange) {
         // Add the appropriate SameSite attribute based on the exchange attribute
         addCookieInitializer((builder) -> builder.sameSite(LAX).secure(true));
     }
