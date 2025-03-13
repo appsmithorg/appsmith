@@ -33,30 +33,38 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
 
   // ToDO(#27617): Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
   // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
-  const canvasChildren = useMemo(
-    () =>
-      renderChildren(
-        props.positioning !== Positioning.Fixed
-          ? props.children
-          : sortBy(
-              compact(props.children),
-              (child: WidgetProps) => child.topRow,
-            ),
-        props.widgetId,
-        RenderModes.PAGE,
-        defaultWidgetProps,
-        layoutSystemProps,
-        !!props.noPad,
-      ),
-    [
-      props.children,
-      props.shouldScrollContents,
+  const canvasChildren = useMemo(() => {
+    /**
+     * With UI modules there is a possiblity of the module to have modals and these modals needs to be
+     * rendered as children of the main canvas in order for the modals to be functional. Since all the widgets
+     * of a UI modules are rendered as meta widgets, the Main canvas receives the metaWidgetChildrenStructure
+     * in the props.
+     */
+    const children = [
+      ...(props?.children || []),
+      ...(props?.metaWidgetChildrenStructure || []),
+    ];
+
+    return renderChildren(
+      props.positioning !== Positioning.Fixed
+        ? children
+        : sortBy(compact(children), (child: WidgetProps) => child.topRow),
       props.widgetId,
-      props.componentHeight,
-      props.componentWidth,
-      snapColumnSpace,
-    ],
-  );
+      RenderModes.PAGE,
+      defaultWidgetProps,
+      layoutSystemProps,
+      !!props.noPad,
+    );
+  }, [
+    props.children,
+    props.positioning,
+    props.shouldScrollContents,
+    props.widgetId,
+    props.componentHeight,
+    props.componentWidth,
+    snapColumnSpace,
+    props.metaWidgetChildrenStructure,
+  ]);
   const snapRows = getCanvasSnapRows(props.bottomRow);
 
   return (
