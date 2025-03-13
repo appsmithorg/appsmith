@@ -1,7 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
-import { useCallback } from "react";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -56,6 +55,14 @@ export const WidgetContextMenu = (props: {
 
   const deleteWidget = useDeleteWidget(widgetId);
 
+  const handleDeleteWidget = useCallback(() => {
+    // We add a delay to avoid having the focus stuck in the menu trigger which blocks
+    // the ability to use keyboard shortcuts on the canvas
+    setTimeout(() => {
+      deleteWidget();
+    }, 0);
+  }, [deleteWidget]);
+
   const menuContent = useMemo(() => {
     return (
       <>
@@ -75,7 +82,7 @@ export const WidgetContextMenu = (props: {
         <MenuItem
           className="error-menuitem"
           disabled={!canManagePages && widget?.isDeletable !== false}
-          onClick={deleteWidget}
+          onClick={handleDeleteWidget}
           startIcon="trash"
         >
           {createMessage(CONTEXT_DELETE)}
@@ -84,8 +91,8 @@ export const WidgetContextMenu = (props: {
     );
   }, [
     canManagePages,
-    deleteWidget,
     editWidgetName,
+    handleDeleteWidget,
     showBinding,
     widget?.isDeletable,
     widgetId,

@@ -1,39 +1,33 @@
 import React, { type Ref } from "react";
-import type { Row as ReactTableRowType } from "react-table";
 import { type ReactElementType } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
-import type { TableSizes } from "../../Constants";
+import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
+import { useAppsmithTable } from "../../TableContext";
 import { LoadingIndicator } from "../../LoadingIndicator";
-import { FixedInfiniteVirtualList } from "../VirtualList";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
 interface InfiniteScrollBodyProps {
-  rows: ReactTableRowType<Record<string, unknown>>[];
-  height: number;
-  tableSizes: TableSizes;
-  innerElementType?: ReactElementType;
-  isLoading: boolean;
-  totalRecordsCount?: number;
-  loadMoreFromEvaluations: () => void;
-  pageSize: number;
+  innerElementType: ReactElementType;
 }
 
-const InfiniteScrollBody = React.forwardRef(
+const InfiniteScrollBodyComponent = React.forwardRef(
   (props: InfiniteScrollBodyProps, ref: Ref<SimpleBar>) => {
     const {
+      height,
       isLoading,
-      loadMoreFromEvaluations,
+      nextPageClick,
       pageSize,
-      rows,
+      subPage: rows,
+      tableSizes,
       totalRecordsCount,
-    } = props;
+    } = useAppsmithTable();
     const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
       useInfiniteVirtualization({
         rows,
         totalRecordsCount,
         isLoading,
-        loadMore: loadMoreFromEvaluations,
+        loadMore: nextPageClick,
         pageSize,
       });
 
@@ -47,7 +41,7 @@ const InfiniteScrollBody = React.forwardRef(
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
             <FixedInfiniteVirtualList
-              height={props.height}
+              height={height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
               itemCount={itemCount}
@@ -55,7 +49,7 @@ const InfiniteScrollBody = React.forwardRef(
               outerRef={ref}
               pageSize={pageSize}
               rows={cachedRows}
-              tableSizes={props.tableSizes}
+              tableSizes={tableSizes}
             />
           )}
         </InfiniteLoader>
@@ -65,4 +59,4 @@ const InfiniteScrollBody = React.forwardRef(
   },
 );
 
-export default InfiniteScrollBody;
+export default InfiniteScrollBodyComponent;

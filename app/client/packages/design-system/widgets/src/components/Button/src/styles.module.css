@@ -30,7 +30,7 @@
       background-color: transparent;
       color: var(--color-fg-$(color));
       /** We use !important here to override the disabled outline styles in the main app. */
-      outline: var(--border-width-1) solid var(--color-bd-$(color)) !important;
+      outline: var(--border-width-1) solid var(--color-bd-$(color)-subtle) !important;
       outline-offset: calc(-1 * var(--border-width-1)) !important;
 
       &[data-hovered]:not([data-loading]) {

@@ -54,6 +54,15 @@ public class GlobalExceptionHandler {
 
     private final SessionUserService sessionUserService;
 
+    @ExceptionHandler(IllegalStateException.class)
+    public Mono<Void> handleSessionInvalidation(ServerWebExchange exchange, IllegalStateException ex) {
+        if (ex.getMessage().contains("Session was invalidated")) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+        return Mono.error(ex);
+    }
+
     /**
      * This function only catches the AppsmithException type and formats it into ResponseEntity<ErrorDTO> object
      * Ideally, we should only be throwing AppsmithException from our code. This ensures that we can standardize

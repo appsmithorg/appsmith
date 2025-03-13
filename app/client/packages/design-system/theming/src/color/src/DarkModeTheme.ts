@@ -110,15 +110,20 @@ export class DarkModeTheme implements ColorModeTheme {
 
       bd: this.bd.to("sRGB").toString(),
       bdAccent: this.bdAccent.to("sRGB").toString(),
+      bdAccentSubtle: this.bdAccentSubtle.to("sRGB").toString(),
       bdFocus: this.bdFocus.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.to("sRGB").toString(),
       bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
+      bdNeutralSubtle: this.bdNeutralSubtle.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
+      bdPositiveSubtle: this.bdPositiveSubtle.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
       bdNegativeHover: this.bdNegativeHover.to("sRGB").toString(),
+      bdNegativeSubtle: this.bdNegativeSubtle.to("sRGB").toString(),
       bdWarning: this.bdWarning.to("sRGB").toString(),
       bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
+      bdWarningSubtle: this.bdWarningSubtle.to("sRGB").toString(),
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
@@ -980,6 +985,16 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdAccentSubtle() {
+    // Slightly subtler version of accent border, used in outlined buttons
+    const color = this.bdAccent.clone();
+
+    color.oklch.l -= 0.02;
+    color.oklch.c -= 0.01;
+
+    return color;
+  }
+
   private get bdFocus() {
     // Keyboard focus outline
     const color = this.bdAccent.clone();
@@ -1031,6 +1046,15 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdNeutralSubtle() {
+    // Slightly subtler version of neutral border, used in outlined buttons
+    const color = this.bdNeutral.clone();
+
+    color.oklch.l -= 0.07;
+
+    return color;
+  }
+
   private get bdPositive() {
     const color = this.bgPositive.clone();
 
@@ -1050,6 +1074,16 @@ export class DarkModeTheme implements ColorModeTheme {
     // Lightness of bdPositive is known, no additional checks like in bdNeutralHover
 
     color.oklch.l += 0.12;
+
+    return color;
+  }
+
+  private get bdPositiveSubtle() {
+    // Slightly subtler version of positive border, used in outlined buttons
+    const color = this.bdPositive.clone();
+
+    color.oklch.l -= 0.05;
+    color.oklch.c -= 0.01;
 
     return color;
   }
@@ -1095,6 +1129,16 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.bdNegative.oklch.c < 0.1) {
       color.oklch.c = 0.1;
     }
+
+    return color;
+  }
+
+  private get bdNegativeSubtle() {
+    // Slightly subtler version of negative border, used in outlined buttons
+    const color = this.bdNegative.clone();
+
+    color.oklch.l -= 0.03;
+    color.oklch.c -= 0.01;
 
     return color;
   }
@@ -1145,6 +1189,16 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.bdWarning.oklch.c < 0.19) {
       color.oklch.c = 0.19;
     }
+
+    return color;
+  }
+
+  private get bdWarningSubtle() {
+    // Slightly subtler version of warning border, used in outlined buttons
+    const color = this.bdWarning.clone();
+
+    color.oklch.l -= 0.03;
+    color.oklch.c -= 0.02;
 
     return color;
   }

@@ -42,6 +42,8 @@ import { StateInspector } from "./Debugger/StateInspector";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
+import { getReleaseFnCallingEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { Visualization } from "../../PluginActionEditor/components/PluginActionResponse/components/Visualization";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -212,16 +214,35 @@ function JSResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
   const location = useLocation();
+  const isFnCallingEnabled = useSelector(getReleaseFnCallingEnabled);
 
   const ideType = getIDETypeByUrl(location.pathname);
 
   const tabs = useMemo(() => {
-    const jsTabs: BottomTab[] = [
+    const responseTabs: BottomTab[] = [
       {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: JSResponseTab,
       },
+    ];
+
+    if (isFnCallingEnabled) {
+      responseTabs.push({
+        key: DEBUGGER_TAB_KEYS.VISUALIZATION_TAB,
+        title: "AI Response Visualizer",
+        panelComponent: currentFunction && (
+          <Visualization
+            entityId={currentFunction.id}
+            response={response.value}
+            visualizationElements={currentFunction.visualization?.result}
+          />
+        ),
+      });
+    }
+
+    const jsTabs: BottomTab[] = [
+      ...responseTabs,
       {
         key: DEBUGGER_TAB_KEYS.LOGS_TAB,
         title: createMessage(DEBUGGER_LOGS),
