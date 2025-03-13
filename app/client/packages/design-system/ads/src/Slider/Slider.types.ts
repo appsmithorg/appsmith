@@ -8,4 +8,6 @@ export interface SliderProps
   formatOptions?: Intl.NumberFormatOptions;
   /** A function that returns the content to display as the value's label. Overrides default formatted number. */
   getValueLabel?: (value: number) => string;
+  /** The text to display in the tooltip. */
+  tooltipText?: string;
 }
