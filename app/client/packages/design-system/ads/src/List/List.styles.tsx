@@ -107,7 +107,7 @@ export const StyledListItem = styled.div<{
       visibility: hidden;
       width: 0;
 
-      button {
+      button.entity-context-menu {
         visibility: hidden;
         height: 100%;
         width: 100%;
@@ -118,7 +118,7 @@ export const StyledListItem = styled.div<{
       visibility: visible;
       width: auto;
 
-      button {
+      button.entity-context-menu {
         visibility: visible;
         width: 24px;
       }
