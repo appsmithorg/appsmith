@@ -205,12 +205,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         Mono<ExecuteActionDTO> populatedExecuteActionDTOMono =
                 newActionMono.flatMap(newAction -> populateExecuteActionDTO(executeActionDTO, newAction));
-        Mono<String> environmentIdMono = Mono.zip(newActionMono, populatedExecuteActionDTOMono)
-                .flatMap(tuple -> {
-                    NewAction newAction = tuple.getT1();
-                    ExecuteActionDTO populatedExecuteActionDTO = tuple.getT2();
-                    return getTrueEnvironmentId(newAction, populatedExecuteActionDTO, executeActionMetaDTO);
-                });
+        Mono<String> environmentIdMono = newActionMono.flatMap(
+                newAction -> getTrueEnvironmentId(newAction, executeActionDTO, executeActionMetaDTO));
 
         return Mono.zip(populatedExecuteActionDTOMono, environmentIdMono).flatMap(pair -> {
             ExecuteActionDTO populatedExecuteActionDTO = pair.getT1();
