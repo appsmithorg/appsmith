@@ -15,6 +15,7 @@ import equal from "fast-deep-equal/es6";
 import { useCallback } from "react";
 import type { EditableCell, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
+import { useCachingVirtualization } from "./useCachingVirtualization";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -171,6 +172,18 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
+  const { cachedRows, isItemLoaded, isLoadingData, loadMoreNextPage } =
+    useCachingVirtualization({
+      data: tableData,
+      editableCell,
+      isLoading,
+      nextPageClick,
+      isInfiniteScrollEnabled,
+      pageSize,
+      totalRecordsCount,
+      isAddRowInProgress,
+    });
+
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
       if (allowSorting) {
@@ -236,7 +249,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode || CompactModeTypes.DEFAULT}
-      data={tableData}
+      data={cachedRows}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
       disabledAddNewRowSave={disabledAddNewRowSave}
@@ -250,14 +263,15 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       height={height}
       isAddRowInProgress={isAddRowInProgress}
       isInfiniteScrollEnabled={isInfiniteScrollEnabled}
-      isLoading={isLoading}
+      isItemLoaded={isItemLoaded}
+      isLoading={isLoadingData}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
-      nextPageClick={nextPageClick}
+      nextPageClick={loadMoreNextPage}
       onAddNewRow={onAddNewRow}
       onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}
