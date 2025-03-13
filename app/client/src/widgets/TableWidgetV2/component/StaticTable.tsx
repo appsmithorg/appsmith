@@ -43,7 +43,8 @@ type StaticTableProps = TableColumnHeaderProps & {
   useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
   isLoading: boolean;
-  loadMoreFromEvaluations: () => void;
+  loadMoreFromEvaluations: (startIndex?: number, endIndex?: number) => void;
+  isItemLoaded: (index: number) => boolean;
 };
 
 const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {

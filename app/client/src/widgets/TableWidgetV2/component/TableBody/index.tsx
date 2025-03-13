@@ -61,9 +61,9 @@ interface BodyPropsType {
   innerElementType?: ReactElementType;
   isInfiniteScrollEnabled?: boolean;
   isLoading: boolean;
-  loadMoreFromEvaluations: () => void;
+  loadMoreFromEvaluations: (startIndex?: number, endIndex?: number) => void;
   totalRecordsCount?: number;
-  isItemLoaded: (index: number) => boolean;
+  isItemLoaded?: (index: number) => boolean;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
@@ -169,6 +169,7 @@ export const TableBody = React.forwardRef(
       >
         {isInfiniteScrollEnabled ? (
           <InfiniteScrollBody
+            isItemLoaded={props.isItemLoaded!}
             ref={ref}
             rows={rows}
             totalRecordsCount={props.totalRecordsCount ?? rows.length}

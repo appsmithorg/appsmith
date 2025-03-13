@@ -90,7 +90,7 @@ export interface TableProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
   isSortable?: boolean;
-  nextPageClick: (startIndex: number, endIndex: number) => void;
+  nextPageClick: (startIndex?: number, endIndex?: number) => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;

@@ -15,8 +15,8 @@ export interface UseCachingTableDataReturn {
   // itemCount: number;
   cachedRows: Array<Record<string, unknown>>;
   loadMoreNextPage: (
-    startIndex: number,
-    stopIndex: number,
+    startIndex?: number,
+    stopIndex?: number,
   ) => Promise<void> | void;
   isItemLoaded: (index: number) => boolean;
 }
@@ -98,10 +98,10 @@ export const useCachingVirtualization = ({
   }, [isLoading]);
 
   const loadMoreNextPage = useCallback(
-    async (startIndex: number, stopIndex: number) => {
+    async (startIndex?: number, stopIndex?: number) => {
       if (isInfiniteScrollEnabled) {
         if (!isLoadingData && hasMoreDataRef.current && !isAddRowInProgress) {
-          const targetPage = Math.floor(stopIndex / pageSize);
+          const targetPage = Math.floor(stopIndex! / pageSize);
 
           if (
             targetPage >= lastLoadedPageRef.current &&

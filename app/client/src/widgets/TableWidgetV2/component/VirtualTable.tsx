@@ -40,7 +40,7 @@ type VirtualTableProps = TableColumnHeaderProps & {
   isInfiniteScrollEnabled: boolean;
   isLoading: boolean;
   totalRecordsCount?: number;
-  loadMoreFromEvaluations: () => void;
+  loadMoreFromEvaluations: (startIndex?: number, endIndex?: number) => void;
   isItemLoaded: (index: number) => boolean;
 };
 

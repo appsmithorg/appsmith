@@ -11,7 +11,7 @@ export interface UseInfiniteVirtualizationProps {
 export interface UseInfiniteVirtualizationReturn {
   isItemLoaded: (index: number) => boolean;
   itemCount: number;
-  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<void>;
+  loadMoreItems: (startIndex?: number, stopIndex?: number) => Promise<void>;
   cachedRows: ReactTableRowType<Record<string, unknown>>[];
 }
 
