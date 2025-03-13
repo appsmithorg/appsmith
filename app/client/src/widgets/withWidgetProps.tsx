@@ -104,6 +104,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
          * These modals needs to be placed in the children of the main container widget.
          * The main container widget by default does not has the flag hasMetaWidgets set to true.
          * So we need to check for the widgetId to be the main container widgetId.
+         *
+         * TODO (Ashit) - Make the hasMetaWidgets flag to be set to true for the main container widget and avoid specific check for the widgetId.
          */
         hasMetaWidgets || widgetId === MAIN_CONTAINER_WIDGET_ID,
       ),
