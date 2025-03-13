@@ -64,43 +64,42 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
         usagePulse.setViewMode(usagePulseDTO.getViewMode());
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
         Mono<String> instanceIdMono = configService.getInstanceId();
 
-        return Mono.zip(currentUserMono, defaultOrganizationIdMono, instanceIdMono)
-                .flatMap(tuple -> {
-                    User user = tuple.getT1();
-                    String organizationId = tuple.getT2();
-                    String instanceId = tuple.getT3();
-                    usagePulse.setOrganizationId(organizationId);
-                    usagePulse.setInstanceId(instanceId);
+        return Mono.zip(currentUserMono, organizationIdMono, instanceIdMono).flatMap(tuple -> {
+            User user = tuple.getT1();
+            String organizationId = tuple.getT2();
+            String instanceId = tuple.getT3();
+            usagePulse.setOrganizationId(organizationId);
+            usagePulse.setInstanceId(instanceId);
 
-                    if (user.isAnonymous()) {
-                        if (null == usagePulseDTO.getAnonymousUserId()) {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
-                        }
-                        usagePulse.setIsAnonymousUser(true);
-                        usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
-                        return save(usagePulse);
-                    }
-                    usagePulse.setIsAnonymousUser(false);
-                    BridgeUpdate updateUserObj = Bridge.update();
+            if (user.isAnonymous()) {
+                if (null == usagePulseDTO.getAnonymousUserId()) {
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
+                }
+                usagePulse.setIsAnonymousUser(true);
+                usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
+                return save(usagePulse);
+            }
+            usagePulse.setIsAnonymousUser(false);
+            BridgeUpdate updateUserObj = Bridge.update();
 
-                    String hashedEmail = user.getHashedEmail();
-                    if (StringUtils.isEmpty(hashedEmail)) {
-                        hashedEmail = DigestUtils.sha256Hex(user.getEmail());
-                        // Hashed user email is stored to user for future mapping of user and pulses
-                        updateUserObj.set(User.Fields.hashedEmail, hashedEmail);
-                    }
-                    usagePulse.setUser(hashedEmail);
+            String hashedEmail = user.getHashedEmail();
+            if (StringUtils.isEmpty(hashedEmail)) {
+                hashedEmail = DigestUtils.sha256Hex(user.getEmail());
+                // Hashed user email is stored to user for future mapping of user and pulses
+                updateUserObj.set(User.Fields.hashedEmail, hashedEmail);
+            }
+            usagePulse.setUser(hashedEmail);
 
-                    updateUserObj.set(User.Fields.lastActiveAt, Instant.now());
+            updateUserObj.set(User.Fields.lastActiveAt, Instant.now());
 
-                    return userService
-                            .updateWithoutPermission(user.getId(), updateUserObj)
-                            .then(save(usagePulse));
-                });
+            return userService
+                    .updateWithoutPermission(user.getId(), updateUserObj)
+                    .then(save(usagePulse));
+        });
     }
 
     /**

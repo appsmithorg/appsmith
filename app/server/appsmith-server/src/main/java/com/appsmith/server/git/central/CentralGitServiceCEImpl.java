@@ -1669,7 +1669,15 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             .filter(artifact -> {
                                 return artifact.getId().equals(baseArtifactId);
                             })
-                            .next();
+                            .collectList()
+                            .flatMap(filteredBaseArtifact -> {
+                                if (!filteredBaseArtifact.isEmpty()) {
+                                    return Mono.just(filteredBaseArtifact.get(0));
+                                }
+
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_GENERIC_ERROR, GitCommandConstants.DELETE));
+                            });
 
                     return Mono.zip(deleteAllBranchesExceptBase, removeRepoMono).map(Tuple2::getT1);
                 })

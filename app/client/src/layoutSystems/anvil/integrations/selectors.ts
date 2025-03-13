@@ -10,6 +10,10 @@ export const getIsAnvilLayoutEnabled = (state: AppState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
 };
 
+export const getReleaseFnCallingEnabled = (state: AppState) => {
+  return selectFeatureFlagCheck(state, FEATURE_FLAG.release_fn_calling_enabled);
+};
+
 /**
  * A selector to verify if the current application is an Anvil application.
  * This is done by getting the layout system type of the current application (getLayoutSystemType)

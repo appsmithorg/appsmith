@@ -1,14 +1,7 @@
-import { RELEASED_PREMIUM_PLUGINS, SCHEDULE_CALL_URL } from "./Constants";
+import { SCHEDULE_CALL_URL } from "./Constants";
 import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginType, type Plugin } from "entities/Plugin";
 import { isRelevantEmail } from "utils/formhelpers";
-
-export const getTagText = (isBusinessOrEnterprise?: boolean) => {
-  return isBusinessOrEnterprise
-    ? createMessage(PREMIUM_DATASOURCES.SOON_TAG)
-    : createMessage(PREMIUM_DATASOURCES.PREMIUM_TAG);
-};
 
 export const handlePremiumDatasourceClick = (
   integrationName: string,
@@ -115,11 +108,4 @@ export const getContactFormSubmitButtonText = (
     : validRelevantEmail
       ? createMessage(PREMIUM_DATASOURCES.SCHEDULE_CALL)
       : createMessage(PREMIUM_DATASOURCES.SUBMIT);
-};
-
-export const isPluginInBetaState = (p: Plugin) => {
-  return (
-    p.type === PluginType.EXTERNAL_SAAS &&
-    !RELEASED_PREMIUM_PLUGINS.includes(p.name.toLocaleLowerCase())
-  );
 };

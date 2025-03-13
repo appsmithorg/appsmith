@@ -38,7 +38,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -56,12 +55,12 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ORGANIZATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.ce.FieldNameCE.USER;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -131,9 +130,8 @@ public class UserSignupCEImpl implements UserSignupCE {
         }
 
         Mono<Organization> organizationMono = organizationService
-                .getDefaultOrganization()
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, ORGANIZATION)));
+                .getCurrentUserOrganization()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, USER, ORGANIZATION)));
 
         // - Only creating user if the password strength is acceptable as per the organization policy
         // - Welcome email will be sent post user email verification
@@ -160,18 +158,16 @@ public class UserSignupCEImpl implements UserSignupCE {
             });
         });
 
-        return Mono.zip(createUserMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
+        return Mono.zip(createUserMono, ReactiveSecurityContextHolder.getContext())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
                     final String workspaceId = tuple.getT1().getDefaultWorkspaceId();
-                    final WebSession session = tuple.getT2();
-                    final SecurityContext securityContext = tuple.getT3();
+                    final SecurityContext securityContext = tuple.getT2();
 
                     Authentication authentication =
                             new UsernamePasswordAuthenticationToken(savedUser, null, savedUser.getAuthorities());
                     securityContext.setAuthentication(authentication);
-                    session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
 
@@ -191,7 +187,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                     Mono<Integer> authenticationSuccessMono = authenticationSuccessHandler
                             .onAuthenticationSuccess(
                                     webFilterExchange, authentication, createApplication, true, workspaceId)
-                            .thenReturn(1)
+                            .then(exchange.getSession())
+                            .map(webSession -> {
+                                webSession
+                                        .getAttributes()
+                                        .put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
+                                return 1;
+                            })
                             .elapsed()
                             .flatMap(pair -> {
                                 log.debug(

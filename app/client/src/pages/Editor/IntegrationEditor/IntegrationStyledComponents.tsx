@@ -1,4 +1,4 @@
-import { Divider, Tag, Text } from "@appsmith/ads";
+import { Divider, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 export const StyledDivider = styled(Divider)`
@@ -70,15 +70,4 @@ export const DatasourceDescription = styled.div`
   font-size: var(--ads-v2-font-size-3);
   font-weight: var(--ads-v2-font-weight-normal);
   line-height: var(--ads-v2-line-height-2);
-`;
-
-export const BetaTag = styled(Tag)`
-  color: var(--ads-v2-color-gray-700);
-  border-color: #36425233;
-  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-2);
-  text-transform: uppercase;
-  > span {
-    font-weight: 700;
-    font-size: 10px;
-  }
 `;
