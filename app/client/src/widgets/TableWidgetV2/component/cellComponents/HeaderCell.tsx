@@ -25,6 +25,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { useAppsmithTable } from "../TableContext";
 
 const Check = importRemixIcon(
   async () => import("remixicon-react/CheckFillIcon"),
@@ -130,25 +131,15 @@ function Title(props: TitleProps) {
 const ICON_SIZE = 16;
 
 interface HeaderProps {
-  canFreezeColumn?: boolean;
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
   columnOrder?: string[];
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  isResizingColumn: boolean;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
-  editMode?: boolean;
-  isSortable?: boolean;
-  width?: number;
-  widgetId: string;
   stickyRightModifier: string;
-  multiRowSelection?: boolean;
   onDrag: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragEnter: (
     e: React.DragEvent<HTMLDivElement>,
@@ -165,20 +156,30 @@ interface HeaderProps {
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
-  const { column, editMode, isSortable } = props;
+  const {
+    canFreezeColumn,
+    editMode,
+    handleColumnFreeze,
+    isResizingColumn,
+    isSortable,
+    multiRowSelection,
+    sortTableColumn,
+    widgetId,
+    width,
+  } = useAppsmithTable();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const headerProps = { ...column.getHeaderProps() };
+  const headerProps = { ...props.column.getHeaderProps() };
 
   headerProps["style"] = {
     ...headerProps.style,
     left:
-      column.sticky === StickyType.LEFT && props.multiRowSelection
-        ? MULTISELECT_CHECKBOX_WIDTH + column.totalLeft
+      props.column.sticky === StickyType.LEFT && multiRowSelection
+        ? MULTISELECT_CHECKBOX_WIDTH + props.column.totalLeft
         : headerProps.style.left,
   };
   const handleSortColumn = () => {
-    if (props.isResizingColumn) return;
+    if (isResizingColumn.current) return;
 
     let columnIndex = props.columnIndex;
 
@@ -189,19 +190,19 @@ const HeaderCellComponent = (props: HeaderProps) => {
     const sortOrder =
       props.isAscOrder === undefined ? false : !props.isAscOrder;
 
-    props.sortTableColumn(columnIndex, sortOrder);
+    sortTableColumn(columnIndex, sortOrder);
   };
 
   const disableSort = editMode === false && isSortable === false;
 
   const isColumnEditable =
-    column.columnProperties.isCellEditable &&
-    column.columnProperties.isEditable &&
-    isColumnTypeEditable(column.columnProperties.columnType);
+    props.column.columnProperties.isCellEditable &&
+    props.column.columnProperties.isEditable &&
+    isColumnTypeEditable(props.column.columnProperties.columnType);
 
   const toggleColumnFreeze = (value: StickyType) => {
-    props.handleColumnFreeze &&
-      props.handleColumnFreeze(
+    handleColumnFreeze &&
+      handleColumnFreeze(
         props.column.id,
         props.column.sticky !== value ? value : StickyType.NONE,
       );
@@ -270,17 +271,19 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDrop={onDrop}
       >
         <ColumnNameContainer
-          horizontalAlignment={column.columnProperties.horizontalAlignment}
+          horizontalAlignment={
+            props.column.columnProperties.horizontalAlignment
+          }
         >
           {isColumnEditable && <StyledEditIcon />}
-          <Title width={props.width}>
+          <Title width={width}>
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Title>
         </ColumnNameContainer>
       </div>
       <div
         className={`header-menu ${
-          !isSortable && !props.canFreezeColumn && "hide-menu"
+          !isSortable && !canFreezeColumn && "hide-menu"
         } ${!isMenuOpen && "hide"}`}
       >
         <Popover2
@@ -290,7 +293,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
                 disabled={disableSort}
                 labelElement={props.isAscOrder === true ? <Check /> : undefined}
                 onClick={() => {
-                  props.sortTableColumn(props.columnIndex, true);
+                  sortTableColumn(props.columnIndex, true);
                 }}
                 text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
               />
@@ -300,7 +303,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
                   props.isAscOrder === false ? <Check /> : undefined
                 }
                 onClick={() => {
-                  props.sortTableColumn(props.columnIndex, false);
+                  sortTableColumn(props.columnIndex, false);
                 }}
                 text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
               />
@@ -311,9 +314,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
                 }}
               />
               <MenuItem
-                disabled={!props.canFreezeColumn}
+                disabled={!canFreezeColumn}
                 labelElement={
-                  column.sticky === StickyType.LEFT ? <Check /> : undefined
+                  props.column.sticky === StickyType.LEFT ? (
+                    <Check />
+                  ) : undefined
                 }
                 onClick={() => {
                   toggleColumnFreeze(StickyType.LEFT);
@@ -321,9 +326,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
                 text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
               />
               <MenuItem
-                disabled={!props.canFreezeColumn}
+                disabled={!canFreezeColumn}
                 labelElement={
-                  column.sticky === StickyType.RIGHT ? <Check /> : undefined
+                  props.column.sticky === StickyType.RIGHT ? (
+                    <Check />
+                  ) : undefined
                 }
                 onClick={() => {
                   toggleColumnFreeze(StickyType.RIGHT);
@@ -337,7 +344,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           minimal
           onInteraction={setIsMenuOpen}
           placement="bottom-end"
-          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
+          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${widgetId}`}
           portalContainer={
             document.getElementById(CANVAS_ART_BOARD) || undefined
           }
@@ -355,8 +362,8 @@ const HeaderCellComponent = (props: HeaderProps) => {
         </div>
       ) : null}
       <div
-        {...column.getResizerProps()}
-        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+        {...props.column.getResizerProps()}
+        className={`resizer ${props.column.isResizing ? "isResizing" : ""}`}
         onClick={(e: React.MouseEvent<HTMLElement>) => {
           e.preventDefault();
           e.stopPropagation();
