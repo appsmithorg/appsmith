@@ -1,54 +1,17 @@
-import type { Ref } from "react";
-import React from "react";
+import React, { useEffect, useRef, type Ref } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
+import type { VariableSizeList } from "react-window";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
-import type { ReactTableColumnProps, TableSizes } from "../Constants";
-import type { HeaderComponentProps } from "../Table";
+import type { TableSizes } from "../Constants";
 import InfiniteScrollBody from "./InifiniteScrollBody";
 import { EmptyRows, Row } from "./Row";
 import { FixedVirtualList } from "./VirtualList";
-
-export type BodyContextType = {
-  accentColor: string;
-  borderRadius: string;
-  multiRowSelection: boolean;
-  prepareRow?(row: ReactTableRowType<Record<string, unknown>>): void;
-  selectTableRow?: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  columns: ReactTableColumnProps[];
-  width: number;
-  rows: ReactTableRowType<Record<string, unknown>>[];
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  getTableBodyProps?(
-    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
-  ): TableBodyProps;
-  totalColumnsWidth?: number;
-} & Partial<HeaderComponentProps>;
-
-export const BodyContext = React.createContext<BodyContextType>({
-  accentColor: "",
-  borderRadius: "",
-  multiRowSelection: false,
-  selectedRowIndex: -1,
-  selectedRowIndices: [],
-  columns: [],
-  width: 0,
-  rows: [],
-  primaryColumnId: "",
-  isAddRowInProgress: false,
-  totalColumnsWidth: 0,
-});
-
+import { BodyContext, type BodyContextType } from "./BodyContext";
 interface BodyPropsType {
   getTableBodyProps(
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
@@ -133,6 +96,15 @@ export const TableBody = React.forwardRef(
       ...restOfProps
     } = props;
 
+    const listRef = useRef<VariableSizeList>(null);
+    const rowHeights = useRef<{ [key: number]: number }>({});
+    // Keep track of which rows need measurement
+    const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
+
+    useEffect(() => {
+      rowNeedsMeasurement.current = {};
+    }, [rows]);
+
     return (
       <BodyContext.Provider
         value={{
@@ -164,6 +136,9 @@ export const TableBody = React.forwardRef(
           rows,
           getTableBodyProps: props.getTableBodyProps,
           totalColumnsWidth: props.totalColumnsWidth,
+          rowHeights: rowHeights,
+          rowNeedsMeasurement: rowNeedsMeasurement,
+          listRef: listRef,
         }}
       >
         {isInfiniteScrollEnabled ? (

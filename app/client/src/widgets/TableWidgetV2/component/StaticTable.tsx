@@ -84,11 +84,14 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         height={props.height}
         isAddRowInProgress={props.isAddRowInProgress}
         isLoading={props.isLoading}
+        listRef={null}
         loadMoreFromEvaluations={props.loadMoreFromEvaluations}
         multiRowSelection={!!props.multiRowSelection}
         pageSize={props.pageSize}
         prepareRow={props.prepareRow}
         primaryColumnId={props.primaryColumnId}
+        rowHeights={{ current: {} }}
+        rowNeedsMeasurement={{ current: {} }}
         rows={props.subPage}
         selectTableRow={props.selectTableRow}
         selectedRowIndex={props.selectedRowIndex}
