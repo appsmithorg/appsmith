@@ -139,6 +139,7 @@ export const TableBody = React.forwardRef(
           rowHeights: rowHeights,
           rowNeedsMeasurement: rowNeedsMeasurement,
           listRef: listRef,
+          isInfiniteScrollEnabled,
         }}
       >
         {isInfiniteScrollEnabled ? (

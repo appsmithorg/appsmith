@@ -28,9 +28,10 @@ export type BodyContextType = {
     propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
   ): TableBodyProps;
   totalColumnsWidth?: number;
-  rowHeights: RefObject<{ [key: number]: number }>;
-  rowNeedsMeasurement: RefObject<{ [key: number]: boolean }>;
-  listRef: RefObject<VariableSizeList> | null;
+  rowHeights?: RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement?: RefObject<{ [key: number]: boolean }>;
+  listRef?: RefObject<VariableSizeList> | null;
+  isInfiniteScrollEnabled?: boolean;
 } & Partial<HeaderComponentProps>;
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -48,4 +49,5 @@ export const BodyContext = React.createContext<BodyContextType>({
   rowHeights: { current: {} },
   rowNeedsMeasurement: { current: {} },
   listRef: null,
+  isInfiniteScrollEnabled: false,
 });
