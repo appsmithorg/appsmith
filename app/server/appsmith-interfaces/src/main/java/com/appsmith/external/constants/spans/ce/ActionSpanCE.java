@@ -19,6 +19,14 @@ public class ActionSpanCE {
     public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = APPSMITH_SPAN_PREFIX + "total.plugin.execution";
     public static final String ACTION_EXECUTION_SERVER_EXECUTION = APPSMITH_SPAN_PREFIX + "total.server.execution";
 
+    public static final String GET_ENVIRONMENT_ID = "getEnvironmentId";
+    public static final String POPULATED_EXECUTE_ACTION_DTO_MONO = "populatedExecuteActionDTOMono";
+    public static final String POPULATE_AND_EXECUTE_ACTION = "populateAndExecuteAction";
+    public static final String GET_VALID_ACTION_FOR_EXECUTION = "getValidActionForExecution";
+    public static final String GET_CACHED_PLUGIN_FOR_ACTION_EXECUTION = "getCachedPluginForActionExecution";
+    public static final String GET_PLUGIN_EXECUTOR = "getPluginExecutor";
+    public static final String GET_ACTION_EXECUTION_RESULT = "getActionExecutionResult";
+    public static final String EXECUTE_ACTION = "executeAction";
     // Getter spans
     public static final String GET_UNPUBLISHED_ACTION = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = APPSMITH_SPAN_PREFIX + "get.action.viewmode";
