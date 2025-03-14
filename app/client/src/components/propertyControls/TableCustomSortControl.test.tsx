@@ -32,44 +32,38 @@ const requiredParams = {
 };
 
 describe("TableCustomSortControl.getInputComputedValue", () => {
-  it("should extract computation expression correctly from binding string", () => {
-    const bindingString = `{{(() => {
-    try {
-      const tableData = Table1.tableData || [];
-      const filteredTableData = Table1.filteredTableData || [];
-      if(filteredTableData.length > 0 && true) {
-        const sortedTableData = ((originalTableData, computedTableData, column, order) => (computedTableData.length > 5))(tableData, filteredTableData, Table1.sortOrder.column, Table1.sortOrder.order);
-        return Array.isArray(sortedTableData) && sortedTableData.length > 0 ? sortedTableData : filteredTableData;
-      }
-      return filteredTableData;
-    } catch (e) {
-      return filteredTableData;
-    }
-    })()}}`;
-
-    const result = TableCustomSortControl.getInputComputedValue(bindingString);
-
-    expect(result).toBe("{{computedTableData.length > 5}}");
+  // Create an instance to use for generating test data
+  const testInstance = new TableCustomSortControl({
+    ...requiredParams,
+    theme: EditorTheme.LIGHT,
   });
 
-  it("should handle complex expressions", () => {
-    const bindingString = `{{(() => {
-    try {
-      const tableData = Table1.tableData || [];
-      const filteredTableData = Table1.filteredTableData || [];
-      if(filteredTableData.length > 0 && true) {
-        const sortedTableData = ((originalTableData, computedTableData, column, order) => (computedTableData.filter(item => item.id > 10)))(tableData, filteredTableData, Table1.sortOrder.column, Table1.sortOrder.order);
-        return Array.isArray(sortedTableData) && sortedTableData.length > 0 ? sortedTableData : filteredTableData;
-      }
-      return filteredTableData;
-    } catch (e) {
-      return filteredTableData;
-    }
-    })()}}`;
+  it("should extract computation expression correctly from binding string with arrow function", () => {
+    const sortExpression = "tableData.sort((a, b) => a.id - b.id)";
+
+    const bindingString = testInstance.getComputedValue(
+      `{{${sortExpression}}}`,
+      "Table1",
+    );
 
     const result = TableCustomSortControl.getInputComputedValue(bindingString);
 
-    expect(result).toBe("{{computedTableData.filter(item => item.id > 10)}}");
+    expect(result).toBe(`{{${sortExpression}}}`);
+  });
+
+  it("should extract computation expression correctly from binding string with function body", () => {
+    const sortExpression = `{
+      return tableData.filter(row => row.original_status === "active");
+    }`;
+
+    const bindingString = testInstance.getComputedValue(
+      `{{${sortExpression}}}`,
+      "Table1",
+    );
+
+    const result = TableCustomSortControl.getInputComputedValue(bindingString);
+
+    expect(result).toBe(`{{${sortExpression}}}`);
   });
 
   it("should return original value when binding string doesn't match expected format", () => {
@@ -79,48 +73,91 @@ describe("TableCustomSortControl.getInputComputedValue", () => {
 
     expect(result).toBe(nonMatchingString);
   });
+
+  it("should handle empty string input", () => {
+    const emptyString = "";
+    const result = TableCustomSortControl.getInputComputedValue(emptyString);
+
+    expect(result).toBe(emptyString);
+  });
+
+  it("should support round-trip conversion (getComputedValue -> getInputComputedValue)", () => {
+    // Test with arrow function
+    const arrowExpression =
+      "tableData.sort((a, b) => a.name.localeCompare(b.name))";
+    const arrowBindingString = testInstance.getComputedValue(
+      arrowExpression,
+      "Table1",
+    );
+    const arrowResult =
+      TableCustomSortControl.getInputComputedValue(arrowBindingString);
+
+    expect(arrowResult).toBe(arrowExpression);
+
+    // Test with function body
+    const bodyExpression = `{
+      const direction = order === "asc" ? 1 : -1;
+      return tableData.sort((a, b) => direction * (a[column] - b[column]));
+    }`;
+    const bodyBindingString = testInstance.getComputedValue(
+      `{{${bodyExpression}}}`,
+      "Table1",
+    );
+    const bodyResult =
+      TableCustomSortControl.getInputComputedValue(bodyBindingString);
+    // We need to normalize the whitespace for this comparison
+    const normalizeWhitespace = (str: string) =>
+      str.replace(/\s+/g, " ").trim();
+
+    expect(normalizeWhitespace(bodyResult)).toBe(
+      normalizeWhitespace(`{{${bodyExpression}}}`),
+    );
+  });
 });
 
 describe("TableCustomSortControl instance methods", () => {
+  const testInstance = new TableCustomSortControl({
+    ...requiredParams,
+    theme: EditorTheme.LIGHT,
+  });
+
   it("generates correct binding with getComputedValue", () => {
-    const instance = new TableCustomSortControl({
-      ...requiredParams,
-      theme: EditorTheme.LIGHT,
-    });
+    const inputValue = "{{tableData.sort((a, b) => a.id - b.id)}}";
+    const result = testInstance.getComputedValue(inputValue, "Table1");
 
-    const inputValue = "{{computedTableData.sort((a, b) => a.id - b.id)}}";
-    const expectedOutput = `{{(() => {
-    try {
-      const tableData = Table1.tableData || [];
-      const filteredTableData = Table1.filteredTableData || [];
-      if(filteredTableData.length > 0 && computedTableData.sort((a, b) => a.id - b.id)) {
-        const sortedTableData = ((originalTableData, computedTableData, column, order) => (computedTableData.sort((a, b) => a.id - b.id)))(tableData, filteredTableData, Table1.sortOrder.column, Table1.sortOrder.order);
-        return Array.isArray(sortedTableData) && sortedTableData.length > 0 ? sortedTableData : filteredTableData;
-      }
-      return filteredTableData;
-    } catch (e) {
-      return filteredTableData;
-    }
-    })()}}`;
-
-    // Use a regex to ignore whitespace differences
-    const normalizeString = (str: string) => str.replace(/\s+/g, " ").trim();
-
-    const result = instance.getComputedValue(inputValue, "Table1");
-
-    expect(normalizeString(result)).toBe(normalizeString(expectedOutput));
+    // Check that the result contains key parts of our expected binding
+    expect(result).toContain(
+      "const originalTableData = Table1.tableData || []",
+    );
+    expect(result).toContain(
+      "const filteredTableData = Table1.filteredTableData || []",
+    );
+    expect(result).toContain("const primaryColumnId = Table1.primaryColumnId");
+    expect(result).toContain(
+      "const getMergedTableData = (originalData, filteredData, primaryId)",
+    );
+    expect(result).toContain(
+      "const mergedTableData = primaryColumnId ? getMergedTableData(originalTableData, filteredTableData, primaryColumnId) : filteredTableData",
+    );
+    expect(result).toContain("tableData.sort((a, b) => a.id - b.id)");
+    expect(result).toContain(
+      "if (Array.isArray(sortedTableData) && primaryColumnId)",
+    );
+    expect(result).toContain('console.error("Error in table custom sort:", e)');
   });
 
   it("handles non-binding values correctly in getComputedValue", () => {
-    const instance = new TableCustomSortControl({
-      ...requiredParams,
-      theme: EditorTheme.LIGHT,
-    });
-
     const plainValue = "plain text";
-    const result = instance.getComputedValue(plainValue, "Table1");
+    const result = testInstance.getComputedValue(plainValue, "Table1");
 
     expect(result).toBe(plainValue);
+  });
+
+  it("handles empty string in getComputedValue", () => {
+    const emptyValue = "";
+    const result = testInstance.getComputedValue(emptyValue, "Table1");
+
+    expect(result).toBe(emptyValue);
   });
 });
 
