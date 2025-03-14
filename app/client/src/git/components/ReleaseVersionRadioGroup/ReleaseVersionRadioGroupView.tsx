@@ -3,27 +3,37 @@ import { Flex, Radio, RadioGroup, Tag, Text } from "@appsmith/ads";
 import { RELEASE_VERSION_RADIO_GROUP } from "git/ee/constants/messages";
 import { inc } from "semver";
 import noop from "lodash/noop";
+import { howMuchTimeBeforeText } from "utils/helpers";
 
 type ReleaseType = "major" | "minor" | "patch" | null;
 
 interface ReleaseVersionRadioGroupViewProps {
-  currentVersion: string | null;
+  latestReleaseVersion: string | null;
   onVersionChange: (value: string | null) => void;
-  releasedAt: string | null;
+  releasedAt: number | null;
 }
 
 function ReleaseVersionRadioGroupView({
-  currentVersion = null,
+  latestReleaseVersion = null,
   onVersionChange = noop,
   releasedAt = null,
 }: ReleaseVersionRadioGroupViewProps) {
   const [releaseType, setReleaseType] = useState<ReleaseType>("patch");
 
-  const nextVersion = useMemo(() => {
-    if (!currentVersion || !releaseType) return null;
+  const readableReleaseAt = releasedAt
+    ? howMuchTimeBeforeText(new Date(releasedAt * 1000).toString())
+    : null;
 
-    return inc(currentVersion, releaseType);
-  }, [currentVersion, releaseType]);
+  const nextVersion = useMemo(() => {
+    if (!releaseType) return null;
+
+    const latestReleaseVersionVal = latestReleaseVersion
+      ? latestReleaseVersion.slice(1)
+      : "0.0.0";
+    const nextReleaseVersionVal = inc(latestReleaseVersionVal, releaseType);
+
+    return `v${nextReleaseVersionVal}`;
+  }, [latestReleaseVersion, releaseType]);
 
   useEffect(
     function releaseVersionChangeEffect() {
@@ -62,10 +72,17 @@ function ReleaseVersionRadioGroupView({
           <Radio value="patch">Patch</Radio>
         </RadioGroup>
       </Flex>
-      <Text data-testid="t--git-release-released-at" kind="body-s" renderAs="p">
-        {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}: {currentVersion ?? "-"} (
-        {releasedAt ?? "-"})
-      </Text>
+      {latestReleaseVersion && (
+        <Text
+          data-testid="t--git-release-released-at"
+          kind="body-s"
+          renderAs="p"
+        >
+          {RELEASE_VERSION_RADIO_GROUP.LAST_RELEASED}:{" "}
+          {latestReleaseVersion ?? "-"}{" "}
+          {readableReleaseAt ? `(${readableReleaseAt} ago)` : null}
+        </Text>
+      )}
     </Flex>
   );
 }
