@@ -67,6 +67,7 @@ export interface TableWidgetProps
   onRowSelected?: string;
   onSearchTextChanged: string;
   onSort: string;
+  customSortFunction?: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;
@@ -247,3 +248,6 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
 
 export const INFINITE_SCROLL_ENABLED =
   FEATURE_FLAG["release_tablev2_infinitescroll_enabled"];
+
+export const CUSTOM_SORT_FUNCTION_ENABLED =
+  FEATURE_FLAG["release_table_custom_sort_function_enabled"];
