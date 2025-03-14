@@ -1957,7 +1957,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (this.props.isAddRowInProgress) {
       row = filteredTableData[rowIndex - 1];
-      originalIndex = rowIndex === 0 ? -1 : row[ORIGINAL_INDEX_KEY] ?? rowIndex;
+      originalIndex =
+        rowIndex === 0 ? -1 : row?.[ORIGINAL_INDEX_KEY] ?? rowIndex;
     } else {
       row = filteredTableData[rowIndex];
       originalIndex = row ? row[ORIGINAL_INDEX_KEY] ?? rowIndex : rowIndex;
