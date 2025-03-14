@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,16 +23,23 @@ public class CustomFormLoginServiceImplUnitTest {
 
     private ReactiveUserDetailsService reactiveUserDetailsService;
 
+    @MockBean
+    UserOrganizationHelper userOrganizationHelper;
+
     @BeforeEach
     public void setUp() {
-        reactiveUserDetailsService = new CustomFormLoginServiceImpl(repository);
+        reactiveUserDetailsService = new CustomFormLoginServiceImpl(repository, userOrganizationHelper);
     }
 
     @Test
     public void findByUsername_WhenUserNameNotFound_ThrowsException() {
         String sampleEmail = "sample-email@example.com";
+        Mockito.when(userOrganizationHelper.getCurrentUserOrganizationId()).thenReturn(Mono.just("default-org-id"));
         Mockito.when(repository.findByEmail(sampleEmail)).thenReturn(Mono.empty());
-        Mockito.when(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(sampleEmail))
+        Mockito.when(repository.findByEmailAndOrganizationId(Mockito.eq(sampleEmail), Mockito.eq("default-org-id")))
+                .thenReturn(Mono.empty());
+        Mockito.when(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                        Mockito.eq(sampleEmail), Mockito.any()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail))
@@ -46,8 +54,12 @@ public class CustomFormLoginServiceImplUnitTest {
         user.setPassword("1234");
         user.setEmail(sampleEmail2.toLowerCase());
 
+        Mockito.when(userOrganizationHelper.getCurrentUserOrganizationId()).thenReturn(Mono.just("default-org-id"));
         Mockito.when(repository.findByEmail(sampleEmail2)).thenReturn(Mono.empty());
-        Mockito.when(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(sampleEmail2))
+        Mockito.when(repository.findByEmailAndOrganizationId(Mockito.eq(sampleEmail2), Mockito.eq("default-org-id")))
+                .thenReturn(Mono.empty());
+        Mockito.when(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                        Mockito.eq(sampleEmail2), Mockito.any()))
                 .thenReturn(Mono.just(user));
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail2))

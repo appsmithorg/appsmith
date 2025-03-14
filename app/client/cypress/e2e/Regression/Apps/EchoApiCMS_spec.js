@@ -92,7 +92,7 @@ describe(
       cy.get(appPage.closeButton).closest("div").click({ force: true });
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      cy.xpath(appPage.postApi).click({ force: true });
+      cy.get(appPage.postApi).click({ force: true });
       cy.ResponseCheck("Test");
       // cy.ResponseCheck("Task completed");
       cy.ResponseCheck("Curt50@gmail.com");

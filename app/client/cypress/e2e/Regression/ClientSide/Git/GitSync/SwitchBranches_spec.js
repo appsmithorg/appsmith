@@ -83,7 +83,7 @@ describe(
       entityExplorer.RenameEntityFromExplorer(
         "Page2",
         "ParentPage1",
-        false,
+        true,
         EntityItems.Page,
       );
       dataSources.NavigateToDSCreateNew();
@@ -101,7 +101,7 @@ describe(
       entityExplorer.RenameEntityFromExplorer(
         "Page2",
         "ChildPage1",
-        false,
+        true,
         EntityItems.Page,
       );
       dataSources.NavigateToDSCreateNew();
@@ -132,7 +132,7 @@ describe(
       entityExplorer.RenameEntityFromExplorer(
         "ParentPage1",
         "ParentPageRenamed",
-        false,
+        true,
         EntityItems.Page,
       );
       agHelper.RemoveUIElement(

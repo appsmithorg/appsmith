@@ -54,6 +54,7 @@ export enum ImageSizes {
   LARGE = "128px",
 }
 
+export const SCROLL_BAR_OFFSET = 2;
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,

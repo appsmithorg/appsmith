@@ -28,11 +28,20 @@ export const StyledSlider = styled.div<{
   }
 `;
 
-export const SliderLabel = styled.div`
+export const SliderLabel = styled.div<{
+  hasTooltip?: boolean;
+}>`
   display: flex;
   align-self: stretch;
   justify-content: space-between;
   margin: 0 calc(var(--ads-v2-spaces-5) / 2 * -1) var(--ads-v2-spaces-3);
+  ${({ hasTooltip }) =>
+    hasTooltip &&
+    `label {
+      cursor: help;
+      text-decoration: underline dashed var(--ads-v2-color-border) from-font;
+      text-underline-position: under;
+    }`}
 
   span {
     flex-grow: 1;

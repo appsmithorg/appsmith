@@ -162,6 +162,49 @@ class ActionAPI extends API {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
+  static async generateVisualization(
+    actionId: string,
+    prompt: string,
+    data: unknown,
+  ): Promise<
+    AxiosPromise<{
+      result: { html: string; css: string; js: string; error: string };
+    }>
+  > {
+    return API.post(
+      `${ActionAPI.url}/${actionId}/visualize`,
+      {
+        prompt,
+        data,
+      },
+      {},
+      {
+        timeout: 60000, // 1 minute
+      },
+    );
+  }
+
+  static async saveVisualization(
+    actionId: string,
+    elements: {
+      html: string;
+      css: string;
+      js: string;
+    },
+  ): Promise<
+    AxiosPromise<
+      ApiResponse<{
+        result: { html: string; css: string; js: string; error: string };
+      }>
+    >
+  > {
+    return API.patch(`${ActionAPI.url}/${actionId}/visualize`, {
+      existing: {
+        result: elements,
+      },
+    });
+  }
+
   static async fetchActionsByPageId(
     pageId: string,
   ): Promise<AxiosPromise<ApiResponse<Action[]>>> {

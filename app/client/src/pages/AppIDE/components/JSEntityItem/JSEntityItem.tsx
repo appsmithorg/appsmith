@@ -44,7 +44,7 @@ export const JSEntityItem = ({ item }: { item: EntityItemProps }) => {
     }
 
     return (
-      <EntityContextMenu>
+      <EntityContextMenu dataTestId="t--entity-context-menu-trigger">
         <AppJSContextMenuItems jsAction={jsAction} />
       </EntityContextMenu>
     );

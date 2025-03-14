@@ -124,6 +124,12 @@ export interface StoredDatasource {
   datasourceConfiguration?: { url?: string };
 }
 
+export interface VisualizationElements {
+  css: string;
+  js: string;
+  html: string;
+}
+
 export interface BaseAction {
   id: string;
   baseId: string;
@@ -157,6 +163,9 @@ export interface BaseAction {
   // will always be undefined for non js actions
   isMainJSCollection?: boolean;
   source?: ActionCreationSourceTypeEnum;
+  visualization?: {
+    result: VisualizationElements;
+  };
 }
 
 interface BaseApiAction extends BaseAction {

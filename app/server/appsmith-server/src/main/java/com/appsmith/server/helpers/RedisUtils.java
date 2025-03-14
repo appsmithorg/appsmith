@@ -3,17 +3,24 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.AUTO_COMMIT;
+import static com.appsmith.server.services.ce.SessionUserServiceCEImpl.SPRING_SESSION_PATTERN;
 import static org.springframework.util.StringUtils.hasText;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RedisUtils {
     private final ReactiveRedisOperations<String, String> redisOperations;
 
@@ -91,5 +98,37 @@ public class RedisUtils {
                 return Mono.empty();
             }
         });
+    }
+
+    /**
+     * Expect to use this method when you want to delete all the sessions in this Appsmith instance.
+     * This would be required for whenever any attribute related to sessions becomes invalid at a systemic level.
+     * Use with caution, every user will be logged out.
+     */
+    public Mono<Void> deleteAllSessionsIncludingCurrentUser() {
+        AtomicInteger deletedKeysCount = new AtomicInteger(0);
+
+        return redisOperations
+                .execute(connection -> {
+                    Flux<ByteBuffer> scanFlux = connection
+                            .keyCommands()
+                            .scan(ScanOptions.scanOptions()
+                                    .match(SPRING_SESSION_PATTERN)
+                                    .count(1000)
+                                    .build());
+
+                    return scanFlux.flatMap(scannedKey -> {
+                                return connection.keyCommands().del(scannedKey).doOnSuccess(result -> {
+                                    int count = deletedKeysCount.incrementAndGet();
+                                    if (count % 10000 == 0) {
+                                        log.info("Processed {} Redis keys", count);
+                                    }
+                                });
+                            })
+                            .then()
+                            .doOnSuccess(v -> log.info("Total Redis keys processed: {}", deletedKeysCount.get()))
+                            .doOnError(error -> log.error("Redis key deletion error: {}", error.getMessage()));
+                })
+                .then();
     }
 }

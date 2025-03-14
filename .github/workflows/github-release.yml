@@ -83,7 +83,12 @@ jobs:
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID2 }}"
           REACT_APP_VERSION_EDITION: "Community"
         run: |
-          yarn build
+          yarn build || EXIT_CODE=$?
+
+          if [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" -gt 1 ]; then
+            exit $EXIT_CODE
+          fi
+
           ls -l build
 
       - name: Pack the client build directory
