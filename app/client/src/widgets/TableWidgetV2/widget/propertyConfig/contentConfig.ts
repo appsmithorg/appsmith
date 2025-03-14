@@ -429,7 +429,7 @@ export default [
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) =>
           !props.isSortable ||
-          Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
+          !Widget.getFeatureFlag(CUSTOM_SORT_FUNCTION_ENABLED),
         dependencies: ["isSortable"],
       },
     ],
