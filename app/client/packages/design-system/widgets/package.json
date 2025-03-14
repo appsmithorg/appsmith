@@ -39,7 +39,7 @@
     "usehooks-ts": "*"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
+    "@babel/core": "^7.26.10",
     "@babel/helper-compilation-targets": "^7.26.5",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
