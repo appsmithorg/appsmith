@@ -3,10 +3,7 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { InputType } from "components/constants";
-import type {
-  CodeEditorExpected,
-  EditorProps,
-} from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
@@ -39,8 +36,6 @@ export function InputText(props: {
   enableAI?: boolean;
   isEditorHidden?: boolean;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
-  maxHeight?: string | number;
-  height?: string | number;
 }) {
   const {
     blockCompletions,
@@ -48,11 +43,9 @@ export function InputText(props: {
     enableAI = true,
     evaluatedValue,
     expected,
-    height,
     hideEvaluatedValue,
     isEditorHidden,
     label,
-    maxHeight,
     onBlur,
     onChange,
     onFocus,
@@ -71,7 +64,6 @@ export function InputText(props: {
         evaluatedPopUpLabel={label}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        height={height as EditorProps["height"]}
         hideEvaluatedValue={hideEvaluatedValue}
         hinting={[bindingHintHelper, slashCommandHintHelper]}
         hoverInteraction
@@ -80,7 +72,6 @@ export function InputText(props: {
           onChange: onChange,
         }}
         isEditorHidden={isEditorHidden}
-        maxHeight={maxHeight as EditorProps["maxHeight"]}
         mode={EditorModes.TEXT_WITH_BINDING}
         onEditorBlur={onBlur}
         onEditorFocus={onFocus}
@@ -101,7 +92,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
       additionalAutoComplete,
-      controlConfig,
       dataTreePath,
       defaultValue,
       expected,
@@ -121,11 +111,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
         additionalAutocomplete={additionalAutoComplete}
         dataTreePath={dataTreePath}
         expected={expected}
-        height={controlConfig?.height as EditorProps["height"]}
         hideEvaluatedValue={hideEvaluatedValue}
         isEditorHidden={!isOpen}
         label={label}
-        maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
         onBlur={onBlur}
         onChange={this.onTextChange}
         onFocus={onFocus}
