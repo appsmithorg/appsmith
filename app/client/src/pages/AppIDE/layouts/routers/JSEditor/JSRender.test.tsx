@@ -11,8 +11,7 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
 const basePageId = "0123456789abcdef00000000";
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip("IDE Render: JS", () => {
+describe("IDE Render: JS", () => {
   describe("JS Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(
