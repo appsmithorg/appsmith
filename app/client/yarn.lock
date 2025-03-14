@@ -10644,16 +10644,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tinymce/tinymce-react@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "@tinymce/tinymce-react@npm:5.1.1"
+"@tinymce/tinymce-react@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@tinymce/tinymce-react@npm:6.0.0"
   dependencies:
     prop-types: ^15.6.2
-    tinymce: ^7.0.0 || ^6.0.0 || ^5.5.1
   peerDependencies:
     react: ^18.0.0 || ^17.0.1 || ^16.7.0
     react-dom: ^18.0.0 || ^17.0.1 || ^16.7.0
-  checksum: 80cb97203f8dbe2a9c0cedd46aec8cb37f233932567fe4e5e283d6f65b1c0b25e6cbc33a69a3af7554d06875f809740f1e5a1000474702ec24ed69c7e7dcf2d9
+    tinymce: ^7.0.0 || ^6.0.0 || ^5.5.1
+  peerDependenciesMeta:
+    tinymce:
+      optional: true
+  checksum: 84c03515f59ad046a89522b3ece353a50f223b571f3034d06e87c9161cc2ba1c6205b9a427eb563d3bff053bebec43428fa1942181db15da51bd19d8cf4c0417
   languageName: node
   linkType: hard
 
@@ -13413,7 +13416,7 @@ __metadata:
     "@testing-library/react": 12.1.2
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
-    "@tinymce/tinymce-react": ^5.1.1
+    "@tinymce/tinymce-react": ^6.0.0
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
     "@types/d3-geo": ^3.1.0
@@ -13680,7 +13683,7 @@ __metadata:
     tern: ^0.21.0
     terser-webpack-plugin: ^5.2.5
     tinycolor2: ^1.4.2
-    tinymce: 6.8.3
+    tinymce: 7.7.1
     toposort: ^2.0.2
     ts-jest: ^29.1.0
     ts-jest-mock-import-meta: ^0.12.0
@@ -32867,17 +32870,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinymce@npm:6.8.3":
-  version: 6.8.3
-  resolution: "tinymce@npm:6.8.3"
-  checksum: 2ce922ceb60636778afb21a493e99d561e73f82c5fb331a4f666d973129ca27277bc1b6332d6932ab8fe0a379b1f201285f143a2d72646a813fda88a0dec5312
-  languageName: node
-  linkType: hard
-
-"tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1":
-  version: 7.3.0
-  resolution: "tinymce@npm:7.3.0"
-  checksum: 8c2205e8f316ae86c713ba09d8072921050011fbb6a28060c02c53d79d34d470995f286b478966e42c767d5905fd9d89a808338d63ac63a0ea0f96a017b020e2
+"tinymce@npm:7.7.1":
+  version: 7.7.1
+  resolution: "tinymce@npm:7.7.1"
+  checksum: e5deb0ee798c4af3d5c1ed4887e4b9541ec0355704731623f1fbb9f9afad09938e6d397c003cc82424aca381f252d4b324a6cac33fcdb79771daea23c5d8f8f7
   languageName: node
   linkType: hard
 
