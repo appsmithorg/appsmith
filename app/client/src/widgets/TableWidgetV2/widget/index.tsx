@@ -1229,10 +1229,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
-    const transformedData = this.transformData(
-      customSortFunctionData || filteredTableData,
-      tableColumns,
-    );
+    let data = filteredTableData;
+
+    if (customSortFunctionData && Array.isArray(customSortFunctionData)) {
+      data = customSortFunctionData;
+    }
+
+    const transformedData = this.transformData(data, tableColumns);
+
     const isVisibleHeaderOptions =
       isVisibleDownload ||
       isVisibleFilters ||
