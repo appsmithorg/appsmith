@@ -688,8 +688,8 @@ export const IMPORT_FROM_GIT_DISABLED_IN_ANVIL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () =>
-  "Import from Git repository (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = (isBeta: boolean = true) =>
+  `Import from Git repository ${isBeta ? "(Beta)" : ""}`;
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -923,7 +923,6 @@ export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
-export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "Retry";
 export const CREATE_NEW_BRANCH = () => "Create new branch";

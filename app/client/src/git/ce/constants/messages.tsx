@@ -1,3 +1,11 @@
+export const QUICK_ACTIONS = {
+  CONNECT_BTN_NOT_LIVE_YET: "It's not live for you yet",
+  CONNECT_BTN_COMING_SOON: "Coming Soon!",
+  CONNECT_BTN_CTA: "Connect Git",
+  CONNECT_BTN_CONTACT_ADMIN:
+    "Please contact your workspace admin to connect your artifact to a git repo",
+};
+
 export const OPS_MODAL = {
   TAB_RELEASE: "RELEASE",
 };
