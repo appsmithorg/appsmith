@@ -9,11 +9,11 @@ import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
-// Mock JSEditorForm component
-jest.mock("pages/Editor/JSEditor/JSEditorForm/JSEditorForm", () => {
+// Mock the LazyCodeEditor component
+jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
   return {
     __esModule: true,
-    JSEditorForm: () => <div data-testid="t--mock-js-editor-form" />,
+    default: () => <div data-testid="t--code-editor" />,
   };
 });
 
