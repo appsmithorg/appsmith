@@ -22,6 +22,16 @@ jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
     default: () => <div data-testid="t--code-editor" />,
   };
 });
+// Mock Visualization component
+jest.mock(
+  "PluginActionEditor/components/PluginActionResponse/components/Visualization/Visualization.tsx",
+  () => {
+    return {
+      __esModule: true,
+      Visualization: () => <div data-testid="t--mock-visualization" />,
+    };
+  },
+);
 
 describe("IDE URL rendering of Queries", () => {
   describe("Query Blank State", () => {
