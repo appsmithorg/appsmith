@@ -13370,7 +13370,7 @@ __metadata:
     "@types/node": "*"
     "@types/nodemailer": ^6.4.17
     "@types/readline-sync": ^1.4.8
-    axios: ^1.7.4
+    axios: ^1.8.3
     dotenv: 10.0.0
     express: ^4.20.0
     express-validator: ^6.14.2
@@ -13512,7 +13512,7 @@ __metadata:
     assert-never: ^1.2.1
     astring: ^1.7.5
     async-mutex: ^0.5.0
-    axios: ^1.7.4
+    axios: ^1.8.3
     babel-jest: ^27.4.2
     babel-loader: ^8.2.3
     babel-plugin-lodash: ^3.3.4
@@ -14185,14 +14185,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.1, axios@npm:^1.7.4":
-  version: 1.7.4
-  resolution: "axios@npm:1.7.4"
+"axios@npm:^1.6.1, axios@npm:^1.8.3":
+  version: 1.8.3
+  resolution: "axios@npm:1.8.3"
   dependencies:
     follow-redirects: ^1.15.6
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 0c17039a9acfe6a566fca8431ba5c1b455c83d30ea6157fec68a6722878fcd30f3bd32d172f6bee0c51fe75ca98e6414ddcd968a87b5606b573731629440bfaf
+  checksum: 85fc8ad7d968e43ea9da5513310637d29654b181411012ee14cc0a4b3662782e6c81ac25eea40b5684f86ed2d8a01fa6fc20b9b48c4da14ef4eaee848fea43bc
   languageName: node
   linkType: hard
 
