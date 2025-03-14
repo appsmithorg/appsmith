@@ -45,7 +45,7 @@ const _SidebarContent = (
             </Text>
           )}
 
-          <Flex>
+          <Flex marginLeft="auto">
             {extraTitleButton}
             {!isMobile && (
               <Button
