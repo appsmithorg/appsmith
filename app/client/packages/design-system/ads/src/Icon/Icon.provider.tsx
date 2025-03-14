@@ -204,6 +204,9 @@ const RightArrowIcon2 = importRemixIcon(
 const RocketIcon = importRemixIcon(
   async () => import("remixicon-react/RocketLineIcon"),
 );
+const RobotIcon = importRemixIcon(
+  async () => import("remixicon-react/RobotLineIcon"),
+);
 const Save2LineIcon = importRemixIcon(
   async () => import("remixicon-react/Save2LineIcon"),
 );
@@ -1130,6 +1133,28 @@ const StateInspectorIcon = importSvg(
   async () => import("../__assets__/icons/ads/state-inspector.svg"),
 );
 
+const BoxIcon = importSvg(
+  async () => import("../__assets__/icons/ads/box.svg"),
+);
+const ConfluenceIcon = importSvg(
+  async () => import("../__assets__/icons/ads/confluence.svg"),
+);
+const DropboxIcon = importSvg(
+  async () => import("../__assets__/icons/ads/dropbox.svg"),
+);
+const FreshdeskIcon = importSvg(
+  async () => import("../__assets__/icons/ads/freshdesk.svg"),
+);
+const IntercomIcon = importSvg(
+  async () => import("../__assets__/icons/ads/intercom.svg"),
+);
+const OnedriveIcon = importSvg(
+  async () => import("../__assets__/icons/ads/onedrive.svg"),
+);
+const SharepointIcon = importSvg(
+  async () => import("../__assets__/icons/ads/sharepoint.svg"),
+);
+
 const MdFileIcon = importSvg(
   async () => import("../__assets__/icons/ads/md-file.svg"),
 );
@@ -1160,6 +1185,9 @@ const TsvFileIcon = importSvg(
 );
 const XlsFileIcon = importSvg(
   async () => import("../__assets__/icons/ads/xls-file.svg"),
+);
+const Robot2LineIcon = importSvg(
+  async () => import("../__assets__/icons/ads/robot-2-line.svg"),
 );
 
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
@@ -1529,6 +1557,8 @@ const ICON_LOOKUP = {
   reaction: Reaction,
   refresh: RefreshLineIcon,
   rocket: RocketIcon,
+  robot: RobotIcon,
+  "robot-2": Robot2LineIcon,
   save: Save2LineIcon,
   search: SearchIcon,
   setting: SettingIcon,
@@ -1569,6 +1599,13 @@ const ICON_LOOKUP = {
   "google-drive": GoogleDriveIcon,
   salesforce: SalesforceIcon,
   "state-inspector": StateInspectorIcon,
+  box: BoxIcon,
+  confluence: ConfluenceIcon,
+  dropbox: DropboxIcon,
+  freshdesk: FreshdeskIcon,
+  intercom: IntercomIcon,
+  onedrive: OnedriveIcon,
+  sharepoint: SharepointIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
