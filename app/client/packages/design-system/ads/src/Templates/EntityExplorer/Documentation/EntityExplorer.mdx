@@ -1,0 +1,218 @@
+import { Meta, Story, Canvas, ArgsTable } from "@storybook/addon-docs";
+import { Flex } from "../../../Flex";
+import * as EntityExplorerStories from "./EntityExplorer.stories";
+
+<Meta title="EntityExplorerStories" />
+
+# Entity Explorer
+
+The Entity Explorer is a collection of components that work together to create a navigation and exploration interface for entities in an application. It's commonly used for displaying hierarchical data structures like widgets, queries, and other resources.
+
+## Components
+
+The Entity Explorer consists of several key components:
+
+- **EditorSegments**: Navigation tabs for switching between different entity types
+- **SearchAndAdd**: Search bar with an optional add button
+- **EntityGroupsList**: Displays entities grouped by categories
+- **EntityListTree**: Displays entities in a hierarchical tree structure
+- **EntityItem**: Individual entity item with various display options
+- **ListWithHeader**: A simple list with a header
+
+## Usage Examples
+
+### With Segments, Search, and Groups
+
+This example shows how to combine EditorSegments for navigation, SearchAndAdd for searching and adding items, and EntityGroupsList for displaying grouped items.
+
+<Canvas>
+  <Story story={EntityExplorerStories.WithSegmentsAndGroups} />
+</Canvas>
+
+```jsx
+<Flex
+  backgroundColor="var(--ads-color-background)"
+  flexDirection="column"
+  height="600px"
+  width="300px"
+>
+  <EditorSegments
+    selectedSegment={mockSegments.selectedSegment}
+    onSegmentChange={(value) => {
+      console.log("Segment changed:", value);
+    }}
+    options={mockSegments.options}
+  />
+  <SearchAndAdd
+    onSearch={(query) => {
+      console.log("Search:", query);
+    }}
+    onAdd={() => {
+      console.log("Add clicked");
+    }}
+    placeholder="Search widgets..."
+    showAddButton
+  />
+  <EntityGroupsList groups={mockGroups} />
+</Flex>
+```
+
+### With Search and Tree View
+
+This example demonstrates using SearchAndAdd with EntityListTree for displaying hierarchical data.
+
+<Canvas>
+  <Story story={EntityExplorerStories.WithSearchAndTree} />
+</Canvas>
+
+```jsx
+<Flex
+  backgroundColor="var(--ads-color-background)"
+  flexDirection="column"
+  height="600px"
+  width="300px"
+>
+  <SearchAndAdd
+    onSearch={(query) => {
+      console.log("Search:", query);
+    }}
+    onAdd={() => {
+      console.log("Add clicked");
+    }}
+    placeholder="Search items..."
+    showAddButton
+  />
+  <EntityListTree
+    items={mockTreeItems}
+    ItemComponent={TreeItemComponent}
+    onItemExpand={(id) => {
+      console.log("Item expanded:", id);
+    }}
+  />
+</Flex>
+```
+
+### With Segments and Simple List
+
+This example shows how to use EditorSegments with a simple ListWithHeader for displaying a flat list of items without grouping.
+
+<Canvas>
+  <Story story={EntityExplorerStories.WithSegmentsAndList} />
+</Canvas>
+
+```jsx
+<Flex
+  backgroundColor="var(--ads-color-background)"
+  flexDirection="column"
+  height="600px"
+  width="300px"
+>
+  <EditorSegments
+    selectedSegment={mockSegments.selectedSegment}
+    onSegmentChange={(value) => {
+      console.log("Segment changed:", value);
+    }}
+    options={mockSegments.options}
+  />
+  <ListWithHeader headerText="Items">
+    {mockTreeItems.map((item) => (
+      <EntityItem
+        key={item.id}
+        id={item.id}
+        title={item.name}
+        startIcon={item.type}
+        nameEditorConfig={defaultNameEditorConfig}
+        onClick={() => {
+          console.log("Item clicked:", item);
+        }}
+      />
+    ))}
+  </ListWithHeader>
+</Flex>
+```
+
+## Component Details
+
+### EditorSegments
+
+EditorSegments provides a tabbed navigation interface for switching between different entity types.
+
+**Props:**
+
+- `selectedSegment`: The currently selected segment value
+- `onSegmentChange`: Callback when segment is changed
+- `options`: Array of segment options with label and value
+
+### SearchAndAdd
+
+SearchAndAdd provides a search input with an optional add button.
+
+**Props:**
+
+- `onSearch`: Callback when search query changes
+- `onAdd`: Callback when add button is clicked
+- `placeholder`: Placeholder text for search input
+- `showAddButton`: Whether to show the add button
+
+### EntityGroupsList
+
+EntityGroupsList displays entities organized into groups.
+
+**Props:**
+
+- `groups`: Array of group objects with title, items, and render function
+- `flexProps`: Optional Flex component props
+- `showDivider`: Whether to show dividers between groups
+- `visibleItems`: Number of items to show initially
+
+### EntityListTree
+
+EntityListTree displays entities in a hierarchical tree structure.
+
+**Props:**
+
+- `items`: Array of tree items
+- `ItemComponent`: Component to render each item
+- `onItemExpand`: Callback when an item is expanded
+- `depth`: Current depth level (for recursion)
+
+### EntityItem
+
+EntityItem represents an individual entity in the explorer.
+
+**Props:**
+
+- `id`: Unique identifier for the entity
+- `title`: Display name of the entity
+- `startIcon`: Icon to display for the entity
+- `nameEditorConfig`: Configuration for name editing
+- `onClick`: Callback when item is clicked
+
+### ListWithHeader
+
+ListWithHeader provides a simple list with a header.
+
+**Props:**
+
+- `headerText`: Text to display in the header
+- `headerControls`: Optional controls to display in the header
+- `maxHeight`: Maximum height of the list
+- `headerClassName`: Optional class name for the header
+- `children`: List items to display
+
+## Best Practices
+
+1. **Consistent Styling**: Maintain consistent styling across all components for a cohesive look.
+2. **Responsive Design**: Ensure the explorer works well at different screen sizes.
+3. **Keyboard Navigation**: Implement keyboard navigation for accessibility.
+4. **Clear Feedback**: Provide clear visual feedback for user interactions.
+5. **Performance**: For large lists, implement virtualization to maintain performance.
+
+## Customization
+
+The Entity Explorer components can be customized in various ways:
+
+- **Theming**: Components use CSS variables for theming
+- **Custom Rendering**: Use render props to customize item rendering
+- **Layout Adjustments**: Flex props allow for layout customization
+- **Behavior Overrides**: Event handlers can be customized for different behaviors
