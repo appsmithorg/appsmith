@@ -21,7 +21,7 @@ jest.mock(
   () => {
     return {
       __esModule: true,
-      Visualization: () => <div data-testid="mock-visualization" />,
+      Visualization: () => <div data-testid="t--mock-visualization" />,
     };
   },
 );

@@ -13,7 +13,7 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 jest.mock("pages/Editor/JSEditor/JSEditorForm/JSEditorForm", () => {
   return {
     __esModule: true,
-    JSEditorForm: () => <div data-testid="mock-js-editor-form" />,
+    JSEditorForm: () => <div data-testid="t--mock-js-editor-form" />,
   };
 });
 
