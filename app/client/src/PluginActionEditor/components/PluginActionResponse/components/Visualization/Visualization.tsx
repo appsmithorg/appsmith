@@ -96,7 +96,9 @@ export const Visualization = (props: VisualizationProps) => {
 
       <Flex flexDirection="column" flexGrow={1} position="relative">
         {generateVisualization.elements ? (
-          <ErrorBoundary fallback="Visualization failed. Please try again.">
+          <ErrorBoundary
+            fallback={<>Visualization failed. Please try again.</>}
+          >
             <Result data={response} elements={generateVisualization.elements} />
           </ErrorBoundary>
         ) : (

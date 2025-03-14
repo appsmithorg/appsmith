@@ -442,7 +442,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             plugins: [
               "advlist",
               "autolink",
-              "lists",
+              "lists", // Required for InsertOrderedList and InsertUnorderedList commands
               "link",
               "image",
               "charmap",
@@ -452,13 +452,21 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               "visualblocks",
               "code",
               "fullscreen",
-              "insertdatetime ",
-              "media ",
+              "insertdatetime",
+              "media",
               "table",
-              "code ",
               "help",
               "emoticons",
-              "code",
+            ],
+            // Configure text patterns to use space key trigger for markdown-style formatting
+            text_patterns: [
+              { start: "#", format: "h1", trigger: "space" },
+              { start: "##", format: "h2", trigger: "space" },
+              { start: "###", format: "h3", trigger: "space" },
+              { start: "1.", cmd: "InsertOrderedList", trigger: "space" },
+              { start: "*", cmd: "InsertUnorderedList", trigger: "space" },
+              { start: "-", cmd: "InsertUnorderedList", trigger: "space" },
+              { start: ">", cmd: "mceBlockQuote", trigger: "space" },
             ],
             contextmenu: "link useBrowserSpellcheck image table",
             setup: function (editor) {

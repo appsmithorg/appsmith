@@ -33,8 +33,11 @@ import { FirstTimeUserOnboardingChecklist } from "pages/Editor/FirstTimeUserOnbo
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
+import type { RouteProps } from "react-router";
 
-export const MainPaneRoutes = (path: string) => [
+export const MainPaneRoutes = (
+  path: string,
+): Array<RouteProps & { key: string }> => [
   {
     key: "Canvas",
     component: WidgetsEditor,

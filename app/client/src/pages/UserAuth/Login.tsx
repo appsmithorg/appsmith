@@ -52,7 +52,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -117,7 +116,7 @@ export function Login(props: LoginFormProps) {
     errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
     Sentry.captureException("Login failed", {
-      level: Severity.Error,
+      level: "error",
       extra: {
         error: new Error(errorMessage),
       },

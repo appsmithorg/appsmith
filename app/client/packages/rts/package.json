@@ -23,7 +23,7 @@
     "@opentelemetry/sdk-trace-node": "^1.27.0",
     "@opentelemetry/semantic-conventions": "^1.27.0",
     "@shared/ast": "workspace:^",
-    "axios": "^1.7.4",
+    "axios": "^1.8.3",
     "dotenv": "10.0.0",
     "express": "^4.20.0",
     "express-validator": "^6.14.2",

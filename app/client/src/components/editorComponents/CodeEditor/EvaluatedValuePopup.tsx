@@ -15,7 +15,6 @@ import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import copy from "copy-to-clipboard";
 
 import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
@@ -292,7 +291,7 @@ export function PreparedStatementViewer(props: {
 
   if (!value) {
     Sentry.captureException("Prepared statement got no value", {
-      level: Severity.Debug,
+      level: "debug",
       extra: { props },
     });
 

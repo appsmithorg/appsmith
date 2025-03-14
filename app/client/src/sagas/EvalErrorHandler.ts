@@ -242,7 +242,7 @@ export function* evalErrorHandler(
                 diffs,
               },
               // Level is warning because it could be a user error
-              level: Sentry.Severity.Warning,
+              level: "warning",
             });
           }
 
@@ -251,7 +251,7 @@ export function* evalErrorHandler(
             node,
             entityType,
             // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
+            level: "warning",
           });
         }
 
