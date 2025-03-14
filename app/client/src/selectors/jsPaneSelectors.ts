@@ -22,3 +22,11 @@ export const getLastJSTab = (state: AppState): FocusEntityInfo | undefined => {
     return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };
+
+export const getIsGeneratingSchema = (state: AppState, collectionId: string) =>
+  state.ui.jsPane.isSchemaGenerating[collectionId];
+
+export const getIsJSCollectionSaving = (
+  state: AppState,
+  collectionId: string,
+) => state.ui.jsPane.isSaving[collectionId];

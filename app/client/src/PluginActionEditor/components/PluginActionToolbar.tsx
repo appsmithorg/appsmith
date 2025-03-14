@@ -7,9 +7,14 @@ import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
+  useHandleGenerateSchemaClick,
 } from "../hooks";
 import { useSelector } from "react-redux";
-import { isActionRunning } from "../store";
+import {
+  isActionRunning,
+  isActionSaving,
+  isActionSchemaGenerating,
+} from "../store";
 import PluginActionSettings from "./PluginActionSettings";
 import { PluginActionContextMenu } from "./PluginActionContextMenu";
 
@@ -22,9 +27,12 @@ interface PluginActionToolbarProps {
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { handleGenerateSchemaClick } = useHandleGenerateSchemaClick();
   const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const blockExecution = useBlockExecution();
   const isRunning = useSelector(isActionRunning(action.id));
+  const isSaving = useSelector(isActionSaving(action.id));
+  const isSchemaGenerating = useSelector(isActionSchemaGenerating(action.id));
 
   const onRunClick = useCallback(() => {
     callRunActionAnalytics();
@@ -43,7 +51,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
         >
           <Button
             data-testid="t--run-action"
-            isDisabled={blockExecution}
+            isDisabled={blockExecution || isSchemaGenerating}
             isLoading={isRunning}
             kind="primary"
             onClick={onRunClick}
@@ -52,6 +60,16 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             Run
           </Button>
         </Tooltip>
+        <Button
+          data-testid="t--schema-action"
+          isDisabled={blockExecution || isSaving}
+          isLoading={isSchemaGenerating}
+          kind="secondary"
+          onClick={handleGenerateSchemaClick}
+          size="sm"
+        >
+          Save
+        </Button>
         <PluginActionSettings />
         {props.menuContent ? (
           <PluginActionContextMenu

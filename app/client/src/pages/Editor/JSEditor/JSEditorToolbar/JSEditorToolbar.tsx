@@ -10,6 +10,8 @@ import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
 import { convertJSActionsToDropdownOptions } from "./utils";
 import { JSObjectNameEditor } from "./JSObjectNameEditor";
+import { JSFunctionGenerateSchema } from "./components/JSFunctionGenerateSchema";
+import { Flex } from "@appsmith/ads";
 
 interface Props {
   changePermitted: boolean;
@@ -20,10 +22,15 @@ interface Props {
   hideContextMenuOnEditor?: boolean;
   contextMenu: React.ReactNode;
   disableRunFunctionality: boolean;
+  disableGenerateSchemaFunctionality: boolean;
   executePermitted: boolean;
   loading: boolean;
+  isGeneratingSchema: boolean;
   jsCollection: JSCollection;
   onButtonClick: (
+    event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+  ) => void;
+  onGenerateSchemaButtonClick: (
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
   ) => void;
   onSelect: DropdownOnSelect;
@@ -55,7 +62,7 @@ export const JSEditorToolbar = (props: Props) => {
         )}
       </IDEToolbar.Left>
       <IDEToolbar.Right>
-        <div className="t--formActionButtons">
+        <Flex className="t--formActionButtons" gap="spaces-2">
           <JSFunctionRun
             disabled={props.disableRunFunctionality || !props.executePermitted}
             isLoading={props.loading}
@@ -66,7 +73,12 @@ export const JSEditorToolbar = (props: Props) => {
             selected={props.selected}
             showTooltip={!props.selected.data}
           />
-        </div>
+          <JSFunctionGenerateSchema
+            disabled={props.disableGenerateSchemaFunctionality || props.loading}
+            isLoading={props.isGeneratingSchema}
+            onButtonClick={props.onGenerateSchemaButtonClick}
+          />
+        </Flex>
         {props.showSettings ? (
           <ToolbarSettingsPopover
             dataTestId={"t--js-settings-trigger"}
