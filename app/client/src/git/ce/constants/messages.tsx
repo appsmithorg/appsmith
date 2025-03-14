@@ -7,7 +7,7 @@ export const QUICK_ACTIONS = {
 };
 
 export const OPS_MODAL = {
-  TAB_RELEASE: "RELEASE",
+  TAB_RELEASE: "Release",
 };
 
 export const TAB_RELEASE = {
@@ -23,4 +23,9 @@ export const RELEASE_VERSION_RADIO_GROUP = {
 export const RELEASE_NOTES_INPUT = {
   TITLE: "Release notes",
   PLACEHOLDER: "Your release notes here",
+};
+
+export const LATEST_COMMIT_INFO = {
+  LOADING_COMMIT_MESSAGE: "Fetching latest commit...",
+  NO_COMMIT_MESSAGE: "No commit message found",
 };
