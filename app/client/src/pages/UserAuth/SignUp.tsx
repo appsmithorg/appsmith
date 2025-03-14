@@ -58,7 +58,6 @@ import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers"
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 declare global {
@@ -137,7 +136,7 @@ export function SignUp(props: SignUpFormProps) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
     Sentry.captureException("Sign up failed", {
-      level: Severity.Error,
+      level: "error",
       extra: {
         error: new Error(errorMessage),
       },
