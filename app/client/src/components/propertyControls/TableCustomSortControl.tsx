@@ -100,8 +100,13 @@ function InputText(props: InputTextProp) {
             Access data using{" "}
             <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
-              originalTableData, computedTableData, column, order
+              tableData, column, order
               <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
+            <br />
+            Original data is available with prefix{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>original_</CurlyBraces>
             </span>
           </PromptMessage>
         }
@@ -121,17 +126,70 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
     tableName: string,
     stringToEvaluate: string,
   ) => {
+    if (!stringToEvaluate) {
+      return stringToEvaluate;
+    }
+
+    /**
+     * This is a self-executing function that implements custom table sorting logic.
+     *
+     * State Management:
+     * 1. Initializes with original table data, filtered table data, and primary column ID
+     * 2. If primary column ID is not set, it returns the filtered table data
+     * 3. Creates a mapping function to merge original and filtered data
+     * 4. Processes the data through several states:
+     *    - Initial state: Raw table data and filtered data
+     *    - Merged state: Combines original and filtered data with "original_" prefixed properties
+     *    - Sorted state: Applies user-defined sorting logic from stringToEvaluate
+     *    - Cleaned state: Removes temporary "original_" properties from the result
+     *
+     * Error handling is implemented to return filtered data if any step fails.
+     * Empty dataset handling returns empty results immediately.
+     * The function maintains data integrity by preserving the original structure.
+     */
     return `{{(() => {
+    const originalTableData = ${tableName}.tableData || [];
+    const filteredTableData = ${tableName}.filteredTableData || [];
+    const primaryColumnId = ${tableName}.primaryColumnId;
+    const getMergedTableData = (originalData, filteredData, primaryId) => {
+      const originalDataMap = {};
+      originalData.forEach((row) => {
+        originalDataMap[row[primaryId]] = row;
+      });
+      return filteredData.map(row => {
+        const newRow = {...row};
+        const originalRow = originalDataMap[row[primaryId]] || {};
+        Object.entries(originalRow).forEach(([key, value]) => {
+          if (key !== "__originalIndex__" && key !== "__primaryKey__") {
+            newRow["original_" + key] = value;
+          }
+        });
+        return newRow;
+      });
+    };
     try {
-      const tableData = ${tableName}.tableData || [];
-      const filteredTableData = ${tableName}.filteredTableData || [];
-      if(filteredTableData.length > 0 && ${stringToEvaluate}) {
-        const sortedTableData = ((originalTableData, computedTableData, column, order) => (${stringToEvaluate}))(tableData, filteredTableData, ${tableName}.sortOrder.column, ${tableName}.sortOrder.order);
-        return Array.isArray(sortedTableData) && sortedTableData.length > 0 ? sortedTableData : filteredTableData;
+      if(filteredTableData.length === 0) {
+        return filteredTableData;
+      }
+      const mergedTableData = primaryColumnId ? getMergedTableData(originalTableData, filteredTableData, primaryColumnId) : filteredTableData;
+      const sortedTableData = ((tableData, column, order) => (${stringToEvaluate}))(mergedTableData, ${tableName}.sortOrder.column, ${tableName}.sortOrder.order);
+      if (Array.isArray(sortedTableData) && primaryColumnId) {
+        const cleanedData = sortedTableData.map(row => {
+          if (typeof row !== 'object' || row === null) return row;
+          const cleanRow = {...row};
+          Object.keys(cleanRow).forEach(key => {
+            if (key.startsWith('original_')) {
+              delete cleanRow[key];
+            }
+          });
+          return cleanRow;
+        });
+        return cleanedData.length > 0 ? cleanedData : filteredTableData;
       }
       return filteredTableData;
     } catch (e) {
-      return filteredTableData;
+      console.error("Error in table custom sort:", e);
+      return ${tableName}.filteredTableData || [];
     }
     })()}}`;
   };
@@ -175,8 +233,7 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
     return (
       <InputText
         additionalDynamicData={{
-          originalTableData: {} as Record<string, unknown>,
-          computedTableData: {} as Record<string, unknown>,
+          tableData: {} as Record<string, unknown>,
           column: {} as Record<string, unknown>,
           order: {} as Record<string, unknown>,
         }}
@@ -195,47 +252,63 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
   }
 
   static getInputComputedValue = (propertyValue: string) => {
-    const MAP_FUNCTION_SIGNATURE =
-      "(originalTableData, computedTableData, column, order) => (";
+    // Update the function signature to match the new implementation
+    const FUNCTION_SIGNATURE = "((tableData, column, order) => {";
+    const ALTERNATIVE_SIGNATURE = "((tableData, column, order) => (";
 
-    if (!propertyValue.includes(MAP_FUNCTION_SIGNATURE)) {
+    if (
+      !propertyValue.includes(FUNCTION_SIGNATURE) &&
+      !propertyValue.includes(ALTERNATIVE_SIGNATURE)
+    ) {
       return propertyValue;
     }
 
-    /** The binding will look like:
-     * {{(() => {
-     *   try {
-     *     const tableData = Table1.tableData || [];
-     *     const filteredTableData = Table1.filteredTableData || [];
-     *     if(filteredTableData.length > 0 && EXPRESSION_HERE) {
-     *       const sortedTableData = ((originalTableData, computedTableData, column, order) => (EXPRESSION_HERE))(tableData, filteredTableData, Table1.sortOrder.column, Table1.sortOrder.order);
-     *       return Array.isArray(sortedTableData) && sortedTableData.length > 0 ? sortedTableData : filteredTableData;
-     *     }
-     *     return filteredTableData;
-     *   } catch (e) {
-     *     return filteredTableData;
-     *   }
-     * })()}}
-     * */
-
     try {
-      const mapSignatureIndex = propertyValue.indexOf(MAP_FUNCTION_SIGNATURE);
+      let signatureIndex, computationStart;
 
-      if (mapSignatureIndex === -1) return propertyValue;
+      if (propertyValue.includes(FUNCTION_SIGNATURE)) {
+        signatureIndex = propertyValue.indexOf(FUNCTION_SIGNATURE);
+        computationStart = signatureIndex + FUNCTION_SIGNATURE.length;
 
-      const computationStart =
-        mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-      const computationEnd = propertyValue.lastIndexOf("))");
+        // Find the matching closing brace
+        let braceCount = 1;
+        let computationEnd = computationStart;
 
-      if (computationEnd === -1) return propertyValue;
+        for (let i = computationStart; i < propertyValue.length; i++) {
+          if (propertyValue[i] === "{") braceCount++;
 
-      // Extract the computation expression
-      const computationExpression = propertyValue.substring(
-        computationStart,
-        computationEnd,
-      );
+          if (propertyValue[i] === "}") braceCount--;
 
-      return JSToString(computationExpression);
+          if (braceCount === 0) {
+            computationEnd = i;
+            break;
+          }
+        }
+
+        if (computationEnd === computationStart) return propertyValue;
+
+        // Extract the computation expression
+        const computationExpression = propertyValue.substring(
+          computationStart,
+          computationEnd,
+        );
+
+        return JSToString(computationExpression);
+      } else {
+        signatureIndex = propertyValue.indexOf(ALTERNATIVE_SIGNATURE);
+        computationStart = signatureIndex + ALTERNATIVE_SIGNATURE.length;
+        const computationEnd = propertyValue.indexOf("))(");
+
+        if (computationEnd === -1) return propertyValue;
+
+        // Extract the computation expression
+        const computationExpression = propertyValue.substring(
+          computationStart,
+          computationEnd,
+        );
+
+        return JSToString(computationExpression);
+      }
     } catch (e) {
       return propertyValue;
     }
