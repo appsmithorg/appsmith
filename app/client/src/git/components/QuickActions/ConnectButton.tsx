@@ -1,14 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import {
-  COMING_SOON,
-  CONNECT_GIT_BETA,
-  CONTACT_ADMIN_FOR_GIT,
-  createMessage,
-  NOT_LIVE_FOR_YOU_YET,
-} from "ee/constants/messages";
-
 import { Button, Icon, Tooltip } from "@appsmith/ads";
+import { QUICK_ACTIONS } from "git/ee/constants/messages";
 
 const CenterDiv = styled.div`
   text-align: center;
@@ -41,13 +34,13 @@ function ConnectButton({ isConnectPermitted, onClick }: ConnectButtonProps) {
   const isTooltipEnabled = !isConnectPermitted;
   const tooltipContent = useMemo(() => {
     if (!isConnectPermitted) {
-      return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
+      return <CenterDiv>{QUICK_ACTIONS.CONNECT_BTN_CONTACT_ADMIN}</CenterDiv>;
     }
 
     return (
       <>
-        <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
-        <div>{createMessage(COMING_SOON)}</div>
+        <div>{QUICK_ACTIONS.CONNECT_BTN_NOT_LIVE_YET}</div>
+        <div>{QUICK_ACTIONS.CONNECT_BTN_COMING_SOON}</div>
       </>
     );
   }, [isConnectPermitted]);
@@ -68,7 +61,7 @@ function ConnectButton({ isConnectPermitted, onClick }: ConnectButtonProps) {
             onClick={onClick}
             size="sm"
           >
-            {createMessage(CONNECT_GIT_BETA)}
+            {QUICK_ACTIONS.CONNECT_BTN_CTA}
           </Button>
         </Container>
       </Tooltip>
