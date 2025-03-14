@@ -15,8 +15,25 @@ import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
 const basePageId = "0123456789abcdef00000000";
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip("IDE URL rendering of Queries", () => {
+// Mock the LazyCodeEditor component
+jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
+  return {
+    __esModule: true,
+    default: () => <div data-testid="t--code-editor" />,
+  };
+});
+// Mock Visualization component
+jest.mock(
+  "PluginActionEditor/components/PluginActionResponse/components/Visualization/Visualization.tsx",
+  () => {
+    return {
+      __esModule: true,
+      Visualization: () => <div data-testid="t--mock-visualization" />,
+    };
+  },
+);
+
+describe("IDE URL rendering of Queries", () => {
   describe("Query Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(

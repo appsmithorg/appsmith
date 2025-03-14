@@ -9,10 +9,17 @@ import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
+// Mock the LazyCodeEditor component
+jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
+  return {
+    __esModule: true,
+    default: () => <div data-testid="t--code-editor" />,
+  };
+});
+
 const basePageId = "0123456789abcdef00000000";
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip("IDE Render: JS", () => {
+describe("IDE Render: JS", () => {
   describe("JS Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(
