@@ -1,5 +1,6 @@
 package com.appsmith.server.aspect;
 
+import com.appsmith.external.annotations.FeatureFlagged;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.aspect.component.TestComponent;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -19,6 +20,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
@@ -41,7 +43,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.FALSE));
-        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags(any()))
+                .thenReturn(cachedFeatures);
     }
 
     @Test
@@ -107,18 +110,18 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void ceEeSyncMethod_eeImplTest() {
-        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)))
-                .thenReturn(Mono.just(true));
-        StepVerifier.create(testComponent.ceEeSyncMethod("arg_"))
-                .assertNext(result -> assertEquals("arg_ee_impl_method", result))
-                .verifyComplete();
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags("organizationId"))
+                .thenReturn(cachedFeatures);
+        String result = testComponent.ceEeSyncMethod("arg_", "organizationId");
+        assertEquals("arg_ee_impl_method", result);
     }
 
     @Test
     void ceEeSyncMethod_ceImplTest() {
-        StepVerifier.create(testComponent.ceEeSyncMethod("arg_"))
-                .assertNext(result -> assertEquals("arg_ce_impl_method", result))
-                .verifyComplete();
+        String result = testComponent.ceEeSyncMethod("arg_", "organizationId");
+        assertEquals("arg_ce_impl_method", result);
     }
 
     @Test
@@ -141,5 +144,24 @@ class FeatureFlaggedMethodInvokerAspectTest {
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException
                         && throwable.getMessage().equals("This is a test exception"))
                 .verify();
+    }
+
+    @Test
+    void ceEeSyncWithoutOrganizationMethod_eeImplTest() {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.ORGANIZATION_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedOrganizationFeatureFlags("organizationId"))
+                .thenReturn(cachedFeatures);
+        try {
+            testComponent.ceEeSyncMethodWithoutOrganization("arg_");
+        } catch (AppsmithException e) {
+            assertEquals(
+                    AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
+                            FeatureFlagged.class.getSimpleName(),
+                            "TestComponentImpl",
+                            "ceEeSyncMethodWithoutOrganization",
+                            "Add missing organizationId parameter and enforce non-null value for orgnization-specific feature flags retrieval in non-reactive methods"),
+                    e.getMessage());
+        }
     }
 }

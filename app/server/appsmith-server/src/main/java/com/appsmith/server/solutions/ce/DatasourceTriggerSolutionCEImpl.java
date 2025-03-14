@@ -108,26 +108,32 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Datasource datasource = tuple.getT4();
 
-                    // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
-                    // Once thoroughly tested, this flag can be removed
-                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedOrganizationFeatureFlags() != null
-                            ? featureFlagService
-                                    .getCachedOrganizationFeatureFlags()
-                                    .getFeatures()
-                            : Collections.emptyMap();
-
                     return datasourceContextService
                             .getDatasourceContext(datasourceStorage, plugin)
                             // Now that we have the context (connection details), execute the action.
                             // datasource remains unevaluated for datasource of DBAuth Type Authentication,
                             // However the context comes from evaluated datasource.
                             .flatMap(resourceContext -> populateTriggerRequestDto(triggerRequestDTO, datasource)
-                                    .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
-                                            .triggerWithFlags(
-                                                    resourceContext.getConnection(),
-                                                    datasourceStorage.getDatasourceConfiguration(),
-                                                    updatedTriggerRequestDTO,
-                                                    featureFlagMap)));
+                                    .flatMap(updatedTriggerRequestDTO -> {
+                                        String organizationId = updatedTriggerRequestDTO.getOrganizationId();
+                                        // TODO: Flags are needed here for google sheets integration to support shared
+                                        // drive behind a flag
+                                        // Once thoroughly tested, this flag can be removed
+                                        Map<String, Boolean> featureFlagMap =
+                                                featureFlagService.getCachedOrganizationFeatureFlags(organizationId)
+                                                                != null
+                                                        ? featureFlagService
+                                                                .getCachedOrganizationFeatureFlags(organizationId)
+                                                                .getFeatures()
+                                                        : Collections.emptyMap();
+
+                                        return ((PluginExecutor<Object>) pluginExecutor)
+                                                .triggerWithFlags(
+                                                        resourceContext.getConnection(),
+                                                        datasourceStorage.getDatasourceConfiguration(),
+                                                        updatedTriggerRequestDTO,
+                                                        featureFlagMap);
+                                    }));
                 });
 
         // If the plugin hasn't implemented the trigger function, go for the default implementation

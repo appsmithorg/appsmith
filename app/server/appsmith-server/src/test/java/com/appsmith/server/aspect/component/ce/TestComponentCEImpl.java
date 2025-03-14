@@ -27,8 +27,8 @@ public class TestComponentCEImpl implements TestComponentCE {
     }
 
     @Override
-    public Mono<String> ceEeSyncMethod(String arg) {
-        return Mono.just(arg + "ce_impl_method");
+    public String ceEeSyncMethod(String arg, String organizationId) {
+        return arg + "ce_impl_method";
     }
 
     @Override
@@ -39,5 +39,10 @@ public class TestComponentCEImpl implements TestComponentCE {
     @Override
     public Mono<Void> ceEeThrowNonAppsmithException(String arg) {
         return Mono.empty();
+    }
+
+    @Override
+    public String ceEeSyncMethodWithoutOrganization(String arg) {
+        return arg + "ce_impl_method";
     }
 }
