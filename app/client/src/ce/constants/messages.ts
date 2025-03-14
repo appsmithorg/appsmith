@@ -210,7 +210,7 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
-export const ANVIL_APPLICATIONS = () => `New Applications`;
+export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -272,8 +272,6 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no applications in this workspace.`;
 export const NEW_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no new applications in this workspace.`;
-export const CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no classic applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
@@ -688,8 +686,8 @@ export const IMPORT_FROM_GIT_DISABLED_IN_ANVIL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () =>
-  "Import from Git repository (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = (isBeta: boolean = true) =>
+  `Import from Git repository ${isBeta ? "(Beta)" : ""}`;
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -923,7 +921,6 @@ export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
-export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "Retry";
 export const CREATE_NEW_BRANCH = () => "Create new branch";

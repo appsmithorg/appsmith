@@ -16,6 +16,7 @@ import {
   Track,
   TrackContainer,
 } from "./Slider.styles";
+import { Tooltip } from "../Tooltip";
 import type { SliderProps } from "./Slider.types";
 
 export function Slider(props: SliderProps) {
@@ -65,12 +66,14 @@ export function Slider(props: SliderProps) {
 
   return (
     <StyledSlider {...groupProps} disabled={props.isDisabled}>
-      <SliderLabel>
+      <SliderLabel hasTooltip={!!props.tooltipText}>
         {props.label && (
-          // @ts-expect-error incompatible types for Text and labelProps
-          <Text renderAs="label" {...labelProps}>
-            {props.label}
-          </Text>
+          <Tooltip content={props.tooltipText} isDisabled={!props.tooltipText}>
+            {/* @ts-expect-error incompatible types for Text and labelProps */}
+            <Text renderAs="label" {...labelProps}>
+              {props.label}
+            </Text>
+          </Tooltip>
         )}
         {/*@ts-expect-error incompatible types for Text and outputProps**/}
         <Text {...outputProps}>{getDisplayValue()}</Text>

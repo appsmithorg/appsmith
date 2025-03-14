@@ -6,7 +6,11 @@ import { Slider, type SliderProps } from "@appsmith/ads";
 
 export interface SliderControlProps
   extends ControlProps,
-    Omit<SliderProps, "id" | "label"> {}
+    Omit<SliderProps, "id" | "label"> {
+  // tooltipText also exists in ControlProps, but it has type of  of `string | Record<string, string>`
+  // and we only need it to be a string, so we override it here
+  tooltipText?: string;
+}
 
 export class SliderControl extends BaseControl<SliderControlProps> {
   render() {
@@ -31,7 +35,7 @@ const renderSliderControl = (
     input?: WrappedFieldInputProps;
   } & SliderControlProps,
 ) => {
-  const { input, maxValue, minValue, step, title } = props;
+  const { input, maxValue, minValue, step, title, tooltipText } = props;
 
   return (
     <Slider
@@ -42,6 +46,7 @@ const renderSliderControl = (
       minValue={minValue}
       onChangeEnd={input?.onChange}
       step={step}
+      tooltipText={tooltipText}
     />
   );
 };

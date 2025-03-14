@@ -15,8 +15,25 @@ import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
 const basePageId = "0123456789abcdef00000000";
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip("IDE URL rendering of Queries", () => {
+// Mock the LazyCodeEditor component
+jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
+  return {
+    __esModule: true,
+    default: () => <div data-testid="t--code-editor" />,
+  };
+});
+// Mock Visualization component
+jest.mock(
+  "PluginActionEditor/components/PluginActionResponse/components/Visualization/Visualization.tsx",
+  () => {
+    return {
+      __esModule: true,
+      Visualization: () => <div data-testid="t--mock-visualization" />,
+    };
+  },
+);
+
+describe("IDE URL rendering of Queries", () => {
   describe("Query Blank State", () => {
     it("Renders Fullscreen Blank State", async () => {
       const { findByText, getByRole, getByText } = render(
@@ -141,6 +158,9 @@ describe.skip("IDE URL rendering of Queries", () => {
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/api/${anApi.baseId}`,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
@@ -157,8 +177,8 @@ describe.skip("IDE URL rendering of Queries", () => {
       expect(getAllByText("Api1").length).toEqual(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Api1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Api1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(getByTestId("t--ide-tab-api1").classList.contains("active")).toBe(
         true,
@@ -353,6 +373,9 @@ describe.skip("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
@@ -368,8 +391,8 @@ describe.skip("IDE URL rendering of Queries", () => {
       expect(getAllByText("Query1").length).toBe(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Query1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Query1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-query1").classList.contains("active"),
@@ -565,6 +588,9 @@ describe.skip("IDE URL rendering of Queries", () => {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
+          featureFlags: {
+            release_ads_entity_item_enabled: true,
+          },
         },
       );
 
@@ -572,8 +598,8 @@ describe.skip("IDE URL rendering of Queries", () => {
       expect(getAllByText("Sheets1").length).toBe(2);
       // Left pane active state
       expect(
-        getByTestId("t--entity-item-Sheets1").classList.contains("active"),
-      ).toBe(true);
+        getByTestId("t--entity-item-Sheets1").getAttribute("data-selected"),
+      ).toBe("true");
       // Tabs active state
       expect(
         getByTestId("t--ide-tab-sheets1").classList.contains("active"),
