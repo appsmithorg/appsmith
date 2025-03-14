@@ -1,37 +1,40 @@
+import { Colors } from "constants/Colors";
 import React from "react";
-import type { ActionsPropsType } from "./actions";
-import Actions from "./actions";
-import type { BannerPropType } from "./banner";
-import { Banner } from "./banner";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+import { useAppsmithTable } from "../TableContext";
+import {
+  TableHeaderInnerWrapper,
+  TableHeaderWrapper,
+} from "../TableStyledWrappers";
+import BannerNActions from "./BannerNActions";
 
-function TableHeader(props: ActionsPropsType & BannerPropType) {
-  const {
-    accentColor,
-    borderRadius,
-    boxShadow,
-    disabledAddNewRowSave,
-    isAddRowInProgress,
-    onAddNewRowAction,
-    ...ActionProps
-  } = props;
+export default function TableHeader() {
+  const { serverSidePaginationEnabled, tableSizes, variant, width } =
+    useAppsmithTable();
 
-  return isAddRowInProgress ? (
-    <Banner
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      disabledAddNewRowSave={disabledAddNewRowSave}
-      isAddRowInProgress={isAddRowInProgress}
-      onAddNewRowAction={onAddNewRowAction}
-    />
-  ) : (
-    <Actions
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      {...ActionProps}
-    />
+  return (
+    <SimpleBar
+      style={{
+        maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+      }}
+    >
+      <TableHeaderWrapper
+        backgroundColor={Colors.WHITE}
+        serverSidePaginationEnabled={serverSidePaginationEnabled}
+        tableSizes={tableSizes}
+        width={width}
+      >
+        <TableHeaderInnerWrapper
+          backgroundColor={Colors.WHITE}
+          serverSidePaginationEnabled={serverSidePaginationEnabled}
+          tableSizes={tableSizes}
+          variant={variant}
+          width={width}
+        >
+          <BannerNActions />
+        </TableHeaderInnerWrapper>
+      </TableHeaderWrapper>
+    </SimpleBar>
   );
 }
-
-export default TableHeader;

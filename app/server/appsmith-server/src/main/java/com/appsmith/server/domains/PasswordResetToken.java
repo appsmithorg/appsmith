@@ -17,6 +17,7 @@ import java.time.Instant;
 public class PasswordResetToken extends BaseDomain {
     String tokenHash;
     String email;
+    String organizationId;
     int requestCount; // number of requests in last 24 hours
     Instant firstRequestTime; // when a request was first generated in last 24 hours
 }

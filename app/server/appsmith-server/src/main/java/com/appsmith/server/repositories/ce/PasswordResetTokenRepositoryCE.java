@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface PasswordResetTokenRepositoryCE extends BaseRepository<PasswordResetToken, String> {
 
-    Mono<PasswordResetToken> findByEmail(String email);
+    Mono<PasswordResetToken> findByEmailAndOrganizationId(String email, String organizationId);
 }

@@ -13,9 +13,9 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(String email);
+    Mono<User> findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(String email, String organizationId);
 
-    Flux<User> findAllByEmailIn(Set<String> emails);
+    Flux<User> findAllByEmailInAndOrganizationId(Set<String> emails, String organizationId);
 
     /**
      * This method returns the count of all users that are not deleted and are not system generated.

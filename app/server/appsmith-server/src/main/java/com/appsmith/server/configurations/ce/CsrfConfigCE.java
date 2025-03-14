@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -84,6 +85,11 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
         }
 
         final HttpHeaders headers = request.getHeaders();
+
+        if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(headers.getContentType())) {
+            // HTML form submissions never send a JSON content type.
+            return ServerWebExchangeMatcher.MatchResult.notMatch();
+        }
 
         if (headers.containsKey(VERSION_HEADER)) {
             // If `X-Appsmith-Version` header is present, CSRF check isn't needed.
