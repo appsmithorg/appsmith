@@ -67,6 +67,7 @@ export interface TableWidgetProps
   onRowSelected?: string;
   onSearchTextChanged: string;
   onSort: string;
+  customSortFunction?: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;

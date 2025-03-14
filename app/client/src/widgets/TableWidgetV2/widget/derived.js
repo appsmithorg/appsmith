@@ -269,6 +269,7 @@ export default {
     /* Make a shallow copy */
     const primaryColumns = props.primaryColumns || {};
     let processedTableData = [...props.processedTableData];
+    let tableData = [...props.tableData];
     const derivedColumns = {};
 
     Object.keys(primaryColumns).forEach((id) => {
@@ -454,7 +455,9 @@ export default {
         transformedValueToLabelTableData;
     }
 
-    if (sortByColumnId) {
+    const customSortFunction = props.customSortFunction;
+
+    if (sortByColumnId && !customSortFunction) {
       const sortBycolumn = columns.find(
         (column) => column.id === sortByColumnId,
       );
@@ -966,7 +969,29 @@ export default {
       return isSatisfyingFilters;
     });
 
-    return finalTableData;
+    const sortOrder = props.sortOrder.order ?? "asc";
+
+    if (!customSortFunction || !sortByColumnId || !sortOrder) {
+      return finalTableData;
+    }
+
+    function indirectEval(script) {
+      /**
+       * Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description
+       *  */
+      return (1, eval)(script);
+    }
+
+    try {
+      const sortFunction = indirectEval(customSortFunction);
+
+      return sortFunction(tableData, finalTableData, sortByColumnId, sortOrder);
+    } catch (error) {
+      /* eslint-disable no-console */
+      console.error("Custom sort function error:", error);
+
+      return finalTableData;
+    }
   },
   //
   getUpdatedRow: (props, moment, _) => {
