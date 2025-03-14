@@ -205,6 +205,10 @@ class ActionAPI extends API {
     });
   }
 
+  static async generateSchema(actionId: string) {
+    return API.post(`${ActionAPI.url}/${actionId}/schema`);
+  }
+
   static async fetchActionsByPageId(
     pageId: string,
   ): Promise<AxiosPromise<ApiResponse<Action[]>>> {

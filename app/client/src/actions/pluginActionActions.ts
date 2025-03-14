@@ -125,6 +125,15 @@ export const runAction = (
   };
 };
 
+export const generateSchema = (id: string) => {
+  return {
+    type: ReduxActionTypes.GENERATE_SCHEMA_REQUEST,
+    payload: {
+      id,
+    },
+  };
+};
+
 export const softRefreshActions = () => {
   return {
     type: ReduxActionTypes.PLUGIN_SOFT_REFRESH,
