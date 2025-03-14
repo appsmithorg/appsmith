@@ -17,6 +17,7 @@ import {
   runAction,
   updateAction,
   updateActionData,
+  updateActionProperty,
 } from "actions/pluginActionActions";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 
@@ -71,6 +72,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
+  CANNOT_GENERATE_SCHEMA,
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
@@ -976,6 +978,36 @@ export function* runActionSaga(
   }
 }
 
+function* generateSchemaSaga(action: ReduxAction<{ id: string }>) {
+  const { id } = action.payload;
+
+  try {
+    const reponse: unknown = yield call(ActionAPI.generateSchema, id);
+
+    yield put(
+      updateActionProperty({
+        id,
+        field: "schema",
+        value: reponse,
+      }),
+    );
+
+    yield put({
+      type: ReduxActionTypes.GENERATE_SCHEMA_SUCCESS,
+      payload: { id },
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GENERATE_SCHEMA_ERROR,
+      payload: { id },
+    });
+
+    toast.show(createMessage(CANNOT_GENERATE_SCHEMA), {
+      kind: "error",
+    });
+  }
+}
+
 // This gets called for "onPageLoad" JS actions
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId: string = pageAction.collectionId || "";
@@ -1633,6 +1665,7 @@ function* softRefreshActionsSaga() {
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
+    takeLatest(ReduxActionTypes.GENERATE_SCHEMA_REQUEST, generateSchemaSaga),
     takeLatest(
       ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
       runActionShortcutSaga,

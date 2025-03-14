@@ -647,6 +647,7 @@ export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
 export const ACTION_EXECUTION_FAILED = (actionName: string) =>
   `The action "${actionName}" has failed.`;
+export const CANNOT_GENERATE_SCHEMA = () => "Can't generate schema";
 export const JS_EXECUTION_TRIGGERED = () => "Function triggered";
 export const JS_EXECUTION_SUCCESS = () => "Function executed";
 export const JS_EXECUTION_FAILURE = () => "Function execution failed";
