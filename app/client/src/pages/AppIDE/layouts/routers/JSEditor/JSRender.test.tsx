@@ -9,6 +9,14 @@ import { EditorEntityTab, EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
+// Mock JSEditorForm component
+jest.mock("pages/Editor/JSEditor/JSEditorForm/JSEditorForm", () => {
+  return {
+    __esModule: true,
+    JSEditorForm: () => <div data-testid="mock-js-editor-form" />,
+  };
+});
+
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE Render: JS", () => {
