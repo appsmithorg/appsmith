@@ -92,4 +92,33 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
         return repository.findByNameAsUser(name, user, permission);
     }
+
+    @Override
+    public Mono<Map<String, Object>> getInstanceVariables() {
+        return getByName(FieldName.INSTANCE_CONFIG).map(config -> {
+            Object instanceVariablesObj = config.getConfig().getOrDefault("instanceVariables", new JSONObject());
+            Map<String, Object> instanceVariables;
+
+            if (instanceVariablesObj instanceof JSONObject) {
+                instanceVariables = ((JSONObject) instanceVariablesObj);
+            } else if (instanceVariablesObj instanceof Map) {
+                instanceVariables = (Map<String, Object>) instanceVariablesObj;
+            } else {
+                instanceVariables = new JSONObject();
+            }
+
+            return instanceVariables;
+        });
+    }
+
+    @Override
+    public Mono<Config> updateInstanceVariables(JSONObject instanceVariables) {
+        return getByName(FieldName.INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+                .flatMap(config -> {
+                    JSONObject configObj = config.getConfig();
+                    configObj.put("instanceVariables", instanceVariables);
+                    config.setConfig(configObj);
+                    return repository.save(config);
+                });
+    }
 }
