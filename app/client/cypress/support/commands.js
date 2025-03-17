@@ -638,7 +638,20 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.intercept("POST", "/api/v1/applications").as("createNewApplication");
+  cy.intercept("POST", "/api/v1/applications", (req) => {
+    // we don't let creating application in anvil or ai agents test with create application button,
+    // but our tests are written to use the create application button, so we override the request body
+    // to create an application with anvil layout system and hide the navbar
+    if (
+      Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
+      Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)
+    ) {
+      req.body.positioningType = "ANVIL";
+      req.body.showNavbar = false;
+    }
+
+    req.continue();
+  }).as("createNewApplication");
   cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
   cy.intercept("PUT", "/api/v1/actions/move").as("moveAction");
