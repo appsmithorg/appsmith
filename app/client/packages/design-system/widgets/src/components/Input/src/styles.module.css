@@ -84,7 +84,7 @@
 }
 
 .inputGroup [data-input-suffix] {
-  margin-inline-end: var(--inner-spacing-2);
+  margin-inline-end: var(--inner-spacing-1);
 }
 
 .inputGroup:has(.input[data-size="small"]) [data-input-suffix] {

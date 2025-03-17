@@ -59,7 +59,7 @@ describe(
         toastToValidate: "moved to page",
         entityType: EntityItems.Page,
       });
-      EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
+      PageList.VerifyIsCurrentPage(newPageId);
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       PageLeftPane.assertPresence("RenamedJSObjectCopy");
       jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");

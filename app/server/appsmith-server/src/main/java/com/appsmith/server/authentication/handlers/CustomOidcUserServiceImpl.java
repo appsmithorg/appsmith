@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOidcUserServiceCEImpl;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +18,12 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
 
     private UserRepository repository;
     private UserService userService;
+    private UserOrganizationHelper userOrganizationHelper;
 
     @Autowired
-    public CustomOidcUserServiceImpl(UserRepository repository, UserService userService) {
-        super(repository, userService);
+    public CustomOidcUserServiceImpl(
+            UserRepository repository, UserService userService, UserOrganizationHelper userOrganizationHelper) {
+        super(repository, userService, userOrganizationHelper);
         this.repository = repository;
         this.userService = userService;
     }

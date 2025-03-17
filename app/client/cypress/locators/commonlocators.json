@@ -183,7 +183,6 @@
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
   "mapChartShowLabels": ".t--property-control-showlabels input",
-  "widgetSection": ".t--entity.widgets > .t--entity-item > span.t--entity-collapse-toggle",
   "changeThemeBtn": ".t--change-theme-btn",
   "editThemeBtn": ".t--edit-theme-btn",
   "themeCard": ".t--theme-card",

@@ -7,6 +7,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -46,6 +47,9 @@ public class UserServiceWithDisabledSignupTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserOrganizationHelper userOrganizationHelper;
 
     @SpyBean
     CommonConfig commonConfig;
@@ -146,9 +150,13 @@ public class UserServiceWithDisabledSignupTest {
     @Test
     @WithMockAppsmithUser
     public void signUpViaFormLoginIfAlreadyInvited() {
+        String organizationId =
+                userOrganizationHelper.getCurrentUserOrganizationId().block();
+
         User newUser = new User();
         newUser.setEmail("alreadyInvited@alreadyInvited.com");
         newUser.setIsEnabled(false);
+        newUser.setOrganizationId(organizationId);
 
         userRepository.save(newUser).block();
 

@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.WordUtils;
@@ -16,10 +17,12 @@ import reactor.core.publisher.Mono;
 public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService {
 
     private UserRepository repository;
+    private UserOrganizationHelper userOrganizationHelper;
 
     @Autowired
-    public CustomFormLoginServiceCEImpl(UserRepository repository) {
+    public CustomFormLoginServiceCEImpl(UserRepository repository, UserOrganizationHelper userOrganizationHelper) {
         this.repository = repository;
+        this.userOrganizationHelper = userOrganizationHelper;
     }
 
     /**
@@ -31,9 +34,13 @@ public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService 
      */
     @Override
     public Mono<UserDetails> findByUsername(String username) {
-        return repository
-                .findByEmail(username)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(username))
+
+        return userOrganizationHelper
+                .getCurrentUserOrganizationId()
+                .flatMap(orgId -> repository
+                        .findByEmailAndOrganizationId(username, orgId)
+                        .switchIfEmpty(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                                username, orgId)))
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
                 .onErrorMap(error -> {
                     log.error("Can't find user {}", username);
