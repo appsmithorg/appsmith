@@ -1,21 +1,25 @@
 import React from "react";
-import type { AddNewRowBannerType } from "./AddNewRowBanner";
+import { useAppsmithTable } from "../../TableContext";
 import { AddNewRowBanner } from "./AddNewRowBanner";
 
-export interface BannerPropType extends AddNewRowBannerType {
-  isAddRowInProgress: boolean;
-}
+function BannerComponent() {
+  const {
+    accentColor,
+    borderRadius,
+    boxShadow,
+    disabledAddNewRowSave,
+    onAddNewRowAction,
+  } = useAppsmithTable();
 
-function BannerComponent(props: BannerPropType) {
-  return props.isAddRowInProgress ? (
+  return (
     <AddNewRowBanner
-      accentColor={props.accentColor}
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      disabledAddNewRowSave={props.disabledAddNewRowSave}
-      onAddNewRowAction={props.onAddNewRowAction}
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
+      disabledAddNewRowSave={disabledAddNewRowSave}
+      onAddNewRowAction={onAddNewRowAction}
     />
-  ) : null;
+  );
 }
 
 export const Banner = React.memo(BannerComponent);

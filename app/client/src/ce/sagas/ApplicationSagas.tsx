@@ -113,7 +113,6 @@ import {
 } from "ee/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import type { Page } from "entities/Page";
 import type { ApplicationPayload } from "entities/Application";
 
@@ -579,17 +578,6 @@ export function* createApplicationSaga(
         workspaceId,
         layoutSystemType: LayoutSystemTypes.FIXED, // Note: This may be provided as an action payload in the future
       };
-
-      // SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION
-      // Check if Anvil is enabled for the user, If so, default to using
-      // Anvil as the layout system for the new app. Also, we want to hide the navbar for anvil apps
-      const isAnvilEnabled: boolean = yield select(getIsAnvilLayoutEnabled);
-
-      if (isAnvilEnabled) {
-        request.layoutSystemType = LayoutSystemTypes.ANVIL;
-        request.showNavbar = false;
-      }
-      /** EO SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
 
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,

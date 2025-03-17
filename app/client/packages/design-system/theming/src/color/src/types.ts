@@ -57,15 +57,20 @@ export interface ColorModeTheme {
     fgOnWarning: string;
     // bd
     bdAccent: string;
+    bdAccentSubtle: string;
     bdFocus: string;
     bdNeutral: string;
     bdNeutralHover: string;
+    bdNeutralSubtle: string;
     bdPositive: string;
     bdPositiveHover: string;
+    bdPositiveSubtle: string;
     bdNegative: string;
     bdNegativeHover: string;
+    bdNegativeSubtle: string;
     bdWarning: string;
     bdWarningHover: string;
+    bdWarningSubtle: string;
     // bd on bg*
     bdOnAccent: string;
     bdOnNeutral: string;

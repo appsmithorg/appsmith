@@ -12,9 +12,15 @@ export const gitReducer = combineReducers({
 // actions
 export const gitFetchGlobalProfile = gitGlobalActions.fetchGlobalProfileInit;
 export const gitToggleImportModal = gitGlobalActions.toggleImportModal;
+export const gitToggleOpsModal = gitArtifactActions.toggleOpsModal;
 export const gitConnectSuccess = gitArtifactActions.connectSuccess;
 export const gitDiscardSuccess = gitArtifactActions.discardSuccess;
 export const gitCheckoutBranchSuccess =
   gitArtifactActions.checkoutBranchSuccess;
 export const gitPullSuccess = gitArtifactActions.pullSuccess;
 export const gitImportSuccess = gitGlobalActions.gitImportSuccess;
+export const gitCreateReleaseTagInit = gitArtifactActions.createReleaseTagInit;
+export const gitCreateReleaseTagSuccess =
+  gitArtifactActions.createReleaseTagSuccess;
+export const gitCreateReleaseTagError =
+  gitArtifactActions.createReleaseTagError;

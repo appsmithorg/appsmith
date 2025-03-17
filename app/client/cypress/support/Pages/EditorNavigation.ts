@@ -29,12 +29,12 @@ export enum EditorViewMode {
 }
 
 const pagePaneListItemSelector = (name: string) =>
-  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
+  `//span[contains(@class, 't--entity-name')][text()='${name}']`;
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
   ".ide-editor-left-pane",
-  ".ide-editor-left-pane__content .active.t--entity-item",
+  ".ide-editor-left-pane__content .t--entity-item[data-selected='true']",
   Object.values(PagePaneSegment),
 );
 

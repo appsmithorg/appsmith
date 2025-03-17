@@ -1,5 +1,8 @@
 import { all, select, take } from "redux-saga/effects";
-import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
+import type {
+  FocusPath,
+  FocusStrategy,
+} from "ee/navigation/FocusStrategy/types";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
@@ -287,6 +290,13 @@ export const AppIDEFocusStrategy: FocusStrategy = {
 
     // We do not have to add any query params because this url is used as the key
     return parentUrl.split("?")[0];
+  },
+  getUrlKey: function* (url: string) {
+    const branch: string | undefined = yield select(
+      selectGitApplicationCurrentBranch,
+    );
+
+    return `${url}#${branch}`;
   },
   *waitForPathLoad(currentPath: string, previousPath?: string) {
     if (previousPath) {

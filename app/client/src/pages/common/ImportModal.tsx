@@ -174,8 +174,9 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
     AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_CARD_CLICK");
     props.handler && props.handler();
   }, []);
+  const isGitModEnabled = useGitModEnabled();
   const message = createMessage(IMPORT_APP_FROM_GIT_MESSAGE);
-  const title = createMessage(IMPORT_APP_FROM_GIT_TITLE);
+  const title = createMessage(IMPORT_APP_FROM_GIT_TITLE, !isGitModEnabled);
 
   return (
     <CardWrapper onClick={onClick}>

@@ -14,6 +14,7 @@ import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
 import ListWidgets from "./UIList";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -50,6 +51,15 @@ jest.mock("selectors/explorerSelector", () => ({
 jest
   .spyOn(explorerSelector, "getExplorerWidth")
   .mockImplementation(() => DEFAULT_ENTITY_EXPLORER_WIDTH);
+
+jest.mock("ee/selectors/featureFlagsSelectors", () => ({
+  __esModule: true,
+  ...jest.requireActual("ee/selectors/featureFlagsSelectors"),
+  selectFeatureFlags: () => ({
+    ...DEFAULT_FEATURE_FLAG_VALUE,
+    release_ads_entity_item_enabled: true,
+  }),
+}));
 
 const setFocusSearchInput = jest.fn();
 
@@ -93,7 +103,7 @@ describe("Widget List in Explorer tests", () => {
     const widgetsTree: Element = await component.findByText(
       children[0].widgetName,
       {
-        selector: "div.t--entity-name",
+        selector: "span.t--entity-name",
       },
       { timeout: 3000 },
     );
@@ -128,6 +138,7 @@ describe("Widget List in Explorer tests", () => {
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
+
       const component = render(
         <MockPageDSL dsl={dsl}>
           <ListWidgets setFocusSearchInput={setFocusSearchInput} />
@@ -346,8 +357,8 @@ describe("Widget List in Explorer tests", () => {
 
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const collapsible: any = component.container.querySelector(
-        `.t--entity-collapse-toggle[id="arrow-right-s-line"]`,
+      const collapsible: any = component.getByTestId(
+        `t--entity-collapse-toggle`,
       );
 
       fireEvent.click(collapsible);

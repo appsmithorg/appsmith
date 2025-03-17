@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "./Registry";
 const defaultFlags = {
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
   release_git_modularisation_enabled: true,
+  release_ads_entity_item_enabled: true,
 };
 
 export const featureFlagIntercept = (
@@ -44,7 +45,7 @@ export const getConsolidatedDataApi = (
           updatedResponse.data.featureFlags.data = { ...flags };
           return res.send(updatedResponse);
         } catch (e) {
-          cy.log(`vamsi error `, e);
+          cy.log(`Featureflags.ts error `, e);
         }
       }
     });

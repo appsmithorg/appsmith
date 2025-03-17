@@ -9,9 +9,10 @@ import {
   installer,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
-import {
+import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
@@ -32,6 +33,7 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Editor);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
