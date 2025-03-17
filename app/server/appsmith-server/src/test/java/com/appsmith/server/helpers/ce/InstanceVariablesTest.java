@@ -1,6 +1,7 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.services.ConfigService;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ import reactor.test.StepVerifier;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class InstanceVariablesHelperTest {
+public class InstanceVariablesTest {
 
     @Mock
     private ConfigService configService;
@@ -111,34 +112,5 @@ public class InstanceVariablesHelperTest {
         StepVerifier.create(instanceVariablesHelper.getGoogleMapsKey())
                 .expectNext("")
                 .verifyComplete();
-    }
-
-    @Test
-    public void testGetConnectionMaxPoolSize() {
-        // Setup test data
-        JSONObject instanceVariables = new JSONObject();
-        instanceVariables.put("connectionMaxPoolSize", 10);
-
-        // Mock service call
-        when(configService.getInstanceVariables()).thenReturn(Mono.just(instanceVariables));
-
-        // Execute and verify
-        StepVerifier.create(instanceVariablesHelper.getConnectionMaxPoolSize())
-                .<Integer>expectNext(10)
-                .verifyComplete();
-    }
-
-    @Test
-    public void testGetConnectionMaxPoolSizeWithNoValue() {
-        // Setup test data with no connectionMaxPoolSize
-        JSONObject instanceVariables = new JSONObject();
-
-        // Mock service call
-        when(configService.getInstanceVariables()).thenReturn(Mono.just(instanceVariables));
-
-        // Execute and verify
-        StepVerifier.create(instanceVariablesHelper.getConnectionMaxPoolSize())
-                .expectComplete()
-                .verify();
     }
 }
