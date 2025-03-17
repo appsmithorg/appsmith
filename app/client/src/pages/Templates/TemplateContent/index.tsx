@@ -123,9 +123,14 @@ export function TemplateContent(props: TemplateContentProps) {
   const isLoading = isFetchingApplications || isFetchingTemplates;
 
   const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
-  const templates = useSelector(getSearchedTemplateList).filter((template) =>
-    filterWithAllowPageImport ? !!template.allowPageImport : true,
-  );
+  const templates = useSelector(getSearchedTemplateList)
+    .filter((template) =>
+      filterWithAllowPageImport ? !!template.allowPageImport : true,
+    )
+    // We are using AI Agent template for creating ai agent app,
+    // so we are not showing it in the templates list.
+    // TODO: Once we have a new entity for ai agent, we need to remove this filter.
+    .filter((template) => template.title !== "AI Agent");
 
   if (isLoading) {
     return <LoadingScreen text="Loading templates" />;

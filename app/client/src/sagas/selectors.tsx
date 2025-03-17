@@ -73,11 +73,22 @@ export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
 };
 
-export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
-  return Object.values(state.entities.canvasWidgets)
-    .filter((widget: FlattenedWidgetProps) => widget.type === type)
-    .map((widget: FlattenedWidgetProps) => widget.widgetId);
-};
+export const getWidgetIdsByType = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (_state: AppState, widgetType: WidgetType) => widgetType,
+  (canvasWidgets, metaWidgets, widgetType) => {
+    const canvasWidgetIds = Object.values(canvasWidgets)
+      .filter((widget: FlattenedWidgetProps) => widget.type === widgetType)
+      .map((widget: FlattenedWidgetProps) => widget.widgetId);
+
+    const metaWidgetIds = Object.values(metaWidgets)
+      .filter((widget: FlattenedWidgetProps) => widget.type === widgetType)
+      .map((widget: FlattenedWidgetProps) => widget.widgetId);
+
+    return [...canvasWidgetIds, ...metaWidgetIds];
+  },
+);
 
 export const getAllDetachedWidgetIds = memoize(
   (canvasWidgets: CanvasWidgetsReduxState) => {
@@ -188,17 +199,26 @@ export const getExistingPageNames = (state: AppState) => {
   return map;
 };
 
-export const getWidgetByName = (
-  state: AppState,
-  widgetName: string,
-): FlattenedWidgetProps | undefined => {
-  const widgets = state.entities.canvasWidgets;
+export const getWidgetByName = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (state: AppState, widgetName: string) => widgetName,
+  (widgets, metaWidgets, widgetName) => {
+    for (const widget of Object.values(widgets)) {
+      if (widget.widgetName === widgetName) {
+        return widget;
+      }
+    }
 
-  return _.find(
-    Object.values(widgets),
-    (widget) => widget.widgetName === widgetName,
-  );
-};
+    for (const widget of Object.values(metaWidgets)) {
+      if (widget.widgetName === widgetName) {
+        return widget;
+      }
+    }
+
+    return null;
+  },
+);
 
 export const getAllPageIdentities = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => ({

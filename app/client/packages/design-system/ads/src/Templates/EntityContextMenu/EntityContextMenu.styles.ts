@@ -9,4 +9,6 @@ export const MenuContent = styled(ADSMenuContent)`
 
 export const ButtonContainer = styled.div`
   position: relative;
+  width: 100%;
+  height: 100%;
 `;
