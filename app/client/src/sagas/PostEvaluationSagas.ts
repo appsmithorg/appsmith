@@ -42,6 +42,8 @@ import { endSpan, startRootSpan } from "instrumentation/generateTraces";
 import { getJSActionPathNameToDisplay } from "ee/utils/actionExecutionUtils";
 import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import { getActions } from "ee/selectors/entitiesSelector";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -313,4 +315,41 @@ export function* handleJSFunctionExecutionErrorLog(
         },
       ])
     : AppsmithConsole.deleteErrors([{ id: `${collectionId}-${action.id}` }]);
+}
+
+export function* getReactiveQueriesToRun(
+  evaluationOrder: string[],
+  dependencies: Record<string, string[]>,
+) {
+  const queries: ActionDataState = yield select(getActions);
+
+  const toRun = new Set<string>();
+
+  for (const node of evaluationOrder) {
+    const nodeDependencies = dependencies[node] || [];
+
+    for (const dependency of nodeDependencies) {
+      const query = queries.find((query) =>
+        dependency.includes(query.config.name),
+      );
+
+      if (!query) {
+        continue;
+      }
+
+      if (!node.includes(query.config.name)) {
+        if (query.config.executeOnLoad) {
+          toRun.add(query.config.baseId);
+        }
+      }
+    }
+  }
+
+  // Return early if no queries need to be run
+  if (toRun.size === 0) {
+    return [];
+  }
+
+  // Convert set to array for further processing
+  return Array.from(toRun);
 }

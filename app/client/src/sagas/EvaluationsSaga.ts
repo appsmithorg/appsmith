@@ -53,6 +53,7 @@ import {
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
+  getReactiveQueriesToRun,
 } from "./PostEvaluationSagas";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "ee/selectors/applicationSelectors";
@@ -94,6 +95,7 @@ import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ee/configs";
 import {
+  executeReactiveQueries,
   type actionDataPayload,
   type updateActionDataPayloadType,
 } from "actions/pluginActionActions";
@@ -175,15 +177,25 @@ export function* updateDataTreeHandler(
     yield put(updateMetaState(evalMetaUpdates));
   }
 
+  if (!isCreateFirstTree) {
+    const queriesToRun: string[] = yield call(
+      getReactiveQueriesToRun,
+      evaluationOrder,
+      dependencies,
+    );
+
+    if (queriesToRun.length > 0) {
+      yield put(executeReactiveQueries(queriesToRun));
+    }
+  }
+
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
 
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logs?.forEach((evalLog: any) => log.debug(evalLog));
+  logs?.forEach((evalLog: unknown) => log.debug(evalLog));
 
   yield call(
     evalErrorHandler,

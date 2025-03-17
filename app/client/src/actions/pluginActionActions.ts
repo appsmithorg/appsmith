@@ -125,6 +125,15 @@ export const runAction = (
   };
 };
 
+export const executeReactiveQueries = (queriesToRun: string[]) => {
+  return {
+    type: ReduxActionTypes.EXECUTE_REACTIVE_QUERIES,
+    payload: {
+      queriesToRun,
+    },
+  };
+};
+
 export const softRefreshActions = () => {
   return {
     type: ReduxActionTypes.PLUGIN_SOFT_REFRESH,
