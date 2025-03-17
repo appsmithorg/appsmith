@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_VARIABLES;
+
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
     private final ConfigRepository repository;
@@ -96,7 +98,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     @Override
     public Mono<Map<String, Object>> getInstanceVariables() {
         return getByName(FieldName.INSTANCE_CONFIG).map(config -> {
-            Object instanceVariablesObj = config.getConfig().getOrDefault("instanceVariables", new JSONObject());
+            Object instanceVariablesObj = config.getConfig().getOrDefault(INSTANCE_VARIABLES, new JSONObject());
             Map<String, Object> instanceVariables;
 
             if (instanceVariablesObj instanceof JSONObject) {
@@ -116,7 +118,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
         return getByName(FieldName.INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .flatMap(config -> {
                     JSONObject configObj = config.getConfig();
-                    configObj.put("instanceVariables", instanceVariables);
+                    configObj.put(INSTANCE_VARIABLES, instanceVariables);
                     config.setConfig(configObj);
                     return repository.save(config);
                 });
