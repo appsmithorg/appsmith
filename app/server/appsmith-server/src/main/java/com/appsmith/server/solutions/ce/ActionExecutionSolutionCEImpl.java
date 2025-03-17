@@ -68,6 +68,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -923,19 +925,21 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
                             .elapsed()
-                            // Now send the analytics event for this execution
-                            .flatMap(tuple1 -> {
+                            .map(tuple1 -> {
                                 Long timeElapsed = tuple1.getT1();
-                                ActionExecutionResult result = tuple1.getT2();
-
                                 log.debug(
                                         "{}: Action {} with id {} execution time : {} ms",
                                         Thread.currentThread().getName(),
                                         actionDTO.getName(),
                                         actionDTO.getId(),
                                         timeElapsed);
-
-                                return sendExecuteAnalyticsEvent(
+                                return tuple1;
+                            })
+                            .doOnSuccess(tuple2 -> {
+                                Long timeElapsed = tuple2.getT1();
+                                ActionExecutionResult result = tuple2.getT2();
+                                // Runs the analytics in the separate thread and immediately return the execution result
+                                sendExecuteAnalyticsEvent(
                                                 actionDTO,
                                                 datasourceStorage,
                                                 executeActionDTO,
@@ -944,8 +948,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                                 finalRawActionConfiguration)
                                         .name(SEND_EXECUTE_ANALYTICS_EVENT)
                                         .tap(Micrometer.observation(observationRegistry))
-                                        .thenReturn(result);
-                            });
+                                        .subscribeOn(Schedulers.boundedElastic())
+                                        .subscribe();
+                            })
+                            .map(Tuple2::getT2);
                 });
     }
 
@@ -1103,16 +1109,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             request.setProperties(stringProperties);
         }
 
-        return Mono.justOrEmpty(actionDTO.getApplicationId())
+        Mono<Application> applicationMono = Mono.justOrEmpty(actionDTO.getApplicationId())
                 .flatMap(applicationService::findById)
-                .defaultIfEmpty(new Application())
-                .flatMap(application -> Mono.zip(
-                        Mono.just(application),
+                .defaultIfEmpty(new Application());
+        return Mono.zip(
+                        applicationMono,
                         sessionUserService.getCurrentUser(),
                         newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
                         pluginService.getByIdWithoutPermissionCheck(actionDTO.getPluginId()),
                         datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
-                                datasourceStorage.getEnvironmentId())))
+                                datasourceStorage.getEnvironmentId()))
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
