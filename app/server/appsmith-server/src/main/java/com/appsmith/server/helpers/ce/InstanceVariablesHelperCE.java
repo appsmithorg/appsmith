@@ -3,13 +3,11 @@ package com.appsmith.server.helpers.ce;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
  * Helper class for accessing instance variables from the instance config
  */
-@Component
 @RequiredArgsConstructor
 public class InstanceVariablesHelperCE {
     private final ConfigService configService;
