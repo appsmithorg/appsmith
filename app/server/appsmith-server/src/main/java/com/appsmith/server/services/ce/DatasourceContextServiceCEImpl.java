@@ -557,17 +557,20 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, DatasourceStorage datasourceStorage) {
         final DatasourceContext<ExecutePluginDTO> datasourceContext = new DatasourceContext<>();
 
-        return configService.getInstanceId().map(instanceId -> {
-            ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
-            executePluginDTO.setInstallationKey(instanceId);
-            executePluginDTO.setPluginName(plugin.getPluginName());
-            executePluginDTO.setPluginVersion(plugin.getVersion());
-            executePluginDTO.setDatasource(new RemoteDatasourceDTO(
-                    datasourceStorage.getDatasourceId(), datasourceStorage.getDatasourceConfiguration()));
-            datasourceContext.setConnection(executePluginDTO);
+        return configService
+                .getInstanceId()
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(instanceId -> {
+                    ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
+                    executePluginDTO.setInstallationKey(instanceId);
+                    executePluginDTO.setPluginName(plugin.getPluginName());
+                    executePluginDTO.setPluginVersion(plugin.getVersion());
+                    executePluginDTO.setDatasource(new RemoteDatasourceDTO(
+                            datasourceStorage.getDatasourceId(), datasourceStorage.getDatasourceConfiguration()));
+                    datasourceContext.setConnection(executePluginDTO);
 
-            return datasourceContext;
-        });
+                    return datasourceContext;
+                });
     }
 
     /**
