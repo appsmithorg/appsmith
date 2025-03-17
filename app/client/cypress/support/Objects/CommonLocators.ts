@@ -318,11 +318,11 @@ export class CommonLocators {
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
   _richText_TitleBlock = "[aria-label='Block Paragraph']";
-  _richText_Heading = "[title='Heading 1']";
+  _richText_Heading = "[aria-label='Heading 1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
   _richText_Text_Color = (color: string) =>
     `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
-  _richText_color = (value: string) => `[title="${value}"]`;
+  _richText_color = (value: string) => `[aria-label="${value}"]`;
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
