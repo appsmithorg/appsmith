@@ -10,6 +10,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -26,7 +27,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -68,12 +68,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final OrganizationService organizationService;
     private final UserService userService;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+    private final InstanceVariablesHelper instanceVariablesHelper;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
-        Mono<Boolean> emailVerificationEnabledMono = organizationService
-                .getOrganizationConfiguration()
-                .map(organization -> organization.getOrganizationConfiguration().isEmailVerificationEnabled())
-                .cache();
+        Mono<Boolean> emailVerificationEnabledMono =
+                instanceVariablesHelper.isEmailVerificationEnabled().cache();
 
         Mono<User> userMono = organizationService
                 .getCurrentUserOrganizationId()
