@@ -9,9 +9,15 @@ import {
   useAnalyticsOnRunClick,
 } from "../hooks";
 import { useSelector } from "react-redux";
-import { isActionRunning } from "../store";
+import {
+  isActionRunning,
+  isActionSaving,
+  isActionSchemaGenerating,
+} from "../store";
 import PluginActionSettings from "./PluginActionSettings";
 import { PluginActionContextMenu } from "./PluginActionContextMenu";
+import { useHandleGenerateSchemaClick } from "../hooks/useHandleGenerateSchemaClick";
+import { getIsAnvilLayoutEnabled } from "../../layoutSystems/anvil/integrations/selectors";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -22,9 +28,13 @@ interface PluginActionToolbarProps {
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { handleGenerateSchemaClick } = useHandleGenerateSchemaClick();
   const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const blockExecution = useBlockExecution();
   const isRunning = useSelector(isActionRunning(action.id));
+  const isSaving = useSelector(isActionSaving(action.id));
+  const isSchemaGenerating = useSelector(isActionSchemaGenerating(action.id));
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const onRunClick = useCallback(() => {
     callRunActionAnalytics();
@@ -43,7 +53,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
         >
           <Button
             data-testid="t--run-action"
-            isDisabled={blockExecution}
+            isDisabled={blockExecution || isSchemaGenerating}
             isLoading={isRunning}
             kind="primary"
             onClick={onRunClick}
@@ -52,6 +62,18 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             Run
           </Button>
         </Tooltip>
+        {isAnvilEnabled && (
+          <Button
+            data-testid="t--schema-action"
+            isDisabled={blockExecution || isSaving}
+            isLoading={isSchemaGenerating}
+            kind="secondary"
+            onClick={handleGenerateSchemaClick}
+            size="sm"
+          >
+            Save
+          </Button>
+        )}
         <PluginActionSettings />
         {props.menuContent ? (
           <PluginActionContextMenu

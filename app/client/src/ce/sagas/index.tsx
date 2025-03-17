@@ -51,6 +51,7 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 import ideSagas from "sagas/IDESaga";
 import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
+import { watchGeneratePluginActionSchemaSaga } from "sagas/GenerateSchemaSaga";
 import gitSagas from "git/sagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
@@ -64,6 +65,7 @@ export const sagas = [
   watchJSActionSagas,
   watchActionExecutionSagas,
   watchPluginActionExecutionSagas,
+  watchGeneratePluginActionSchemaSaga,
   widgetOperationSagas,
   errorSagas,
   watchDatasourcesSagas,
