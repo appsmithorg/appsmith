@@ -95,7 +95,7 @@ function* generateJSFunctionSchemaSuccessSaga(
   }
 }
 
-export function* watchGeneratePluginActionSchemaSaga() {
+export function* watchGenerateSchemaSaga() {
   yield all([
     takeLatest(
       ReduxActionTypes.GENERATE_PLUGIN_ACTION_SCHEMA_REQUEST,
