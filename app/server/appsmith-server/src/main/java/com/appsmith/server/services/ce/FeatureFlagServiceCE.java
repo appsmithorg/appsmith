@@ -42,5 +42,5 @@ public interface FeatureFlagServiceCE {
 
     Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization);
 
-    CachedFeatures getCachedOrganizationFeatureFlags();
+    CachedFeatures getCachedOrganizationFeatureFlags(String organizationId);
 }

@@ -40,8 +40,8 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
-    public Mono<String> ceEeSyncMethod(String arg) {
-        return Mono.just(arg + "ee_impl_method");
+    public String ceEeSyncMethod(String arg, String organizationId) {
+        return arg + "ee_impl_method";
     }
 
     @Override
@@ -54,5 +54,11 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
     public Mono<Void> ceEeThrowNonAppsmithException(String arg) {
         return Mono.error(new RuntimeException("This is a test exception"));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.ORGANIZATION_TEST_FEATURE)
+    public String ceEeSyncMethodWithoutOrganization(String arg) {
+        return arg + "ee_impl_method";
     }
 }

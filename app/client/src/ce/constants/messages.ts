@@ -210,7 +210,7 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
-export const ANVIL_APPLICATIONS = () => `New Applications`;
+export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -272,8 +272,6 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no applications in this workspace.`;
 export const NEW_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no new applications in this workspace.`;
-export const CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no classic applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
