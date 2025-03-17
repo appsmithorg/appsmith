@@ -59,6 +59,7 @@ const setupState = (state?: State) => {
       reduxStore.dispatch(
         fetchFeatureFlagsSuccess({
           ...DEFAULT_FEATURE_FLAG_VALUE,
+          release_ads_entity_item_enabled: true,
           ...state.featureFlags,
         }),
       );
