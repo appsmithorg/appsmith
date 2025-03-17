@@ -21,7 +21,6 @@ import PageMenu from "pages/AppViewer/PageMenu";
 import { useHref } from "pages/Editor/utils";
 import {
   getCurrentBasePageId,
-  getCurrentPageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -40,7 +39,6 @@ export function Navigation() {
   const headerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobileDevice();
   const basePageId = useSelector(getCurrentBasePageId);
-  const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { basePageId });
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
@@ -65,11 +63,8 @@ export function Navigation() {
       ?.orientation;
   const applicationId = currentApplicationDetails?.id;
 
-  const currentPage = pages.find((page) => page.pageId === pageId);
-  const showNavbar = !(
-    currentApplicationDetails?.applicationDetail?.navigationSetting
-      ?.showNavbar === false || currentPage?.isHidden
-  );
+  const showNavbar =
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.showNavbar;
 
   // TODO: refactor this to not directly reference a DOM element by class defined elsewhere
   useEffect(
