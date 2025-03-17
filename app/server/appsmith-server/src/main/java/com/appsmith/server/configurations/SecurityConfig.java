@@ -10,7 +10,6 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -54,11 +53,9 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
-import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 
@@ -74,7 +71,6 @@ import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
 import static com.appsmith.server.constants.ce.UrlCE.CONSOLIDATED_API_URL;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -119,6 +115,9 @@ public class SecurityConfig {
 
     @Autowired
     private ProjectProperties projectProperties;
+
+    @Autowired
+    private CsrfConfig csrfConfig;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -172,10 +171,9 @@ public class SecurityConfig {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
+        csrfConfig.applyTo(http);
+
         return http.addFilterAt(this::sanityCheckFilter, SecurityWebFiltersOrder.FIRST)
-                // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
-                .csrf(csrfSpec -> csrfSpec.disable())
-                .addFilterAt(new CSRFFilter(objectMapper), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec
@@ -193,7 +191,6 @@ public class SecurityConfig {
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         // The following endpoints are allowed to be accessed without authentication
                         .matchers(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -271,13 +268,7 @@ public class SecurityConfig {
      */
     @Bean
     public WebSessionIdResolver webSessionIdResolver() {
-        CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
-        // Setting the max age to 30 days so that the cookie doesn't expire on browser close
-        // If the max age is not set, some browsers will default to deleting the cookies on session close.
-        resolver.setCookieMaxAge(Duration.of(30, DAYS));
-        resolver.addCookieInitializer((builder) -> builder.path("/"));
-        resolver.addCookieInitializer((builder) -> builder.sameSite("Lax"));
-        return resolver;
+        return new CustomCookieWebSessionIdResolver();
     }
 
     private User createAnonymousUser() {
@@ -309,7 +300,7 @@ public class SecurityConfig {
         }
 
         // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
-        final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
+        final String versionHeaderValue = headers.getFirst(CsrfConfig.VERSION_HEADER);
         final String serverVersion = projectProperties.getVersion();
         if (versionHeaderValue != null && !serverVersion.equals(versionHeaderValue)) {
             final ErrorDTO error = new ErrorDTO(

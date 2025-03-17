@@ -45,7 +45,7 @@ describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
     entityExplorer.RenameEntityFromExplorer(
       "Page1",
       "Renamed",
-      false,
+      true,
       EntityItems.Page,
     );
     assertHelper.AssertNetworkStatus("updatePage");
@@ -61,8 +61,15 @@ describe("Slug URLs", { tags: ["@tag.AppUrl"] }, () => {
   });
 
   it("3. Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
-    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
-      applicationVersion: 1,
+    cy.request({
+      method: "PUT",
+      url: `/api/v1/applications/${applicationId}`,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+      body: {
+        applicationVersion: 1,
+      },
     }).then((response) => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);

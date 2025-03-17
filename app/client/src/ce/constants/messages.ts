@@ -210,7 +210,7 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
 export const FIXED_APPLICATIONS = () => `Classic Applications`;
-export const ANVIL_APPLICATIONS = () => `New Applications`;
+export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -272,8 +272,6 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no applications in this workspace.`;
 export const NEW_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no new applications in this workspace.`;
-export const CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no classic applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
@@ -390,9 +388,9 @@ export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
 export const CREATE_NEW_DATASOURCE = () => "Create datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
-export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
+export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most Popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
-export const SAMPLE_DATASOURCES = () => "Sample datasources";
+export const SAMPLE_DATASOURCES = () => "Sample Datasources";
 export const SAMPLE_DATASOURCE_SUBHEADING = () =>
   "Use sample datasources if you don’t have a datasource for testing";
 export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
@@ -401,8 +399,8 @@ export const CREATE_NEW_DATASOURCE_AUTHENTICATED_REST_API = () =>
   "Authenticated API";
 export const CREATE_NEW_DATASOURCE_GRAPHQL_API = () => "GraphQL API";
 export const CREATE_NEW_API_SECTION_HEADER = () => "APIs";
-export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS integrations";
-export const CREATE_NEW_AI_SECTION_HEADER = () => "AI integrations";
+export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS Integrations";
+export const CREATE_NEW_AI_SECTION_HEADER = () => "AI Integrations";
 export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
 export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
   "Select a sample datasource or connect your own";
@@ -688,8 +686,8 @@ export const IMPORT_FROM_GIT_DISABLED_IN_ANVIL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () =>
-  "Import from Git repository (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = (isBeta: boolean = true) =>
+  `Import from Git repository ${isBeta ? "(Beta)" : ""}`;
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -923,7 +921,6 @@ export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
-export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "Retry";
 export const CREATE_NEW_BRANCH = () => "Create new branch";
@@ -2628,10 +2625,11 @@ export const PREMIUM_DATASOURCES = {
   COMING_SOON_DESCRIPTION: () =>
     "This integration is currently in development. Submit your email below to be notified as soon as it’s available.",
   NOTIFY_ME: () => "Notify me",
-  BETA_TAG: () => "Beta",
 };
 
 export const DATASOURCE_SECURE_TEXT = () =>
   `When connecting datasources, your passwords are AES-256 encrypted and we never store any of your data.`;
 
 export const TABLE_LOADING_RECORDS = () => "loading records";
+
+export const UPCOMING_SAAS_INTEGRATIONS = () => "Upcoming SaaS Integrations";

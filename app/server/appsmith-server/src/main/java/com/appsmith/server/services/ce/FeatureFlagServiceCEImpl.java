@@ -13,10 +13,8 @@ import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserIdentifierService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -40,9 +38,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
-    // TODO @CloudBilling: Remove once all the helper methods consuming @FeatureFlagged are converted to reactive
-    @Getter
-    private CachedFeatures cachedOrganizationFeatureFlags;
+    private Map<String, CachedFeatures> cachedOrganizationFeatureFlags = new HashMap<>();
 
     /**
      * This function checks if the feature is enabled for the current user. In case the user object is not present,
@@ -160,24 +156,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     @Override
     public Mono<Map<String, Boolean>> getOrganizationFeatures() {
-        return sessionUserService
-                .getCurrentUser()
-                // TODO @CloudBilling: In case of anonymousUser the organizationId will be empty, fallback to default
-                //  organization. Update this to get the orgId based on the request origin.
-                .flatMap(user -> StringUtils.hasText(user.getOrganizationId())
-                        ? Mono.just(user.getOrganizationId())
-                        : Mono.empty())
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error(
-                            "No user found while fetching organization features, if the method is called without user "
-                                    + "context please use getOrganizationFeatures(String organizationId)");
-                    // TODO @CloudBilling - This is a temporary fix to fallback to default organization until we
-                    //  introduce a signup flow based on organization. Currently userSignup will end up in data
-                    //  corruption if the fallback is not provided to create default workspace in EE as this is
-                    //  controlled via flags, please refer WorkspaceServiceHelperImpl.isCreateWorkspaceAllowed.
-                    return organizationService.getDefaultOrganizationId();
-                }))
-                .flatMap(this::getOrganizationFeatures);
+        return organizationService.getCurrentUserOrganizationId().flatMap(this::getOrganizationFeatures);
     }
 
     @Override
@@ -185,7 +164,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return cacheableFeatureFlagHelper
                 .fetchCachedOrganizationFeatures(organizationId)
                 .map(cachedFeatures -> {
-                    cachedOrganizationFeatureFlags = cachedFeatures;
+                    cachedOrganizationFeatureFlags.put(organizationId, cachedFeatures);
                     return cachedFeatures.getFeatures();
                 })
                 .switchIfEmpty(Mono.just(new HashMap<>()));
@@ -199,5 +178,9 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization) {
         return organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
+    }
+
+    public CachedFeatures getCachedOrganizationFeatureFlags(String organizationId) {
+        return this.cachedOrganizationFeatureFlags.getOrDefault(organizationId, new CachedFeatures());
     }
 }

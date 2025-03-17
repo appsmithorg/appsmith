@@ -145,12 +145,14 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".rc-tooltip-inner").should(($x) => {
-    expect($x).contain(value.concat(" is already being used."));
+    expect($x).contain(
+      value.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
-  cy.xpath(apiwidget.popover).last().click({ force: true });
+  cy.get(apiwidget.popover).last().click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",

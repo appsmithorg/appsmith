@@ -405,6 +405,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   max-width: calc(100% - 16px);
+  word-break: break-all;
 }
 
 .ads-v2-select .rc-select-selection-overflow-item-suffix {

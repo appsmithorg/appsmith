@@ -21,6 +21,7 @@ interface Size {
 export function TextArea(props: TextAreaProps) {
   const {
     contextualHelp,
+    "data-testid": dataTestId,
     errorMessage,
     fieldClassName,
     inputClassName,
@@ -141,6 +142,7 @@ export function TextArea(props: TextAreaProps) {
       </FieldLabel>
       <TextAreaInput
         className={inputClassName}
+        data-testid={dataTestId}
         isLoading={isLoading}
         isReadOnly={isReadOnly}
         ref={inputRef}

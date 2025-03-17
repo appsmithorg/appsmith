@@ -26,7 +26,7 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -45,7 +45,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const EditableWrapper = styled.div`
+const EditableWrapper = styled.span`
   overflow: hidden;
   margin: 0 ${(props) => props.theme.spaces[1]}px;
   padding: ${(props) => props.theme.spaces[3] + 1}px 0;

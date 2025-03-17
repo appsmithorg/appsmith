@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
-import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import { ANVIL_EDITOR_TEST, AI_AGENTS_TEST } from "./Constants.js";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import EditorNavigation, {
@@ -184,6 +184,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     url: "api/v1/login",
     headers: {
       origin: baseURL,
+      "X-Requested-By": "Appsmith",
     },
     followRedirect: true,
     body: {
@@ -637,7 +638,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.intercept("POST", "/api/v1/applications").as("createNewApplication");
+  cy.intercept("POST", "/api/v1/applications", (req) => {
+    // we don't let creating application in anvil or ai agents test with create application button,
+    // but our tests are written to use the create application button, so we override the request body
+    // to create an application with anvil layout system and hide the navbar
+    if (
+      Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
+      Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)
+    ) {
+      req.body.positioningType = "ANVIL";
+      req.body.showNavbar = false;
+    }
+  }).as("createNewApplication");
   cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
   cy.intercept("PUT", "/api/v1/actions/move").as("moveAction");
@@ -741,7 +753,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
 
-  if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
+  if (
+    Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST) ||
+    Cypress.currentTest.titlePath[0].includes(AI_AGENTS_TEST)
+  ) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept({ release_anvil_enabled: true }, false);
   } else {
@@ -935,6 +950,9 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
   cy.request({
     method: "POST",
     url: "api/v1/users",
+    headers: {
+      "X-Requested-By": "Appsmith",
+    },
     followRedirect: false,
     form: true,
     body: {

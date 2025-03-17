@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
@@ -148,7 +149,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get the user
         Mono<User> userMono = organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .flatMap(organizationId ->
                         userRepository.findByEmailAndOrganizationId(changeUserGroupDTO.getUsername(), organizationId))
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -165,8 +166,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 .single()
-                .flatMap(permissionGroup -> {
-                    if (this.isLastAdminRoleEntity(permissionGroup)) {
+                .zipWhen(permissionGroup -> isLastAdminRoleEntity(permissionGroup))
+                .flatMap(tuple2 -> {
+                    PermissionGroup permissionGroup = tuple2.getT1();
+                    Boolean isLastAdminRoleEntity = tuple2.getT2();
+                    if (TRUE.equals(isLastAdminRoleEntity)) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
                     }
                     return Mono.just(permissionGroup);
@@ -383,9 +387,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     @Override
-    public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
-        return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
-                && permissionGroup.getAssignedToUserIds().size() == 1;
+    public Mono<Boolean> isLastAdminRoleEntity(PermissionGroup permissionGroup) {
+        return Mono.just(permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
+                && permissionGroup.getAssignedToUserIds().size() == 1);
     }
 
     /**

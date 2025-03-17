@@ -1,6 +1,7 @@
 package com.appsmith.server.plugins.base;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
@@ -50,4 +51,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 
     Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId);
+
+    Flux<Plugin> getPluginsByType(PluginType pluginType);
 }

@@ -1,7 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
-import { useCallback } from "react";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -22,6 +21,8 @@ import {
 } from "ee/constants/messages";
 import { useDeleteWidget } from "./hooks/useDeleteWidget";
 import { InspectStateMenuItem } from "components/editorComponents/Debugger/StateInspector/CTAs";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import clsx from "clsx";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;
@@ -54,6 +55,14 @@ export const WidgetContextMenu = (props: {
 
   const deleteWidget = useDeleteWidget(widgetId);
 
+  const handleDeleteWidget = useCallback(() => {
+    // We add a delay to avoid having the focus stuck in the menu trigger which blocks
+    // the ability to use keyboard shortcuts on the canvas
+    setTimeout(() => {
+      deleteWidget();
+    }, 0);
+  }, [deleteWidget]);
+
   const menuContent = useMemo(() => {
     return (
       <>
@@ -73,7 +82,7 @@ export const WidgetContextMenu = (props: {
         <MenuItem
           className="error-menuitem"
           disabled={!canManagePages && widget?.isDeletable !== false}
-          onClick={deleteWidget}
+          onClick={handleDeleteWidget}
           startIcon="trash"
         >
           {createMessage(CONTEXT_DELETE)}
@@ -82,23 +91,33 @@ export const WidgetContextMenu = (props: {
     );
   }, [
     canManagePages,
-    deleteWidget,
     editWidgetName,
+    handleDeleteWidget,
     showBinding,
     widget?.isDeletable,
+    widgetId,
   ]);
 
   return (
     <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
       <MenuTrigger>
         <Button
-          data-testid="t--more-action-trigger"
+          data-testid="t--entity-context-menu-trigger"
           isIconButton
           kind="tertiary"
           startIcon="more-2-fill"
         />
       </MenuTrigger>
-      <MenuContent align="start" key={widgetId} side="right" width="300px">
+      <MenuContent
+        align="start"
+        className={clsx(
+          "t--entity-context-menu",
+          EntityClassNames.CONTEXT_MENU_CONTENT,
+        )}
+        key={widgetId}
+        side="right"
+        width="300px"
+      >
         {menuContent}
       </MenuContent>
     </Menu>

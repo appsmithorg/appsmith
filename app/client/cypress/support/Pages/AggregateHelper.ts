@@ -986,12 +986,14 @@ export class AggregateHelper {
           parseSpecialCharSeq: boolean;
           shouldFocus: boolean;
           delay: number;
+          clear: boolean;
         }> = 0,
   ) {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
     let delay = 10;
+    let clear = false;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
@@ -1003,6 +1005,7 @@ export class AggregateHelper {
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
           : true;
+      clear = indexOrOptions.clear || false;
     }
 
     const element = this.GetElement(selector).eq(index);
@@ -1012,6 +1015,14 @@ export class AggregateHelper {
     }
 
     if (value === "") return element;
+
+    if (clear) {
+      return element.wait(100).clear().type(value, {
+        parseSpecialCharSequences: parseSpecialCharSeq,
+        delay: delay,
+        force: true,
+      });
+    }
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
@@ -2093,5 +2104,61 @@ export class AggregateHelper {
     }
 
     return fetchEmail();
+  }
+
+  public getCanvasWidgetStateByWidgetName(widgetName: string): any {
+    return cy
+      .window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const widgets = state.entities.canvasWidgets;
+
+        const widgetId = Object.keys(widgets).find((widgetId) => {
+          if (widgets[widgetId].widgetName === widgetName) {
+            return widgets[widgetId];
+          }
+        });
+
+        if (!widgetId) return null;
+
+        return widgets[widgetId];
+      });
+  }
+
+  public getDatasourceStateByName(datasourceName: string): any {
+    return cy
+      .window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const datasources = state.entities.datasources.list;
+
+        const datasource = datasources.find(
+          (datasource: any) => datasource.name === datasourceName,
+        );
+
+        if (!datasource) return null;
+
+        return datasource;
+      });
+  }
+
+  public getActionStateByName(actionName: string): any {
+    return cy
+      .window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const actions = state.entities.actions;
+
+        const action = actions.find(
+          (action: any) => action.config.name === actionName,
+        );
+
+        if (!action) return null;
+
+        return action;
+      });
   }
 }

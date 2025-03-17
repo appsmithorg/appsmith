@@ -4940,6 +4940,7 @@ public class ImportServiceTests {
                             .filter(policy -> !policy.getPermission()
                                     .equals(applicationPermission
                                             .getPageCreatePermission()
+                                            .block()
                                             .getValue()))
                             .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
@@ -4984,6 +4985,7 @@ public class ImportServiceTests {
                             .filter(policy -> !policy.getPermission()
                                     .equals(applicationPermission
                                             .getPageCreatePermission()
+                                            .block()
                                             .getValue()))
                             .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);

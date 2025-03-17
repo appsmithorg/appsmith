@@ -42,7 +42,3 @@ export const PREMIUM_INTEGRATION_CONTACT_FORM =
 
 export const SCHEDULE_CALL_URL =
   "https://calendly.com/carina-neves-fonseca/appsmith";
-
-export const RELEASED_PREMIUM_PLUGINS: string[] = [
-  // Add new released integration plugin names here
-].map((name: string) => name.toLocaleLowerCase());

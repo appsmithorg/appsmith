@@ -42,10 +42,6 @@ export const RightControlWrapper = styled.div`
   line-height: normal;
   display: flex;
   align-items: center;
-
-  button {
-    margin-left: -4px;
-  }
 `;
 
 export const TopContentWrapper = styled.div`
@@ -108,11 +104,24 @@ export const StyledListItem = styled.div<{
 
   &[data-rightcontrolvisibility="hover"] {
     ${RightControlWrapper} {
-      display: none;
+      visibility: hidden;
+      width: 0;
+
+      button.entity-context-menu {
+        visibility: hidden;
+        height: 100%;
+        width: 100%;
+      }
     }
 
     &:hover ${RightControlWrapper} {
-      display: block;
+      visibility: visible;
+      width: auto;
+
+      button.entity-context-menu {
+        visibility: visible;
+        width: 24px;
+      }
     }
   }
 

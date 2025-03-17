@@ -126,7 +126,7 @@ __metadata:
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
     colorjs.io: ^0.5.2
-    lodash: "*"
+    lodash: ">=4.17.21"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -169,7 +169,7 @@ __metadata:
     browserslist: ^4.24.4
     clsx: ^2.0.0
     eslint-plugin-storybook: ^0.11.3
-    lodash: "*"
+    lodash: ">=4.17.21"
     postcss-import: ^16.1.0
     react-aria-components: ^1.6.0
     react-markdown: ^9.0.1
@@ -13650,7 +13650,6 @@ __metadata:
     html-webpack-plugin: ^5.5.0
     husky: ^8.0.0
     identity-obj-proxy: ^3.0.0
-    immer: ^9.0.6
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
     jest: ^29.6.1
@@ -13669,7 +13668,7 @@ __metadata:
     linkedom: ^0.14.20
     lint-staged: ^14.0.1
     localforage: ^1.7.3
-    lodash: ^4.17.21
+    lodash: ">=4.17.21"
     lodash-es: 4.17.21
     loglevel: ^1.7.1
     lottie-web: ^5.7.4
@@ -13686,7 +13685,7 @@ __metadata:
     nanoid: ^2.0.4
     node-forge: ^1.3.0
     object-hash: ^3.0.0
-    openai: ^4.64.0
+    openai: 4.87.3
     path-to-regexp: ^6.3.0
     pg: ^8.11.3
     plop: ^3.1.1
@@ -21506,7 +21505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.6, immer@npm:^9.0.7":
+"immer@npm:^9.0.7":
   version: 9.0.21
   resolution: "immer@npm:9.0.21"
   checksum: 70e3c274165995352f6936695f0ef4723c52c92c92dd0e9afdfe008175af39fa28e76aafb3a2ca9d57d1fb8f796efc4dd1e1cc36f18d33fa5b74f3dfb0375432
@@ -24261,7 +24260,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:*, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:~4.17.21":
+"lodash@npm:>=4.17.21, lodash@npm:^4, lodash@npm:^4.17.10, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -26547,9 +26546,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openai@npm:^4.64.0, openai@npm:^4.83.0":
-  version: 4.85.2
-  resolution: "openai@npm:4.85.2"
+"openai@npm:4.87.3, openai@npm:^4.83.0":
+  version: 4.87.3
+  resolution: "openai@npm:4.87.3"
   dependencies:
     "@types/node": ^18.11.18
     "@types/node-fetch": ^2.6.4
@@ -26568,7 +26567,7 @@ __metadata:
       optional: true
   bin:
     openai: bin/cli
-  checksum: 44686ce3e6b67a6374a8e30e65c638bff901f48f2df539c862f3bb86e6f079e4c30804f0141c2dfe91fc4714cd37cbe67900c0de1476ecb950db8b78fe8f69b7
+  checksum: 2cbb548c5b6dfa21c87b012fee81010925d8106626e4adc0ba86e2a5974aca3b5ec29e3ddc2f354d8c95e1d64da8d384f1495ceabbbf2948269fc2dab34bb3fc
   languageName: node
   linkType: hard
 

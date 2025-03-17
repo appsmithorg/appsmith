@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,6 +30,8 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_DEFAULT_ORGANIZATION_SPAN;
@@ -39,8 +42,6 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Organization, String>
         implements OrganizationServiceCE {
-
-    private String organizationId = null;
 
     private final ConfigService configService;
 
@@ -53,6 +54,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final CommonConfig commonConfig;
     private final ObservationRegistry observationRegistry;
 
+    private final UserOrganizationHelper userOrganizationHelper;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -62,7 +65,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            UserOrganizationHelper userOrganizationHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -70,20 +74,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
+        this.userOrganizationHelper = userOrganizationHelper;
     }
 
     @Override
-    public Mono<String> getDefaultOrganizationId() {
-
-        // If the value exists in cache, return it as is
-        if (StringUtils.hasLength(organizationId)) {
-            return Mono.just(organizationId);
-        }
-        return repository.findBySlug(FieldName.DEFAULT).map(Organization::getId).map(organizationId -> {
-            // Set the cache value before returning.
-            this.organizationId = organizationId;
-            return organizationId;
-        });
+    public Mono<String> getCurrentUserOrganizationId() {
+        return userOrganizationHelper.getCurrentUserOrganizationId();
     }
 
     @Override
@@ -117,6 +113,11 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .flatMap(tuple2 -> {
                     Organization organization = tuple2.getT2();
                     OrganizationConfiguration oldConfig = tuple2.getT1();
+                    List<Mono<Boolean>> sideEffectsMonos =
+                            calculateOrganizationConfigurationUpdateSideEffects(oldConfig, organizationConfiguration);
+
+                    Mono<List<Boolean>> allSideEffectsMono =
+                            Flux.fromIterable(sideEffectsMonos).flatMap(x -> x).collectList();
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
@@ -127,8 +128,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // hence it will not be evaluated again
                     return updatedOrganizationMono
                             .then(Mono.defer(() -> evictOrganizationCache))
+                            .then(Mono.defer(() -> allSideEffectsMono))
                             .then(updatedOrganizationMono);
                 });
+    }
+
+    protected List<Mono<Boolean>> calculateOrganizationConfigurationUpdateSideEffects(
+            OrganizationConfiguration oldConfig, OrganizationConfiguration organizationConfiguration) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -180,38 +187,38 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
      */
     @Override
     public Mono<Organization> getOrganizationConfiguration() {
-        Mono<Organization> dbOrganizationMono = getDefaultOrganization();
+        Mono<Organization> dbOrganizationMono = getCurrentUserOrganization();
         return getOrganizationConfiguration(dbOrganizationMono);
     }
 
     @Override
-    public Mono<Organization> getDefaultOrganization() {
+    public Mono<Organization> getCurrentUserOrganization() {
+        Mono<String> organizationIdMono = getCurrentUserOrganizationId().cache();
         // Fetching Organization from redis cache
-        return getDefaultOrganizationId()
-                .flatMap(organizationId -> cacheableRepositoryHelper.fetchDefaultOrganization(organizationId))
+        return organizationIdMono
+                .flatMap(organizationId -> cacheableRepositoryHelper.getOrganizationById(organizationId))
                 .name(FETCH_DEFAULT_ORGANIZATION_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(organization ->
                         repository.setUserPermissionsInObject(organization).switchIfEmpty(Mono.just(organization)))
                 .onErrorResume(e -> {
-                    e.printStackTrace();
                     log.error("Error fetching default organization from redis : {}", e.getMessage());
                     // If there is an error fetching the organization from the cache, then evict the cache and fetching
                     // from the db. This handles the case for deserialization errors. This prevents the entire instance
-                    // to
-                    // go down if organization cache is corrupted.
+                    // to go down if organization cache is corrupted.
                     // More info - https://github.com/appsmithorg/appsmith/issues/33504
-                    log.info("Evicting the default organization from cache and fetching from the database!");
-                    return cacheableRepositoryHelper
-                            .evictCachedOrganization(organizationId)
-                            .then(cacheableRepositoryHelper
-                                    .fetchDefaultOrganization(organizationId)
-                                    .map(organization -> {
-                                        if (organization.getOrganizationConfiguration() == null) {
-                                            organization.setOrganizationConfiguration(new OrganizationConfiguration());
-                                        }
-                                        return organization;
-                                    }))
+                    Mono<Void> evictOrganizationCache = organizationIdMono.flatMap(organizationId -> {
+                        log.info("Evicting the organization {} from cache.", organizationId);
+                        return cacheableRepositoryHelper.evictCachedOrganization(organizationId);
+                    });
+                    Mono<Organization> populateOrganizationCache = organizationIdMono.flatMap(organizationId -> {
+                        log.info("Fetching the organization {} from the database.", organizationId);
+                        return cacheableRepositoryHelper.getOrganizationById(organizationId);
+                    });
+                    return evictOrganizationCache
+                            // Adding a cold publisher to make sure the cache is evicted before fetching the
+                            // organization from the db
+                            .then(Mono.defer(() -> populateOrganizationCache))
                             .name(FETCH_ORGANIZATION_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
                             .flatMap(organization -> repository
@@ -221,9 +228,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Mono<Organization> updateDefaultOrganizationConfiguration(
-            OrganizationConfiguration organizationConfiguration) {
-        return getDefaultOrganizationId()
+    public Mono<Organization> updateOrganizationConfiguration(OrganizationConfiguration organizationConfiguration) {
+        return getCurrentUserOrganizationId()
                 .flatMap(organizationId -> updateOrganizationConfiguration(organizationId, organizationConfiguration))
                 .flatMap(updatedOrganization -> getOrganizationConfiguration());
     }
@@ -245,6 +251,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
         // Only copy the values that are pertinent to the client
         organizationConfiguration.copyNonSensitiveValues(dbOrganization.getOrganizationConfiguration());
+        clientOrganization.setId(dbOrganization.getId());
         clientOrganization.setUserPermissions(dbOrganization.getUserPermissions());
 
         return Mono.just(clientOrganization);
@@ -253,7 +260,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     // This function is used to save the organization object in the database and evict the cache
     @Override
     public Mono<Organization> save(Organization organization) {
-        Mono<Void> evictCachedOrganization = cacheableRepositoryHelper.evictCachedOrganization(organizationId);
+        String orgId = organization.getId();
+        Mono<Void> evictCachedOrganization =
+                StringUtils.hasText(orgId) ? cacheableRepositoryHelper.evictCachedOrganization(orgId) : Mono.empty();
         Mono<Organization> savedOrganizationMono = repository.save(organization).cache();
         return savedOrganizationMono
                 .then(Mono.defer(() -> evictCachedOrganization))
@@ -287,9 +296,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                         }
                         return this.save(organization)
                                 // Fetch the organization again from DB to make sure the downstream chain is consuming
-                                // the
-                                // latest
-                                // DB object and not the modified one because of the client pertinent changes
+                                // the latest DB object and not the modified one because of the client pertinent changes
                                 .then(repository.findById(organization.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForOrganizationFeatureFlags);
                     }
@@ -339,7 +346,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .hasElements()
                 .flatMap(hasElement -> {
                     if (hasElement) {
-                        return repository.disableRestartForAllTenants().then(envManager.restartWithoutAclCheck());
+                        return repository.disableRestartForAllOrganizations().then(envManager.restartWithoutAclCheck());
                     }
                     return Mono.empty();
                 });

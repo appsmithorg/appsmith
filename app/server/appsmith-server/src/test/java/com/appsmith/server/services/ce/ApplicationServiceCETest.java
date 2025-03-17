@@ -415,8 +415,9 @@ public class ApplicationServiceCETest {
             // Since no setup was done, hence no cleanup needs to happen
             return;
         }
-        List<Application> deletedApplications = applicationService
-                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+        List<Application> deletedApplications = applicationPermission
+                .getDeletePermission()
+                .flatMapMany(permission -> applicationService.findByWorkspaceId(workspaceId, permission))
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
@@ -4171,7 +4172,10 @@ public class ApplicationServiceCETest {
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
                 .filter(policy -> !policy.getPermission()
-                        .equals(datasourcePermission.getActionCreatePermission().getValue()))
+                        .equals(datasourcePermission
+                                .getActionCreatePermission()
+                                .block()
+                                .getValue()))
                 .collect(Collectors.toSet());
         testDatasource1.setPolicies(newPoliciesWithoutEdit);
         Datasource updatedTestDatasource =

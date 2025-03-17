@@ -75,7 +75,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .map(organization -> organization.getOrganizationConfiguration().isEmailVerificationEnabled())
                 .cache();
 
-        Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
+        Mono<User> userMono = organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(userEmail, orgId))
+                .cache();
         Mono<Boolean> verificationRequiredMono = null;
 
         if ("signup".equals(method)) {
@@ -367,8 +370,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // In case no workspaces are found for the user, create a new default workspace
                         String email = ((User) authentication.getPrincipal()).getEmail();
 
-                        return userRepository
-                                .findByEmail(email)
+                        return organizationService
+                                .getCurrentUserOrganizationId()
+                                .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(email, orgId))
                                 .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                                 .map(workspace -> {
                                     application.setWorkspaceId(workspace.getId());

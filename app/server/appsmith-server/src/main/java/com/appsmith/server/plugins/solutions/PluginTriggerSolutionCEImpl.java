@@ -78,11 +78,6 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         Mono<PluginExecutor> pluginExecutorMono =
                 pluginMono.flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)));
 
-        // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
-        // Once thoroughly tested, this flag can be removed
-        Map<String, Boolean> featureFlagMap =
-                featureFlagService.getCachedOrganizationFeatureFlags().getFeatures();
-
         /*
          * Since there is no datasource provided, we are passing the Datasource Context connection and datasourceConfiguration as null.
          * We will leave the execution to respective plugin executor.
@@ -91,9 +86,15 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
             Plugin plugin = pair.getT1();
             PluginExecutor pluginExecutor = pair.getT2();
             setHeadersToTriggerRequest(plugin, httpHeaders, triggerRequestDTO);
-            return setOrganizationAndInstanceId(triggerRequestDTO)
-                    .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
-                            .triggerWithFlags(null, null, updatedTriggerRequestDTO, featureFlagMap));
+            return setOrganizationAndInstanceId(triggerRequestDTO).flatMap(updatedTriggerRequestDTO -> {
+                // TODO: Flags are needed here for google sheets integration to support shared drive behind a
+                //  flag once thoroughly tested, this flag can be removed
+                Map<String, Boolean> featureFlags = featureFlagService
+                        .getCachedOrganizationFeatureFlags(updatedTriggerRequestDTO.getOrganizationId())
+                        .getFeatures();
+                return ((PluginExecutor<Object>) pluginExecutor)
+                        .triggerWithFlags(null, null, updatedTriggerRequestDTO, featureFlags);
+            });
         });
     }
 
@@ -117,7 +118,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
 
     private Mono<TriggerRequestDTO> setOrganizationAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
         return organizationService
-                .getDefaultOrganizationId()
+                .getCurrentUserOrganizationId()
                 .zipWith(configService.getInstanceId())
                 .map(tuple -> {
                     triggerRequestDTO.setOrganizationId(tuple.getT1());

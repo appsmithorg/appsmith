@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 class ListView {
   public locators = {
     list: "[data-testid='t--ide-list']",
-    listItem: "[data-testid='t--ide-list-item']",
+    listItem: ".t--ide-list-item",
     addItem: "[data-testid='t--add-item']",
   };
 

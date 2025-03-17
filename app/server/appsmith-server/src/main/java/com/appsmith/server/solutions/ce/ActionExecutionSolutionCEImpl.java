@@ -96,6 +96,7 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_EDITOR_CONFIG;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.*;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.constants.ce.FieldNameCE.NONE;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
@@ -203,21 +204,24 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .findById(executeActionDTO.getActionId(), executePermission)
                 .cache();
 
-        Mono<ExecuteActionDTO> populatedExecuteActionDTOMono =
-                newActionMono.flatMap(newAction -> populateExecuteActionDTO(executeActionDTO, newAction));
-        Mono<String> environmentIdMono = Mono.zip(newActionMono, populatedExecuteActionDTOMono)
-                .flatMap(tuple -> {
-                    NewAction newAction = tuple.getT1();
-                    ExecuteActionDTO populatedExecuteActionDTO = tuple.getT2();
-                    return getTrueEnvironmentId(newAction, populatedExecuteActionDTO, executeActionMetaDTO);
-                });
+        Mono<ExecuteActionDTO> populatedExecuteActionDTOMono = newActionMono
+                .flatMap(newAction -> populateExecuteActionDTO(executeActionDTO, newAction))
+                .name(POPULATED_EXECUTE_ACTION_DTO_MONO)
+                .tap(Micrometer.observation(observationRegistry));
+        Mono<String> environmentIdMono = newActionMono
+                .flatMap(newAction -> getTrueEnvironmentId(newAction, executeActionDTO, executeActionMetaDTO))
+                .name(GET_ENVIRONMENT_ID)
+                .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.zip(populatedExecuteActionDTOMono, environmentIdMono).flatMap(pair -> {
-            ExecuteActionDTO populatedExecuteActionDTO = pair.getT1();
-            String environmentId = pair.getT2();
-            executeActionMetaDTO.setEnvironmentId(environmentId);
-            return executeAction(populatedExecuteActionDTO, executeActionMetaDTO);
-        });
+        return Mono.zip(populatedExecuteActionDTOMono, environmentIdMono)
+                .flatMap(pair -> {
+                    ExecuteActionDTO populatedExecuteActionDTO = pair.getT1();
+                    String environmentId = pair.getT2();
+                    executeActionMetaDTO.setEnvironmentId(environmentId);
+                    return executeAction(populatedExecuteActionDTO, executeActionMetaDTO);
+                })
+                .name(POPULATE_AND_EXECUTE_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -253,13 +257,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
-        Mono<String> defaultOrganizationIdMono = organizationService.getDefaultOrganizationId();
-
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
         return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
-                        instanceIdMono, defaultOrganizationIdMono)
+                        instanceIdMono, organizationIdMono)
                 .map(tuple -> {
                     String instanceId = tuple.getT1();
                     String organizationId = tuple.getT2();
@@ -340,29 +343,38 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
 
-        String actionId = executeActionDTO.getActionId();
         AtomicReference<String> actionName = new AtomicReference<>();
         actionName.set("");
 
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionDTOMono = getValidActionForExecution(executeActionDTO, executeActionMetaDTO)
+                .name(GET_VALID_ACTION_FOR_EXECUTION)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         // 3. Instantiate the implementation class based on the query type
         Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, executeActionMetaDTO);
+
         Mono<Plugin> pluginMono = executeActionMetaDTO.getPlugin() != null
                 ? Mono.just(executeActionMetaDTO.getPlugin())
-                : getCachedPluginForActionExecution(datasourceStorageMono);
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+                : getCachedPluginForActionExecution(datasourceStorageMono)
+                        .name(GET_CACHED_PLUGIN_FOR_ACTION_EXECUTION)
+                        .tap(Micrometer.observation(observationRegistry));
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .name(GET_PLUGIN_EXECUTOR)
+                .tap(Micrometer.observation(observationRegistry));
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(
-                executeActionDTO,
-                actionDTOMono,
-                datasourceStorageMono,
-                pluginMono,
-                pluginExecutorMono,
-                executeActionMetaDTO.getHeaders());
+                        executeActionDTO,
+                        actionDTOMono,
+                        datasourceStorageMono,
+                        pluginMono,
+                        pluginExecutorMono,
+                        executeActionMetaDTO.getHeaders())
+                .name(GET_ACTION_EXECUTION_RESULT)
+                .tap(Micrometer.observation(observationRegistry));
 
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceStorageMono);
 
@@ -382,7 +394,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     result.setIsExecutionSuccess(false);
                     result.setErrorInfo(error);
                     return Mono.just(result);
-                });
+                })
+                .name(EXECUTE_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -755,17 +769,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                         .tap(Micrometer.observation(observationRegistry)))
-                .flatMap(tuple2 -> {
-                    DatasourceStorage datasourceStorage1 = tuple2.getT1();
-                    DatasourceContext<?> resourceContext = tuple2.getT2();
+                .zipWith(organizationService.getCurrentUserOrganizationId())
+                .flatMap(objects -> {
+                    DatasourceStorage datasourceStorage1 = objects.getT1().getT1();
+                    DatasourceContext<?> resourceContext = objects.getT1().getT2();
+                    String organizationId = objects.getT2();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
-                            ? featureFlagService
-                                    .getCachedOrganizationFeatureFlags()
-                                    .getFeatures()
-                            : Collections.emptyMap();
+                    Map<String, Boolean> features =
+                            featureFlagService.getCachedOrganizationFeatureFlags(organizationId) != null
+                                    ? featureFlagService
+                                            .getCachedOrganizationFeatureFlags(organizationId)
+                                            .getFeatures()
+                                    : Collections.emptyMap();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed

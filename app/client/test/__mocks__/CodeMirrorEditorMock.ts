@@ -19,6 +19,7 @@ export const MockCodemirrorEditor = {
   getDoc: jest.fn(),
   getTokenAt: jest.fn(),
   getMode: jest.fn(),
+  getModeAt: jest.fn(),
   constructor: MockCodemirrorNamespace,
 };
 

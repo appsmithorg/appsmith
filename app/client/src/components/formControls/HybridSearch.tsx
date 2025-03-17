@@ -6,7 +6,11 @@ import { Slider, type SliderProps, Flex, Switch, Text } from "@appsmith/ads";
 
 export interface HybridSearchControlProps
   extends ControlProps,
-    Omit<SliderProps, "id" | "label"> {}
+    Omit<SliderProps, "id" | "label"> {
+  // tooltipText also exists in ControlProps, but it has type of  of `string | Record<string, string>`
+  // and we only need it to be a string, so we override it here
+  tooltipText?: string;
+}
 
 export class HybridSearchControl extends BaseControl<HybridSearchControlProps> {
   render() {

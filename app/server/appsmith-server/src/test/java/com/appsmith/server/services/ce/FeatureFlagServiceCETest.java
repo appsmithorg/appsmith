@@ -211,7 +211,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(new HashMap<>());
@@ -234,7 +234,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, DISABLE));
@@ -257,7 +257,7 @@ public class FeatureFlagServiceCETest {
                         featureFlagService
                                 ::getAllRemoteFeaturesForOrganizationAndUpdateFeatureFlagsWithPendingMigrations)
                 .blockLast();
-        StepVerifier.create(organizationService.getDefaultOrganization())
+        StepVerifier.create(organizationService.getCurrentUserOrganization())
                 .assertNext(organization -> {
                     assertThat(organization.getOrganizationConfiguration().getFeaturesWithPendingMigration())
                             .isEqualTo(Map.of(ORGANIZATION_TEST_FEATURE, ENABLE));
@@ -288,8 +288,9 @@ public class FeatureFlagServiceCETest {
     @WithUserDetails(value = "api_user")
     public void getCachedOrganizationFeatureFlags_withDefaultOrganization_organizationFeatureFlagsAreCached() {
 
+        String orgId = organizationService.getCurrentUserOrganizationId().block();
         // Assert that the cached feature flags are empty before the remote fetch
-        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags();
+        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedOrganizationFeatureFlags(orgId);
         assertThat(cachedFeaturesBeforeRemoteCall.getFeatures()).hasSize(1);
         assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
 
@@ -305,7 +306,7 @@ public class FeatureFlagServiceCETest {
 
                     // Check if the cached feature flags are updated after the remote fetch
                     CachedFeatures cachedFeaturesAfterRemoteCall =
-                            featureFlagService.getCachedOrganizationFeatureFlags();
+                            featureFlagService.getCachedOrganizationFeatureFlags(orgId);
                     assertFalse(cachedFeaturesAfterRemoteCall.getFeatures().get(ORGANIZATION_TEST_FEATURE.name()));
                 })
                 .verifyComplete();

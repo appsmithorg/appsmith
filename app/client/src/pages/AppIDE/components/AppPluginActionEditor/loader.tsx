@@ -11,7 +11,7 @@ const LazyPluginActionEditor = lazy(async () =>
 
 const AppPluginActionEditor = () => {
   return (
-    <Suspense fallback={Skeleton}>
+    <Suspense fallback={<Skeleton />}>
       <LazyPluginActionEditor />
     </Suspense>
   );

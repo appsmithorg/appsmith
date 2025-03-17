@@ -4,7 +4,7 @@ import { AnvilDataAttributes } from "../../../../../src/widgets/wds/constants";
 
 // anvil widget based selectors
 const anvilWidgetSelector = "[data-testid=t--anvil-widget-wrapper]";
-const anvilWidgetBasedSelectors = {
+export const anvilWidgetBasedSelectors = {
   anvilWidgetSelector,
   anvilWidgetNameSelector: (widgetName: string) => {
     return `[${AnvilDataAttributes.WIDGET_NAME}="${widgetName}"]`;
