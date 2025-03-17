@@ -16,7 +16,6 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
-import type { Action } from "entities/Action";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -749,8 +748,8 @@ export const updateEvaluatedSectionConfig = (
 };
 
 export function fixActionPayloadForMongoQuery(
-  action?: Action,
-): Action | undefined {
+  action?: unknown,
+): unknown | undefined {
   if (!action) return action;
 
   /* eslint-disable */
