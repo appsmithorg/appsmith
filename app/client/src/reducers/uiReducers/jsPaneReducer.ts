@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { JSCollection } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 
 export enum JSEditorTab {
@@ -23,6 +23,7 @@ export interface JsPaneReduxState {
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
+  isSchemaGenerating: Record<string, boolean>;
   selectedConfigTab: JSEditorTab;
   debugger: JSPaneDebuggerState;
 }
@@ -32,6 +33,7 @@ const initialState: JsPaneReduxState = {
   isSaving: {},
   isDeleting: {},
   isDirty: {},
+  isSchemaGenerating: {},
   selectedConfigTab: JSEditorTab.CODE,
   debugger: {
     open: false,
@@ -173,6 +175,50 @@ const jsPaneReducer = createReducer(initialState, {
     return {
       ...state,
       isSaving: false,
+    };
+  },
+  [ReduxActionTypes.GENERATE_JS_FUNCTION_SCHEMA_REQUEST]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{
+      action: JSAction;
+    }>,
+  ) => {
+    if (!action.payload.action.collectionId) return state;
+
+    return {
+      ...state,
+      isSchemaGenerating: {
+        ...state.isSchemaGenerating,
+        [action.payload.action.collectionId]: true,
+      },
+    };
+  },
+  [ReduxActionTypes.GENERATE_JS_FUNCTION_SCHEMA_SUCCESS]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ action: JSAction }>,
+  ) => {
+    if (!action.payload.action.collectionId) return state;
+
+    return {
+      ...state,
+      isSchemaGenerating: {
+        ...state.isSchemaGenerating,
+        [action.payload.action.collectionId]: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.GENERATE_JS_FUNCTION_SCHEMA_ERROR]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ action: JSAction }>,
+  ) => {
+    if (!action.payload.action.collectionId) return state;
+
+    return {
+      ...state,
+      isSchemaGenerating: {
+        ...state.isSchemaGenerating,
+        [action.payload.action.collectionId]: false,
+      },
     };
   },
 });
