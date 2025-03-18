@@ -4,4 +4,3 @@ export { useHandleDuplicateClick } from "./useHandleDuplicateClick";
 export { useHandleRunClick } from "ee/PluginActionEditor/hooks/useHandleRunClick";
 export { useBlockExecution } from "ee/PluginActionEditor/hooks/useBlockExecution";
 export { useAnalyticsOnRunClick } from "ee/PluginActionEditor/hooks/useAnalyticsOnRunClick";
-export { useHandleGenerateSchemaClick } from "ee/PluginActionEditor/hooks/useHandleGenerateSchemaClick";
