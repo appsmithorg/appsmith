@@ -46,11 +46,13 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         CodemirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
-      let shouldShow = true;
+      let shouldShow = false;
 
       if (additionalData?.isJsEditor) {
         if (additionalData?.enableAIAssistance) {
           shouldShow = !isAISlashCommand(editor);
+        } else {
+          shouldShow = true;
         }
       } else if (shouldShowAutocompleteWithBindingBrackets(editor)) {
         shouldShow = true;
