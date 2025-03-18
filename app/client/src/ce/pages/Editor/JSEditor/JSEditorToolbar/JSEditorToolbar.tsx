@@ -1,19 +1,18 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
-import { JSFunctionRun } from "./components/JSFunctionRun";
-import type { JSActionDropdownOption, OnUpdateSettingsProps } from "./types";
+import { JSFunctionRun } from "pages/Editor/JSEditor/JSEditorToolbar/components/JSFunctionRun";
+import type {
+  JSActionDropdownOption,
+  OnUpdateSettingsProps,
+} from "pages/Editor/JSEditor/JSEditorToolbar/types";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
-import { JSFunctionSettings } from "./components/JSFunctionSettings";
-import { convertJSActionsToDropdownOptions } from "./utils";
-import { JSObjectNameEditor } from "./JSObjectNameEditor";
-import { JSFunctionGenerateSchema } from "./components/JSFunctionGenerateSchema";
-import { Flex } from "@appsmith/ads";
-import { getIsAnvilLayoutEnabled } from "../../../../layoutSystems/anvil/integrations/selectors";
+import { JSFunctionSettings } from "pages/Editor/JSEditor/JSEditorToolbar/components/JSFunctionSettings";
+import { convertJSActionsToDropdownOptions } from "pages/Editor/JSEditor/JSEditorToolbar/utils";
+import { JSObjectNameEditor } from "pages/Editor/JSEditor/JSEditorToolbar/JSObjectNameEditor";
 
 interface Props {
   changePermitted: boolean;
@@ -24,15 +23,10 @@ interface Props {
   hideContextMenuOnEditor?: boolean;
   contextMenu: React.ReactNode;
   disableRunFunctionality: boolean;
-  disableGenerateSchemaFunctionality: boolean;
   executePermitted: boolean;
   loading: boolean;
-  isGeneratingSchema: boolean;
   jsCollection: JSCollection;
   onButtonClick: (
-    event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
-  ) => void;
-  onGenerateSchemaButtonClick: (
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
   ) => void;
   onSelect: DropdownOnSelect;
@@ -51,7 +45,6 @@ interface Props {
  */
 export const JSEditorToolbar = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   // Render the IDEToolbar with JSFunctionRun and JSFunctionSettings components
   return (
@@ -65,7 +58,7 @@ export const JSEditorToolbar = (props: Props) => {
         )}
       </IDEToolbar.Left>
       <IDEToolbar.Right>
-        <Flex className="t--formActionButtons" gap="spaces-2">
+        <div className="t--formActionButtons">
           <JSFunctionRun
             disabled={props.disableRunFunctionality || !props.executePermitted}
             isLoading={props.loading}
@@ -76,16 +69,7 @@ export const JSEditorToolbar = (props: Props) => {
             selected={props.selected}
             showTooltip={!props.selected.data}
           />
-          {isAnvilEnabled && (
-            <JSFunctionGenerateSchema
-              disabled={
-                props.disableGenerateSchemaFunctionality || props.loading
-              }
-              isLoading={props.isGeneratingSchema}
-              onButtonClick={props.onGenerateSchemaButtonClick}
-            />
-          )}
-        </Flex>
+        </div>
         {props.showSettings ? (
           <ToolbarSettingsPopover
             dataTestId={"t--js-settings-trigger"}

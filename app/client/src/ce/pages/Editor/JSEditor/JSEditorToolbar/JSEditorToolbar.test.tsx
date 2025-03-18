@@ -23,9 +23,6 @@ const defaultProps = {
   jsCollection: JSObject,
   onButtonClick: jest.fn(),
   onSelect: jest.fn(),
-  disableGenerateSchemaFunctionality: false,
-  isGeneratingSchema: false,
-  onGenerateSchemaButtonClick: jest.fn(),
   jsActions: JSObject.actions,
   selected: {
     label: "JSObject1.myFun1",

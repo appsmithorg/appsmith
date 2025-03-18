@@ -30,11 +30,7 @@ import {
 } from "./utils";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import { Form, FormWrapper } from "./styledComponents";
-import {
-  getIsGeneratingSchema,
-  getIsJSCollectionSaving,
-  getJSPaneConfigSelectedTab,
-} from "selectors/jsPaneSelectors";
+import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
   setCodeEditorCursorAction,
@@ -61,7 +57,6 @@ import {
   getJSActionOption,
   type OnUpdateSettingsProps,
 } from "./JSEditorToolbar";
-import { generateJSFunctionSchema } from "../../../actions/generateSchemaActions";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -157,12 +152,6 @@ function JSEditorForm({
       currentJSCollection.id,
       selectedJSActionOption.data?.id || "",
     ),
-  );
-  const isGeneratingSchema = useSelector((state: AppState) =>
-    getIsGeneratingSchema(state, currentJSCollection.id),
-  );
-  const isJSCollectionSaving = useSelector((state: AppState) =>
-    getIsJSCollectionSaving(state, currentJSCollection.id),
   );
 
   useEffect(() => {
@@ -298,12 +287,6 @@ function JSEditorForm({
     }
   };
 
-  const handleGenerateSchemaButtonClick = async () => {
-    if (selectedJSActionOption.data?.id) {
-      dispatch(generateJSFunctionSchema(selectedJSActionOption.data));
-    }
-  };
-
   useEffect(() => {
     if (parseErrors.length || isEmpty(jsActions)) {
       setDisableRunFunctionality(true);
@@ -356,16 +339,10 @@ function JSEditorForm({
           <JSEditorToolbar
             changePermitted={isChangePermitted}
             contextMenu={contextMenu}
-            disableGenerateSchemaFunctionality={
-              isExecutingCurrentJSAction || isJSCollectionSaving
-            }
-            disableRunFunctionality={
-              disableRunFunctionality || isGeneratingSchema
-            }
+            disableRunFunctionality={disableRunFunctionality}
             executePermitted={isExecutePermitted}
             hideContextMenuOnEditor={hideContextMenuOnEditor}
             hideEditIconOnEditor={hideEditIconOnEditor}
-            isGeneratingSchema={isGeneratingSchema}
             jsActions={jsActions}
             jsCollection={currentJSCollection}
             loading={isExecutingCurrentJSAction}
@@ -374,7 +351,6 @@ function JSEditorForm({
             ) => {
               handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
             }}
-            onGenerateSchemaButtonClick={handleGenerateSchemaButtonClick}
             onSelect={handleJSActionOptionSelection}
             onUpdateSettings={onUpdateSettings}
             saveJSObjectName={saveJSObjectName}
