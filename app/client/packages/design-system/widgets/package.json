@@ -31,7 +31,7 @@
     "@tabler/icons-react": "^3.10.0",
     "clsx": "^2.0.0",
     "lodash": ">=4.17.21",
-    "react-aria-components": "^1.6.0",
+    "react-aria-components": "^1.7.1",
     "react-markdown": "^9.0.1",
     "react-syntax-highlighter": "^15.5.0",
     "react-transition-group": "^4.4.5",
