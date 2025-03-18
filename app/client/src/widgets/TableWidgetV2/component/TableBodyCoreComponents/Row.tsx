@@ -1,24 +1,32 @@
 import type { Key } from "react";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Row as ReactTableRowType } from "react-table";
-import type { ListChildComponentProps } from "react-window";
+import type { ListChildComponentProps, VariableSizeList } from "react-window";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { useAppsmithTable } from "../TableContext";
+import { useRowHeightMeasurement } from "../VirtualTable/useRowHeightMeasurement";
+import useColumnVariableHeight from "../VirtualTable/useColumnVariableHeight";
 
 interface RowType {
   className?: string;
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
+  listRef: React.RefObject<VariableSizeList>;
+  rowHeights: React.RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement: React.RefObject<{ [key: number]: boolean }>;
 }
 
 export function Row(props: RowType) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const {
     accentColor,
     borderRadius,
     columns,
     isAddRowInProgress,
+    isInfiniteScrollEnabled,
     multiRowSelection,
     prepareRow,
     primaryColumnId,
@@ -27,6 +35,27 @@ export function Row(props: RowType) {
     selectTableRow,
   } = useAppsmithTable();
 
+  const wrappingColumns = useColumnVariableHeight(columns, props.row);
+
+  useRowHeightMeasurement({
+    index: props.index,
+    row: props.row,
+    rowRef,
+    rowHeights: props.rowHeights,
+    rowNeedsMeasurement: props.rowNeedsMeasurement,
+    listRef: props.listRef,
+    forceUpdate,
+    isInfiniteScrollEnabled,
+  });
+
+  useEffect(() => {
+    if (props.rowNeedsMeasurement.current) {
+      props.rowNeedsMeasurement.current[props.index] = true;
+    }
+
+    setForceUpdate((prev) => prev + 1);
+  }, [wrappingColumns]);
+
   prepareRow?.(props.row);
   const rowProps = {
     ...props.row.getRowProps(),
@@ -34,6 +63,7 @@ export function Row(props: RowType) {
       display: "flex",
       ...(props.style || {}),
     },
+    ref: rowRef,
   };
   const isRowSelected = multiRowSelection
     ? selectedRowIndices.includes(props.row.index)

@@ -1,20 +1,26 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useRef } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type {
   ListChildComponentProps,
   ListOnItemsRenderedProps,
   ReactElementType,
 } from "react-window";
-import { VariableSizeList, areEqual } from "react-window";
+import { VariableSizeList } from "react-window";
 import type SimpleBar from "simplebar-react";
-import { BodyContext } from "./BodyContext";
 import type { TableSizes } from "../Constants";
 import { Row } from "../TableBodyCoreComponents/Row";
 import { EmptyRows } from "../cellComponents/EmptyCell";
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
+type ExtendedListChildComponentProps = ListChildComponentProps & {
+  listRef: React.RefObject<VariableSizeList>;
+  rowHeights: React.RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement: React.RefObject<{ [key: number]: boolean }>;
+};
+
+const rowRenderer = (rowProps: ExtendedListChildComponentProps) => {
+  const { data, index, listRef, rowHeights, rowNeedsMeasurement, style } =
+    rowProps;
 
   if (index < data.length) {
     const row = data[index];
@@ -24,14 +30,17 @@ const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
         className="t--virtual-row"
         index={index}
         key={index}
+        listRef={listRef}
         row={row}
+        rowHeights={rowHeights}
+        rowNeedsMeasurement={rowNeedsMeasurement}
         style={style}
       />
     );
   } else {
     return <EmptyRows rows={1} style={style} />;
   }
-}, areEqual);
+};
 
 export interface BaseVirtualListProps {
   height: number;
@@ -55,8 +64,9 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   rows,
   tableSizes,
 }: BaseVirtualListProps) {
-  const { listRef, rowHeights } = useContext(BodyContext);
-
+  const listRef = useRef<VariableSizeList>(null);
+  const rowHeights = useRef<{ [key: number]: number }>({});
+  const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
   const combinedRef = (list: VariableSizeList | null) => {
     // Handle infiniteLoaderListRef
     if (infiniteLoaderListRef) {
@@ -79,7 +89,6 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   const getItemSize = useCallback(
     (index: number) => {
       try {
-        // Add a minimum height threshold to prevent rows from being too small
         const rowHeight = rowHeights?.current?.[index] || tableSizes.ROW_HEIGHT;
 
         return Math.max(rowHeight, tableSizes.ROW_HEIGHT);
@@ -108,7 +117,14 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
       ref={combinedRef}
       width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
     >
-      {rowRenderer}
+      {(props) =>
+        rowRenderer({
+          ...props,
+          listRef,
+          rowHeights,
+          rowNeedsMeasurement,
+        })
+      }
     </VariableSizeList>
   );
 });

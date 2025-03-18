@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type RefObject } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { VariableSizeList } from "react-window";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -17,9 +17,9 @@ interface UseRowHeightMeasurementProps {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   rowRef?: React.RefObject<HTMLDivElement>;
-  rowHeights?: React.MutableRefObject<Record<number, number> | null>;
-  rowNeedsMeasurement?: React.MutableRefObject<Record<number, boolean> | null>;
-  listRef?: React.MutableRefObject<VariableSizeList> | null;
+  rowHeights: RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement: RefObject<{ [key: number]: boolean }>;
+  listRef: RefObject<VariableSizeList> | null;
   forceUpdate: number;
   isInfiniteScrollEnabled?: boolean;
 }
