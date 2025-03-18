@@ -3,6 +3,7 @@ import {
   ADD_CUSTOM_ACTION,
   createMessage,
   NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS,
+  NOT_FOUND,
 } from "ee/constants/messages";
 import { Button, Flex, Text, type SelectOptionProps } from "@appsmith/ads";
 import { useSelector } from "react-redux";
@@ -56,5 +57,5 @@ export default function NoSearchCommandFound({
     );
   }
 
-  return null;
+  return <>{createMessage(NOT_FOUND)}</>;
 }
