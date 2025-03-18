@@ -39,8 +39,5 @@
     "@appsmith/wds": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",
     "glob": "^11.0.0"
-  },
-  "resolutions": {
-    "esbuild": "^0.25.0"
   }
 }
