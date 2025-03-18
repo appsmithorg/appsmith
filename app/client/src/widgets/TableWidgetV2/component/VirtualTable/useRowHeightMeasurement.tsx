@@ -17,9 +17,9 @@ interface UseRowHeightMeasurementProps {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   rowRef?: React.RefObject<HTMLDivElement>;
-  rowHeights: RefObject<{ [key: number]: number }>;
-  rowNeedsMeasurement: RefObject<{ [key: number]: boolean }>;
-  listRef: RefObject<VariableSizeList> | null;
+  rowHeights?: RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement?: RefObject<{ [key: number]: boolean }>;
+  listRef?: RefObject<VariableSizeList> | null;
   forceUpdate: number;
   isInfiniteScrollEnabled?: boolean;
 }

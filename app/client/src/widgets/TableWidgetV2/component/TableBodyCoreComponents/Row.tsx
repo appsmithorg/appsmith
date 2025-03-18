@@ -13,9 +13,9 @@ interface RowType {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
-  listRef: React.RefObject<VariableSizeList>;
-  rowHeights: React.RefObject<{ [key: number]: number }>;
-  rowNeedsMeasurement: React.RefObject<{ [key: number]: boolean }>;
+  listRef?: React.RefObject<VariableSizeList>;
+  rowHeights?: React.RefObject<{ [key: number]: number }>;
+  rowNeedsMeasurement?: React.RefObject<{ [key: number]: boolean }>;
 }
 
 export function Row(props: RowType) {
@@ -49,7 +49,7 @@ export function Row(props: RowType) {
   });
 
   useEffect(() => {
-    if (props.rowNeedsMeasurement.current) {
+    if (props.rowNeedsMeasurement && props.rowNeedsMeasurement.current) {
       props.rowNeedsMeasurement.current[props.index] = true;
     }
 
