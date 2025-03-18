@@ -416,12 +416,12 @@ export default [
         helperText:
           "Client side only, custom sort function data(overrides default sorting)",
         helpText:
-          "Function should expect four arguments: originalTableData, computedTableData, columnId, and sortOrder. Return the sorted tableData.",
+          "Function should expect three arguments: tableData, columnId, and order. Return the sorted tableData.",
         propertyName: "customSortFunction",
         label: "Custom sort function data",
         controlType: "TABLE_CUSTOM_SORT",
         placeholderText:
-          "{{(originalTableData, computedTableData, columnId, order) => { /* Return sorted table data */ }}}",
+          "{{(tableData, columnId, order) => { /* Return sorted table data */ }}}",
         controlConfig: {
           maxHeight: "400px",
           height: "100px",
