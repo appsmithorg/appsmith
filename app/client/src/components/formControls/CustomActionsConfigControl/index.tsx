@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
-import { Grid, Tabs, TabPanel, TabsList, Tab } from "@appsmith/ads";
+import { Grid, Tabs, TabPanel, TabsList, Tab, Flex } from "@appsmith/ads";
 import BaseControl, { type ControlProps } from "../BaseControl";
 import { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 import { API_EDITOR_TAB_TITLES } from "ee/constants/messages";
@@ -81,8 +81,8 @@ export class CustomActionsControl extends BaseControl<ControlProps> {
     const { props } = this;
 
     return (
-      <Grid gap="spaces-4" w="100%">
-        <Grid gap="spaces-4" gridTemplateColumns="100px 1fr" w="100%">
+      <Flex flexDirection="column" gap="spaces-4">
+        <Grid gap="spaces-4" gridTemplateColumns="100px 1fr">
           <FormControl
             config={{
               controlType: "DROP_DOWN",
@@ -113,7 +113,7 @@ export class CustomActionsControl extends BaseControl<ControlProps> {
           />
         </Grid>
         <TabbedControls {...props} />
-      </Grid>
+      </Flex>
     );
   }
 }

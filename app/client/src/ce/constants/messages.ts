@@ -2632,3 +2632,8 @@ export const DATASOURCE_SECURE_TEXT = () =>
 export const TABLE_LOADING_RECORDS = () => "loading records";
 
 export const UPCOMING_SAAS_INTEGRATIONS = () => "Upcoming SaaS Integrations";
+
+export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
+  "No actions match your search";
+
+export const ADD_CUSTOM_ACTION = () => "Add custom action";
