@@ -258,7 +258,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private Mono<ExecuteActionDTO> populateExecuteActionDTO(ExecuteActionDTO executeActionDTO, NewAction newAction) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
-
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
@@ -770,17 +769,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                         .tap(Micrometer.observation(observationRegistry)))
-                .flatMap(tuple2 -> {
-                    DatasourceStorage datasourceStorage1 = tuple2.getT1();
-                    DatasourceContext<?> resourceContext = tuple2.getT2();
+                .zipWith(organizationService.getCurrentUserOrganizationId())
+                .flatMap(objects -> {
+                    DatasourceStorage datasourceStorage1 = objects.getT1().getT1();
+                    DatasourceContext<?> resourceContext = objects.getT1().getT2();
+                    String organizationId = objects.getT2();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features = featureFlagService.getCachedOrganizationFeatureFlags() != null
-                            ? featureFlagService
-                                    .getCachedOrganizationFeatureFlags()
-                                    .getFeatures()
-                            : Collections.emptyMap();
+                    Map<String, Boolean> features =
+                            featureFlagService.getCachedOrganizationFeatureFlags(organizationId) != null
+                                    ? featureFlagService
+                                            .getCachedOrganizationFeatureFlags(organizationId)
+                                            .getFeatures()
+                                    : Collections.emptyMap();
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed

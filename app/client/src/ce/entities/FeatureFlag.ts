@@ -31,7 +31,6 @@ export const FEATURE_FLAG = {
   release_drag_drop_building_blocks_enabled:
     "release_drag_drop_building_blocks_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
-  release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
   release_git_persist_branch_enabled: "release_git_persist_branch_enabled",
   release_ide_animations_enabled: "release_ide_animations_enabled",
   release_ide_datasource_selector_enabled:
@@ -85,7 +84,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_remove_feature_walkthrough_enabled: true,
   rollout_eslint_enabled: false,
   release_layout_conversion_enabled: false,
-  release_anvil_toggle_enabled: false,
   release_git_persist_branch_enabled: false,
   release_ide_animations_enabled: false,
   release_ide_datasource_selector_enabled: false,

@@ -10,7 +10,7 @@ const LazyJSEditor = lazy(async () =>
 
 const JSEditor = () => {
   return (
-    <Suspense fallback={Skeleton}>
+    <Suspense fallback={<Skeleton />}>
       <LazyJSEditor />
     </Suspense>
   );

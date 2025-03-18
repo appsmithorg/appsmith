@@ -37,6 +37,7 @@
                 "parentColumnSpace": 75.25,
                 "dynamicBindingPathList": [],
                 "leftColumn": 0,
+                "parentId": "0",
                 "children": [
                     {
                         "backgroundColor": "transparent",
@@ -57,6 +58,7 @@
                         "isLoading": false,
                         "parentColumnSpace": 1,
                         "leftColumn": 0,
+                        "parentId": "mxbaasg65u",
                         "dynamicBindingPathList": [],
                         "children": []
                     }
@@ -80,6 +82,7 @@
                 "parentColumnSpace": 75.25,
                 "dynamicBindingPathList": [],
                 "leftColumn": 0,
+                "parentId": "0",
                 "children": [
                     {
                         "backgroundColor": "transparent",
@@ -101,6 +104,7 @@
                         "parentColumnSpace": 1,
                         "leftColumn": 0,
                         "dynamicBindingPathList": [],
+                        "parentId": "i331vll2mg",
                         "children": [
                             {
                                 "widgetName": "Test",
@@ -152,6 +156,7 @@
                 "parentColumnSpace": 75.25,
                 "dynamicBindingPathList": [],
                 "leftColumn": 32,
+                "parentId": "0",
                 "children": [
                     {
                         "backgroundColor": "transparent",
@@ -173,7 +178,8 @@
                         "parentColumnSpace": 1,
                         "leftColumn": 0,
                         "dynamicBindingPathList": [],
-                        "children": []
+                        "children": [],
+                        "parentId": "qznzsquf70"
                     }
                 ]
             }

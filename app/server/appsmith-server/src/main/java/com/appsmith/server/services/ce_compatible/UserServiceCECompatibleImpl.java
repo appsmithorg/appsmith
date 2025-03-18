@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -37,7 +38,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
-            UserServiceHelper userServiceHelper) {
+            UserServiceHelper userServiceHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(
                 validator,
                 repository,
@@ -54,6 +56,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 emailService,
                 rateLimitService,
                 pacConfigurationService,
-                userServiceHelper);
+                userServiceHelper,
+                instanceVariablesHelper);
     }
 }

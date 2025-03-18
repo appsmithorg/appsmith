@@ -64,7 +64,7 @@ describe("ConnectButton Component", () => {
       </ThemeProvider>,
     );
 
-    const button = screen.getByRole("button", { name: "Connect Git (Beta)" });
+    const button = screen.getByRole("button", { name: "Connect Git" });
 
     fireEvent.click(button);
 
@@ -91,7 +91,7 @@ describe("ConnectButton Component", () => {
     );
 
     // Check that the button is rendered and disabled
-    const button = screen.getByRole("button", { name: "Connect Git (Beta)" });
+    const button = screen.getByRole("button", { name: "Connect Git" });
 
     expect(button).toBeInTheDocument();
     expect(button).toBeDisabled();
@@ -101,7 +101,7 @@ describe("ConnectButton Component", () => {
 
     expect(tooltipContent).toBeInTheDocument();
     expect(tooltipContent).toHaveTextContent(
-      "Please contact your workspace admin to connect your app to a git repo",
+      "Please contact your workspace admin to connect your artifact to a git repo",
     );
 
     // Icon should be rendered
@@ -118,7 +118,7 @@ describe("ConnectButton Component", () => {
       </ThemeProvider>,
     );
 
-    const button = screen.getByRole("button", { name: "Connect Git (Beta)" });
+    const button = screen.getByRole("button", { name: "Connect Git" });
 
     fireEvent.click(button);
 
