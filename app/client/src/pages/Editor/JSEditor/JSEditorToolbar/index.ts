@@ -1,4 +1,4 @@
-export { JSEditorToolbar } from "./JSEditorToolbar";
+export { JSEditorToolbar } from "ee/pages/Editor/JSEditor/JSEditorToolbar/JSEditorToolbar";
 
 export {
   type OnUpdateSettingsProps,

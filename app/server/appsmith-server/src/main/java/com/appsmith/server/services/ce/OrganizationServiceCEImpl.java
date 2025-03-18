@@ -14,6 +14,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,6 +31,8 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_DEFAULT_ORGANIZATION_SPAN;
@@ -39,8 +43,6 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Organization, String>
         implements OrganizationServiceCE {
-
-    private String defaultOrganizationId = null;
 
     private final ConfigService configService;
 
@@ -53,6 +55,10 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final CommonConfig commonConfig;
     private final ObservationRegistry observationRegistry;
 
+    private final UserOrganizationHelper userOrganizationHelper;
+
+    private final InstanceVariablesHelper instanceVariablesHelper;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -62,7 +68,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            UserOrganizationHelper userOrganizationHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -70,19 +78,13 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
+        this.userOrganizationHelper = userOrganizationHelper;
+        this.instanceVariablesHelper = instanceVariablesHelper;
     }
 
     @Override
     public Mono<String> getCurrentUserOrganizationId() {
-        // If the value exists in cache, return it as is
-        if (StringUtils.hasLength(defaultOrganizationId)) {
-            return Mono.just(defaultOrganizationId);
-        }
-        return repository.findBySlug(FieldName.DEFAULT).map(Organization::getId).map(organizationId -> {
-            // Set the cache value before returning.
-            this.defaultOrganizationId = organizationId;
-            return organizationId;
-        });
+        return userOrganizationHelper.getCurrentUserOrganizationId();
     }
 
     @Override
@@ -116,6 +118,11 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 .flatMap(tuple2 -> {
                     Organization organization = tuple2.getT2();
                     OrganizationConfiguration oldConfig = tuple2.getT1();
+                    List<Mono<Boolean>> sideEffectsMonos =
+                            calculateOrganizationConfigurationUpdateSideEffects(oldConfig, organizationConfiguration);
+
+                    Mono<List<Boolean>> allSideEffectsMono =
+                            Flux.fromIterable(sideEffectsMonos).flatMap(x -> x).collectList();
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
@@ -126,8 +133,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // hence it will not be evaluated again
                     return updatedOrganizationMono
                             .then(Mono.defer(() -> evictOrganizationCache))
+                            .then(Mono.defer(() -> allSideEffectsMono))
                             .then(updatedOrganizationMono);
                 });
+    }
+
+    protected List<Mono<Boolean>> calculateOrganizationConfigurationUpdateSideEffects(
+            OrganizationConfiguration oldConfig, OrganizationConfiguration organizationConfiguration) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -141,9 +154,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
-        Mono<Organization> clientOrganizationMono = configService
-                .getInstanceId()
-                .map(instanceId -> {
+        Mono<Organization> clientOrganizationMono = Mono.zip(
+                        configService.getInstanceId(), instanceVariablesHelper.getGoogleMapsKey())
+                .map(tuple -> {
+                    final String instanceId = tuple.getT1();
+                    final String googleMapsKey = tuple.getT2();
+
                     final Organization organization = new Organization();
                     organization.setInstanceId(instanceId);
                     organization.setAdminEmailDomainHash(adminEmailDomainHash);
@@ -151,7 +167,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     final OrganizationConfiguration config = new OrganizationConfiguration();
                     organization.setOrganizationConfiguration(config);
 
-                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+                    config.setGoogleMapsKey(googleMapsKey);
 
                     if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
                         config.addThirdPartyAuth("google");
@@ -243,6 +259,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
         // Only copy the values that are pertinent to the client
         organizationConfiguration.copyNonSensitiveValues(dbOrganization.getOrganizationConfiguration());
+        clientOrganization.setId(dbOrganization.getId());
         clientOrganization.setUserPermissions(dbOrganization.getUserPermissions());
 
         return Mono.just(clientOrganization);

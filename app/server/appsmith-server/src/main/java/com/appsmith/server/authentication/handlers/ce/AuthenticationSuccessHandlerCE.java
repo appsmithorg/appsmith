@@ -10,6 +10,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -26,7 +27,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -68,14 +68,16 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final OrganizationService organizationService;
     private final UserService userService;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+    private final InstanceVariablesHelper instanceVariablesHelper;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
-        Mono<Boolean> emailVerificationEnabledMono = organizationService
-                .getOrganizationConfiguration()
-                .map(organization -> organization.getOrganizationConfiguration().isEmailVerificationEnabled())
-                .cache();
+        Mono<Boolean> emailVerificationEnabledMono =
+                instanceVariablesHelper.isEmailVerificationEnabled().cache();
 
-        Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
+        Mono<User> userMono = organizationService
+                .getCurrentUserOrganizationId()
+                .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(userEmail, orgId))
+                .cache();
         Mono<Boolean> verificationRequiredMono = null;
 
         if ("signup".equals(method)) {
@@ -367,8 +369,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // In case no workspaces are found for the user, create a new default workspace
                         String email = ((User) authentication.getPrincipal()).getEmail();
 
-                        return userRepository
-                                .findByEmail(email)
+                        return organizationService
+                                .getCurrentUserOrganizationId()
+                                .flatMap(orgId -> userRepository.findByEmailAndOrganizationId(email, orgId))
                                 .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                                 .map(workspace -> {
                                     application.setWorkspaceId(workspace.getId());

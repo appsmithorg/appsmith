@@ -5,6 +5,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.AppsmithOAuth2AuthenticationException;
+import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,14 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
     private UserRepository repository;
     private UserService userService;
+    private UserOrganizationHelper userOrganizationHelper;
 
     @Autowired
-    public CustomOidcUserServiceCEImpl(UserRepository repository, UserService userService) {
+    public CustomOidcUserServiceCEImpl(
+            UserRepository repository, UserService userService, UserOrganizationHelper userOrganizationHelper) {
         this.repository = repository;
         this.userService = userService;
+        this.userOrganizationHelper = userOrganizationHelper;
     }
 
     @Override
@@ -82,8 +86,11 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
     }
 
     protected Mono<User> findByUsername(String email) {
-        return repository
-                .findByEmail(email)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email));
+        return userOrganizationHelper.getCurrentUserOrganizationId().flatMap(organizationId -> {
+            return repository
+                    .findByEmailAndOrganizationId(email, organizationId)
+                    .switchIfEmpty(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
+                            email, organizationId));
+        });
     }
 }

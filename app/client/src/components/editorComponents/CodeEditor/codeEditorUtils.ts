@@ -187,5 +187,9 @@ export const shouldShowAutocompleteWithBindingBrackets = (
   // Split the value by whitespace
   const stringSegments = value.split(/\s+/);
 
-  return stringSegments.length === 1;
+  const isOneWord = stringSegments.length === 1;
+
+  const hasDot = value.includes(".");
+
+  return isOneWord && !hasDot;
 };

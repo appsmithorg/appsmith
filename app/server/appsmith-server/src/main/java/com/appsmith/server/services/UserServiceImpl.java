@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -42,7 +43,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
-            UserServiceHelper userServiceHelper) {
+            UserServiceHelper userServiceHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(
                 validator,
                 repository,
@@ -59,6 +61,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 emailService,
                 rateLimitService,
                 pacConfigurationService,
-                userServiceHelper);
+                userServiceHelper,
+                instanceVariablesHelper);
     }
 }
