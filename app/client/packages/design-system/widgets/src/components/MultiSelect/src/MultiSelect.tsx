@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { useField } from "react-aria";
 import {
   DialogTrigger,
-  UNSTABLE_Autocomplete,
+  Autocomplete,
   useFilter,
   ButtonContext,
   type Selection,
@@ -141,7 +141,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
               }
               triggerRef={triggerRef}
             >
-              <UNSTABLE_Autocomplete filter={filter}>
+              <Autocomplete filter={filter}>
                 <TextField autoFocus className={styles.textField} />
                 <ListBox
                   className={styles.listBox}
@@ -171,7 +171,7 @@ export const MultiSelect = <T extends { label: string; value: string }>(
                     </ListBoxItem>
                   )}
                 </ListBox>
-              </UNSTABLE_Autocomplete>
+              </Autocomplete>
             </Popover>
           </DialogTrigger>
         </div>

@@ -43,7 +43,7 @@ import { getErrorCount } from "selectors/debuggerSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
 import { getReleaseFnCallingEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { Visualization } from "../../PluginActionEditor/components/PluginActionResponse/components/Visualization";
+import { Visualization } from "PluginActionEditor/components/PluginActionResponse/components/Visualization";
 
 const ResponseTabWrapper = styled.div`
   display: flex;

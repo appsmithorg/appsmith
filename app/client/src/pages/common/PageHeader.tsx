@@ -12,12 +12,6 @@ import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
-import { Switch, Tooltip } from "@appsmith/ads";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { setFeatureFlagOverrideValues } from "utils/storage";
-import { updateFeatureFlagOverrideAction } from "actions/featureFlagActions";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -41,20 +35,6 @@ const StyledPageHeader = styled(StyledHeader)<{
     `};
   ${({ isBannerVisible, isMobile }) =>
     isBannerVisible ? (isMobile ? `top: 70px;` : `top: 40px;`) : ""};
-
-  /* intentionally "hacky" approach to show the Anvil toggle in the header. This will be removed once all features work well with Anvil */
-  & .ads-v2-switch {
-    display: block;
-    width: 100%;
-    position: absolute;
-    left: 175px;
-    top: 12px;
-    width: 30px;
-    & > label {
-      min-width: 0;
-      flex-direction: row-reverse;
-    }
-  }
 `;
 
 interface PageHeaderProps {
@@ -81,25 +61,6 @@ export function PageHeader(props: PageHeaderProps) {
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
-  const shouldShowAnvilToggle = useFeatureFlag(
-    FEATURE_FLAG.release_anvil_toggle_enabled,
-  );
-
-  /*
-    If Anvil toggle is enabled, the switch allows us to enable or disable Anvil
-    We pass the anvil feature's value via the toggle. We also passthrough the original
-    anvil toggle feature flag value as-is.
-  */
-  function handleAnvilToggle(isSelected: boolean) {
-    const featureFlags = {
-      release_anvil_enabled: isSelected,
-      release_anvil_toggle_enabled: shouldShowAnvilToggle,
-    };
-
-    dispatch(updateFeatureFlagOverrideAction(featureFlags));
-    setFeatureFlagOverrideValues(featureFlags);
-  }
 
   return (
     <>
@@ -111,16 +72,6 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        {
-          // Based on a feature flag, show the switch that enables/disables Anvil
-          shouldShowAnvilToggle && (
-            <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
-              <Tooltip content="Toggles Anvil Layout System" trigger="hover">
-                <b>&alpha;</b>
-              </Tooltip>
-            </Switch>
-          )
-        }
         <EntitySearchBar user={user} />
       </StyledPageHeader>
     </>

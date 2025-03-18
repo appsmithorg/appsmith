@@ -25,6 +25,6 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
 
     cy.get(".t--widget-imagewidget").eq(0).click();
     //check if the entities are expanded
-    cy.get(`[data-guided-tour-id="explorer-entity-Image1"]`).should("exist");
+    cy.get(`[data-testid="t--entity-item-Image1"]`).should("exist");
   });
 });

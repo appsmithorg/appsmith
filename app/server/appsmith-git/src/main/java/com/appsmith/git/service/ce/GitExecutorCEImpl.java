@@ -9,6 +9,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -19,6 +20,7 @@ import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -91,6 +93,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
+    private final ObservationHelper observationHelper;
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -120,6 +123,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitAddSpan = observationHelper.createSpan(GitSpan.JGIT_ADD);
                                     log.debug("Trying to commit to local repo path, {}", path);
 
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
@@ -132,8 +136,10 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             .setUpdate(true)
                                             .addFilepattern(".")
                                             .call();
+                                    jgitAddSpan.end();
 
                                     // Commit the changes
+                                    Span jgitCommitSpan = observationHelper.createSpan(GitSpan.JGIT_COMMIT);
                                     git.commit()
                                             .setMessage(commitMessage)
                                             // Only make a commit if there are any updates
@@ -142,6 +148,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             .setCommitter(finalAuthorName, finalAuthorEmail)
                                             .setAmend(doAmend)
                                             .call();
+                                    jgitCommitSpan.end();
                                     processStopwatch.stopAndLogTimeInMillis();
                                     return "Committed successfully!";
                                 })
@@ -228,6 +235,7 @@ public class GitExecutorCEImpl implements GitExecutor {
             return Mono.using(
                             () -> Git.open(baseRepoPath.toFile()),
                             git -> Mono.fromCallable(() -> {
+                                        Span jgitPushSpan = observationHelper.createSpan(GitSpan.JGIT_PUSH);
                                         log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
                                                 + remoteUrl);
                                         // open the repo
@@ -258,6 +266,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         // UsernamePasswordCredentialsProvider("username",
                                         // "password"));
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        jgitPushSpan.end();
                                         return result.substring(0, result.length() - 1);
                                     })
                                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -286,6 +295,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
         return Mono.fromCallable(() -> {
+                    Span jgitCloneRepoSpan = observationHelper.createSpan(GitSpan.JGIT_CLONE_REPO);
                     log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
                     final TransportConfigCallback transportConfigCallback =
                             new SshTransportConfigCallback(privateKey, publicKey);
@@ -306,6 +316,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                         repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                     }
                     processStopwatch.stopAndLogTimeInMillis();
+                    jgitCloneRepoSpan.end();
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -323,6 +334,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCreateBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CREATE_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
@@ -335,7 +348,10 @@ public class GitExecutorCEImpl implements GitExecutor {
 
                                     repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                                     processStopwatch.stopAndLogTimeInMillis();
-                                    return git.getRepository().getBranch();
+                                    String branch = git.getRepository().getBranch();
+                                    jgitCreateBranchSpan.end();
+
+                                    return branch;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_CREATE_BRANCH)
@@ -353,6 +369,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitDeleteBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_DELETE_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
@@ -362,6 +380,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             .setForce(TRUE)
                                             .call();
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitDeleteBranchSpan.end();
                                     if (deleteBranchList.isEmpty()) {
                                         return Boolean.FALSE;
                                     }
@@ -382,6 +401,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCheckoutBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CHECKOUT_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Switching to the branch "
                                             + branchName);
                                     // We can safely assume that repo has been already initialised either in commit or
@@ -400,6 +421,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             .call()
                                             .getName();
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitCheckoutBranchSpan.end();
                                     return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/" + branchName);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -422,6 +444,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitPullSpan = observationHelper.createSpan(GitSpan.JGIT_PULL);
                                     log.debug(Thread.currentThread().getName() + ": Pull changes from remote  "
                                             + remoteUrl + " for the branch " + branchName);
                                     // checkout the branch on which the merge command is run
@@ -447,6 +470,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         mergeStatus.setMergeAble(true);
                                         mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        jgitPullSpan.end();
                                         return mergeStatus;
                                     } else {
                                         // If there are conflicts add the conflicting file names to the response
@@ -471,10 +495,11 @@ public class GitExecutorCEImpl implements GitExecutor {
                                                     mergeConflictFiles.toString());
                                         } finally {
                                             processStopwatch.stopAndLogTimeInMillis();
+                                            jgitPullSpan.end();
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -557,6 +582,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitStatusSpan = observationHelper.createSpan(GitSpan.JGIT_STATUS);
                                     log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath
                                             + ", branch " + branchName);
                                     Status status = git.status().call();
@@ -600,15 +626,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         response.setRemoteBranch("untracked");
                                     }
 
-                                    // Remove modified changes from current branch so that checkout to other branches
-                                    // will be possible
-                                    if (!status.isClean()) {
-                                        return resetToLastCommit(git).map(ref -> {
-                                            processStopwatch.stopAndLogTimeInMillis();
-                                            return response;
-                                        });
-                                    }
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitStatusSpan.end();
                                     return Mono.just(response);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -796,6 +815,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitMergeSpan = observationHelper.createSpan(GitSpan.JGIT_MERGE);
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                                             repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
                                     log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch
@@ -819,16 +839,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         git.getRepository().writeMergeHeads(null);
                                         processStopwatch.stopAndLogTimeInMillis();
                                         throw new Exception(e);
+                                    } finally {
+                                        jgitMergeSpan.end();
                                     }
                                 })
                                 .onErrorResume(error -> {
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(error.getMessage());
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+                                    return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_MERGE)
@@ -851,6 +867,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitFetchRemoteSpan = observationHelper.createSpan(GitSpan.JGIT_FETCH_REMOTE);
                                     TransportConfigCallback config =
                                             new SshTransportConfigCallback(privateKey, publicKey);
                                     String fetchMessages;
@@ -871,6 +888,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                                 .getMessages();
                                     }
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitFetchRemoteSpan.end();
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
@@ -893,6 +911,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitFetchRemoteSpan = observationHelper.createSpan(GitSpan.JGIT_FETCH_REMOTE);
                                     TransportConfigCallback config =
                                             new SshTransportConfigCallback(privateKey, publicKey);
                                     String fetchMessages;
@@ -912,6 +931,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             .getMessages();
 
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitFetchRemoteSpan.end();
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
@@ -993,19 +1013,6 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             mergeResult.getMergeStatus().name());
                                     return mergeStatus;
                                 })
-                                .flatMap(status -> {
-                                    try {
-                                        // Revert uncommitted changes if any
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .map(ignore -> {
-                                                    processStopwatch.stopAndLogTimeInMillis();
-                                                    return status;
-                                                });
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error for hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
-                                })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
                 .subscribeOn(scheduler);
@@ -1017,6 +1024,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCheckoutRemoteBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CHECKOUT_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/"
                                             + branchName + " for the repo " + repoSuffix);
                                     // open the repo
@@ -1033,7 +1042,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                                     config.setString("branch", branchName, "remote", "origin");
                                     config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
                                     config.save();
-                                    return git.getRepository().getBranch();
+                                    String branch = git.getRepository().getBranch();
+                                    jgitCheckoutRemoteBranchSpan.end();
+                                    return branch;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .tag(CHECKOUT_REMOTE, TRUE.toString())
@@ -1064,10 +1075,14 @@ public class GitExecutorCEImpl implements GitExecutor {
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                 git.getRepository().getDirectory().toPath().getParent(), AnalyticsEvents.GIT_RESET.getEventName());
         return Mono.fromCallable(() -> {
+                    Span jgitResetHardSpan = observationHelper.createSpan(GitSpan.JGIT_RESET_HARD);
                     // Remove tracked files
                     Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
+                    jgitResetHardSpan.end();
                     // Remove untracked files
+                    Span jgitCleanSpan = observationHelper.createSpan(GitSpan.JGIT_CLEAN);
                     git.clean().setForce(true).setCleanDirectories(true).call();
+                    jgitCleanSpan.end();
                     processStopwatch.stopAndLogTimeInMillis();
                     return ref;
                 })
@@ -1078,12 +1093,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) {
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
                         .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
+                        .thenReturn(true),
                 Git::close);
     }
 
@@ -1092,10 +1107,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .flatMap(aBoolean -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitResetHardSpan = observationHelper.createSpan(GitSpan.JGIT_RESET_HARD);
                                     git.reset()
                                             .setMode(ResetCommand.ResetType.HARD)
                                             .setRef("HEAD~1")
                                             .call();
+                                    jgitResetHardSpan.end();
                                     return true;
                                 })
                                 .onErrorResume(e -> {
@@ -1111,13 +1128,15 @@ public class GitExecutorCEImpl implements GitExecutor {
     }
 
     public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
-        return this.checkoutToBranch(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
+        return this.resetToLastCommit(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitRebaseSpan = observationHelper.createSpan(GitSpan.JGIT_REBASE);
                                     RebaseResult result = git.rebase()
                                             .setUpstream("origin/" + branchName)
                                             .call();
                                     if (result.getStatus().isSuccessful()) {
+                                        jgitRebaseSpan.end();
                                         return true;
                                     } else {
                                         log.error(
@@ -1128,6 +1147,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                                 .setUpstream("origin/" + branchName)
                                                 .setOperation(RebaseCommand.Operation.ABORT)
                                                 .call();
+                                        jgitRebaseSpan.end();
                                         throw new Exception("Error while rebasing the branch, "
                                                 + result.getStatus().name());
                                     }
@@ -1147,7 +1167,14 @@ public class GitExecutorCEImpl implements GitExecutor {
     public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
-                        git -> Mono.fromCallable(() -> BranchTrackingStatus.of(git.getRepository(), branchName))
+                        git -> Mono.fromCallable(() -> {
+                                    Span jgitBranchTrackingSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_BRANCH_TRACK);
+                                    BranchTrackingStatus branchTrackingStatus =
+                                            BranchTrackingStatus.of(git.getRepository(), branchName);
+                                    jgitBranchTrackingSpan.end();
+                                    return branchTrackingStatus;
+                                })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_BRANCH_TRACK)
                                 .tap(Micrometer.observation(observationRegistry)),

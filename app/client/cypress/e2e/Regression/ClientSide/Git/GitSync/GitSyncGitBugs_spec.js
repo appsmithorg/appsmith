@@ -158,7 +158,7 @@ describe(
 
       gitSync.CreateGitBranch(tempBranch, true);
       cy.wait(2000);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageList.VerifyIsCurrentPage("Page1");
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       // verify jsObject is not duplicated
       PageLeftPane.assertPresence(jsObject);
@@ -232,8 +232,8 @@ describe(
         cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
           "be.visible",
         );
-        // switch to Page1 copy and verify jsObject data binding
-        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        // switch to Page1 and verify jsObject data binding
+        PageList.VerifyIsCurrentPage("Page1");
         PageLeftPane.switchSegment(PagePaneSegment.JS);
         // verify jsObject is not duplicated
         PageLeftPane.assertPresence(jsObject);
