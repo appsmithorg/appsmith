@@ -70,8 +70,8 @@ const TabbedControls = (props: ControlProps) => {
 };
 
 /**
- * This component is used to configure the function calling for the AI assistant.
- * It allows the user to add, edit and delete functions that can be used by the AI assistant.
+ * This component is used to configure the custom actions for the external integration.
+ * It allows the user to add or update details for the custom action like method type, path, headers, params, body.
  */
 export class CustomActionsControl extends BaseControl<ControlProps> {
   getControlType(): ControlType {
