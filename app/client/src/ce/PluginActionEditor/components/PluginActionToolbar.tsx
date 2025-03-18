@@ -2,21 +2,16 @@ import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
-import { usePluginActionContext } from "../PluginActionContext";
+import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
-  useHandleGenerateSchemaClick,
-} from "../hooks";
+} from "PluginActionEditor/hooks";
 import { useSelector } from "react-redux";
-import {
-  isActionRunning,
-  isActionSaving,
-  isActionSchemaGenerating,
-} from "../store";
-import PluginActionSettings from "./PluginActionSettings";
-import { PluginActionContextMenu } from "./PluginActionContextMenu";
+import { isActionRunning } from "PluginActionEditor/store";
+import PluginActionSettings from "PluginActionEditor/components/PluginActionSettings";
+import { PluginActionContextMenu } from "PluginActionEditor/components/PluginActionContextMenu";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -24,15 +19,12 @@ interface PluginActionToolbarProps {
   menuContent?: React.ReactNode[] | React.ReactNode;
 }
 
-const PluginActionToolbar = (props: PluginActionToolbarProps) => {
+export const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
-  const { handleGenerateSchemaClick } = useHandleGenerateSchemaClick();
   const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const blockExecution = useBlockExecution();
   const isRunning = useSelector(isActionRunning(action.id));
-  const isSaving = useSelector(isActionSaving(action.id));
-  const isSchemaGenerating = useSelector(isActionSchemaGenerating(action.id));
 
   const onRunClick = useCallback(() => {
     callRunActionAnalytics();
@@ -51,7 +43,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
         >
           <Button
             data-testid="t--run-action"
-            isDisabled={blockExecution || isSchemaGenerating}
+            isDisabled={blockExecution}
             isLoading={isRunning}
             kind="primary"
             onClick={onRunClick}
@@ -60,16 +52,6 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             Run
           </Button>
         </Tooltip>
-        <Button
-          data-testid="t--schema-action"
-          isDisabled={blockExecution || isSaving}
-          isLoading={isSchemaGenerating}
-          kind="secondary"
-          onClick={handleGenerateSchemaClick}
-          size="sm"
-        >
-          Save
-        </Button>
         <PluginActionSettings />
         {props.menuContent ? (
           <PluginActionContextMenu
@@ -81,5 +63,3 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
     </IDEToolbar>
   );
 };
-
-export default PluginActionToolbar;
