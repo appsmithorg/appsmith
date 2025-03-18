@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
 import { JSFunctionRun } from "./components/JSFunctionRun";
 import type { JSActionDropdownOption, OnUpdateSettingsProps } from "./types";
@@ -12,6 +13,7 @@ import { convertJSActionsToDropdownOptions } from "./utils";
 import { JSObjectNameEditor } from "./JSObjectNameEditor";
 import { JSFunctionGenerateSchema } from "./components/JSFunctionGenerateSchema";
 import { Flex } from "@appsmith/ads";
+import { getIsAnvilLayoutEnabled } from "../../../../layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   changePermitted: boolean;
@@ -49,6 +51,7 @@ interface Props {
  */
 export const JSEditorToolbar = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   // Render the IDEToolbar with JSFunctionRun and JSFunctionSettings components
   return (
@@ -73,11 +76,15 @@ export const JSEditorToolbar = (props: Props) => {
             selected={props.selected}
             showTooltip={!props.selected.data}
           />
-          <JSFunctionGenerateSchema
-            disabled={props.disableGenerateSchemaFunctionality || props.loading}
-            isLoading={props.isGeneratingSchema}
-            onButtonClick={props.onGenerateSchemaButtonClick}
-          />
+          {isAnvilEnabled && (
+            <JSFunctionGenerateSchema
+              disabled={
+                props.disableGenerateSchemaFunctionality || props.loading
+              }
+              isLoading={props.isGeneratingSchema}
+              onButtonClick={props.onGenerateSchemaButtonClick}
+            />
+          )}
         </Flex>
         {props.showSettings ? (
           <ToolbarSettingsPopover
