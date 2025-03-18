@@ -649,8 +649,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       req.body.positioningType = "ANVIL";
       req.body.showNavbar = false;
     }
-
-    req.continue();
   }).as("createNewApplication");
   cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
