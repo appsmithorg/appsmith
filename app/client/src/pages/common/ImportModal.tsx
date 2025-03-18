@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect } from "react";
 import styled, { useTheme, css } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import {
   createMessage,
@@ -9,7 +9,6 @@ import {
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
-  IMPORT_FROM_GIT_DISABLED_IN_ANVIL,
   UPLOADING_JSON,
 } from "ee/constants/messages";
 import { FilePickerV2, FileType } from "@appsmith/ads-old";
@@ -19,17 +18,9 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
-import {
-  Callout,
-  Icon,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  Text,
-} from "@appsmith/ads";
+import { Icon, Modal, ModalContent, ModalHeader, Text } from "@appsmith/ads";
 import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import { gitToggleImportModal } from "git/store";
 
@@ -215,8 +206,6 @@ function ImportModal(props: ImportModalProps) {
     resetAppFileToBeUploaded,
     uploadingText,
   } = useMethods({ editorId, workspaceId });
-
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
@@ -281,15 +270,6 @@ function ImportModal(props: ImportModalProps) {
                 ? createMessage(UPLOADING_JSON)
                 : mainDescription}
           </Text>
-          {
-            // If Anvil is enabled, we disable the import via Git option.
-            // This callout informs the user of this.
-            isAnvilEnabled && (
-              <Callout kind="warning" onClose={() => {}}>
-                {createMessage(IMPORT_FROM_GIT_DISABLED_IN_ANVIL)}
-              </Callout>
-            )
-          }
         </TextWrapper>
 
         {!isImporting && (
@@ -309,9 +289,7 @@ function ImportModal(props: ImportModalProps) {
                 uploadIcon="file-line"
               />
             </FileImportCard>
-            {!toEditor && !isAnvilEnabled && (
-              <GitImportCard handler={onGitImport} />
-            )}
+            {!toEditor && <GitImportCard handler={onGitImport} />}
           </Row>
         )}
         {isImporting && (
