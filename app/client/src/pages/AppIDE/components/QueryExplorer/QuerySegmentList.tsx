@@ -89,7 +89,7 @@ export const ListQuery = () => {
                 items: items,
                 className: "",
                 renderList: (item: EntityItem) => {
-                  return <ActionEntityItem item={item} />;
+                  return <ActionEntityItem item={item} key={item.key} />;
                 },
               };
             })}

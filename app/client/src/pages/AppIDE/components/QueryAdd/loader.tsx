@@ -10,7 +10,7 @@ const LazyAddQuery = lazy(async () =>
 
 const QueryAdd = () => {
   return (
-    <Suspense fallback={Skeleton}>
+    <Suspense fallback={<Skeleton />}>
       <LazyAddQuery />
     </Suspense>
   );

@@ -227,7 +227,7 @@ describe(
           prettify: true,
         },
       );
-      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
+      jsEditor.EnableDisableAsyncFuncSettings("myFun1", true);
       deployMode.DeployApp();
       agHelper.Sleep(1000); //DeployApp already waiting 2000ms hence reducing it here to equate to 3000 timeout
       agHelper.AssertContains("Success!");

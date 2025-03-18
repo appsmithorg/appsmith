@@ -35,6 +35,7 @@
         "bottomRow": 20,
         "snapColumns": 16,
         "orientation": "VERTICAL",
+        "parentId": "0",
         "children": [
           {
             "backgroundColor": "transparent",
@@ -51,6 +52,7 @@
             "bottomRow": 532,
             "snapColumns": 16,
             "orientation": "VERTICAL",
+            "parentId": "jaftzrmtin",
             "children": [
               {
                 "widgetName": "Text1",

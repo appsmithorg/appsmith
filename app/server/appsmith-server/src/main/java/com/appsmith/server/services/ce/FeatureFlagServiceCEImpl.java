@@ -13,7 +13,6 @@ import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserIdentifierService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -39,9 +38,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
-    // TODO @CloudBilling: Remove once all the helper methods consuming @FeatureFlagged are converted to reactive
-    @Getter
-    private CachedFeatures cachedOrganizationFeatureFlags;
+    private Map<String, CachedFeatures> cachedOrganizationFeatureFlags = new HashMap<>();
 
     /**
      * This function checks if the feature is enabled for the current user. In case the user object is not present,
@@ -167,7 +164,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return cacheableFeatureFlagHelper
                 .fetchCachedOrganizationFeatures(organizationId)
                 .map(cachedFeatures -> {
-                    cachedOrganizationFeatureFlags = cachedFeatures;
+                    cachedOrganizationFeatureFlags.put(organizationId, cachedFeatures);
                     return cachedFeatures.getFeatures();
                 })
                 .switchIfEmpty(Mono.just(new HashMap<>()));
@@ -181,5 +178,9 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Organization> checkAndExecuteMigrationsForOrganizationFeatureFlags(Organization organization) {
         return organizationService.checkAndExecuteMigrationsForOrganizationFeatureFlags(organization);
+    }
+
+    public CachedFeatures getCachedOrganizationFeatureFlags(String organizationId) {
+        return this.cachedOrganizationFeatureFlags.getOrDefault(organizationId, new CachedFeatures());
     }
 }
