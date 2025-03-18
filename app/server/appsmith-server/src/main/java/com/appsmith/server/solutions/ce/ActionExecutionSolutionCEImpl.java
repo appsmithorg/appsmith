@@ -34,6 +34,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
@@ -761,28 +762,34 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorage datasourceStorage,
             Plugin plugin,
             PluginExecutor pluginExecutor) {
-
-        Mono<ActionExecutionResult> executionMono = authenticationValidator
+        Mono<DatasourceStorage> validatedDatasourceMono = authenticationValidator
                 .validateAuthentication(datasourceStorage)
-                .zipWhen(validatedDatasource -> datasourceContextService
+                .cache()
+                .name(VALIDATE_AUTHENTICATION_DATASOURCE_STORAGE)
+                .tap(Micrometer.observation(observationRegistry));
+
+        Mono<DatasourceContext<?>> datasourceContextMono =
+                validatedDatasourceMono.flatMap(validatedDatasource -> datasourceContextService
                         .getDatasourceContext(validatedDatasource, plugin)
                         .tag("plugin", plugin.getPackageName())
                         .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
-                        .tap(Micrometer.observation(observationRegistry)))
-                .zipWith(organizationService.getCurrentUserOrganizationId())
-                .flatMap(objects -> {
-                    DatasourceStorage datasourceStorage1 = objects.getT1().getT1();
-                    DatasourceContext<?> resourceContext = objects.getT1().getT2();
-                    String organizationId = objects.getT2();
+                        .tap(Micrometer.observation(observationRegistry)));
+
+        Mono<String> organizationIdMono = organizationService.getCurrentUserOrganizationId();
+
+        Mono<ActionExecutionResult> executionMono = Mono.zip(
+                        validatedDatasourceMono, datasourceContextMono, organizationIdMono)
+                .flatMap(tuple3 -> {
+                    DatasourceStorage datasourceStorage1 = tuple3.getT1();
+                    DatasourceContext<?> resourceContext = tuple3.getT2();
+                    String organizationId = tuple3.getT3();
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features =
-                            featureFlagService.getCachedOrganizationFeatureFlags(organizationId) != null
-                                    ? featureFlagService
-                                            .getCachedOrganizationFeatureFlags(organizationId)
-                                            .getFeatures()
-                                    : Collections.emptyMap();
+                    Map<String, Boolean> features = Optional.ofNullable(
+                                    featureFlagService.getCachedOrganizationFeatureFlags(organizationId))
+                            .map(CachedFeatures::getFeatures)
+                            .orElse(Collections.emptyMap());
 
                     // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
