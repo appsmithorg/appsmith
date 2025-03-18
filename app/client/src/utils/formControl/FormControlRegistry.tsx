@@ -47,6 +47,7 @@ import {
 } from "components/formControls/SliderControl";
 import { HybridSearchControl } from "components/formControls/HybridSearch";
 import FunctionCallingConfigControl from "components/formControls/FunctionCallingConfigControl";
+import { CustomActionsControl } from "components/formControls/CustomActionsConfigControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -237,6 +238,14 @@ class FormControlRegistry {
       {
         buildPropertyControl(controlProps): JSX.Element {
           return <FunctionCallingConfigControl {...controlProps} />;
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.CUSTOM_ACTIONS_CONFIG_FORM,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <CustomActionsControl {...controlProps} />;
         },
       },
     );
