@@ -499,7 +499,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -626,15 +626,6 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         response.setRemoteBranch("untracked");
                                     }
 
-                                    // Remove modified changes from current branch so that checkout to other branches
-                                    // will be possible
-                                    if (!status.isClean()) {
-                                        return resetToLastCommit(git).map(ref -> {
-                                            processStopwatch.stopAndLogTimeInMillis();
-                                            jgitStatusSpan.end();
-                                            return response;
-                                        });
-                                    }
                                     processStopwatch.stopAndLogTimeInMillis();
                                     jgitStatusSpan.end();
                                     return Mono.just(response);
@@ -853,13 +844,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                     }
                                 })
                                 .onErrorResume(error -> {
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(error.getMessage());
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+                                    return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_MERGE)
@@ -1028,19 +1013,6 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             mergeResult.getMergeStatus().name());
                                     return mergeStatus;
                                 })
-                                .flatMap(status -> {
-                                    try {
-                                        // Revert uncommitted changes if any
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .map(ignore -> {
-                                                    processStopwatch.stopAndLogTimeInMillis();
-                                                    return status;
-                                                });
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error for hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
-                                })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
                 .subscribeOn(scheduler);
@@ -1126,7 +1098,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
                         .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
+                        .thenReturn(true),
                 Git::close);
     }
 
