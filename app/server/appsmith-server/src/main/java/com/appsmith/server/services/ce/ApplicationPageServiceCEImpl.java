@@ -1045,9 +1045,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
                     return sendApplicationPublishedEvent(metaDTO);
                 })
-                .doOnNext(application -> postApplicationPublishHookCoordinatorService
-                        .executePostPublishHooks(applicationId)
-                        .subscribe())
+                .doOnNext(application ->
+                        postApplicationPublishHookCoordinatorService.executePostPublishHooks(applicationId))
                 .elapsed()
                 .map(objects -> {
                     log.debug(
