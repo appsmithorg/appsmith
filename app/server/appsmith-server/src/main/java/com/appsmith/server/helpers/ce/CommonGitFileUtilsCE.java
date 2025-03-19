@@ -395,13 +395,14 @@ public class CommonGitFileUtilsCE {
                         actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                 .forEach(actionCollection -> {
                     ActionCollectionDTO collection = actionCollection.getUnpublishedCollection();
+                    final String collectionName = collection.getUserExecutableName();
                     final String filePathPrefix = getContextDirectoryByType(collection.getContextType())
                             + DELIMITER_PATH
                             + collection.calculateContextId()
                             + DELIMITER_PATH
                             + ACTION_COLLECTION_DIRECTORY
                             + DELIMITER_PATH
-                            + collection.getUserExecutableName()
+                            + collectionName
                             + DELIMITER_PATH;
                     String body = collection.getBody();
                     collection.setBody(null);
@@ -413,7 +414,7 @@ public class CommonGitFileUtilsCE {
                     resourceMap.put(collectionConfigIdentity, actionCollection);
 
                     if (body != null) {
-                        String dataFilePath = filePathPrefix + collection.getName() + JS_EXTENSION;
+                        String dataFilePath = filePathPrefix + collectionName + JS_EXTENSION;
                         GitResourceIdentity collectionDataIdentity = new GitResourceIdentity(
                                 GitResourceType.JSOBJECT_DATA, actionCollection.getGitSyncId(), dataFilePath);
                         resourceMap.put(collectionDataIdentity, body);
