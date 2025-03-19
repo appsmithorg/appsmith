@@ -3,12 +3,13 @@ import { FixedSizeList, areEqual } from "react-window";
 import React, { type Ref, useMemo } from "react";
 import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING, TEXT_SIZES } from "constants/WidgetConstants";
 import { Row } from "./Row";
 import type { TableSizes } from "../Constants";
 import type SimpleBar from "simplebar-react";
 import { EmptyRows } from "../cellComponents/EmptyCell";
 import { Text } from "@appsmith/ads";
+import { Colors } from "constants/Colors";
 
 const MemoizedRow = React.memo(
   function RowComponent({
@@ -36,18 +37,23 @@ const MemoizedRow = React.memo(
     } else if (index === data.length && hasMoreData) {
       return (
         <div
+          aria-label="Load more records"
+          className="flex items-center justify-start cursor-pointer z-[1000]"
           onClick={loadMore}
-          style={{
-            ...style,
-            display: "flex",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            paddingLeft: "10px",
-            cursor: "pointer",
-            zIndex: 1000,
-          }}
+          role="button"
+          style={{ ...style }}
+          tabIndex={0}
         >
-          <Text>Load More</Text>
+          <Text
+            className="underline pl-[10px]"
+            style={{
+              fontWeight: "var(--ads-v2-font-weight-normal)",
+              fontSize: TEXT_SIZES.PARAGRAPH,
+              color: Colors.GRAY,
+            }}
+          >
+            Load More
+          </Text>
         </div>
       );
     } else {
