@@ -334,9 +334,8 @@ public class CommonGitFileUtilsCE {
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
                 .peek(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .forEach(newAction -> {
-                    removeUnwantedFieldFromAction(newAction);
                     ActionDTO action = newAction.getUnpublishedAction();
-                    final String actionFileName = action.getValidName().replace(".", "-");
+                    final String actionFileName = action.getUserExecutableName().replace(".", "-");
                     final String filePathPrefix = getContextDirectoryByType(action.getContextType())
                             + DELIMITER_PATH
                             + action.calculateContextId()
@@ -373,6 +372,8 @@ public class CommonGitFileUtilsCE {
                                 new GitResourceIdentity(GitResourceType.QUERY_DATA, newAction.getGitSyncId(), filePath);
                         resourceMap.put(actionDataIdentity, body);
                     }
+
+                    removeUnwantedFieldFromAction(newAction);
                     final String filePath = filePathPrefix + METADATA + JSON_EXTENSION;
                     GitResourceIdentity actionConfigIdentity =
                             new GitResourceIdentity(GitResourceType.QUERY_CONFIG, newAction.getGitSyncId(), filePath);
@@ -393,7 +394,6 @@ public class CommonGitFileUtilsCE {
                 .peek(actionCollection ->
                         actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                 .forEach(actionCollection -> {
-                    removeUnwantedFieldFromActionCollection(actionCollection);
                     ActionCollectionDTO collection = actionCollection.getUnpublishedCollection();
                     final String filePathPrefix = getContextDirectoryByType(collection.getContextType())
                             + DELIMITER_PATH
@@ -401,11 +401,12 @@ public class CommonGitFileUtilsCE {
                             + DELIMITER_PATH
                             + ACTION_COLLECTION_DIRECTORY
                             + DELIMITER_PATH
-                            + collection.getName()
+                            + collection.getUserExecutableName()
                             + DELIMITER_PATH;
                     String body = collection.getBody();
                     collection.setBody(null);
 
+                    removeUnwantedFieldFromActionCollection(actionCollection);
                     String configFilePath = filePathPrefix + METADATA + JSON_EXTENSION;
                     GitResourceIdentity collectionConfigIdentity = new GitResourceIdentity(
                             GitResourceType.JSOBJECT_CONFIG, actionCollection.getGitSyncId(), configFilePath);
