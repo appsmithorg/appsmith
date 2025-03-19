@@ -42,6 +42,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.postpublishhooks.base.PostPublishHookCoordinatorService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -131,6 +132,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
     private final ObservationRegistry observationRegistry;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    private final PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -1042,6 +1045,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
                     return sendApplicationPublishedEvent(metaDTO);
                 })
+                .doOnNext(application -> postApplicationPublishHookCoordinatorService
+                        .executePostPublishHooks(applicationId)
+                        .subscribe())
                 .elapsed()
                 .map(objects -> {
                     log.debug(

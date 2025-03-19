@@ -5,12 +5,14 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.postpublishhooks.base.PostPublishHookCoordinatorService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -62,7 +64,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService,
             ObservationRegistry observationRegistry,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            PostPublishHookCoordinatorService<Application> postApplicationPublishHookCoordinatorService) {
         super(
                 workspaceService,
                 applicationService,
@@ -92,6 +95,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 actionClonePageService,
                 actionCollectionClonePageService,
                 observationRegistry,
-                cacheableRepositoryHelper);
+                cacheableRepositoryHelper,
+                postApplicationPublishHookCoordinatorService);
     }
 }
