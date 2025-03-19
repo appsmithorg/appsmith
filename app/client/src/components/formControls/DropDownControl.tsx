@@ -468,7 +468,7 @@ function renderDropdown(
           configProperty={props.configProperty}
           onSelectOptions={onSelectOptions}
           options={options}
-          pluginId={props.formValues.pluginId}
+          pluginId={get(props.formValues, "pluginId")}
         />
       }
       onClear={clearAllOptions}
