@@ -28,18 +28,16 @@ export default function NoSearchCommandFound({
     plugin?.type === PluginType.EXTERNAL_SAAS &&
     configProperty.includes("command");
 
-  const onClick = () => {
-    const customActionOption = options.find((option) =>
-      option.label.toLowerCase().includes("custom action"),
-    );
+  const customActionOption = options.find((option) =>
+    option.label.toLowerCase().includes("custom action"),
+  );
 
-    if (customActionOption?.value) {
-      onSelectOptions(customActionOption?.value);
-      document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-    }
+  const onClick = () => {
+    onSelectOptions(customActionOption!.value);
+    document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   };
 
-  if (isExternalSaasPluginCommandDropdown) {
+  if (isExternalSaasPluginCommandDropdown && customActionOption) {
     return (
       <Flex
         alignItems="center"
