@@ -52,13 +52,9 @@ export class EntityExplorer {
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   public _contextMenu = (entityNameinLeftSidebar: string) =>
-    "//div[text()='" +
+    "//span[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
-  _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']";
+    "']/parent::div/following-sibling::div//button";
 
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
@@ -72,6 +68,7 @@ export class EntityExplorer {
   _widgetTagSuggestedWidgets = ".widget-tag-collapsible-suggested";
   _widgetTagBuildingBlocks = ".widget-tag-collapsible-building-blocks";
   _widgetSeeMoreButton = "[data-testid='t--explorer-ui-entity-tag-see-more']";
+  _entityAddButton = ".t--entity-add-btn";
   _entityName = ".t--entity-name";
 
   public ActionContextMenuByEntityName({
@@ -103,7 +100,7 @@ export class EntityExplorer {
         toastToValidate: toastToValidate,
       });
     }
-    if (entityType === EntityItems.Page) {
+    if (entityType === EntityItems.Page && action !== "Rename") {
       PageList.HideList();
     }
   }
@@ -121,28 +118,43 @@ export class EntityExplorer {
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
-    this.agHelper.AssertTooltip(tooltipText.concat(" is already being used."));
+    this.agHelper.AssertTooltip(
+      tooltipText.concat(" is already being used or is a restricted keyword."),
+    );
+  }
+
+  private deleteQueryUnderDatasource(dsName: string) {
+    return cy.get("body").then(($body) => {
+      if ($body.find(`span:contains('${dsName}')`).length === 0) return;
+
+      return this.agHelper
+        .GetElement(this._visibleTextSpan(dsName))
+        .siblings()
+        .children()
+        .then(($items) => {
+          if ($items.length > 0) {
+            cy.wrap($items[0])
+              .find("button[data-testid='t--entity-context-menu-trigger']")
+              .click({
+                force: true,
+              });
+            cy.xpath(this.locator._contextMenuItem("Delete")).click({
+              force: true,
+            });
+            this.agHelper.GetNClick(
+              this.locator._contextMenuItem("Are you sure?"),
+            );
+            cy.wait(500);
+            this.deleteQueryUnderDatasource(dsName);
+          }
+        });
+    });
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    this.agHelper
-      .GetElement(this._visibleTextSpan(dsName))
-      .parent()
-      .siblings()
-      .each(($el: any) => {
-        cy.wrap($el)
-          .find(".t--entity-name")
-          .invoke("text")
-          .then(($query) => {
-            this.ActionContextMenuByEntityName({
-              entityNameinLeftSidebar: $query as string,
-              action: "Delete",
-              entityType: EntityItems.Query,
-            });
-          });
-      });
+    this.deleteQueryUnderDatasource(dsName);
   }
 
   public SearchWidgetPane(widgetType: string) {
@@ -266,17 +278,24 @@ export class EntityExplorer {
     entityType?: EntityItemsType,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    if (entityType === EntityItems.Page && !viaMenu) {
-      PageList.ShowList();
-    }
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
         action: "Rename",
         entityType,
       });
-    else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
-    cy.xpath(this.locator._entityNameEditing(entityName))
+    else {
+      if (entityType === EntityItems.Page) {
+        PageList.ShowList();
+        cy.get(this.locator._entityTestId(entityName)).click();
+        PageList.ShowList();
+        cy.get(this.locator._entityTestId(entityName)).dblclick();
+      } else {
+        cy.get(this.locator._entityTestId(entityName)).dblclick();
+      }
+    }
+    cy.get(this.locator._entityNameEditing)
+      .clear()
       .type(renameVal)
       .wait(500)
       .type("{enter}")

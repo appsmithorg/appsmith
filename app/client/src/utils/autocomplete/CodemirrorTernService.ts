@@ -7,8 +7,10 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import {
+  EditorModes,
+  type FieldEntityInformation,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
@@ -517,8 +519,8 @@ class CodeMirrorTernService {
     const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
-    const fieldIsJSAction =
-      this.fieldEntityInformation.entityType === ENTITY_TYPE.JSACTION;
+    const fieldIsJSField =
+      this.fieldEntityInformation.mode === EditorModes.JAVASCRIPT;
 
     let completions: Completion<TernCompletionResult>[] = [];
     let after = "";
@@ -593,7 +595,7 @@ class CodeMirrorTernService {
         isEntityName: isCompletionADataTreeEntityName,
       };
 
-      if (!isCursorInsideBinding && !fieldIsJSAction) {
+      if (!isCursorInsideBinding && !fieldIsJSField) {
         codeMirrorCompletion.displayText = `{{${codeMirrorCompletion.displayText}}}`;
         codeMirrorCompletion.text = `{{${codeMirrorCompletion.text}}}`;
       }
@@ -645,7 +647,7 @@ class CodeMirrorTernService {
       this.defEntityInformation.get(
         this.fieldEntityInformation.entityName || "",
       ),
-      !fieldIsJSAction,
+      !fieldIsJSField,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;

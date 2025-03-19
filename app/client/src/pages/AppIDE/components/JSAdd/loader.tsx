@@ -10,7 +10,7 @@ const LazyAddJS = lazy(async () =>
 
 const AddJS = () => {
   return (
-    <Suspense fallback={Skeleton}>
+    <Suspense fallback={<Skeleton />}>
       <LazyAddJS />
     </Suspense>
   );

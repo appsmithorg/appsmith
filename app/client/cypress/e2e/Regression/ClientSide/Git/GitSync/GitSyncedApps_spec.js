@@ -119,7 +119,7 @@ describe(
       entityExplorer.RenameEntityFromExplorer(
         "Page1",
         pageName,
-        false,
+        true,
         EntityItems.Page,
       );
       PageList.ClonePage(pageName);

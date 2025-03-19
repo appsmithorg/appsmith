@@ -102,7 +102,7 @@ export const WidgetContextMenu = (props: {
     <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
       <MenuTrigger>
         <Button
-          data-testid="t--more-action-trigger"
+          data-testid="t--entity-context-menu-trigger"
           isIconButton
           kind="tertiary"
           startIcon="more-2-fill"

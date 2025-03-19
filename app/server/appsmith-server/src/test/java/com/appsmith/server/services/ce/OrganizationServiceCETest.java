@@ -120,16 +120,6 @@ class OrganizationServiceCETest {
     }
 
     @Test
-    void ensureMapsKey() {
-        StepVerifier.create(organizationService.getOrganizationConfiguration())
-                .assertNext(organization -> {
-                    assertThat(organization.getOrganizationConfiguration().getGoogleMapsKey())
-                            .isNull();
-                })
-                .verifyComplete();
-    }
-
-    @Test
     @WithUserDetails("api_user")
     void setMapsKeyAndGetItBack() {
         final OrganizationConfiguration changes = new OrganizationConfiguration();

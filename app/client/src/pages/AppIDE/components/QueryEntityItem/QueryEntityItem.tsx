@@ -50,7 +50,10 @@ export const QueryEntityItem = ({ item }: { item: EntityItemProps }) => {
   const dispatch = useDispatch();
   const contextMenu = useMemo(
     () => (
-      <EntityContextMenu dataTestId="t--entity-context-menu-trigger">
+      <EntityContextMenu
+        dataTestId="t--entity-context-menu-trigger"
+        key={action.id}
+      >
         <AppQueryContextMenuItems action={action} />
       </EntityContextMenu>
     ),

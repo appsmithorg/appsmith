@@ -1,7 +1,5 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import { PagePaneSegment } from "../EditorNavigation";
 import AddView from "./AddView";
-import FileTabs from "./FileTabs";
 import ListView from "./ListView";
 
 export class LeftPane {
@@ -11,11 +9,10 @@ export class LeftPane {
   locators = {
     segment: (name: string) => "//span[text()='" + name + "']/ancestor::div",
     expandCollapseArrow: (name: string) =>
-      "//div[text()='" +
-      name +
-      "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
+      `//span[contains(@class, 't--entity-name')][text()="${name}"]/ancestor::div//*[@data-testid="t--entity-collapse-toggle"]`,
     activeItemSelector: "",
     selector: "",
+    entityItem: (name: string) => `div[data-testid='t--entity-item-${name}']`,
   };
   public listView: ListView;
 
@@ -41,7 +38,7 @@ export class LeftPane {
 
   public assertPresence(name: string) {
     ObjectsRegistry.AggregateHelper.AssertElementLength(
-      this.listItemSelector(name),
+      this.locators.entityItem(name),
       1,
     );
   }
@@ -79,10 +76,11 @@ export class LeftPane {
       this.locators.expandCollapseArrow(itemName),
     );
     cy.xpath(this.locators.expandCollapseArrow(itemName))
-      .invoke("attr", "id")
+      .invoke("attr", "data-icon")
       .then((state) => {
         const closed = state === "arrow-right-s-line";
         const opened = state === "arrow-down-s-line";
+
         if ((expand && closed) || (!expand && opened)) {
           ObjectsRegistry.AggregateHelper.GetNClick(
             this.locators.expandCollapseArrow(itemName),
@@ -90,6 +88,7 @@ export class LeftPane {
         }
       });
   }
+
   public selectedItem(
     exists?: "exist" | "not.exist" | "noVerify",
   ): Cypress.Chainable {

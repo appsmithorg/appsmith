@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -104,6 +105,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PACConfigurationService pacConfigurationService;
 
     private final UserServiceHelper userPoliciesComputeHelper;
+    private final InstanceVariablesHelper instanceVariablesHelper;
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -134,7 +136,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
-            UserServiceHelper userServiceHelper) {
+            UserServiceHelper userServiceHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
 
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -150,6 +153,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.emailService = emailService;
         this.userPoliciesComputeHelper = userServiceHelper;
         this.pacConfigurationService = pacConfigurationService;
+        this.instanceVariablesHelper = instanceVariablesHelper;
     }
 
     @Override
@@ -789,10 +793,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     if (TRUE.equals(user.getEmailVerified())) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
                     }
-                    return organizationService.getOrganizationConfiguration().flatMap(organization -> {
-                        Boolean emailVerificationEnabled =
-                                organization.getOrganizationConfiguration().isEmailVerificationEnabled();
-                        // Email verification not enabled at organization level
+                    return instanceVariablesHelper.isEmailVerificationEnabled().flatMap(emailVerificationEnabled -> {
+                        // Email verification not enabled at instance level
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
                                     new AppsmithException(AppsmithError.ORGANIZATION_EMAIL_VERIFICATION_NOT_ENABLED));
