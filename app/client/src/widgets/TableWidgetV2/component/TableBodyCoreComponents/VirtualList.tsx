@@ -18,8 +18,8 @@ const MemoizedRow = React.memo(
     loadMore,
     style,
   }: ListChildComponentProps & {
-    loadMore: () => void;
-    hasMoreData: boolean;
+    loadMore?: () => void;
+    hasMoreData?: boolean;
   }) {
     if (index < data.length) {
       const row = data[index];
@@ -72,12 +72,12 @@ interface BaseVirtualListProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   innerElementType?: ReactElementType;
   outerRef: Ref<SimpleBar>;
-  loadMore: () => void;
-  hasMoreData: boolean;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
   infiniteLoaderListRef?: React.Ref<FixedSizeList>;
   itemCount: number;
   pageSize: number;
+  loadMore?: () => void;
+  hasMoreData?: boolean;
 }
 
 const LOAD_MORE_BUTON_ROW = 1;
