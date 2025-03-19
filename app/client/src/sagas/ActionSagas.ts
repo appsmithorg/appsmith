@@ -485,6 +485,31 @@ export function* fetchActionsForPageSaga(
   }
 }
 
+export function* fetchAIAgentActionsForPageSaga() {
+  const pageId: string = yield select(getCurrentPageId);
+
+  try {
+    const response: ApiResponse<Action[]> = yield call(
+      ActionAPI.fetchActionsByPageId,
+      pageId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const aiAgentActions = response.data.filter(
+        (action) => action.pluginType === PluginType.AI,
+      );
+
+      yield put(fetchActionsForPageSuccess(aiAgentActions));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     let action: Action = yield select(getAction, actionPayload.payload.id);
@@ -1247,6 +1272,20 @@ export function* watchActionSagas() {
     takeLatest(
       ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
       handleCreateNewQueryFromActionCreator,
+    ),
+    // This is required for Function Callings.
+    // Every time a new actions/jsFunction is create/removed/updated,
+    // it have to be added to/remove from/update in all AIAgent query Function Calling configs.
+    // That is done on the backend. To get the updated list of AIAgent queries, we need to refetch them.
+    // Since there is no endpoint to fetch only AIAgent actions for a page we refetch them all.
+    takeLatest(
+      [
+        ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
+        ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
+        ReduxActionTypes.CREATE_ACTION_SUCCESS,
+        ReduxActionTypes.DELETE_ACTION_SUCCESS,
+      ],
+      fetchAIAgentActionsForPageSaga,
     ),
   ]);
 }
