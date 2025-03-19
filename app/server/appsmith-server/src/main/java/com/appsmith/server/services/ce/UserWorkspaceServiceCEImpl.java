@@ -398,7 +398,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      * @return Mono of list of workspaces
      */
     @Override
-    public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder(String hostname) {
+    public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder() {
 
         Mono<List<String>> workspaceIdsMono = userDataService
                 .getForCurrentUser()
