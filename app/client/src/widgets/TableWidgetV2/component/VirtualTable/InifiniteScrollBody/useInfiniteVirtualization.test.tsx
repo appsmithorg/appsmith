@@ -247,6 +247,7 @@ describe("useInfiniteVirtualization", () => {
         loadMore,
         pageSize,
         totalRecordsCount,
+        rows: createMockRows(totalRecordsCount), // Fill with all records to simulate reaching max pages
       }),
     );
 
