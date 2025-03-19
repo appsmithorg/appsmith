@@ -1,12 +1,12 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type {
   ListChildComponentProps,
   ListOnItemsRenderedProps,
   ReactElementType,
 } from "react-window";
-import { VariableSizeList } from "react-window";
+import { VariableSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
 import type { TableSizes } from "../Constants";
 import { Row } from "../TableBodyCoreComponents/Row";
@@ -18,29 +18,45 @@ type ExtendedListChildComponentProps = ListChildComponentProps & {
   rowNeedsMeasurement: React.RefObject<{ [key: number]: boolean }>;
 };
 
-const rowRenderer = (rowProps: ExtendedListChildComponentProps) => {
-  const { data, index, listRef, rowHeights, rowNeedsMeasurement, style } =
-    rowProps;
+// Create a memoized row component using areEqual from react-window
+const MemoizedRow = React.memo(
+  (rowProps: ExtendedListChildComponentProps) => {
+    const { data, index, listRef, rowHeights, rowNeedsMeasurement, style } =
+      rowProps;
 
-  if (index < data.length) {
-    const row = data[index];
+    if (index < data.length) {
+      const row = data[index];
 
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        listRef={listRef}
-        row={row}
-        rowHeights={rowHeights}
-        rowNeedsMeasurement={rowNeedsMeasurement}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRows rows={1} style={style} />;
-  }
-};
+      return (
+        <Row
+          className="t--virtual-row"
+          index={index}
+          key={index}
+          listRef={listRef}
+          row={row}
+          rowHeights={rowHeights}
+          rowNeedsMeasurement={rowNeedsMeasurement}
+          style={style}
+        />
+      );
+    } else {
+      return <EmptyRows rows={1} style={style} />;
+    }
+  },
+  (prevProps, nextProps) => {
+    // Check if any of the ref props have changed
+    if (
+      prevProps.listRef !== nextProps.listRef ||
+      prevProps.rowHeights !== nextProps.rowHeights ||
+      prevProps.rowNeedsMeasurement !== nextProps.rowNeedsMeasurement
+    ) {
+      return false;
+    }
+
+    // For all other props, use react-window's areEqual
+    return areEqual(prevProps, nextProps);
+  },
+);
 
 export interface BaseVirtualListProps {
   height: number;
@@ -99,6 +115,18 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
     [rowHeights?.current, tableSizes.ROW_HEIGHT],
   );
 
+  // Memoize the row renderer function
+  const rowRenderer = useMemo(() => {
+    return (props: ListChildComponentProps) => (
+      <MemoizedRow
+        {...props}
+        listRef={listRef}
+        rowHeights={rowHeights}
+        rowNeedsMeasurement={rowNeedsMeasurement}
+      />
+    );
+  }, [listRef, rowHeights, rowNeedsMeasurement]);
+
   return (
     <VariableSizeList
       className="virtual-list simplebar-content"
@@ -117,14 +145,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
       ref={combinedRef}
       width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
     >
-      {(props) =>
-        rowRenderer({
-          ...props,
-          listRef,
-          rowHeights,
-          rowNeedsMeasurement,
-        })
-      }
+      {rowRenderer}
     </VariableSizeList>
   );
 });
