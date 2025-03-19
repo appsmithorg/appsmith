@@ -1,6 +1,6 @@
 import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
 import { FixedSizeList, areEqual } from "react-window";
-import React, { type Ref } from "react";
+import React, { type Ref, useMemo } from "react";
 import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -8,26 +8,63 @@ import { Row } from "./Row";
 import type { TableSizes } from "../Constants";
 import type SimpleBar from "simplebar-react";
 import { EmptyRows } from "../cellComponents/EmptyCell";
+import { Text } from "@appsmith/ads";
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
+const MemoizedRow = React.memo(
+  function RowComponent({
+    data,
+    hasMoreData,
+    index,
+    loadMore,
+    style,
+  }: ListChildComponentProps & {
+    loadMore: () => void;
+    hasMoreData: boolean;
+  }) {
+    if (index < data.length) {
+      const row = data[index];
 
-  if (index < data.length) {
-    const row = data[index];
+      return (
+        <Row
+          className="t--virtual-row"
+          index={index}
+          key={index}
+          row={row}
+          style={style}
+        />
+      );
+    } else if (index === data.length && hasMoreData) {
+      return (
+        <div
+          onClick={loadMore}
+          style={{
+            ...style,
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            paddingLeft: "10px",
+            cursor: "pointer",
+            zIndex: 1000,
+          }}
+        >
+          <Text>Load More</Text>
+        </div>
+      );
+    } else {
+      return <EmptyRows rows={1} style={style} />;
+    }
+  },
+  (prevProps, nextProps) => {
+    if (
+      prevProps.loadMore !== nextProps.loadMore ||
+      prevProps.hasMoreData !== nextProps.hasMoreData
+    ) {
+      return false;
+    }
 
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        row={row}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRows rows={1} style={style} />;
-  }
-}, areEqual);
+    return areEqual(prevProps, nextProps);
+  },
+);
 
 interface BaseVirtualListProps {
   height: number;
@@ -35,22 +72,42 @@ interface BaseVirtualListProps {
   rows: ReactTableRowType<Record<string, unknown>>[];
   innerElementType?: ReactElementType;
   outerRef: Ref<SimpleBar>;
+  loadMore: () => void;
+  hasMoreData: boolean;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
   infiniteLoaderListRef?: React.Ref<FixedSizeList>;
   itemCount: number;
   pageSize: number;
 }
 
+const LOAD_MORE_BUTON_ROW = 1;
+
 const BaseVirtualList = React.memo(function BaseVirtualList({
+  hasMoreData,
   height,
   infiniteLoaderListRef,
   innerElementType,
   itemCount,
+  loadMore,
   onItemsRendered,
   outerRef,
   rows,
   tableSizes,
 }: BaseVirtualListProps) {
+  const rowsWithLoadMore = React.useMemo(() => {
+    return Object.assign(rows, { loadMore, hasMoreData });
+  }, [rows, loadMore, hasMoreData]);
+
+  const rowRenderer = useMemo(() => {
+    return (rowProps: ListChildComponentProps) => (
+      <MemoizedRow
+        {...rowProps}
+        hasMoreData={hasMoreData}
+        loadMore={loadMore}
+      />
+    );
+  }, [loadMore, hasMoreData]);
+
   return (
     <FixedSizeList
       className="virtual-list simplebar-content"
@@ -60,8 +117,8 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
         2 * tableSizes.VERTICAL_PADDING
       }
       innerElementType={innerElementType}
-      itemCount={itemCount}
-      itemData={rows}
+      itemCount={hasMoreData ? itemCount + LOAD_MORE_BUTON_ROW : itemCount}
+      itemData={rowsWithLoadMore}
       itemSize={tableSizes.ROW_HEIGHT}
       onItemsRendered={onItemsRendered}
       outerRef={outerRef}

@@ -1,10 +1,9 @@
 import React, { type Ref } from "react";
 import { type ReactElementType } from "react-window";
-import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
+import { LoadingIndicator } from "../../LoadingIndicator";
 import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
-import { LoadingIndicator } from "../../LoadingIndicator";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
 interface InfiniteScrollBodyProps {
@@ -22,37 +21,26 @@ const InfiniteScrollBodyComponent = React.forwardRef(
       tableSizes,
       totalRecordsCount,
     } = useAppsmithTable();
-    const { cachedRows, isItemLoaded, itemCount, loadMoreItems } =
-      useInfiniteVirtualization({
-        rows,
-        totalRecordsCount,
-        isLoading,
-        loadMore: nextPageClick,
-        pageSize,
-      });
+    const { cachedRows, hasMoreData, itemCount } = useInfiniteVirtualization({
+      rows,
+      totalRecordsCount,
+      loadMore: nextPageClick,
+      pageSize,
+    });
 
     return (
       <div className="simplebar-content-wrapper">
-        <InfiniteLoader
-          isItemLoaded={isItemLoaded}
+        <FixedInfiniteVirtualList
+          hasMoreData={hasMoreData}
+          height={height}
+          innerElementType={props.innerElementType}
           itemCount={itemCount}
-          loadMoreItems={loadMoreItems}
-          minimumBatchSize={pageSize}
-        >
-          {({ onItemsRendered, ref: infiniteLoaderRef }) => (
-            <FixedInfiniteVirtualList
-              height={height}
-              infiniteLoaderListRef={infiniteLoaderRef}
-              innerElementType={props.innerElementType}
-              itemCount={itemCount}
-              onItemsRendered={onItemsRendered}
-              outerRef={ref}
-              pageSize={pageSize}
-              rows={cachedRows}
-              tableSizes={tableSizes}
-            />
-          )}
-        </InfiniteLoader>
+          loadMore={nextPageClick}
+          outerRef={ref}
+          pageSize={pageSize}
+          rows={cachedRows}
+          tableSizes={tableSizes}
+        />
         {isLoading && <LoadingIndicator />}
       </div>
     );
