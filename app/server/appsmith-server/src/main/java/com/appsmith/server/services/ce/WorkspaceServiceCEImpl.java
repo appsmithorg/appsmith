@@ -618,4 +618,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     public Flux<Workspace> getAll(AclPermission permission) {
         return repository.findAll(permission);
     }
+
+    @Override
+    public Flux<Workspace> retrieveAll() {
+        return repository.retrieveAll();
+    }
 }

@@ -20,6 +20,16 @@ export const isActionDirty = (id: string) =>
 const getActionRunningState = (state: AppState) =>
   state.ui.pluginActionEditor.isRunning;
 
+const getActionSchemaGeneratingState = (state: AppState) =>
+  state.ui.pluginActionEditor.isSchemaGenerating;
+
+export const isActionSchemaGenerating = (id: string) =>
+  createSelector(
+    [getActionSchemaGeneratingState],
+    (isSchemaGeneratingMap) =>
+      id in isSchemaGeneratingMap && isSchemaGeneratingMap[id],
+  );
+
 export const isActionRunning = (id: string) =>
   createSelector(
     [getActionRunningState],
