@@ -22,12 +22,6 @@ public class ActionSpanCE {
     public static final String GET_ENVIRONMENT_ID = APPSMITH_SPAN_PREFIX + "getEnvironmentId";
     public static final String POPULATED_EXECUTE_ACTION_DTO_MONO =
             APPSMITH_SPAN_PREFIX + "populatedExecuteActionDTOMono";
-
-    public static final String VALIDATE_AUTHENTICATION_DATASOURCE_STORAGE =
-            APPSMITH_SPAN_PREFIX + "validateAuthenticationDatasourceStorage";
-    public static final String VERIFY_DATASOURCE_AND_MAKE_REQUEST =
-            APPSMITH_SPAN_PREFIX + "verifyDatasourceAndMakeRequest";
-    public static final String SEND_EXECUTE_ANALYTICS_EVENT = APPSMITH_SPAN_PREFIX + "sendExecuteAnalyticsEvent";
     public static final String POPULATE_AND_EXECUTE_ACTION = APPSMITH_SPAN_PREFIX + "populateAndExecuteAction";
     public static final String GET_VALID_ACTION_FOR_EXECUTION = APPSMITH_SPAN_PREFIX + "getValidActionForExecution";
     public static final String GET_CACHED_PLUGIN_FOR_ACTION_EXECUTION =
