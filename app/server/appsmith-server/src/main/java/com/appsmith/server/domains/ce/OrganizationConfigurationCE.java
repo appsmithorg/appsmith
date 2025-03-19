@@ -20,15 +20,18 @@ import java.util.Map;
 @FieldNameConstants
 public class OrganizationConfigurationCE implements Serializable {
 
+    @Deprecated(forRemoval = true, since = "v1.65")
     private String googleMapsKey;
 
     private Boolean isFormLoginEnabled;
 
+    @Deprecated(forRemoval = true, since = "v1.65")
     private String instanceName;
 
     protected License license;
 
     // organization admin can toggle this field to enable/disable email verification
+    @Deprecated(forRemoval = true, since = "v1.65")
     private Boolean emailVerificationEnabled;
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
@@ -91,5 +94,9 @@ public class OrganizationConfigurationCE implements Serializable {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
     }
 
-    public static class Fields {}
+    public static class Fields {
+        public Fields() {
+            // Public constructor for Fields class
+        }
+    }
 }

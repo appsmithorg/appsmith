@@ -17,6 +17,17 @@ jest.mock("components/editorComponents/LazyCodeEditor/index", () => {
   };
 });
 
+// Mock Visualization component
+jest.mock(
+  "PluginActionEditor/components/PluginActionResponse/components/Visualization/Visualization.tsx",
+  () => {
+    return {
+      __esModule: true,
+      Visualization: () => <div data-testid="t--mock-visualization" />,
+    };
+  },
+);
+
 const basePageId = "0123456789abcdef00000000";
 
 describe("IDE Render: JS", () => {

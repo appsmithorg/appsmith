@@ -31,7 +31,6 @@ export const FEATURE_FLAG = {
   release_drag_drop_building_blocks_enabled:
     "release_drag_drop_building_blocks_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
-  release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
   release_git_persist_branch_enabled: "release_git_persist_branch_enabled",
   release_ide_animations_enabled: "release_ide_animations_enabled",
   release_ide_datasource_selector_enabled:
@@ -54,7 +53,6 @@ export const FEATURE_FLAG = {
     "release_external_saas_plugins_enabled",
   release_tablev2_infinitescroll_enabled:
     "release_tablev2_infinitescroll_enabled",
-  release_fn_calling_enabled: "release_fn_calling_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -83,7 +81,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_remove_feature_walkthrough_enabled: true,
   rollout_eslint_enabled: false,
   release_layout_conversion_enabled: false,
-  release_anvil_toggle_enabled: false,
   release_git_persist_branch_enabled: false,
   release_ide_animations_enabled: false,
   release_ide_datasource_selector_enabled: false,
@@ -100,7 +97,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
   release_tablev2_infinitescroll_enabled: false,
-  release_fn_calling_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

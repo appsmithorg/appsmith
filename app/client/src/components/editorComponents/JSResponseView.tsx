@@ -42,8 +42,8 @@ import { StateInspector } from "./Debugger/StateInspector";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { useLocation } from "react-router";
-import { getReleaseFnCallingEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { Visualization } from "../../PluginActionEditor/components/PluginActionResponse/components/Visualization";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { Visualization } from "PluginActionEditor/components/PluginActionResponse/components/Visualization";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -214,7 +214,7 @@ function JSResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
   const location = useLocation();
-  const isFnCallingEnabled = useSelector(getReleaseFnCallingEnabled);
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const ideType = getIDETypeByUrl(location.pathname);
 
@@ -227,7 +227,7 @@ function JSResponseView(props: Props) {
       },
     ];
 
-    if (isFnCallingEnabled) {
+    if (isAnvilEnabled) {
       responseTabs.push({
         key: DEBUGGER_TAB_KEYS.VISUALIZATION_TAB,
         title: "AI Response Visualizer",
