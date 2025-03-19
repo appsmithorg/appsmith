@@ -78,7 +78,7 @@ export function useRowHeightMeasurement({
 
     // Track cells that might affect row height
     const cellIndexesWithAllowCellWrapping: number[] = [];
-    const cellIndexesWithHTMLCell: number[] = [0];
+    const cellIndexesWithHTMLCell: number[] = [];
 
     if (row?.cells && Array.isArray(row.cells)) {
       row.cells.forEach((cell, index: number) => {
