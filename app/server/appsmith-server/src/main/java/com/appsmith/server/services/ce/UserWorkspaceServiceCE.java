@@ -24,5 +24,5 @@ public interface UserWorkspaceServiceCE {
 
     Mono<Boolean> isLastAdminRoleEntity(PermissionGroup permissionGroup);
 
-    Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder(String hostname);
+    Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder();
 }

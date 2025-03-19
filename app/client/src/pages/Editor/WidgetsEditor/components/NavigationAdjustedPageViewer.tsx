@@ -1,23 +1,32 @@
-import type { ReactNode } from "react";
+// React and core libraries
 import React from "react";
+
+// Third-party libraries
+import classNames from "classnames";
+import { useSelector } from "react-redux";
+
+// Application-specific imports
+import { APP_MODE } from "entities/App";
 import { EditorState } from "IDE/enums";
 import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { useSelector } from "react-redux";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
-import { PageViewWrapper } from "pages/AppViewer/AppPage";
-import classNames from "classnames";
-import { APP_MODE } from "entities/App";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import {
   getAppSidebarPinned,
   getCurrentApplication,
-  getSidebarWidth,
 } from "ee/selectors/applicationSelectors";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { PageViewWrapper } from "pages/AppViewer/AppPage";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+
+// Type imports
+import type { ReactNode } from "react";
+
+// Utility/Helper functions
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { useSidebarWidth } from "utils/hooks/useSidebarWidth";
 
 /**
  * NavigationAdjustedPageViewer
@@ -30,7 +39,7 @@ export const NavigationAdjustedPageViewer = (props: {
   const isPreview = useSelector(selectCombinedPreviewMode);
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
-  const sidebarWidth = useSelector(getSidebarWidth);
+  const sidebarWidth = useSidebarWidth();
   const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

@@ -1,5 +1,8 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
+import type {
+  SelectedPropertyPanel,
+  ShowPropertyPanePayload,
+} from "reducers/uiReducers/propertyPaneReducer";
 
 export const updateWidgetName = (widgetId: string, newName: string) => {
   return {
@@ -114,12 +117,6 @@ export const createNewQueryFromActionCreator = (
     payload,
   };
 };
-
-export interface ShowPropertyPanePayload {
-  widgetId?: string;
-  callForDragOrResize?: boolean;
-  force: boolean;
-}
 
 export const showPropertyPane = (payload: ShowPropertyPanePayload) => {
   return {

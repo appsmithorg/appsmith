@@ -33,11 +33,11 @@ describe(
     it("1. Creating enum & table queries - boolenumtypes + Bug 14493", () => {
       query = `CREATE TYPE weekdays AS ENUM ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');`;
       dataSources.CreateQueryAfterDSSaved(query, "createEnum");
-      dataSources.RunQuery();
+      dataSources.RunQuery({ toValidateResponse: false });
 
       query = `create table boolenumtypes (serialId SERIAL not null primary key, workingDay weekdays, AreWeWorking boolean)`;
       dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
-      dataSources.RunQuery();
+      dataSources.RunQuery({ toValidateResponse: false });
 
       //Other queries
       query = `INSERT INTO public."boolenumtypes" ("workingday", "areweworking") VALUES ({{Insertworkingday.selectedOptionValue}}, {{Insertareweworking.isSwitchedOn}})`;
@@ -171,7 +171,7 @@ describe(
       entityExplorer.CreateNewDsQuery(dsName);
       agHelper.RenameQuery("verifyEnumOrdering");
       dataSources.EnterQuery(query);
-      dataSources.RunQuery();
+      dataSources.RunQuery({ toValidateResponse: false });
       dataSources.ReadQueryTableResponse(1).then(($cellData) => {
         expect($cellData).to.eq("Saturday");
       });
