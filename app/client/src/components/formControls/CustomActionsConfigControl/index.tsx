@@ -6,6 +6,7 @@ import BaseControl, { type ControlProps } from "../BaseControl";
 import { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 import { API_EDITOR_TAB_TITLES } from "ee/constants/messages";
 import { createMessage } from "ee/constants/messages";
+import styled from "styled-components";
 
 enum CUSTOM_ACTION_TABS {
   HEADERS = "HEADERS",
@@ -13,9 +14,32 @@ enum CUSTOM_ACTION_TABS {
   BODY = "BODY",
 }
 
+const TabbedWrapper = styled(Tabs)`
+  .t--form-control-KEYVALUE_ARRAY {
+    & > div {
+      margin-bottom: var(--ads-v2-spaces-3);
+      & > * {
+        flex-grow: 1;
+      }
+      & > *:first-child {
+        max-width: 184px;
+      }
+      & > *:nth-child(2) {
+        margin-left: var(--ads-v2-spaces-3);
+      }
+      & > .t--delete-field {
+        max-width: 34px;
+      }
+    }
+    & .t--add-field {
+      height: 24px;
+    }
+  }
+`;
+
 const TabbedControls = (props: ControlProps) => {
   return (
-    <Tabs defaultValue={CUSTOM_ACTION_TABS.HEADERS}>
+    <TabbedWrapper defaultValue={CUSTOM_ACTION_TABS.HEADERS}>
       <TabsList>
         {Object.values(CUSTOM_ACTION_TABS).map((tab) => (
           <Tab data-testid={`t--api-editor-${tab}`} key={tab} value={tab}>
@@ -65,7 +89,7 @@ const TabbedControls = (props: ControlProps) => {
           formName={props.formName}
         />
       </TabPanel>
-    </Tabs>
+    </TabbedWrapper>
   );
 };
 
