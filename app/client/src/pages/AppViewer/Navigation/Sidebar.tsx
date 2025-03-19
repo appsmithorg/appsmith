@@ -1,25 +1,26 @@
+// React and core libraries
 import React, { useEffect, useState } from "react";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
-import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import ApplicationName from "./components/ApplicationName";
-import MenuItem from "./components/MenuItem";
-import ShareButton from "./components/ShareButton";
-import PrimaryCTA from "../PrimaryCTA";
-import { useHref } from "pages/Editor/utils";
-import { builderURL } from "ee/RouteBuilder";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import type { User } from "constants/userConstants";
-import SidebarProfileComponent from "./components/SidebarProfileComponent";
-import CollapseButton from "./components/CollapseButton";
-import classNames from "classnames";
+
+// Third-party libraries
 import { useMouse } from "@mantine/hooks";
-import { getAppSidebarPinned } from "ee/selectors/applicationSelectors";
+import { useEventCallback } from "usehooks-ts";
+import classNames from "classnames";
+import { get } from "lodash";
+
+// Application-specific imports
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
+import { builderURL } from "ee/RouteBuilder";
 import { setIsAppSidebarPinned } from "ee/actions/applicationActions";
+import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
+import { getAppSidebarPinned } from "ee/selectors/applicationSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import {
   StyledCtaContainer,
   StyledFooter,
@@ -27,13 +28,24 @@ import {
   StyledMenuContainer,
   StyledSidebar,
 } from "./Sidebar.styled";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
-import MenuItemContainer from "./components/MenuItemContainer";
+
+// Type imports
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import type { User } from "constants/userConstants";
+
+// Utility/Helper functions
+import { useHref } from "pages/Editor/utils";
+
+// Imports with relative paths
+import PrimaryCTA from "../PrimaryCTA";
+import ApplicationName from "./components/ApplicationName";
 import BackToAppsButton from "./components/BackToAppsButton";
-import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
-import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
-import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
+import CollapseButton from "./components/CollapseButton";
+import MenuItem from "./components/MenuItem";
+import MenuItemContainer from "./components/MenuItemContainer";
+import ShareButton from "./components/ShareButton";
+import SidebarProfileComponent from "./components/SidebarProfileComponent";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -84,42 +96,39 @@ export function Sidebar(props: SidebarProps) {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
 
-  useEffect(() => {
-    setQuery(window.location.search);
-  }, [location]);
+  useEffect(
+    function updateQueryFromLocationEffect() {
+      setQuery(window.location.search);
+    },
+    [location],
+  );
 
-  // Mark default page as first page
-  const appPages = pages;
+  useEffect(
+    function updateSidebarStateFromPinnedEffect() {
+      setIsOpen(isPinned);
+    },
+    [isPinned],
+  );
 
-  if (appPages.length > 1) {
-    appPages.forEach((item, i) => {
-      if (item.isDefault) {
-        appPages.splice(i, 1);
-        appPages.unshift(item);
+  useEffect(
+    function handleSidebarVisibilityEffect() {
+      // When the sidebar is unpinned -
+      if (!isPinned) {
+        if (x <= 20) {
+          // 1. Open the sidebar when hovering on the left edge of the screen
+          setIsOpen(true);
+        } else if (x > SIDEBAR_WIDTH.REGULAR) {
+          // 2. Close the sidebar when the mouse moves out of it
+          setIsOpen(false);
+        }
       }
-    });
-  }
+    },
+    [x, isPinned],
+  );
 
-  useEffect(() => {
-    setIsOpen(isPinned);
-  }, [isPinned]);
-
-  useEffect(() => {
-    // When the sidebar is unpinned -
-    if (!isPinned) {
-      if (x <= 20) {
-        // 1. Open the sidebar when hovering on the left edge of the screen
-        setIsOpen(true);
-      } else if (x > SIDEBAR_WIDTH.REGULAR) {
-        // 2. Close the sidebar when the mouse moves out of it
-        setIsOpen(false);
-      }
-    }
-  }, [x]);
-
-  const setIsPinned = (isPinned: boolean) => {
+  const setIsPinned = useEventCallback((isPinned: boolean) => {
     dispatch(setIsAppSidebarPinned(isPinned));
-  };
+  });
 
   const calculateSidebarHeight = () => {
     let prefix = `calc( 100vh - `;
@@ -182,30 +191,32 @@ export function Sidebar(props: SidebarProps) {
         )}
       </StyledHeader>
 
-      <StyledMenuContainer
-        navColorStyle={navColorStyle}
-        primaryColor={primaryColor}
-      >
-        {appPages.map((page) => {
-          return (
-            <MenuItemContainer
-              forSidebar
-              isTabActive={pathname.indexOf(page.pageId) > -1}
-              key={page.pageId}
-            >
-              <MenuItem
+      {pages.length > 1 && (
+        <StyledMenuContainer
+          navColorStyle={navColorStyle}
+          primaryColor={primaryColor}
+        >
+          {pages.map((page) => {
+            return (
+              <MenuItemContainer
+                forSidebar
+                isTabActive={pathname.indexOf(page.pageId) > -1}
                 key={page.pageId}
-                navigationSetting={
-                  currentApplicationDetails?.applicationDetail
-                    ?.navigationSetting
-                }
-                page={page}
-                query={query}
-              />
-            </MenuItemContainer>
-          );
-        })}
-      </StyledMenuContainer>
+              >
+                <MenuItem
+                  key={page.pageId}
+                  navigationSetting={
+                    currentApplicationDetails?.applicationDetail
+                      ?.navigationSetting
+                  }
+                  page={page}
+                  query={query}
+                />
+              </MenuItemContainer>
+            );
+          })}
+        </StyledMenuContainer>
+      )}
 
       {props.showUserSettings && (
         <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>

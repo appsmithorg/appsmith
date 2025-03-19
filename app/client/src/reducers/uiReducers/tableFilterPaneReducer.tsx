@@ -1,7 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
+import type { ShowPropertyPanePayload } from "reducers/uiReducers/propertyPaneReducer";
 
 const initialState: TableFilterPaneReduxState = {
   isVisible: false,
