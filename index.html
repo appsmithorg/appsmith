@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Table Component Tests</title>
+    <script src="TableComponent.js"></script>
+    <script src="TableComponentTest.js"></script>
+  </head>
+  <body>
+    <div id="test-results"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        console.log("Starting tests...");
+        await TableComponentTest.runTests();
+      });
+    </script>
+  </body>
+</html>
