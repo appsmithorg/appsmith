@@ -148,6 +148,9 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
      * The function maintains data integrity by preserving the original structure.
      */
     return `{{(() => {
+    if(!${tableName}.sortOrder.column || !${tableName}.sortOrder.order) {
+      return ${tableName}.filteredTableData;
+    }
     const originalTableData = ${tableName}.tableData || [];
     const filteredTableData = ${tableName}.filteredTableData || [];
     const primaryColumnId = ${tableName}.primaryColumnId;
