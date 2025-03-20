@@ -8,6 +8,7 @@ import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.ConnectionProvider;
@@ -34,6 +36,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.OnLoadSpanCE.AST_SERVICE_CALLING_RTS_API;
+
 @Slf4j
 @RequiredArgsConstructor
 public class AstServiceCEImpl implements AstServiceCE {
@@ -43,6 +47,7 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final InstanceConfig instanceConfig;
 
     private final RTSCaller rtsCaller;
+    private final ObservationRegistry observationRegistry;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
             .maxConnections(100)
@@ -119,6 +124,10 @@ public class AstServiceCEImpl implements AstServiceCE {
         }
         return rtsCaller
                 .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
+                .name(AST_SERVICE_CALLING_RTS_API)
+                .tap(Micrometer.observation(observationRegistry))
+                .tag("no_of_bindings", String.valueOf(bindingValues.size()))
+                .tag("eval_version", String.valueOf(evalVersion))
                 .flatMapMany(spec -> spec.retrieve()
                         .bodyToMono(GetIdentifiersResponseBulk.class)
                         .retryWhen(Retry.max(3))

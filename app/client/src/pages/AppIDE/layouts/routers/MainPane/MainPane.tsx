@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, useRouteMatch } from "react-router";
+import { Switch, useRouteMatch, type RouteProps } from "react-router";
 import { MainPaneRoutes } from "ee/pages/AppIDE/layouts/routers/MainPane/constants";
 import { useSelector } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
@@ -9,7 +9,7 @@ import { SentryRoute } from "components/SentryRoute";
 
 export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();
-  const routes = MainPaneRoutes(path);
+  const routes: Array<RouteProps & { key: string }> = MainPaneRoutes(path);
 
   useWidgetSelectionBlockListener();
 

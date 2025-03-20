@@ -31,8 +31,8 @@
     "@storybook/theming": "^8.2.7",
     "@vitejs/plugin-react": "^4.3.1",
     "chromatic": "^11.3.0",
-    "storybook": "^8.2.7",
-    "vite": "^5.3.5",
+    "storybook": "^8.6.4",
+    "vite": "^6.2.1",
     "vite-plugin-svgr": "^4.2.0"
   },
   "dependencies": {
