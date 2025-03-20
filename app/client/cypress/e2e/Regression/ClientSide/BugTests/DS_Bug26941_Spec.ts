@@ -30,7 +30,11 @@ describe(
       });
 
       cy.get("@postExecute").then((interception: any) => {
+        console.log(interception.response);
         debuggerHelper.AssertDownStreamLogError(
+          interception.response.body.data.statusCode,
+        );
+        debuggerHelper.LogStateContains(
           interception.response.body.data.pluginErrorDetails
             .downstreamErrorMessage,
         );
