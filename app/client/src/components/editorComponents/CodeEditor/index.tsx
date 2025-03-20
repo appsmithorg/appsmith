@@ -74,7 +74,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "@appsmith/ads";
+import { Button, Tooltip } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -184,6 +184,9 @@ export interface EditorStyleProps {
   disabled?: boolean;
   link?: string;
   showLightningMenu?: boolean;
+  showExpandTrigger?: boolean;
+  onExpandTriggerClick?: () => void;
+  isExpanded?: boolean;
   dataTreePath?: string;
   focusElementName?: string;
   // TODO: Fix this the next time the file is edited
@@ -1725,6 +1728,21 @@ class CodeEditor extends Component<Props, State> {
             /
           </Button>
         </div>
+
+        {this.props.showExpandTrigger ? (
+          <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
+            <Tooltip content="Expand" placement="top">
+              <Button
+                className="commands-button invisible"
+                isIconButton
+                kind="secondary"
+                onClick={this.props.onExpandTriggerClick}
+                size="sm"
+                startIcon="external-link-line"
+              />
+            </Tooltip>
+          </div>
+        ) : null}
 
         <div className="absolute bottom-[6px] right-[6px] z-4">
           <AskAIButton
