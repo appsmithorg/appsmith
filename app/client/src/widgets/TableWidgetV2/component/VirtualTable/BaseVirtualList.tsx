@@ -102,6 +102,7 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
   const listRef = useRef<VariableSizeList>(null);
   const rowHeights = useRef<{ [key: number]: number }>({});
   const rowNeedsMeasurement = useRef<{ [key: number]: boolean }>({});
+
   const combinedRef = (list: VariableSizeList | null) => {
     // Handle infiniteLoaderListRef
     if (infiniteLoaderListRef) {

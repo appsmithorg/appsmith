@@ -4,26 +4,28 @@ import { VariableInfiniteVirtualList } from "./VirtualList";
 import type { Row as ReactTableRowType } from "react-table";
 import "@testing-library/jest-dom";
 
-// Mock react-window's FixedSizeList because it uses DOM measuring which isn't available in test environment
 jest.mock("react-window", () => {
   return {
-    FixedSizeList: ({
-      children,
-      itemCount,
-      itemData,
-    }: {
-      children: {
-        (props: {
+    VariableSizeList: React.forwardRef<
+      unknown,
+      {
+        children: (props: {
           index: number;
           style: React.CSSProperties;
-          data: unknown;
-        }): React.ReactNode;
-      };
-      itemCount: number;
-      itemData: {
-        [key: string]: unknown;
-      };
-    }) => {
+          data: Record<string, unknown>[];
+        }) => React.ReactNode;
+        itemCount: number;
+        itemData: Record<string, unknown>[];
+        onItemsRendered?: (props: {
+          overscanStartIndex: number;
+          overscanStopIndex: number;
+          visibleStartIndex: number;
+          visibleStopIndex: number;
+        }) => void;
+        height?: number;
+        width?: number;
+      }
+    >(({ children, itemCount, itemData, onItemsRendered }, ref) => {
       const items = [];
 
       for (let i = 0; i < itemCount; i++) {
@@ -36,19 +38,33 @@ jest.mock("react-window", () => {
         );
       }
 
+      // Call onItemsRendered if provided
+      React.useEffect(() => {
+        if (onItemsRendered) {
+          onItemsRendered({
+            overscanStartIndex: 0,
+            overscanStopIndex: itemCount - 1,
+            visibleStartIndex: 0,
+            visibleStopIndex: itemCount - 1,
+          });
+        }
+      }, [itemCount, onItemsRendered]);
+
       return (
-        <div data-testid="virtual-list">
+        <div
+          data-testid="virtual-list"
+          ref={ref as React.RefObject<HTMLDivElement>}
+        >
           {items.map((item, idx) => (
             <React.Fragment key={idx}>{item}</React.Fragment>
           ))}
         </div>
       );
-    },
+    }),
     areEqual: jest.fn((prevProps, nextProps) => prevProps === nextProps),
   };
 });
 
-// Replace the Row mocking part in your test
 jest.mock("./Row", () => ({
   Row: jest.fn(({ index, style }) => (
     <div data-index={index} role="row" style={style} />
@@ -56,7 +72,6 @@ jest.mock("./Row", () => ({
 }));
 
 describe("VirtualList", () => {
-  // Helper to create mock rows
   const createMockRows = (
     count: number,
   ): ReactTableRowType<Record<string, unknown>>[] => {
@@ -87,7 +102,6 @@ describe("VirtualList", () => {
     }));
   };
 
-  // Mock props
   const mockTableSizes = {
     TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 40,
