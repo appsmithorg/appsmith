@@ -159,6 +159,29 @@ describe("TableCustomSortControl instance methods", () => {
 
     expect(result).toBe(emptyValue);
   });
+
+  it("correctly handles original data in computed value", () => {
+    const inputValue =
+      "{{tableData.map(row => ({...row, age: row.__original__.age}))}}";
+    const result = testInstance.getComputedValue(inputValue, "Table1");
+
+    expect(result).toContain(
+      "const originalTableData = Table1.tableData || []",
+    );
+    expect(result).toContain(
+      "const filteredTableData = Table1.filteredTableData || []",
+    );
+    expect(result).toContain("const primaryColumnId = Table1.primaryColumnId");
+    expect(result).toContain(
+      "const getMergedTableData = (originalData, filteredData, primaryId)",
+    );
+    expect(result).toContain(
+      "const mergedTableData = primaryColumnId ? getMergedTableData(originalTableData, filteredTableData, primaryColumnId) : filteredTableData",
+    );
+    expect(result).toContain(
+      "tableData.map(row => ({...row, age: row.__original__.age}))",
+    );
+  });
 });
 
 describe("TableCustomSortControl.getControlType", () => {

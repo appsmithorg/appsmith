@@ -104,9 +104,9 @@ function InputText(props: InputTextProp) {
               <CurlyBraces>{"}}"}</CurlyBraces>
             </span>
             <br />
-            Original data is available with prefix{" "}
+            Original data is available inside{" "}
             <span className="code-wrapper">
-              <CurlyBraces>original_</CurlyBraces>
+              <CurlyBraces>__original__</CurlyBraces>
             </span>
           </PromptMessage>
         }
@@ -157,14 +157,7 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
         originalDataMap[row[primaryId]] = row;
       });
       return filteredData.map(row => {
-        const newRow = {...row};
-        const originalRow = originalDataMap[row[primaryId]] || {};
-        Object.entries(originalRow).forEach(([key, value]) => {
-          if (key !== "__originalIndex__" && key !== "__primaryKey__") {
-            newRow["original_" + key] = value;
-          }
-        });
-        return newRow;
+        return {...row, __original__: originalDataMap[row[primaryId]] || {}};
       });
     };
     try {
@@ -177,11 +170,7 @@ class TableCustomSortControl extends BaseControl<TableCustomSortControlProps> {
         const cleanedData = sortedTableData.map(row => {
           if (typeof row !== 'object' || row === null) return row;
           const cleanRow = {...row};
-          Object.keys(cleanRow).forEach(key => {
-            if (key.startsWith('original_')) {
-              delete cleanRow[key];
-            }
-          });
+          delete cleanRow.__original__;
           return cleanRow;
         });
         return cleanedData.length > 0 ? cleanedData : filteredTableData;
