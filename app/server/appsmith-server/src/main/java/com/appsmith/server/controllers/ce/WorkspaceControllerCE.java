@@ -105,10 +105,9 @@ public class WorkspaceControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/home")
-    public Mono<ResponseDTO<List<Workspace>>> workspacesForHome(
-            @RequestHeader(name = "Host", required = false) String hostname) {
+    public Mono<ResponseDTO<List<Workspace>>> workspacesForHome() {
         return userWorkspaceService
-                .getUserWorkspacesByRecentlyUsedOrder(hostname)
+                .getUserWorkspacesByRecentlyUsedOrder()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
     }
 }
