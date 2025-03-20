@@ -2,7 +2,7 @@ import React, { type Ref } from "react";
 import { type ReactElementType } from "react-window";
 import type SimpleBar from "simplebar-react";
 import { LoadingIndicator } from "../../LoadingIndicator";
-import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
+import { VariableInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
 
@@ -30,7 +30,7 @@ const InfiniteScrollBodyComponent = React.forwardRef(
 
     return (
       <div className="simplebar-content-wrapper">
-        <FixedInfiniteVirtualList
+        <VariableInfiniteVirtualList
           hasMoreData={hasMoreData}
           height={height}
           innerElementType={props.innerElementType}

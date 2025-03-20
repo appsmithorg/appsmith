@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { FixedInfiniteVirtualList } from "./VirtualList";
+import { VariableInfiniteVirtualList } from "./VirtualList";
 import type { Row as ReactTableRowType } from "react-table";
 import "@testing-library/jest-dom";
 
@@ -104,7 +104,7 @@ describe("VirtualList", () => {
     const mockRows = createMockRows(3);
 
     render(
-      <FixedInfiniteVirtualList
+      <VariableInfiniteVirtualList
         height={500}
         itemCount={mockRows.length}
         outerRef={{ current: null }}
@@ -122,7 +122,7 @@ describe("VirtualList", () => {
     const loadMoreMock = jest.fn();
 
     render(
-      <FixedInfiniteVirtualList
+      <VariableInfiniteVirtualList
         hasMoreData
         height={500}
         itemCount={mockRows.length}
@@ -147,7 +147,7 @@ describe("VirtualList", () => {
     const loadMoreMock = jest.fn();
 
     render(
-      <FixedInfiniteVirtualList
+      <VariableInfiniteVirtualList
         hasMoreData={false}
         height={500}
         itemCount={mockRows.length}
@@ -170,7 +170,7 @@ describe("VirtualList", () => {
     const loadMoreMock = jest.fn();
 
     render(
-      <FixedInfiniteVirtualList
+      <VariableInfiniteVirtualList
         hasMoreData
         height={500}
         itemCount={mockRows.length}
@@ -196,7 +196,7 @@ describe("VirtualList", () => {
     const loadMoreMock = jest.fn();
 
     render(
-      <FixedInfiniteVirtualList
+      <VariableInfiniteVirtualList
         hasMoreData
         height={500}
         itemCount={mockRows.length}
