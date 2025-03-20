@@ -1,15 +1,17 @@
-import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { type Ref, useMemo } from "react";
-import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
-import { WIDGET_PADDING, TEXT_SIZES } from "constants/WidgetConstants";
-import { Row } from "./Row";
-import type { TableSizes } from "../Constants";
+import type {
+  ListChildComponentProps,
+  ListOnItemsRenderedProps,
+  ReactElementType,
+} from "react-window";
+import { FixedSizeList, areEqual } from "react-window";
 import type SimpleBar from "simplebar-react";
 import { EmptyRows } from "../cellComponents/EmptyCell";
-import { Text } from "@appsmith/ads";
-import { Colors } from "constants/Colors";
+import type { TableSizes } from "../Constants";
+import LoadMoreButton from "../LoadMoreButton";
+import { Row } from "./Row";
 
 // Export MemoizedRow for testing
 export const MemoizedRow = React.memo(
@@ -36,27 +38,7 @@ export const MemoizedRow = React.memo(
         />
       );
     } else if (index === data.length && hasMoreData) {
-      return (
-        <div
-          aria-label="Load more records"
-          className="flex items-center justify-start cursor-pointer z-[1000]"
-          onClick={loadMore}
-          role="button"
-          style={{ ...style }}
-          tabIndex={0}
-        >
-          <Text
-            className="underline pl-[10px]"
-            style={{
-              fontWeight: "var(--ads-v2-font-weight-normal)",
-              fontSize: TEXT_SIZES.PARAGRAPH,
-              color: Colors.GRAY,
-            }}
-          >
-            Load More
-          </Text>
-        </div>
-      );
+      return <LoadMoreButton loadMore={loadMore} style={style} />;
     } else {
       return <EmptyRows rows={1} style={style} />;
     }
