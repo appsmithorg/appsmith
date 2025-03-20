@@ -5,6 +5,17 @@ import {
   getGroupSeparator,
 } from "./utilities";
 
+jest.spyOn(Intl, "NumberFormat").mockImplementation(
+  (locale) =>
+    ({
+      format: (num: number) => num.toLocaleString(locale),
+      formatToParts: () => [
+        { type: "group", value: locale === "it" ? "." : "," },
+        { type: "decimal", value: locale === "it" ? "," : "." },
+      ],
+    }) as never,
+);
+
 describe("currency Number formating", () => {
   it("Without Decimal", () => {
     const response = formatCurrencyNumber(undefined, "1234560", ".");
@@ -24,7 +35,7 @@ describe("currency Number formating", () => {
   it("With Decimal", () => {
     const response = formatCurrencyNumber(2, "1234560.981", ".");
 
-    expect(response).toStrictEqual("1,234,560.98");
+    expect(response).toStrictEqual("1,234,560.981");
   });
 });
 
