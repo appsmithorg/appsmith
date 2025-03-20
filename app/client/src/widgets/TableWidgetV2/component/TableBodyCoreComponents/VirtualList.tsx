@@ -62,7 +62,7 @@ interface BaseVirtualListProps {
   innerElementType?: ReactElementType;
   outerRef: Ref<SimpleBar>;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
-  infiniteLoaderListRef?: React.Ref<FixedSizeList>;
+  infiniteLoaderListRef?: React.Ref<VariableSizeList>;
   itemCount: number;
   pageSize: number;
   loadMore?: () => void;
@@ -122,8 +122,8 @@ const BaseVirtualList = React.memo(function BaseVirtualList({
 /**
  * The difference between next two components is in the number of arguments they expect.
  */
-export const FixedInfiniteVirtualList = React.memo(
-  function FixedInfiniteVirtualList(props: BaseVirtualListProps) {
+export const VariableInfiniteVirtualList = React.memo(
+  function VariableInfiniteVirtualList(props: BaseVirtualListProps) {
     return <BaseVirtualList {...props} />;
   },
 );
