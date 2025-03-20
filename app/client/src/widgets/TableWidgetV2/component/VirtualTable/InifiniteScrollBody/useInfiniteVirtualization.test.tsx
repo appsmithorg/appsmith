@@ -40,7 +40,6 @@ describe("useInfiniteVirtualization", () => {
 
   const defaultProps = {
     rows: mockRows,
-    isLoading: false,
     loadMore: jest.fn(),
     pageSize: 10,
   };

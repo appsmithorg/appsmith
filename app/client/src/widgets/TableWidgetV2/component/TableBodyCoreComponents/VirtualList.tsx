@@ -11,7 +11,8 @@ import { EmptyRows } from "../cellComponents/EmptyCell";
 import { Text } from "@appsmith/ads";
 import { Colors } from "constants/Colors";
 
-const MemoizedRow = React.memo(
+// Export MemoizedRow for testing
+export const MemoizedRow = React.memo(
   function RowComponent({
     data,
     hasMoreData,
