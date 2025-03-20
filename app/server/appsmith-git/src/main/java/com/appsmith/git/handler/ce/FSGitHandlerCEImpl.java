@@ -551,7 +551,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -626,7 +626,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -757,15 +757,6 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         response.setRemoteBranch("untracked");
                                     }
 
-                                    // Remove modified changes from current branch so that checkout to other branches
-                                    // will be possible
-                                    if (!status.isClean()) {
-                                        return resetToLastCommit(git).map(ref -> {
-                                            processStopwatch.stopAndLogTimeInMillis();
-                                            jgitStatusSpan.end();
-                                            return response;
-                                        });
-                                    }
                                     processStopwatch.stopAndLogTimeInMillis();
                                     jgitStatusSpan.end();
                                     return Mono.just(response);
@@ -983,13 +974,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     }
                                 })
                                 .onErrorResume(error -> {
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(error.getMessage());
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+                                    return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_MERGE)
@@ -1161,31 +1146,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             mergeResult.getMergeStatus().name());
                                     return mergeStatus;
                                 })
-                                .flatMap(status -> {
-                                    try {
-                                        // Revert uncommitted changes if any
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .map(ignore -> {
-                                                    processStopwatch.stopAndLogTimeInMillis();
-                                                    return status;
-                                                });
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error for hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
-                                })
                                 .onErrorResume(error -> {
                                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                                     mergeStatusDTO.setMergeAble(false);
                                     mergeStatusDTO.setMessage(error.getMessage());
                                     mergeStatusDTO.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(mergeStatusDTO);
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+
+                                    return Mono.just(mergeStatusDTO);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
@@ -1267,12 +1234,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .subscribeOn(scheduler);
     }
 
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) {
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
-                        .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
+                        .flatMap(ref -> checkoutToBranch(repoSuffix, branchName).thenReturn(true)),
                 Git::close);
     }
 
@@ -1302,7 +1268,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     }
 
     public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
-        return this.checkoutToBranch(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
+        return this.resetToLastCommit(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
                                     Span jgitRebaseSpan = observationHelper.createSpan(GitSpan.JGIT_REBASE);
