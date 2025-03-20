@@ -2,18 +2,36 @@ import { setupServer } from "msw/node";
 import { handlers } from "./__mocks__/apiHandlers";
 import "../src/polyfills/requestIdleCallback";
 import { Crypto } from "@peculiar/webcrypto";
+import { TextDecoder, TextEncoder } from "util";
+import { ReadableStream } from "node:stream/web";
 
 // since global crypto is immutable, we need to first delete it and then use the
 // peculiar crypto lisrc/sagas/helper.test.tsb
-delete global['crypto'];
+delete global["crypto"];
 global.crypto = new Crypto();
 
 export const server = setupServer(...handlers);
 
+global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder;
+global.ReadableStream = ReadableStream;
+
 jest.mock("api/Api", () => ({
   __esModule: true,
-  default: class Api { },
+  default: class Api {},
 }));
+
+jest.mock("openai", () => {
+  return jest.fn().mockImplementation(() => ({
+    chat: {
+      completions: {
+        create: jest
+          .fn()
+          .mockResolvedValue({ choices: [{ message: "Mocked response" }] }),
+      },
+    },
+  }));
+});
 
 window.scrollTo = jest.fn();
 Element.prototype.scrollIntoView = jest.fn();
@@ -21,7 +39,7 @@ Element.prototype.scrollBy = jest.fn();
 
 jest.mock("../src/api/Api.ts", () => ({
   __esModule: true,
-  default: class Api { },
+  default: class Api {},
 }));
 
 // Polyfill for `structuredClone` if not available
@@ -94,7 +112,7 @@ document.createRange = () => {
 };
 
 // jest events doesnt seem to be handling scrollTo
-Element.prototype.scrollTo = () => { };
+Element.prototype.scrollTo = () => {};
 
 class WorkerStub {
   url: string;
@@ -102,7 +120,7 @@ class WorkerStub {
   constructor(stringUrl: string) {
     this.url = stringUrl;
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this.onmessage = () => { };
+    this.onmessage = () => {};
   }
 
   postMessage(msg) {
