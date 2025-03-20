@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
-import { JSFunctionRun } from "./components/JSFunctionRun";
-import type { JSActionDropdownOption, OnUpdateSettingsProps } from "./types";
+import { JSFunctionRun } from "pages/Editor/JSEditor/JSEditorToolbar/components/JSFunctionRun";
+import type {
+  JSActionDropdownOption,
+  OnUpdateSettingsProps,
+} from "pages/Editor/JSEditor/JSEditorToolbar/types";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
-import { JSFunctionSettings } from "./components/JSFunctionSettings";
-import { convertJSActionsToDropdownOptions } from "./utils";
-import { JSObjectNameEditor } from "./JSObjectNameEditor";
+import { JSFunctionSettings } from "pages/Editor/JSEditor/JSEditorToolbar/components/JSFunctionSettings";
+import { convertJSActionsToDropdownOptions } from "pages/Editor/JSEditor/JSEditorToolbar/utils";
+import { JSObjectNameEditor } from "pages/Editor/JSEditor/JSEditorToolbar/JSObjectNameEditor";
 
 interface Props {
   changePermitted: boolean;
