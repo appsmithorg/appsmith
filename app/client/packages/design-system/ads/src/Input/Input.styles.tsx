@@ -5,6 +5,7 @@ import {
   InputIconClassName,
   InputStartIconClassName,
   InputStartIconDisabledClassName,
+  InputPostfixClassName,
 } from "./Input.constants";
 import type { InputSizes } from "./Input.types";
 import { Text } from "../Text";
@@ -129,6 +130,15 @@ export const InputContainer = styled.div<{
     opacity: var(--ads-v2-opacity-disabled);
     cursor: not-allowed !important;
   }
+
+  .${InputPostfixClassName} {
+    position: absolute;
+    right: var(--ads-v2-spaces-3);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--ads-v2-colors-content-label-default);
+  }
 `;
 
 export const StyledInput = styled.input<{
@@ -139,6 +149,8 @@ export const StyledInput = styled.input<{
   hasEndIcon?: boolean;
   renderer?: "input" | "textarea";
   inputSize?: InputSizes;
+  hasPostfix?: boolean;
+  postfixSize?: number;
 }>`
   --icon-size: ${({ inputSize }) => inputSize && iconSizes[inputSize]};
 
@@ -174,6 +186,13 @@ export const StyledInput = styled.input<{
       padding-right: calc(
         (var(--input-padding-x) * 2) + var(--icon-size) - 1px
       );
+    `}
+
+  /* Additional padding for postfix */
+  ${({ hasPostfix, postfixSize }) =>
+    hasPostfix &&
+    css`
+      padding-right: calc(var(--input-padding-x) + ${postfixSize}ch);
     `}
 
   &:hover:enabled:not(:read-only) {

@@ -22,6 +22,7 @@ import {
   InputEndIconClassName,
   InputIconClassName,
   InputStartIconClassName,
+  InputPostfixClassName,
 } from "./Input.constants";
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -40,6 +41,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       labelPosition = "top",
       onChange,
+      postfix,
       renderAs = "input",
       size = "sm",
       startIcon,
@@ -125,30 +127,47 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               data-is-valid={isValid}
               disabled={disableTextInput || isDisabled}
               hasEndIcon={!!endIcon}
+              hasPostfix={!!postfix}
               hasStartIcon={!!startIcon}
               inputSize={size}
               onChange={handleOnChange}
+              postfixSize={postfix?.length}
               readOnly={isReadOnly}
               ref={inputRef}
               renderer={renderAs}
               value={value}
               {...rest}
             />
-            {/* End Icon Section */}
-            {endIcon && renderAs === "input" ? (
-              <Icon
-                className={clsx(
-                  InputIconClassName,
-                  InputEndIconClassName,
-                  endIconClassName,
+            {/* End Icon/Postfix Section */}
+            {renderAs === "input" && (
+              <>
+                {postfix && (
+                  <span
+                    className={clsx(InputPostfixClassName)}
+                    style={{
+                      color: "var(--ads-v2-colors-content-label-default)",
+                      userSelect: "none",
+                    }}
+                  >
+                    {postfix}
+                  </span>
                 )}
-                data-has-onclick={!!endIconOnClick}
-                name={endIcon}
-                onClick={endIconOnClick}
-                size={size}
-                {...restOfEndIconProps}
-              />
-            ) : null}
+                {endIcon && (
+                  <Icon
+                    className={clsx(
+                      InputIconClassName,
+                      InputEndIconClassName,
+                      endIconClassName,
+                    )}
+                    data-has-onclick={!!endIconOnClick}
+                    name={endIcon}
+                    onClick={endIconOnClick}
+                    size={size}
+                    {...restOfEndIconProps}
+                  />
+                )}
+              </>
+            )}
           </InputContainer>
           {description && (
             <Description

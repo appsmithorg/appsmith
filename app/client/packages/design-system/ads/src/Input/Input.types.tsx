@@ -27,6 +27,8 @@ interface Props extends TextFieldProps {
   labelPosition?: "top" | "left";
   /** name */
   name?: string;
+  /** postfix */
+  postfix?: string;
   /** start icon  */
   startIcon?: string;
   /** start icon props */
