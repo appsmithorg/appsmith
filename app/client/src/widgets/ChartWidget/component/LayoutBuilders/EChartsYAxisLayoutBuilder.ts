@@ -45,7 +45,6 @@ export class EChartsYAxisLayoutBuilder {
       nameGap: this.nameGap,
       axisLabel: {
         width: this.labelsWidth,
-        overflow: "truncate",
       },
     };
   };
