@@ -32,7 +32,7 @@ export const ErrorView: React.FC<ErrorViewProps> = ({
   handleJsonWrapperClick,
   tooltipContent,
 }) => {
-  const errorMessage = getErrorMessageFromActionResponse(
+  const [errorTitle, errorMessage] = getErrorMessageFromActionResponse(
     actionResponse,
     action.pluginType,
   );
@@ -79,7 +79,7 @@ export const ErrorView: React.FC<ErrorViewProps> = ({
             Request has failed to execute
             {errorMessage && ":"}
           </Styled.ErrorDefaultMessage>
-          <div data-testid="t--response-error">{errorMessage}</div>
+          <div data-testid="t--response-error">{errorTitle}</div>
           <LogHelper
             logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
             message={`${errorMessage}`}

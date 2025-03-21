@@ -163,6 +163,24 @@ export const handlers = {
   ) => {
     set(state, ["isSchemaGenerating", action.payload.id], false);
   },
+  [ReduxActionTypes.GENERATE_AI_AGENT_SCHEMA_REQUEST]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], true);
+  },
+  [ReduxActionTypes.GENERATE_AI_AGENT_SCHEMA_SUCCESS]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
+  },
+  [ReduxActionErrorTypes.GENERATE_AI_AGENT_SCHEMA_ERROR]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    set(state, ["isSchemaGenerating", action.payload.id], false);
+  },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,
     action: ReduxAction<{ selectedTab: string }>,

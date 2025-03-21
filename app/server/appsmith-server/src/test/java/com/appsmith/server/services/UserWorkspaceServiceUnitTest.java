@@ -248,7 +248,7 @@ public class UserWorkspaceServiceUnitTest {
         cleanup();
         createDummyWorkspaces().blockLast();
 
-        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder(null))
+        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder())
                 .assertNext(workspaces -> {
                     assertThat(workspaces).hasSize(4);
                     workspaces.forEach(workspace -> {
@@ -275,7 +275,7 @@ public class UserWorkspaceServiceUnitTest {
         userData.setRecentlyUsedEntityIds(recentlyUsedEntityDTOs);
         doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
 
-        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder(null))
+        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder())
                 .assertNext(workspaces -> {
                     assertThat(workspaces).hasSize(4);
                     List<String> fetchedWorkspaceIds = new ArrayList<>();
