@@ -1,33 +1,10 @@
-import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
 import React, { type Ref } from "react";
-import type { ListChildComponentProps } from "react-window";
 import type { Row as ReactTableRowType } from "react-table";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { Row } from "./Row";
-import type { TableSizes } from "../Constants";
+import type { ListOnItemsRenderedProps, ReactElementType } from "react-window";
+import type { VariableSizeList } from "react-window";
 import type SimpleBar from "simplebar-react";
-import { EmptyRows } from "../cellComponents/EmptyCell";
-
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
-
-  if (index < data.length) {
-    const row = data[index];
-
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        row={row}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRows rows={1} style={style} />;
-  }
-}, areEqual);
+import type { TableSizes } from "../Constants";
+import BaseVirtualList from "../VirtualTable/BaseVirtualList";
 
 interface BaseVirtualListProps {
   height: number;
@@ -36,48 +13,16 @@ interface BaseVirtualListProps {
   innerElementType?: ReactElementType;
   outerRef: Ref<SimpleBar>;
   onItemsRendered?: (props: ListOnItemsRenderedProps) => void;
-  infiniteLoaderListRef?: React.Ref<FixedSizeList>;
+  infiniteLoaderListRef?: React.Ref<VariableSizeList>;
   itemCount: number;
   pageSize: number;
 }
 
-const BaseVirtualList = React.memo(function BaseVirtualList({
-  height,
-  infiniteLoaderListRef,
-  innerElementType,
-  itemCount,
-  onItemsRendered,
-  outerRef,
-  rows,
-  tableSizes,
-}: BaseVirtualListProps) {
-  return (
-    <FixedSizeList
-      className="virtual-list simplebar-content"
-      height={
-        height -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        2 * tableSizes.VERTICAL_PADDING
-      }
-      innerElementType={innerElementType}
-      itemCount={itemCount}
-      itemData={rows}
-      itemSize={tableSizes.ROW_HEIGHT}
-      onItemsRendered={onItemsRendered}
-      outerRef={outerRef}
-      ref={infiniteLoaderListRef}
-      width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-    >
-      {rowRenderer}
-    </FixedSizeList>
-  );
-});
-
 /**
  * The difference between next two components is in the number of arguments they expect.
  */
-export const FixedInfiniteVirtualList = React.memo(
-  function FixedInfiniteVirtualList(props: BaseVirtualListProps) {
+export const VariableInfiniteVirtualList = React.memo(
+  function VariableInfiniteVirtualList(props: BaseVirtualListProps) {
     return <BaseVirtualList {...props} />;
   },
 );
