@@ -56,8 +56,4 @@ function DatasourceLink(props: DatasourceLinkControlProps) {
   );
 }
 
-export interface CheckboxControlProps extends ControlProps {
-  info?: string;
-}
-
 export { DatasourceLinkControl };
