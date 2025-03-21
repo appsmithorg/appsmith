@@ -171,16 +171,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private Mono<Void> postVerificationRequiredHandler(
             WebFilterExchange webFilterExchange, User user, Application defaultApplication) {
         return webFilterExchange.getExchange().getSession().flatMap(webSession -> {
+            // First remove the security context from the session attributes
             webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-            return redirectHelper
-                    .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
-                    .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
-                                    webFilterExchange, user, redirectUrl)
-                            .map(url -> String.format(
-                                    "/user/verificationPending?email=%s",
-                                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
-                            .flatMap(redirectUri -> redirectStrategy.sendRedirect(
-                                    webFilterExchange.getExchange(), URI.create(redirectUri))));
+            // Then invalidate the entire session to remove it from Redis
+            return webSession
+                    .invalidate()
+                    .then(redirectHelper
+                            .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
+                            .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
+                                            webFilterExchange, user, redirectUrl)
+                                    .map(url -> String.format(
+                                            "/user/verificationPending?email=%s",
+                                            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
+                                    .flatMap(redirectUri -> redirectStrategy.sendRedirect(
+                                            webFilterExchange.getExchange(), URI.create(redirectUri)))));
         });
     }
 
