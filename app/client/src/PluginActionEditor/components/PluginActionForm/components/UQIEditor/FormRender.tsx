@@ -183,7 +183,7 @@ const FormRender = (props: Props) => {
           <FieldWrapper
             className="uqi-form-wrapper"
             key={`${configProperty}_${idx}`}
-            style={{ ...section.zoneCustomStyle }}
+            style={{ ...(section.zoneCustomStyle || {}) }}
           >
             <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
@@ -223,7 +223,7 @@ const FormRender = (props: Props) => {
             : "double_column";
 
         return (
-          <Zone layout={layout} style={{ ...section.zoneCustomStyle }}>
+          <Zone layout={layout} style={{ ...(section.zoneCustomStyle || {}) }}>
             {children}
           </Zone>
         );
