@@ -1,7 +1,6 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -98,7 +97,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
     private final ExportService exportService;
     private final ImportService importService;
 
-    private final FSGitHandler fsGitHandler;
+    protected final FSGitHandler fsGitHandler;
     private final GitAutoCommitHelper gitAutoCommitHelper;
 
     private final GitProfileUtils gitProfileUtils;
@@ -293,16 +292,17 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     /**
      * List all the local branches present in the file system
+     *
      * @param artifactJsonTransformationDTO
      * @return
      */
     @Override
-    public Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
+    public Mono<List<GitRefDTO>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
         return listBranches(artifactJsonTransformationDTO, Boolean.FALSE);
     }
 
     @Override
-    public Mono<List<String>> listBranches(
+    public Mono<List<GitRefDTO>> listBranches(
             ArtifactJsonTransformationDTO jsonTransformationDTO, Boolean listRemoteBranches) {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
@@ -316,24 +316,22 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 .listBranches(repoSuffix)
                 .flatMapMany(Flux::fromIterable)
                 .filter(gitBranchDTO -> {
-                    boolean branchToBeListed =
-                            !gitBranchDTO.getBranchName().startsWith("origin") || TRUE.equals(listRemoteBranches);
+                    boolean branchToBeListed = TRUE.equals(listRemoteBranches)
+                            || !gitBranchDTO.getRefName().startsWith(ORIGIN);
 
-                    return StringUtils.hasText(gitBranchDTO.getBranchName()) && branchToBeListed;
+                    return StringUtils.hasText(gitBranchDTO.getRefName()) && branchToBeListed;
                 })
-                .map(GitBranchDTO::getBranchName)
                 .collectList();
     }
 
     @Override
-    public Mono<List<String>> listReferences(
+    public Mono<List<GitRefDTO>> listReferences(
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO, Boolean checkRemoteReferences) {
         if (RefType.branch.equals(artifactJsonTransformationDTO.getRefType())) {
             return listBranches(artifactJsonTransformationDTO, checkRemoteReferences);
         }
 
-        // TODO: Add logic for other reference types (e.g., tags)
-        return Mono.just(List.of());
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
@@ -531,7 +529,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                     GitAuth gitAuth = gitData.getGitAuth();
 
                     return fsGitHandler
-                            .pushApplication(
+                            .pushArtifact(
                                     baseRepoSuffix,
                                     gitData.getRemoteUrl(),
                                     gitAuth.getPublicKey(),
@@ -747,6 +745,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
 
+        RefType incomingRefType = gitRefDTO.getRefType();
         String baseRefName = baseRefJsonTransformationDTO.getRefName();
 
         String remoteUrl = baseGitData.getRemoteUrl();
@@ -761,8 +760,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         // TODO: add the checkout to the current branch as well.
         return fsGitHandler.checkoutToBranch(repoSuffix, baseRefName).flatMap(isCheckedOut -> fsGitHandler
                 .createAndCheckoutReference(repoSuffix, gitRefDTO)
-                .flatMap(newRef -> fsGitHandler.pushApplication(
-                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName())));
+                .flatMap(newRef -> fsGitHandler.pushArtifact(
+                        repoSuffix, remoteUrl, publicKey, privateKey, gitRefDTO.getRefName(), incomingRefType)));
     }
 
     @Override
