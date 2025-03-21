@@ -51,6 +51,7 @@ import {
   DatasourceLinkControl,
   type DatasourceLinkControlProps,
 } from "components/formControls/DatasourceLinkControl";
+import { CustomActionsControl } from "components/formControls/CustomActionsConfigControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -251,6 +252,15 @@ class FormControlRegistry {
           controlProps: DatasourceLinkControlProps,
         ): JSX.Element {
           return <DatasourceLinkControl {...controlProps} />;
+        },
+      },
+    );
+
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.CUSTOM_ACTIONS_CONFIG_FORM,
+      {
+        buildPropertyControl(controlProps): JSX.Element {
+          return <CustomActionsControl {...controlProps} />;
         },
       },
     );

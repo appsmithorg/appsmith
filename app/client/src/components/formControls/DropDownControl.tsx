@@ -28,6 +28,7 @@ import type {
   ConditionalOutput,
   DynamicValues,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import NoSearchCommandFound from "./CustomActionsConfigControl/NoSearchCommandFound";
 
 export interface DropDownGroupedOptions {
   label: string;
@@ -462,6 +463,14 @@ function renderDropdown(
       isLoading={props.isLoading}
       isMultiSelect={isMultiSelect}
       maxTagCount={props.maxTagCount}
+      notFoundContent={
+        <NoSearchCommandFound
+          configProperty={props.configProperty}
+          onSelectOptions={onSelectOptions}
+          options={options}
+          pluginId={get(props.formValues, "pluginId")}
+        />
+      }
       onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onPopupScroll={handlePopupScroll}
