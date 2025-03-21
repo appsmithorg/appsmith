@@ -2,7 +2,7 @@ import React, { type Ref } from "react";
 import { type ReactElementType } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import type SimpleBar from "simplebar-react";
-import { FixedInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
+import { VariableInfiniteVirtualList } from "../../TableBodyCoreComponents/VirtualList";
 import { useAppsmithTable } from "../../TableContext";
 import { LoadingIndicator } from "../../LoadingIndicator";
 import { useInfiniteVirtualization } from "./useInfiniteVirtualization";
@@ -40,7 +40,7 @@ const InfiniteScrollBodyComponent = React.forwardRef(
           minimumBatchSize={pageSize}
         >
           {({ onItemsRendered, ref: infiniteLoaderRef }) => (
-            <FixedInfiniteVirtualList
+            <VariableInfiniteVirtualList
               height={height}
               infiniteLoaderListRef={infiniteLoaderRef}
               innerElementType={props.innerElementType}
