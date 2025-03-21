@@ -1,9 +1,14 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper class for accessing instance variables from the instance config
@@ -46,5 +51,48 @@ public class InstanceVariablesHelperCE {
             Object value = instanceVariables.getOrDefault("googleMapsKey", "");
             return value != null ? value.toString() : "";
         });
+    }
+
+    public OrganizationConfiguration populateOrgConfigWithInstanceVariables(
+            Map<String, Object> instanceVariables, OrganizationConfiguration organizationConfiguration) {
+        Object value = instanceVariables.getOrDefault("instanceName", Appsmith.DEFAULT_INSTANCE_NAME);
+        organizationConfiguration.setInstanceName(value != null ? value.toString() : Appsmith.DEFAULT_INSTANCE_NAME);
+
+        value = instanceVariables.getOrDefault("emailVerificationEnabled", false);
+        if (value instanceof Boolean) {
+            organizationConfiguration.setEmailVerificationEnabled((Boolean) value);
+        } else {
+            organizationConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
+        }
+
+        value = instanceVariables.getOrDefault("googleMapsKey", "");
+        organizationConfiguration.setGoogleMapsKey(value != null ? value.toString() : "");
+
+        return organizationConfiguration;
+    }
+
+    // TODO @CloudBilling: Temporary method to update instance variables via organization configuration. This method
+    //  will be removed once the instance variables will be removed from organization configuration
+    public Mono<OrganizationConfiguration> updateInstanceVariables(OrganizationConfiguration orgConfig) {
+
+        Map<String, Object> updatedInstanceVariables = updateAllowedInstanceVariables(orgConfig);
+        return configService.getInstanceVariables().flatMap(instanceVariable -> {
+            instanceVariable.putAll(updatedInstanceVariables);
+            return configService.updateInstanceVariables(instanceVariable).thenReturn(orgConfig);
+        });
+    }
+
+    protected Map<String, Object> updateAllowedInstanceVariables(OrganizationConfiguration orgConfig) {
+        Map<String, Object> instanceVariables = new HashMap<>();
+        if (StringUtils.hasLength(orgConfig.getInstanceName())) {
+            instanceVariables.put("instanceName", orgConfig.getInstanceName());
+        }
+        if (orgConfig.getEmailVerificationEnabled() != null) {
+            instanceVariables.put("emailVerificationEnabled", orgConfig.getEmailVerificationEnabled());
+        }
+        if (StringUtils.hasLength(orgConfig.getGoogleMapsKey())) {
+            instanceVariables.put("googleMapsKey", orgConfig.getGoogleMapsKey());
+        }
+        return instanceVariables;
     }
 }

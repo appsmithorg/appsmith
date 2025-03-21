@@ -114,13 +114,13 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     }
 
     @Override
-    public Mono<Config> updateInstanceVariables(JSONObject instanceVariables) {
-        return getByName(FieldName.INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
-                .flatMap(config -> {
-                    JSONObject configObj = config.getConfig();
-                    configObj.put(INSTANCE_VARIABLES, instanceVariables);
-                    config.setConfig(configObj);
-                    return repository.save(config);
-                });
+    public Mono<Config> updateInstanceVariables(Map<String, Object> instanceVariables) {
+        // TODO @CloudBilling add manage instance permission once the migration for variables is complete
+        return getByName(FieldName.INSTANCE_CONFIG).flatMap(config -> {
+            JSONObject configObj = config.getConfig();
+            configObj.put(INSTANCE_VARIABLES, instanceVariables);
+            config.setConfig(configObj);
+            return repository.save(config);
+        });
     }
 }
