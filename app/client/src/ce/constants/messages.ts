@@ -2637,3 +2637,7 @@ export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
   "No actions match your search";
 
 export const ADD_CUSTOM_ACTION = () => "Add custom action";
+
+export const CONFIG_PROPERTY_COMMAND = () => "command";
+
+export const CUSTOM_ACTION_LABEL = () => "Custom Action";

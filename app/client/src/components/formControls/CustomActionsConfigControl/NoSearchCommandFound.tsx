@@ -1,7 +1,9 @@
 import React from "react";
 import {
   ADD_CUSTOM_ACTION,
+  CONFIG_PROPERTY_COMMAND,
   createMessage,
+  CUSTOM_ACTION_LABEL,
   NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS,
   NOT_FOUND,
 } from "ee/constants/messages";
@@ -26,10 +28,12 @@ export default function NoSearchCommandFound({
 
   const isExternalSaasPluginCommandDropdown =
     plugin?.type === PluginType.EXTERNAL_SAAS &&
-    configProperty.includes("command");
+    configProperty.includes(createMessage(CONFIG_PROPERTY_COMMAND));
 
   const customActionOption = options.find((option) =>
-    option.label.toLowerCase().includes("custom action"),
+    option.label
+      .toLowerCase()
+      .includes(createMessage(CUSTOM_ACTION_LABEL).toLowerCase()),
   );
 
   const onClick = () => {
@@ -48,7 +52,13 @@ export default function NoSearchCommandFound({
         <Text color="var(--ads-v2-color-gray-500)">
           {createMessage(NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS)}
         </Text>
-        <Button kind="secondary" onClick={onClick} size="sm" startIcon="plus">
+        <Button
+          data-testid="t--select-custom--action"
+          kind="secondary"
+          onClick={onClick}
+          size="sm"
+          startIcon="plus"
+        >
           {createMessage(ADD_CUSTOM_ACTION)}
         </Button>
       </Flex>
