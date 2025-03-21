@@ -44,10 +44,6 @@ mongodb:
     nodeSelector: {}
     affinity: {}
     tolerations: []
-  image:
-    registry: docker.io
-    repository: bitnami/mongodb
-    tag: 6.0.13
 
 ## postgresql parameters
 postgresql:
