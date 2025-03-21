@@ -70,7 +70,7 @@ public class Migration069MigrateOrganizationConfigToInstanceConfig {
             instanceVariables.put("instanceName", Appsmith.DEFAULT_INSTANCE_NAME);
         }
 
-        instanceVariables.put("emailVerificationEnabled", orgConfig.isEmailVerificationEnabled());
+        instanceVariables.put("emailVerificationEnabled", orgConfig.getEmailVerificationEnabled());
         instanceVariables.put("googleMapsKey", orgConfig.getGoogleMapsKey());
 
         // Add instanceVariables to config
