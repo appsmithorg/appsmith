@@ -41,5 +41,6 @@ export function endSpan(span: Span, error?: Error): void {
       message: error.message,
     });
   }
+
   span.end();
 }

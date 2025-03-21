@@ -14,9 +14,11 @@ export default class DSLController extends BaseController {
 
     try {
       const latestDSL = await migrateDSLToLatest(req.body);
+
       super.sendResponse(res, latestDSL);
     } catch (err) {
       endSpan(span, err);
+
       return super.sendError(
         res,
         this.serverErrorMessage,
@@ -36,6 +38,7 @@ export default class DSLController extends BaseController {
     } catch (err) {
       endSpan(childSpan, err);
       endSpan(span, err);
+
       return super.sendError(
         res,
         this.serverErrorMessage,
