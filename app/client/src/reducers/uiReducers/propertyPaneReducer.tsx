@@ -2,10 +2,15 @@ import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
 
 export interface SelectedPropertyPanel {
   [path: string]: number;
+}
+
+export interface ShowPropertyPanePayload {
+  widgetId?: string;
+  callForDragOrResize?: boolean;
+  force: boolean;
 }
 
 const initialState: PropertyPaneReduxState = {

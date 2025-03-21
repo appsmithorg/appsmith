@@ -16,4 +16,8 @@ public class OnLoadSpanCE {
             APPSMITH_SPAN_PREFIX + "addExplicitUserSetOnLoadExecutablesToGraph";
     public static final String GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT =
             APPSMITH_SPAN_PREFIX + "getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContext";
+    public static final String GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING =
+            APPSMITH_SPAN_PREFIX + "getPossibleReferencesFromDynamicBinding";
+    public static final String AST_SERVICE_CALLING_RTS_API =
+            APPSMITH_SPAN_PREFIX + "astService.getPossibleReferencesFromDynamicBinding";
 }

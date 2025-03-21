@@ -9,7 +9,6 @@ import type { FormConfigType, HiddenType } from "./BaseControl";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
@@ -749,8 +748,8 @@ export const updateEvaluatedSectionConfig = (
 };
 
 export function fixActionPayloadForMongoQuery(
-  action?: Action,
-): Action | undefined {
+  action?: unknown,
+): unknown | undefined {
   if (!action) return action;
 
   /* eslint-disable */
@@ -782,7 +781,6 @@ export function fixActionPayloadForMongoQuery(
           }
           // @ts-expect-error: Types are not available
           value = actionObjectDiff[i]?.rhs;
-          // @ts-expect-error: Types are not available
           set(action, path, value);
         }
       }
