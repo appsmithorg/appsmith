@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import io.micrometer.observation.ObservationRegistry;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
@@ -85,7 +86,7 @@ public class MySqlPluginTest {
     }
 
     static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
-            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
 
     ConnectionContext<ConnectionPool> instanceConnectionContext;
 
@@ -1327,7 +1328,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testNullObjectWithPreparedStatement() {
-        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig()));
+        pluginExecutor =
+                spy(new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP));
         doReturn(false).when(pluginExecutor).isIsOperatorUsed(any());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor

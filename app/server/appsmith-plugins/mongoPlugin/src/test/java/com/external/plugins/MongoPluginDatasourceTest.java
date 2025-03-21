@@ -15,6 +15,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ import static org.mockito.Mockito.when;
  */
 @Testcontainers
 public class MongoPluginDatasourceTest {
-    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
+    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor(ObservationRegistry.NOOP);
 
     private static String address;
     private static Integer port;
@@ -196,7 +197,8 @@ public class MongoPluginDatasourceTest {
          *      - On calling testDatasource(...) -> call the real method.
          *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
          */
-        MongoPlugin.MongoPluginExecutor mongoPluginExecutor = new MongoPlugin.MongoPluginExecutor();
+        MongoPlugin.MongoPluginExecutor mongoPluginExecutor =
+                new MongoPlugin.MongoPluginExecutor(ObservationRegistry.NOOP);
         MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
         /* Please check this out before modifying this line: https://stackoverflow
          * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method

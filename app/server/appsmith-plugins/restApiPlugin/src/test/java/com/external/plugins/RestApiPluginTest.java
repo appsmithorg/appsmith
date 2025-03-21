@@ -26,6 +26,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import io.micrometer.observation.ObservationRegistry;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
@@ -102,7 +103,7 @@ public class RestApiPluginTest {
     }
 
     RestApiPlugin.RestApiPluginExecutor pluginExecutor =
-            new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
+            new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig(), ObservationRegistry.NOOP);
 
     @BeforeEach
     public void setUp() throws IOException {

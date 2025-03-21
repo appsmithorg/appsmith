@@ -12,6 +12,7 @@ import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.ListCollectionNamesPublisher;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.when;
  */
 @Testcontainers
 public class MongoPluginStaleConnTest {
-    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
+    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor(ObservationRegistry.NOOP);
 
     private static String address;
     private static Integer port;

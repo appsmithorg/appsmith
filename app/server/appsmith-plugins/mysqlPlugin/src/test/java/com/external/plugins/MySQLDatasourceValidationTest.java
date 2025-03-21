@@ -10,6 +10,7 @@ import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -34,7 +35,7 @@ public class MySQLDatasourceValidationTest {
     }
 
     static MySqlPlugin.MySqlPluginExecutor pluginExecutor =
-            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig());
+            new MySqlPlugin.MySqlPluginExecutor(new MockConnectionPoolConfig(), ObservationRegistry.NOOP);
 
     private DatasourceConfiguration getDatasourceConfigurationWithStandardConnectionMethod() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();

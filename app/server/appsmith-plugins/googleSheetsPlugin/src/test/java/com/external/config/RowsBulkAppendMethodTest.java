@@ -10,6 +10,7 @@ import com.appsmith.external.models.PaginationType;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -25,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class RowsBulkAppendMethodTest {
     final ObjectMapper objectMapper = new ObjectMapper();
 
-    GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
+    GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor =
+            new GoogleSheetsPlugin.GoogleSheetsPluginExecutor(ObservationRegistry.NOOP);
 
     /**
      * To Test if it passes the empty Mono criteria,
