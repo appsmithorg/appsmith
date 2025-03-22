@@ -13,7 +13,7 @@ The icons are sourced from GitHub user avatars and other official sources. They 
 To update or add new library icons:
 
 1. Add the library details to `recommendedLibraries.ts`
-2. Add the icon mapping to the `icons` array in `download-icons.js`
+2. Add the icon mapping in the `icons` array in `download-icons.js`
 3. Run the download script:
    ```bash
    cd app/client/src/assets/icons/libraries
@@ -28,6 +28,6 @@ To update or add new library icons:
 ## Adding New Libraries
 When adding a new library to Appsmith:
 1. Add the library configuration to `recommendedLibraries.ts`
-2. Add the icon mapping to `download-icons.js`
+2. Add the icon mapping in the `icons` array in `download-icons.js`
 3. Run the download script to fetch the new icon
 4. Update the library's icon path to point to `/assets/icons/libraries/{filename}.png` 
