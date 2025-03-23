@@ -9,19 +9,6 @@ import Steps from "./Steps";
 import Statusbar from "../../Statusbar";
 import { Button, ModalBody, ModalFooter, ModalHeader } from "@appsmith/ads";
 import { GIT_CONNECT_STEPS } from "./constants";
-import {
-  ADD_DEPLOY_KEY_STEP,
-  CHOOSE_A_GIT_PROVIDER_STEP,
-  CONFIGURE_GIT,
-  CONNECT_GIT_TEXT,
-  GENERATE_SSH_KEY_STEP,
-  GIT_CONNECT_WAITING,
-  GIT_IMPORT_WAITING,
-  IMPORT_APP,
-  IMPORT_APP_CTA,
-  PREVIOUS_STEP,
-  createMessage,
-} from "ee/constants/messages";
 import { isValidGitRemoteUrl } from "../../utils";
 import type { ConnectRequestParams } from "git/requests/connectRequest.types";
 import noop from "lodash/noop";
@@ -29,6 +16,7 @@ import type { GitApiError } from "git/store/types";
 import type { ConnectFormDataState } from "./types";
 import type { GitImportRequestParams } from "git/requests/gitImportRequest.types";
 import { GitErrorCodes } from "git/constants/enums";
+import { CONNECT_GIT, IMPORT_GIT } from "git/ee/constants/messages";
 
 const OFFSET = 200;
 const OUTER_PADDING = 32;
@@ -53,15 +41,15 @@ const StyledModalFooter = styled(ModalFooter)<StyledModalFooterProps>`
 const steps = [
   {
     key: GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
-    text: createMessage(CHOOSE_A_GIT_PROVIDER_STEP),
+    text: CONNECT_GIT.CHOOSE_PROVIDER_STEP_TITLE,
   },
   {
     key: GIT_CONNECT_STEPS.GENERATE_SSH_KEY,
-    text: createMessage(GENERATE_SSH_KEY_STEP),
+    text: CONNECT_GIT.GENERATE_SSH_KEY_STEP_TITLE,
   },
   {
     key: GIT_CONNECT_STEPS.ADD_DEPLOY_KEY,
-    text: createMessage(ADD_DEPLOY_KEY_STEP),
+    text: CONNECT_GIT.ADD_DEPLOY_KEY_STEP_TITLE,
   },
 ];
 
@@ -97,11 +85,11 @@ function ConnectInitialize({
   sshPublicKey = null,
 }: ConnectInitializeProps) {
   const nextStepText = {
-    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
-    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: createMessage(GENERATE_SSH_KEY_STEP),
-    [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: createMessage(
-      isImport ? IMPORT_APP_CTA : CONNECT_GIT_TEXT,
-    ),
+    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: CONNECT_GIT.CHOOSE_PROVIDER_CTA,
+    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: CONNECT_GIT.GENERATE_SSH_KEY_CTA,
+    [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: isImport
+      ? IMPORT_GIT.IMPORT_CTA
+      : CONNECT_GIT.CONNECT_CTA,
   };
 
   const [formData, setFormData] = useState<ConnectFormDataState>({
@@ -210,7 +198,7 @@ function ConnectInitialize({
   return (
     <>
       <ModalHeader>
-        {isImport ? createMessage(IMPORT_APP) : createMessage(CONFIGURE_GIT)}
+        {isImport ? IMPORT_GIT.MODAL_TITLE : CONNECT_GIT.MODAL_TITLE}
       </ModalHeader>
       <StyledModalBody>
         {possibleSteps.includes(activeStep) && (
@@ -249,9 +237,7 @@ function ConnectInitialize({
         {isSubmitLoading && (
           <Statusbar
             completed={!isSubmitLoading}
-            message={createMessage(
-              isImport ? GIT_IMPORT_WAITING : GIT_CONNECT_WAITING,
-            )}
+            message={isImport ? IMPORT_GIT.WAIT_TEXT : CONNECT_GIT.WAIT_TEXT}
           />
         )}
         {!isSubmitLoading && (
@@ -278,7 +264,7 @@ function ConnectInitialize({
               size="md"
               startIcon="arrow-left-s-line"
             >
-              {createMessage(PREVIOUS_STEP)}
+              {CONNECT_GIT.PREV_STEP}
             </Button>
           )}
       </StyledModalFooter>
