@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -25,7 +26,8 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
             ObservationRegistry observationRegistry,
-            UserOrganizationHelper userOrganizationHelper) {
+            UserOrganizationHelper userOrganizationHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(
                 validator,
                 repository,
@@ -36,6 +38,7 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
                 cacheableRepositoryHelper,
                 commonConfig,
                 observationRegistry,
-                userOrganizationHelper);
+                userOrganizationHelper,
+                instanceVariablesHelper);
     }
 }

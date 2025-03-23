@@ -3,7 +3,6 @@ package com.appsmith.git.handler.ce;
 import com.appsmith.external.configurations.git.GitConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -12,6 +11,7 @@ import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -22,25 +22,33 @@ import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.ListTagCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.RebaseCommand;
 import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.TagCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.util.StringUtils;
@@ -75,6 +83,7 @@ import static com.appsmith.external.git.constants.GitConstants.GitMetricConstant
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Component
@@ -96,9 +105,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     private static final String BRANCH_REF_REMOTE_SRC = "refs/heads/";
     private static final String BRANCH_REF_LOCAL_DST = "refs/remotes/origin/";
     private static final String SRC_DST_DELIMITER = ":";
+    private static final String WILDCARD = "*";
+    private static final String FORCE_UPDATE = "+";
     private static final String TAG_REF = "refs/tags/";
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
+    private final ObservationHelper observationHelper;
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -128,6 +140,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitAddSpan = observationHelper.createSpan(GitSpan.JGIT_ADD);
                                     log.debug("Trying to commit to local repo path, {}", path);
 
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
@@ -140,8 +153,10 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             .setUpdate(true)
                                             .addFilepattern(".")
                                             .call();
+                                    jgitAddSpan.end();
 
                                     // Commit the changes
+                                    Span jgitCommitSpan = observationHelper.createSpan(GitSpan.JGIT_COMMIT);
                                     git.commit()
                                             .setMessage(commitMessage)
                                             // Only make a commit if there are any updates
@@ -150,6 +165,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             .setCommitter(finalAuthorName, finalAuthorEmail)
                                             .setAmend(doAmend)
                                             .call();
+                                    jgitCommitSpan.end();
                                     processStopwatch.stopAndLogTimeInMillis();
                                     return "Committed successfully!";
                                 })
@@ -174,25 +190,19 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         }
     }
 
-    /**
-     * Method to get the commit history
-     * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
-     * @return list of git commits
-     */
-    @Override
-    public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
+    protected Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix, Integer commitDepth) {
         Path repoPath = createRepoPath(repoSuffix);
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": get commit history for  "
-                                            + repoSuffix);
+                                    log.info(
+                                            "{} : get commit history for {}",
+                                            Thread.currentThread().getName(),
+                                            repoSuffix);
                                     List<GitLogDTO> commitLogs = new ArrayList<>();
-                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
-                                            repoPath, AnalyticsEvents.GIT_COMMIT_HISTORY.getEventName());
-                                    Iterable<RevCommit> gitLogs = git.log()
-                                            .setMaxCount(Constraint.MAX_COMMIT_LOGS)
-                                            .call();
+                                    Iterable<RevCommit> gitLogs =
+                                            git.log().setMaxCount(commitDepth).call();
+
                                     gitLogs.forEach(revCommit -> {
                                         PersonIdent author = revCommit.getAuthorIdent();
                                         GitLogDTO gitLog = new GitLogDTO(
@@ -202,14 +212,29 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 revCommit.getFullMessage(),
                                                 ISO_FORMATTER.format(
                                                         new Date(revCommit.getCommitTime() * 1000L).toInstant()));
-                                        processStopwatch.stopAndLogTimeInMillis();
                                         commitLogs.add(gitLog);
                                     });
+
                                     return commitLogs;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
                 .subscribeOn(scheduler);
+    }
+
+    /**
+     * Method to get the commit history
+     * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
+     * @return list of git commits
+     */
+    @Override
+    public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
+        return getCommitHistory(repoSuffix, Constraint.MAX_COMMIT_LOGS);
+    }
+
+    @Override
+    public Mono<GitLogDTO> getLastCommitDetails(Path repoSuffix) {
+        return getCommitHistory(repoSuffix, 1).map(gitLogDTOs -> gitLogDTOs.get(0));
     }
 
     @Override
@@ -226,7 +251,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
      * @return Success message
      */
     @Override
-    public Mono<String> pushApplication(
+    public Mono<String> pushArtifact(
             Path repoSuffix, String remoteUrl, String publicKey, String privateKey, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
@@ -236,6 +261,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
             return Mono.using(
                             () -> Git.open(baseRepoPath.toFile()),
                             git -> Mono.fromCallable(() -> {
+                                        Span jgitPushSpan = observationHelper.createSpan(GitSpan.JGIT_PUSH);
                                         log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
                                                 + remoteUrl);
                                         // open the repo
@@ -266,6 +292,61 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         // UsernamePasswordCredentialsProvider("username",
                                         // "password"));
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        jgitPushSpan.end();
+                                        return result.substring(0, result.length() - 1);
+                                    })
+                                    .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                    .name(GitSpan.FS_PUSH)
+                                    .tap(Micrometer.observation(observationRegistry)),
+                            Git::close)
+                    // this subscribeOn on is required because Mono.using
+                    // is not deferring the execution of push and for that reason it runs on the
+                    // lettuce-nioEventLoop thread instead of boundedElastic
+                    .subscribeOn(scheduler);
+        });
+    }
+
+    @Override
+    public Mono<String> pushArtifact(
+            Path repoSuffix, String remoteUrl, String publicKey, String privateKey, String refName, RefType refType) {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+
+        if (refType == null || RefType.branch.equals(refType)) {
+            return pushArtifact(repoSuffix, remoteUrl, publicKey, privateKey, refName);
+        }
+
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        return gitConfig.getIsAtomicPushAllowed().flatMap(isAtomicPushAllowed -> {
+            return Mono.using(
+                            () -> Git.open(baseRepoPath.toFile()),
+                            git -> Mono.fromCallable(() -> {
+                                        log.info(
+                                                "{}: pushing changes to remote {}",
+                                                Thread.currentThread().getName(),
+                                                remoteUrl);
+
+                                        TransportConfigCallback transportConfigCallback =
+                                                new SshTransportConfigCallback(privateKey, publicKey);
+
+                                        StringBuilder result = new StringBuilder("Pushed successfully with status : ");
+                                        git.push()
+                                                .setAtomic(isAtomicPushAllowed)
+                                                .setTransportConfigCallback(transportConfigCallback)
+                                                .setRemote(remoteUrl)
+                                                .setRefSpecs(new RefSpec("refs/tags/*:refs/tags/*"))
+                                                .call()
+                                                .forEach(pushResult -> pushResult
+                                                        .getRemoteUpdates()
+                                                        .forEach(remoteRefUpdate -> {
+                                                            result.append(remoteRefUpdate.getStatus())
+                                                                    .append(",");
+                                                            if (!StringUtils.isEmptyOrNull(
+                                                                    remoteRefUpdate.getMessage())) {
+                                                                result.append(remoteRefUpdate.getMessage())
+                                                                        .append(",");
+                                                            }
+                                                        }));
                                         return result.substring(0, result.length() - 1);
                                     })
                                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -294,6 +375,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
         return Mono.fromCallable(() -> {
+                    Span jgitCloneRepoSpan = observationHelper.createSpan(GitSpan.JGIT_CLONE_REPO);
                     log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
                     final TransportConfigCallback transportConfigCallback =
                             new SshTransportConfigCallback(privateKey, publicKey);
@@ -314,6 +396,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                     }
                     processStopwatch.stopAndLogTimeInMillis();
+                    jgitCloneRepoSpan.end();
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -331,6 +414,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCreateBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CREATE_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
@@ -343,7 +428,10 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
                                     repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                                     processStopwatch.stopAndLogTimeInMillis();
-                                    return git.getRepository().getBranch();
+                                    String branch = git.getRepository().getBranch();
+                                    jgitCreateBranchSpan.end();
+
+                                    return branch;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_CREATE_BRANCH)
@@ -367,7 +455,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     private String createTag(Git git, GitRefDTO gitRefDTO) throws GitAPIException {
         String tagName = gitRefDTO.getRefName();
         String message = gitRefDTO.getMessage();
-        return git.tag().setName(tagName).setMessage(message).call().getName();
+        RevCommit revCommit = git.log().setMaxCount(1).call().iterator().next();
+        TagCommand tagCommand = git.tag()
+                .setName(tagName)
+                .setObjectId(revCommit) // Set the commit to tag
+                .setMessage(message);
+
+        return tagCommand.call().getName();
     }
 
     @Override
@@ -378,6 +472,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCreateBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CREATE_BRANCH);
                                     log.info(
                                             "{} : Creating reference of type {} and name {} for the repo {}",
                                             Thread.currentThread().getName(),
@@ -388,8 +484,9 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     if (RefType.tag.equals(refType)) {
                                         return createTag(git, gitRefDTO);
                                     }
-
-                                    return createAndCheckoutBranch(git, gitRefDTO);
+                                    String branch = createAndCheckoutBranch(git, gitRefDTO);
+                                    jgitCreateBranchSpan.end();
+                                    return branch;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_CREATE_BRANCH)
@@ -407,6 +504,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitDeleteBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_DELETE_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
@@ -416,9 +515,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             .setForce(TRUE)
                                             .call();
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitDeleteBranchSpan.end();
                                     if (deleteBranchList.isEmpty()) {
                                         return Boolean.FALSE;
                                     }
+
                                     return TRUE;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -436,6 +537,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCheckoutBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CHECKOUT_BRANCH);
                                     log.info(
                                             "{}: Switching to the branch {}",
                                             Thread.currentThread().getName(),
@@ -455,6 +558,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             .call()
                                             .getName();
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitCheckoutBranchSpan.end();
                                     return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/" + branchName);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -474,6 +578,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitPullSpan = observationHelper.createSpan(GitSpan.JGIT_PULL);
                                     log.info(
                                             "{} : Pull changes from remote {} for the branch {}.",
                                             Thread.currentThread().getName(),
@@ -496,6 +601,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     if (mergeResult.getMergeStatus().isSuccessful()) {
                                         mergeStatus.setMergeAble(true);
                                         mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
+                                        jgitPullSpan.end();
                                         return mergeStatus;
                                     } else {
                                         // If there are conflicts add the conflicting file names to the response
@@ -518,10 +624,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             log.debug("Encountered error while aborting merge", e);
                                             throw new org.eclipse.jgit.errors.CheckoutConflictException(
                                                     mergeConflictFiles.toString());
+                                        } finally {
+                                            jgitPullSpan.end();
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -541,6 +649,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitPullSpan = observationHelper.createSpan(GitSpan.JGIT_PULL);
                                     log.debug(Thread.currentThread().getName() + ": Pull changes from remote  "
                                             + remoteUrl + " for the branch " + branchName);
                                     // checkout the branch on which the merge command is run
@@ -566,6 +675,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         mergeStatus.setMergeAble(true);
                                         mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        jgitPullSpan.end();
                                         return mergeStatus;
                                     } else {
                                         // If there are conflicts add the conflicting file names to the response
@@ -590,10 +700,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                     mergeConflictFiles.toString());
                                         } finally {
                                             processStopwatch.stopAndLogTimeInMillis();
+                                            jgitPullSpan.end();
                                         }
                                     }
                                 })
-                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .onErrorResume(error -> Mono.error(error))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_PULL)
                                 .tap(Micrometer.observation(observationRegistry)),
@@ -602,37 +713,104 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranches(Path repoSuffix) {
+    public Mono<List<GitRefDTO>> listBranches(Path repoSuffix) {
         Path baseRepoPath = createRepoPath(repoSuffix);
 
         return Mono.using(
                         () -> Git.open(baseRepoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Get branches for the application "
-                                            + repoSuffix);
-
+                                    log.info(
+                                            "{}: Get branches for the artifact {}",
+                                            Thread.currentThread().getName(),
+                                            repoSuffix);
                                     List<Ref> refList = git.branchList()
                                             .setListMode(ListBranchCommand.ListMode.ALL)
                                             .call();
 
-                                    List<GitBranchDTO> branchList = new ArrayList<>();
-                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                    List<GitRefDTO> branchList = new ArrayList<>();
                                     if (refList.isEmpty()) {
-                                        gitBranchDTO.setBranchName(
-                                                git.getRepository().getBranch());
-                                        branchList.add(gitBranchDTO);
-                                    } else {
-                                        for (Ref ref : refList) {
-                                            // if (!ref.getName().equals(defaultBranch)) {
-                                            gitBranchDTO = new GitBranchDTO();
-                                            gitBranchDTO.setBranchName(ref.getName()
-                                                    .replace("refs/", "")
-                                                    .replace("heads/", "")
-                                                    .replace("remotes/", ""));
-                                            branchList.add(gitBranchDTO);
-                                        }
+                                        GitRefDTO gitRefDTO = new GitRefDTO();
+                                        gitRefDTO.setRefType(RefType.tag);
+                                        gitRefDTO.setRefName(git.getRepository().getBranch());
+                                        branchList.add(gitRefDTO);
+                                        return branchList;
                                     }
+
+                                    for (Ref ref : refList) {
+                                        GitRefDTO gitRefDTO = new GitRefDTO();
+                                        gitRefDTO.setRefName(ref.getName()
+                                                .replace("refs/", "")
+                                                .replace("heads/", "")
+                                                .replace("remotes/", ""));
+                                        branchList.add(gitRefDTO);
+                                    }
+
                                     return branchList;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
+                        Git::close)
+                .subscribeOn(scheduler);
+    }
+
+    /**
+     * In case of an annotated tag, the tag has its own sha,
+     * hence the object is required to be opened to find
+     * @param git
+     * @param tagId
+     * @return
+     * @throws Exception
+     */
+    private RevCommit resolveTagToCommit(Git git, AnyObjectId tagId) throws IOException {
+        Repository repository = git.getRepository();
+        if (tagId == null || !hasText(tagId.getName())) {
+            return null;
+        }
+
+        // Use RevWalk to parse the tag or commit
+        RevWalk revWalk = new RevWalk(repository);
+
+        // Check if the tag is an annotated tag
+        RevObject object = revWalk.parseAny(tagId);
+
+        if (object instanceof RevTag) {
+            // Annotated tag: Dereference to get the commit
+            RevTag tag = (RevTag) object;
+            return revWalk.parseCommit(tag.getObject());
+        }
+
+        if (object instanceof RevCommit) {
+            // Lightweight tag: Directly points to a commit
+            return (RevCommit) object;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Mono<List<GitRefDTO>> listTags(Path repoSuffix) {
+        Path baseRepoPath = createRepoPath(repoSuffix);
+
+        return Mono.using(
+                        () -> Git.open(baseRepoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.info(
+                                            "{} : Get references for the artifact {} ",
+                                            Thread.currentThread().getName(),
+                                            repoSuffix);
+
+                                    ListTagCommand listTagCommand = git.tagList();
+                                    List<Ref> tags = listTagCommand.call();
+
+                                    List<GitRefDTO> gitRefDTOs = new ArrayList<>();
+
+                                    for (Ref ref : tags) {
+                                        GitRefDTO gitRefDTO = new GitRefDTO();
+                                        gitRefDTO.setSha(ref.getObjectId().getName());
+                                        gitRefDTO.setRefName(ref.getName().replace(TAG_REF, ""));
+                                        gitRefDTOs.add(gitRefDTO);
+                                    }
+
+                                    return gitRefDTOs;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
@@ -676,6 +854,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitStatusSpan = observationHelper.createSpan(GitSpan.JGIT_STATUS);
                                     log.info(
                                             "{}: Get status for repo {}, {}",
                                             Thread.currentThread().getName(),
@@ -723,15 +902,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         response.setRemoteBranch("untracked");
                                     }
 
-                                    // Remove modified changes from current branch so that checkout to other branches
-                                    // will be possible
-                                    if (!status.isClean()) {
-                                        return resetToLastCommit(git).map(ref -> {
-                                            processStopwatch.stopAndLogTimeInMillis();
-                                            return response;
-                                        });
-                                    }
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitStatusSpan.end();
                                     return Mono.just(response);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -919,6 +1091,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitMergeSpan = observationHelper.createSpan(GitSpan.JGIT_MERGE);
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                                             repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
 
@@ -941,16 +1114,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         git.getRepository().writeMergeHeads(null);
                                         processStopwatch.stopAndLogTimeInMillis();
                                         throw new Exception(e);
+                                    } finally {
+                                        jgitMergeSpan.end();
                                     }
                                 })
                                 .onErrorResume(error -> {
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(error.getMessage());
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+                                    return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_MERGE)
@@ -973,6 +1142,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitFetchRemoteSpan = observationHelper.createSpan(GitSpan.JGIT_FETCH_REMOTE);
                                     TransportConfigCallback config =
                                             new SshTransportConfigCallback(privateKey, publicKey);
                                     String fetchMessages;
@@ -993,6 +1163,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 .getMessages();
                                     }
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    jgitFetchRemoteSpan.end();
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
@@ -1013,15 +1184,28 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitFetchRemoteSpan = observationHelper.createSpan(GitSpan.JGIT_FETCH_REMOTE);
                                     TransportConfigCallback config =
                                             new SshTransportConfigCallback(privateKey, publicKey);
 
                                     if (TRUE.equals(fetchRemoteDTO.getIsFetchAll())) {
-                                        return git.fetch()
+                                        // fetch only tag
+                                        if (RefType.tag.equals(fetchRemoteDTO.getRefType())) {
+                                            return git.fetch()
+                                                    .setRemoveDeletedRefs(true)
+                                                    .setTransportConfigCallback(config)
+                                                    .setRefSpecs(new RefSpec("+refs/tags/*:refs/tags/*"))
+                                                    .call()
+                                                    .getMessages();
+                                        }
+
+                                        String fetchMessages = git.fetch()
                                                 .setRemoveDeletedRefs(true)
                                                 .setTransportConfigCallback(config)
                                                 .call()
                                                 .getMessages();
+                                        jgitFetchRemoteSpan.end();
+                                        return fetchMessages;
                                     }
 
                                     List<String> refNames = fetchRemoteDTO.getRefNames();
@@ -1030,7 +1214,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     List<RefSpec> refSpecs = new ArrayList<>();
                                     if (RefType.tag.equals(refType)) {
                                         for (String tagName : refNames) {
-                                            RefSpec refSpec = new RefSpec(TAG_REF + tagName + ":" + TAG_REF + tagName);
+                                            RefSpec refSpec = new RefSpec(
+                                                    TAG_REF + tagName + SRC_DST_DELIMITER + TAG_REF + tagName);
                                             refSpecs.add(refSpec);
                                         }
                                     } else {
@@ -1044,7 +1229,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         }
                                     }
 
-                                    return git.fetch()
+                                    String fetchMessages = git.fetch()
                                             .setRefSpecs(refSpecs.toArray(new RefSpec[0]))
                                             .setRemoveDeletedRefs(true)
                                             .setTagOpt(TagOpt.NO_TAGS) // no tags would mean that tags are fetched
@@ -1052,6 +1237,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             .setTransportConfigCallback(config)
                                             .call()
                                             .getMessages();
+                                    jgitFetchRemoteSpan.end();
+                                    return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
                                     log.error(error.getMessage());
@@ -1115,31 +1302,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                             mergeResult.getMergeStatus().name());
                                     return mergeStatus;
                                 })
-                                .flatMap(status -> {
-                                    try {
-                                        // Revert uncommitted changes if any
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .map(ignore -> {
-                                                    processStopwatch.stopAndLogTimeInMillis();
-                                                    return status;
-                                                });
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error for hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
-                                })
                                 .onErrorResume(error -> {
                                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                                     mergeStatusDTO.setMergeAble(false);
                                     mergeStatusDTO.setMessage(error.getMessage());
                                     mergeStatusDTO.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
-                                    try {
-                                        return resetToLastCommit(repoSuffix, destinationBranch)
-                                                .thenReturn(mergeStatusDTO);
-                                    } catch (GitAPIException | IOException e) {
-                                        log.error("Error while hard resetting to latest commit {0}", e);
-                                        return Mono.error(e);
-                                    }
+
+                                    return Mono.just(mergeStatusDTO);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
                         Git::close)
@@ -1152,6 +1321,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitCheckoutBranchSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_CHECKOUT_BRANCH);
                                     log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/"
                                             + branchName + " for the repo " + repoSuffix);
                                     // open the repo
@@ -1168,7 +1339,33 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     config.setString("branch", branchName, "remote", "origin");
                                     config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
                                     config.save();
-                                    return git.getRepository().getBranch();
+                                    String branch = git.getRepository().getBranch();
+                                    jgitCheckoutBranchSpan.end();
+                                    return branch;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .tag(CHECKOUT_REMOTE, TRUE.toString())
+                                .name(GitSpan.FS_CHECKOUT_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
+                .subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<String> checkoutTag(Path repoSuffix, String tagName) {
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.info(
+                                            "{}: Checking out tag {} for the repo {}",
+                                            Thread.currentThread().getName(),
+                                            tagName,
+                                            repoSuffix);
+
+                                    // checkout tag
+                                    git.checkout().setName(tagName).call();
+
+                                    return tagName;
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .tag(CHECKOUT_REMOTE, TRUE.toString())
@@ -1199,10 +1396,14 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                 git.getRepository().getDirectory().toPath().getParent(), AnalyticsEvents.GIT_RESET.getEventName());
         return Mono.fromCallable(() -> {
+                    Span jgitResetHardSpan = observationHelper.createSpan(GitSpan.JGIT_RESET_HARD);
                     // Remove tracked files
                     Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
+                    jgitResetHardSpan.end();
                     // Remove untracked files
+                    Span jgitCleanSpan = observationHelper.createSpan(GitSpan.JGIT_CLEAN);
                     git.clean().setForce(true).setCleanDirectories(true).call();
+                    jgitCleanSpan.end();
                     processStopwatch.stopAndLogTimeInMillis();
                     return ref;
                 })
@@ -1213,12 +1414,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .subscribeOn(scheduler);
     }
 
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) {
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
                 git -> this.resetToLastCommit(git)
-                        .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
+                        .flatMap(ref -> checkoutToBranch(repoSuffix, branchName).thenReturn(true)),
                 Git::close);
     }
 
@@ -1227,10 +1427,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .flatMap(aBoolean -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitResetHardSpan = observationHelper.createSpan(GitSpan.JGIT_RESET_HARD);
                                     git.reset()
                                             .setMode(ResetCommand.ResetType.HARD)
                                             .setRef("HEAD~1")
                                             .call();
+                                    jgitResetHardSpan.end();
                                     return true;
                                 })
                                 .onErrorResume(e -> {
@@ -1246,13 +1448,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     }
 
     public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
-        return this.checkoutToBranch(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
+        return this.resetToLastCommit(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
+                                    Span jgitRebaseSpan = observationHelper.createSpan(GitSpan.JGIT_REBASE);
                                     RebaseResult result = git.rebase()
                                             .setUpstream("origin/" + branchName)
                                             .call();
                                     if (result.getStatus().isSuccessful()) {
+                                        jgitRebaseSpan.end();
                                         return true;
                                     } else {
                                         log.error(
@@ -1263,6 +1467,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 .setUpstream("origin/" + branchName)
                                                 .setOperation(RebaseCommand.Operation.ABORT)
                                                 .call();
+                                        jgitRebaseSpan.end();
                                         throw new Exception("Error while rebasing the branch, "
                                                 + result.getStatus().name());
                                     }
@@ -1282,7 +1487,14 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
-                        git -> Mono.fromCallable(() -> BranchTrackingStatus.of(git.getRepository(), branchName))
+                        git -> Mono.fromCallable(() -> {
+                                    Span jgitBranchTrackingSpan =
+                                            observationHelper.createSpan(GitSpan.JGIT_BRANCH_TRACK);
+                                    BranchTrackingStatus branchTrackingStatus =
+                                            BranchTrackingStatus.of(git.getRepository(), branchName);
+                                    jgitBranchTrackingSpan.end();
+                                    return branchTrackingStatus;
+                                })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_BRANCH_TRACK)
                                 .tap(Micrometer.observation(observationRegistry)),

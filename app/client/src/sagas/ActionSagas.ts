@@ -521,8 +521,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
 
     if (action && plugin && plugin.packageName === PluginPackageName.MONGO) {
-      // @ts-expect-error: Types are not available
-      action = fixActionPayloadForMongoQuery(action);
+      action = fixActionPayloadForMongoQuery(action) as Action;
     }
 
     const response: ApiResponse<Action> = yield call(

@@ -112,6 +112,8 @@ describe(
       "8. No autocomplete for Removed libraries",
       { tags: ["@tag.excludeForAirgap"] },
       function () {
+        AppSidebar.navigate(AppSidebarButton.Editor);
+        EditorNavigation.SelectEntityByName("Text1Copy", EntityType.Widget);
         entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
         AppSidebar.navigate(AppSidebarButton.Libraries);
         installer.uninstallLibrary("uuidjs");

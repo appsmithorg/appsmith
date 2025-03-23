@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.InstanceVariablesHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -56,6 +57,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     private final UserOrganizationHelper userOrganizationHelper;
 
+    private final InstanceVariablesHelper instanceVariablesHelper;
+
     public OrganizationServiceCEImpl(
             Validator validator,
             OrganizationRepository repository,
@@ -66,7 +69,8 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             CacheableRepositoryHelper cacheableRepositoryHelper,
             CommonConfig commonConfig,
             ObservationRegistry observationRegistry,
-            UserOrganizationHelper userOrganizationHelper) {
+            UserOrganizationHelper userOrganizationHelper,
+            InstanceVariablesHelper instanceVariablesHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
@@ -75,6 +79,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
         this.userOrganizationHelper = userOrganizationHelper;
+        this.instanceVariablesHelper = instanceVariablesHelper;
     }
 
     @Override
@@ -149,9 +154,12 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getOrganizationConfiguration(Mono<Organization> dbOrganizationMono) {
         String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
-        Mono<Organization> clientOrganizationMono = configService
-                .getInstanceId()
-                .map(instanceId -> {
+        Mono<Organization> clientOrganizationMono = Mono.zip(
+                        configService.getInstanceId(), instanceVariablesHelper.getGoogleMapsKey())
+                .map(tuple -> {
+                    final String instanceId = tuple.getT1();
+                    final String googleMapsKey = tuple.getT2();
+
                     final Organization organization = new Organization();
                     organization.setInstanceId(instanceId);
                     organization.setAdminEmailDomainHash(adminEmailDomainHash);
@@ -159,7 +167,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     final OrganizationConfiguration config = new OrganizationConfiguration();
                     organization.setOrganizationConfiguration(config);
 
-                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+                    config.setGoogleMapsKey(googleMapsKey);
 
                     if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
                         config.addThirdPartyAuth("google");
