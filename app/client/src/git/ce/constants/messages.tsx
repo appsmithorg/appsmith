@@ -6,7 +6,7 @@ export const IMPORT_GIT = {
 
 export const CONNECT_GIT = {
   MODAL_TITLE: "Configure Git",
-  CHOOSE_PROVIDER_CTA: "Choose a Git provider",
+  CHOOSE_PROVIDER_CTA: "Configure Git",
   GENERATE_SSH_KEY_CTA: "Generate SSH key",
   CONNECT_CTA: "Connect Git",
   CHOOSE_PROVIDER_STEP_TITLE: "Choose a Git provider",
@@ -21,7 +21,7 @@ export const QUICK_ACTIONS = {
   CONNECT_BTN_COMING_SOON: "Coming Soon!",
   CONNECT_BTN_CTA: "Connect Git",
   CONNECT_BTN_CONTACT_ADMIN:
-    "Please contact your workspace admin to connect your artifact to a git repo",
+    "Please contact your workspace admin to connect your artifact to a Git repo",
 };
 
 export const OPS_MODAL = {
