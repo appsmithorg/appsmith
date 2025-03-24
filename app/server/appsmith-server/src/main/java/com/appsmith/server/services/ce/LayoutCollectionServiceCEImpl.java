@@ -528,16 +528,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 }
                             })
                             .collectList()
-                            .flatMap(savedActions -> {
-                                if (CreatorContextType.PAGE.equals(actionCollectionDTO.getContextType())) {
-                                    return updateLayoutService
-                                            .updatePageLayoutsByPageId(actionCollectionDTO.calculateContextId())
-                                            .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
-                                            .tap(Micrometer.observation(observationRegistry));
-                                } else {
-                                    return Mono.empty();
-                                }
-                            })
+                            .flatMap(savedActions -> updateLayoutService.updateLayoutByContextTypeAndContextId(
+                                    actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId()))
                             .then();
                 });
 
@@ -566,16 +558,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     .updateNewActionByBranchedId(actionId, action)
                     .name(UPDATE_ACTION)
                     .tap(Micrometer.observation(observationRegistry))
-                    .flatMap(savedAction -> {
-                        if (CreatorContextType.PAGE.equals(actionCollectionDTO.getContextType())) {
-                            return updateLayoutService
-                                    .updatePageLayoutsByPageId(actionCollectionDTO.calculateContextId())
-                                    .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
-                                    .tap(Micrometer.observation(observationRegistry));
-                        } else {
-                            return Mono.empty();
-                        }
-                    })
+                    .flatMap(savedAction -> updateLayoutService.updateLayoutByContextTypeAndContextId(
+                            actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId()))
                     .then();
         });
 
@@ -611,16 +595,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     })
                     .name(DELETE_ACTION)
                     .tap(Micrometer.observation(observationRegistry))
-                    .flatMap(savedAction -> {
-                        if (CreatorContextType.PAGE.equals(actionCollectionDTO.getContextType())) {
-                            return updateLayoutService
-                                    .updatePageLayoutsByPageId(actionCollectionDTO.calculateContextId())
-                                    .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
-                                    .tap(Micrometer.observation(observationRegistry));
-                        } else {
-                            return Mono.empty();
-                        }
-                    })
+                    .flatMap(savedAction -> updateLayoutService.updateLayoutByContextTypeAndContextId(
+                            actionCollectionDTO.getContextType(), actionCollectionDTO.getContextId()))
                     .then();
         });
 

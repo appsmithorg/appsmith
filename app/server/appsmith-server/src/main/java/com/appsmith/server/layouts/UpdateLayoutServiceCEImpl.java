@@ -57,6 +57,7 @@ import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_EXECUTABLE
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_DSL_METHOD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_METHOD;
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -393,6 +394,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                             error.getTitle())));
                     return Mono.just(new ArrayList<>());
                 });
+    }
+
+    @Override
+    public Mono<String> updateLayoutByContextTypeAndContextId(CreatorContextType contextType, String contextId) {
+        if (CreatorContextType.PAGE.equals(contextType)) {
+            return this.updatePageLayoutsByPageId(contextId)
+                    .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
+                    .tap(Micrometer.observation(observationRegistry));
+        } else {
+            return Mono.empty();
+        }
     }
 
     private JSONObject unEscapeDslKeys(JSONObject dsl, Set<String> escapedWidgetNames) {

@@ -136,8 +136,7 @@ public class ActionCollectionControllerCE {
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}/actions/{actionId}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> deletemAction(
-            @PathVariable String id, @PathVariable String actionId) {
+    public Mono<ResponseDTO<ActionCollectionDTO>> deleteAction(@PathVariable String id, @PathVariable String actionId) {
         log.debug("Going to delete action with id: {} for action collection with id: {}", actionId, id);
         return layoutCollectionService
                 .deleteAction(id, actionId)
