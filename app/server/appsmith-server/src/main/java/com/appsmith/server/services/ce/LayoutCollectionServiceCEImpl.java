@@ -474,6 +474,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .flatMap(actionCollection ->
                         actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                 .flatMapMany(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActions()))
+                .filter(actionDTO -> actionDTO.getId() == null)
                 .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
                 .handle((actionNameCountMap, sink) -> {
                     List<String> duplicateNames = actionNameCountMap.entrySet().stream()
