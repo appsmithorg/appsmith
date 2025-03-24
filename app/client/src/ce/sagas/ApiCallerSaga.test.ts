@@ -104,7 +104,12 @@ describe("updateJSCollectionAPICall", () => {
       jsCollection,
     ).toPromise();
 
-    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(jsCollection);
+    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
+      jsCollection,
+      undefined,
+      undefined,
+      undefined,
+    );
     expect(result).toEqual(response);
   });
 
@@ -129,6 +134,11 @@ describe("updateJSCollectionAPICall", () => {
       expect(e).toEqual(error);
     }
 
-    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(jsCollection);
+    expect(JSActionAPI.updateJSCollection).toHaveBeenCalledWith(
+      jsCollection,
+      undefined,
+      undefined,
+      undefined,
+    );
   });
 });
