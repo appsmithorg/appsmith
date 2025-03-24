@@ -51,6 +51,9 @@ export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
         "manage:actions",
       ],
       cacheResponse: "",
+      isDirtyMap: {
+        SCHEMA_GENERATION: false,
+      },
     },
     {
       id: "myFunc2_id",
@@ -88,6 +91,9 @@ export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
         "manage:actions",
       ],
       cacheResponse: "",
+      isDirtyMap: {
+        SCHEMA_GENERATION: false,
+      },
     },
   ],
   body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}",
