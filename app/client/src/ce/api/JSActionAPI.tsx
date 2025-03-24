@@ -209,6 +209,33 @@ class JSActionAPI extends API {
 
     return API.put(JSActionAPI.url + "/refactorAction", payload);
   }
+
+  static async updateJSCollectionAction(
+    jsCollectionId: string,
+    actionId: string,
+    action: JSAction,
+  ) {
+    return API.put(
+      `${JSActionAPI.url}/${jsCollectionId}/actions/${actionId}`,
+      action,
+    );
+  }
+
+  static async createJSCollectionAction(
+    jsCollectionId: string,
+    actions: Partial<JSAction>[],
+  ) {
+    return API.post(`${JSActionAPI.url}/${jsCollectionId}/actions`, actions);
+  }
+
+  static async deleteJSCollectionAction(
+    jsCollectionId: string,
+    actionId: string,
+  ) {
+    return API.delete(
+      `${JSActionAPI.url}/${jsCollectionId}/actions/${actionId}`,
+    );
+  }
 }
 
 export default JSActionAPI;
