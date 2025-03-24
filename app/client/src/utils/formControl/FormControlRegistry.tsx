@@ -47,6 +47,10 @@ import {
 } from "components/formControls/SliderControl";
 import { HybridSearchControl } from "components/formControls/HybridSearch";
 import FunctionCallingConfigControl from "components/formControls/FunctionCallingConfigControl";
+import {
+  DatasourceLinkControl,
+  type DatasourceLinkControlProps,
+} from "components/formControls/DatasourceLinkControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -237,6 +241,16 @@ class FormControlRegistry {
       {
         buildPropertyControl(controlProps): JSX.Element {
           return <FunctionCallingConfigControl {...controlProps} />;
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.DATASOURCE_LINK,
+      {
+        buildPropertyControl(
+          controlProps: DatasourceLinkControlProps,
+        ): JSX.Element {
+          return <DatasourceLinkControl {...controlProps} />;
         },
       },
     );
