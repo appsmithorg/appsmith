@@ -542,7 +542,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         if (actionUpdatesDTO.getDeleted() != null && !actionUpdatesDTO.getDeleted().isEmpty()) {
             deletedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 ActionCollectionDTO actionCollectionDTO1 = branchedActionCollection.getUnpublishedCollection();
-                return Flux.fromIterable(actionUpdatesDTO.getModified()).flatMap(actionDTO -> {
+                return Flux.fromIterable(actionUpdatesDTO.getDeleted()).flatMap(actionDTO -> {
                         return newActionService
                             .deleteUnpublishedAction(actionDTO.getId())
                             // return an empty action so that the filter can remove it from the list
