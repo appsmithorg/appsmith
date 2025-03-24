@@ -247,7 +247,7 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
   FEATURE_FLAG["release_table_serverside_filtering_enabled"];
 
 export const INFINITE_SCROLL_ENABLED =
-  FEATURE_FLAG["release_tablev2_infinitescroll_enabled"];
+  FEATURE_FLAG["release-tablev-2-infinitescroll-enabled-false"];
 
 export const CUSTOM_SORT_FUNCTION_ENABLED =
   FEATURE_FLAG["release_table_custom_sort_function_enabled"];

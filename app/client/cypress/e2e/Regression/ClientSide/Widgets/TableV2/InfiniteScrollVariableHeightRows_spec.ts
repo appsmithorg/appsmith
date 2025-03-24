@@ -9,7 +9,7 @@ describe(
   function () {
     before(() => {
       featureFlagIntercept({
-        release_tablev2_infinitescroll_enabled: true,
+        "release-tablev-2-infinitescroll-enabled-false": true,
       });
 
       // Set up a table with test data
