@@ -473,24 +473,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
-        // create duplicate name map
-        final Mono<List<String>> duplicateNamesMono = branchedActionCollectionMono
-                .flatMap(actionCollection ->
-                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
-                .flatMapMany(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActions()))
-                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
-                .handle((actionNameCountMap, sink) -> {
-                    List<String> duplicateNames = actionNameCountMap.entrySet().stream()
-                            .filter(entry -> entry.getValue() > 1)
-                            .map(Map.Entry::getKey)
-                            .collect(Collectors.toList());
-                    if (!duplicateNames.isEmpty()) {
-                        sink.error(new AppsmithException(
-                                AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
-                        return;
-                    }
-                    sink.next(duplicateNames);
-                });
         ActionCollectionDTO actionCollectionDTO = resource.getActionCollection();
         ActionUpdatesDTO actionUpdatesDTO = resource.getActions();
         Mono<List<ActionDTO>> addedActionsMono = Mono.just(List.of());
@@ -498,26 +480,31 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<List<ActionDTO>> modifiedActionsMono = Mono.just(List.of());
 
         if (!CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getAdded())) {
+            // create duplicate name map
+            final Mono<List<String>> duplicateNamesMono = Flux.fromIterable(actionUpdatesDTO.getAdded())
+                    .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
+                    .handle((actionNameCountMap, sink) -> {
+                        List<String> duplicateNames = actionNameCountMap.entrySet().stream()
+                                .filter(entry -> entry.getValue() > 1)
+                                .map(Map.Entry::getKey)
+                                .collect(Collectors.toList());
+                        if (!duplicateNames.isEmpty()) {
+                            sink.error(new AppsmithException(
+                                    AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
+                            return;
+                        }
+                        sink.next(duplicateNames);
+                    });
             addedActionsMono = duplicateNamesMono
-                    .zipWith(branchedActionCollectionMono)
-                    .flatMap(tuple2 -> {
-                        List<String> duplicateNames = tuple2.getT1();
-                        ActionCollection branchedActionCollection = tuple2.getT2();
+                    .flatMap(ignored -> branchedActionCollectionMono)
+                    .flatMap(branchedActionCollection -> {
                         return Flux.fromIterable(actionUpdatesDTO.getAdded())
                                 .flatMap(actionDTO -> {
                                     populateActionFieldsFromCollection(actionDTO, branchedActionCollection);
-
-                                    if (duplicateNames.contains(actionDTO.getName())) {
-                                        return Flux.error(new AppsmithException(
-                                                AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                                actionDTO.getName(),
-                                                FieldName.NAME));
-                                    } else {
-                                        return layoutActionService
-                                                .createSingleAction(actionDTO, Boolean.TRUE)
-                                                .name(CREATE_ACTION)
-                                                .tap(Micrometer.observation(observationRegistry));
-                                    }
+                                    return layoutActionService
+                                            .createSingleAction(actionDTO, Boolean.TRUE)
+                                            .name(CREATE_ACTION)
+                                            .tap(Micrometer.observation(observationRegistry));
                                 })
                                 .collectList();
                     });
