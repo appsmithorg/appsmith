@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ActionCollectionUpdateDTO;
 import com.appsmith.server.dtos.ActionUpdatesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ContextTypeUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
@@ -477,7 +478,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .flatMap(actionCollection ->
                         actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                 .flatMapMany(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActions()))
-                .filter(actionDTO -> actionDTO.getId() == null)
                 .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()))
                 .handle((actionNameCountMap, sink) -> {
                     List<String> duplicateNames = actionNameCountMap.entrySet().stream()
@@ -497,7 +497,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<List<ActionDTO>> deletedActionsMono = Mono.just(List.of());
         Mono<List<ActionDTO>> modifiedActionsMono = Mono.just(List.of());
 
-        if (actionUpdatesDTO.getAdded() != null && !actionUpdatesDTO.getAdded().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getAdded())) {
             addedActionsMono = duplicateNamesMono
                     .zipWith(branchedActionCollectionMono)
                     .flatMap(tuple2 -> {
@@ -523,8 +523,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
         }
 
-        if (actionUpdatesDTO.getModified() != null
-                && !actionUpdatesDTO.getModified().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getModified())) {
             modifiedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 return Flux.fromIterable(actionUpdatesDTO.getModified())
                         .flatMap(action -> {
@@ -539,8 +538,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             });
         }
 
-        if (actionUpdatesDTO.getDeleted() != null
-                && !actionUpdatesDTO.getDeleted().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(actionUpdatesDTO.getDeleted())) {
             deletedActionsMono = branchedActionCollectionMono.flatMap(branchedActionCollection -> {
                 ActionCollectionDTO actionCollectionDTO1 = branchedActionCollection.getUnpublishedCollection();
                 return Flux.fromIterable(actionUpdatesDTO.getDeleted())
