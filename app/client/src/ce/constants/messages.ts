@@ -2634,3 +2634,12 @@ export const TABLE_LOADING_RECORDS = () => "loading records";
 export const TABLE_LOAD_MORE = () => "Load More";
 
 export const UPCOMING_SAAS_INTEGRATIONS = () => "Upcoming SaaS Integrations";
+
+export const NO_SEARCH_COMMAND_FOUND_EXTERNAL_SAAS = () =>
+  "No actions match your search";
+
+export const ADD_CUSTOM_ACTION = () => "Add custom action";
+
+export const CONFIG_PROPERTY_COMMAND = () => "command";
+
+export const CUSTOM_ACTION_LABEL = () => "Custom Action";
