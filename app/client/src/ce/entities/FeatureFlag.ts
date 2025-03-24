@@ -53,6 +53,7 @@ export const FEATURE_FLAG = {
     "release_external_saas_plugins_enabled",
   release_tablev2_infinitescroll_enabled:
     "release_tablev2_infinitescroll_enabled",
+  license_multi_org_enabled: "license_multi_org_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -97,6 +98,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
   release_tablev2_infinitescroll_enabled: false,
+  license_multi_org_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
