@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import React, { useCallback } from "react";
 import { Menu, MenuItem, MenuContent, MenuTrigger } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,12 +10,8 @@ import {
 } from "ee/constants/messages";
 import { Button } from "@appsmith/ads";
 import { KBEditorMenuItem } from "ee/pages/Editor/KnowledgeBase/KBEditorMenuItem";
-import { useHasConnectToGitPermission } from "pages/Editor/gitSync/hooks/gitPermissionHooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
-import {
-  useGitConnected,
-  useGitModEnabled,
-} from "pages/Editor/gitSync/hooks/modHooks";
+import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import { GitDeployMenuItems as GitDeployMenuItemsNew } from "git";
 
 function GitDeployMenuItems() {
@@ -49,18 +44,21 @@ function GitDeployMenuItems() {
   );
 }
 
-interface Props {
-  trigger: ReactNode;
-  link: string;
+interface ChevronMenuProps {
+  deployLink: string;
 }
 
-export const DeployLinkButton = (props: Props) => {
-  const isGitConnected = useGitConnected();
-  const isConnectToGitPermitted = useHasConnectToGitPermission();
+export const ChevronMenu = ({ deployLink }: ChevronMenuProps) => {
   // We check if the current application is an Anvil application.
   // If it is an Anvil application, we remove the Git features from the deploy button
   // as they donot yet work correctly with Anvil.
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
+
+  const handleClickOnLatestDeployed = useCallback(() => {
+    if (window) {
+      window.open(deployLink, "_blank")?.focus();
+    }
+  }, [deployLink]);
 
   return (
     <Menu>
@@ -74,16 +72,10 @@ export const DeployLinkButton = (props: Props) => {
         />
       </MenuTrigger>
       <MenuContent>
-        {!isGitConnected && isConnectToGitPermitted && !isAnvilEnabled && (
-          <GitDeployMenuItems />
-        )}
+        {!isAnvilEnabled && <GitDeployMenuItems />}
         <MenuItem
           className="t--current-deployed-preview-btn"
-          onClick={() => {
-            if (window) {
-              window.open(props.link, "_blank")?.focus();
-            }
-          }}
+          onClick={handleClickOnLatestDeployed}
           startIcon="share-box-line"
         >
           {CURRENT_DEPLOY_PREVIEW_OPTION()}
@@ -94,4 +86,4 @@ export const DeployLinkButton = (props: Props) => {
   );
 };
 
-export default DeployLinkButton;
+export default ChevronMenu;

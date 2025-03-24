@@ -834,6 +834,20 @@ export const getJsCollectionByBaseId = (
   return jsaction && jsaction.config;
 };
 
+export const getJSCollectionAction = (
+  state: AppState,
+  collectionId: string,
+  actionId: string,
+) => {
+  const jsCollection = getJSCollection(state, collectionId);
+
+  if (jsCollection) {
+    return jsCollection.actions.find((action) => action.id === actionId);
+  }
+
+  return null;
+};
+
 /**
  *
  * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )

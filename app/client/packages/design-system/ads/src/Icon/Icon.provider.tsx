@@ -581,6 +581,9 @@ const AppsLineIcon = importRemixIcon(
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),
 );
+const PriceTagIcon = importRemixIcon(
+  async () => import("remixicon-react/PriceTag3LineIcon"),
+);
 
 const CornerDownLeftLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/corner-down-left-line.svg"),
@@ -1492,6 +1495,7 @@ const ICON_LOOKUP = {
   "widgets-v3": WidgetsV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
   "protected-icon": ProtectedIcon,
+  pricetag: PriceTagIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,

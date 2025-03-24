@@ -4,8 +4,12 @@ import { PluginPackageName, PluginType } from "entities/Plugin";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
 const pageId = "0123456789abcdef00000000";
+
 export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
   dynamicBindingPathList: [],
+  isDirtyMap: {
+    SCHEMA_GENERATION: false,
+  },
   id: "api_id",
   baseId: "api_base_id",
   workspaceId: "workspaceID",
