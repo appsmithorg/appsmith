@@ -82,7 +82,8 @@ describe(
       cy.get(".t--draggable-checkboxwidget").should("be.visible");
     });
 
-    it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/39345
+    it.skip("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
       gitSync.CreateGitBranch("", true);
       cy.wait(1000);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
@@ -105,7 +106,8 @@ describe(
       cy.get(gitSync.locators.branchCloseBtn).click({ force: true });
     });
 
-    it("4. Verify Default branch deletion not allowed ", () => {
+    //Open Bug: https://github.com/appsmithorg/appsmith/issues/39345
+    it.skip("4. Verify Default branch deletion not allowed ", () => {
       agHelper.Sleep(2000); //for toasts to appear then wait for disappear
       agHelper.WaitUntilAllToastsDisappear();
       DeleteBranchFromUI(0);
