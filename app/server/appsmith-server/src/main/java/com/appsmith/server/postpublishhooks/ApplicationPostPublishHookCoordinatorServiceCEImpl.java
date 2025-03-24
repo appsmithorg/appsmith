@@ -32,10 +32,10 @@ public class ApplicationPostPublishHookCoordinatorServiceCEImpl
      * @return Void Mono when all hooks have been executed
      */
     @Override
-    public void executePostPublishHooks(String applicationId) {
+    public Mono<Void> executePostPublishHooks(String applicationId) {
         log.debug("Executing post-publish hooks for application: {}", applicationId);
 
-        Flux.fromIterable(postPublishHookables)
+        return Flux.fromIterable(postPublishHookables)
                 .flatMap(hookable -> {
                     log.debug(
                             "Executing post-publish hook for entity type: {}",
@@ -49,7 +49,6 @@ public class ApplicationPostPublishHookCoordinatorServiceCEImpl
                                 return Mono.empty();
                             });
                 })
-                .then()
-                .subscribe();
+                .then();
     }
 }
