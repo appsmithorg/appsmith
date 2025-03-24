@@ -47,6 +47,9 @@ const TEST_JS_FUNCTION = {
   userPermissions: ["read:actions", "execute:actions", "manage:actions"],
   validName: "JSObject1.myFun234y",
   cacheResponse: "",
+  isDirtyMap: {
+    SCHEMA_GENERATION: false,
+  },
 };
 
 describe("GetJSResponseViewState", () => {
