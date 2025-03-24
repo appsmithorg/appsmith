@@ -51,8 +51,7 @@ export const FEATURE_FLAG = {
   release_ads_entity_item_enabled: "release_ads_entity_item_enabled",
   release_external_saas_plugins_enabled:
     "release_external_saas_plugins_enabled",
-  "release-tablev-2-infinitescroll-enabled-false":
-    "release-tablev-2-infinitescroll-enabled-false",
+  release_table_infinitescroll_enabled: "release_table_infinitescroll_enabled",
   release_table_custom_sort_function_enabled:
     "release_table_custom_sort_function_enabled",
 } as const;
@@ -98,7 +97,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   config_mask_session_recordings_enabled: true,
   release_ads_entity_item_enabled: false,
   release_external_saas_plugins_enabled: false,
-  "release-tablev-2-infinitescroll-enabled-false": false,
+  release_table_infinitescroll_enabled: false,
   release_table_custom_sort_function_enabled: false,
 };
 
