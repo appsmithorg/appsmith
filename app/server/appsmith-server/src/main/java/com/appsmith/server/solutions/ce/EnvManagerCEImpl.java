@@ -83,7 +83,6 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECR
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_ALLOWED_DOMAINS;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_DISABLED;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -370,10 +369,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // Try and update any at runtime, that can be.
                     final Map<String, String> changesCopy = new HashMap<>(changes);
-
-                    if (changesCopy.containsKey(APPSMITH_SIGNUP_DISABLED.name())) {
-                        commonConfig.setSignupDisabled(changesCopy.remove(APPSMITH_SIGNUP_DISABLED.name()));
-                    }
 
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_ALLOWED_DOMAINS.name())) {
                         commonConfig.setAllowedDomainsString(
