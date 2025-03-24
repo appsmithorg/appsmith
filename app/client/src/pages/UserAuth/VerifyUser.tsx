@@ -29,7 +29,7 @@ const VerifyUser = (
         },
         {
           type: "error",
-          context: { email, token },
+          context: { email: email || "", token: token || "" },
         },
       );
     }
