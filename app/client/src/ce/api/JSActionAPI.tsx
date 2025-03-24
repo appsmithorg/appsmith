@@ -133,23 +133,33 @@ class JSActionAPI extends API {
 
   static async updateJSCollection(
     jsConfig: JSCollection,
+    newActions?: Partial<JSAction>[],
+    updatedActions?: JSAction[],
+    deletedActions?: JSAction[],
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     const payload = {
-      ...jsConfig,
-      actions:
-        jsConfig.actions?.map((action) => ({
-          ...action,
-          entityReferenceType: undefined,
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          datasource: (action as any).datasource && {
+      actionCollection: {
+        ...jsConfig,
+        actions:
+          jsConfig.actions?.map((action) => ({
+            ...action,
+            entityReferenceType: undefined,
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...(action as any).datasource,
-            isValid: undefined,
-            new: undefined,
-          },
-        })) ?? undefined,
+            datasource: (action as any).datasource && {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ...(action as any).datasource,
+              isValid: undefined,
+              new: undefined,
+            },
+          })) ?? undefined,
+      },
+      actions: {
+        added: newActions,
+        updated: updatedActions,
+        deleted: deletedActions,
+      },
     };
 
     return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
@@ -208,33 +218,6 @@ class JSActionAPI extends API {
     };
 
     return API.put(JSActionAPI.url + "/refactorAction", payload);
-  }
-
-  static async updateJSCollectionAction(
-    jsCollectionId: string,
-    actionId: string,
-    action: JSAction,
-  ) {
-    return API.put(
-      `${JSActionAPI.url}/${jsCollectionId}/actions/${actionId}`,
-      action,
-    );
-  }
-
-  static async createJSCollectionAction(
-    jsCollectionId: string,
-    actions: Partial<JSAction>[],
-  ) {
-    return API.post(`${JSActionAPI.url}/${jsCollectionId}/actions`, actions);
-  }
-
-  static async deleteJSCollectionAction(
-    jsCollectionId: string,
-    actionId: string,
-  ) {
-    return API.delete(
-      `${JSActionAPI.url}/${jsCollectionId}/actions/${actionId}`,
-    );
   }
 }
 
