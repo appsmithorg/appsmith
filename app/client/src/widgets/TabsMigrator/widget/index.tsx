@@ -10,9 +10,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import * as Sentry from "@sentry/react";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { faro } from "instrumentation";
 
 function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
@@ -20,10 +20,17 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       currentDSL.type = "TABS_MIGRATOR_WIDGET";
       currentDSL.version = 1;
     } catch (error) {
-      Sentry.captureException({
-        message: "Tabs Migration Failed",
-        oldData: currentDSL.tabs,
-      });
+      faro?.api.pushError(
+        {
+          ...new Error("Tabs Migration Failed"),
+          name: "TabsMigrationFailed",
+        },
+        {
+          type: "error",
+          context: { response: JSON.stringify(currentDSL.tabs) },
+        },
+      );
+
       currentDSL.tabsObj = {};
       delete currentDSL.tabs;
     }
@@ -116,10 +123,18 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       currentDSL.version = 2;
       delete currentDSL.tabs;
     } catch (error) {
-      Sentry.captureException({
-        message: "Tabs Migration Failed",
-        oldData: currentDSL.tabs,
-      });
+      faro?.api.pushError(
+        {
+          ...new Error("Tabs Migration Failed"),
+          message: error instanceof Error ? error.message : String(error),
+          name: "TabsMigrationFailed",
+        },
+        {
+          type: "error",
+          context: { response: JSON.stringify(currentDSL.tabs) },
+        },
+      );
+
       currentDSL.tabsObj = {};
       delete currentDSL.tabs;
     }

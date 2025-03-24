@@ -19,8 +19,8 @@ import {
   getLocaleThousandSeparator,
 } from "widgets/WidgetUtils";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
-import * as Sentry from "@sentry/react";
 import { getLocale } from "utils/helpers";
+import { faro } from "@grafana/faro-react";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -237,7 +237,16 @@ export function InlineCellEditor({
 
           value = convertToNumber(inputValue);
         } catch (e) {
-          Sentry.captureException(e);
+          faro?.api.pushError(
+            {
+              ...new Error("Inline cell editor has failed"),
+              name: "InlineCellEditor",
+              message: e instanceof Error ? e.message : String(e),
+            },
+            {
+              type: "error",
+            },
+          );
         }
       }
 

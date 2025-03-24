@@ -17,7 +17,6 @@ import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
-import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
@@ -30,6 +29,7 @@ import type { AppState } from "ee/reducers";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
+import { faro } from "instrumentation";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -230,21 +230,20 @@ export function* evalErrorHandler(
             text: `${error.message} Node was: ${node}`,
           });
 
-          if (error.context.logToSentry) {
-            // Send the generic error message to sentry for better grouping
-            Sentry.captureException(new Error(error.message), {
-              tags: {
-                node,
+          faro?.api.pushError(
+            {
+              ...error,
+              name: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
+            },
+            {
+              type: "error",
+              context: {
                 entityType,
-              },
-              extra: {
-                dependencyMap,
                 diffs,
+                dependencyMap,
               },
-              // Level is warning because it could be a user error
-              level: "warning",
-            });
-          }
+            },
+          );
 
           // Log an analytics event for cyclical dep errors
           AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
@@ -264,11 +263,28 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
-        Sentry.captureException(error);
+        faro?.api.pushError(
+          {
+            ...error,
+            name: EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
+          },
+          {
+            type: "error",
+          },
+        );
         break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
+        faro?.api.pushError(
+          {
+            ...error,
+            name: EvalErrorTypes.EVAL_PROPERTY_ERROR,
+          },
+          {
+            type: "error",
+          },
+        );
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
@@ -293,16 +309,42 @@ export function* evalErrorHandler(
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
+        faro?.api.pushError(
+          {
+            ...error,
+            name: EvalErrorTypes.PARSE_JS_ERROR,
+          },
+          {
+            type: "error",
+          },
+        );
         break;
       }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: error.context,
-        });
+        faro?.api.pushError(
+          {
+            ...error,
+            name: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+          },
+          {
+            type: "error",
+            context: error.context,
+          },
+        );
+
         break;
       }
       default: {
-        log.debug(error);
+        faro?.api.pushError(
+          {
+            ...error,
+            name: "EvalError",
+          },
+          {
+            type: "error",
+          },
+        );
+        log.error(error);
       }
     }
   });

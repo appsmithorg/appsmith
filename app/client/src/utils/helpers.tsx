@@ -17,7 +17,6 @@ import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
 import type { DSLWidget } from "WidgetProvider/constants";
-import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
   BUILDER_CUSTOM_PATH,
@@ -44,6 +43,7 @@ import { klona as klonaLite } from "klona/lite";
 import { klona as klonaJson } from "klona/json";
 
 import { startAndEndSpanForFn } from "instrumentation/generateTraces";
+import { faro } from "instrumentation";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -943,10 +943,16 @@ export const captureInvalidDynamicBindingPath = (
      * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
      */
     if (!isDynamicValue(pathValue)) {
-      Sentry.captureException(
-        new Error(
-          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
-        ),
+      faro?.api.pushError(
+        {
+          ...new Error(
+            `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+          ),
+          name: "captureInvalidDynamicBindingPath",
+        },
+        {
+          type: "error",
+        },
       );
 
       return;

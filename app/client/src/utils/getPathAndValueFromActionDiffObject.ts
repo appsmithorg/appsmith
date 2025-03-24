@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import { faro } from "instrumentation";
 
 //Following function is the fix for the missing where key
 /**
@@ -47,10 +47,16 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
 
               return acc;
             } catch (error) {
-              Sentry.captureException({
-                message: `Adding key: where failed, cannot create path`,
-                oldData: actionObjectDiff,
-              });
+              faro?.api.pushError(
+                {
+                  ...new Error(`Adding key: where failed, cannot create path`),
+                  name: "getPathAndValueFromActionDiffObject",
+                },
+                {
+                  type: "error",
+                  context: { oldData: actionObjectDiff },
+                },
+              );
             }
           },
           "",

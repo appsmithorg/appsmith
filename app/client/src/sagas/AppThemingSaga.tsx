@@ -44,11 +44,11 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { find } from "lodash";
-import * as Sentry from "@sentry/react";
 import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { faro } from "instrumentation";
 
 /**
  * init app theming
@@ -126,16 +126,22 @@ export function* fetchAppSelectedTheme(
         payload: response.data,
       });
     } else {
-      Sentry.captureException("Unable to fetch the selected theme", {
-        level: "fatal",
-        extra: {
-          pageIdentities,
-          applicationId,
-          applicationVersion,
-          userDetails,
-          themeResponse: response,
+      faro?.api.pushError(
+        {
+          ...new Error("Unable to fetch the selected theme"),
+          name: "FETCH_SELECTED_APP_THEME_ERROR",
         },
-      });
+        {
+          type: "error",
+          context: {
+            pageIdentities: JSON.stringify(pageIdentities),
+            applicationId,
+            applicationVersion,
+            userDetails,
+            response: JSON.stringify(response),
+          },
+        },
+      );
 
       // If the response.data is undefined then we set selectedTheme to default Theme
       yield put({

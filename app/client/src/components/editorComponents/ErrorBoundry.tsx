@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import * as Sentry from "@sentry/react";
-import * as log from "loglevel";
 
 import type { ReactNode, CSSProperties } from "react";
+import { faro } from "instrumentation";
 
 interface Props {
   children: ReactNode;
@@ -38,8 +37,10 @@ class ErrorBoundary extends React.Component<Props, State> {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   componentDidCatch(error: any, errorInfo: any) {
-    log.error({ error, errorInfo });
-    Sentry.captureException(error);
+    faro?.api.pushError(
+      { ...error, name: "ErrorBoundary" },
+      { type: "error", context: errorInfo },
+    );
   }
 
   render() {

@@ -1,7 +1,5 @@
-import log from "loglevel";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
@@ -20,6 +18,7 @@ import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { focusWidget } from "actions/widgetActions";
+import { faro } from "instrumentation";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -119,8 +118,13 @@ const Canvas = (props: CanvasProps) => {
 
     return renderChildren();
   } catch (error) {
-    log.error("Error rendering DSL", error);
-    Sentry.captureException(error);
+    faro?.api.pushError(
+      {
+        name: "Error rendering DSL",
+        message: error instanceof Error ? error.message : String(error),
+      },
+      { type: "error" },
+    );
 
     return null;
   }

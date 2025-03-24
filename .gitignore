@@ -42,3 +42,4 @@ utils/observability/tempo-data/*
 
 # Ignore the mongo data backup directory for Mongo to PG migrations
 mongo-data**
+.qodo

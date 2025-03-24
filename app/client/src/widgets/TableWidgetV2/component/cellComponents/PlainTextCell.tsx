@@ -19,8 +19,8 @@ import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
 } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { getLocale } from "utils/helpers";
-import * as Sentry from "@sentry/react";
 import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
+import { faro } from "instrumentation";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -227,7 +227,16 @@ function PlainTextCell(
           return currency?.id + " " + formattedValue;
         }
       } catch (e) {
-        Sentry.captureException(e);
+        faro?.api.pushError(
+          {
+            ...new Error("Plain text cell formatting error"),
+            name: "PlainTextCell",
+            message: e instanceof Error ? e.message : String(e),
+          },
+          {
+            type: "error",
+          },
+        );
 
         return value;
       }

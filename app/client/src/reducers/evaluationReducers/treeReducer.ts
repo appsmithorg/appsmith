@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { applyChange, type Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
-import * as Sentry from "@sentry/react";
+import { faro } from "instrumentation";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -32,12 +32,15 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
 
         applyChange(state, undefined, update);
       } catch (e) {
-        Sentry.captureException(e, {
-          extra: {
-            update,
-            updateLength: updates.length,
-          },
-        });
+        if (e instanceof Error) {
+          faro?.api.pushError(e, {
+            type: "treeReducer",
+            context: {
+              update: JSON.stringify(update),
+              updateLength: String(updates.length),
+            },
+          });
+        }
       }
     }
   },

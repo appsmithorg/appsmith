@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import Container from "./Container";
 import type { RouteComponentProps } from "react-router-dom";
 import { Spinner } from "@appsmith/ads";
-import * as Sentry from "@sentry/react";
 import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
+import { faro } from "instrumentation";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -22,7 +22,16 @@ const VerifyUser = (
 
   useEffect(() => {
     if (!token || !email) {
-      Sentry.captureMessage("User email verification link is damaged");
+      faro?.api.pushError(
+        {
+          ...new Error("User email verification link is damaged"),
+          name: "EMAIL_VERIFICATION_LINK_DAMAGED",
+        },
+        {
+          type: "error",
+          context: { email, token },
+        },
+      );
     }
 
     const formElement: HTMLFormElement = document.getElementById(

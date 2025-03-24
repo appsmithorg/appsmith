@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import AppCrashImage from "assets/images/404-image.png";
-import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Button } from "@appsmith/ads";
+import { faro } from "instrumentation";
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,7 +32,16 @@ class AppErrorBoundary extends Component {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     log.error({ error, errorInfo });
-    Sentry.captureException(error);
+    faro?.api.pushError(
+      {
+        ...error,
+        name: "APP_CRASH",
+      },
+      {
+        type: "error",
+      },
+    );
+
     AnalyticsUtil.logEvent("APP_CRASH", { error, errorInfo });
     this.setState({
       hasError: true,

@@ -27,7 +27,7 @@ const { appVersion, observability } = getAppsmithConfigs();
 const { deploymentName, serviceInstanceId, serviceName, tracingUrl } =
   observability;
 
-let faro: Faro | null = null;
+export let faro: Faro | null = null;
 
 if (isTracingEnabled()) {
   const ignoreUrls = ["smartlook.cloud"];

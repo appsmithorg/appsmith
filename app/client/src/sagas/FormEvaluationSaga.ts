@@ -11,7 +11,6 @@ import {
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import type {
@@ -43,6 +42,7 @@ import {
 } from "ee/entities/Engine/actionHelpers";
 import { klonaLiteWithTelemetry } from "utils/helpers";
 import { objectKeys } from "@appsmith/utils";
+import { faro } from "instrumentation";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -371,8 +371,13 @@ export default function* formEvaluationChangeListener() {
     try {
       yield call(formEvaluationChangeListenerSaga);
     } catch (e) {
-      log.error(e);
-      Sentry.captureException(e);
+      faro?.api.pushError(
+        {
+          name: "formEvaluationChangeListener",
+          message: e instanceof Error ? e.message : String(e),
+        },
+        { type: "error" },
+      );
     }
   }
 }
