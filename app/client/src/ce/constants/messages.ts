@@ -690,7 +690,7 @@ export const IMPORT_APP_FROM_GIT_TITLE = (isBeta: boolean = true) =>
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
-  "Import an application from its Git repository using its SSH URL";
+  "Import from a Git repository using its SSH URL";
 export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
