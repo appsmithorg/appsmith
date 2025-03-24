@@ -89,13 +89,13 @@ public class InstanceVariablesHelperCE {
     protected Map<String, Object> updateAllowedInstanceVariables(OrganizationConfiguration orgConfig) {
         Map<String, Object> instanceVariables = new HashMap<>();
         if (StringUtils.hasLength(orgConfig.getInstanceName())) {
-            instanceVariables.put("instanceName", orgConfig.getInstanceName());
+            instanceVariables.put(INSTANCE_NAME, orgConfig.getInstanceName());
         }
         if (orgConfig.getEmailVerificationEnabled() != null) {
-            instanceVariables.put("emailVerificationEnabled", orgConfig.getEmailVerificationEnabled());
+            instanceVariables.put(EMAIL_VERIFICATION_ENABLED, orgConfig.getEmailVerificationEnabled());
         }
         if (StringUtils.hasLength(orgConfig.getGoogleMapsKey())) {
-            instanceVariables.put("googleMapsKey", orgConfig.getGoogleMapsKey());
+            instanceVariables.put(GOOGLE_MAPS_KEY, orgConfig.getGoogleMapsKey());
         }
         return instanceVariables;
     }
