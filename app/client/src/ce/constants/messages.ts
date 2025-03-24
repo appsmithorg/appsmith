@@ -86,6 +86,9 @@ export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 export const LOOKING_TO_SELF_HOST = () => "Looking to self-host Appsmith?";
 export const VISIT_OUR_DOCS = () => "Visit our docs";
+export const ALREADY_USING_APPSMITH = () => `Already using Appsmith?`;
+export const SIGN_IN_TO_AN_EXISTING_ORGANISATION = () =>
+  `Sign in to an existing organisation`;
 
 export const SIGNUP_PAGE_SUCCESS = () =>
   `Awesome! You have successfully registered.`;

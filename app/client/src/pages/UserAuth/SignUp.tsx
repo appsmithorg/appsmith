@@ -26,6 +26,8 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   LOOKING_TO_SELF_HOST,
   VISIT_OUR_DOCS,
+  ALREADY_USING_APPSMITH,
+  SIGN_IN_TO_AN_EXISTING_ORGANISATION,
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
@@ -59,6 +61,8 @@ import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import * as Sentry from "@sentry/react";
 import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
+import { useIsCloudBillingEnabled } from "hooks";
+import { isLoginHostname } from "utils/cloudBillingUtils";
 
 declare global {
   interface Window {
@@ -122,6 +126,8 @@ export function SignUp(props: SignUpFormProps) {
   const organizationConfig = useSelector(getOrganizationConfig);
   const { instanceName } = organizationConfig;
   const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
+  const isCloudBillingEnabled = useIsCloudBillingEnabled();
+  const isHostnameEqualtoLogin = isLoginHostname();
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
@@ -195,17 +201,31 @@ export function SignUp(props: SignUpFormProps) {
 
   const footerSection = (
     <>
-      <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
-        <Link
-          className="t--sign-up t--signup-link"
-          kind="primary"
-          target="_self"
-          to={AUTH_LOGIN_URL}
-        >
-          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-        </Link>
-      </div>
+      {isCloudBillingEnabled && isHostnameEqualtoLogin ? (
+        <div className="px-2 flex flex-col items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+          {createMessage(ALREADY_USING_APPSMITH)}
+          <Link
+            className="t--sign-up t--signup-link"
+            kind="primary"
+            target="_self"
+            to={AUTH_LOGIN_URL}
+          >
+            {createMessage(SIGN_IN_TO_AN_EXISTING_ORGANISATION)}
+          </Link>
+        </div>
+      ) : (
+        <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+          {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
+          <Link
+            className="t--sign-up t--signup-link"
+            kind="primary"
+            target="_self"
+            to={AUTH_LOGIN_URL}
+          >
+            {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
+          </Link>
+        </div>
+      )}
       {cloudHosting && (
         <>
           <OrWithLines>or</OrWithLines>
