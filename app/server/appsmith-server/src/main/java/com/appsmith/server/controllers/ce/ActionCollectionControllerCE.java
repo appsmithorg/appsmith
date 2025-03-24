@@ -6,6 +6,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.dtos.ActionCollectionUpdateDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -105,41 +107,12 @@ public class ActionCollectionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(
-            @PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
+            @PathVariable String id, @Valid @RequestBody ActionCollectionUpdateDTO resource) {
         log.debug("Going to update action collection with id: {}", id);
         return layoutCollectionService
-                .updateUnpublishedActionCollection(id, resource)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/{id}/actions")
-    public Mono<ResponseDTO<ActionCollectionDTO>> createActions(
-            @PathVariable String id, @Valid @RequestBody List<ActionDTO> actions) {
-        log.debug("Going to create action for action collection with id: {}", id);
-        return layoutCollectionService
-                .createActions(id, actions)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
-    }
-
-    @JsonView(Views.Public.class)
-    @PutMapping("/{id}/actions/{actionId}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> updateAction(
-            @PathVariable String id, @PathVariable String actionId, @Valid @RequestBody ActionDTO action) {
-        log.debug("Going to update action with id: {} for action collection with id: {}", actionId, id);
-        return layoutCollectionService
-                .updateAction(id, actionId, action)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
-    }
-
-    @JsonView(Views.Public.class)
-    @DeleteMapping("/{id}/actions/{actionId}")
-    public Mono<ResponseDTO<ActionCollectionDTO>> deleteAction(@PathVariable String id, @PathVariable String actionId) {
-        log.debug("Going to delete action with id: {} for action collection with id: {}", actionId, id);
-        return layoutCollectionService
-                .deleteAction(id, actionId)
+                .updateUnpublishedActionCollectionWithSpecificActions(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
