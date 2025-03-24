@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.Url;
@@ -110,6 +111,35 @@ public class ActionCollectionControllerCE {
         log.debug("Going to update action collection with id: {}", id);
         return layoutCollectionService
                 .updateUnpublishedActionCollection(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{id}/actions")
+    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(
+            @PathVariable String id, @Valid @RequestBody List<ActionDTO> actions) {
+        log.debug("Going to create action for action collection with id: {}", id);
+        return layoutCollectionService
+                .createActions(id, actions)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/{id}/actions/{actionId}")
+    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(
+            @PathVariable String id, @PathVariable String actionId, @Valid @RequestBody ActionDTO action) {
+        log.debug("Going to update action with id: {} for action collection with id: {}", actionId, id);
+        return layoutCollectionService
+                .updateAction(id, actionId, action)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/{id}/actions/{actionId}")
+    public Mono<ResponseDTO<ActionCollectionDTO>> createAction(@PathVariable String id, @PathVariable String actionId) {
+        log.debug("Going to delete action with id: {} for action collection with id: {}", actionId, id);
+        return layoutCollectionService
+                .deleteAction(id, actionId)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK, updatedResource));
     }
 
