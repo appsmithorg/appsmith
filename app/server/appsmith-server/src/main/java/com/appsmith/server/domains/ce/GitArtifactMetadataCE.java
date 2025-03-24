@@ -26,12 +26,10 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String branchName;
 
-    @Transient
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     RefType refType;
 
-    @Transient
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     String refName;
 
     // Git default branch corresponding to the remote git repo to which the application is connected to
@@ -118,9 +116,14 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
         } else return defaultApplicationId;
     }
 
-    // TODO : Set to private to prevent direct access unless migration is performed
-    // TODO: reevaluate the above TODO bit
+    /**
+     *  This is useful to keep the defaultApplicationId always populated.
+     *  We want to do that inorder to just migrate the field defaultApplicationId to defaultArtifactId directly
+     *  without the need to take defaultArtifactId initial values into consideration.
+     * @param defaultArtifactId: artifactId that has to be made.
+     */
     public void setDefaultArtifactId(String defaultArtifactId) {
+        this.defaultApplicationId = defaultArtifactId;
         this.defaultArtifactId = defaultArtifactId;
     }
 

@@ -281,7 +281,7 @@ public class GitConnectTests {
         Mockito.doReturn(Mono.just(true)).when(fsGitHandler).checkoutToBranch(any(Path.class), Mockito.anyString());
         Mockito.doReturn(Mono.just("success"))
                 .when(fsGitHandler)
-                .pushApplication(
+                .pushArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),

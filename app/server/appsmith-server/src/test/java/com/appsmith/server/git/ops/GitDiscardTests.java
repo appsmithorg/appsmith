@@ -113,7 +113,7 @@ public class GitDiscardTests {
         Mockito.doReturn(Mono.just(true)).when(fsGitHandler).checkoutToBranch(any(Path.class), Mockito.anyString());
         Mockito.doReturn(Mono.just("success"))
                 .when(fsGitHandler)
-                .pushApplication(any(Path.class), any(), any(), any(), any());
+                .pushArtifact(any(Path.class), any(), any(), any(), any());
         Mockito.doReturn(Mono.just(true)).when(commonGitFileUtils).checkIfDirectoryIsEmpty(any(Path.class));
         Mockito.doReturn(Mono.just(Paths.get("textPath")))
                 .when(commonGitFileUtils)

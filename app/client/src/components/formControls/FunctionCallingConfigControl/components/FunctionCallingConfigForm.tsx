@@ -59,6 +59,7 @@ export const FunctionCallingConfigForm = ({
         </div>
 
         <Button
+          UNSAFE_width="110px"
           kind="secondary"
           onClick={handleAddFunctionButtonClick}
           startIcon="plus"
