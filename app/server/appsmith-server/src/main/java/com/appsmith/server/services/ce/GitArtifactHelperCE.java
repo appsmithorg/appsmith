@@ -38,6 +38,8 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName);
 
+    Mono<T> createNewArtifactForCheckout(Artifact sourceArtifact, String refName, RefType refType);
+
     Mono<T> saveArtifact(Artifact artifact);
 
     Mono<T> updateArtifactWithSchemaVersions(Artifact artifact);

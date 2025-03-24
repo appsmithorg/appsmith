@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import type { SelectOptionProps } from "@appsmith/ads";
 import type { ReduxAction } from "actions/ReduxActionTypes";
+import { PluginType } from "entities/Plugin";
 
 const mockStore = configureStore([]);
 
@@ -56,6 +57,8 @@ const dropDownProps = {
   isLoading: false,
   maxTagCount: 3,
 };
+
+const EXTERNAL_SAAS_PLUGIN_ID = "external-saas-pluginid";
 
 describe("DropDownControl", () => {
   // TODO: Fix this the next time the file is edited
@@ -524,6 +527,7 @@ describe("DropdownControl Single select tests", () => {
     actionConfiguration: {
       testPath: "option1",
     },
+    pluginId: EXTERNAL_SAAS_PLUGIN_ID,
   };
 
   const mockActionSingleSelect = {
@@ -562,6 +566,16 @@ describe("DropdownControl Single select tests", () => {
       form: {
         TestForm: {
           values: initialValuesSingleSelect,
+        },
+      },
+      entities: {
+        plugins: {
+          list: [
+            {
+              id: EXTERNAL_SAAS_PLUGIN_ID,
+              type: PluginType.EXTERNAL_SAAS,
+            },
+          ],
         },
       },
       appState: {},
@@ -617,5 +631,64 @@ describe("DropdownControl Single select tests", () => {
     expect(visibleOptions).toHaveLength(1);
     // The visible option should be "Option 1"
     expect(visibleOptions[0]).toHaveTextContent("Option 2");
+  });
+  it("should have no command found ui for custom action for external saas plugin", async () => {
+    const externalSaasDropdownprops = {
+      ...dropDownPropsSingleSelect,
+      configProperty: "actionConfiguration.command",
+      options: [
+        ...mockOptions,
+        {
+          label: "Custom Action",
+          value: "custom action",
+          children: "Custom Action",
+        },
+      ],
+      formName: "TestForm",
+    };
+
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...externalSaasDropdownprops} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Find and click the dropdown to open it
+    const dropdownSelect = await screen.findByTestId(
+      "t--dropdown-actionConfiguration.command",
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Find the search input and type "Option 2"
+    const searchInput = screen.getByPlaceholderText("Type to search...");
+
+    fireEvent.change(searchInput, { target: { value: "Test" } });
+
+    expect(screen.getByTestId("t--select-custom--action")).toBeInTheDocument();
+  });
+  it("should have not found ui dropdown with no command property and no custom action present", async () => {
+    render(
+      <Provider store={store}>
+        <ReduxFormDecorator>
+          <DropDownControl {...dropDownPropsSingleSelect} />
+        </ReduxFormDecorator>
+      </Provider>,
+    );
+
+    // Find and click the dropdown to open it
+    const dropdownSelect = await screen.findByTestId(
+      "t--dropdown-actionConfiguration.testPath",
+    );
+
+    fireEvent.mouseDown(dropdownSelect.querySelector(".rc-select-selector")!);
+
+    // Find the search input and type "Option 2"
+    const searchInput = screen.getByPlaceholderText("Type to search...");
+
+    fireEvent.change(searchInput, { target: { value: "Test" } });
+    expect(screen.getByText("Not found")).toBeInTheDocument();
   });
 });

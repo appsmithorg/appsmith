@@ -77,6 +77,9 @@ import IconSelectControlV2 from "./IconSelectControlV2";
 import PrimaryColumnsControlWDS from "./PrimaryColumnsControlWDS";
 import ToolbarButtonListControl from "./ToolbarButtonListControl";
 import ArrayControl from "./ArrayControl";
+import TableCustomSortControl, {
+  type TableCustomSortControlProps,
+} from "./TableCustomSortControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -130,6 +133,7 @@ export const PropertyControls = {
   IconSelectControlV2,
   PrimaryColumnsControlWDS,
   ToolbarButtonListControl,
+  TableCustomSortControl,
 };
 
 export type PropertyControlPropsType =
@@ -158,7 +162,8 @@ export type PropertyControlPropsType =
   | WrappedCodeEditorControlProps
   | ZoneStepperControlProps
   | SectionSplitterControlProps
-  | IconSelectControlV2Props;
+  | IconSelectControlV2Props
+  | TableCustomSortControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

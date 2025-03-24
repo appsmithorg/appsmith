@@ -3,7 +3,7 @@ import { EditorEntityTab } from "IDE/Interfaces/EditorTypes";
 import type { EntityItem } from "ee/IDE/Interfaces/EntityItem";
 import { saveJSObjectName } from "actions/jsActionActions";
 
-interface SaveEntityName {
+export interface SaveEntityName {
   params: {
     name: string;
     id: string;

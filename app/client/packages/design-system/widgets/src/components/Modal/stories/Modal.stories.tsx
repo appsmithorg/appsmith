@@ -15,11 +15,8 @@ const meta: Meta<typeof Modal> = {
   component: Modal,
   title: "WDS/Widgets/Modal",
   subcomponents: {
-    //@ts-expect-error: don't need props to pass here
     ModalHeader,
-    //@ts-expect-error: don't need props to pass here
     ModalFooter,
-    //@ts-expect-error: don't need props to pass here
     ModalContent,
   },
   render: () => <SimpleModal />,

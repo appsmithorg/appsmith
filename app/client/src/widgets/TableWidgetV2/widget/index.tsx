@@ -1216,6 +1216,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       customIsLoading,
       customIsLoadingValue,
+      customSortFunction: customSortFunctionData,
       delimiter,
       filteredTableData = [],
       isVisibleDownload,
@@ -1228,7 +1229,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
-    const transformedData = this.transformData(filteredTableData, tableColumns);
+    let data = filteredTableData;
+
+    if (customSortFunctionData && Array.isArray(customSortFunctionData)) {
+      data = customSortFunctionData;
+    }
+
+    const transformedData = this.transformData(data, tableColumns);
+
     const isVisibleHeaderOptions =
       isVisibleDownload ||
       isVisibleFilters ||

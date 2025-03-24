@@ -5,6 +5,7 @@ import {
   getPlugins,
 } from "ee/selectors/entitiesSelector";
 import { createSelector } from "reselect";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import type {
   FunctionCallingEntityType,
   FunctionCallingEntityTypeOption,
@@ -14,6 +15,7 @@ export const selectQueryEntityOptions = (
   state: AppState,
 ): FunctionCallingEntityTypeOption[] => {
   const plugins = getPlugins(state);
+  const currentPageId = getCurrentPageId(state);
 
   return (
     getActions(state)
@@ -24,6 +26,7 @@ export const selectQueryEntityOptions = (
           // @ts-expect-error No way to narrow down proper type
           action.config.pluginName !== "Appsmith AI",
       )
+      .filter((action) => action.config.pageId === currentPageId)
       .map(({ config }) => ({
         id: config.id,
         name: config.name,
@@ -47,14 +50,18 @@ export const selectQueryEntityOptions = (
 const selectJsFunctionEntityOptions = (
   state: AppState,
 ): FunctionCallingEntityTypeOption[] => {
+  const currentPageId = getCurrentPageId(state);
+
   return getJSCollections(state).flatMap((jsCollection) => {
-    return jsCollection.config.actions.map((jsFunction) => {
-      return {
-        value: jsFunction.id,
-        label: jsFunction.name,
-        optionGroupType: "JSFunction",
-      };
-    });
+    return jsCollection.config.actions
+      .filter((action) => action.pageId === currentPageId)
+      .map((jsFunction) => {
+        return {
+          value: jsFunction.id,
+          label: jsFunction.name,
+          optionGroupType: "JSFunction",
+        };
+      });
   });
 };
 

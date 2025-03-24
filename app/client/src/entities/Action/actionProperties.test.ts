@@ -23,6 +23,9 @@ const DEFAULT_ACTION: Action = {
   pluginId: "",
   messages: [],
   pluginType: PluginType.DB,
+  isDirtyMap: {
+    SCHEMA_GENERATION: false,
+  },
 };
 
 describe("getReactivePathsOfAction", () => {
