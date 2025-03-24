@@ -41,7 +41,7 @@ export const Header = styled.div`
 
 export const EditorContainer = styled.div`
   flex: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   white-space: nowrap;
 
   /* If you need to preserve whitespace and prevent wrapping */

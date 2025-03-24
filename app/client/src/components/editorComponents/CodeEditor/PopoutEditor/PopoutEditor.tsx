@@ -1,43 +1,58 @@
-import React, { useCallback, useMemo, useState } from "react";
+// React and core libraries
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
+
+// Third-party libraries
 import { Rnd } from "react-rnd";
-import { Button, Flex, Icon } from "@appsmith/ads";
-import type { EventOrValueHandler } from "redux-form";
-import type { ChangeEvent } from "react";
-import { Text } from "@appsmith/ads";
+import { useDebounceValue } from "usehooks-ts";
+import { Button, Flex, Icon, Text } from "@appsmith/ads";
+
+// Application-specific imports
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import type {
-  CodeEditorExpected,
-  EditorProps,
-} from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+
+// Type imports
+import type { EventOrValueHandler } from "redux-form";
+import type { ChangeEvent } from "react";
+import type {
+  CodeEditorExpected,
+  EditorProps,
+} from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+
+// Imports with relative paths
 import * as Styled from "./styles";
+import {
+  RND_CONFIG,
+  RESIZE_DEBOUNCE_TIMEOUT,
+  DRAG_HANDLE_CLASS_NAME,
+  RESIZE_HANDLE_STYLES,
+  RESIZE_HANDLE_CLASS_NAME,
+} from "./constants";
 
 export interface PopoutEditorProps extends Partial<EditorProps> {
-  widgetName: string;
-  label: string;
-  value: string;
-  onChange: EventOrValueHandler<ChangeEvent<HTMLTextAreaElement>>;
-  theme: EditorTheme;
-  onClose: () => void;
   additionalAutocomplete?: AdditionalDynamicDataTree;
   dataTreePath?: string;
   expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
+  label: string;
+  onChange: EventOrValueHandler<ChangeEvent<HTMLTextAreaElement>>;
+  onClose: () => void;
+  theme: EditorTheme;
+  value: string;
+  widgetName: string;
 }
-
-const defaultPosition = {
-  x: Math.max((window.innerWidth - 600) / 2, 0),
-  y: Math.max((window.innerHeight - 400) / 2, 0),
-  width: 600,
-  height: 400,
-};
 
 export function PopoutEditor(props: PopoutEditorProps) {
   const {
@@ -53,19 +68,57 @@ export function PopoutEditor(props: PopoutEditorProps) {
     widgetName,
     ...editorProps
   } = props;
+
   const [isOpen, setIsOpen] = useState(true);
+
+  const defaultPosition = useMemo(() => {
+    const { defaultHeight, defaultWith } = RND_CONFIG;
+
+    return {
+      x: Math.max((window.innerWidth - defaultWith) / 2, 0),
+      y: Math.max((window.innerHeight - defaultHeight) / 2, 0),
+      width: defaultWith,
+      height: defaultHeight,
+    };
+  }, []);
+
+  const input = useMemo(
+    () => ({
+      onChange: onChange,
+      value: value,
+    }),
+    [onChange, value],
+  );
+
+  const editorContainerRef = useRef<HTMLDivElement>(null);
+  const [editorContainerHeight, setEditorContainerHeight] =
+    useDebounceValue<number>(RND_CONFIG.defaultHeight, RESIZE_DEBOUNCE_TIMEOUT);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
     onClose();
   }, [onClose]);
 
-  const input = useMemo(() => {
-    return {
-      value: value,
-      onChange: onChange,
-    };
-  }, [value, onChange]);
+  useLayoutEffect(
+    function measureEditorContainerEffect() {
+      const container = editorContainerRef.current;
+
+      if (container) {
+        const resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            setEditorContainerHeight(entry.contentRect.height);
+          }
+        });
+
+        resizeObserver.observe(container);
+
+        return () => {
+          resizeObserver.disconnect();
+        };
+      }
+    },
+    [setEditorContainerHeight],
+  );
 
   if (!isOpen) {
     return null;
@@ -75,13 +128,15 @@ export function PopoutEditor(props: PopoutEditorProps) {
     <Styled.Backdrop>
       <Rnd
         bounds="window"
+        className="pointer-events-auto"
         default={defaultPosition}
-        dragHandleClassName="popout-header"
-        minHeight={300}
-        minWidth={400}
+        dragHandleClassName={DRAG_HANDLE_CLASS_NAME}
+        minHeight={RND_CONFIG.minHeight}
+        minWidth={RND_CONFIG.minWidth}
+        resizeHandleStyles={RESIZE_HANDLE_STYLES}
       >
         <Styled.PopoutContainer>
-          <Styled.Header className="popout-header">
+          <Styled.Header className={DRAG_HANDLE_CLASS_NAME}>
             <Flex alignItems="center" flexDirection="row">
               <Icon
                 color="var(--ads-v2-color-fg-subtle)"
@@ -101,12 +156,16 @@ export function PopoutEditor(props: PopoutEditorProps) {
               startIcon="close-x"
             />
           </Styled.Header>
-          <Styled.EditorContainer className="resize-handle">
+          <Styled.EditorContainer
+            className={RESIZE_HANDLE_CLASS_NAME}
+            ref={editorContainerRef}
+          >
             <LazyCodeEditor
               additionalDynamicData={additionalAutocomplete}
               borderLess
               dataTreePath={dataTreePath}
               expected={expected}
+              height={editorContainerHeight}
               hideEvaluatedValue={hideEvaluatedValue}
               input={input}
               mode={EditorModes.TEXT_WITH_BINDING}
@@ -114,7 +173,6 @@ export function PopoutEditor(props: PopoutEditorProps) {
               tabBehaviour={TabBehaviour.INDENT}
               theme={theme}
               {...editorProps}
-              height={325}
             />
           </Styled.EditorContainer>
         </Styled.PopoutContainer>
