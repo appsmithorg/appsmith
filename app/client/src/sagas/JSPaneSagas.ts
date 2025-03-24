@@ -333,7 +333,7 @@ function* updateJSCollection(data: {
   }
 
   try {
-    const { deletedActions, jsCollection, newActions } = data;
+    const { deletedActions, jsCollection, newActions, updatedActions } = data;
 
     if (jsCollection) {
       yield put(jsSaveActionStart({ id: jsCollection.id }));
@@ -345,6 +345,16 @@ function* updateJSCollection(data: {
 
       if (isValidResponse) {
         if (newActions && newActions.length) {
+          if (jsCollection.pageId) {
+            const newActionsResponse: ApiResponse<JSAction[]> = yield call(
+              JSActionAPI.createJSCollectionAction,
+              jsCollection.id,
+              newActions,
+            );
+
+            yield validateResponse(newActionsResponse);
+          }
+
           pushLogsForObjectUpdate(
             newActions,
             jsCollection,
@@ -352,7 +362,34 @@ function* updateJSCollection(data: {
           );
         }
 
+        if (updatedActions && updatedActions.length) {
+          if (jsCollection.pageId) {
+            for (const updatedAction of updatedActions) {
+              const updatedActionResponse: ApiResponse<JSAction> = yield call(
+                JSActionAPI.updateJSCollectionAction,
+                jsCollection.id,
+                updatedAction.id,
+                updatedAction,
+              );
+
+              yield validateResponse(updatedActionResponse);
+            }
+          }
+        }
+
         if (deletedActions && deletedActions.length) {
+          if (jsCollection.pageId) {
+            for (const deletedAction of deletedActions) {
+              const deletedActionResponse: ApiResponse<JSAction> = yield call(
+                JSActionAPI.deleteJSCollectionAction,
+                jsCollection.id,
+                deletedAction.id,
+              );
+
+              yield validateResponse(deletedActionResponse);
+            }
+          }
+
           pushLogsForObjectUpdate(
             deletedActions,
             jsCollection,
